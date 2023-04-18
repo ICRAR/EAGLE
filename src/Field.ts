@@ -429,10 +429,6 @@ export class Field {
             
         if (typeof data.name !== 'undefined')
             name = data.name;
-        // NOTE: if a 'text' attribute exists, it is probably an old graph and stored the 'displayText' in the 'text' attribute
-        if (typeof data.text !== 'undefined')
-            name = data.text;
-
         if (typeof data.description !== 'undefined')
             description = data.description;
         if (typeof data.readonly !== 'undefined')
@@ -503,10 +499,6 @@ export class Field {
 
         if (typeof data.name !== 'undefined')
             name = data.name;
-        // NOTE: if a 'text' attribute exists, it is probably an old graph and stored the 'displayText' in the 'text' attribute
-        if (typeof data.text !== 'undefined')
-            name = data.text;
-
         if (typeof data.event !== 'undefined')
             event = data.event;
         if (typeof data.type !== 'undefined')
