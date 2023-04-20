@@ -7,7 +7,7 @@ import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
 import { TutorialSystem } from './Tutorial';
-
+import { UiModeSystem } from './UiModes';
 export class Modals {
 
     static init(eagle : Eagle) : void {
@@ -221,6 +221,7 @@ export class Modals {
         });
 
         $("#settingsModalAffirmativeButton").on('click', function(){
+            UiModeSystem.saveToLocalStorage()
             $('#settingsModal').data('completed', true);
         })
 

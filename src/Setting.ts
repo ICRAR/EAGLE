@@ -60,6 +60,7 @@ export class Setting {
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
     static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters";
     static readonly AUTO_SUGGEST_DESTINATION_NODES : string = "AutoSuggestDestinationNodes";
+    static readonly MINIMAL_UI_MODE : string = "MinimalUiMode";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
     static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
@@ -81,7 +82,6 @@ export class Setting {
     static readonly HIDE_READONLY_PARAMETERS: string = "HideReadonlyParamters";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
-    static readonly USER_INTERFACE_MODE: string = "UserInterfaceMode";
     static readonly USER_TRANSLATOR_MODE: string = "UserTranslatorMode";
 
     static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
@@ -108,7 +108,6 @@ export class Setting {
 
         const that = this;
         this.value.subscribe(function(){
-            // that.save();
             UiModeSystem.setActiveSetting(this.getKey(), this.value())
         },this);
     }
@@ -157,18 +156,18 @@ export class Setting {
         return this.display;
     }
 
-    save = () : void => {
-        localStorage.setItem(this.key, this.valueToString(this.value()));
-    }
+    // save = () : void => {
+    //     localStorage.setItem(this.key, this.valueToString(this.value()));
+    // }
 
-    load = () : void => {
-        const v = localStorage.getItem(this.key);
+    // load = () : void => {
+    //     const v = localStorage.getItem(this.key);
 
-        if (v === null)
-            this.value(this.graphDefaultValue);
-        else
-            this.value(this.stringToValue(v));
-    }
+    //     if (v === null)
+    //         this.value(this.graphDefaultValue);
+    //     else
+    //         this.value(this.stringToValue(v));
+    // }
 
     toggle = () : void => {
         if (this.type !== Setting.Type.Boolean){
@@ -206,25 +205,25 @@ export class Setting {
         this.oldValue = this.value()
     }
 
-    private valueToString = (value : any) : string => {
-        return value.toString();
-    }
+    // private valueToString = (value : any) : string => {
+    //     return value.toString();
+    // }
 
-    private stringToValue = (s : string) : any => {
-        switch (this.type){
-            case Setting.Type.String:
-            case Setting.Type.Password:
-            case Setting.Type.Select:
-                return s;
-            case Setting.Type.Number:
-                return Number(s);
-            case Setting.Type.Boolean:
-                return s.toLowerCase() === "true";
-            default:
-                console.warn("Unknown setting type", this.type);
-                return s;
-        }
-    }
+    // private stringToValue = (s : string) : any => {
+    //     switch (this.type){
+    //         case Setting.Type.String:
+    //         case Setting.Type.Password:
+    //         case Setting.Type.Select:
+    //             return s;
+    //         case Setting.Type.Number:
+    //             return Number(s);
+    //         case Setting.Type.Boolean:
+    //             return s.toLowerCase() === "true";
+    //         default:
+    //             console.warn("Unknown setting type", this.type);
+    //             return s;
+    //     }
+    // }
 
     static find = (key : string) : Setting => {
         // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
@@ -266,23 +265,25 @@ export class Setting {
     }
 
     static resetDefaults = () : void => {
+        //WIP
         // if a reset would turn off the expert mode setting,
         // AND we are currently on the 'advanced editing' or 'developer' tabs of the setting modal,
         // then those tabs will disappear and we'll be left looking at nothing, so switch to the 'User Options' tab
-        const uiModeSetting: Setting = Setting.find(Setting.USER_INTERFACE_MODE);
-        const turningOffExpertMode = uiModeSetting.value() !== Setting.UIMode.Expert && uiModeSetting.getOldValue() === Setting.UIMode.Expert;
-        const currentSettingsTab: string = $('.settingsModalButton.settingCategoryBtnActive').attr('id');
 
-        if (turningOffExpertMode && (currentSettingsTab === "settingCategoryAdvancedEditing" || currentSettingsTab === "settingCategoryDeveloper")){
-            // switch back to "User Options" tab
-            $('#settingCategoryUserOptions').click();
-        }
+        // const uiModeSetting: Setting = Setting.find(Setting.USER_INTERFACE_MODE);
+        // const turningOffExpertMode = uiModeSetting.value() !== Setting.UIMode.Expert && uiModeSetting.getOldValue() === Setting.UIMode.Expert;
+        // const currentSettingsTab: string = $('.settingsModalButton.settingCategoryBtnActive').attr('id');
 
-        for (const group of Eagle.settings){
-            for (const setting of group.getSettings()){
-                setting.resetDefault();
-            }
-        }
+        // if (turningOffExpertMode && (currentSettingsTab === "settingCategoryAdvancedEditing" || currentSettingsTab === "settingCategoryDeveloper")){
+        //     // switch back to "User Options" tab
+        //     $('#settingCategoryUserOptions').click();
+        // }
+
+        // for (const group of Eagle.settings){
+        //     for (const setting of group.getSettings()){
+        //         setting.resetDefault();
+        //     }
+        // }
     }
 
     static getSettings = () : SettingsGroup[] => {
@@ -343,7 +344,7 @@ const settings : SettingsGroup[] = [
     ),
     new SettingsGroup(
         "UI Options",
-        () => {return !Eagle.isInUIMode(Setting.UIMode.Minimal);},
+        () => {return true;},
         [
             new Setting("Show non key parameters", "Show additional parameters that are not marked as key parameters for the current graph", Setting.Type.Boolean, Setting.SHOW_NON_KEY_PARAMETERS, true,true,true,true,false),
             new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Setting.DISPLAY_NODE_KEYS,  true,false,false,true,false),
@@ -354,11 +355,12 @@ const settings : SettingsGroup[] = [
             new Setting("Snap To Grid", "Align positions of nodes in graph to a grid", Setting.Type.Boolean, Setting.SNAP_TO_GRID, false, false, false, false, false),
             new Setting("Snap To Grid Size", "Size of grid used when aligning positions of nodes in graph (pixels)", Setting.Type.Number, Setting.SNAP_TO_GRID_SIZE, true, 50, 50, 50,false),
             new Setting("Show edge/node errors/warnings in inspector", "Show the errors/warnings found for the selected node/edge in the inspector", Setting.Type.Select, Setting.SHOW_INSPECTOR_WARNINGS, true, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,false, Object.values(Setting.ShowErrorsMode)),
+            new Setting("Minimal Ui mode", "temp setting ", Setting.Type.Select,Setting.MINIMAL_UI_MODE, false,true, false, false,false,),
         ]
     ),
     new SettingsGroup(
         "Advanced Editing",
-        () => {return Eagle.isInUIMode(Setting.UIMode.Expert);},
+        () => {return true;},
         [
             new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Setting.ALLOW_INVALID_EDGES, true,false, true, true,false),
             new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Setting.ALLOW_COMPONENT_EDITING, true,false, true, true,false),
@@ -381,7 +383,7 @@ const settings : SettingsGroup[] = [
     ),
     new SettingsGroup(
         "Developer",
-        () => {return Eagle.isInUIMode(Setting.UIMode.Expert);},
+        () => {return true;},
         [
             new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Setting.ENABLE_PERFORMANCE_DISPLAY, true, false, false, false, false),
             new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Setting.TRANSLATE_WITH_NEW_CATEGORIES, true, false, false, false, false),

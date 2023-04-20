@@ -151,6 +151,7 @@ export class Eagle {
         this.tutorial = ko.observable(Eagle.tutorials[0]);
 
         Eagle.settings = Setting.getSettings();
+        UiModeSystem.initialise()
         Eagle.shortcuts = KeyboardShortcut.getShortcuts();
         
         this.globalOffsetX = 0;
@@ -223,51 +224,51 @@ export class Eagle {
     }
 
     static allowInvalidEdges = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_INVALID_EDGES);
+        return Setting.findValue(Setting.ALLOW_INVALID_EDGES);
     }
 
     static allowPaletteEditing = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_PALETTE_EDITING);
+        return Setting.findValue(Setting.ALLOW_PALETTE_EDITING);
     }
 
     static hidePaletteTab = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.HIDE_PALETTE_TAB);
+        return  Setting.findValue(Setting.HIDE_PALETTE_TAB);
     }
 
     static hideReadonlyParamters = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.HIDE_READONLY_PARAMETERS);
+        return Setting.findValue(Setting.HIDE_READONLY_PARAMETERS);
     }
 
     static allowReadonlyPaletteEditing = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_READONLY_PALETTE_EDITING);
+        return Setting.findValue(Setting.ALLOW_READONLY_PALETTE_EDITING);
     }
 
     static allowComponentEditing = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
+        return Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
     }
 
     static allowEdgeEditing = (): boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_EDGE_EDITING);
+        return Setting.findValue(Setting.ALLOW_EDGE_EDITING);
     }
 
     static showNonKeyParameters = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || Eagle.isInUIMode(Setting.UIMode.Expert);
+        return Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS);
     }
 
     static allowSetKeyParameter = () : boolean => {
-        if(Eagle.isInUIMode(Setting.UIMode.Minimal)){
-            return false
-        }else{
-            return Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER) || Eagle.isInUIMode(Setting.UIMode.Expert);
-        }
+        return Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER);
     }
 
     static translatorUiMode = (mode : Setting.TranslatorMode) : boolean => {
         return Setting.findValue(Setting.USER_TRANSLATOR_MODE) === mode;
     }
 
-    static isInUIMode = (mode : Setting.UIMode) : boolean => {
-        return Setting.findValue(Setting.USER_INTERFACE_MODE) === mode;
+    // static isInUIMode = (mode : Setting.UIMode) : boolean => {
+    //     return Setting.findValue(Setting.USER_INTERFACE_MODE) === mode;
+    // }
+
+    static isMinimalUiMode = () : boolean => {
+        return Setting.findValue(Setting.MINIMAL_UI_MODE);
     }
 
     static showInspectorWarnings = () : boolean => {

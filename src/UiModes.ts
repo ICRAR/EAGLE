@@ -34,6 +34,7 @@ export class UiModeSystem {
 
     static setActiveUiMode = (newActiveUiMode:UiMode) : void => {
         this.activeUiMode = newActiveUiMode;
+        this.updateSettingsArray()
     }
 
     static setActiveUiModeByName = (newUiModeName:string) : void => {
@@ -66,7 +67,7 @@ export class UiModeSystem {
         }else{
             UiModeSystem.setActiveUiModeByName(uiModeName)
         }
-
+        this.updateSettingsArray()
     }
 
     static saveToLocalStorage = () : void => {

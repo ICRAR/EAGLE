@@ -57,7 +57,6 @@ import * as graphBuilding from './tutorials/graphBuilding'
 console.assert(quickStart != null) //this is needed to run the tutorial file
 console.assert(graphBuilding != null) //this is needed to run the tutorial file
 
-UiModeSystem.initialise()
 let eagle : Eagle;
 
 $(function(){
@@ -79,7 +78,7 @@ $(function(){
     (<any>window).SideWindow = SideWindow;
     (<any>window).TutorialSystem = TutorialSystem;
     (<any>window).UiModeSystem = UiModeSystem;
-    
+
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
@@ -100,7 +99,7 @@ $(function(){
     if (typeof user_interface_mode !== 'undefined' && user_interface_mode !== ""){
         // make sure that the specified user interface mode is a known mode
         if (Object.values(Setting.UIMode).includes(user_interface_mode)){
-            Setting.find(Setting.USER_INTERFACE_MODE).setValue(user_interface_mode);
+            UiModeSystem.setActiveUiModeByName('Minimal')
         } else {
             console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", Object.values(Setting.UIMode).join(','));
         }
@@ -110,7 +109,7 @@ $(function(){
     }
 
     // Get the list of git repos
-    if (Eagle.isInUIMode(Setting.UIMode.Minimal)){
+    if (UiModeSystem.getActiveUiMode().getName()==='Minimal'){
         GitHub.loadStudentRepoList();
     } else {
         GitHub.loadRepoList();
