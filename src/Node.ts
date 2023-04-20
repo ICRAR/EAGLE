@@ -2247,6 +2247,14 @@ export class Node {
             errorsWarnings.errors.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output."));
         }
 
+        // check the embedded applications
+        if (node.hasInputApplication()){
+            Node.isValid(eagle, node.getInputApplication(), selectedLocation, showNotification, showConsole, errorsWarnings);
+        }
+        if (node.hasOutputApplication()){
+            Node.isValid(eagle, node.getOutputApplication(), selectedLocation, showNotification, showConsole, errorsWarnings);
+        }
+
         return Utils.worstEdgeError(errorsWarnings);
     }
 }
