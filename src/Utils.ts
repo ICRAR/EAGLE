@@ -2176,6 +2176,8 @@ export class Utils {
                     "key":node.getKey(),
                     "id":node.getId(),
                     "embedKey":node.getEmbedKey(),
+                    "hasInputApplication":node.hasInputApplication(),
+                    "hasOutputApplication":node.hasOutputApplication(),
                     "category":node.getCategory(),
                     "categoryType":node.getCategoryType(),
                     "numFields":node.getNumFields(),

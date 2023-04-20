@@ -32,6 +32,7 @@ import {RepositoryFile} from './RepositoryFile';
 import {Errors} from './Errors';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
+import {GraphUpdater} from "./GraphUpdater";
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
@@ -79,6 +80,39 @@ export class Palette {
                 errorsWarnings.warnings.push(Errors.Message(error));
 
                 newNode.setPosition(0, 0);
+            }
+
+            if (newNode === null){
+                continue;
+            }
+
+            // if this node is embedded within another node, we don't add it to the main nodes array, instead it is placed within the node that embeds it (handled later)
+            if (newNode.getEmbedKey() !== null){
+                continue;
+            }
+
+            if (nodeData.inputApplicationKey !== null){
+                const inputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.inputApplicationKey);
+
+                if (inputApplicationIndex !== -1){
+                    const inputApplicationNode = Node.fromOJSJson(dataObject.nodeDataArray[inputApplicationIndex], errorsWarnings, false, (): number => {
+                        return Utils.newKey(result.nodes());
+                    });
+
+                    newNode.setInputApplication(inputApplicationNode);
+                }
+            }
+
+            if (nodeData.outputApplicationKey !== null){
+                const outputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.outputApplicationKey);
+
+                if (outputApplicationIndex !== -1){
+                    const outputApplicationNode = Node.fromOJSJson(dataObject.nodeDataArray[outputApplicationIndex], errorsWarnings, false, (): number => {
+                        return Utils.newKey(result.nodes());
+                    });
+
+                    newNode.setOutputApplication(outputApplicationNode);
+                }
             }
 
             // add node to palette

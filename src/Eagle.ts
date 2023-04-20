@@ -3048,6 +3048,8 @@ export class Eagle {
         let pos : {x:number, y:number};
         pos = {x:0,y:0}
         
+        console.log("addNodeToLogicalGraph", node.getName(), node.hasInputApplication(), node.hasOutputApplication());
+
         if(mode === 'contextMenu'){
             pos = Eagle.selectedRightClickPosition;
             this.palettes().forEach(function(palette){
