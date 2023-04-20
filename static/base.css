@@ -702,6 +702,20 @@ td:first-child input {
     background-color:#002349;
 }
 
+#settingsModal #uiModeDiv {
+    display: flex;
+}
+
+#settingsModal #uiModeDiv span,#settingsModal #uiModeDiv select{
+    display: inline-block;
+}
+
+#settingsModal #uiModeDiv select{
+    padding: 0px;
+    height: 27px;
+    margin-left: 5px;
+}
+
 .settingsModalCategoryWrapper{
     display: none;
     width: 100%;

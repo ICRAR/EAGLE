@@ -36,6 +36,7 @@ import {Translator} from './Translator';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 
+import {UiMode, UiModeSystem, SettingData} from './UiModes';
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
 import {Node} from './Node';

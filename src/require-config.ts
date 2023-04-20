@@ -37,6 +37,7 @@ require.config({
         "Edge": "./static/built/Edge",
         "FileInfo": "./static/built/FileInfo",
         "Setting": "./static/built/Setting",
+        "UiModes": "./static/built/UiModes",
         "Tutorial": "./static/built/Tutorial",
         "tutorials/quickStart": "./static/built/tutorials/quickStart",
         "tutorials/graphBuilding": "./static/built/tutorials/graphBuilding",

@@ -28,6 +28,7 @@ import "jqueryMigrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
+import {UiMode, UiModeSystem, SettingData} from './UiModes';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Config} from './Config';
@@ -56,6 +57,7 @@ import * as graphBuilding from './tutorials/graphBuilding'
 console.assert(quickStart != null) //this is needed to run the tutorial file
 console.assert(graphBuilding != null) //this is needed to run the tutorial file
 
+UiModeSystem.initialise()
 let eagle : Eagle;
 
 $(function(){
@@ -76,7 +78,8 @@ $(function(){
     (<any>window).ParameterTable = ParameterTable;
     (<any>window).SideWindow = SideWindow;
     (<any>window).TutorialSystem = TutorialSystem;
-
+    (<any>window).UiModeSystem = UiModeSystem;
+    
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
