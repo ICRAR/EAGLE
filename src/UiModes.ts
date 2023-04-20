@@ -43,7 +43,6 @@ export class UiModeSystem {
             if(uiModeElem.getName() === newUiModeName){
                 UiModeSystem.setActiveUiMode(uiModeElem)
                 uiModeSet = true
-                console.log(UiModeSystem.getActiveUiMode().getName())
             }
         })
         if(!uiModeSet){
@@ -67,7 +66,6 @@ export class UiModeSystem {
         }else{
             UiModeSystem.setActiveUiModeByName(uiModeName)
         }
-        this.updateSettingsArray()
     }
 
     static saveToLocalStorage = () : void => {

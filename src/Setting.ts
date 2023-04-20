@@ -255,7 +255,6 @@ export class Setting {
 
     static setValue = (key : string, value : any) : void => {
         const setting = Setting.find(key);
-        console.log('settings changed')
         if (setting === null){
             console.warn("No setting", key);
             return;
