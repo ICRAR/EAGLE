@@ -37,8 +37,8 @@ export class Config {
         "n_tries"
     ];
 
-    static readonly defaultRightWindowWidth : number = 400;
-    static readonly defaultLeftWindowWidth : number = 310;
+    // static readonly defaultRightWindowWidth : number = 400;
+    // static readonly defaultLeftWindowWidth : number = 310;
 
     // automatically loaded palettes
     static readonly DEFAULT_PALETTE_REPOSITORY : string = "ICRAR/EAGLE_test_repo";

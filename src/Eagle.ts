@@ -123,10 +123,12 @@ export class Eagle {
 
     constructor(){
         Eagle._instance = this;
+        Eagle.settings = Setting.getSettings();
+        UiModeSystem.initialise()
+        Eagle.shortcuts = KeyboardShortcut.getShortcuts();
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
-
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
 
@@ -150,9 +152,6 @@ export class Eagle {
         Eagle.tutorials = tutorialArray
         this.tutorial = ko.observable(Eagle.tutorials[0]);
 
-        Eagle.settings = Setting.getSettings();
-        UiModeSystem.initialise()
-        Eagle.shortcuts = KeyboardShortcut.getShortcuts();
         
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;

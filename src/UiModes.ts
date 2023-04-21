@@ -5,6 +5,7 @@ import * as ko from "knockout";
 
 export class UiModeSystem {
     static activeUiMode : UiMode;
+    static localStorageUpdateCooldown : boolean = false;
 
     static getUiModes = () :UiMode[] => {
         return UiModes;
@@ -35,6 +36,7 @@ export class UiModeSystem {
     static setActiveUiMode = (newActiveUiMode:UiMode) : void => {
         this.activeUiMode = newActiveUiMode;
         this.updateSettingsArray()
+        localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
     }
 
     static setActiveUiModeByName = (newUiModeName:string) : void => {
@@ -52,6 +54,12 @@ export class UiModeSystem {
     }
 
     static initialise = () : void => {
+        //setting cooldown for the update to local storage funciton to prevent uploads during eagle's initialisation
+        UiModeSystem.localStorageUpdateCooldown = true;
+        setTimeout(function () {
+            UiModeSystem.localStorageUpdateCooldown = false;
+        }, 1000)
+
         Setting.getSettings().forEach(function(settingsGroup){
             settingsGroup.getSettings().forEach(function(setting){
                 UiModes[0].getSettings().push(new SettingData(setting.getKey(),setting.getMinimalDefaultVal(),setting.getPerpetual()))
@@ -69,25 +77,39 @@ export class UiModeSystem {
     }
 
     static saveToLocalStorage = () : void => {
-        const uiModesObj : any[] = []
-        this.getUiModes().forEach(function(uiMode){
-            const uiModeObj = {
-                name : uiMode.getName(),
-                description : uiMode.getDescription(),
-                settingValues : <any[]>[]
-            }
-            uiMode.getSettings().forEach(function(setting){
-                const settingObj = {
-                    key : setting.getKey(),
-                    value : setting.getValue()
-                }
-                uiModeObj.settingValues.push(settingObj)
-            })
-            uiModesObj.push(uiModeObj)
-        })
+        if(this.localStorageUpdateCooldown===false){
+            this.localStorageUpdateCooldown = true;
 
-        localStorage.setItem('UiModes', JSON.stringify(uiModesObj));
-        localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
+            setTimeout(function () {
+                const uiModesObj : any[] = []
+                UiModeSystem.getUiModes().forEach(function(uiMode:UiMode){
+                    const uiModeObj = {
+                        name : uiMode.getName(),
+                        description : uiMode.getDescription(),
+                        settingValues : <any[]>[]
+                    }
+                    uiMode.getSettings().forEach(function(setting:SettingData){
+                        const settingObj = {
+                            key : setting.getKey(),
+                            value : setting.getValue()
+                        }
+                        uiModeObj.settingValues.push(settingObj)
+                    })
+                    uiModesObj.push(uiModeObj)
+                })
+
+                localStorage.setItem('UiModes', JSON.stringify(uiModesObj));
+                localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
+
+                UiModeSystem.localStorageUpdateCooldown = false;
+            }, 1000)
+
+
+        }else{
+            return
+        }
+
+
     }
 
     static loadFromLocalStorage = () : void => {
@@ -167,7 +189,6 @@ export class UiModeSystem {
                 }
             })
         }
-
         if(!found){
             console.warn('Requested setting key to change: "'+ settingName+'" can not be found')
         }

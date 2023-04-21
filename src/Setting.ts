@@ -371,6 +371,8 @@ const settings : SettingsGroup[] = [
             new Setting("Snap To Grid Size", "Size of grid used when aligning positions of nodes in graph (pixels)", Setting.Type.Number, Setting.SNAP_TO_GRID_SIZE, true, 50, 50, 50,false),
             new Setting("Show edge/node errors/warnings in inspector", "Show the errors/warnings found for the selected node/edge in the inspector", Setting.Type.Select, Setting.SHOW_INSPECTOR_WARNINGS, true, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,false, Object.values(Setting.ShowErrorsMode)),
             new Setting("Minimal Ui mode", "temp setting ", Setting.Type.Select,Setting.MINIMAL_UI_MODE, false,true, false, false,false,),
+            new Setting("Right Window Witdth", "saving the width of the right window", Setting.Type.Number, Setting.RIGHT_WINDOW_WIDTH_KEY, false, 400, 400, 400,true),
+            new Setting("Left Window Witdth", "saving the width of the left window", Setting.Type.Number, Setting.LEFT_WINDOW_WIDTH_KEY, false, 310, 310, 310,true),
         ]
     ),
     new SettingsGroup(

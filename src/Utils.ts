@@ -42,6 +42,7 @@ import {Repository} from './Repository';
 import {Setting} from './Setting';
 import {ParameterTable} from './ParameterTable';
 import {FileInfo} from "./FileInfo";
+import { UiModeSystem } from "./UiModes";
 
 export class Utils {
     // Allowed file extenstions.
@@ -1446,35 +1447,21 @@ export class Utils {
     }
 
     static getRightWindowWidth() : number {
-        // try localStorage first
-        const local : string = localStorage.getItem(Setting.RIGHT_WINDOW_WIDTH_KEY);
-
-        // if found, return
-        if (local !== null){
-            return parseInt(local, 10);
-        } else {
-            return Config.defaultRightWindowWidth;
-        }
+        return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH_KEY)
     }
 
     static setRightWindowWidth(width : number) : void {
-        localStorage.setItem(Setting.RIGHT_WINDOW_WIDTH_KEY, width.toString());
+        Setting.find(Setting.RIGHT_WINDOW_WIDTH_KEY).setValue(width)
+        UiModeSystem.saveToLocalStorage()
     }
 
     static getLeftWindowWidth() : number {
-        // try localStorage first
-        const local : string = localStorage.getItem(Setting.LEFT_WINDOW_WIDTH_KEY);
-
-        // if found, return
-        if (local !== null){
-            return parseInt(local, 10);
-        } else {
-            return Config.defaultLeftWindowWidth;
-        }
+        return Setting.findValue(Setting.LEFT_WINDOW_WIDTH_KEY)
     }
 
     static setLeftWindowWidth(width : number) : void {
-        localStorage.setItem(Setting.LEFT_WINDOW_WIDTH_KEY, width.toString());
+        Setting.find(Setting.LEFT_WINDOW_WIDTH_KEY).setValue(width)
+        UiModeSystem.saveToLocalStorage()
     }
 
     static getLocalStorageKey(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
