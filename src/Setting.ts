@@ -42,54 +42,6 @@ export class Setting {
     private display : boolean; // if true, display setting in settings modal, otherwise do not display
     private perpetual : boolean; // if true, then this setting will stay the same across all ui modes(always storing and using the data from the default ui mode)
 
-    static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
-    static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
-    static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
-    static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
-
-    static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
-    static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
-    static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
-    static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
-
-    static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
-
-    static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
-    static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
-    static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
-    static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
-    static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters";
-    static readonly AUTO_SUGGEST_DESTINATION_NODES : string = "AutoSuggestDestinationNodes";
-    static readonly MINIMAL_UI_MODE : string = "MinimalUiMode";
-
-    static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
-    static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
-    static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
-
-    static readonly TRANSLATOR_URL : string = "TranslatorURL";
-
-    static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
-
-    static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
-    static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
-    static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
-
-    static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
-    static readonly OPEN_TRANSLATOR_IN_CURRENT_TAB: string = "OpenTranslatorInCurrentTab";
-    static readonly OVERWRITE_TRANSLATION_TAB: string = "OverwriteTranslationTab";
-    static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
-    static readonly HIDE_PALETTE_TAB: string = "HidePaletteTab";
-    static readonly HIDE_READONLY_PARAMETERS: string = "HideReadonlyParamters";
-
-    static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
-    static readonly USER_TRANSLATOR_MODE: string = "UserTranslatorMode";
-
-    static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
-    static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";
-    static readonly SNAP_TO_GRID: string = "SnapToGrid";
-    static readonly SNAP_TO_GRID_SIZE: string = "SnapToGridSize";
-    static readonly SHOW_INSPECTOR_WARNINGS: string = "ShowInspectorWarnings";
-
     constructor(name : string, description : string, type : Setting.Type, key:string, display: boolean, minimalDefaultValue : any,graphDefaultValue : any,expertDefaultValue : any,perpetual:boolean, options?: string[]){
         this.name = name;
         this.description = description;
@@ -187,16 +139,6 @@ export class Setting {
         });
     }
 
-    resetDefault = () : void => {
-        let value = this.graphDefaultValue
-        if(UiModeSystem.getActiveUiMode().getName()==='Minimal'){
-            value = this.minimalDefaultValue
-        }else if(UiModeSystem.getActiveUiMode().getName()==='Expert'){
-            value = this.expertDefaultValue
-        }
-        this.value(value);
-    }
-
     cancelChanges = () : void => {
         this.value(this.oldValue)
     }
@@ -263,6 +205,16 @@ export class Setting {
         return setting.value(value);
     }
 
+    resetDefault = () : void => {
+        let value = this.graphDefaultValue
+        if(UiModeSystem.getActiveUiMode().getName()==='Minimal'){
+            value = this.minimalDefaultValue
+        }else if(UiModeSystem.getActiveUiMode().getName()==='Expert'){
+            value = this.expertDefaultValue
+        }
+        this.value(value);
+    }
+
     static resetDefaults = () : void => {
         //WIP
         // if a reset would turn off the expert mode setting,
@@ -278,16 +230,80 @@ export class Setting {
         //     $('#settingCategoryUserOptions').click();
         // }
 
-        // for (const group of Eagle.settings){
-        //     for (const setting of group.getSettings()){
-        //         setting.resetDefault();
-        //     }
-        // }
+        for (const group of Eagle.settings){
+            for (const setting of group.getSettings()){
+                setting.resetDefault();
+            }
+        }
     }
 
     static getSettings = () : SettingsGroup[] => {
         return settings;
     }
+
+    static showInspectorErrorsWarnings = () : boolean => {
+        const eagle = Eagle.getInstance();
+            
+        switch (Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS)){
+            case Setting.ShowErrorsMode.Warnings:
+                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length + eagle.selectedNode().getErrorsWarnings(eagle).warnings.length > 0;
+                break;
+            case Setting.ShowErrorsMode.Errors:
+                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length > 0;
+                break;
+            case Setting.ShowErrorsMode.None:
+            default:
+                return false;
+        }
+    }
+
+    static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
+    static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
+    static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
+    static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
+
+    static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
+    static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
+    static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
+    static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
+
+    static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
+
+    static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
+    static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
+    static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
+    static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
+    static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters";
+    static readonly AUTO_SUGGEST_DESTINATION_NODES : string = "AutoSuggestDestinationNodes";
+    static readonly MINIMAL_UI_MODE : string = "MinimalUiMode";
+
+    static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
+    static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
+    static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
+
+    static readonly TRANSLATOR_URL : string = "TranslatorURL";
+
+    static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
+
+    static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
+    static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
+    static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
+
+    static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
+    static readonly OPEN_TRANSLATOR_IN_CURRENT_TAB: string = "OpenTranslatorInCurrentTab";
+    static readonly OVERWRITE_TRANSLATION_TAB: string = "OverwriteTranslationTab";
+    static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
+    static readonly HIDE_PALETTE_TAB: string = "HidePaletteTab";
+    static readonly HIDE_READONLY_PARAMETERS: string = "HideReadonlyParamters";
+
+    static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
+    static readonly USER_TRANSLATOR_MODE: string = "UserTranslatorMode";
+
+    static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
+    static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";
+    static readonly SNAP_TO_GRID: string = "SnapToGrid";
+    static readonly SNAP_TO_GRID_SIZE: string = "SnapToGridSize";
+    static readonly SHOW_INSPECTOR_WARNINGS: string = "ShowInspectorWarnings";
 }
 
 export namespace Setting {

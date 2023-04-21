@@ -223,22 +223,6 @@ export class Eagle {
         return false;
     }
 
-    static showInspectorErrorsWarnings = () : boolean => {
-        const eagle = Eagle.getInstance();
-            
-        switch (Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS)){
-            case Setting.ShowErrorsMode.Warnings:
-                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length + eagle.selectedNode().getErrorsWarnings(eagle).warnings.length > 0;
-                break;
-            case Setting.ShowErrorsMode.Errors:
-                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length > 0;
-                break;
-            case Setting.ShowErrorsMode.None:
-            default:
-                return false;
-        }
-    }
-
     static selectedNodeGraph = () : LogicalGraph => {
         const eagle: Eagle = Eagle.getInstance();
 
