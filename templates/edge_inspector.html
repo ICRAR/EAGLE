@@ -15,7 +15,7 @@
                 <i class="material-icons">settings</i>
                 <span>Edge Attributes</span>
                 <div id="edgeInspectorIcons">
-                    <!-- ko if: Eagle.allowEdgeEditing() -->
+                    <!-- ko if: Setting.findValue(Setting.ALLOW_EDGE_EDITING) -->
                         <button type="button" id="edgeEditBtn" class="btn" data-bind="click: editSelectedEdge, eagleTooltip: 'Edit Selected Edge ' + Utils.getKeyboardShortcutTextByKey('modify_selected_edge', true)">
                             <i class="material-icons md-24">edit</i>
                         </button>
@@ -86,12 +86,12 @@
             <!-- ko if: selectedEdge() != null -->
                 <div class="card-body">
                     <!-- ko with: selectedEdge().getErrorsWarnings($root) -->
-                        <!-- ko if: Eagle.showInspectorErrors() -->
+                        <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) != Setting.ShowErrorsMode.None -->
                             <!-- ko foreach: errors -->
                                 <fix params="data: $data, isError: true"></fix>
                             <!-- /ko -->
                         <!-- /ko -->
-                        <!-- ko if: Eagle.showInspectorWarnings() -->
+                        <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings -->
                             <!-- ko foreach: warnings -->
                                 <fix params="data: $data, isError: false"></fix>
                             <!-- /ko -->

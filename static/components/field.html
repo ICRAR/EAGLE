@@ -1,4 +1,4 @@
-<!-- ko ifnot: Eagle.hideReadonlyParamters() && $root.getCurrentParamReadonly($data) -->
+<!-- ko ifnot: Setting.findValue(Setting.HIDE_READONLY_PARAMETERS) && $root.getCurrentParamReadonly($data) -->
     <div class="input-group mb-1">
 
         <div class="input-group-prepend">
@@ -39,7 +39,7 @@
 
         <!-- /ko -->
 
-        <!-- ko if: Eagle.allowSetKeyParameter() -->
+        <!-- ko if: Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER) -->
             <div class="input-group-append">
                 <button class="btn btn-secondary btn-sm keyAttributeButton" type="button" data-bind="click: function(){this.toggleKeyAttribute()}, eagleTooltip: 'toggle favourite'" data-bs-placement="left">
                     <!-- ko if: isKeyAttribute() -->

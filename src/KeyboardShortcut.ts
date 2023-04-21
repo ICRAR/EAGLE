@@ -2,6 +2,7 @@ import {Eagle} from './Eagle';
 import {Category} from './Category';
 import {Utils} from './Utils';
 import {Errors} from './Errors';
+import { Setting } from './Setting';
 
 export class KeyboardShortcut {
     key: string;
@@ -134,7 +135,7 @@ export class KeyboardShortcut {
     static getShortcuts = () : KeyboardShortcut[] => {
         return [
             new KeyboardShortcut("new_graph", "New Graph", ["n"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.newLogicalGraph();}),
-            new KeyboardShortcut("new_palette", "New palette", ["n"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, Eagle.allowPaletteEditing, (eagle): void => {eagle.newPalette();}),
+            new KeyboardShortcut("new_palette", "New palette", ["n"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, Setting.findValue(Setting.ALLOW_PALETTE_EDITING), (eagle): void => {eagle.newPalette();}),
             new KeyboardShortcut("open_graph_from_repo", "Open graph from repo", ["g"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().mode(Eagle.RightWindowMode.Repository);eagle.rightWindow().shown(true);}),
             new KeyboardShortcut("open_graph_from_local_disk", "Open graph from local disk", ["g"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}),
             new KeyboardShortcut("open_palette_from_repo", "Open palette from repo", ["p"], "keydown", KeyboardShortcut.Modifier.None,KeyboardShortcut.Display.Enabled, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().mode(Eagle.RightWindowMode.Repository);eagle.rightWindow().shown(true);}),

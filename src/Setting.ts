@@ -321,7 +321,7 @@ export namespace Setting {
 
     export enum TranslatorMode {
         Minimal = "minimal",
-        Default = "default",
+        Normal = "normal",
         Expert = "expert"
     }
 }
@@ -349,7 +349,7 @@ const settings : SettingsGroup[] = [
             new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Setting.DISPLAY_NODE_KEYS,  true,false,false,true,false),
             new Setting("Hide Palette Tab", "Hide the Palette tab", Setting.Type.Boolean, Setting.HIDE_PALETTE_TAB, true,true,false,false,false),
             new Setting("Hide Read Only Parameters", "Hide read only paramters", Setting.Type.Boolean, Setting.HIDE_READONLY_PARAMETERS, true,true,false,false,false),
-            new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Setting.USER_TRANSLATOR_MODE, true,Setting.TranslatorMode.Default,Setting.TranslatorMode.Default,Setting.TranslatorMode.Default,false, Object.values(Setting.TranslatorMode)),
+            new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Setting.USER_TRANSLATOR_MODE, true,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,false, Object.values(Setting.TranslatorMode)),
             new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Setting.GRAPH_ZOOM_DIVISOR, true,1000,1000,1000,false),
             new Setting("Snap To Grid", "Align positions of nodes in graph to a grid", Setting.Type.Boolean, Setting.SNAP_TO_GRID, false, false, false, false, false),
             new Setting("Snap To Grid Size", "Size of grid used when aligning positions of nodes in graph (pixels)", Setting.Type.Number, Setting.SNAP_TO_GRID_SIZE, true, 50, 50, 50,false),

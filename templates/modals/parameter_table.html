@@ -76,10 +76,10 @@
                                     </th>
                                 <!-- /ko -->
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('readOnly') -->
-                                    <!-- ko if: Eagle.allowComponentEditing() -->
+                                    <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
                                         <th id="parameter_table_read_only" data-bind="eagleTooltip:'Tick to disallow value editing'" data-bs-placement="top">Read Only</th>
                                     <!-- /ko -->
-                                    <!-- ko ifnot: Eagle.allowComponentEditing() -->
+                                    <!-- ko ifnot: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
                                         <th id="parameter_table_read_only" data-bind="eagleTooltip:Utils.getReadOnlyText" data-bs-placement="top">Read Only</th>
                                     <!-- /ko -->
                                 <!-- /ko -->
@@ -117,11 +117,11 @@
                         </thead>
                         <tbody data-bind="foreach: $root.parameterTable().getTableFields()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
-                                <!-- ko if: Eagle.showNonKeyParameters() || $data.isKeyAttribute() -->
+                                <!-- ko if: Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || $data.isKeyAttribute() -->
                                     <tr>
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('keyAttribute') -->
                                             <td>
-                                                <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: !Eagle.allowSetKeyParameter(), eagleTooltip:'This Attribute is a Key Graph Attribute', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
+                                                <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'This Attribute is a Key Graph Attribute', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
                                             </td>
                                         <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeName') -->

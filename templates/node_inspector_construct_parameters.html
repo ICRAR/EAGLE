@@ -16,7 +16,7 @@
             </div>
             <!-- ko foreach: selectedNode().getConstructParametersWithNoPorts() -->
                 <!-- ko if: $data.fitsConstructSearchQuery() -->
-                    <!-- ko if: !$data.isDaliugeField() || Eagle.showNonKeyParameters() -->
+                    <!-- ko if: !$data.isDaliugeField() || Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) -->
                         <field params="data: $data, ro: $data.isReadonly()"></field>
                     <!-- /ko -->
                 <!-- /ko -->

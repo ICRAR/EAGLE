@@ -223,62 +223,6 @@ export class Eagle {
         return false;
     }
 
-    static allowInvalidEdges = () : boolean => {
-        return Setting.findValue(Setting.ALLOW_INVALID_EDGES);
-    }
-
-    static allowPaletteEditing = () : boolean => {
-        return Setting.findValue(Setting.ALLOW_PALETTE_EDITING);
-    }
-
-    static hidePaletteTab = () : boolean => {
-        return  Setting.findValue(Setting.HIDE_PALETTE_TAB);
-    }
-
-    static hideReadonlyParamters = () : boolean => {
-        return Setting.findValue(Setting.HIDE_READONLY_PARAMETERS);
-    }
-
-    static allowReadonlyPaletteEditing = () : boolean => {
-        return Setting.findValue(Setting.ALLOW_READONLY_PALETTE_EDITING);
-    }
-
-    static allowComponentEditing = () : boolean => {
-        return Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
-    }
-
-    static allowEdgeEditing = (): boolean => {
-        return Setting.findValue(Setting.ALLOW_EDGE_EDITING);
-    }
-
-    static showNonKeyParameters = () : boolean => {
-        return Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS);
-    }
-
-    static allowSetKeyParameter = () : boolean => {
-        return Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER);
-    }
-
-    static translatorUiMode = (mode : Setting.TranslatorMode) : boolean => {
-        return Setting.findValue(Setting.USER_TRANSLATOR_MODE) === mode;
-    }
-
-    // static isInUIMode = (mode : Setting.UIMode) : boolean => {
-    //     return Setting.findValue(Setting.USER_INTERFACE_MODE) === mode;
-    // }
-
-    static isMinimalUiMode = () : boolean => {
-        return Setting.findValue(Setting.MINIMAL_UI_MODE);
-    }
-
-    static showInspectorWarnings = () : boolean => {
-        return Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings;
-    }
-
-    static showInspectorErrors = () : boolean => {
-        return Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings || Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Errors;
-    }
-
     static showInspectorErrorsWarnings = () : boolean => {
         const eagle = Eagle.getInstance();
             
@@ -2210,7 +2154,7 @@ export class Eagle {
     }
 
     translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        const defaultTranslatorMode :any = Eagle.translatorUiMode(Setting.TranslatorMode.Default)
+        const defaultTranslatorMode :boolean = Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Normal;
         if(!defaultTranslatorMode){
             return true
         }
@@ -2403,13 +2347,13 @@ export class Eagle {
         }
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(Eagle.allowPaletteEditing()){
+            if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                 return false;
             }else{
                 return field.isReadonly();
             }
         }else{
-            if(Eagle.allowComponentEditing()){
+            if(Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
                 return false;
             }else{
                 return field.isReadonly();
@@ -3762,7 +3706,7 @@ export class Eagle {
         const destinationPaletteIndex : number = parseInt($(e.currentTarget)[0].getAttribute('data-palette-index'), 10);
         const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
 
-        const allowReadonlyPaletteEditing = Eagle.allowReadonlyPaletteEditing();
+        const allowReadonlyPaletteEditing = Setting.findValue(Setting.ALLOW_READONLY_PALETTE_EDITING);
 
         // check user can write to destination palette
         if (destinationPalette.fileInfo().readonly && !allowReadonlyPaletteEditing){
