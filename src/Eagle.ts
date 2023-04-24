@@ -3045,10 +3045,7 @@ export class Eagle {
     }
 
     addNodeToLogicalGraph = (node : any, callback: (node: Node) => void, mode:string) : void => {
-        let pos : {x:number, y:number};
-        pos = {x:0,y:0}
-        
-        console.log("addNodeToLogicalGraph", node.getName(), node.hasInputApplication(), node.hasOutputApplication());
+        let pos : {x:number, y:number} = {x:0,y:0};
 
         if(mode === 'contextMenu'){
             pos = Eagle.selectedRightClickPosition;
