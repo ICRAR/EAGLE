@@ -1756,6 +1756,9 @@ export class Eagle {
             case Eagle.RepositoryService.GitLab:
                 openRemoteFileFunc = GitLab.openRemoteFile;
                 break;
+            case Eagle.RepositoryService.Url:
+                openRemoteFileFunc = Utils.openRemoteFileFromUrl;
+                break;
             default:
                 console.warn("Unsure how to fetch file with unknown service ", file.repository.service);
                 break;
