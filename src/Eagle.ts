@@ -391,7 +391,6 @@ export class Eagle {
     }
 
     isTranslationDefault = (algorithmName:string) : Boolean => {
-        console.log(algorithmName,Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT))
         return algorithmName === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)
     }
 
@@ -2134,22 +2133,11 @@ export class Eagle {
         });
     };
 
-    getTranslatorDefault = () : any => {
-        setTimeout(function(){
-            const defaultTranslatorHtml = $(".rightWindowContainer #"+Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)).clone(true)
-            console.log(defaultTranslatorHtml)
-            $('.simplifiedTranslator').append(defaultTranslatorHtml)
-            return defaultTranslatorHtml
-        },10000)
-    }
-
     translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        console.log('check')
         const normalTranslatorMode :boolean = Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Normal;
         if(!normalTranslatorMode){
             return true
         }
-        console.log('bop',currentAlg,Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT))
         if(currentAlg === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)){
             return true
         }
@@ -4525,17 +4513,6 @@ $( document ).ready(function() {
         eagle.showTableModal(false)
     })
 
-    // let defaultTranslatingAlgorithm = Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)
-    // if(!defaultTranslatingAlgorithm){
-    //     localStorage.setItem('translationDefault','agl-1')
-    //     defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
-    // }
-    // console.log(defaultTranslatingAlgorithm)
-    // $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').click()
-    // if(defaultTranslatingAlgorithm !== "agl-0"){
-    //     $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').parent().find('.accordion-button').click()
-    // }
-
     $(".translationDefault").on("click",function(){
 
         const translationMethods = []
@@ -4556,9 +4533,7 @@ $( document ).ready(function() {
         }
 
         const translationId = element.closest('.accordion-item').attr('id')
-        // localStorage.setItem('translationDefault',translationId)
         Setting.find(Setting.TRANSLATOR_ALGORITHM_DEFAULT).setValue(translationId)
-        // Eagle.defaultTranslatorAlgorithm = translationId
         
         $(this).prop('checked',true).change()
     })
