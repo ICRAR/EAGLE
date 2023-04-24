@@ -113,8 +113,7 @@ export class Eagle {
     static dragStartX : number;
     static lastClickTime : number = 0;
 
-    static defaultTranslatorAlgorithm : string;
-    static defaultTranslatorAlgorithmMethod : any;
+    // static defaultTranslatorAlgorithmMethod : any;
 
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
     static nodeDragPaletteIndex : number;
@@ -336,7 +335,9 @@ export class Eagle {
     }
 
     deployDefaultTranslationAlgorithm = () : void => {
-        this.translator().genPGT(Eagle.defaultTranslatorAlgorithmMethod, false, Eagle.DALiuGESchemaVersion.Unknown)
+        const defaultTranslatorAlgorithmMethod : string = $('#'+Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)+ ' .generatePgt').val().toString()
+
+        this.translator().genPGT(defaultTranslatorAlgorithmMethod, false, Eagle.DALiuGESchemaVersion.Unknown)
     }
 
     // TODO: remove?
@@ -387,6 +388,11 @@ export class Eagle {
         }
 
         return list;
+    }
+
+    isTranslationDefault = (algorithmName:string) : Boolean => {
+        console.log(algorithmName,Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT))
+        return algorithmName === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)
     }
 
     getKeyAttributeDisplay = (isKeyAttribute : boolean) : string => {
@@ -2130,19 +2136,21 @@ export class Eagle {
 
     getTranslatorDefault = () : any => {
         setTimeout(function(){
-            const defaultTranslatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
+            const defaultTranslatorHtml = $(".rightWindowContainer #"+Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)).clone(true)
+            console.log(defaultTranslatorHtml)
             $('.simplifiedTranslator').append(defaultTranslatorHtml)
             return defaultTranslatorHtml
         },10000)
     }
 
     translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        const defaultTranslatorMode :boolean = Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Normal;
-        if(!defaultTranslatorMode){
+        console.log('check')
+        const normalTranslatorMode :boolean = Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Normal;
+        if(!normalTranslatorMode){
             return true
         }
-
-        if(currentAlg === Eagle.defaultTranslatorAlgorithm){
+        console.log('bop',currentAlg,Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT))
+        if(currentAlg === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)){
             return true
         }
     
@@ -4517,22 +4525,19 @@ $( document ).ready(function() {
         eagle.showTableModal(false)
     })
 
-
-    let defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
-    if(!defaultTranslatingAlgorithm){
-        localStorage.setItem('translationDefault','agl-1')
-        defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
-    }
-
-    $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').click()
-    Eagle.defaultTranslatorAlgorithm = defaultTranslatingAlgorithm;
-    if(defaultTranslatingAlgorithm !== "agl-0"){
-        $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').parent().find('.accordion-button').click()
-    }
-
-    Eagle.defaultTranslatorAlgorithmMethod = $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').val()
+    // let defaultTranslatingAlgorithm = Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)
+    // if(!defaultTranslatingAlgorithm){
+    //     localStorage.setItem('translationDefault','agl-1')
+    //     defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
+    // }
+    // console.log(defaultTranslatingAlgorithm)
+    // $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').click()
+    // if(defaultTranslatingAlgorithm !== "agl-0"){
+    //     $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').parent().find('.accordion-button').click()
+    // }
 
     $(".translationDefault").on("click",function(){
+
         const translationMethods = []
         translationMethods.push($('.translationDefault'))
         $('.translationDefault').each(function(){
@@ -4551,10 +4556,9 @@ $( document ).ready(function() {
         }
 
         const translationId = element.closest('.accordion-item').attr('id')
-        localStorage.setItem('translationDefault',translationId)
-        Eagle.defaultTranslatorAlgorithm = translationId
-        Eagle.defaultTranslatorAlgorithmMethod = $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').val()
-
+        // localStorage.setItem('translationDefault',translationId)
+        Setting.find(Setting.TRANSLATOR_ALGORITHM_DEFAULT).setValue(translationId)
+        // Eagle.defaultTranslatorAlgorithm = translationId
         
         $(this).prop('checked',true).change()
     })
@@ -4600,7 +4604,6 @@ $( document ).ready(function() {
         }else{
             (<any>window).eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
         }
-
     })
 
     $(".hierarchy").on("click", function(){

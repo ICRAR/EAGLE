@@ -5,7 +5,7 @@
             <div class="accordion-item" id="agl-1" data-bind="visible: translatorAlgorithmVisible('agl-1')">
                 <div class="accordion-header">
                     <h5>
-                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <input class="form-check-input translationDefault" data-bind="value:$root.isTranslationDefault('agl-1'),checked:$root.isTranslationDefault('agl-1')" type="checkbox">
                         <button id="headingTwo" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
                             <span>Algorithm 1 (metis)</span>
                         </button>
