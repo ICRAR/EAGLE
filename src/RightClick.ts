@@ -319,7 +319,7 @@ export class RightClick {
             //if we right clicked an individual object
             //append function options depending on the right click object
             if(targetClass.includes('rightClick_logicalGraph')){
-                if(!Setting.findValue(Setting.HIDE_PALETTE_TAB)){
+                if(!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
                     var searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
                         <i class="material-icons md-18 searchBarIcon">search</i>
                         <a onclick="RightClick.clearSearchField()">

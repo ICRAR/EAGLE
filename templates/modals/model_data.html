@@ -30,10 +30,10 @@
                         <tr id="modelDataDescription">
                             <td data-bind="text: 'Short Descripton', eagleTooltip: 'A one-line description of the purpose of this file'"></td>
                             <!-- ko if: $root.currentFileInfo -->
-                            <!-- ko ifnot: Setting.findValue(Setting.MINIMAL_UI_MODE) -->
+                            <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                                 <td><input type="text" data-bind="value: $root.currentFileInfo()._shortDescription, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
                             <!-- /ko -->
-                            <!-- ko if: Setting.findValue(Setting.MINIMAL_UI_MODE) -->
+                            <!-- ko ifnot: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                                 <td data-bind="text: $root.currentFileInfo()._shortDescription"></td>
                             <!-- /ko -->
                             <!-- /ko -->
@@ -41,10 +41,10 @@
                         <tr>
                             <td data-bind="text: 'Detailed Descripton', eagleTooltip: 'A complete description of the purpose of this file'"></td>
                             <!-- ko if: $root.currentFileInfo -->
-                            <!-- ko ifnot: Setting.findValue(Setting.MINIMAL_UI_MODE) -->
+                            <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                                 <td><textarea data-bind="value: $root.currentFileInfo()._detailedDescription, event: {keyup: function(){$root.flagActiveFileModified();}}"></textarea></td>
                             <!-- /ko -->
-                            <!-- ko if: Setting.findValue(Setting.MINIMAL_UI_MODE) -->
+                            <!-- ko ifnot: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                                 <td data-bind="text: $root.currentFileInfo()._detailedDescription"></td>
                             <!-- /ko -->
                             <!-- /ko -->

@@ -239,7 +239,6 @@ export class Setting {
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
     static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters";
     static readonly AUTO_SUGGEST_DESTINATION_NODES : string = "AutoSuggestDestinationNodes";
-    static readonly MINIMAL_UI_MODE : string = "MinimalUiMode";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
     static readonly ALLOW_GRAPH_EDITING : string = "AllowGraphEditing";
@@ -259,7 +258,6 @@ export class Setting {
     static readonly OPEN_TRANSLATOR_IN_CURRENT_TAB: string = "OpenTranslatorInCurrentTab";
     static readonly OVERWRITE_TRANSLATION_TAB: string = "OverwriteTranslationTab";
     static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
-    static readonly HIDE_PALETTE_TAB: string = "HidePaletteTab";
     static readonly SHOW_DEVELOPER_TAB: string = "ShowDeveloperTab";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
@@ -329,9 +327,7 @@ const settings : SettingsGroup[] = [
         [
             new Setting(true, "Show non key parameters", Setting.SHOW_NON_KEY_PARAMETERS, "Show additional parameters that are not marked as key parameters for the current graph",false, Setting.Type.Boolean, false,true,true,true,true),
             new Setting(true, "Display Node Keys", Setting.DISPLAY_NODE_KEYS, "Display Node Keys", false, Setting.Type.Boolean,false,false,true,true,true),
-            new Setting(true, "Hide Palette Tab", Setting.HIDE_PALETTE_TAB, "Hide the Palette tab", false, Setting.Type.Boolean, true,true,false,false,false),
             new Setting(false, "Show Developer Tab", Setting.SHOW_DEVELOPER_TAB, "Reveals the developer tab in the settings menu", false, Setting.Type.Boolean, false,false,false,false,true),
-            new Setting(true, "Minimal NavBar", Setting.MINIMAL_UI_MODE, "This mode hides a lot of the mode advanced features within the navbar menues.", false, Setting.Type.Boolean, true,true,false,false,false),
             new Setting(true, "Translator Mode", Setting.USER_TRANSLATOR_MODE, "Configue the translator mode", false, Setting.Type.Select, Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Expert, Object.values(Setting.TranslatorMode)),
             new Setting(true, "Graph Zoom Divisor", Setting.GRAPH_ZOOM_DIVISOR, "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", false, Setting.Type.Number,1000,1000,1000,1000,1000),
             new Setting(false, "Snap To Grid", Setting.SNAP_TO_GRID, "Align positions of nodes in graph to a grid", false, Setting.Type.Boolean,false,false,false,false,false),
