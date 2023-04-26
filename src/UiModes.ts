@@ -49,7 +49,7 @@ export class UiModeSystem {
         })
         if(!uiModeSet){
             console.warn('active ui mode: "'+newUiModeName+'" not found, setting ui mode to default.')
-            UiModeSystem.setActiveUiMode(UiModes[1])
+            UiModeSystem.setActiveUiMode(UiModes[2])
         }
     }
 
@@ -63,14 +63,16 @@ export class UiModeSystem {
         Setting.getSettings().forEach(function(settingsGroup){
             settingsGroup.getSettings().forEach(function(setting){
                 UiModes[0].getSettings().push(new SettingData(setting.getKey(),setting.getMinimalDefaultVal(),setting.getPerpetual()))
-                UiModes[1].getSettings().push(new SettingData(setting.getKey(),setting.getGraphDefaultVal(),setting.getPerpetual()))
+                UiModes[0].getSettings().push(new SettingData(setting.getKey(),setting.getMinimalDefaultVal(),setting.getPerpetual()))
                 UiModes[2].getSettings().push(new SettingData(setting.getKey(),setting.getExpertDefaultVal(),setting.getPerpetual()))
+                UiModes[3].getSettings().push(new SettingData(setting.getKey(),setting.getGraphDefaultVal(),setting.getPerpetual()))
+                UiModes[4].getSettings().push(new SettingData(setting.getKey(),setting.getGraphDefaultVal(),setting.getPerpetual()))
             })
         })
         UiModeSystem.loadFromLocalStorage()
         const uiModeName = localStorage.getItem('activeUiMode')
         if(uiModeName === null){
-            UiModeSystem.setActiveUiMode(UiModes[1])
+            UiModeSystem.setActiveUiMode(UiModes[2])
         }else{
             UiModeSystem.setActiveUiModeByName(uiModeName)
         }
@@ -277,6 +279,12 @@ export class SettingData {
 
 const UiModes : UiMode[] = [
     new UiMode(
+        "Student",
+        'Mode Hidden from view enabled for student links',
+        [],
+        true
+    ),
+    new UiMode(
         "Minimal",
         'Simply for loading, changing key attributes and translating graphs',
         [],
@@ -289,9 +297,15 @@ const UiModes : UiMode[] = [
         true
     ),
     new UiMode(
-        "Expert",
-        'Has just about everything enabled',
+        "Component",
+        'Create and edit Components and Palettes.',
         [],
         true
     ),
+    new UiMode(
+        "Expert",
+        'Everything enabled and all safe guards removed.',
+        [],
+        true
+    )
 ];
