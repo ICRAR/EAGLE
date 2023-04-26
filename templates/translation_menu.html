@@ -53,7 +53,7 @@
             <div class="accordion-item" id="agl-2" data-bind="visible: translatorAlgorithmVisible('agl-2')">
                 <div class="accordion-header">
                     <h5>
-                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <input class="form-check-input translationDefault"  data-bind="value:$root.isTranslationDefault('agl-1'),checked:$root.isTranslationDefault('agl-2')" type="checkbox">
                         <button id="headingThree" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
                             <span>Algorithm 2 (mysarkar)</span>
                         </button>
@@ -98,7 +98,7 @@
             <div class="accordion-item" id="agl-3" data-bind="visible: translatorAlgorithmVisible('agl-3')">
                 <div class="accordion-header">
                 <h5>
-                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <input class="form-check-input translationDefault"  data-bind="value:$root.isTranslationDefault('agl-1'),checked:$root.isTranslationDefault('agl-3')" type="checkbox">
                         <button id="headingFour" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
                             <span>Algorithm 3 (min_num_parts)</span>
                         </button>
@@ -161,7 +161,7 @@
             <div class="accordion-item" id="agl-4" data-bind="visible: translatorAlgorithmVisible('agl-4')">
                 <div class="accordion-header">
                     <h5>
-                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <input class="form-check-input translationDefault"  data-bind="value:$root.isTranslationDefault('agl-1'),checked:$root.isTranslationDefault('agl-4')" type="checkbox">
                         <button id="headingFive" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
                             <span>Algorithm 4 (pso)</span>
                         </button>

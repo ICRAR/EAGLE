@@ -100,7 +100,6 @@ export class UiModeSystem {
 
                 localStorage.setItem('UiModes', JSON.stringify(uiModesObj));
                 localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
-
                 UiModeSystem.localStorageUpdateCooldown = false;
             }, 1000)
 
@@ -191,6 +190,8 @@ export class UiModeSystem {
         }
         if(!found){
             console.warn('Requested setting key to change: "'+ settingName+'" can not be found')
+        }else{
+            UiModeSystem.saveToLocalStorage()
         }
     }
 

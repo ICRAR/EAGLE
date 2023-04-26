@@ -4515,6 +4515,7 @@ $( document ).ready(function() {
 
     $(".translationDefault").on("click",function(){
 
+        //sets all other translation methods to false
         const translationMethods = []
         translationMethods.push($('.translationDefault'))
         $('.translationDefault').each(function(){
@@ -4524,14 +4525,15 @@ $( document ).ready(function() {
             }
         })
 
+        //toggle method on
         const element = $(event.target)
-        
         if(element.val() === "true"){
             element.val('false')
         }else{
             element.val('true')
         }
 
+        //saving the new translation default into the settings system
         const translationId = element.closest('.accordion-item').attr('id')
         Setting.find(Setting.TRANSLATOR_ALGORITHM_DEFAULT).setValue(translationId)
         
