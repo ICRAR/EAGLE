@@ -18,7 +18,11 @@ export class UiModeSystem {
     static getUiModeNamesList = () : string[] => {
         let uiModeNamesList : string[]= []
         UiModeSystem.getUiModes().forEach(function(uiMode){
-            uiModeNamesList.push(uiMode.getName())
+            if(uiMode.getName() === 'Student'){
+                return
+            }else{
+                uiModeNamesList.push(uiMode.getName())
+        }
         })
         return uiModeNamesList
     }
