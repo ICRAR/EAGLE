@@ -59,6 +59,7 @@ export class Setting {
     static readonly AUTO_SUGGEST_DESTINATION_NODES : string = "AutoSuggestDestinationNodes";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
+    static readonly ALLOW_GRAPH_EDITING : string = "AllowGraphEditing";
     static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
     static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
 
@@ -336,6 +337,7 @@ const settings : SettingsGroup[] = [
             new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Setting.ALLOW_COMPONENT_EDITING, true, true),
             new Setting("Allow Set Key Parameter", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Setting.ALLOW_SET_KEY_PARAMETER, true, true),
             new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Setting.ALLOW_PALETTE_EDITING, true, true),
+            new Setting("Allow Graph Editing", "Allow the user to edit graphs.", Setting.Type.Boolean, Setting.ALLOW_GRAPH_EDITING, true, true),
             new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Setting.ALLOW_READONLY_PALETTE_EDITING, true, true),
             new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Setting.ALLOW_EDGE_EDITING, true, true),
             new Setting("Auto-suggest destination nodes", "If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.", Setting.Type.Boolean, Setting.AUTO_SUGGEST_DESTINATION_NODES, true, true)
