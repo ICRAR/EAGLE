@@ -274,13 +274,12 @@ function autoLoad(eagle: Eagle) {
     const path       = (<any>window).auto_load_path;
     const filename   = (<any>window).auto_load_filename;
     const url        = (<any>window).auto_load_url;
-    console.log("service", service, "repository", repository, "branch", branch, "path", path, "filename", filename, "url", url);
 
     // cast the service string to an enum
     const realService: Eagle.RepositoryService = Eagle.RepositoryService[service as keyof typeof Eagle.RepositoryService];
 
     // skip unknown services
-    if (realService === Eagle.RepositoryService.Unknown){
+    if (typeof realService === "undefined" || realService === Eagle.RepositoryService.Unknown){
         console.log("No auto load. Service Unknown");
         return;
     }
