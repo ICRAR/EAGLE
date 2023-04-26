@@ -2281,4 +2281,8 @@ export class Utils {
 
         return result;
     }
+
+    static openRemoteFileFromUrl(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
+        Utils.httpGet(fileName, callback);
+    }
 }
