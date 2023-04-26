@@ -221,8 +221,8 @@ export class Modals {
         });
 
         $("#settingsModalAffirmativeButton").on('click', function(){
-            UiModeSystem.saveToLocalStorage()
             $('#settingsModal').data('completed', true);
+            UiModeSystem.saveToLocalStorage()
         })
 
         $('#settingsModal').on('hidden.bs.modal', function () {
