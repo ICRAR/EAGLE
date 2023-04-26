@@ -366,7 +366,7 @@ const settings : SettingsGroup[] = [
             new Setting("Hide Palette Tab", "Hide the Palette tab", Setting.Type.Boolean, Setting.HIDE_PALETTE_TAB, true,true,false,false,false),
             new Setting("Hide Developer Tab", "Hides the developer tab in the settings menu", Setting.Type.Boolean, Setting.SHOW_DEVELOPER_TAB, false,false,false,true,false),
             new Setting("Minimal Ui mode", "temp setting ", Setting.Type.Boolean,Setting.MINIMAL_UI_MODE, true,true, false, false,false),
-            new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Setting.USER_TRANSLATOR_MODE, true,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,false, Object.values(Setting.TranslatorMode)),
+            new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Setting.USER_TRANSLATOR_MODE, true,Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Expert,false, Object.values(Setting.TranslatorMode)),
             new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Setting.GRAPH_ZOOM_DIVISOR, true,1000,1000,1000,false),
             new Setting("Snap To Grid", "Align positions of nodes in graph to a grid", Setting.Type.Boolean, Setting.SNAP_TO_GRID, false, false, false, false, false),
             new Setting("Snap To Grid Size", "Size of grid used when aligning positions of nodes in graph (pixels)", Setting.Type.Number, Setting.SNAP_TO_GRID_SIZE, true, 50, 50, 50,false),
