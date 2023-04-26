@@ -336,7 +336,6 @@ export class Eagle {
 
     deployDefaultTranslationAlgorithm = () : void => {
         const defaultTranslatorAlgorithmMethod : string = $('#'+Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)+ ' .generatePgt').val().toString()
-
         this.translator().genPGT(defaultTranslatorAlgorithmMethod, false, Eagle.DALiuGESchemaVersion.Unknown)
     }
 
