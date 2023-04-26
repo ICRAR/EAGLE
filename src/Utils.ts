@@ -1548,6 +1548,12 @@ export class Utils {
     }
 
     static typesMatch(type0: string, type1: string){
+        // check for undefined
+        if (typeof type0 === "undefined" || typeof type1 === "undefined"){
+            console.warn("typesMatch(): matching value undefined (type0:", type0, "type1:", type1, ")");
+            return false;
+        }
+
         // match if either type is "Object"
         if (type0 === "Object" || type1 === "Object"){
             return true;
