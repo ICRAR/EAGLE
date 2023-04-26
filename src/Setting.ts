@@ -352,11 +352,10 @@ const settings : SettingsGroup[] = [
             new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Setting.CONFIRM_DISCARD_CHANGES, true, true,true,true,false),
             new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Setting.CONFIRM_REMOVE_REPOSITORES, true,true,true,true,false),
             new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Setting.CONFIRM_RELOAD_PALETTES, true,true,true,true,false),
-            new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Setting.OPEN_DEFAULT_PALETTE, true,true,true,true,false),
             new Setting("Confirm Delete", "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", Setting.Type.Boolean, Setting.CONFIRM_DELETE_OBJECTS, true,true,true,true,false),
+            new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Setting.OPEN_DEFAULT_PALETTE, true,true,true,true,false),
             new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Setting.DISABLE_JSON_VALIDATION, true,false,false,false,false),
             new Setting("Overwrite Existing Translator Tab", "When translating a graph, overwrite an existing translator tab", Setting.Type.Boolean, Setting.OVERWRITE_TRANSLATION_TAB, true,true,true,true,false),
-            new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Setting.SHOW_FILE_LOADING_ERRORS, true,false, false, false, false)
         ]
     ),
     new SettingsGroup(
@@ -368,12 +367,12 @@ const settings : SettingsGroup[] = [
             new Setting("Hide Palette Tab", "Hide the Palette tab", Setting.Type.Boolean, Setting.HIDE_PALETTE_TAB, true,true,false,false,false),
             new Setting("Hide Read Only Parameters", "Hide read only paramters", Setting.Type.Boolean, Setting.HIDE_READONLY_PARAMETERS, true,true,false,false,false),
             new Setting("Hide Developer Tab", "Hides the developer tab in the settings menu", Setting.Type.Boolean, Setting.SHOW_DEVELOPER_TAB, false,false,false,true,false),
+            new Setting("Minimal Ui mode", "temp setting ", Setting.Type.Boolean,Setting.MINIMAL_UI_MODE, true,true, false, false,false),
             new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Setting.USER_TRANSLATOR_MODE, true,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,false, Object.values(Setting.TranslatorMode)),
             new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Setting.GRAPH_ZOOM_DIVISOR, true,1000,1000,1000,false),
             new Setting("Snap To Grid", "Align positions of nodes in graph to a grid", Setting.Type.Boolean, Setting.SNAP_TO_GRID, false, false, false, false, false),
             new Setting("Snap To Grid Size", "Size of grid used when aligning positions of nodes in graph (pixels)", Setting.Type.Number, Setting.SNAP_TO_GRID_SIZE, true, 50, 50, 50,false),
             new Setting("Show edge/node errors/warnings in inspector", "Show the errors/warnings found for the selected node/edge in the inspector", Setting.Type.Select, Setting.SHOW_INSPECTOR_WARNINGS, true, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,false, Object.values(Setting.ShowErrorsMode)),
-            new Setting("Minimal Ui mode", "temp setting ", Setting.Type.Select,Setting.MINIMAL_UI_MODE, false,true, false, false,false,),
             new Setting("Right Window Witdth", "saving the width of the right window", Setting.Type.Number, Setting.RIGHT_WINDOW_WIDTH_KEY, false, 400, 400, 400,true),
             new Setting("Left Window Witdth", "saving the width of the left window", Setting.Type.Number, Setting.LEFT_WINDOW_WIDTH_KEY, false, 310, 310, 310,true),
         ]
@@ -384,7 +383,7 @@ const settings : SettingsGroup[] = [
         [
             new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Setting.ALLOW_INVALID_EDGES, true,false, true, true,false),
             new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Setting.ALLOW_COMPONENT_EDITING, true,false, true, true,false),
-            new Setting("Allow Set Key Parameter", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Setting.ALLOW_SET_KEY_PARAMETER, true,false, true, true,false),
+            new Setting("Allow Set Key Parameter", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Setting.ALLOW_SET_KEY_PARAMETER, true,true, true, true,false),
             new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Setting.ALLOW_PALETTE_EDITING, true,false, true, true,false),
             new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Setting.ALLOW_READONLY_PALETTE_EDITING, true,false,false, true,false),
             new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Setting.ALLOW_EDGE_EDITING, true,false, true, true,false),
@@ -407,6 +406,7 @@ const settings : SettingsGroup[] = [
         () => {return false;},
         [
             new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Setting.ENABLE_PERFORMANCE_DISPLAY, true, false, false, false, false),
+            new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Setting.SHOW_FILE_LOADING_ERRORS, true,false, false, false, false),
             new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Setting.TRANSLATE_WITH_NEW_CATEGORIES, true, false, false, false, false),
             new Setting("Open Translator In Current Tab", "When translating a graph, display the output of the translator in the current tab", Setting.Type.Boolean, Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, true, false, false, false, false),
             new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true, true, true, true,false),
