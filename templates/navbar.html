@@ -17,17 +17,6 @@
 
         <ul class="nav navbar-nav navbar-center">
             <div class="btn-group" role="group" aria-label="Basic example">
-                <!--
-                <button class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomToFit, eagleTooltip: 'Zoom To Fit'">
-                    <i class="material-icons md-18">zoom_out_map</i>
-                </button>
-                <button class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleGrid, eagleTooltip: 'Toggle Grid'">
-                    <i class="material-icons md-18">grid_on</i>
-                </button>
-                -->
-                <!-- <button id="saveAsPNG" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: saveAsPNG, eagleTooltip: 'Save as PNG'" >
-                    <i class="material-icons md-18">image</i>
-                </button> -->
                 <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Open Graph ModelData'">
                     <i class="material-icons md-18">info</i>
                 </button>
@@ -67,15 +56,17 @@
             <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal', 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)">
                 <i class="material-icons md-18">table_chart</i>
             </button>
-            <ul class="nav navbar-nav ms-4">
-                <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'">
-                    <i class="material-icons md-18">done_all</i>
-                </button>
-                <button id="checkGraphWarnings" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: showGraphErrors, visible: graphWarnings().length > 0 || graphErrors().length > 0, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)">
-                    <span class="badge bg-warning" data-bind="text: graphWarnings().length, visible: graphWarnings().length > 0"></span>
-                    <span class="badge bg-danger" data-bind="text: graphErrors().length, visible: graphErrors().length > 0"></span>
-                </button>
-            </ul>
+            <!-- ko ifnot: Setting.findValue(Setting.MINIMAL_UI_MODE) -->
+                <ul class="nav navbar-nav ms-4">
+                    <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'">
+                        <i class="material-icons md-18">done_all</i>
+                    </button>
+                    <button id="checkGraphWarnings" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: showGraphErrors, visible: graphWarnings().length > 0 || graphErrors().length > 0, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)">
+                        <span class="badge bg-warning" data-bind="text: graphWarnings().length, visible: graphWarnings().length > 0"></span>
+                        <span class="badge bg-danger" data-bind="text: graphErrors().length, visible: graphErrors().length > 0"></span>
+                    </button>
+                </ul>
+            <!-- /ko -->
         </ul>
 
         <ul class="nav navbar-nav ms-auto">
