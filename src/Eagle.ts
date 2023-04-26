@@ -2467,9 +2467,15 @@ export class Eagle {
     }
 
     addEdgeToLogicalGraph = () : void => {
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
+            return;
+        }
+
         // check that there is at least one node in the graph, otherwise it is difficult to create an edge
         if (this.logicalGraph().getNumNodes() === 0){
-            Utils.showUserMessage("Error", "Can't add an edge to a graph with zero nodes.");
+            Utils.showNotification("Unable to Add Edge", "Can't add an edge to a graph with zero nodes.", "danger");
             return;
         }
 
@@ -3054,6 +3060,13 @@ export class Eagle {
         let pos : {x:number, y:number};
         pos = {x:0,y:0}
         
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Add Component", "Graph Editing is disabled", "danger");
+            if (callback !== null) callback(null);
+            return;
+        }
+
         if(mode === 'contextMenu'){
             pos = Eagle.selectedRightClickPosition;
             this.palettes().forEach(function(palette){
@@ -4190,6 +4203,13 @@ export class Eagle {
     }
 
     addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
+            if (callback !== null) callback(null);
+            return;
+        }
+
         const edgeConnectsTwoApplications : boolean =
             (srcNode.isApplication() || srcNode.isGroup()) &&
             (destNode.isApplication() || destNode.isGroup());
