@@ -3698,9 +3698,27 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 continue;
             }
 
-            // skip nodes that can't have inputs or outputs
+            // fetch categoryData for the node
             const categoryData = CategoryData.getCategoryData(nodeData[i].getCategory());
-            if (categoryData.maxInputs === 0 && categoryData.maxOutputs === 0){
+            let possibleInputs = categoryData.maxInputs;
+            let possibleOutputs = categoryData.maxOutputs;
+
+            // add categoryData for embedded apps (if they exist)
+            if (nodeData[i].hasInputApplication()){
+                const inputApp = nodeData[i].getInputApplication();
+                const inputAppCategoryData = CategoryData.getCategoryData(inputApp.getCategory());
+                possibleInputs += inputAppCategoryData.maxInputs;
+                possibleOutputs += inputAppCategoryData.maxOutputs;
+            }
+            if (nodeData[i].hasOutputApplication()){
+                const outputApp = nodeData[i].getOutputApplication();
+                const outputAppCategoryData = CategoryData.getCategoryData(outputApp.getCategory());
+                possibleInputs += outputAppCategoryData.maxInputs;
+                possibleOutputs += outputAppCategoryData.maxOutputs;
+            }
+
+            // skip nodes that can't have inputs or outputs
+            if (possibleInputs === 0 && possibleOutputs === 0){
                 continue;
             }
 
