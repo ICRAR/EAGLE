@@ -296,7 +296,6 @@ export class Setting {
     static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
     static readonly HIDE_PALETTE_TAB: string = "HidePaletteTab";
     static readonly SHOW_DEVELOPER_TAB: string = "ShowDeveloperTab";
-    static readonly HIDE_READONLY_PARAMETERS: string = "HideReadonlyParamters";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
     static readonly USER_TRANSLATOR_MODE: string = "UserTranslatorMode";
@@ -365,7 +364,6 @@ const settings : SettingsGroup[] = [
             new Setting("Show non key parameters", "Show additional parameters that are not marked as key parameters for the current graph", Setting.Type.Boolean, Setting.SHOW_NON_KEY_PARAMETERS, true,true,true,true,false),
             new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Setting.DISPLAY_NODE_KEYS,  true,false,false,true,false),
             new Setting("Hide Palette Tab", "Hide the Palette tab", Setting.Type.Boolean, Setting.HIDE_PALETTE_TAB, true,true,false,false,false),
-            new Setting("Hide Read Only Parameters", "Hide read only paramters", Setting.Type.Boolean, Setting.HIDE_READONLY_PARAMETERS, true,true,false,false,false),
             new Setting("Hide Developer Tab", "Hides the developer tab in the settings menu", Setting.Type.Boolean, Setting.SHOW_DEVELOPER_TAB, false,false,false,true,false),
             new Setting("Minimal Ui mode", "temp setting ", Setting.Type.Boolean,Setting.MINIMAL_UI_MODE, true,true, false, false,false),
             new Setting("Translator Mode", "Configue the translator mode", Setting.Type.Select, Setting.USER_TRANSLATOR_MODE, true,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,false, Object.values(Setting.TranslatorMode)),
