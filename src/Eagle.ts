@@ -2649,6 +2649,12 @@ export class Eagle {
     pasteFromClipboard = async () => {
         console.log("pasteFromClipboard()");
 
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Paste from Clipboard", "Graph Editing is disabled", "danger");
+            return;
+        }
+
         // check if browser supports reading text from clipboard, if not, explain to user
         if (typeof navigator.clipboard.readText === "undefined"){
             Utils.showNotification("Unable to paste data", "Your browser does not allow access to the clipboard for security reasons. Workaround this issue using the 'Graph > New > Add to Graph from JSON' menu item and pasting your clipboard manually", "danger");
