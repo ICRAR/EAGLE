@@ -244,7 +244,7 @@ export class Setting {
     static readonly ALLOW_GRAPH_EDITING : string = "AllowGraphEditing";
     static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
     static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
-    static readonly STUDENT_SETTINGS_MODE : string = "AllowSetKeyParameter"
+    static readonly STUDENT_SETTINGS_MODE : string = "StudentSettingsMode"
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
     static readonly TRANSLATOR_ALGORITHM_DEFAULT : string = "TranslatorAlgorithmDefault";
