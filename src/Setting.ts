@@ -269,7 +269,7 @@ export class Setting {
     static readonly SNAP_TO_GRID: string = "SnapToGrid";
     static readonly SNAP_TO_GRID_SIZE: string = "SnapToGridSize";
     static readonly SHOW_INSPECTOR_WARNINGS: string = "ShowInspectorWarnings";
-};
+}
 
 export namespace Setting {
     export enum Type {

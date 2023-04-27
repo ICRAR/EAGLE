@@ -169,18 +169,8 @@ $(function(){
     //       not sure why, this wasn't always the case
     document.onwheel = () => {return;};
 
-    const auto_load_service    = (<any>window).auto_load_service;
-    const auto_load_repository = (<any>window).auto_load_repository;
-    const auto_load_branch     = (<any>window).auto_load_branch;
-    const auto_load_path       = (<any>window).auto_load_path;
-    const auto_load_filename   = (<any>window).auto_load_filename;
-    //console.log("auto_load_service", auto_load_service, "auto_load_repository", auto_load_repository, "auto_load_branch", auto_load_branch, "auto_load_path", auto_load_path, "auto_load_filename", auto_load_filename);=
-
-    // cast the service string to an enum
-    const service: Eagle.RepositoryService = Eagle.RepositoryService[auto_load_service as keyof typeof Eagle.RepositoryService];
-
     // auto load the file
-    autoLoad(eagle, service, auto_load_repository, auto_load_branch, auto_load_path, auto_load_filename);
+    autoLoad(eagle);
 
     // auto load a tutorial, if specified on the url
     autoTutorial(eagle);
@@ -280,17 +270,41 @@ $(function(){
     }
 });
 
-function autoLoad(eagle: Eagle, service: Eagle.RepositoryService, repository: string, branch: string, path: string, filename: string) {
-    console.log("autoLoad()", service, repository, branch, path, filename);
+function autoLoad(eagle: Eagle) {
+    const service    = (<any>window).auto_load_service;
+    const repository = (<any>window).auto_load_repository;
+    const branch     = (<any>window).auto_load_branch;
+    const path       = (<any>window).auto_load_path;
+    const filename   = (<any>window).auto_load_filename;
+    const url        = (<any>window).auto_load_url;
 
-    // skip empty string urls
-    if (service === Eagle.RepositoryService.Unknown || repository === "" || branch === "" || filename === ""){
-        console.log("No auto load");
+    // cast the service string to an enum
+    const realService: Eagle.RepositoryService = Eagle.RepositoryService[service as keyof typeof Eagle.RepositoryService];
+
+    // skip unknown services
+    if (typeof realService === "undefined" || realService === Eagle.RepositoryService.Unknown){
+        console.log("No auto load. Service Unknown");
+        return;
+    }
+
+    // skip empty strings
+    if ([Eagle.RepositoryService.GitHub, Eagle.RepositoryService.GitLab].includes(realService) && (repository === "" || branch === "" || filename === "")){
+        console.log("No auto load. Repository, branch or filename not specified");
+        return;
+    }
+
+    // skip url if url is not specified
+    if (realService === Eagle.RepositoryService.Url && url === ""){
+        console.log("No auto load. Url not specified");
         return;
     }
 
     // load
-    Repositories.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+    if (service === Eagle.RepositoryService.Url){
+        Repositories.selectFile(new RepositoryFile(new Repository(service, "", "", false), "", url));
+    } else {
+        Repositories.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+    }
 }
 
 function autoTutorial(eagle: Eagle){

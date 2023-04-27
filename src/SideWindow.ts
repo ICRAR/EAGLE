@@ -59,6 +59,9 @@ export class SideWindow {
     static nodeDragEnd = () : boolean => {
         $(".rightWindow").removeClass("noDropTarget");
         $(".navbar").removeClass("noDropTarget");
+        Eagle.nodeDragPaletteIndex = null;
+        Eagle.nodeDragComponentIndex = null;
+
         return true;
     }
 
