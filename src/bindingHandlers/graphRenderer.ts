@@ -1135,6 +1135,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                                 Eagle.nodeDropLocation.y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
 
                                                 eagle.addNodeToLogicalGraph(choice, (node: Node) => {
+                                                    // check that a node was actually added, user may not have had permission
+                                                    if (node === null){
+                                                        return;
+                                                    }
+
                                                     const realSourceNode = sNode;
                                                     const realSourcePort = sPort;
                                                     const realDestNode = node;
