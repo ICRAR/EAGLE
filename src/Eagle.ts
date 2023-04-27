@@ -2497,6 +2497,12 @@ export class Eagle {
         switch(location){
             case Eagle.FileType.Graph:
                 {
+                    // check that graph editing is allowed
+                    if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                        Utils.showNotification("Unable to Duplicate Selection", "Graph Editing is disabled", "danger");
+                        return;
+                    }
+
                     const nodes : Node[] = [];
                     const edges : Edge[] = [];
                     const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
@@ -2520,6 +2526,12 @@ export class Eagle {
                 break;
             case Eagle.FileType.Palette:
                 {
+                    // check that palette editing is allowed
+                    if (!Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+                        Utils.showNotification("Unable to Duplicate Selection", "Palette Editing is disabled", "danger");
+                        return;
+                    }
+
                     const nodes: Node[] = [];
 
                     for (const object of incomingNodes){
@@ -3471,6 +3483,12 @@ export class Eagle {
 
         if (selectedNode === null){
             console.error("Attempt to add change parent node when no node selected");
+            return;
+        }
+
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Change Node Parent", "Graph Editing is disabled", "danger");
             return;
         }
 
