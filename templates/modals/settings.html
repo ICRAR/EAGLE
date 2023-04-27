@@ -89,27 +89,33 @@
 
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" data-bind=" eagleTooltip: 'Translator URL'" data-bs-placement="left">Translator url</span>
+                                <span class="input-group-text" data-bind=" eagleTooltip: Setting.find(Setting.TRANSLATOR_URL).getDescription()" data-bs-placement="left">Translator url</span>
                             </div>
                             <input type="text" class="form-control" disabled data-bind="value: Setting.findValue(Setting.TRANSLATOR_URL)">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" data-bind=" eagleTooltip: 'Translator URL'" data-bs-placement="left">GitHub Access Token</span>
+                                <span class="input-group-text" data-bind="  eagleTooltip: Setting.find(Setting.GITHUB_ACCESS_TOKEN_KEY).getDescription()" data-bs-placement="left">GitHub Access Token</span>
                             </div>
                             <input type="password" class="form-control" disabled data-bind="value: Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY)">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" data-bind=" eagleTooltip: 'Translator URL'" data-bs-placement="left">GitLab Access Token</span>
+                                <span class="input-group-text" data-bind="  eagleTooltip: Setting.find(Setting.GITLAB_ACCESS_TOKEN_KEY).getDescription()" data-bs-placement="left">GitLab Access Token</span>
                             </div>
                             <input type="password" class="form-control" disabled data-bind="value: Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY)">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" data-bind=" eagleTooltip: 'Translator URL'" data-bs-placement="left">Docker Hub Username</span>
+                                <span class="input-group-text" data-bind="  eagleTooltip: Setting.find(Setting.DOCKER_HUB_USERNAME).getDescription()" data-bs-placement="left">Docker Hub Username</span>
                             </div>
                             <input type="text" class="form-control" disabled data-bind="value: Setting.findValue(Setting.DOCKER_HUB_USERNAME)">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" data-bind=" eagleTooltip: Setting.find(Setting.EXPLORE_PALETTES_REPOSITORY).getDescription()" data-bs-placement="left">Explore Palettes Repository</span>
+                            </div>
+                            <input type="text" class="form-control" disabled data-bind="value: Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY)">
                         </div>
                     </div>
                 <!-- /ko -->
