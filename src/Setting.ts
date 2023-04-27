@@ -248,6 +248,7 @@ export class Setting {
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
     static readonly TRANSLATOR_ALGORITHM_DEFAULT : string = "TranslatorAlgorithmDefault";
+    static readonly EXPLORE_PALETTES_REPOSITORY : string = "ExplorePalettesRepository";
 
     static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
 
@@ -362,6 +363,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "GitLab Access Token", Setting.GITLAB_ACCESS_TOKEN_KEY, "A users access token for GitLab repositories.", true, Setting.Type.Password, "","","", "", ""),
             new Setting(true, "Docker Hub Username", Setting.DOCKER_HUB_USERNAME, "The username to use when retrieving data on images stored on Docker Hub", true, Setting.Type.String, "icrar","icrar","icrar", "icrar", "icrar"),
             new Setting(false, "Default Translation Algorithm", Setting.TRANSLATOR_ALGORITHM_DEFAULT, "Which of the algorithms will be used by default", true, Setting.Type.String, "agl-1", "agl-1", "agl-1", "agl-1", "agl-1"),
+            new Setting(true, "Explore Palettes Repository", Setting.EXPLORE_PALETTES_REPOSITORY, "The repository from which palettes will be fetched by the 'Explore Palettes' feature", true, Setting.Type.String, "ICRAR/EAGLE-graph-repo", "ICRAR/EAGLE-graph-repo", "ICRAR/EAGLE-graph-repo", "ICRAR/EAGLE-graph-repo", "ICRAR/EAGLE-graph-repo" )
         ]
     ),
     new SettingsGroup(

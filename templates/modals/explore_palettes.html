@@ -8,11 +8,11 @@
             </div>
             <div id="explorePalettesPathContainer">
                 <!-- ko ifnot: explorePalettes().showFiles -->
-                    <span data-bind="text: Config.DEFAULT_PALETTE_REPOSITORY"></span>
+                    <span data-bind="text: Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY)"></span>
                 <!-- /ko -->
 
                 <!-- ko if: explorePalettes().showFiles -->
-                    <span class="clickableFilePath" data-bind="text: Config.DEFAULT_PALETTE_REPOSITORY, click: explorePalettes().back"></span>
+                    <span class="clickableFilePath" data-bind="text: Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY), click: explorePalettes().back"></span>
                     <span>/ </span>
                     <span data-bind="text:explorePalettes().getProject().name"></span>
                 <!-- /ko -->
