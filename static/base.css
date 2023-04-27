@@ -721,6 +721,10 @@ td:first-child input {
     width: 100%;
 }
 
+.settingStudentWrapper{
+    padding: 20px;
+}
+
 .settingsModalButton{
     background-color: #002e5f;
     padding: 8px 3px;

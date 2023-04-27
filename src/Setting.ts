@@ -244,7 +244,7 @@ export class Setting {
     static readonly ALLOW_GRAPH_EDITING : string = "AllowGraphEditing";
     static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
     static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
-    static readonly DISABLE_SETTINGS_MENU : string = "AllowSetKeyParameter"
+    static readonly STUDENT_SETTINGS_MODE : string = "AllowSetKeyParameter"
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
     static readonly TRANSLATOR_ALGORITHM_DEFAULT : string = "TranslatorAlgorithmDefault";
@@ -350,7 +350,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Allow Readonly Palette Editing", Setting.ALLOW_READONLY_PALETTE_EDITING, "Allow the user to modify palettes that would otherwise be readonly.", false, Setting.Type.Boolean,false,false,false,false,true),
             new Setting(true, "Allow Edge Editing", Setting.ALLOW_EDGE_EDITING, "Allow the user to edit edge attributes.", false, Setting.Type.Boolean, false, false,false, false, true),
             new Setting(true, "Auto-suggest destination nodes", Setting.AUTO_SUGGEST_DESTINATION_NODES, "If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.", false, Setting.Type.Boolean,true,true,true,true,true),
-            new Setting(false, "Disable settings editing", Setting.DISABLE_SETTINGS_MENU, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
+            new Setting(false, "STUDENT_SETTINGS_MODE", Setting.STUDENT_SETTINGS_MODE, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
         ]
     ),
     new SettingsGroup(
