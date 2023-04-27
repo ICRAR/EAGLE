@@ -2519,6 +2519,12 @@ export class Eagle {
             return;
         }
 
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Edit Edge", "Graph Editing is disabled", "danger");
+            return;
+        }
+
         // clone selected edge so that no changes to the original can be made by the user request modal
         const clone: Edge = selectedEdge.clone();
 
