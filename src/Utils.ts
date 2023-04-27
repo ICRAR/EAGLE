@@ -1535,6 +1535,12 @@ export class Utils {
     }
 
     static typesMatch(type0: string, type1: string){
+        // check for undefined
+        if (typeof type0 === "undefined" || typeof type1 === "undefined"){
+            console.warn("typesMatch(): matching value undefined (type0:", type0, "type1:", type1, ")");
+            return false;
+        }
+
         // match if either type is "Object"
         if (type0 === "Object" || type1 === "Object"){
             return true;
@@ -2071,6 +2077,10 @@ export class Utils {
 
     // only update result if it is worse that current result
     static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid {
+        if (errorsWarnings === null){
+            return Eagle.LinkValid.Valid;
+        }
+
         if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
             return Eagle.LinkValid.Valid;
         }
@@ -2267,5 +2277,9 @@ export class Utils {
         result += "}\n";
 
         return result;
+    }
+
+    static openRemoteFileFromUrl(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
+        Utils.httpGet(fileName, callback);
     }
 }
