@@ -1185,64 +1185,11 @@ export class Node {
         return attr
     }
 
-    getInputMultiplicity = () : number => {
-        if (this.isMKN()){
-            const m : Field = this.getFieldByIdText("m");
-
-            if (m === null){
-                console.warn("Unable to determine input multiplicity of MKN, no 'm' field. Using default value (1).");
-                return 1;
-            }
-
-            return parseInt(m.getValue(), 10);
-        }
-
-        if (this.isGather()){
-            const numInputs : Field = this.getFieldByIdText("num_of_inputs");
-
-            if (numInputs === null){
-                console.warn("Unable to determine input multiplicity of Gather, no 'num_of_inputs' field. Using default value (1).");
-                return 1;
-            }
-
-            return parseInt(numInputs.getValue(), 10);
-        }
-
-        return 1;
-    }
-
-    getOutputMultiplicity = () : number => {
-        if (this.isMKN()){
-            const n : Field = this.getFieldByIdText("n");
-
-            if (n === null){
-                console.warn("Unable to determine output multiplicity of MKN, no 'n' field. Using default value (1).");
-                return 1;
-            }
-
-            return parseInt(n.getValue(), 10);
-        }
-
-        if (this.isScatter()){
-            const numCopies : Field = this.getFieldByIdText("num_of_copies");
-
-            if (numCopies === null){
-                console.warn("Unable to determine output multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
-                return 1;
-            }
-
-            return parseInt(numCopies.getValue(), 10);
-        }
-
-        return 1;
-    }
-
     getLocalMultiplicity = () : number => {
         if (this.isMKN()){
             const k : Field = this.getFieldByIdText("k");
 
             if (k === null){
-                console.warn("Unable to determine local multiplicity of MKN, no 'k' field. Using default value (1).");
                 return 1;
             }
 
@@ -1253,7 +1200,6 @@ export class Node {
             const numCopies = this.getFieldByIdText("num_of_copies");
 
             if (numCopies === null){
-                console.warn("Unable to determine local multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
                 return 1;
             }
 
@@ -1269,7 +1215,6 @@ export class Node {
             const numCopies = this.getFieldByIdText("num_of_iter");
 
             if (numCopies === null){
-                console.warn("Unable to determine local multiplicity of Loop, no 'num_of_iter' field. Using default value (1).");
                 return 1;
             }
 
@@ -2253,6 +2198,18 @@ export class Node {
         }
         if (node.hasOutputApplication()){
             Node.isValid(eagle, node.getOutputApplication(), selectedLocation, showNotification, showConsole, errorsWarnings);
+        }
+
+        // check that this category of node contains all the fields it requires
+        for (const requirement of CategoryData.requiredFields){
+            if (node.getCategory() === requirement.category){
+                for (const field of requirement.fields){
+                    if (node.getFieldByIdText(field.getIdText()) === null){
+                        const message = "Node " + node.getKey() + " (" + node.getName() + ") has category " + node.getCategory() + " but has no '" + field.getIdText() + "' field.";
+                        errorsWarnings.errors.push(Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeAddField(eagle, node, field)}, "Add '" + field.getIdText() + "' field to node"));
+                    }
+                }
+            }
         }
 
         return Utils.worstEdgeError(errorsWarnings);

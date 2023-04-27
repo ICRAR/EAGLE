@@ -1882,6 +1882,10 @@ export class Utils {
         destinationPort.setType(sourcePort.getType());
     }
 
+    static fixNodeAddField(eagle: Eagle, node: Node, field: Field){
+        node.addField(field);
+    }
+
     static fixNodeFieldIds(eagle: Eagle, nodeKey: number){
         const node: Node = eagle.logicalGraph().findNodeByKey(nodeKey);
 
