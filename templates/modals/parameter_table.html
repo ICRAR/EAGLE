@@ -110,6 +110,9 @@
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('positional') -->
                                     <th id="parameter_table_positional" data-bind="eagleTooltip:'If checked only the value of this argument will be put on the command line'" data-bs-placement="top">Positional</th>
                                 <!-- /ko -->
+                                <!-- ko if: $root.parameterTable().getParameterTableVisibility('flags') -->
+                                    <th id="parameter_table_flags" data-bind="eagleTooltip:'Parameter flags'" data-bs-placement="top">Flags</th>
+                                <!-- /ko -->
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('actions') -->
                                     <th id="parameter_table_actions" data-bind="eagleTooltip:'Additional operations that are possible on this parameter (e.g. Delete, Duplicate etc)'" data-bs-placement="top">Actions</th>
                                 <!-- /ko -->
