@@ -2890,6 +2890,12 @@ export class Eagle {
             mode = 'rightClick'
         }
 
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Delete Selection", "Graph Editing is disabled", "danger");
+            return;
+        }
+
         if (data.length === 0){
             console.warn("Unable to delete selection: Nothing selected");
             Utils.showNotification("Warning", "Unable to delete selection: Nothing selected", "warning");
