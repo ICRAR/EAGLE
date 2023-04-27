@@ -244,6 +244,7 @@ export class Setting {
     static readonly ALLOW_GRAPH_EDITING : string = "AllowGraphEditing";
     static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
     static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
+    static readonly DISABLE_SETTINGS_MENU : string = "AllowSetKeyParameter"
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
     static readonly TRANSLATOR_ALGORITHM_DEFAULT : string = "TranslatorAlgorithmDefault";
@@ -332,7 +333,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Graph Zoom Divisor", Setting.GRAPH_ZOOM_DIVISOR, "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", false, Setting.Type.Number,1000,1000,1000,1000,1000),
             new Setting(false, "Snap To Grid", Setting.SNAP_TO_GRID, "Align positions of nodes in graph to a grid", false, Setting.Type.Boolean,false,false,false,false,false),
             new Setting(true, "Snap To Grid Size", Setting.SNAP_TO_GRID_SIZE, "Size of grid used when aligning positions of nodes in graph (pixels)", false, Setting.Type.Number, 50, 50, 50, 50, 50),
-            new Setting(true, "Show edge/node errors/warnings in inspector", Setting.SHOW_INSPECTOR_WARNINGS, "Show the errors/warnings found for the selected node/edge in the inspector", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
+            new Setting(true, "Show edge/node errors/warnings in inspector", Setting.SHOW_INSPECTOR_WARNINGS, "Show the errors/warnings found for the selected node/edge in the inspector", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
             new Setting(false, "Right Window Witdth", Setting.RIGHT_WINDOW_WIDTH_KEY, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
             new Setting(false, "Left Window Witdth", Setting.LEFT_WINDOW_WIDTH_KEY, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
         ]
@@ -348,7 +349,8 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Allow Palette Editing", Setting.ALLOW_PALETTE_EDITING, "Allow the user to edit palettes.", false, Setting.Type.Boolean, false, false, false, true, true),
             new Setting(true, "Allow Readonly Palette Editing", Setting.ALLOW_READONLY_PALETTE_EDITING, "Allow the user to modify palettes that would otherwise be readonly.", false, Setting.Type.Boolean,false,false,false,false,true),
             new Setting(true, "Allow Edge Editing", Setting.ALLOW_EDGE_EDITING, "Allow the user to edit edge attributes.", false, Setting.Type.Boolean, false, false,false, false, true),
-            new Setting(true, "Auto-suggest destination nodes", Setting.AUTO_SUGGEST_DESTINATION_NODES, "If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.", false, Setting.Type.Boolean,true,true,true,true,true)
+            new Setting(true, "Auto-suggest destination nodes", Setting.AUTO_SUGGEST_DESTINATION_NODES, "If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.", false, Setting.Type.Boolean,true,true,true,true,true),
+            new Setting(false, "Disable settings editing", Setting.DISABLE_SETTINGS_MENU, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
         ]
     ),
     new SettingsGroup(
