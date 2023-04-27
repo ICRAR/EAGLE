@@ -4,11 +4,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="settingsModalTitle">Settings</h5>
-                <div id="uiModeDiv">
-                    <span>UiMode:</span>
-                    <select class="form-control" data-bind="options: UiModeSystem.getUiModeNamesList(), value: UiModeSystem.getActiveUiMode().getName(),event:{ change: function(){UiModeSystem.setActiveUiModeByName($element.value);$('#settingsModal').data('completed', true);}}">
-                    </select>
-                </div>
+                <!-- ko ifnot: Setting.findValue( Setting.STUDENT_SETTINGS_MODE) -->
+                    <div id="uiModeDiv">
+                        <span>UiMode:</span>
+                        <select class="form-control" data-bind="options: UiModeSystem.getUiModeNamesList(), value: UiModeSystem.getActiveUiMode().getName(),event:{ change: function(){UiModeSystem.setActiveUiModeByName($element.value);$('#settingsModal').data('completed', true);}}">
+                        </select>
+                    </div>
+                <!-- /ko -->
             </div>
             <div class="modal-body">
                 <!-- ko ifnot: Setting.findValue( Setting.STUDENT_SETTINGS_MODE) -->
@@ -82,6 +84,7 @@
                     </form>
                 <!-- /ko -->
                 <!-- ko if: Setting.findValue( Setting.STUDENT_SETTINGS_MODE) -->
+                    <!-- we are displaying some settings here in student mode for the admin to double check eveything is set up correctly -->
                     <div class="settingStudentWrapper">
 
                         <div class="input-group mb-1">
@@ -111,11 +114,13 @@
                     </div>
                 <!-- /ko -->
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger" id="resetSettingsDefaults" type="button" data-bind="click: Setting.resetDefaults">Reset Defaults</button>
-                <button type="button" class="btn btn-secondary" id="settingsModalNegativeButton" data-bs-dismiss="modal"><span id="settingsModalNegativeAnswer">Cancel</span></button>
-                <button type="button" class="btn btn-primary" id="settingsModalAffirmativeButton" data-bs-dismiss="modal"><span id="settingsModalAffirmativeAnswer">OK</span></button>
-            </div>
+            <!-- ko ifnot: Setting.findValue( Setting.STUDENT_SETTINGS_MODE) -->
+                <div class="modal-footer">
+                    <button class="btn btn-danger" id="resetSettingsDefaults" type="button" data-bind="click: Setting.resetDefaults">Reset Defaults</button>
+                    <button type="button" class="btn btn-secondary" id="settingsModalNegativeButton" data-bs-dismiss="modal"><span id="settingsModalNegativeAnswer">Cancel</span></button>
+                    <button type="button" class="btn btn-primary" id="settingsModalAffirmativeButton" data-bs-dismiss="modal"><span id="settingsModalAffirmativeAnswer">OK</span></button>
+                </div>
+            <!-- /ko -->
         </div>
     </div>
 </div>

@@ -27,6 +27,14 @@ export class UiModeSystem {
         return uiModeNamesList
     }
 
+    static getFullUiModeNamesList = () : string[] => {
+        let uiModeNamesList : string[]= []
+        UiModeSystem.getUiModes().forEach(function(uiMode){
+            uiModeNamesList.push(uiMode.getName())
+        })
+        return uiModeNamesList
+    }
+
     static getUiModeByName = (name:string) : UiMode => {
         let result = null
         this.getUiModes().forEach(function(uiMode){

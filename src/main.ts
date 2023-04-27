@@ -98,10 +98,11 @@ $(function(){
     const user_interface_mode = (<any>window).mode;
     if (typeof user_interface_mode !== 'undefined' && user_interface_mode !== ""){
         // make sure that the specified user interface mode is a known mode
-        if (Object.values(Setting.UIMode).includes(user_interface_mode)){
-            UiModeSystem.setActiveUiModeByName('Minimal')
+        if (UiModeSystem.getFullUiModeNamesList().includes(user_interface_mode)){
+            console.log('name found')
+            UiModeSystem.setActiveUiModeByName(user_interface_mode)
         } else {
-            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", Object.values(Setting.UIMode).join(','));
+            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", UiModeSystem.getFullUiModeNamesList().join(','));
         }
 
         // hide the ?mode=x part of the url
@@ -109,7 +110,7 @@ $(function(){
     }
 
     // Get the list of git repos
-    if (UiModeSystem.getActiveUiMode().getName()==='Minimal'){
+    if (UiModeSystem.getActiveUiMode().getName()==='Student'){
         GitHub.loadStudentRepoList();
     } else {
         GitHub.loadRepoList();
