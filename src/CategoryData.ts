@@ -84,29 +84,30 @@ export class CategoryData {
         return c;
     }
 
+    // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
     static readonly requiredFields = [
         {
             category: Category.MKN,
             fields: [
-                new Field(Utils.uuidv4(), "k", "k", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false),
+                new Field("", "k", "k", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false),
             ]
         },
         {
             category: Category.Scatter,
             fields: [
-                new Field(Utils.uuidv4(), "num_of_copies", "num_of_copies", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
+                new Field("", "num_of_copies", "num_of_copies", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
             ]
         },
         {
             category: Category.Gather,
             fields: [
-                new Field(Utils.uuidv4(), "num_of_inputs", "num_of_inputs", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
+                new Field("", "num_of_inputs", "num_of_inputs", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
             ]
         },
         {
             category: Category.Loop,
             fields: [
-                new Field(Utils.uuidv4(), "num_of_iter", "num_of_iter", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
+                new Field("", "num_of_iter", "num_of_iter", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
             ]
         }
     ];

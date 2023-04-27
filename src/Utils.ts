@@ -1996,6 +1996,15 @@ export class Utils {
         field.setId(Utils.uuidv4());
     }
 
+    static fixFieldValue(eagle: Eagle, field: Field, value: string){
+        if (field === null){
+            console.warn("Can't fix null field with value", value);
+            return;
+        }
+
+        field.setValue(value);
+    }
+
     static fixFieldDefaultValue(eagle: Eagle, field: Field){
         // depends on the type
         switch(field.getType()){
@@ -2056,13 +2065,8 @@ export class Utils {
         }
     }
 
-    // WARN: this just blindly swaps the parameter type, which is not robust
-    static fixFieldParameterType(eagle: Eagle, field: Field){
-        if (field.getParameterType() === Eagle.ParameterType.ComponentParameter){
-            field.setParameterType(Eagle.ParameterType.ApplicationArgument);
-        } else {
-            field.setParameterType(Eagle.ParameterType.ComponentParameter);
-        }
+    static fixFieldParameterType(eagle: Eagle, field: Field, newType: Eagle.ParameterType){
+        field.setParameterType(newType);
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
