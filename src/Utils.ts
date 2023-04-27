@@ -923,7 +923,7 @@ export class Utils {
         // Add parameters in json data.
         // TODO: make repository and branch settings, or at least config options
         const jsonData = {
-            repository: Config.DEFAULT_PALETTE_REPOSITORY,
+            repository: Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY),
             branch: "master",
             token: token,
         };

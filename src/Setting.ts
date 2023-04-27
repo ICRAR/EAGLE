@@ -63,6 +63,7 @@ export class Setting {
     static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
+    static readonly EXPLORE_PALETTES_REPOSITORY : string = "ExplorePalettesRepository";
 
     static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
 
@@ -348,7 +349,8 @@ const settings : SettingsGroup[] = [
             new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Setting.TRANSLATOR_URL, "http://localhost:8084/gen_pgt", true),
             new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Setting.GITHUB_ACCESS_TOKEN_KEY, "", true),
             new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Setting.GITLAB_ACCESS_TOKEN_KEY, "", true),
-            new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Setting.DOCKER_HUB_USERNAME, "icrar", true)
+            new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Setting.DOCKER_HUB_USERNAME, "icrar", true),
+            new Setting("Explore Palettes Repository", "The repository from which palettes will be fetched by the 'Explore Palettes' feature", Setting.Type.String, Setting.EXPLORE_PALETTES_REPOSITORY, "ICRAR/EAGLE-graph-repo", true)
         ]
     ),
     new SettingsGroup(
