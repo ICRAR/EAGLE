@@ -53,7 +53,8 @@ require.config({
         "Hierarchy": "./static/built/Hierarchy",
         "RightClick": "./static/built/RightClick",
         "Repositories": "./static/built/Repositories",
-        "ParameterTable": "./static/built/ParameterTable"
+        "ParameterTable": "./static/built/ParameterTable",
+        "ActionMessage": "./static/built/ActionMessage"
     },
     shim: {
         "bootstrap": {

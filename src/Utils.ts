@@ -43,6 +43,8 @@ import {Setting} from './Setting';
 import {ParameterTable} from './ParameterTable';
 import {FileInfo} from "./FileInfo";
 
+import { ActionMessage } from "./ActionMessage";
+
 export class Utils {
     // Allowed file extenstions.
     static readonly FILE_EXTENSIONS : string[] = [
@@ -456,8 +458,8 @@ export class Utils {
     }
 
     static showErrorsModal(title: string){
-        const errors: Errors.Issue[] = Errors.getErrors();
-        const warnings: Errors.Issue[] = Errors.getWarnings();
+        const errors: ActionMessage[] = Errors.getErrors();
+        const warnings: ActionMessage[] = Errors.getWarnings();
 
         console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
 

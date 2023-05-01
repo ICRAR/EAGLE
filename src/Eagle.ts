@@ -53,6 +53,8 @@ import {Errors} from './Errors';
 import {ComponentUpdater} from './ComponentUpdater';
 import {ParameterTable} from './ParameterTable';
 
+import { ActionMessage } from "./ActionMessage";
+
 export class Eagle {
     static _instance : Eagle;
 
@@ -87,10 +89,10 @@ export class Eagle {
     explorePalettes : ko.Observable<ExplorePalettes>;
 
     errorsMode : ko.Observable<Setting.ErrorsMode>;
-    graphWarnings : ko.ObservableArray<Errors.Issue>;
-    graphErrors : ko.ObservableArray<Errors.Issue>;
-    loadingWarnings : ko.ObservableArray<Errors.Issue>;
-    loadingErrors : ko.ObservableArray<Errors.Issue>;
+    graphWarnings : ko.ObservableArray<ActionMessage>;
+    graphErrors : ko.ObservableArray<ActionMessage>;
+    loadingWarnings : ko.ObservableArray<ActionMessage>;
+    loadingErrors : ko.ObservableArray<ActionMessage>;
     tableModalType : ko.Observable<string>;
     showTableModal : ko.Observable<boolean>;
     currentFileInfo : ko.Observable<FileInfo>;
@@ -1066,7 +1068,7 @@ export class Eagle {
             const destNode = keyMap.get(edge.getDestNodeKey());
 
             if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
-                errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
+                errorsWarnings.warnings.push(ActionMessage.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
                 continue;
             }
 
@@ -1713,7 +1715,7 @@ export class Eagle {
 
                 if  (error !== null){
                     console.error(error);
-                    errorsWarnings.errors.push(Errors.Message(error));
+                    errorsWarnings.errors.push(ActionMessage.Message(error));
                 } else {
                     const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
                     palette.fileInfo().clear();

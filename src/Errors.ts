@@ -1,19 +1,12 @@
 import * as ko from "knockout";
 
+import { ActionMessage } from "./ActionMessage";
 import {Eagle} from './Eagle';
 import {Setting} from './Setting';
 import {Utils} from './Utils';
 
 export class Errors {
-    static Message(message: string): Errors.Issue {
-        return {message: message, show: null, fix: null, fixDescription:""};
-    }
-    static Show(message: string, show: () => void): Errors.Issue {
-        return {message: message, show: show, fix: null, fixDescription:""};
-    }
-    static Fix(message: string, show: () => void, fix: () => void, fixDescription: string): Errors.Issue {
-        return {message: message, show: show, fix: fix, fixDescription: fixDescription};
-    }
+
 
     static fixAll = () : void => {
         const eagle: Eagle = Eagle.getInstance();
@@ -62,7 +55,7 @@ export class Errors {
         return errorsWarnings.errors.length > 0;
     }
 
-    static getWarnings : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
+    static getWarnings : ko.PureComputed<ActionMessage[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
         switch (eagle.errorsMode()){
@@ -76,7 +69,7 @@ export class Errors {
         }
     }, this);
 
-    static getErrors : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
+    static getErrors : ko.PureComputed<ActionMessage[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
         switch (eagle.errorsMode()){
@@ -92,8 +85,8 @@ export class Errors {
 
     static getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {
         let count: number = 0;
-        const errors: Errors.Issue[] = Errors.getErrors();
-        const warnings: Errors.Issue[] = Errors.getWarnings();
+        const errors: ActionMessage[] = Errors.getErrors();
+        const warnings: ActionMessage[] = Errors.getWarnings();
 
         // count the errors
         for (const error of errors){
@@ -115,6 +108,5 @@ export class Errors {
 
 export namespace Errors
 {
-    export type Issue = {message: string, show: () => void, fix: () => void, fixDescription: string};
-    export type ErrorsWarnings = {warnings: Issue[], errors: Issue[]};
+    export type ErrorsWarnings = {warnings: ActionMessage[], errors: ActionMessage[]};
 }
