@@ -262,8 +262,12 @@ td:first-child input {
     color: rgb(113 113 113);
 }
 
+#parameter_table_flags{
+    width: 101px;
+}
+
 #parameter_table_actions{
-    width: 123px;
+    width: 101px;
 }
 
 #parameter_table_usage{

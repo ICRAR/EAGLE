@@ -151,7 +151,6 @@ export class Field {
 
     togglePrecious = () : void => {
         this.precious(!this.precious());
-
     }
 
     isPrecious = () : boolean => {
@@ -164,6 +163,10 @@ export class Field {
 
     isPositionalArgument = () : boolean => {
         return this.positional();
+    }
+
+    togglePositionalArgument = () : void => {
+        this.positional(!this.positional());
     }
 
     setPositionalArgument = (positional: boolean): void => {
