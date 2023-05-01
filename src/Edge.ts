@@ -22,14 +22,15 @@
 #
 */
 
-import {Category} from './Category';
-import {Daliuge} from './Daliuge';
-import {Eagle} from './Eagle';
-import {LogicalGraph} from './LogicalGraph';
-import {Node} from './Node';
-import {Field} from './Field';
-import {Utils} from './Utils';
-import {Errors} from './Errors';
+import { Category } from './Category';
+import { CategoryData } from './CategoryData';
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+import { LogicalGraph } from './LogicalGraph';
+import { Node } from './Node';
+import { Field } from './Field';
+import { Utils } from './Utils';
+import { Errors } from './Errors';
 
 export class Edge {
     private _id : string
@@ -472,12 +473,12 @@ export class Edge {
             }
 
             if (!sourceNode.hasFieldWithDisplayText(Daliuge.ParameterNames.GROUP_END) || !Utils.asBool(sourceNode.getFieldByDisplayText(Daliuge.ParameterNames.GROUP_END).getValue())){
-                const x = Errors.Show("'Closes Loop' Edge (" + edgeId + ") start node (" + sourceNode.getName() + ") does not have '" + Daliuge.ParameterNames.GROUP_END + "' set to true.", function(){Utils.showEdge(eagle, edgeId);});
+                const x = Errors.Fix("'Closes Loop' Edge (" + edgeId + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixFieldValue(eagle, sourceNode, Daliuge.groupEndField, "true")}, "Set 'group_end' to true");
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
 
             if (!destinationNode.hasFieldWithDisplayText(Daliuge.ParameterNames.GROUP_START) || !Utils.asBool(destinationNode.getFieldByDisplayText(Daliuge.ParameterNames.GROUP_START).getValue())){
-                const x = Errors.Show("'Closes Loop' Edge (" + edgeId + ") end node (" + destinationNode.getName() + ") does not have '" + Daliuge.ParameterNames.GROUP_START + "' set to true.", function(){Utils.showEdge(eagle, edgeId);});
+                const x = Errors.Fix("'Closes Loop' Edge (" + edgeId + ") end node (" + destinationNode.getName() + ") does not have 'group_start' set to true.", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixFieldValue(eagle, destinationNode, Daliuge.groupStartField, "true")}, "Set 'group_start' to true");
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
         }

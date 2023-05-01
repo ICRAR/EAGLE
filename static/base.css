@@ -1772,6 +1772,10 @@ ul.nav.navbar-nav .dropdown-item:hover{
     width:40%;
 }
 
+#nodeInspector .input-group-prepend.prepend-Icon{
+    width: auto;
+}
+
 #nodeInspector .input-application .input-group-prepend,
 #nodeInspector .output-application .input-group-prepend{
     width:auto;

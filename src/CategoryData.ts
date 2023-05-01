@@ -1,4 +1,4 @@
-import {Category} from './Category';
+import { Category } from './Category';
 
 export class CategoryData {
     static readonly cData : {[category:string] : Category.CategoryData} = {

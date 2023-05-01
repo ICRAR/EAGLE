@@ -22,6 +22,10 @@
 #
 */
 
+import { Category } from './Category';
+import { Eagle } from './Eagle';
+import { Field } from './Field';
+
 export class Daliuge {
     // automatically loaded palettes
     static readonly PALETTE_URL : string  = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master.palette";
@@ -29,6 +33,37 @@ export class Daliuge {
 
     // schemas
     static readonly GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg/dropmake/lg.graph.schema";
+
+    // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
+    static readonly requiredFields = [
+        {
+            category: Category.MKN,
+            fields: [
+                new Field("", "k", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false),
+            ]
+        },
+        {
+            category: Category.Scatter,
+            fields: [
+                new Field("", "num_of_copies", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
+            ]
+        },
+        {
+            category: Category.Gather,
+            fields: [
+                new Field("", "num_of_inputs", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
+            ]
+        },
+        {
+            category: Category.Loop,
+            fields: [
+                new Field("", "num_of_iter", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
+            ]
+        }
+    ];
+
+    static readonly groupStartField = new Field("", "group_start", "true", "true", "", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
+    static readonly groupEndField = new Field("", "group_end", "true", "true", "", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
 }
 
 export namespace Daliuge {

@@ -153,6 +153,9 @@ export class Eagle {
         Eagle.settings = Setting.getSettings();
         Eagle.shortcuts = KeyboardShortcut.getShortcuts();
         
+        Eagle.nodeDragPaletteIndex = null;
+        Eagle.nodeDragComponentIndex = null;
+
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
@@ -1753,6 +1756,9 @@ export class Eagle {
                 break;
             case Eagle.RepositoryService.GitLab:
                 openRemoteFileFunc = GitLab.openRemoteFile;
+                break;
+            case Eagle.RepositoryService.Url:
+                openRemoteFileFunc = Utils.openRemoteFileFromUrl;
                 break;
             default:
                 console.warn("Unsure how to fetch file with unknown service ", file.repository.service);
@@ -3713,6 +3719,10 @@ export class Eagle {
         // determine dropped node
         const sourceComponents : Node[] = [];
 
+        if(Eagle.nodeDragPaletteIndex === null || Eagle.nodeDragComponentIndex === null){
+            return;
+        }
+
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
         if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
             const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
@@ -3743,8 +3753,8 @@ export class Eagle {
 
     nodeDropPalette = (eagle: Eagle, e: JQueryEventObject) : void => {
         const sourceComponents : Node[] = [];
-        
-        if(Eagle.nodeDragPaletteIndex === undefined){
+
+        if(Eagle.nodeDragPaletteIndex === null || Eagle.nodeDragComponentIndex === null){
             return;
         }
 
