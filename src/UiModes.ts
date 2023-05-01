@@ -16,7 +16,7 @@ export class UiModeSystem {
     }
 
     static getUiModeNamesList = () : string[] => {
-        let uiModeNamesList : string[]= []
+        const uiModeNamesList : string[]= []
         UiModeSystem.getUiModes().forEach(function(uiMode){
             if(uiMode.getName() === 'Student'){
                 return
@@ -28,7 +28,7 @@ export class UiModeSystem {
     }
 
     static getFullUiModeNamesList = () : string[] => {
-        let uiModeNamesList : string[]= []
+        const uiModeNamesList : string[]= []
         UiModeSystem.getUiModes().forEach(function(uiMode){
             uiModeNamesList.push(uiMode.getName())
         })
@@ -135,7 +135,7 @@ export class UiModeSystem {
         uiModesObj.forEach(function(uiModeObj){
             let destUiMode : UiMode = UiModeSystem.getUiModeByName(uiModeObj.name)
             if(destUiMode===null){
-                let settings : SettingData[] = []
+                const settings : SettingData[] = []
                 
                 Setting.getSettings().forEach(function(settingsGroup){
                     settingsGroup.getSettings().forEach(function(setting){

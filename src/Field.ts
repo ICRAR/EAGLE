@@ -149,6 +149,10 @@ export class Field {
         this.precious(precious);
     }
 
+    togglePrecious = () : void => {
+        this.precious(!this.precious);
+    }
+
     isPrecious = () : boolean => {
         return this.precious();
     }

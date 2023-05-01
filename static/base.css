@@ -1529,6 +1529,7 @@ select.form-control{
 .navbar-btn i.material-icons.md-18 {
     position: relative;
     top: 3px;
+    font-size: 20px;
 }
 
 .navbar-center .navbar-btn.navbar-btn-active{

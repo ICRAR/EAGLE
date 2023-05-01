@@ -104,12 +104,6 @@
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('usage') -->
                                     <th id="parameter_table_usage" data-bind="eagleTooltip:'InputPorts and OutputPorts are used to specify named inputs and outputs from this Component.'" data-bs-placement="top">Use As</th>
                                 <!-- /ko -->
-                                <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious') -->
-                                    <th id="parameter_table_precious" data-bind="eagleTooltip:'Argument never suppressed'" data-bs-placement="top">Precious</th>
-                                <!-- /ko -->
-                                <!-- ko if: $root.parameterTable().getParameterTableVisibility('positional') -->
-                                    <th id="parameter_table_positional" data-bind="eagleTooltip:'If checked only the value of this argument will be put on the command line'" data-bs-placement="top">Positional</th>
-                                <!-- /ko -->
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('flags') -->
                                     <th id="parameter_table_flags" data-bind="eagleTooltip:'Parameter flags'" data-bs-placement="top">Flags</th>
                                 <!-- /ko -->
@@ -241,11 +235,47 @@
                                             </select>
                                         </td>
                                         <!-- /ko -->
-                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious') -->
-                                        <td><input class="tableParameter" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
-                                        <!-- /ko -->
-                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('positional') -->
-                                        <td><input class="tableParameter" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
+                                        
+                                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious') -->
+                                                    <td><input class="tableParameter" data-bind=" checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
+                                                    <!-- /ko -->
+                                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('positional') -->
+                                                        <td><input class="tableParameter" data-bind=" checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
+                                                    <!-- /ko -->
+                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('flags') -->
+                                            <td>    
+                                                
+                                                <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
+                                                
+                                                    
+                                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious')-->
+                                                    <div data-bind="text:console.log($data.isPrecious())"></div>
+                                                        <!-- ko if: $data.isPrecious() -->
+                                                            <button type="button" data-bind="click: function(){$data.togglePrecious();}, eagleTooltip: 'Port is precious<br/>Click to toggle'" data-bs-placement="left">
+                                                                <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,1,0" />
+                                                            </button>
+                                                        <!-- /ko -->
+                                                        <!-- ko ifnot: $data.isPrecious() -->
+                                                            <button type="button" data-bind="click: function(){$data.togglePrecious();}, eagleTooltip: 'Port is not precious<br/>Click to toggle'" data-bs-placement="left">
+                                                                <i class="material-icons-outlined">diamond</i>
+                                                            </button>
+                                                        <!-- /ko -->
+                                                    <!-- /ko -->
+
+                                                    <!-- ko ifnot: $data.usage() === Eagle.ParameterUsage.NoPort-->
+                                                        <!-- ko if: $data.isEvent() -->
+                                                            <button type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is event port<br/>Click to toggle'" data-bs-placement="left">
+                                                                <i class="material-icons">alarm_on</i>
+                                                            </button>
+                                                        <!-- /ko -->
+                                                        <!-- ko ifnot: $data.isEvent() -->
+                                                            <button type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is not event port<br/>Click to toggle'" data-bs-placement="left">
+                                                                <i class="material-icons">alarm_off</i>
+                                                            </button>
+                                                        <!-- /ko -->
+                                                    <!-- /ko -->
+                                                <!-- /ko -->
+                                            </td>
                                         <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('actions') -->
                                         <td>
