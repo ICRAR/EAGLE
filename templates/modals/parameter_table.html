@@ -251,12 +251,12 @@
                                                     <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious')-->
                                                     <div data-bind="text:console.log($data.isPrecious())"></div>
                                                         <!-- ko if: $data.isPrecious() -->
-                                                            <button type="button" data-bind="click: function(){$data.togglePrecious();}, eagleTooltip: 'Port is precious<br/>Click to toggle'" data-bs-placement="left">
-                                                                <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,1,0" />
+                                                            <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Port is precious<br/>Click to toggle'" data-bs-placement="left">
+                                                                <i class="material-icons">diamond</i>
                                                             </button>
                                                         <!-- /ko -->
                                                         <!-- ko ifnot: $data.isPrecious() -->
-                                                            <button type="button" data-bind="click: function(){$data.togglePrecious();}, eagleTooltip: 'Port is not precious<br/>Click to toggle'" data-bs-placement="left">
+                                                            <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Port is not precious<br/>Click to toggle'" data-bs-placement="left">
                                                                 <i class="material-icons-outlined">diamond</i>
                                                             </button>
                                                         <!-- /ko -->

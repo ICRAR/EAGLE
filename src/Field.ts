@@ -150,7 +150,8 @@ export class Field {
     }
 
     togglePrecious = () : void => {
-        this.precious(!this.precious);
+        this.precious(!this.precious());
+
     }
 
     isPrecious = () : boolean => {
