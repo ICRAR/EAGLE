@@ -262,8 +262,12 @@ td:first-child input {
     color: rgb(113 113 113);
 }
 
+#parameter_table_flags{
+    width: 101px;
+}
+
 #parameter_table_actions{
-    width: 123px;
+    width: 101px;
 }
 
 #parameter_table_usage{
@@ -1529,6 +1533,7 @@ select.form-control{
 .navbar-btn i.material-icons.md-18 {
     position: relative;
     top: 3px;
+    font-size: 20px;
 }
 
 .navbar-center .navbar-btn.navbar-btn-active{

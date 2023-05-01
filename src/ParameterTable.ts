@@ -38,6 +38,7 @@ export class ParameterTable {
         ParameterTable.parameterTableVisibility.push({parameterName:"usage", keyVisibility: true, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"precious", keyVisibility: false, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"positional", keyVisibility: false, inspectorVisibility: true});
+        ParameterTable.parameterTableVisibility.push({parameterName:"flags", keyVisibility: true, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"actions", keyVisibility: true, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"actionEdit", keyVisibility: true, inspectorVisibility: true});
         ParameterTable.parameterTableVisibility.push({parameterName:"actionValue", keyVisibility: true, inspectorVisibility: true});
