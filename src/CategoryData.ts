@@ -1,4 +1,7 @@
-import {Category} from './Category';
+import { Category } from './Category';
+import { Eagle } from './Eagle';
+import { Field } from './Field';
+import { Utils } from './Utils';
 
 export class CategoryData {
     static readonly cData : {[category:string] : Category.CategoryData} = {
@@ -80,4 +83,35 @@ export class CategoryData {
 
         return c;
     }
+
+    // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
+    static readonly requiredFields = [
+        {
+            category: Category.MKN,
+            fields: [
+                new Field("", "k", "k", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false),
+            ]
+        },
+        {
+            category: Category.Scatter,
+            fields: [
+                new Field("", "num_of_copies", "num_of_copies", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
+            ]
+        },
+        {
+            category: Category.Gather,
+            fields: [
+                new Field("", "num_of_inputs", "num_of_inputs", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
+            ]
+        },
+        {
+            category: Category.Loop,
+            fields: [
+                new Field("", "num_of_iter", "num_of_iter", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
+            ]
+        }
+    ];
+
+    static readonly groupStartField = new Field("", "group_start", "group_start", "true", "true", "", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
+    static readonly groupEndField = new Field("", "group_end", "group_end", "true", "true", "", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
 }

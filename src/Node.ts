@@ -1185,64 +1185,11 @@ export class Node {
         return attr
     }
 
-    getInputMultiplicity = () : number => {
-        if (this.isMKN()){
-            const m : Field = this.getFieldByIdText("m");
-
-            if (m === null){
-                console.warn("Unable to determine input multiplicity of MKN, no 'm' field. Using default value (1).");
-                return 1;
-            }
-
-            return parseInt(m.getValue(), 10);
-        }
-
-        if (this.isGather()){
-            const numInputs : Field = this.getFieldByIdText("num_of_inputs");
-
-            if (numInputs === null){
-                console.warn("Unable to determine input multiplicity of Gather, no 'num_of_inputs' field. Using default value (1).");
-                return 1;
-            }
-
-            return parseInt(numInputs.getValue(), 10);
-        }
-
-        return 1;
-    }
-
-    getOutputMultiplicity = () : number => {
-        if (this.isMKN()){
-            const n : Field = this.getFieldByIdText("n");
-
-            if (n === null){
-                console.warn("Unable to determine output multiplicity of MKN, no 'n' field. Using default value (1).");
-                return 1;
-            }
-
-            return parseInt(n.getValue(), 10);
-        }
-
-        if (this.isScatter()){
-            const numCopies : Field = this.getFieldByIdText("num_of_copies");
-
-            if (numCopies === null){
-                console.warn("Unable to determine output multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
-                return 1;
-            }
-
-            return parseInt(numCopies.getValue(), 10);
-        }
-
-        return 1;
-    }
-
     getLocalMultiplicity = () : number => {
         if (this.isMKN()){
             const k : Field = this.getFieldByIdText("k");
 
             if (k === null){
-                console.warn("Unable to determine local multiplicity of MKN, no 'k' field. Using default value (1).");
                 return 1;
             }
 
@@ -1253,7 +1200,6 @@ export class Node {
             const numCopies = this.getFieldByIdText("num_of_copies");
 
             if (numCopies === null){
-                console.warn("Unable to determine local multiplicity of Scatter, no 'num_of_copies' field. Using default value (1).");
                 return 1;
             }
 
@@ -1269,7 +1215,6 @@ export class Node {
             const numCopies = this.getFieldByIdText("num_of_iter");
 
             if (numCopies === null){
-                console.warn("Unable to determine local multiplicity of Loop, no 'num_of_iter' field. Using default value (1).");
                 return 1;
             }
 
@@ -2185,15 +2130,27 @@ export class Node {
             }
         }
 
-        // check that fields are parameter types that are suitable for this node
+        // check that fields have parameter types that are suitable for this node
         for (const field of node.getFields()){
             if (
                 (field.getParameterType() === Eagle.ParameterType.ComponentParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
                 (field.getParameterType() === Eagle.ParameterType.ApplicationArgument) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments ||
                 (field.getParameterType() === Eagle.ParameterType.ConstructParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveConstructParameters
             ){
+                // determine a suitable type
+                let suitableType: Eagle.ParameterType = Eagle.ParameterType.Unknown;
+                if (CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters){
+                    suitableType = Eagle.ParameterType.ComponentParameter;
+                } else {
+                    if (CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments){
+                        suitableType = Eagle.ParameterType.ApplicationArgument;
+                    } else {
+                        suitableType = Eagle.ParameterType.ConstructParameter;
+                    }
+                }
+
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
-                const issue: Errors.Issue = Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldParameterType(eagle, field)}, "Switch to suitable type");
+                const issue: Errors.Issue = Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldParameterType(eagle, field, suitableType)}, "Switch to suitable type");
                 errorsWarnings.warnings.push(issue);
             }
         }
@@ -2253,6 +2210,30 @@ export class Node {
         }
         if (node.hasOutputApplication()){
             Node.isValid(eagle, node.getOutputApplication(), selectedLocation, showNotification, showConsole, errorsWarnings);
+        }
+
+        // check that this category of node contains all the fields it requires
+        for (const requirement of CategoryData.requiredFields){
+            if (node.getCategory() === requirement.category){
+                for (const requiredField of requirement.fields){
+                    // check if the node already has this field
+                    const existingField = node.getFieldByIdText(requiredField.getIdText());
+
+                    // if not, create one by cloning the required field
+                    // if so, check the attributes of the field match
+                    if (existingField === null){
+                        const message = "Node " + node.getKey() + " (" + node.getName() + ") has category " + node.getCategory() + " but has no '" + requiredField.getIdText() + "' field.";
+                        const newField = requiredField.clone();
+                        newField.setId(Utils.uuidv4());
+                        errorsWarnings.errors.push(Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeAddField(eagle, node, newField)}, "Add '" + newField.getIdText() + "' field to node"));
+                    } else {
+                        if (existingField.getParameterType() !== requiredField.getParameterType()){
+                            const message = "Node " + node.getKey() + " (" + node.getName() + ") has a '" + requiredField.getIdText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + requiredField.getParameterType();
+                            errorsWarnings.errors.push(Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldParameterType(eagle, existingField, requiredField.getParameterType())}, "Switch type of field to '" + requiredField.getParameterType()));
+                        }
+                    }
+                }
+            }
         }
 
         return Utils.worstEdgeError(errorsWarnings);
