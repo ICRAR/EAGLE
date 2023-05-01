@@ -209,7 +209,7 @@
                                                             <i class="material-icons-outlined">lock_open</i>
                                                         </button>
                                                     <!-- /ko -->
-                                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious')-->
+                                                    <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
                                                         <!-- ko if: $data.isPrecious() -->
                                                             <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Parameter is precious<br/>Click to toggle'" data-bs-placement="left">
                                                                 <i class="material-icons">diamond</i>
@@ -221,7 +221,7 @@
                                                             </button>
                                                         <!-- /ko -->
                                                     <!-- /ko -->
-                                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('positional')-->
+                                                    <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
                                                             <!-- ko if: $data.isPositionalArgument() -->
                                                             <button type="button" data-bind="click: $data.togglePositionalArgument, eagleTooltip: 'Parameter is positional<br/>Click to toggle'" data-bs-placement="left">
                                                                 <i class="material-icons">location_on</i>
@@ -266,21 +266,11 @@
                                         
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('actions') -->
                                             <td>
-                                                <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionEdit') -->
-                                                    <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
-                                                    <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', $data.parameterType(), $data.usage(), $data.getId());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
-                                                    <!-- /ko -->
-                                                <!-- /ko -->
-                                                <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionDefault') -->
-                                                    <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
-                                                <!-- /ko -->
+                                                <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
                                                 <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
-                                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionDuplicate') -->
-                                                        <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
-                                                    <!-- /ko -->
-                                                    <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionDelete') -->
-                                                        <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
-                                                    <!-- /ko -->
+                                                    <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', $data.parameterType(), $data.usage(), $data.getId());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
+                                                    <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
+                                                    <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                                 <!-- /ko -->
                                             </td>
                                         <!-- /ko -->
