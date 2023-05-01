@@ -336,16 +336,16 @@ export class Modals {
 
             let newField;
             switch(realType){
-                case Daliuge.DataType_Boolean:
+                case Daliuge.DataType.Boolean:
                     newField = new Field(id, displayText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
-                case Daliuge.DataType_Select:
+                case Daliuge.DataType.Select:
                     newField = new Field(id, displayText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
-                case Daliuge.DataType_Integer:
+                case Daliuge.DataType.Integer:
                     newField = new Field(id, displayText, valueNumber, defaultValueNumber, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
-                case Daliuge.DataType_Float:
+                case Daliuge.DataType.Float:
                     newField = new Field(id, displayText, valueNumber, defaultValueNumber, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
                 default:
@@ -475,7 +475,7 @@ export class Modals {
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
         // only validate Json fields
-        if (realType !== Daliuge.DataType_Json){
+        if (realType !== Daliuge.DataType.Json){
             $('#editFieldModalValueInputText').removeClass('is-valid');
             $('#editFieldModalValueInputText').removeClass('is-invalid');
             return;
@@ -506,22 +506,22 @@ export class Modals {
         
 
         //toggle on the correct value input fields depending on type
-        $('#editFieldModalValueInputText').toggle(dataType !== Daliuge.DataType_Boolean && dataType !== Daliuge.DataType_Select && dataType !== Daliuge.DataType_Float && dataType !== Daliuge.DataType_Integer);
-        $('#editFieldModalValueInputNumber').toggle(dataType === Daliuge.DataType_Float || dataType === Daliuge.DataType_Integer);
-        $('#editFieldModalValueInputCheckbox').parent().toggle(dataType === Daliuge.DataType_Boolean);
-        $('#editFieldModalValueInputSelect').toggle(dataType === Daliuge.DataType_Select);
+        $('#editFieldModalValueInputText').toggle(dataType !== Daliuge.DataType.Boolean && dataType !== Daliuge.DataType.Select && dataType !== Daliuge.DataType.Float && dataType !== Daliuge.DataType.Integer);
+        $('#editFieldModalValueInputNumber').toggle(dataType === Daliuge.DataType.Float || dataType === Daliuge.DataType.Integer);
+        $('#editFieldModalValueInputCheckbox').parent().toggle(dataType === Daliuge.DataType.Boolean);
+        $('#editFieldModalValueInputSelect').toggle(dataType === Daliuge.DataType.Select);
 
-        $('#editFieldModalDefaultValueInputText').toggle(dataType !== Daliuge.DataType_Boolean && dataType !== Daliuge.DataType_Select && dataType !== Daliuge.DataType_Float && dataType !== Daliuge.DataType_Integer);
-        $('#editFieldModalDefaultValueInputNumber').toggle(dataType === Daliuge.DataType_Float || dataType === Daliuge.DataType_Integer);
-        $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === Daliuge.DataType_Boolean);
-        $('#editFieldModalDefaultValueInputSelect').toggle(dataType === Daliuge.DataType_Select);
+        $('#editFieldModalDefaultValueInputText').toggle(dataType !== Daliuge.DataType.Boolean && dataType !== Daliuge.DataType.Select && dataType !== Daliuge.DataType.Float && dataType !== Daliuge.DataType.Integer);
+        $('#editFieldModalDefaultValueInputNumber').toggle(dataType === Daliuge.DataType.Float || dataType === Daliuge.DataType.Integer);
+        $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === Daliuge.DataType.Boolean);
+        $('#editFieldModalDefaultValueInputSelect').toggle(dataType === Daliuge.DataType.Select);
 
         //setting up number value input specific things that are different for integers of floats 
-        if(dataType === Daliuge.DataType_Integer){
+        if(dataType === Daliuge.DataType.Integer){
             $('#editFieldModalValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
             $('#editFieldModalDefaultValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
 
-        }else if (dataType === Daliuge.DataType_Float){
+        }else if (dataType === Daliuge.DataType.Float){
             $('#editFieldModalValueInputNumber').addClass('inputNoArrows')
             $('#editFieldModalDefaultValueInputNumber').addClass('inputNoArrows')
         }

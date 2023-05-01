@@ -1047,7 +1047,7 @@ export class Node {
                 "false",
                 "Is this node the start of a group?",
                 false,
-                Daliuge.DataType_Boolean,
+                Daliuge.DataType.Boolean,
                 false,
                 [],
                 false,
@@ -1068,7 +1068,7 @@ export class Node {
                 "false",
                 "Is this node the end of a group?",
                 false,
-                Daliuge.DataType_Boolean,
+                Daliuge.DataType.Boolean,
                 false,
                 [],
                 false,
@@ -1253,14 +1253,14 @@ export class Node {
 
         // if no fields exist, create at least one, to store the custom data
         if (this.fields().length === 0){
-            this.addField(new Field(Utils.uuidv4(), "", "", "", "", false, Daliuge.DataType_Unknown, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false));
+            this.addField(new Field(Utils.uuidv4(), "", "", "", "", false, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false));
         }
 
         this.fields()[0].setValue(e.value);
     }
 
     addEmptyField = (index:number) :void => {
-        const newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", false, Daliuge.DataType_String, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false);
+        const newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false);
 
         if(index === -1){
             this.addField(newField);
@@ -1590,7 +1590,7 @@ export class Node {
                 "false",
                 "Specifies whether this data component contains data that should not be deleted after execution",
                 false,
-                Daliuge.DataType_Boolean,
+                Daliuge.DataType.Boolean,
                 false,
                 [],
                 false,
@@ -1609,7 +1609,7 @@ export class Node {
                 "false",
                 "Specifies whether this data component streams input and output data",
                 false,
-                Daliuge.DataType_Boolean,
+                Daliuge.DataType.Boolean,
                 false,
                 [],
                 false,
@@ -2094,41 +2094,41 @@ export class Node {
     static isValid = (eagle: Eagle, node: Node, selectedLocation: Eagle.FileType, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
         // check that all port dataTypes have been defined
         for (const port of node.getInputPorts()){
-            if (port.isType(Daliuge.DataType_Unknown)){
+            if (port.isType(Daliuge.DataType.Unknown)){
                 const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
                 errorsWarnings.warnings.push(issue);
             }
         }
         for (const port of node.getOutputPorts()){
-            if (port.isType(Daliuge.DataType_Unknown)){
+            if (port.isType(Daliuge.DataType.Unknown)){
                 const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
                 errorsWarnings.warnings.push(issue);
             }
         }
 
         for (const port of node.getInputApplicationInputPorts()){
-            if (port.isType(Daliuge.DataType_Unknown)){
+            if (port.isType(Daliuge.DataType.Unknown)){
                 const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
                 errorsWarnings.warnings.push(issue);
             }
         }
 
         for (const port of node.getInputApplicationOutputPorts()){
-            if (port.isType(Daliuge.DataType_Unknown)){
+            if (port.isType(Daliuge.DataType.Unknown)){
                 const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
                 errorsWarnings.warnings.push(issue);
             }
         }
 
         for (const port of node.getOutputApplicationInputPorts()){
-            if (port.isType(Daliuge.DataType_Unknown)){
+            if (port.isType(Daliuge.DataType.Unknown)){
                 const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
                 errorsWarnings.warnings.push(issue);
             }
         }
 
         for (const port of node.getOutputApplicationOutputPorts()){
-            if (port.isType(Daliuge.DataType_Unknown)){
+            if (port.isType(Daliuge.DataType.Unknown)){
                 const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
                 errorsWarnings.warnings.push(issue);
             }
@@ -2144,7 +2144,7 @@ export class Node {
 
         // check that all fields have default values
         for (const field of node.getFields()){
-            if (field.getDefaultValue() === "" && !field.isType(Daliuge.DataType_String) && !field.isType(Daliuge.DataType_Password) && !field.isType(Daliuge.DataType_Object) && !field.isType(Daliuge.DataType_Unknown)) {
+            if (field.getDefaultValue() === "" && !field.isType(Daliuge.DataType.String) && !field.isType(Daliuge.DataType.Password) && !field.isType(Daliuge.DataType.Object) && !field.isType(Daliuge.DataType.Unknown)) {
                 const issue: Errors.Issue = Errors.Fix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose default value is not specified", function(){Utils.showNode(eagle, node.getKey())}, function(){Utils.fixFieldDefaultValue(eagle, field)}, "Generate default value for parameter");
                 errorsWarnings.warnings.push(issue);
             }

@@ -205,7 +205,7 @@ export class Edge {
         }
 
         // try to read the dataType attribute
-        let dataType: string = Daliuge.DataType_Unknown;
+        let dataType: string = Daliuge.DataType.Unknown;
         if (typeof linkData.dataType !== 'undefined'){
             dataType = linkData.dataType;
         }

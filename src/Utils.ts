@@ -268,21 +268,21 @@ export class Utils {
 
     static dataTypePrefix(dataType: string): string {
         if (typeof dataType === 'undefined'){
-            return Daliuge.DataType_Unknown;
+            return Daliuge.DataType.Unknown;
         }
 
         return dataType.split(".")[0];
     }
 
     static translateStringToDataType(dataType: string): string {
-        for (const dt of Daliuge.DataTypes){
+        for (const dt of Utils.enumKeys(Daliuge.DataType)){
             if (dt.toLowerCase() === dataType.toLowerCase()){
                 return dt;
             }
         }
         
         console.warn("Unknown DataType", dataType);
-        return Daliuge.DataType_Unknown;
+        return Daliuge.DataType.Unknown;
     }
 
     static translateStringToParameterType(parameterType: string): Daliuge.FieldType {
@@ -713,8 +713,8 @@ export class Utils {
         $('#editFieldModalDisplayTextInput').val(field.getDisplayText());
         $('#editFieldModalValueInputText').val(field.getValue());
         $('#editFieldModalValueInputNumber').val(field.getValue());
-        $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Daliuge.DataType_Boolean));
-        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Daliuge.DataType_Boolean));
+        $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Daliuge.DataType.Boolean));
+        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Daliuge.DataType.Boolean));
         $('#editFieldModalValueInputSelect').empty();
         for (const option of field.getOptions()){
             $('#editFieldModalValueInputSelect').append($('<option>', {
@@ -726,8 +726,8 @@ export class Utils {
 
         $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
         $('#editFieldModalDefaultValueInputNumber').val(field.getDefaultValue());
-        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Daliuge.DataType_Boolean));
-        $('#editFieldModalDefaultValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Daliuge.DataType_Boolean));
+        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Daliuge.DataType.Boolean));
+        $('#editFieldModalDefaultValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Daliuge.DataType.Boolean));
         $('#editFieldModalDefaultValueInputSelect').empty();
         for (const option of field.getOptions()){
             $('#editFieldModalDefaultValueInputSelect').append($('<option>', {
@@ -1617,7 +1617,7 @@ export class Utils {
         let valid: boolean = true;
 
         // make sure JSON fields are parse-able
-        if (type === Daliuge.DataType_Json){
+        if (type === Daliuge.DataType.Json){
             try {
                 JSON.parse(value);
             } catch(e) {
@@ -1631,7 +1631,7 @@ export class Utils {
     static validateType(type: string) : boolean {
         const typePrefix = Utils.dataTypePrefix(type);
 
-        for (const dt of Daliuge.DataTypes){
+        for (const dt of Utils.enumKeys(Daliuge.DataType)){
             if (dt === typePrefix){
                 return true;
             }
@@ -1964,15 +1964,15 @@ export class Utils {
     static fixFieldDefaultValue(eagle: Eagle, field: Field){
         // depends on the type
         switch(field.getType()){
-            case Daliuge.DataType_Boolean:
+            case Daliuge.DataType.Boolean:
             field.setDefaultValue("false");
             break;
-            case Daliuge.DataType_Integer:
-            case Daliuge.DataType_Float:
+            case Daliuge.DataType.Integer:
+            case Daliuge.DataType.Float:
             field.setDefaultValue("0");
             break;
-            case Daliuge.DataType_Json:
-            case Daliuge.DataType_Python:
+            case Daliuge.DataType.Json:
+            case Daliuge.DataType.Python:
             field.setDefaultValue("{}");
             break;
             default:
@@ -1983,18 +1983,18 @@ export class Utils {
     }
 
     static fixFieldType(eagle: Eagle, field: Field){
-        if (field.getType() === Daliuge.DataType_Unknown){
-            field.setType(Daliuge.DataType_Object);
+        if (field.getType() === Daliuge.DataType.Unknown){
+            field.setType(Daliuge.DataType.Object);
             return;
         }
 
         // fix for redundant 'Complex' type
         if (field.getType() === 'Complex'){
-            field.setType(Daliuge.DataType_Object);
+            field.setType(Daliuge.DataType.Object);
             return;
         }
 
-        field.setType(Daliuge.DataType_Object + "." + field.getType());
+        field.setType(Daliuge.DataType.Object + "." + field.getType());
     }
 
     static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){

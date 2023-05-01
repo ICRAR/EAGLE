@@ -65,28 +65,18 @@ export namespace Daliuge {
         DIGEST = "Digest"
     }
 
-    export const DataType_Unknown = "Unknown";
-    export const DataType_String = "String";
-    export const DataType_Integer = "Integer";
-    export const DataType_Float = "Float";
-    export const DataType_Object = "Object";
-    export const DataType_Boolean = "Boolean";
-    export const DataType_Select = "Select";
-    export const DataType_Password = "Password";
-    export const DataType_Json = "Json";
-    export const DataType_Python = "Python";
-    export const DataTypes : string[] = [
-        DataType_Unknown,
-        DataType_String,
-        DataType_Integer,
-        DataType_Float,
-        DataType_Object,
-        DataType_Boolean,
-        DataType_Select,
-        DataType_Password,
-        DataType_Json,
-        DataType_Python,
-    ];
+    export enum DataType {
+        Unknown = "Unknown",
+        String = "String",
+        Integer = "Integer",
+        Float = "Float",
+        Object = "Object",
+        Boolean = "Boolean",
+        Select = "Select",
+        Password = "Password",
+        Json = "Json",
+        Python = "Python"
+    }
 
     export enum FieldType {
         Unknown = "Unknown",
@@ -120,29 +110,29 @@ export namespace Daliuge {
         {
             category: Category.MKN,
             fields: [
-                new Field("", "k", "1", "1", "", false, DataType_Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false),
+                new Field("", "k", "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false),
             ]
         },
         {
             category: Category.Scatter,
             fields: [
-                new Field("", "num_of_copies", "1", "1", "", false, DataType_Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
+                new Field("", "num_of_copies", "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
             ]
         },
         {
             category: Category.Gather,
             fields: [
-                new Field("", "num_of_inputs", "1", "1", "", false, DataType_Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
+                new Field("", "num_of_inputs", "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
             ]
         },
         {
             category: Category.Loop,
             fields: [
-                new Field("", "num_of_iter", "1", "1", "", false, DataType_Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
+                new Field("", "num_of_iter", "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
             ]
         }
     ];
 
-    export const groupStartField = new Field("", "group_start", "true", "true", "", false, DataType_Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
-    export const groupEndField = new Field("", "group_end", "true", "true", "", false, DataType_Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
+    export const groupStartField = new Field("", FieldName.GROUP_START, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
+    export const groupEndField = new Field("", FieldName.GROUP_END, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
 }

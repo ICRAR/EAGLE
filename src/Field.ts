@@ -196,7 +196,7 @@ export class Field {
         this.defaultValue("");
         this.description("");
         this.readonly(false);
-        this.type(Daliuge.DataType_Unknown);
+        this.type(Daliuge.DataType.Unknown);
         this.precious(false);
         this.options([]);
         this.positional(false);
@@ -305,14 +305,14 @@ export class Field {
     getHtmlInputType = () : string => {
         const typePrefix = Utils.dataTypePrefix(this.type());
         switch (typePrefix){
-            case Daliuge.DataType_Float:
-            case Daliuge.DataType_Integer:
+            case Daliuge.DataType.Float:
+            case Daliuge.DataType.Integer:
                 return "number";
-            case Daliuge.DataType_Boolean:
+            case Daliuge.DataType.Boolean:
                 return "checkbox";
-            case Daliuge.DataType_Password:
+            case Daliuge.DataType.Password:
                 return "password";
-            case Daliuge.DataType_Select:
+            case Daliuge.DataType.Select:
                 return "select";
             default:
                 return "text";
@@ -346,11 +346,11 @@ export class Field {
     // the value attribute is always stored as a string internally
     static stringAsType = (value: string, type: string) : any => {
         switch (type){
-            case Daliuge.DataType_Boolean:
+            case Daliuge.DataType.Boolean:
                 return Utils.asBool(value);
-            case Daliuge.DataType_Float:
+            case Daliuge.DataType.Float:
                 return parseFloat(value);
-            case Daliuge.DataType_Integer:
+            case Daliuge.DataType.Integer:
                 return parseInt(value, 10);
             default:
                 return value;
@@ -413,7 +413,7 @@ export class Field {
         let name: string = "";
         let description: string = "";
         let readonly: boolean = false;
-        let type: string = Daliuge.DataType_Unknown;
+        let type: string = Daliuge.DataType.Unknown;
         let value: string = "";
         let defaultValue: string = "";
         let precious: boolean = false;
@@ -436,7 +436,7 @@ export class Field {
         if (typeof data.type !== 'undefined'){
             if (data.type === "Event"){
                 isEvent = true;
-                type = Daliuge.DataType_Unknown;
+                type = Daliuge.DataType.Unknown;
             } else {
                 isEvent = false;
                 type = data.type;
