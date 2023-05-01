@@ -111,4 +111,7 @@ export class CategoryData {
             ]
         }
     ];
+
+    static readonly groupStartField = new Field("", "group_start", "group_start", "true", "true", "", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
+    static readonly groupEndField = new Field("", "group_end", "group_end", "true", "true", "", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
 }

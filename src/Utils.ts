@@ -1996,10 +1996,14 @@ export class Utils {
         field.setId(Utils.uuidv4());
     }
 
-    static fixFieldValue(eagle: Eagle, field: Field, value: string){
+    static fixFieldValue(eagle: Eagle, node: Node, exampleField: Field, value: string){
+        let field : Field = node.getFieldByIdText(exampleField.getIdText());
+
+        // if a field was not found, clone one from the example and add to node
         if (field === null){
-            console.warn("Can't fix null field with value", value);
-            return;
+            field = exampleField.clone();
+            field.setId(Utils.uuidv4());
+            node.addField(field);
         }
 
         field.setValue(value);
