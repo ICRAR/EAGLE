@@ -65,18 +65,20 @@ $(function(){
 
     // add eagle to the window object, slightly hacky, but useful for debugging
     (<any>window).eagle = eagle;
-    (<any>window).Eagle = Eagle;
-    (<any>window).Utils = Utils;
-    (<any>window).Config = Config;
+
     (<any>window).Category = Category;
+    (<any>window).Config = Config;
+    (<any>window).Daliuge = Daliuge;
+    (<any>window).Eagle = Eagle;
     (<any>window).Errors = Errors;
     (<any>window).Hierarchy = Hierarchy;
+    (<any>window).ParameterTable = ParameterTable;
+    (<any>window).Repositories = Repositories;
     (<any>window).RightClick = RightClick;
     (<any>window).Setting = Setting;
-    (<any>window).Repositories = Repositories;
-    (<any>window).ParameterTable = ParameterTable;
     (<any>window).SideWindow = SideWindow;
     (<any>window).TutorialSystem = TutorialSystem;
+    (<any>window).Utils = Utils;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
