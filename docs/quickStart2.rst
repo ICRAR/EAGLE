@@ -1,7 +1,7 @@
 Quick Start Guide
 =================
 
-Here are some step-by-step instructions and videos to help you get up and running with EAGLE quickly.
+Here are some step-by-step instructions and videos to help you get up and running with EAGLE quickly. You can play around with the editor on our `public installation <https://eagle.icrar.org/?service=GitHub&repository=ICRAR/EAGLE-graph-repo&branch=master&path=examples&filename=HelloWorld-simple.graph>`_. The rest of this document provides a detailed description of the functionality and usage of EAGLE.
 
 Loading a Palette
 -----------------

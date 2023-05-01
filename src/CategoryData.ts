@@ -1,0 +1,117 @@
+import { Category } from './Category';
+import { Eagle } from './Eagle';
+import { Field } from './Field';
+import { Utils } from './Utils';
+
+export class CategoryData {
+    static readonly cData : {[category:string] : Category.CategoryData} = {
+        Start                : {categoryType: Category.Type.Control, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-play_arrow", color: Category.Color.Control, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Control},
+        End                  : {categoryType: Category.Type.Control, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-stop", color: Category.Color.Control, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Control},
+        Branch               : {categoryType: Category.Type.Control, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 2, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-share", color: Category.Color.Control, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 54, sortOrder: Category.SortOrder.Control},
+        ExclusiveForceNode   : {categoryType: Category.Type.Control, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-force_node", color: Category.Color.Control, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Control},
+
+        Comment              : {categoryType: Category.Type.Other, isResizable: true, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-comment", color: Category.Color.Description, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Documentation},
+        Description          : {categoryType: Category.Type.Other, isResizable: true, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-description", color: Category.Color.Description, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Documentation},
+
+        Scatter              : {categoryType: Category.Type.Construct, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-call_split", color: Category.Color.Group, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Construct},
+        Gather               : {categoryType: Category.Type.Construct, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-merge_type", color: Category.Color.Group, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Construct},
+        MKN                  : {categoryType: Category.Type.Construct, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-many-to-many", color: Category.Color.Group, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Construct},
+        GroupBy              : {categoryType: Category.Type.Construct, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-group", color: Category.Color.Group, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Construct},
+        Loop                 : {categoryType: Category.Type.Construct, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-loop", color: Category.Color.Group, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Construct},
+        SubGraph             : {categoryType: Category.Type.Construct, isResizable: true, canContainComponents: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-subgraph", color: Category.Color.Group, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Construct},
+
+        PythonApp            : {categoryType: Category.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-python", color: Category.Color.Application, collapsedHeaderOffsetY: 10, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Application},
+        PyFuncApp            : {categoryType: Category.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-python", color: Category.Color.Application, collapsedHeaderOffsetY: 10, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Application},
+        BashShellApp         : {categoryType: Category.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-bash", color: Category.Color.Application, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Application},
+        DynlibApp            : {categoryType: Category.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-dynamic_library", color: Category.Color.Application, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Application},
+        DynlibProcApp        : {categoryType: Category.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-dynamic_library", color: Category.Color.Application, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Application},
+        Mpi                  : {categoryType: Category.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-mpi", color: Category.Color.Application, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Application},
+        Docker               : {categoryType: Category.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-docker", color: Category.Color.Application, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Application},
+        Singularity          : {categoryType: Category.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-singularity", color: Category.Color.Application, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Application},
+        UnknownApplication   : {categoryType: Category.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-question_mark", color: Category.Color.Error, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Other},
+
+        PythonMemberFunction : {categoryType: Category.Type.Application, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-stackoverflow", color: Category.Color.Application, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Application},
+        PythonObject         : {categoryType: Category.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-stackoverflow", color: Category.Color.Object, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Object},
+
+        File                 : {categoryType: Category.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-hard-drive", color: Category.Color.Data, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Data},
+        Memory               : {categoryType: Category.Type.Data, isResizable: false, canContainComponents: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-memory", color: Category.Color.Data, collapsedHeaderOffsetY: 16, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Data},
+        SharedMemory         : {categoryType: Category.Type.Data, isResizable: false, canContainComponents: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-shared_memory", color: Category.Color.Data, collapsedHeaderOffsetY: 16, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Data},
+        NGAS                 : {categoryType: Category.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-ngas", color: Category.Color.Data, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Data},
+        S3                   : {categoryType: Category.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-s3_bucket", color: Category.Color.Data, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Data},
+        ParameterSet         : {categoryType: Category.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-tune", color: Category.Color.Data, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Data},
+        EnvironmentVariables : {categoryType: Category.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-tune", color: Category.Color.Data, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Data},
+        Data                 : {categoryType: Category.Type.Data, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-hard-drive", color: Category.Color.Data, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Data},
+
+        Plasma               : {categoryType: Category.Type.Service, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-plasma", color: Category.Color.Service, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Service},
+        PlasmaFlight         : {categoryType: Category.Type.Service, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-plasmaflight", color: Category.Color.Service, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Service},
+        RDBMS                : {categoryType: Category.Type.Service, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-database", color: Category.Color.Service, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Service},
+        Service              : {categoryType: Category.Type.Service, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-database", color: Category.Color.Service, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Service},
+
+        Unknown              : {categoryType: Category.Type.Unknown, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-question_mark", color: Category.Color.Error, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Other},
+        None                 : {categoryType: Category.Type.Unknown, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-none", color: Category.Color.Error, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Other},
+
+        // legacy
+        Component            : {categoryType: Category.Type.Unknown, isResizable: false, canContainComponents: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-none", color: Category.Color.Error, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Other},
+
+    };
+
+    static getCategoryData = (category : Category) : Category.CategoryData => {
+        const c = CategoryData.cData[category];
+
+        if (typeof c === 'undefined'){
+            console.error("Could not fetch category data for category", category);
+            return {
+                categoryType: Category.Type.Unknown,
+                isResizable: false,
+                canContainComponents: false,
+                minInputs: 0,
+                maxInputs: 0,
+                minOutputs: 0,
+                maxOutputs: 0,
+                canHaveInputApplication: false,
+                canHaveOutputApplication: false,
+                canHaveComponentParameters: false,
+                canHaveApplicationArguments: false,
+                canHaveConstructParameters: false,
+                icon: "error",
+                color: "pink",
+                collapsedHeaderOffsetY: 0,
+                expandedHeaderOffsetY: 20,
+                sortOrder: Number.MAX_SAFE_INTEGER,
+            };
+        }
+
+        return c;
+    }
+
+    // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
+    static readonly requiredFields = [
+        {
+            category: Category.MKN,
+            fields: [
+                new Field("", "k", "k", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false),
+            ]
+        },
+        {
+            category: Category.Scatter,
+            fields: [
+                new Field("", "num_of_copies", "num_of_copies", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
+            ]
+        },
+        {
+            category: Category.Gather,
+            fields: [
+                new Field("", "num_of_inputs", "num_of_inputs", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
+            ]
+        },
+        {
+            category: Category.Loop,
+            fields: [
+                new Field("", "num_of_iter", "num_of_iter", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
+            ]
+        }
+    ];
+
+    static readonly groupStartField = new Field("", "group_start", "group_start", "true", "true", "", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
+    static readonly groupEndField = new Field("", "group_end", "group_end", "true", "true", "", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
+}

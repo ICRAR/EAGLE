@@ -6,11 +6,11 @@ Introduction to Eagle
 
    Installation <installation>
    Quick Start <quickStart2>
+   Settings <settings>
    Hello World Example <helloWorld>
    Components <components>
    Palettes <palettes>
    Templates and Graphs <graphs>
-   Modules <modules>
 
 .. Indices and tables
 .. ==================
@@ -19,7 +19,7 @@ Introduction to Eagle
 .. * :ref:`search`
 
 
-EAGLE is an interface designed to streamline and simplify workflow development, while creating a clear separation of different concerns and operational constraints. A major aim of EAGLE and its larger workflow creation model is to allow code to be as re-usable as possible, while still enabling highly optimised and integrated ways of implementing or migrating algorithms. It is also concerned with optimising the granularity and potential parallelism of workflows.
+EAGLE the UI of the `DALiuGE <https://daliuge.readthedocs.io>`_ workflow development and execution framework. It is an interface designed to streamline and simplify workflow development, while creating a clear separation of different concerns and operational constraints. A major aim of EAGLE and its larger workflow creation model is to allow code to be as re-usable as possible, while still enabling highly optimised and integrated ways of implementing or migrating algorithms. It is also concerned with optimising the granularity and potential parallelism of workflows.
 
 .. raw:: html
     :file: _static/intro_map.html

@@ -1,13 +1,13 @@
-<div class="card">
-    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Display Options">
-        <i class="material-icons interactive nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().displayOptions}">keyboard_arrow_down</i>
+<div class="accordion-item">
+    <h2 class="accordion-header" id="inspectorDisplayOptionsHeading">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inspectorDisplayOptionsCollapse" aria-expanded="false" aria-controls="inspectorDisplayOptionsCollapse" onclick="eagle.inspectorCollapseState()">
         <i class="material-icons">image</i>
         <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Options controlling how this component is displayed in EAGLE.'">Display Options</span>
-    </h5>
-    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse1">
-        <div class="card-body">
-
-            <!-- ko if: selectedNode().getCategory() !== Eagle.Category.Description && selectedNode().getCategory() !== Eagle.Category.Comment -->
+      </button>
+    </h2>
+    <div id="inspectorDisplayOptionsCollapse" class="accordion-collapse collapse">
+      <div class="accordion-body">
+            <!-- ko if: selectedNode().getCategory() !== Category.Description && selectedNode().getCategory() !== Category.Comment -->
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Name</span>
@@ -20,9 +20,9 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="node-parent" data-bind="eagleTooltip:'The key of the parent component of this component'" data-bs-placement="left">Parent</span>
                 </div>
-                <input type="text" class="form-control" id="nodeParentValue" placeholder="" aria-label="Name" aria-describedby="node-parent" data-bind="value: selectedNode().getParentKey()" readonly>
+                <input type="text" class="form-control" id="nodeParentValue" placeholder="" aria-label="Name" aria-describedby="node-parent" data-bind="value: function(){return $root.getParentNameAndKey(selectedNode().getParentKey());}(), eagleTooltip: function(){return $root.getParentNameAndKey(selectedNode().getParentKey());}()" readonly>
                 <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" id="nodeInspectorChangeParent" type="button" data-bind="click: $root.changeNodeParent">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorChangeParent" type="button" data-bind="click: $root.changeNodeParent, eagleTooltip: 'Change Parent ' + Utils.getKeyboardShortcutTextByKey('change_selected_node_parent', true)">
                         <i class="material-icons md-18">edit</i>
                     </button>
                 </div>
@@ -45,37 +45,15 @@
                 </div>
             </div>
 
-            <!-- ko if: selectedNode().getCategory() === Eagle.Category.Comment -->
+            <!-- ko if: selectedNode().getCategory() === Category.Comment -->
             <div class="input-group mb-1">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="node-subject" data-bind="eagleTooltip:'The subject of the comment text specified by this component'" data-bs-placement="left">Subject</span>
                 </div>
                 <input type="text" class="form-control" id="nodeSubjectValue" placeholder="" aria-label="Name" aria-describedby="node-subject" data-bind="value: selectedNode().getSubjectKey()" readonly>
                 <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" id="nodeInspectorChangeSubject" type="button" data-bind="click: $root.changeNodeSubject">
+                    <button class="btn btn-secondary btn-sm" id="nodeInspectorChangeSubject" type="button" data-bind="click: $root.changeNodeSubject, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('change_selected_node_subject', true)">
                         <i class="material-icons md-18">edit</i>
-                    </button>
-                </div>
-            </div>
-            <!-- /ko -->
-
-            <!-- ko if: selectedNode().isData() -->
-            <div class="input-group mb-1">
-                <input type="text" class="form-control" id="nodeStreamingValue" placeholder="" aria-label="Streaming" aria-describedby="node-streaming" value="Streaming" readonly data-bind="eagleTooltip:'Specifies whether this data component streams input and output data'" data-bs-placement="left">
-                <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" id="nodeInspectorToggleStreaming" type="button" data-bind="click: function(){selectedNode().toggleStreaming();selectedObjects.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
-                        <i class="material-icons md-18" data-bind="visible: selectedNode().isStreaming()">radio_button_checked</i>
-                        <i class="material-icons md-18" data-bind="hidden: selectedNode().isStreaming()">radio_button_unchecked</i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="input-group mb-1">
-                <input type="text" class="form-control" id="nodePreciousValue" placeholder="" aria-label="Precious" aria-describedby="node-precious" value="Precious" readonly data-bind="eagleTooltip:'Specifies whether this data component contains precious data. Precious data will not be deleted at the conclusion of a workflow'" data-bs-placement="left">
-                <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" id="nodeInspectorTogglePrecious" type="button" data-bind="click: function(){selectedNode().togglePrecious();selectedObjects.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
-                        <i class="material-icons md-18" data-bind="visible: selectedNode().isPrecious()">radio_button_checked</i>
-                        <i class="material-icons md-18" data-bind="hidden: selectedNode().isPrecious()">radio_button_unchecked</i>
                     </button>
                 </div>
             </div>
@@ -102,6 +80,6 @@
                 </div>
             </div>
             <!-- /ko -->
-        </div>
+      </div>
     </div>
 </div>

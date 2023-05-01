@@ -1,12 +1,13 @@
-<div class="card">
-    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse5" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Input Application">
-        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().inputApplication}">keyboard_arrow_down</i>
-        <i class="material-icons">apps</i>
-        <span class="nodeInspectorSubsectionTitle">Input Application</span>
-    </h5>
-    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse5">
-        <div class="card-body input-application">
-            <inspector-component params="node: $root.selectedNode().inputApplication, selectCallback: $root.setNodeInputApplication, inspectCallback: $root.selectInputApplicationNode, selectId:'nodeInspectorAddInputApplication', changeId:'nodeInspectorChangeInputApplication', inspectId:'nodeInspectorInspectInputApplication'"></inspector-component>
+<div class="accordion-item">
+    <h2 class="accordion-header" id="inspectorInputAppHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inspectorInputAppCollapse" aria-expanded="false" aria-controls="inspectorInputAppCollapse" onclick="eagle.inspectorCollapseState()">
+            <i class="material-icons">apps</i>
+            <span class="nodeInspectorSubsectionTitle">Input Application</span>
+        </button>
+    </h2>
+    <div id="inspectorInputAppCollapse" class="accordion-collapse collapse">
+        <div class="accordion-body">
+            <inspector-component params="node: $root.selectedNode().inputApplication, selectCallback: function(){$root.setNodeInputApplication($root.selectedNode().key())}, inspectCallback: $root.selectInputApplicationNode, selectId:'nodeInspectorAddInputApplication', changeId:'nodeInspectorChangeInputApplication', inspectId:'nodeInspectorInspectInputApplication'"></inspector-component>
         </div>
     </div>
 </div>

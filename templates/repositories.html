@@ -1,7 +1,7 @@
 <div id="repositoryList" class="container py-2">
     <div class="row">
         <div class="col">
-            <ul class="repositories" data-bind="foreach: repositories">
+            <ul class="repositories" data-bind="foreach: Repositories.repositories">
                 <li>
                     <repository params="data: $data, parent: $parent"></repository>
                 </li>
@@ -10,7 +10,7 @@
     </div>
     <div class="row">
         <div class="col">
-            <button type="button" id="addRepository" class="btn btn-primary btn-block btn_wide" data-bind="click: addCustomRepository">Add Repository</button>
+            <button type="button" id="addRepository" class="btn btn-primary btn-block btn_wide" data-bind="click: $root.repositories().addCustomRepository">Add Repository</button>
         </div>
     </div>
 </div>

@@ -23,31 +23,35 @@
 */
 
 export class Config {
-    // File name of the palette template.
-    static readonly templatePaletteFileName : string = "template.palette";
-    static readonly builtinPaletteFileName : string = "builtin.palette";
-
-    // schemas
-    static readonly graphSchemaFileName : string = "assets/schema/dlg-lg.graph.schema";
-    static readonly paletteSchemaFileName : string = "assets/schema/dlg-lg.palette.schema";
-
     // Dimensions.
     static readonly paletteNodeHeight : number = 22;
     static readonly paletteNodeWidth : number = 130;
 
-    // translation algorithms
-    static readonly translationAlgorithms = [
-        "none",
-        "metis",
-        "mysarkar",
-        "min_num_parts",
-        "pso",
-        "simple"
+    static readonly DALIUGE_PARAMETER_NAMES = [
+        "data_volume",
+        "execution_time",
+        "num_cpus",
+        "group_start",
+        "group_end",
+        "input_error_threshold",
+        "n_tries"
     ];
 
     static readonly defaultRightWindowWidth : number = 400;
     static readonly defaultLeftWindowWidth : number = 310;
 
+    // automatically loaded palettes
     static readonly DEFAULT_PALETTE_REPOSITORY : string = "ICRAR/EAGLE_test_repo";
-    static readonly DALIUGE_PALETTE_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master.palette";
+    static readonly DALIUGE_PALETTE_URL : string  = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master.palette";
+    static readonly DALIUGE_TEMPLATE_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/daliuge/daliuge-master-template.palette";
+
+    // schemas
+    static readonly DALIUGE_GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg/dropmake/lg.graph.schema";
+
+    static readonly UNDO_MEMORY_SIZE : number = 10;
+
+    static readonly HIERARCHY_EDGE_SELECTED_COLOR : string = "rgb(47 22 213)";
+    static readonly HIERARCHY_EDGE_DEFAULT_COLOR : string = "black";
+
+    static readonly SELECTED_NODE_COLOR : string = "rgb(47 22 213)";
 }

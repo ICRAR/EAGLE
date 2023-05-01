@@ -8,7 +8,7 @@
             <!-- /ko -->
 
             <!-- ko ifnot: $data.node() === null -->
-                <div class="input-group-prepend" data-bind="eagleTooltip: $data.node().getHelpHTML()" data-bs-placement="left">
+                <div class="input-group-prepend prepend-Icon" data-bind="eagleTooltip: $data.node().getHelpHTML()" data-bs-placement="left">
                     <span class="input-group-text" data-bind="style: {'background-color': $data.node().color}">
                         <i data-bind="class: $data.node().getIcon()"></i>
                     </span>
@@ -21,7 +21,11 @@
                         <i class="material-icons md-18">edit</i>
                     </button>
                 </div>
-
+                <div class="input-group-append">
+                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.logicalGraph().removeNode($data.node())}, eagleTooltip: 'Delete application'" data-bs-placement="left">
+                        <i class="material-icons md-18">delete</i>
+                    </button>
+                </div>
                 <div class="input-group-append">
                     <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.inspectCallback, attr: {id:$data.inspectId}, eagleTooltip: 'Inspect application'" data-bs-placement="left">
                         <i class="material-icons md-18">search</i>

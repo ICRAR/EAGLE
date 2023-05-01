@@ -13,7 +13,6 @@
         <link rel="stylesheet" href="static/svg.css">
         <link rel="stylesheet" href="static/graph.css">
         <link rel="stylesheet" href="static/fonts.css">
-        <link rel="stylesheet" href="static/introjs.min.css">
 
         <link rel="shortcut icon" href="static/assets/svg/liuFavIcon.svg" type="image/x-icon">
 
@@ -22,13 +21,13 @@
         <script>
             require(["bootstrap"]);
             require(["bootstrap-notify"]);
-            require(["introjs"]);
             require(["ajv"]);
+            require(["showdown"]);
             require(["bindingHandlers/readonly"]);
             require(["bindingHandlers/disabled"]);
             require(["bindingHandlers/graphRenderer"]);
-            require(["bindingHandlers/nodeDataProperty"]);
             require(["bindingHandlers/eagleTooltip"]);
+            require(["bindingHandlers/eagleRightClick"]);
             require(["components"]);
             require(["main"]);
 
@@ -39,6 +38,8 @@
             window.auto_load_branch = '{{auto_load_branch}}';
             window.auto_load_path = '{{auto_load_path}}';
             window.auto_load_filename = '{{auto_load_filename}}';
+            window.auto_load_url = '{{auto_load_url}}';
+            window.mode = '{{mode}}';
         </script>
     </head>
 
@@ -52,9 +53,11 @@
 
         {% include 'navbar.html' %}
 
-        <div class="container-fluid" id="graphArea" data-bind="event: { dragover: sideWindowAdjust}">
+        <div class="container-fluid" id="graphArea" data-bind="event: { dragover: SideWindow.sideWindowAdjust}">
+
+            <!-- ko ifnot: Eagle.hidePaletteTab() -->
             <div class="leftWindow" data-bind="style: { width: leftWindow().width(), left: leftWindow().shown() ? 0 : -leftWindow().width()}">
-                <div class="leftWindowHandle" data-bind="click: leftWindow().toggleShown">
+                <div class="leftWindowHandle" data-bind="click: leftWindow().toggleShown, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_left_window', true)">
                     <span style="display: none" data-bind="visible: leftWindow().shown()">
                         <i class="material-icons">arrow_back</i>
                     </span>
@@ -67,11 +70,13 @@
                     {% include 'palettes.html' %}
                 </div>
 
-                <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: leftWindowAdjustStart , dragend: sideWindowAdjustEnd }">
+                <div class="leftWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: SideWindow.leftWindowAdjustStart , dragend: SideWindow.sideWindowAdjustEnd }">
+                    <div class="leftWindowSizeAdjusterLine"></div>
                 </div>
             </div>
+            <!-- /ko -->
 
-            <div id="logicalGraphParent" data-bind="event: { dragover:nodeDragOver, drop: nodeDropLogicalGraph, mousemove: mouseMove, mousedown: function(){startDrag(null);}, mouseup: function(){endDrag(null);}, wheel: mouseWheel }">
+            <div id="logicalGraphParent" class="rightClick_logicalGraph" data-bind="event: { dragover:SideWindow.nodeDragOver, drop: nodeDropLogicalGraph, mousemove: mouseMove, mousedown: function(){startDrag(null);}, mouseup: function(){endDrag(null);}, wheel: mouseWheel }, eagleRightClick: $data">
                 <div id="logicalGraphD3Div">
                     <!-- ko if: $root.logicalGraph() !== null -->
                     <!-- ko foreach: $root.logicalGraph().getNodes() -->
@@ -98,20 +103,22 @@
 
             <div class="rightWindow" data-bind="style: { width: rightWindow().width(), right: rightWindow().shown() ? 0 : -rightWindow().width()}">
                <div class="btn-group" id="rightWindowTabs" role="group" aria-label="RightWindowModeSelect">
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Repository);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}" data-intro='Load palettes and graphs from remote git repositories.'>
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Repository);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}">
                             Repositories
+                        </button>
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}">
+                            Hierarchy
                         </button>
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="visible: selectedObjects().length > 0, click: function(){rightWindow().mode(Eagle.RightWindowMode.Inspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Inspector}">
                             Inspector
                         </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}" data-intro='Submit a logical graph for translation into a physical graph.'>
-                            Translation
-                        </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}" data-intro='Explore the hierarchy of nodes in the current logical graph.'>
-                            Hierarchy
-                        </button>
+                        <!-- ko ifnot: Eagle.translatorUiMode(Setting.TranslatorMode.Minimal)-->
+                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}">
+                                Translation
+                            </button>
+                        <!-- /ko -->
                     </div>
-                <div class="rightWindowHandle" data-bind="click: rightWindow().toggleShown">
+                <div class="rightWindowHandle" data-bind="click: rightWindow().toggleShown, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_right_window', true)">
                     <span data-bind="visible: rightWindow().shown()">
                         <i class="material-icons">arrow_forward</i>
                     </span>
@@ -129,11 +136,32 @@
                             Select a single node or edge
 =======
                             <div id="inspectorSelectionSummary">
-                                <h5>Selection Summary</h5>
+                                <div class="row" id="multiSelectionHeader">
+                                    <div class="col-8">
+                                        <h5>Selection Summary</h5>
+                                    </div>
+                                    <div class="col-4 text-right headerBtns">
+                                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
+                                        <button type="button" id="duplicateSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: function(){duplicateSelection(normal)}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
+                                            <i  class="material-icons md-24">content_copy</i>
+                                        </button>
+                                        <!-- /ko -->
+                                        <!-- ko if: Eagle.allowPaletteEditing() -->
+                                        <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
+                                            <i  class="material-icons md-24">library_add</i>
+                                        </button>
+                                        <!-- /ko -->
+                                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
+                                        <button type="button" id="deleteSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection('',false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
+                                            <i class="material-icons md-24">delete</i>
+                                        </button>
+                                        <!-- /ko -->
+                                    </div>
+                                </div>
                                 <span data-bind="text: $root.getSelectedText()"></span>
                                 <span id="inspectorSelectionSummaryNodes">Selected Nodes:</span>
                                 <!-- ko foreach: $root.selectedObjects -->
-                                    <!-- ko if: $root.isTypeNode($data) -->
+                                    <!-- ko if: Utils.isTypeNode($data) -->
                                         <div class="inspectorSelectionSummaryItem">
                                             <h5 data-bind="text: $data.getName()"></h5>
                                             <span data-bind="text: $data.getCategory()"></span>
@@ -151,14 +179,16 @@
                         </div>
                     </div>
                     <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
-                        {% include 'translation_menu.html' %}
+                        <!-- ko ifnot: Eagle.translatorUiMode(Setting.TranslatorMode.Minimal)-->
+                            {% include 'translation_menu.html' %}
+                        <!-- /ko -->
                     </div>
                     <div class="rightWindowDisplay hierarchy" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy">
                         {% include 'hierarchy.html' %}
                     </div>
                 </div>
-
-                <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: rightWindowAdjustStart, dragend: sideWindowAdjustEnd }">
+                <div class="rightWindowSizeAdjuster" draggable="true" data-bind="event: { dragstart: SideWindow.rightWindowAdjustStart, dragend: SideWindow.sideWindowAdjustEnd }">
+                    <div class="rightWindowSizeAdjusterLine"></div>
                 </div>
             </div>
         </div>

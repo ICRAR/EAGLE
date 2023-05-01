@@ -28,6 +28,7 @@ from setuptools.command.install import install
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 
+
 class npmBuild(build):
     def run(self):
         # run original build code
@@ -44,40 +45,44 @@ class npmBuild(build):
         target_dir = os.path.join(BASEPATH, "static", "built")
 
         def compile():
-             call(cmd)
-             call(["tsc"])
+            call(cmd)
+            call(["tsc"])
 
         self.execute(compile, [], "Running npm")
 
-
         if not self.dry_run:
-            self.copy_tree(target_dir, os.path.join(self.build_lib, "static", "built"))
+            self.copy_tree(
+                target_dir, os.path.join(self.build_lib, "static", "built")
+            )
 
-version = '0.0'
+
+version = "0.0"
 # with open("VERSION") as vfile:
 #     for line in vfile.readlines():
 #         if "SW_VER" in line:
 #             version = line.split("SW_VER ")[1].strip()[1:-1]
 #             break
 
+
 def package_files(directory):
     paths = []
-    for (path, directories, filenames) in os.walk(directory):
+    for path, directories, filenames in os.walk(directory):
         for filename in filenames:
-            paths.append(os.path.join('..', path, filename))
+            paths.append(os.path.join("..", path, filename))
     return paths
 
-static_files = package_files('static')
+
+static_files = package_files("static")
 
 
 install_requires = [
     "flask",
     "pygithub",
     "python-gitlab",
-#    "sphinx",
-#    "sphinx_rtd_theme",
-#    "sphinxcontrib-openapi",
-    "six"
+    #    "sphinx",
+    #    "sphinx_rtd_theme",
+    #    "sphinxcontrib-openapi",
+    "six",
 ]
 
 setup(
@@ -92,16 +97,16 @@ setup(
     url="",
     license="",
     packages=find_packages(),
-#    include_package_data=True,
+    include_package_data=True,
     package_data={
         "EAGLE": ["README", "*.txt"],
-        "templates": ["*.html"],
         "static": static_files,
-        # "docs": ["*"],
     },
     #    dependency_links=['http://github.com/ICRAR/daliuge/tarball/master#egg=daliuge-1.0'],
     install_requires=install_requires,
     # No spaces allowed between the '='s
-    entry_points={"console_scripts": ["eagleServer=eagleServer.eagleServer:main"]},
+    entry_points={
+        "console_scripts": ["eagleServer=eagleServer.eagleServer:main"]
+    },
     cmdclass={"build": npmBuild},
 )

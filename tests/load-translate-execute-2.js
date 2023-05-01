@@ -23,6 +23,7 @@ const GRAPHS = [
 //       port 8084 are already in use
 
 const DALIUGE_TRANSLATOR_PORT = "6379";
+//const DALIUGE_TRANSLATOR_PORT = "8084";
 
 const DALIUGE_DIM_PORT = "8001";
 const DALIUGE_NM_PORT = "8000";
@@ -205,10 +206,10 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // disable the 'confirm discard changes' setting
             .click('#settingConfirmDiscardChangesButton')
 
-            // disable the 'spawn translation tab' setting
-            .click('#settingSpawnTranslationTabButton')
+            //switch to UI Options tab
+            .click("#settingCategoryUIOptions")
 
-            // use the complex translator options
+            // BROKEN this used to be a simple toggle but is now a select drop down, we need to select the 'expert' option in order to unlock the advanced translation options
             .click('#settingUseSimplifiedTranslatorOptionsButton')
 
             //switch to external services tab
@@ -217,6 +218,12 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             // enter the translator url
             .typeText(Selector('#settingTranslatorURLValue'), "http://" + "localhost" + ":" + DALIUGE_TRANSLATOR_PORT + DALIUGE_TRANSLATOR_URL, { replace : true })
 
+            //switch to Developer tab
+            .click("#settingCategoryDeveloper")
+
+            // turn on the 'overwrite current tab button'
+            .click('#settingOpenTranslatorInCurrentTabButton')
+
             // close settings modal
             .click('#settingsModalAffirmativeButton')
 
@@ -224,6 +231,7 @@ for (let i = 0 ; i < GRAPHS.length ; i++){
             //.wait(3000);
 
         // !!!!!!!!!!!!! LOAD GRAPH
+
         await t
             .click(Selector('#navbarDropdownGraph'))
             .hover(Selector('#navbarDropdownGraphNew'))

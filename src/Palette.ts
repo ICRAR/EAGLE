@@ -29,13 +29,16 @@ import {Eagle} from './Eagle';
 import {Node} from './Node';
 import {FileInfo} from './FileInfo';
 import {RepositoryFile} from './RepositoryFile';
+import {Errors} from './Errors';
+import {Category} from './Category';
+import {CategoryData} from './CategoryData';
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
     private nodes : ko.ObservableArray<Node>;
     private searchExclude : ko.Observable<boolean>;
 
-    public static readonly DYNAMIC_PALETTE_NAME: string = "Raw Components";
+    public static readonly DYNAMIC_PALETTE_NAME: string = "Component Templates";
     public static readonly BUILTIN_PALETTE_NAME: string = "Built-in Palette";
 
     constructor(){
@@ -45,7 +48,7 @@ export class Palette {
         this.searchExclude = ko.observable(false);
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : Palette => {
+    static fromOJSJson = (data : string, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette => {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
         const result : Palette = new Palette();
@@ -58,24 +61,22 @@ export class Palette {
             const nodeData = dataObject.nodeDataArray[i];
 
             // read node
-            const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, (): number => {
+            const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, true, (): number => {
                 return Utils.newKey(result.nodes());
             });
 
             // check that node has no group
             if (newNode.getParentKey() !== null){
-                const error : string = "Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
-                console.warn(error);
-                errorsWarnings.errors.push(error);
+                const error : string = file.name + " Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
+                errorsWarnings.warnings.push(Errors.Message(error));
 
                 newNode.setParentKey(null);
             }
 
             // check that x, y, position is the default
             if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
-                const error : string = "Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
-                console.warn(error);
-                errorsWarnings.errors.push(error);
+                const error : string = file.name + " Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
+                errorsWarnings.warnings.push(Errors.Message(error));
 
                 newNode.setPosition(0, 0);
             }
@@ -86,15 +87,16 @@ export class Palette {
 
         // check for missing name
         if (result.fileInfo().name === ""){
-            const error : string = "FileInfo.name is empty. Setting name to " + file.name;
-            console.warn(error);
-            errorsWarnings.errors.push(error);
+            const error : string = file.name + " FileInfo.name is empty. Setting name to " + file.name;
+            errorsWarnings.warnings.push(Errors.Message(error));
 
             result.fileInfo().name = file.name;
         }
 
-        // check palette, and then add any resulting errors to the end of the errors list
-        errorsWarnings.errors.push(...Utils.checkPalette(result));
+        // check palette, and then add any resulting errors/warnings to the end of the errors/warnings list
+        const checkResult = Utils.checkPalette(result);
+        errorsWarnings.errors.push(...checkResult.errors);
+        errorsWarnings.warnings.push(...checkResult.warnings);
 
         return result;
     }
@@ -103,6 +105,7 @@ export class Palette {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(palette.fileInfo());
+        result.modelData.numLGNodes = palette.getNodes().length;
 
         // add nodes
         result.nodeDataArray = [];
@@ -110,8 +113,23 @@ export class Palette {
             result.nodeDataArray.push(Node.toOJSPaletteJson(node));
         }
 
-        // add links
+        // add links (none in a palette)
         result.linkDataArray = [];
+
+        return result;
+    }
+
+    static toOJSJsonString = (palette: Palette) : string => {
+        let result: string = "";
+
+        const json: any = this.toOJSJson(palette);
+
+        // manually build the JSON so that we can enforce ordering of attributes (modelData first)
+        result += "{\n";
+        result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
+        result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
+        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
+        result += "}\n";
 
         return result;
     }
@@ -160,7 +178,6 @@ export class Palette {
         // set appropriate key for node (one that is not already in use)
         newNode.setId(Utils.uuidv4());
         newNode.setKey(Utils.newKey(this.getNodes()));
-        newNode.setReadonly(false);
 
         if (force){
             this.nodes.push(newNode);
@@ -219,5 +236,52 @@ export class Palette {
 
     replaceNode = (index : number, newNode : Node) : void => {
         this.nodes.splice(index, 1, newNode);
+    }
+
+    sort = () : void => {
+
+        const sortFunc = function(a:Node, b:Node) : number {
+            const aCData : Category.CategoryData = CategoryData.getCategoryData(a.getCategory());
+            const bCData : Category.CategoryData = CategoryData.getCategoryData(b.getCategory());
+
+            if (aCData.sortOrder < bCData.sortOrder) {
+                return -1;
+            }
+            if (aCData.sortOrder > bCData.sortOrder) {
+                return 1;
+            }
+
+            // a must be equal to b
+            return a.getName() > b.getName() ? 1 : -1;
+        }
+
+        this.nodes.sort(sortFunc);
+    }
+
+    copyUrl = (): void => {
+        // get reference to the LG fileInfo object
+        const fileInfo: FileInfo = this.fileInfo();
+
+        // if we don't know where this file came from then we can't build a URL
+        // for example, if the palette was loaded from local disk, then we can't build a URL for others to reach it
+        if (fileInfo.repositoryService === Eagle.RepositoryService.Unknown || fileInfo.repositoryService === Eagle.RepositoryService.File){
+            Utils.showNotification("Palette URL", "Source of palette is a local file or unknown, unable to create URL for graph.", "danger");
+            return;
+        }
+
+        // build palette url
+        let palette_url = window.location.origin;
+
+        palette_url += "/?service=" + fileInfo.repositoryService;
+        palette_url += "&repository=" + fileInfo.repositoryName;
+        palette_url += "&branch=" + fileInfo.repositoryBranch;
+        palette_url += "&path=" + encodeURI(fileInfo.path);
+        palette_url += "&filename=" + encodeURI(fileInfo.name);
+
+        // copy to cliboard
+        navigator.clipboard.writeText(palette_url);
+
+        // notification
+        Utils.showNotification("Palette URL", "Copied to clipboard", "success");
     }
 }

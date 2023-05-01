@@ -1,6 +1,6 @@
 version: '3.3'
 services:
-    alpine:
+    eagle:
         image: icrar/eagle:${VCS_TAG}
         container_name: eagle_dev
         restart: "no"

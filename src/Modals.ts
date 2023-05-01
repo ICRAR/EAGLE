@@ -2,10 +2,11 @@ import {Eagle} from './Eagle';
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {LogicalGraph} from './LogicalGraph';
-import {Port} from './Port';
+import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
+import { TutorialSystem } from './Tutorial';
 
 export class Modals {
 
@@ -20,11 +21,11 @@ export class Modals {
             switch (returnType){
                 case "string":
                     const stringCallback : (completed : boolean, userString : string) => void = $('#inputModal').data('callback');
-                    stringCallback($('#inputModal').data('completed'), <string>$('#inputModalInput').val());
+                    stringCallback($('#inputModal').data('completed'), $('#inputModalInput').val().toString());
                     break;
                 case "number":
                     const numberCallback : (completed : boolean, userNumber : number) => void = $('#inputModal').data('callback');
-                    numberCallback($('#inputModal').data('completed'), parseInt(<string>$('#inputModalInput').val(), 10));
+                    numberCallback($('#inputModal').data('completed'), parseInt($('#inputModalInput').val().toString(), 10));
                     break;
                 default:
                     console.error("Unknown return type for inputModal!");
@@ -34,10 +35,13 @@ export class Modals {
             $('#inputModalInput').focus();
         });
         $('#inputModalInput').on('keypress', function(e){
-            if (e.which === 13){
-                $('#inputModal').data('completed', true);
-                $('#inputModal').modal('hide');
+            if(TutorialSystem.activeTut === null){
+                if (e.which === 13){
+                    $('#inputModal').data('completed', true);
+                    $('#inputModal').modal('hide');
+                }
             }
+           
         });
 
         // #inputTextModal - requestUserText()
@@ -46,15 +50,23 @@ export class Modals {
         });
         $('#inputTextModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, userString : string) => void = $('#inputTextModal').data('callback');
-            callback($('#inputTextModal').data('completed'), <string>$('#inputTextModalInput').val());
+
+            if (callback === null){
+                console.log("No callback called when #inputTextModal hidden");
+                return;
+            }
+
+            callback($('#inputTextModal').data('completed'), $('#inputTextModalInput').val().toString());
         });
         $('#inputTextModal').on('shown.bs.modal', function(){
             $('#inputTextModalInput').focus();
         });
         $('#inputTextModalInput').on('keypress', function(e){
-            if (e.which === 13){
-                $('#inputTextModal').data('completed', true);
-                $('#inputTextModal').modal('hide');
+            if(TutorialSystem.activeTut === null){
+                if (e.which === 13){
+                    $('#inputTextModal').data('completed', true);
+                    $('#inputTextModal').modal('hide');
+                }
             }
         });
 
@@ -77,28 +89,30 @@ export class Modals {
 
             // check selected option in select tag
             const choices : string[] = $('#choiceModal').data('choices');
-            const choice : number = parseInt(<string>$('#choiceModalSelect').val(), 10);
+            const choice : number = parseInt($('#choiceModalSelect').val().toString(), 10);
 
             // if the last item in the select was selected, then return the custom value,
             // otherwise return the selected choice
             if (choice === choices.length){
-                callback(true, choices.length, <string>$('#choiceModalString').val());
+                callback(true, choices.length, $('#choiceModalString').val().toString());
             }
             else {
                 callback(true, choice, choices[choice]);
             }
         });
         $('#choiceModalString').on('keypress', function(e){
-            if (e.which === 13){
-                $('#choiceModal').data('completed', true);
-                $('#choiceModal').modal('hide');
+            if(TutorialSystem.activeTut === null){
+                if (e.which === 13){
+                    $('#choiceModal').data('completed', true);
+                    $('#choiceModal').modal('hide');
+                }
             }
         });
 
         $('#choiceModalSelect').on('change', function(){
             // check selected option in select tag
             const choices : string[] = $('#choiceModal').data('choices');
-            const choice : number = parseInt(<string>$('#choiceModalSelect').val(), 10);
+            const choice : number = parseInt($('#choiceModalSelect').val().toString(), 10);
 
             // hide the custom text input unless the last option in the select is chosen
             $('#choiceModalStringRow').toggle(choice === choices.length);
@@ -140,26 +154,32 @@ export class Modals {
             // check selected option in select tag
             const repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
             const repositories : Repository[] = $('#gitCommitModal').data('repositories');
-            const repositoryNameChoice : number = parseInt(<string>$('#gitCommitModalRepositoryNameSelect').val(), 10);
+            const repositoryNameChoice : number = parseInt($('#gitCommitModalRepositoryNameSelect').val().toString(), 10);
 
             // split repository text (with form: "name (branch)") into name and branch strings
             const repositoryName : string = repositories[repositoryNameChoice].name;
             const repositoryBranch : string = repositories[repositoryNameChoice].branch;
 
-            const filePath : string = <string>$('#gitCommitModalFilePathInput').val();
-            const fileName : string = <string>$('#gitCommitModalFileNameInput').val();
-            const commitMessage : string = <string>$('#gitCommitModalCommitMessageInput').val();
+            const filePath : string = $('#gitCommitModalFilePathInput').val().toString();
+            const fileName : string = $('#gitCommitModalFileNameInput').val().toString();
+            const commitMessage : string = $('#gitCommitModalCommitMessageInput').val().toString();
 
             callback(true, repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage);
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
             const repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
-            const repositories: Repository[] = eagle.getRepositoryList(repositoryService);
+            const repositories: Repository[] = Repositories.getList(repositoryService);
             $('#gitCommitModal').data('repositories', repositories);
             Utils.updateGitCommitRepositoriesList(repositories, null);
         });
 
         // #gitCustomRepositoryModal - requestUserAddCustomRepository()
+        $('#gitCustomRepositoryModalRepositoryNameInput, #gitCustomRepositoryModalRepositoryBranchInput').on('keyup', function(){
+            // show/hide OK button
+            $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', !Utils.validateCustomRepository());
+        });
+
+
         $('#gitCustomRepositoryModalAffirmativeButton').on('click', function(){
             $('#gitCustomRepositoryModal').data('completed', true);
         });
@@ -167,6 +187,10 @@ export class Modals {
             $('#gitCustomRepositoryModal').data('completed', false);
         });
         $('#gitCustomRepositoryModal').on('shown.bs.modal', function(){
+            $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
+            $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
+
+            $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', true);
             $('#gitCustomRepositoryModalAffirmativeButton').focus();
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
@@ -180,16 +204,45 @@ export class Modals {
             }
 
             // check selected option in select tag
-            const repositoryService : string = <string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
-            const repositoryName : string = <string>$('#gitCustomRepositoryModalRepositoryNameInput').val();
-            const repositoryBranch : string = <string>$('#gitCustomRepositoryModalRepositoryBranchInput').val();
+            const repositoryService : string = $('#gitCustomRepositoryModalRepositoryServiceSelect').val().toString();
+            const repositoryName : string = $('#gitCustomRepositoryModalRepositoryNameInput').val().toString();
+            const repositoryBranch : string = $('#gitCustomRepositoryModalRepositoryBranchInput').val().toString();
 
             callback(true, repositoryService, repositoryName, repositoryBranch);
         });
 
         // #settingsModal - showSettingsModal()
         $('#settingsModal').on('shown.bs.modal', function(){
-            $('#settingsModalAffirmativeButton').focus();
+            $('#settingsModal').data('completed', false);
+            eagle.copyCurrentSettings()
+            if(TutorialSystem.activeTut===null){
+                $('#settingsModalAffirmativeButton').focus();
+            }
+        });
+
+        $("#settingsModalAffirmativeButton").on('click', function(){
+            $('#settingsModal').data('completed', true);
+        })
+
+        $('#settingsModal').on('hidden.bs.modal', function () {
+            const completed : boolean = $('#settingsModal').data('completed');
+            if(!completed){
+                eagle.cancelSettingChanges()
+            }
+        })
+
+        $('#settingsModal').on("keydown", function (event) {
+            if (event.key === "Enter") {
+                // if pressing enter in the setting modal save settings
+                if(TutorialSystem.activeTut===null){
+                    event.preventDefault()
+                    $("#settingsModalAffirmativeButton").focus().click();
+                }
+                
+                //pressing excape cancels setting changes
+            }else if(event.key === "Escape"){
+                $("#settingsModalNegativeButton").focus().click();
+            }
         });
 
         // #editFieldModal - requestUserEditField()
@@ -197,20 +250,15 @@ export class Modals {
             $('#editFieldModal').data('completed', true);
         });
         $('#editFieldModalResetToDefaultButton').on('click', function(){
-            const valueText : string = <string>$('#editFieldModalValueInputText').val();
-            const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
-            const defaultValueText : string = <string>$('#editFieldModalDefaultValueInputText').val();
+            const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
             const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
-            const type: string = <string>$('#editFieldModalTypeSelect').val();
+            const type: string = $('#editFieldModalTypeInput').val().toString();
+            const parameterType: string = $('#editFieldModalParameterTypeSelect').val().toString();
+            const parameterUsage: string = $('#editFieldModalParameterUsageSelect').val().toString();
 
             // translate type
-            const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+            const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
-            if (realType === Eagle.DataType.Boolean){
-                $('#editFieldModalValueInputCheckbox').prop('checked', defaultValueCheckbox);
-            } else {
-                $('#editFieldModalValueInputText').val(defaultValueText);
-            }
         });
 
         $('#editFieldModal').on('shown.bs.modal', function(){
@@ -218,11 +266,10 @@ export class Modals {
         });
         $('#fieldModalSelect').on('change', function(){
             // check selected option in select tag
-            const choices : string[] = $('#editFieldModal').data('choices');
-            const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
+            const choice : number = parseInt($('#fieldModalSelect').val().toString(), 10);
 
             // hide the custom text input unless the last option in the select is chosen
-            if (choice === choices.length){
+            if (choice === 0){
                 $('#customParameterOptionsWrapper').slideDown();
             } else {
                 $('#customParameterOptionsWrapper').slideUp();
@@ -239,104 +286,100 @@ export class Modals {
             }
 
             // extract field data from HTML elements
-            const text : string = <string>$('#editFieldModalTextInput').val();
-            const name : string = <string>$('#editFieldModalNameInput').val();
-            const valueText : string = <string>$('#editFieldModalValueInputText').val();
+            const id : string = Utils.uuidv4();
+            const idText : string = $('#editFieldModalIdTextInput').val().toString();
+            const displayText : string = $('#editFieldModalDisplayTextInput').val().toString();
+
+            // only one of these three ui elements contains the "real" value,
+            // but we get all three and then choose correctly based on field type
+            const valueText : string = $('#editFieldModalValueInputText').val().toString();
+            const valueNumber : string = $('#editFieldModalValueInputNumber').val().toString();
             const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
-            const defaultValueText : string = <string>$('#editFieldModalDefaultValueInputText').val();
+            let valueSelect : string = "";
+            if ($('#editFieldModalValueInputSelect').val()){
+                valueSelect = $('#editFieldModalValueInputSelect').val().toString();
+            }
+
+            // only one of these three ui elements contains the "real" default value,
+            // but we get all three and then choose correctly based on field type
+            const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
+            const defaultValueNumber : string = $('#editFieldModalDefaultValueInputNumber').val().toString();
             const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
-            const description: string = <string>$('#editFieldModalDescriptionInput').val();
-            const access: string = <string>$('#editFieldModalAccessSelect').val();
-            const type: string = <string>$('#editFieldModalTypeSelect').val();
+            let defaultValueSelect : string = "";
+            if ($('#editFieldModalDefaultValueInputSelect').val()){
+                defaultValueSelect = $('#editFieldModalDefaultValueInputSelect').val().toString();
+            }
+
+            const description: string = $('#editFieldModalDescriptionInput').val().toString();
+            const type: string = $('#editFieldModalTypeInput').val().toString();
+            let parameterType: string = "";
+            if ($('#editFieldModalParameterTypeSelect').val()){
+                parameterType = $('#editFieldModalParameterTypeSelect').val().toString();
+            }
+            let parameterUsage: string = "";
+            if ($('#editFieldModalParameterUsageSelect').val()){
+                parameterUsage = $('#editFieldModalParameterUsageSelect').val().toString();
+            }
+
+            // NOTE: currently no way to edit options in the "select"-type fields
+            const options: string[] = [];
+
             const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
+            const readonly: boolean = $('#editFieldModalAccessInputCheckbox').prop('checked');
+            const keyParameter: boolean = $('#editFieldModalKeyParameterCheckbox').prop('checked');
+            const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
 
-            // translate access and type
-            const readonly: boolean = access === 'readonly';
-            const realType: Eagle.DataType = Utils.translateStringToDataType(type);
+            // translate type
+            const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
+            const realParameterType: Eagle.ParameterType = Utils.translateStringToParameterType(parameterType);
+            const realParameterUsage: Eagle.ParameterUsage = Utils.translateStringToParameterUsage(parameterUsage);
+
             let newField;
-
-            if (realType === Eagle.DataType.Boolean){
-                newField = new Field(text, name, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, realType, precious);
-            } else {
-                newField = new Field(text, name, valueText, defaultValueText, description, readonly, realType, precious);
+            switch(realType){
+                case Eagle.DataType_Boolean:
+                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                    break;
+                case Eagle.DataType_Select:
+                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                    break;
+                case Eagle.DataType_Integer:
+                    newField = new Field(id, displayText, idText, valueNumber, defaultValueNumber, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                    break;
+                case Eagle.DataType_Float:
+                    newField = new Field(id, displayText, idText, valueNumber, defaultValueNumber, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                    break;
+                default:
+                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                    break;
             }
 
             callback(true, newField);
         });
 
-        $('#editFieldModal').on('show.bs.modal', function(){
-            const value = $('#editFieldModalTypeSelect').val();
+        $('#editFieldModal').on('shown.bs.modal', function(){
+            const type: string = $('#editFieldModalTypeInput').val().toString();
+            const realType = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
-            if(value === Eagle.DataType.Float || value === Eagle.DataType.Integer){
-                $('#editFieldModalDefaultValueInputText').attr("type", "number")
-                $('#editFieldModalValueInputText').attr("type", "number")
-            }else{
-                $('#editFieldModalDefaultValueInputText').attr("type", "text")
-                $('#editFieldModalValueInputText').attr("type", "text")
-            }
+            Modals._updateFieldModalDataType(realType);
         });
-        $('#editFieldModalTypeSelect').on('change', function(){
+        $('#editFieldModalTypeInput').on('change', function(){
             // show the correct entry field based on the field type
-            const value = $('#editFieldModalTypeSelect').val();
+            const type: string = $('#editFieldModalTypeInput').val().toString();
+            const realType = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
-            $('#editFieldModalValueInputText').toggle(value !== Eagle.DataType.Boolean);
-            $('#editFieldModalValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
-            $('#editFieldModalDefaultValueInputText').toggle(value !== Eagle.DataType.Boolean);
-            $('#editFieldModalDefaultValueInputCheckbox').toggle(value === Eagle.DataType.Boolean);
+            Modals._updateFieldModalDataType(realType);
 
-            if(value === Eagle.DataType.Float || value === Eagle.DataType.Integer){
-                $('#editFieldModalDefaultValueInputText').attr("type", "number")
-                $('#editFieldModalValueInputText').attr("type", "number")
-            }else{
-                $('#editFieldModalDefaultValueInputText').attr("type", "text")
-                $('#editFieldModalValueInputText').attr("type", "text")
-            }
+            // re-validate, given the new type
+            Modals._validateFieldModalValueInputText();
+        });
+        // add some validation of the idText
+        $('#editFieldModalIdTextInput').on('keyup', function(){
+            Modals._validateFieldModalIdText();
         });
 
-        // #editPortModal - requestUserEditPort()
-        $('#editPortModalAffirmativeButton').on('click', function(){
-            $('#editPortModal').data('completed', true);
-        });
-        $('#editPortModalNegativeButton').on('click', function(){
-            $('#editPortModal').data('completed', false);
-        });
-        $('#editPortModal').on('shown.bs.modal', function(){
-            $('#editPortModalAffirmativeButton').focus();
-        });
-        $('#portModalSelect').on('change', function(){
-            // check selected option in select tag
-            const choices : string[] = $('#editPortModal').data('choices');
-            const choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
-
-            // hide the custom text input unless the last option in the select is chosen
-            if (choice === choices.length){
-                $('#customPortOptionsWrapper').slideDown();
-            } else {
-                $('#customPortOptionsWrapper').slideUp();
-            }
-        });
-
-        $('#editPortModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, port: Port) => void = $('#editPortModal').data('callback');
-            const completed : boolean = $('#editPortModal').data('completed');
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                callback(false, null);
-                return;
-            }
-
-            // extract field data from HTML elements
-            // NOTE: the id of this temporary port will not be used by the receiver, so we use a dummy id
-            const id = "dummy-id";
-            const name: string = <string>$('#editPortModalNameInput').val();
-            const text: string = <string>$('#editPortModalTextInput').val();
-            const type: string = <string>$('#editPortModalTypeInput').val();
-            const description: string = <string>$('#editPortModalDescriptionInput').val();
-
-            const newPort = new Port(id, name, text, false, type, description);
-
-            callback(true, newPort);
+        // add some validation to the value entry field
+        $('#editFieldModalValueInputText').on('keyup', function(){
+            Modals._validateFieldModalValueInputText();
         });
 
         // #editEdgeModal - requestUserEditEdge()
@@ -360,15 +403,15 @@ export class Modals {
             }
 
             // extract field data from HTML elements
-            const srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
-            const srcPortId : string = <string>$('#editEdgeModalSrcPortIdSelect').val();
-            const destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
-            const destPortId: string = <string>$('#editEdgeModalDestPortIdSelect').val();
-            const dataType: string = <string>$('#editEdgeModalDataTypeInput').val();
-            const loopAware: boolean = $('#editEdgeModalValueInputCheckbox').prop('checked');
-            //console.log("srcNodeKey", srcNodeKey, "srcPortId", srcPortId, "destNodeKey", destNodeKey, "destPortId", destPortId, "dataType", dataType);
+            const srcNodeKey : number = parseInt($('#editEdgeModalSrcNodeKeySelect').val().toString(), 10);
+            const srcPortId : string = $('#editEdgeModalSrcPortIdSelect').val().toString();
+            const destNodeKey : number = parseInt($('#editEdgeModalDestNodeKeySelect').val().toString(), 10);
+            const destPortId: string = $('#editEdgeModalDestPortIdSelect').val().toString();
+            const dataType: string = $('#editEdgeModalDataTypeInput').val().toString();
+            const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
+            const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
 
-            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware);
+            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop,false);
 
             callback(true, newEdge);
         });
@@ -376,7 +419,7 @@ export class Modals {
             const edge: Edge = $('#editEdgeModal').data('edge');
             const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
-            const srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
+            const srcNodeKey : number = parseInt($('#editEdgeModalSrcNodeKeySelect').val().toString(), 10);
             edge.setSrcNodeKey(srcNodeKey);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
@@ -385,7 +428,7 @@ export class Modals {
             const edge: Edge = $('#editEdgeModal').data('edge');
             const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
-            const destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
+            const destNodeKey : number = parseInt($('#editEdgeModalDestNodeKeySelect').val().toString(), 10);
             edge.setDestNodeKey(destNodeKey);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
@@ -410,13 +453,88 @@ export class Modals {
                 return;
             }
 
-            // loop through the explorePalettes, find any selected and load them
-            for (const ep of eagle.explorePalettes()){
+            // check if currentProjectIndex is -1, if so, no individual files were selected, so we can do nothing
+            if (eagle.explorePalettes().currentProjectIndex() === -1){
+                return;
+            }
+
+            // otherwise, check the current project, and load all selected palettes
+            for (const ep of eagle.explorePalettes().getProject().palettes()){
                 if (ep.isSelected()){
                     eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name));
                 }
             }
-
         });
+
+        $('#parameterTableModal').on('hidden.bs.modal', function(){
+            //console.log("parameterTableModal hidden");
+
+            eagle.checkGraph();
+        });
+    }
+
+    static _validateFieldModalIdText(){
+        const idText: string = $('#editFieldModalIdTextInput').val().toString();
+        const isValid = Utils.validateIdText(idText);
+
+        Modals._setValidClasses('#editFieldModalIdTextInput', isValid);
+    }
+
+    static _validateFieldModalValueInputText(){
+        const type: string = $('#editFieldModalTypeInput').val().toString();
+        const value: string = $('#editFieldModalValueInputText').val().toString();
+        const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
+
+        // only validate Json fields
+        if (realType !== Eagle.DataType_Json){
+            $('#editFieldModalValueInputText').removeClass('is-valid');
+            $('#editFieldModalValueInputText').removeClass('is-invalid');
+            return;
+        }
+
+        const isValid = Utils.validateField(realType, value);
+
+        Modals._setValidClasses('#editFieldModalValueInputText', isValid);
+    }
+
+    static _setValidClasses(id: string, isValid: boolean){
+        if (isValid){
+            $(id).addClass('is-valid');
+            $(id).removeClass('is-invalid');
+        } else {
+            $(id).removeClass('is-valid');
+            $(id).addClass('is-invalid');
+        }
+    }
+
+    static _updateFieldModalDataType(dataType: string){
+
+        //reset value fields dataType specific attributes
+        $('#editFieldModalValueInputNumber').removeClass('inputNoArrows')
+        $('#editFieldModalDefaultValueInputNumber').removeClass('inputNoArrows')
+        $('#editFieldModalValueInputNumber').removeAttr('min').removeAttr('step').removeAttr('onfocus').removeAttr( 'onkeydown').removeAttr( 'oninput')
+        $('#editFieldModalDefaultValueInputNumber').removeAttr('min').removeAttr('step').removeAttr('onfocus').removeAttr( 'onkeydown').removeAttr( 'oninput')
+        
+
+        //toggle on the correct value input fields depending on type
+        $('#editFieldModalValueInputText').toggle(dataType !== Eagle.DataType_Boolean && dataType !== Eagle.DataType_Select && dataType !== Eagle.DataType_Float && dataType !== Eagle.DataType_Integer);
+        $('#editFieldModalValueInputNumber').toggle(dataType === Eagle.DataType_Float || dataType === Eagle.DataType_Integer);
+        $('#editFieldModalValueInputCheckbox').parent().toggle(dataType === Eagle.DataType_Boolean);
+        $('#editFieldModalValueInputSelect').toggle(dataType === Eagle.DataType_Select);
+
+        $('#editFieldModalDefaultValueInputText').toggle(dataType !== Eagle.DataType_Boolean && dataType !== Eagle.DataType_Select && dataType !== Eagle.DataType_Float && dataType !== Eagle.DataType_Integer);
+        $('#editFieldModalDefaultValueInputNumber').toggle(dataType === Eagle.DataType_Float || dataType === Eagle.DataType_Integer);
+        $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === Eagle.DataType_Boolean);
+        $('#editFieldModalDefaultValueInputSelect').toggle(dataType === Eagle.DataType_Select);
+
+        //setting up number value input specific things that are different for integers of floats 
+        if(dataType === Eagle.DataType_Integer){
+            $('#editFieldModalValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
+            $('#editFieldModalDefaultValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
+
+        }else if (dataType === Eagle.DataType_Float){
+            $('#editFieldModalValueInputNumber').addClass('inputNoArrows')
+            $('#editFieldModalDefaultValueInputNumber').addClass('inputNoArrows')
+        }
     }
 }

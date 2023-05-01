@@ -1,4 +1,6 @@
 <div id="nodeList" class="container py-2">
+    <svg id="hierarchyEdgesSvg">
+    </svg>
     <div class="row">
         <div class="col">
             <!-- ko if: logicalGraph() === null -->
@@ -10,8 +12,17 @@
                 <span>No Nodes</span>
                 <!-- /ko -->
                 <!-- ko if: logicalGraph().getNumNodes() !== 0 -->
-                    <span>Graph</span>
-                    <hierarchy params="data: logicalGraph()"></hierarchy>
+                <div class="hierarchyGraphInfoWrapper noselect">
+                    <span class="hierarchyGraphInfoPre">Total: </span>
+                    <span id="hierarchyTotalText" data-bind="text: $root.getTotalText()"></span>
+                </div>
+                <div class="hierarchyGraphInfoWrapper noselect">
+                    <span class="hierarchyGraphInfoPre">Selected: </span>
+                    <span id="hierarchySelectedText" data-bind="text: $root.getSelectedText()"></span>
+                </div>
+                <div class="hierarchyDividerLine"></div>
+
+                <hierarchy params="data: logicalGraph()"></hierarchy>
                 <!-- /ko -->
             <!-- /ko -->
         </div>

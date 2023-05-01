@@ -1,30 +1,28 @@
-<div class="card">
-    <h5 class="card-header" data-bs-toggle="collapse" href="#nodeCategoryCollapse6" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" data-bind="click: inspectorState().toggleSection" data-section-name="Inputs">
-        <i class="material-icons interactive closedIcon nodeMenuIndicator" data-bs-placement="top" data-bind="eagleTooltip:'Expand/Collapse', css:{closedIcon:inspectorState().inputPorts}">keyboard_arrow_down</i>
-        <i class="material-icons">arrow_back</i>
-        <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Definition of incoming edges for this component.'">Input Ports</span>
-    </h5>
-    <div class="collapse nodeInspectorCollapseAll" id="nodeCategoryCollapse6">
-        <div class="card-body">
-
-            <!-- ko foreach: selectedNode().getInputPorts() -->
-            <port params="id: $data.getId(), name: $data.getName(), description: $data.getDescriptionText(), multiplicity: $root.logicalGraph().findMultiplicity($root.selectedNode()), isEventPort: $data.isEvent(), toggleEvent: $data.toggleEvent, input: true, local: false"></port>
-            <!-- /ko -->
-
-            <!-- ko ifnot: selectedNode().isLocked() -->
-            <button class="btn btn-secondary btn-block btn_wide" id="nodeInspectorAddInputPort" type="button" data-bind="click: $root.addInputPortHTML, eagleTooltip:'Add port'" data-bs-placement="left">
-                <i class="material-icons md-18">add</i>
-            </button>
-            <div id="nodeInspectorAddInputPortDiv" class="nodeInspectorDropdownDiv">
-                <div class="nodeInspectorDropdownInner" data-bind="event:{mouseleave:function(){hideDropDown('nodeInspectorAddInputPortDiv')}}">
-                    <div id="nodeInspectorInputPortDropDownKO">
-                        <a href="#" data-bind="click:nodeInspectorDropdownClick">hi</a>
-                        <a href="#">hi2</a>
-                        <a href="#">hi3</a>
-                    </div>
-                </div>
-            </div>
-            <!-- /ko -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="inspectorInputsHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inspectorInputsCollapse" aria-expanded="false" aria-controls="inspectorInputsCollapse" onclick="eagle.inspectorCollapseState()">
+            <i class="material-icons">arrow_back</i>
+            <span class="nodeInspectorSubsectionTitle" data-bind="eagleTooltip:'Definition of incoming edges for this component.'">Input Ports</span>
+        </button>
+    </h2>
+    <div id="inspectorInputsCollapse" class="accordion-collapse collapse">
+        <div class="accordion-body">
+             <!-- ko foreach: selectedNode().getInputPorts() -->
+             <port params="id: $data.getId(), name: $data.getDisplayText(), description: $data.getDescriptionText(), multiplicity: $root.logicalGraph().findMultiplicity($root.selectedNode()), isEventPort: $data.isEvent(), toggleEvent: $data.toggleEvent, input: true, parameterType: $data.parameterType, usage: $data.usage"></port>
+             <!-- /ko -->
+ 
+             <!-- ko ifnot: selectedNode().isLocked()-->
+                 <button class="btn btn-secondary btn-block nodeInspectorDropDown btn_wide" id="nodeInspectorAddInputPort" type="button" data-bind="click: $root.addInputPortHTML, eagleTooltip:'Add input port'" data-bs-placement="left">
+                     <i class="material-icons md-18">add</i>
+                 </button>
+                 <div id="nodeInspectorAddInputPortDiv" class="nodeInspectorDropdownDiv">
+                     <div class="nodeInspectorDropdownInner" data-bind="event:{mouseleave:function(){hideDropDown('nodeInspectorAddInputPortDiv')}}">
+                         <div id="nodeInspectorInputPortDropDownKO">
+                             <!-- options added dynamically -->
+                         </div>
+                     </div>
+                 </div>
+             <!-- /ko -->
         </div>
     </div>
 </div>

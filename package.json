@@ -23,20 +23,20 @@
     "@types/bootstrap": "^5.1.4",
     "@types/bootstrap-notify": "^3.1.34",
     "@types/d3": "^5.7.2",
-    "@types/intro.js": "^2.4.7",
     "@types/jquery": "^3.3.38",
     "@types/node": "^14.0.11",
+    "@types/showdown": "^1.9.4",
     "ajv": "^6.12.6",
     "bootstrap": "^5.1.1",
     "easy-pie-chart": "^2.1.7",
     "jquery": "^3.5.1",
     "knockout": "^3.5.1",
-    "testcafe": "^1.16.0"
+    "showdown": "^2.0.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",
-    "eslint": "^7.26.0",
+    "eslint": "^7.32.0",
     "typescript": "^3.9.9"
   }
 }

@@ -1,5 +1,6 @@
 import * as fs from "fs";
 
+import {Category} from '../src/Category'
 import {Eagle} from '../src/Eagle';
 import {LogicalGraph} from '../src/LogicalGraph';
 import {Utils} from '../src/Utils';
@@ -7,7 +8,6 @@ import {GraphUpdater} from '../src/GraphUpdater';
 import {FileInfo} from '../src/FileInfo';
 import {Node} from '../src/Node';
 import {Field} from '../src/Field';
-import {Port} from '../src/Port';
 import {Edge} from '../src/Edge';
 
 // check command line arguments
@@ -71,7 +71,7 @@ for (const node of outputGraph.getNodes()){
 }
 
 // write the logical graph to disk using the outputFilename
-fs.writeFileSync(outputFilename, JSON.stringify(LogicalGraph.toOJSJson(outputGraph), null, 4));
+fs.writeFileSync(outputFilename, JSON.stringify(LogicalGraph.toOJSJson(outputGraph, false), null, 4));
 
 // finish
 process.exit();
@@ -117,9 +117,9 @@ function readNode(nodeData : any, index : number) : Node {
     }
 
     // translate categories if required
-    let category : Eagle.Category = GraphUpdater.translateOldCategory(nodeData.category);
+    let category : Category = GraphUpdater.translateOldCategory(nodeData.category);
 
-    if (category === Eagle.Category.Unknown){
+    if (category === Category.Unknown){
         logError("Unable to translate category '" + nodeData.category + "' of node " + index);
     } else {
         if (category !== nodeData.category){
@@ -129,11 +129,11 @@ function readNode(nodeData : any, index : number) : Node {
 
     if (!Utils.isKnownCategory(category)){
         logError("Unknown category '" + category + "' of node " + index);
-        category = Eagle.Category.Unknown;
+        category = Category.Unknown;
     }
 
     // create new node
-    const node : Node = new Node(nodeData.key, nodeData.text, "", category, false);
+    const node : Node = new Node(nodeData.key, nodeData.text, "", category);
     node.setPosition(x, y);
 
     // get description (if exists)
@@ -233,28 +233,28 @@ function readNode(nodeData : any, index : number) : Node {
     // add input ports
     if (typeof nodeData.inputPorts !== 'undefined'){
         for (const portData of nodeData.inputPorts){
-            node.addPort(new Port(portData.Id, portData.IdText, false, Eagle.DataType.Unknown), true);
+            node.addPort(new Port(portData.Id, portData.IdText, false, Eagle.DataType_Unknown), true);
         }
     }
 
     // add output ports
     if (typeof nodeData.outputPorts !== 'undefined'){
         for (const portData of nodeData.outputPorts){
-            node.addPort(new Port(portData.Id, portData.IdText, false, Eagle.DataType.Unknown), false);
+            node.addPort(new Port(portData.Id, portData.IdText, false, Eagle.DataType_Unknown), false);
         }
     }
 
     // add input local ports
     if (typeof nodeData.inputLocalPorts !== 'undefined'){
         for (const portData of nodeData.inputLocalPorts){
-            node.addPort(new Port(portData.Id, portData.IdText, false, Eagle.DataType.Unknown), true);
+            node.addPort(new Port(portData.Id, portData.IdText, false, Eagle.DataType_Unknown), true);
         }
     }
 
     // add output local ports
     if (typeof nodeData.outputLocalPorts !== 'undefined'){
         for (const portData of nodeData.outputLocalPorts){
-            node.addPort(new Port(portData.Id, portData.IdText, false, Eagle.DataType.Unknown), false);
+            node.addPort(new Port(portData.Id, portData.IdText, false, Eagle.DataType_Unknown), false);
         }
     }
 
@@ -297,86 +297,67 @@ function readNode(nodeData : any, index : number) : Node {
         }
     }
 
-    // read column data from nodes with the Variables category
-    if (typeof nodeData.var_list !== 'undefined'){
-        for (const v of nodeData.var_list){
-            let name = "";
-            let value = "";
-
-            for (const column of v.columns){
-                if (column.attr === "name"){
-                    name = column.text;
-                }
-                if (column.attr === "value"){
-                    value = column.text;
-                }
-            }
-            logMessage("Moved var_list variable '" + name + "' (" + value + ") to new field in node " + index);
-            node.addField(new Field(name, name, value, "", false, Eagle.DataType.Unknown));
-        }
-    }
-
     // make sure scatter nodes have a 'num_of_copies' field
-    if (node.getCategory() === Eagle.Category.Scatter){
+    if (node.getCategory() === Category.Scatter){
         if (node.getFieldByName('num_of_copies') === null){
-            node.addField(new Field("Number of copies", "num_of_copies", "1", "", false, Eagle.DataType.Integer));
+            node.addField(new Field("Number of copies", "num_of_copies", "1", "", false, Eagle.DataType_Integer));
             logMessage("Added missing 'num_of_copies' field to Scatter node " + index);
         }
         if (node.getFieldByName('scatter_axis') === null){
-            node.addField(new Field("Scatter Axis", "scatter_axis", "", "", false, Eagle.DataType.String));
+            node.addField(new Field("Scatter Axis", "scatter_axis", "", "", false, Eagle.DataType_String));
             logMessage("Added missing 'scatter_axis' field to Scatter node " + index);
         }
     }
 
     // make sure gather nodes have a 'num_of_inputs' field
-    if (node.getCategory() === Eagle.Category.Gather){
+    if (node.getCategory() === Category.Gather){
         if (node.getFieldByName('num_of_inputs') === null){
-            node.addField(new Field("Number of inputs", "num_of_inputs", "1", "", false, Eagle.DataType.Integer));
+            node.addField(new Field("Number of inputs", "num_of_inputs", "1", "", false, Eagle.DataType_Integer));
             logMessage("Added missing 'num_of_inputs' field to Gather node " + index);
         }
         if (node.getFieldByName('gather_axis') === null){
-            node.addField(new Field("Gather Axis", "gather_axis", "", "", false, Eagle.DataType.String));
+            node.addField(new Field("Gather Axis", "gather_axis", "", "", false, Eagle.DataType_String));
             logMessage("Added missing 'gather_axis' field to Gather node " + index);
         }
     }
 
     // make sure MKN nodes have 'm', 'k', and 'n' fields
-    if (node.getCategory() === Eagle.Category.MKN){
+    if (node.getCategory() === Category.MKN){
         if (node.getFieldByName('m') === null){
-            node.addField(new Field("M", "m", "1", "1", "", false, Eagle.DataType.Integer, false));
+            node.addField(new Field("M", "m", "1", "1", "", false, Eagle.DataType_Integer, false));
             logMessage("Added missing 'm' field to MKN node " + index);
         }
         if (node.getFieldByName('k') === null){
-            node.addField(new Field("K", "k", "1", "1", "", false, Eagle.DataType.Integer, false));
+            node.addField(new Field("K", "k", "1", "1", "", false, Eagle.DataType_Integer, false));
             logMessage("Added missing 'k' field to MKN node " + index);
         }
         if (node.getFieldByName('n') === null){
-            node.addField(new Field("N", "n", "1", "1", "", false, Eagle.DataType.Integer, false));
+            node.addField(new Field("N", "n", "1", "1", "", false, Eagle.DataType_Integer, false));
             logMessage("Added missing 'n' field to MKN node " + index);
         }
     }
 
     // make sure comment nodes have appropriate fields
-    if (node.getCategory() === Eagle.Category.Comment){
+    if (node.getCategory() === Category.Comment){
         if (node.getFieldByName('comment') === null){
-            node.addField(new Field("Comment", "comment", node.getName(), node.getName(), "The text value of the comment", false, Eagle.DataType.String, false));
+            node.addField(new Field("Comment", "comment", node.getName(), node.getName(), "The text value of the comment", false, Eagle.DataType_String, false));
             node.setName("");
             logMessage("Added missing 'comment' field to Comment node " + index);
         }
     }
 
     // make sure description nodes have appropriate fields
-    if (node.getCategory() === Eagle.Category.Description){
+    if (node.getCategory() === Category.Description){
         if (node.getFieldByName('description') === null){
-            node.addField(new Field("Description", "description", "", "", "The text value of the description", false, Eagle.DataType.String, false));
+            node.addField(new Field("Description", "description", "", "", "The text value of the description", false, Eagle.DataType_String, false));
             logMessage("Added missing 'description' field to Description node " + index);
         }
     }
 
     // make sure "file" nodes that were created from old "Data" nodes have appropriate fields
-    if (node.getCategory() === Eagle.Category.File && nodeData.category === "Data"){
+    if (node.getCategory() === Category.File && nodeData.category === "Data"){
         if (node.getFieldByName('filepath') === null){
-            node.addField(new Field("File path", "file_path", nodeData.text, nodeData.text, "", false, Eagle.DataType.String, false));
+            node.addField(new Field("File path", "file_path", nodeData.text, nodeData.text, "", false, Eagle.DataType_String, false));
             logMessage("Copied old 'text' value (" + nodeData.text + ") as filepath field for old Data node translated to File node " + index);
         }
     }

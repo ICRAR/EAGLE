@@ -40,5 +40,9 @@ GITLAB_DEFAULT_REPO_LIST = [
     {"repository":"ska-telescope/ska-sdp-daliuge-graphs", "branch":"main"},
 ]
 
+STUDENT_GITHUB_DEFAULT_REPO_LIST = [
+    {"repository":"ICRAR/EAGLE-student-graph-repo", "branch":"master"},
+]
+
 # This is the default, but needs to be changed if installed under a different user.
 TEMP_FILE_FOLDER = '/home/eagle/EAGLE'

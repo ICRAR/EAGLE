@@ -39,7 +39,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                <button type="button" class="btn btn-primary affermativeBtn" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
     </div>
@@ -63,6 +63,9 @@
                             <div class="input-group mb-3">
                                 <textarea class="form-control" id="inputTextModalInput" rows="10"></textarea>
                             </div>
+                            <button id="copyInputTextModalInput" class="btn btn-secondary" type="button" data-bs-placement="bottom" data-bind="click: Utils.copyInputTextModalInput, eagleTooltip: 'Copy Text'">
+                                <i class="material-icons md-18">content_copy</i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -221,7 +224,7 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-3">
-                            <p>Service:</p>
+                            <p>Service</p>
                         </div>
                         <div class="col">
                             <div class="form-group">
@@ -234,21 +237,29 @@
                     </div>
                     <div class="row">
                         <div class="col-3">
-                            <p>Name:</p>
+                            <p>Name *</p>
                         </div>
                         <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositoryNameInput">
+                            <div class="input-group mb-3 has-validation">
+                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositoryNameInput" placeholder="example-username/example-graph-repository">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-3">
-                            <p>Branch:</p>
+                            <p>Branch *</p>
                         </div>
                         <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositoryBranchInput">
+                            <div class="input-group mb-3 has-validation">
+                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositoryBranchInput" placeholder="master">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="alert alert-info" role="alert">
+                                <h5 class="alert-heading">NOTE:</h5>
+                                EAGLE has a known bug concerning repositories. If a repository is completely empty, i.e. contains no files, then the repository cannot be opened. Please ensure your repository contains at least one file before attempting to open and browse its contents in EAGLE.
                             </div>
                         </div>
                     </div>
@@ -256,7 +267,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="gitCustomRepositoryModalNegativeButton" data-bs-dismiss="modal"><span id="gitCustomRepositoryModalNegativeAnswer">Cancel</span></button>
-                <button type="button" class="btn btn-primary" id="gitCustomRepositoryModalAffirmativeButton" data-bs-dismiss="modal"><span id="gitCustomRepositoryModalAffirmativeAnswer">Commit</span></button>
+                <button type="button" class="btn btn-primary" id="gitCustomRepositoryModalAffirmativeButton" data-bs-dismiss="modal"><span id="gitCustomRepositoryModalAffirmativeAnswer">Add</span></button>
             </div>
         </div>
     </div>
@@ -284,421 +295,16 @@
     </div>
 </div>
 
-<!-- Settings Modal -->
-<div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="settingsModalTitle">Settings</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="settingsModalHeader">
-                    <!-- ko foreach: Object.keys(Eagle.settings) -->
-                        <button class="settingsModalButton" data-bind="attr:{id: $root.getSettingCategoryId($data)}, text: $data, click: $root.toggleSettingsTab($root.getSettingCategoryId($data), 'settingsCategory'+$index()+'Content')"></button>
-                    <!-- /ko -->
-                </div>
-                <form>
-                    <!-- ko foreach: Object.keys(Eagle.settings) -->
-                        <div class="settingsModalCategoryWrapper" data-bind="attr:{id:'settingsCategory'+$index()+'Content'}">
-                            <div class="row">
-                                <!-- ko foreach: Eagle.settings[$data] -->
-                                    <!-- ko if: $data.getType() === 0 -->
-                                        <div class="input-group mb-1">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
-                                            </div>
-                                            <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
-                                        </div>
-                                    <!-- /ko -->
-                                    <!-- ko if: $data.getType() === 1 -->
-                                        <div class="input-group mb-1">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
-                                            </div>
-                                            <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
-                                        </div>
-                                    <!-- /ko -->
-                                    <!-- ko if: $data.getType() === 2 -->
-                                        <div class="settingSm col-6">
-                                            <div class="input-group mb-1">
-                                                <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName()}, eagleTooltip:$data.getDescription()" data-bs-placement="left" readonly>
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.toggle, attr:{id:'setting'+$data.getKey()+'Button'}">
-                                                        <i class="material-icons md-18" data-bind="visible: $data.value">radio_button_checked</i>
-                                                        <i class="material-icons md-18" data-bind="hidden: $data.value">radio_button_unchecked</i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <!-- /ko -->
-                                    <!-- ko if: $data.getType() === 3 -->
-                                        <div class="input-group mb-1">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip:$data.getDescription()" data-bs-placement="left"></span>
-                                            </div>
-                                            <input type="password" autocomplete="off" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.copy, attr:{id:'setting'+$data.getKey()+'Copy'}">
-                                                    <i class="material-icons md-18">content_copy</i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    <!-- /ko -->
-                                <!-- /ko -->
-                            </div>
-                        </div>
-                    <!-- /ko -->
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger" id="resetSettingsDefaults" type="button" data-bind="click: $root.resetSettingsDefaults">Reset Defaults</button>
-                <button type="button" class="btn btn-secondary" id="settingsModalNegativeButton" data-bs-dismiss="modal"><span id="settingsModalNegativeAnswer">Cancel</span></button>
-                <button type="button" class="btn btn-primary" id="settingsModalAffirmativeButton" data-bs-dismiss="modal"><span id="settingsModalAffirmativeAnswer">OK</span></button>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'modals/errors.html' %}
 
-<!-- Shortcuts Modal -->
-<div class="modal fade" id="shortcutsModal" tabindex="-1" role="dialog" aria-labelledby="shortcutsModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="shortcutsModalTitle">Keyboard Shortcuts</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Description</th>
-                            <th>Keys</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- ko foreach: getShortcuts() -->
-                        <tr>
-                            <td data-bind="text: $data.name"></td>
-                            <td data-bind="text: $data.keys"></td>
-                        </tr>
-                        <!-- /ko -->
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="shortcutsModalAffirmativeButton" data-bs-dismiss="modal"><span id="shortcutsModalAffirmativeAnswer">OK</span></button>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'modals/settings.html' %}
+{% include 'modals/shortcuts.html' %}
 
-<!-- Edit Field Modal -->
-<div class="modal fade" id="editFieldModal" tabindex="-1" role="dialog" aria-labelledby="editFieldModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editFieldModalTitle">Edit Parameter</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="container" id="addParameterWrapper">
-                    <div class="row">
-                        <p id="ComponentModalMessage">Please select a parameter name or create a custom parameter.</p>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <select class="form-control" id="fieldModalSelect">
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="container" id="customParameterOptionsWrapper">
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Text:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editFieldModalTextInput">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Name:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editFieldModalNameInput">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Value:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editFieldModalValueInputText">
-                                <input type="checkbox" class="form-control form-check-input" id="editFieldModalValueInputCheckbox">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Default Value:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editFieldModalDefaultValueInputText">
-                                <input type="checkbox" class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Description:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editFieldModalDescriptionInput">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Readonly:</p>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <select class="form-control mb-3" id="editFieldModalAccessSelect">
-                                    <option>Readonly</option>
-                                    <option>Readwrite</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Type:</p>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <select class="form-control" id="editFieldModalTypeSelect">
-                                    <!-- options are added dynamically -->
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Precious:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="checkbox" class="form-control form-check-input" id="editFieldModalPreciousInputCheckbox">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer" style="justify-content:space-between;">
-                <button type="button" class="btn btn-secondary" id="editFieldModalResetToDefaultButton"><span>Reset to Default</span></button>
-                <button type="button" class="btn btn-primary" id="editFieldModalAffirmativeButton" data-bs-dismiss="modal"><span id="editFieldModalAffirmativeAnswer">OK</span></button>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'modals/parameter_table.html' %}
 
-<!-- Edit Port Modal -->
-<div class="modal fade" id="editPortModal" tabindex="-1" role="dialog" aria-labelledby="editPortModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editPortModalTitle">Edit Port</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="container" id="addPortWrapper">
-                    <div class="row">
-                        <p id="ComponentModalMessage">Please select a port name or create a custom port.</p>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <select class="form-control" id="portModalSelect">
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="container" id="customPortOptionsWrapper">
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Name:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editPortModalNameInput">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Text:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editPortModalTextInput">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Type:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editPortModalTypeInput">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Description:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editPortModalDescriptionInput">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="editPortModalAffirmativeButton" data-bs-dismiss="modal"><span id="editPortModalAffirmativeAnswer">OK</span></button>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'modals/edit_edge.html' %}
+{% include 'modals/edit_field.html' %}
 
-<!-- Edit Edge Modal -->
-<div class="modal fade" id="editEdgeModal" tabindex="-1" role="dialog" aria-labelledby="editEdgeModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editEdgeModalTitle">Edit Edge</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Source Node:</p>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <select class="form-control" id="editEdgeModalSrcNodeKeySelect">
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Source Port:</p>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <select class="form-control" id="editEdgeModalSrcPortIdSelect">
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Destination Node:</p>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <select class="form-control" id="editEdgeModalDestNodeKeySelect">
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Destination Port:</p>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <select class="form-control" id="editEdgeModalDestPortIdSelect">
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Data Type:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="editEdgeModalDataTypeInput">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Loop Aware:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="checkbox" class="form-control form-check-input" id="editEdgeModalValueInputCheckbox">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="editEdgeModalAffirmativeButton" data-bs-dismiss="modal"><span id="editEdgeModalAffirmativeAnswer">OK</span></button>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'modals/explore_palettes.html' %}
 
-<!-- Explore Palettes Modal -->
-<div class="modal fade" id="explorePalettesModal" tabindex="-1" role="dialog" aria-labelledby="explorePalettesModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="explorePalettesModalTitle">Explore Palettes</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" style="min-height: 640px; max-height: 640px; overflow: scroll;">
-                <!-- ko if: explorePalettes().length === 0 -->
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                    <div class="spinner-border" id="loadPaletteText" style="width: 3rem; height: 3rem;" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                </div>
-                <!-- /ko -->
-                <!-- ko if: explorePalettes().length !== 0 -->
-                    <ul class="list-group" data-bind="foreach: explorePalettes">
-                        <li class="list-group-item d-flex justify-content-between align-items-center" data-bind="click: $root.explorePalettesClickHelper">
-                            <span data-bind="text: $data.fullPath()"></span>
-                            <!--<span class="badge badge-primary badge-pill">?</span>-->
-                            <div class="form-check">
-                                <input class="form-check-input position-static" type="checkbox" aria-label="select">
-                            </div>
-                        </li>
-                    </ul>
-                <!-- /ko -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="explorePalettesModalAffirmativeButton" data-bs-dismiss="modal"><span id="explorePalettesModalAffirmativeAnswer">OK</span></button>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'modals/model_data.html' %}

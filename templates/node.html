@@ -1,13 +1,13 @@
 <div class="node" data-bind="style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY(), width: $data.width, height: $data.height}, event: {mousedown: function(){$root.startDrag($data);}, mouseup: function(){$root.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false">
-    <!-- ko if: $data.isData() && !$data.isShowPorts() -->
+    <!-- ko if: $data.isData() -->
     <div class="icon" data-bind="style: {backgroundImage: 'url(\'' + $data.getDataIcon() + '\')', left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY(), width: $data.width, height: $data.height}">
     </div>
     <!-- /ko -->
 
-    <!-- ko ifnot: $data.isData() && !$data.isShowPorts() -->
+    <!-- ko ifnot: $data.isData() -->
     <div class="rect" data-bind="css: {selected: $root.objectIsSelected($data)}">
 
-        <!-- ko ifnot: $data.getCategory() === Eagle.Category.Description || $data.getCategory() === Eagle.Category.Comment -->
+        <!-- ko ifnot: $data.getCategory() === Category.Description || $data.getCategory() === Category.Comment -->
         <div class="header" data-bind="style: {backgroundColor: $data.color}">
             <div class="header-name" data-bind="html: $data.name"></div>
         </div>
@@ -15,7 +15,7 @@
 
         <div class="body">
             <div class="contents">
-                <!-- ko if: $data.getCategory() === Eagle.Category.Description || $data.getCategory() === Eagle.Category.Comment -->
+                <!-- ko if: $data.getCategory() === Category.Description || $data.getCategory() === Category.Comment -->
                 <div class="text" data-bind="text: $data.getCustomData()">
                 </div>
                 <!-- /ko -->
@@ -79,30 +79,6 @@
                         <!-- ko if: $data.outputApplication().canHaveOutputs() -->
                         <div class="output-ports">
                             <!-- ko foreach: $data.outputApplication().outputPorts -->
-                                {% include 'output_port.html' %}
-                            <!-- /ko -->
-                        </div>
-                        <!-- /ko -->
-                    </div>
-
-                </div>
-                <!-- /ko -->
-                <!-- ko if: $data.hasExitApplication() -->
-                <div class="exit-app">
-                    <div class="app-name" data-bind="style: {backgroundColor: $data.getExitAppColor()}, html: $data.getExitAppText()"></div>
-
-                    <div class="contents">
-                        <!-- ko if: $data.exitApplication().canHaveInputs() -->
-                        <div class="input-ports">
-                            <!-- ko foreach: $data.exitApplication().inputPorts -->
-                                {% include 'input_port.html' %}
-                            <!-- /ko -->
-                        </div>
-                        <!-- /ko -->
-
-                        <!-- ko if: $data.exitApplication().canHaveOutputs() -->
-                        <div class="output-ports">
-                            <!-- ko foreach: $data.exitApplication().outputPorts -->
                                 {% include 'output_port.html' %}
                             <!-- /ko -->
                         </div>

@@ -2,9 +2,9 @@
 # to work on the host directory and see the changes reflected in the
 # conrainer.
 
-FROM tiangolo/meinheld-gunicorn-flask:python3.8-alpine3.11
+FROM tiangolo/meinheld-gunicorn-flask:python3.8
 COPY . .
-RUN apk add --update npm bash git curl alpine-sdk linux-headers libffi-dev &&\
+RUN apt-get update && apt-get install -y npm bash git curl libffi-dev &&\
     npm install -g typescript &&\
     pip install --upgrade pip &&\
     cd /app ; ln -sf docker/prestart.dev.sh prestart.sh

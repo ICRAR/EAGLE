@@ -48,13 +48,13 @@ class Page {
     this.deleteNodeButton = Selector('#deleteSelectedNode');
     this.confirmButton = Selector('#confirmModalAffirmativeButton');
 
-    this.description = Selector('h5.card-header[href="#nodeCategoryCollapse10"]');
-    this.displayOptions = Selector('h5.card-header[href="#nodeCategoryCollapse1"]');
-    this.parameters = Selector('h5.card-header[href="#nodeCategoryCollapse9"]');
-    this.inputPorts = Selector('h5.card-header[href="#nodeCategoryCollapse6"]');
-    this.outputPorts = Selector('h5.card-header[href="#nodeCategoryCollapse8"]');
-    this.inputApplication = Selector('h5.card-header[href="#nodeCategoryCollapse5"]');
-    this.outputApplication = Selector('h5.card-header[href="#nodeCategoryCollapse7"]');
+    this.description = Selector('#inspectorDescriptionHeading');
+    this.displayOptions = Selector('#inspectorDisplayOptionsHeading');
+    this.parameters = Selector('#inspectorComponentParamsHeading');
+    this.inputPorts = Selector('#inspectorInputsHeading');
+    this.outputPorts = Selector('#inspectorOutputsHeading');
+    this.inputApplication = Selector('#inspectorInpuputAppHeading');
+    this.outputApplication = Selector('#inspectorInputAppHeading');
 
     this.nodeNameValue = Selector('#nodeNameValue');
     this.parentButton = Selector('#nodeInspectorChangeParent');
@@ -93,17 +93,12 @@ class Page {
 
     this.componentParameters = Selector('.card-header').withText("Component Parameters");
     this.outputPorts = Selector('span').withText("Output Ports");
-    this.changeGreet = Selector('#nodeInspectorFieldValue0');
+    this.changeGreet = Selector('#Field0');
 
     this.addInputPort = Selector('#nodeInspectorAddInputPort');
     this.addOutputPort = Selector('#nodeInspectorAddOutputPort');
     this.addInputApplication = Selector('#nodeInspectorAddInputApplication');
     this.addOutputApplication = Selector('#nodeInspectorAddOutputApplication');
-
-    this.portModalSelect = Selector('#portModalSelect');
-    this.portModalNameInput = Selector('#editPortModalNameInput');
-    this.portModalTextInput = Selector('#editPortModalTextInput');
-    this.portModalAffirmativeButton = Selector('#editPortModalAffirmativeButton');
 
     this.commitRepo = Selector('#gitCommitModalRepositoryNameSelect');
     this.commitPath = Selector('#gitCommitModalFilePathInput');
@@ -235,28 +230,6 @@ class Page {
       .click(this.selectChoice)
       .click(Selector(this.selectChoice).find('option').withText(parentText))
       .click(this.submitChoice);
-  }
-
-  async addNodePort (portInternalName, portExternalName, input){
-     if (input){
-         await t
-            .hover(this.addInputPort)
-            .click(this.addInputPort);
-    } else {
-        await t
-           .hover(this.addOutputPort)
-           .click(this.addOutputPort);
-    }
-
-    //await this.selectOption("Custom (enter below)");
-    await t
-        .click(this.portModalSelect)
-        .click(Selector(this.portModalSelect).find('option').withText("Custom (enter below)"));
-
-    await t.typeText(this.portModalNameInput, portInternalName, {replace:true});
-    await t.typeText(this.portModalTextInput, portExternalName, {replace:true});
-
-    await t.click(this.portModalAffirmativeButton);
   }
 
   async addNodeInputApplication(applicationName){

@@ -23,19 +23,25 @@
 */
 
 import * as Ajv from "ajv";
+import * as Showdown from "showdown";
 import * as ko from "knockout";
 
+import {Category} from './Category';
+import {CategoryData} from "./CategoryData";
 import {Config} from './Config';
-
 import {Eagle} from './Eagle';
-import {Palette} from './Palette';
+import {Edge} from './Edge';
+import {Errors} from './Errors';
+import {Field} from './Field';
+import {KeyboardShortcut} from './KeyboardShortcut';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
-import {Edge} from './Edge';
-import {Port} from './Port';
-import {Field} from './Field';
-import {Repository} from './Repository';
+import {Palette} from './Palette';
 import {PaletteInfo} from './PaletteInfo';
+import {Repository} from './Repository';
+import {Setting} from './Setting';
+import {ParameterTable} from './ParameterTable';
+import {FileInfo} from "./FileInfo";
 
 export class Utils {
     // Allowed file extenstions.
@@ -43,47 +49,11 @@ export class Utils {
         "json",
         "diagram",
         "graph",
-        "palette"
+        "palette",
+        "md" // for markdown e.g. README.md
     ];
 
-    static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
-    static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
-    static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
-    static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
-
-    static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
-    static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
-    static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
-    static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
-
-    static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
-
-    static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
-    static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
-    static readonly ALLOW_READONLY_PARAMETER_EDITING : string = "AllowReadonlyParameterEditing";
-    static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
-    static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
-
-    static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
-    static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
-
-    static readonly TRANSLATOR_URL : string = "TranslatorURL";
-
-    static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
-
-    static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
-    static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
-    static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
-
-    static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
-    static readonly SPAWN_TRANSLATION_TAB: string = "SpawnTranslationTab";
-    static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
-    static readonly USE_SIMPLIFIED_TRANSLATOR_OPTIONS: string = "UseSimplifiedTranslatorOptions";
-
-    static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
-
     static ojsGraphSchema : object = {};
-    static ojsPaletteSchema : object = {};
     static v3GraphSchema : object = {};
     static appRefGraphSchema : object = {};
 
@@ -95,6 +65,10 @@ export class Utils {
      */
 
     static uuidv4() : string {
+        if (typeof crypto.randomUUID !== "undefined"){
+            return crypto.randomUUID();
+        }
+
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
@@ -216,6 +190,7 @@ export class Utils {
         return Utils.translateStringToFileType(Utils.getFileExtension(fileName));
     }
 
+    // NOTE: used for sorting files by filetype
     static getFileTypeNum(fileType: Eagle.FileType) : number {
         switch (fileType){
             case Eagle.FileType.Graph:
@@ -224,8 +199,10 @@ export class Utils {
                 return 1;
             case Eagle.FileType.JSON:
                 return 2;
-            case Eagle.FileType.Unknown:
+            case Eagle.FileType.Markdown:
                 return 3;
+            case Eagle.FileType.Unknown:
+                return 4;
         }
     }
 
@@ -289,30 +266,47 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static translateStringToDataType(dataType: string): Eagle.DataType {
-        if (dataType === "Boolean"){
-            return Eagle.DataType.Boolean;
-        }
-        if (dataType === "Float"){
-            return Eagle.DataType.Float;
-        }
-        if (dataType === "Integer"){
-            return Eagle.DataType.Integer;
-        }
-        if (dataType === "String"){
-            return Eagle.DataType.String;
-        }
-        if (dataType === "Complex"){
-            return Eagle.DataType.Complex;
-        }
-        if (dataType === "Unknown"){
-            return Eagle.DataType.Unknown;
+    static dataTypePrefix(dataType: string): string {
+        if (typeof dataType === 'undefined'){
+            return Eagle.DataType_Unknown;
         }
 
-        console.warn("Unknown DataType", dataType);
-        return Eagle.DataType.Unknown;
+        return dataType.split(".")[0];
     }
 
+    static translateStringToDataType(dataType: string): string {
+        for (const dt of Eagle.DataTypes){
+            if (dt.toLowerCase() === dataType.toLowerCase()){
+                return dt;
+            }
+        }
+        
+        console.warn("Unknown DataType", dataType);
+        return Eagle.DataType_Unknown;
+    }
+
+    static translateStringToParameterType(parameterType: string): Eagle.ParameterType {
+        for (const pt of Object.values(Eagle.ParameterType)){
+            if (pt.toLowerCase() === parameterType.toLowerCase()){
+                return pt;
+            }
+        }
+
+        console.warn("Unknown ParameterType", parameterType);
+        return Eagle.ParameterType.Unknown;
+    }
+
+    static translateStringToParameterUsage(parameterUsage: string): Eagle.ParameterUsage {
+        for (const pu of Object.values(Eagle.ParameterUsage)){
+            if (pu.toLowerCase() === parameterUsage.toLowerCase()){
+                return pu;
+            }
+        }
+
+        console.warn("Unknown ParameterUsage", parameterUsage);
+        return Eagle.ParameterUsage.NoPort;
+    }
+    
     static httpGet(url : string, callback : (error : string, data : string) => void) : void {
         $.ajax({
             url: url,
@@ -363,6 +357,26 @@ export class Utils {
             url : url,
             type : 'POST',
             data : JSON.stringify(json),
+            contentType : 'application/json',
+            success : function(data : string) {
+                callback(null, data);
+            },
+            error: function(xhr, status, error : string) {
+                if (typeof xhr.responseJSON === 'undefined'){
+                    callback(error, null);
+                } else {
+                    callback(xhr.responseJSON.error, null);
+                }
+            }
+        });
+    }
+
+    static httpPostJSONString(url : string, jsonString : string, callback : (error : string, data : string) => void) : void {
+        console.log("httpPostJSON() : ", url);
+        $.ajax({
+            url : url,
+            type : 'POST',
+            data : jsonString,
             contentType : 'application/json',
             success : function(data : string) {
                 callback(null, data);
@@ -439,6 +453,21 @@ export class Utils {
         if (title === "Error"){
             Utils.addToHTMLElementLog(title + ":" + message);
         }
+    }
+
+    static showErrorsModal(title: string){
+        const errors: Errors.Issue[] = Errors.getErrors();
+        const warnings: Errors.Issue[] = Errors.getWarnings();
+
+        console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
+
+        $('#errorsModalTitle').text(title);
+
+        // hide whole errors or warnings sections if none are found
+        $('#errorsModalErrorsAccordionItem').toggle(errors.length > 0);
+        $('#errorsModalWarningsAccordionItem').toggle(warnings.length > 0);
+
+        $('#errorsModal').modal("toggle");
     }
 
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
@@ -609,18 +638,39 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, parameterUsage: Eagle.ParameterUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
         let dropDownKO;
         let divID;
 
-        if (fieldType === Eagle.FieldType.Field){
-            dropDownKO = $("#nodeInspectorFieldDropDownKO");
-            divID = "nodeInspectorAddFieldDiv";
-        } else {
-            dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
-            divID = "nodeInspectorAddApplicationParamDiv";
+        // determine which dropdown menu should be filled with appropriate items
+        switch(parameterType){
+            case Eagle.ParameterType.ApplicationArgument:
+                dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
+                divID = "nodeInspectorAddApplicationParamDiv";
+                break;
+            case Eagle.ParameterType.ComponentParameter:
+                dropDownKO = $("#nodeInspectorFieldDropDownKO");
+                divID = "nodeInspectorAddFieldDiv";
+                break;
+            case Eagle.ParameterType.ConstructParameter:
+                dropDownKO = $("#nodeInspectorConstructParameterDropDownKO");
+                divID = "nodeInspectorAddConstructParameterDiv";
+                break;
+            default:
+            console.error("Unknown parameter type");
         }
 
+        // or if we are a port, then use different dropdowns
+        switch(parameterUsage){
+            case Eagle.ParameterUsage.InputPort:
+            dropDownKO = $("#nodeInspectorInputPortDropDownKO");
+            divID = "nodeInspectorAddInputPortDiv";
+            break;
+            case Eagle.ParameterUsage.OutputPort:
+            dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
+            divID = "nodeInspectorAddOutputPortDiv";
+            break;
+        }
 
         if (modalType === Eagle.ModalType.Add){
             // remove existing options from the select tag
@@ -640,101 +690,127 @@ export class Utils {
                 text: ""
             }));
 
+            // add custom choice first
+            $('#fieldModalSelect').append($('<option>', {
+                value: 0,
+                text: "<Custom>"
+            }));
+            dropDownKO.append($('<a>', {
+                href: "#",
+                class: "nodeInspectorDropdownOption",
+                "data-bind":"click:function(){nodeInspectorDropdownClick("+0+", "+choices.length+",'" + divID + "')}",
+                value: 0,
+                text: "<Custom>"
+            }));
+
             // add options to the modal select tag
             for (let i = 0 ; i < choices.length ; i++){
                 $('#fieldModalSelect').append($('<option>', {
-                    value: i,
+                    value: i+1,
                     text: choices[i]
                 }));
                 dropDownKO.append($('<a>', {
                     href: "#",
                     class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'" + divID + "')}",
-                    value: i,
+                    "data-bind":"click:function(){nodeInspectorDropdownClick("+(i+1)+", "+choices.length+",'" + divID + "')}",
+                    value: i+1,
                     text: choices[i]
                 }));
             }
-
-            // add custom choice
-            $('#fieldModalSelect').append($('<option>', {
-                value: choices.length,
-                text: "Custom (enter below)"
-            }));
-            dropDownKO.append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'" + divID + "')}",
-                value: choices.length,
-                text: "Custom"
-            }));
 
             //applying knockout bindings for the new buttons generated above
             ko.cleanNode(dropDownKO[0]);
             ko.applyBindings(eagle, dropDownKO[0]);
 
+            // set the type/usage of the new field to match the details requested by the user
+            field.setParameterType(parameterType);
+            field.setUsage(parameterUsage);
         }
 
         // populate UI with current field data
-        $('#editFieldModalTextInput').val(field.getText());
-        $('#editFieldModalNameInput').val(field.getName());
+        $('#editFieldModalDisplayTextInput').val(field.getDisplayText());
+        $('#editFieldModalIdTextInput').val(field.getIdText());
         $('#editFieldModalValueInputText').val(field.getValue());
-        $('#editFieldModalValueInputCheckbox').prop('checked', Field.string2Type(field.getValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalValueInputNumber').val(field.getValue());
+        $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
+        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
+        $('#editFieldModalValueInputSelect').empty();
+        for (const option of field.getOptions()){
+            $('#editFieldModalValueInputSelect').append($('<option>', {
+                value: option,
+                text: option,
+                selected: field.getValue() === option
+            }));
+        }
+
         $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
-        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.string2Type(field.getDefaultValue(), Eagle.DataType.Boolean));
+        $('#editFieldModalDefaultValueInputNumber').val(field.getDefaultValue());
+        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Eagle.DataType_Boolean));
+        $('#editFieldModalDefaultValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
+        $('#editFieldModalDefaultValueInputSelect').empty();
+        for (const option of field.getOptions()){
+            $('#editFieldModalDefaultValueInputSelect').append($('<option>', {
+                value: option,
+                text: option,
+                selected: field.getDefaultValue() === option
+            }));
+        }
+
+        // set accessibility state checkbox
+        $('#editFieldModalAccessInputCheckbox').prop('checked', field.isReadonly());
+
+        // set accessibility state checkbox
+        $('#editFieldModalKeyParameterCheckbox').prop('checked', field.isKeyAttribute());
+
+        // set positional argument checkbox
+        $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
 
         $('#editFieldModalDescriptionInput').val(field.getDescription());
-        $('#editFieldModalAccessSelect').empty();
 
-        // show the correct entry field based on the field type
-        $('#editFieldModalValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean);
-        $('#editFieldModalValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
-        $('#editFieldModalDefaultValueInputText').toggle(field.getType() !== Eagle.DataType.Boolean);
-        $('#editFieldModalDefaultValueInputCheckbox').toggle(field.getType() === Eagle.DataType.Boolean);
+        $('#editFieldModalTypeInput').val(field.getType());
 
-        // add options to the access select tag
-        $('#editFieldModalAccessSelect').append($('<option>', {
-            value: "readonly",
-            text: "readonly",
-            selected: field.isReadonly()
-        }));
-        $('#editFieldModalAccessSelect').append($('<option>', {
-            value: "readwrite",
-            text: "readwrite",
-            selected: !field.isReadonly()
-        }));
 
+        // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
         $('#editFieldModalTypeSelect').empty();
-        // TODO: we should iterate through the values in the Eagle.DataType enum, rather than hard-code each type
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Integer",
-            text: "Integer",
-            selected: field.getType() === Eagle.DataType.Integer
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Float",
-            text: "Float",
-            selected: field.getType() === Eagle.DataType.Float
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "String",
-            text: "String",
-            selected: field.getType() === Eagle.DataType.String
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Boolean",
-            text: "Boolean",
-            selected: field.getType() === Eagle.DataType.Boolean
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Complex",
-            text: "Complex",
-            selected: field.getType() === Eagle.DataType.Complex
-        }));
-        $('#editFieldModalTypeSelect').append($('<option>', {
-            value: "Unknown",
-            text: "Unknown",
-            selected: field.getType() === Eagle.DataType.Unknown
-        }));
+        for (const dataType of eagle.types()){
+            const li = $('<li></li>');
+            const a = $('<a class="dropdown-item" href="#">' + dataType + '</a>');
+
+            a.attr("href", "javascript:eagle.editFieldDropdownClick('" + dataType + "','" + field.getType() + "');");
+
+            if (Utils.dataTypePrefix(field.getType()) === dataType){
+                a.addClass("active");
+            }
+
+            // add to the html
+            li.append(a);
+            $('#editFieldModalTypeSelect').append(li);
+        }
+
+        // delete all options, then iterate through the values in the Eagle.ParameterType enum, adding each as an option to the select
+        $('#editFieldModalParameterTypeSelect').empty();
+        for (const ft of [Eagle.ParameterType.ComponentParameter, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterType.ConstructParameter]){
+            $('#editFieldModalParameterTypeSelect').append(
+                $('<option>', {
+                    value: ft,
+                    text: ft,
+                    selected: field.getParameterType() === ft
+                })
+            );
+        }
+
+        // delete all options, then iterate through the values in the Eagle.ParameterUsage enum, adding each as an option to the select
+        $('#editFieldModalParameterUsageSelect').empty();
+        for (const pu of Object.values(Eagle.ParameterUsage)){
+            $('#editFieldModalParameterUsageSelect').append(
+                $('<option>', {
+                    value: pu,
+                    text: pu,
+                    selected: field.getUsage() === pu
+                })
+            );
+        }
+
 
         $('#editFieldModalPreciousInputCheckbox').prop('checked', field.isPrecious());
 
@@ -743,96 +819,6 @@ export class Utils {
         $('#editFieldModal').data('choices', choices);
         $('#editFieldModal').modal("toggle");
 
-    }
-
-    static requestUserEditPort(eagle:Eagle, modalType: Eagle.ModalType, port: Port, choices: string[], callback: (completed: boolean, port: Port) => void) : void {
-        if (modalType === Eagle.ModalType.Add){
-            // remove existing options from the select tag
-            $('#portModalSelect').empty();
-            $('#nodeInspectorInputPortDropDownKO').empty();
-            $('#nodeInspectorOutputPortDropDownKO').empty();
-
-
-            // add empty choice
-            $('#portModalSelect').append($('<option>', {
-                value: -1,
-                text: ""
-            }));
-            $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddInputPortDiv')}",
-                value: -1,
-                text: ""
-            }));
-            $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
-                value: -1,
-                text: ""
-            }));
-
-
-            // add options to the modal select tag
-            for (let i = 0 ; i < choices.length ; i++){
-                $('#portModalSelect').append($('<option>', {
-                    value: i,
-                    text: choices[i]
-                }));
-                $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
-                    href: "#",
-                    class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddInputPortDiv')}",
-                    value: i,
-                    text: choices[i]
-                }));
-                $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
-                    href: "#",
-                    class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+i+", "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
-                    value: i,
-                    text: choices[i]
-                }));
-            }
-
-            // add custom choice
-            $('#portModalSelect').append($('<option>', {
-                value: choices.length,
-                text: "Custom"
-            }));
-            $('#nodeInspectorInputPortDropDownKO').append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddInputPortDiv')}",
-                value: choices.length,
-                text: "Custom"
-            }));
-            $('#nodeInspectorOutputPortDropDownKO').append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+choices.length+", "+choices.length+",'nodeInspectorAddOutputPortDiv')}",
-                value: choices.length,
-                text: "Custom"
-            }));
-
-            //applying knockout bindings for the new buttonsgenerated above
-            ko.cleanNode(document.getElementById("nodeInspectorInputPortDropDownKO"));
-            ko.applyBindings(eagle, document.getElementById("nodeInspectorInputPortDropDownKO"));
-            ko.cleanNode(document.getElementById("nodeInspectorOutputPortDropDownKO"));
-            ko.applyBindings(eagle, document.getElementById("nodeInspectorOutputPortDropDownKO"));
-        }
-
-        // populate UI with current port data
-        $('#editPortModalNameInput').val(port.getName());
-        $('#editPortModalTextInput').val(port.getText());
-        $('#editPortModalTypeInput').val(port.getType());
-        $('#editPortModalDescriptionInput').val(port.getDescription());
-
-        $('#editPortModal').data('completed', false);
-        $('#editPortModal').data('callback', callback);
-        $('#editPortModal').data('choices', choices);
-        $('#editPortModal').modal("toggle");
     }
 
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void) : void {
@@ -844,6 +830,40 @@ export class Utils {
         $('#gitCustomRepositoryModal').data('completed', false);
         $('#gitCustomRepositoryModal').data('callback', callback);
         $('#gitCustomRepositoryModal').modal("toggle");
+    }
+
+    static validateCustomRepository() : boolean {
+        const repositoryService : string = <string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
+        const repositoryName : string = <string>$('#gitCustomRepositoryModalRepositoryNameInput').val();
+        const repositoryBranch : string = <string>$('#gitCustomRepositoryModalRepositoryBranchInput').val();
+
+        $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
+        $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
+
+        // check service
+        if (repositoryService.trim() !== Eagle.RepositoryService.GitHub && repositoryService.trim() !== Eagle.RepositoryService.GitLab){
+            return false;
+        }
+
+        // check if name is empty
+        if (repositoryName.trim() == ""){
+            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+            return false;
+        }
+
+        // check if name starts with http:// or https://, or ends with .git
+        if (repositoryName.startsWith('http://') || repositoryName.startsWith('https://') || repositoryName.endsWith('.git')){
+            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+            return false;
+        }
+
+        // check if branch is empty
+        if (repositoryBranch.trim() == ""){
+            $('#gitCustomRepositoryModalRepositoryBranchInput').addClass('is-invalid');
+            return false;
+        }
+
+        return true;
     }
 
     static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository) : void {
@@ -867,15 +887,33 @@ export class Utils {
     }
 
     static showSettingsModal() : void {
-        $('#settingsModal').modal("toggle");
+        $('#settingsModal').modal("show");
+    }
+
+    static hideSettingsModal() : void {
+        $('#settingsModal').modal("hide");
+    }
+
+    static showOpenParamsTableModal(mode:string) : void {
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.tableModalType(mode)
+        $('#parameterTableModal').modal("toggle");
     }
 
     static showShortcutsModal() : void {
-        $('#shortcutsModal').modal("toggle");
+        $('#shortcutsModal').modal("show");
+    }
+
+    static closeShortcutsModal() : void {
+        $('#shortcutsModal').modal("hide");
+    }
+
+    static closeErrorsModal() : void {
+        $('#errorsModal').modal("hide");
     }
 
     static showPalettesModal(eagle: Eagle) : void {
-        const token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
@@ -891,7 +929,7 @@ export class Utils {
         };
 
         // empty the list of palettes prior to (re)fetch
-        eagle.explorePalettes([]);
+        eagle.explorePalettes().clear();
 
         $('#explorePalettesModal').modal("toggle");
 
@@ -913,8 +951,17 @@ export class Utils {
                 explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, palette.name, palette.path));
             }
 
-            eagle.explorePalettes(explorePalettes);
+            // process files into a more complex structure
+            eagle.explorePalettes().initialise(explorePalettes);
         });
+    }
+
+    static showModelDataModal = (title: string, fileInfo: FileInfo) : void => {
+        const eagle = Eagle.getInstance();
+        eagle.currentFileInfoTitle(title);
+        eagle.currentFileInfo(fileInfo);
+
+        $('#modelDataModal').modal("toggle");
     }
 
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void) : void {
@@ -989,7 +1036,7 @@ export class Utils {
             for (const port of srcNode.getOutputPorts()){
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
-                    text: port.getName(),
+                    text: port.getIdText(),
                     selected: edge.getSrcPortId() === port.getId()
                 }));
             }
@@ -1047,7 +1094,7 @@ export class Utils {
             for (const port of destNode.getInputPorts()){
                 $('#editEdgeModalDestPortIdSelect').append($('<option>', {
                     value: port.getId(),
-                    text: port.getName(),
+                    text: port.getIdText(),
                     selected: edge.getDestPortId() === port.getId()
                 }));
             }
@@ -1059,22 +1106,22 @@ export class Utils {
     /**
      * Returns a list of unique port names (except event ports)
      */
-    static getUniquePortsList = (palettes : Palette[], graph: LogicalGraph) : Port[] => {
-        const uniquePorts : Port[] = [];
+    static getUniquePortsList = (palettes : Palette[], graph: LogicalGraph) : Field[] => {
+        const uniquePorts : Field[] = [];
 
         // build a list from all palettes
         for (const palette of palettes){
             for (const node of palette.getNodes()){
                 // add input port names into the list
                 for (const port of node.getInputPorts()) {
-                    if (!port.isEvent()){
+                    if (!port.getIsEvent()){
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // add output port names into the list
                 for (const port of node.getOutputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
@@ -1085,14 +1132,14 @@ export class Utils {
         for (const node of graph.getNodes()) {
             // add input port names into the list
             for (const port of node.getInputPorts()) {
-                if (!port.isEvent()){
+                if (!port.getIsEvent()){
                     Utils._addPortIfUnique(uniquePorts, port.clone());
                 }
             }
 
             // add output port names into the list
             for (const port of node.getOutputPorts()) {
-                if (!port.isEvent()) {
+                if (!port.getIsEvent()) {
                     Utils._addPortIfUnique(uniquePorts, port.clone());
                 }
             }
@@ -1101,14 +1148,14 @@ export class Utils {
             if (node.hasInputApplication()){
                 // input ports
                 for (const port of node.getInputApplication().getInputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
                 for (const port of node.getInputApplication().getOutputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
@@ -1118,14 +1165,14 @@ export class Utils {
             if (node.hasOutputApplication()){
                 // input ports
                 for (const port of node.getOutputApplication().getInputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
                 for (const port of node.getOutputApplication().getOutputPorts()) {
-                    if (!port.isEvent()) {
+                    if (!port.getIsEvent()) {
                         Utils._addPortIfUnique(uniquePorts, port.clone());
                     }
                 }
@@ -1135,7 +1182,7 @@ export class Utils {
         return uniquePorts;
     }
 
-    static getDataComponentsWithPortTypeList(palettes: Palette[], portName: string, portType: string, ineligibleCategories: Eagle.Category[]){
+    static getDataComponentsWithPortTypeList(palettes: Palette[], ineligibleCategories: Category[]) : Node[] {
         console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
 
         const result: Node[] = [];
@@ -1167,11 +1214,123 @@ export class Utils {
         return result;
     }
 
-    private static _addPortIfUnique = (ports : Port[], port: Port) : void => {
+    static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
+        console.log("getDataComponentsWithInputsAndOutputs");
+
+        const result: Node[] = [];
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (categoryType === Category.Type.Data && !node.isData()){
+                    continue;
+                }
+
+                // skip nodes that are not application components
+                if (categoryType === Category.Type.Application && !node.isApplication()){
+                    continue;
+                }
+
+                // skip nodes that are not construct components
+                if (categoryType === Category.Type.Construct && !node.isConstruct()){
+                    continue;
+                }
+
+                // if input ports required, skip nodes with too few
+                if (numRequiredInputs > node.maxInputs()){
+                    continue;
+                }
+
+                // if output ports required, skip nodes with too few
+                if (numRequiredOutputs > node.maxOutputs()){
+                    continue;
+                }
+
+                result.push(node);
+            }
+        }
+
+        return result;
+    }
+
+    static getCategoriesWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
+        const result: Category[] = [];
+
+        // loop through all categories
+        for (const category in CategoryData.cData){
+            // get category data
+            const categoryData = CategoryData.getCategoryData(<Category>category);
+
+            if (categoryData.categoryType !== categoryType){
+                continue;
+            }
+
+            // if input ports required, skip nodes with too few
+            if (numRequiredInputs > categoryData.maxInputs){
+                continue;
+            }
+
+            // if output ports required, skip nodes with too few
+            if (numRequiredOutputs > categoryData.maxOutputs){
+                continue;
+            }
+
+            result.push(<Category>category);
+        }
+
+        return result;
+    }
+
+    static getDataComponentMemory(palettes: Palette[]) : Node {
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (node.getName() === Category.Memory){
+                    return node;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    static getComponentsWithMatchingPort(palettes: Palette[], input: boolean, type: string, dataEligible: boolean) : Node[] {
+        const result: Node[] = [];
+
+        // add all data components (except ineligible)
+        for (const palette of palettes){
+            for (const node of palette.getNodes()){
+                // skip data nodes if not eligible
+                if (!dataEligible && node.getCategoryType() === Category.Type.Data){
+                    continue;
+                }
+
+                let hasInputOfType: boolean = false;
+
+                const ports: Field[] = input ? node.getInputPorts() : node.getOutputPorts();
+
+                for (const port of ports){
+                    if (Utils.typesMatch(port.getType(), type)){
+                        hasInputOfType = true;
+                    }
+                }
+
+                if (hasInputOfType){
+                    result.push(node);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static _addPortIfUnique = (ports : Field[], port: Field) : void => {
 
         // check if the new port matches an existing port (by name and type), if so, abort
         for (const p of ports){
-            if (p.getName() === port.getName() && p.getType() === port.getType()){
+            if (p.getIdText() === port.getIdText() && p.getType() === port.getType()){
                 return;
             }
         }
@@ -1180,10 +1339,19 @@ export class Utils {
         ports.push(port);
     }
 
+    static addTypeIfUnique = (types: string[], newType: string) : void => {
+        for (const t of types){
+            if (t === newType){
+                return;
+            }
+        }
+        types.push(newType);
+    }
+
     /**
-     * Returns a list of all fields in the given palette or logical graph
+     * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFieldsList = (diagram : Palette | LogicalGraph) : Field[] => {
+    static getUniqueFields = (diagram : Palette | LogicalGraph) : Field[] => {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
@@ -1197,25 +1365,28 @@ export class Utils {
     }
 
     /**
-     * Returns a list of all fields in the given palette or logical graph
+     * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueApplicationParamsList = (diagram : Palette | LogicalGraph) : Field[] => {
-        const uniqueApplicationParams : Field[] = [];
+    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, parameterType: Eagle.ParameterType) : Field[] => {
+        const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
         for (const node of diagram.getNodes()) {
-            for (const param of node.getApplicationParams()) {
-                Utils._addFieldIfUnique(uniqueApplicationParams, param.clone());
+            for (const field of node.getFields()) {
+                if (field.getParameterType() !== parameterType){
+                    continue;
+                }
+                Utils._addFieldIfUnique(uniqueFields, field.clone());
             }
         }
 
-        return uniqueApplicationParams;
+        return uniqueFields;
     }
 
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
         // check if the new field matches an existing field (by name and type), if so, abort
         for (const f of fields){
-            if (f.getName() === field.getName() && f.getType() === field.getType()){
+            if (f.getIdText() === field.getIdText() && f.getType() === field.getType()){
                 return;
             }
         }
@@ -1225,11 +1396,11 @@ export class Utils {
     }
 
     static isKnownCategory(category : string) : boolean {
-        return typeof Eagle.cData[category] !== 'undefined';
+        return typeof CategoryData.cData[category] !== 'undefined';
     }
 
-    static getColorForNode(category : Eagle.Category) : string {
-        return Eagle.getCategoryData(category).color;
+    static getColorForNode(category : Category) : string {
+        return CategoryData.getCategoryData(category).color;
     }
 
     static saveAsPNG(selector: string, filename: string) : void {
@@ -1276,7 +1447,7 @@ export class Utils {
 
     static getRightWindowWidth() : number {
         // try localStorage first
-        const local : string = localStorage.getItem(this.RIGHT_WINDOW_WIDTH_KEY);
+        const local : string = localStorage.getItem(Setting.RIGHT_WINDOW_WIDTH_KEY);
 
         // if found, return
         if (local !== null){
@@ -1287,12 +1458,12 @@ export class Utils {
     }
 
     static setRightWindowWidth(width : number) : void {
-        localStorage.setItem(this.RIGHT_WINDOW_WIDTH_KEY, width.toString());
+        localStorage.setItem(Setting.RIGHT_WINDOW_WIDTH_KEY, width.toString());
     }
 
     static getLeftWindowWidth() : number {
         // try localStorage first
-        const local : string = localStorage.getItem(this.LEFT_WINDOW_WIDTH_KEY);
+        const local : string = localStorage.getItem(Setting.LEFT_WINDOW_WIDTH_KEY);
 
         // if found, return
         if (local !== null){
@@ -1303,7 +1474,7 @@ export class Utils {
     }
 
     static setLeftWindowWidth(width : number) : void {
-        localStorage.setItem(this.LEFT_WINDOW_WIDTH_KEY, width.toString());
+        localStorage.setItem(Setting.LEFT_WINDOW_WIDTH_KEY, width.toString());
     }
 
     static getLocalStorageKey(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
@@ -1321,13 +1492,13 @@ export class Utils {
         return repositoryName+"|"+repositoryBranch;
     }
 
-    static buildComponentList(filter: (cData: Eagle.CategoryData) => boolean) : Eagle.Category[] {
-        const result : Eagle.Category[] = [];
+    static buildComponentList(filter: (cData: CategoryData) => boolean) : Category[] {
+        const result : Category[] = [];
 
-        for (const category in Eagle.cData){
-            const cData = Eagle.getCategoryData(<Eagle.Category>category);
+        for (const category in CategoryData.cData){
+            const cData = CategoryData.getCategoryData(<Category>category);
             if (filter(cData)){
-                result.push(<Eagle.Category>category);
+                result.push(<Category>category);
             }
         }
 
@@ -1359,30 +1530,46 @@ export class Utils {
     }
 
     static determineSchemaVersion(data: any): Eagle.DALiuGESchemaVersion {
-        // v3
-        if (typeof data.DALiuGEGraph !== 'undefined'){
-            if (typeof data.DALiuGEGraph.schemaVersion !== 'undefined'){
-                return Eagle.DALiuGESchemaVersion.V3;
-            }
-        }
-
         // appref
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
-                if (data.modelData.schemaVersion === Eagle.DALiuGESchemaVersion.AppRef){
-                    return Eagle.DALiuGESchemaVersion.AppRef;
-                }
                 if (data.modelData.schemaVersion === Eagle.DALiuGESchemaVersion.OJS){
                     return Eagle.DALiuGESchemaVersion.OJS;
                 }
+                return data.modelData.schemaVersion;
             }
         }
 
         return Eagle.DALiuGESchemaVersion.Unknown;
     }
 
-    static checkPalette(palette: Palette): string[] {
-        const results: string[] = [];
+    static portsMatch(port0: Field, port1: Field){
+        return Utils.typesMatch(port0.getType(), port1.getType());
+    }
+
+    static typesMatch(type0: string, type1: string){
+        // check for undefined
+        if (typeof type0 === "undefined" || typeof type1 === "undefined"){
+            console.warn("typesMatch(): matching value undefined (type0:", type0, "type1:", type1, ")");
+            return false;
+        }
+
+        // match if either type is "Object"
+        if (type0 === "Object" || type1 === "Object"){
+            return true;
+        }
+
+        // match if one type is an extension of the other
+        if (type0.startsWith(type1) || type1.startsWith(type0)){
+            return true;
+        }
+
+        return type0 === type1;
+    }
+
+    static checkPalette(palette: Palette): Errors.ErrorsWarnings {
+        const eagle: Eagle = Eagle.getInstance();
+        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
 
         // check for duplicate keys
         const keys: number[] = [];
@@ -1390,134 +1577,36 @@ export class Utils {
         for (const node of palette.getNodes()){
             // check existing keys
             if (keys.indexOf(node.getKey()) !== -1){
-                results.push("Key " + node.getKey() + " used by multiple components in palette.");
+                errorsWarnings.errors.push(Errors.Message("Key " + node.getKey() + " used by multiple components in palette."));
             } else {
                 keys.push(node.getKey());
             }
         }
 
-        return results;
+        // check all nodes are valid
+        for (const node of palette.getNodes()){
+            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errorsWarnings);
+        }
+
+        return errorsWarnings;
     }
 
-    static checkGraph(graph: LogicalGraph): Eagle.ErrorsWarnings {
-        const warnings: string[] = [];
-        const errors: string[] = [];
+    static checkGraph(eagle: Eagle): Errors.ErrorsWarnings {
+        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
 
-        // check that all port dataTypes have been defined
+        const graph: LogicalGraph = eagle.logicalGraph();
+
+        // check all nodes are valid
         for (const node of graph.getNodes()){
-            for (const port of node.getInputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getName() + ") whose type is not specified");
-                }
-            }
-            for (const port of node.getOutputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getName() + ") whose type is not specified");
-                }
-            }
-
-            for (const port of node.getInputApplicationInputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
-                }
-            }
-
-            for (const port of node.getInputApplicationOutputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
-                }
-            }
-
-            for (const port of node.getOutputApplicationInputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getName() + ") whose type is not specified");
-                }
-            }
-
-            for (const port of node.getOutputApplicationOutputPorts()){
-                if (port.getType() === "" || port.getType() === Eagle.DataType.Unknown){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getName() + ") whose type is not specified");
-                }
-            }
-        }
-
-        // check that all fields have default values
-        for (const node of graph.getNodes()){
-            for (const field of node.getFields()){
-                if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getName() + ") whose default value is not specified");
-                }
-            }
-        }
-
-        // check that all application params have default values
-        for (const node of graph.getNodes()){
-            for (const field of node.getApplicationParams()){
-                if (field.getDefaultValue() === "" && field.getType() !== Eagle.DataType.String){
-                    warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has an application parameter (" + field.getName() + ") whose default value is not specified");
-                }
-            }
-        }
-
-        // check that all nodes have correct numbers of inputs and outputs
-        for (const node of graph.getNodes()){
-            const cData: Eagle.CategoryData = Eagle.getCategoryData(node.getCategory());
-            const minInputs  = cData.minInputs;
-            const maxInputs  = cData.maxInputs;
-            const minOutputs = cData.minOutputs;
-            const maxOutputs = cData.maxOutputs;
-
-            if (node.getInputPorts().length < minInputs){
-                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + minInputs);
-            }
-            if (node.getInputPorts().length > maxInputs){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + maxInputs);
-            }
-            if (node.getOutputPorts().length < minOutputs){
-                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + minOutputs);
-            }
-            if (node.getOutputPorts().length > maxOutputs){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") may have too many output ports. Should have at most " + maxOutputs);
-            }
-
-            // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
-            let isConnected: boolean = false;
-            for (const edge of graph.getEdges()){
-                if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
-                    isConnected = true;
-                    break;
-                }
-            }
-
-            // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
-            if (!isConnected && !(maxInputs === 0 && maxOutputs === 0)){
-                warnings.push("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way");
-            }
-
-            // check embedded application categories are not 'None'
-            if (node.hasInputApplication() && node.getInputApplication().getCategory() === Eagle.Category.None){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'.");
-            }
-            if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Eagle.Category.None){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'.");
-            }
-
-            // check that Service nodes have inputApplications with no output ports!
-            if (node.getCategory() === Eagle.Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
-                errors.push("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output.");
-            }
+            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errorsWarnings);
         }
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            const linkValid : Eagle.LinkValid = Edge.isValid(graph, edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, false);
-
-            if (linkValid === Eagle.LinkValid.Invalid){
-                errors.push("Edge (" + edge.getId() + ") is invalid.");
-            }
+            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
         }
 
-        return {warnings: warnings, errors: errors};
+        return errorsWarnings;
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
@@ -1530,35 +1619,8 @@ export class Utils {
             case Eagle.DALiuGESchemaVersion.OJS:
                 switch(fileType){
                     case Eagle.FileType.Graph:
-                        valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
-                        break;
                     case Eagle.FileType.Palette:
-                        valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
-                        break;
-                    default:
-                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
-                        valid = true;
-                        break;
-                }
-                break;
-            case Eagle.DALiuGESchemaVersion.V3:
-                switch(fileType){
-                    case Eagle.FileType.Graph:
-                        valid = ajv.validate(Utils.v3GraphSchema, json) as boolean;
-                        break;
-                    default:
-                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
-                        valid = true;
-                        break;
-                }
-                break;
-            case Eagle.DALiuGESchemaVersion.AppRef:
-                switch(fileType){
-                    case Eagle.FileType.Graph:
-                        // TODO: enable validation once a schema is ready
-                        //valid = ajv.validate(Utils.appRefGraphSchema, json) as boolean;
-                        console.warn("No AppRef schema, abort validation.");
-                        valid = true;
+                        valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
                         break;
                     default:
                         console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
@@ -1573,6 +1635,57 @@ export class Utils {
         }
 
         return {valid: valid, errors: ajv.errorsText(ajv.errors)};
+    }
+
+    static isAlpha(ch: string){
+        return /^[A-Z]$/i.test(ch);
+    }
+
+    static isNumeric(ch: string){
+        return /^[0-9]$/i.test(ch);
+    }
+
+    static validateIdText(idText: string) : boolean {
+        // must start with a letter of underscore character
+        if (idText[0] !== "_" && !Utils.isAlpha(idText[0])){
+            return false;
+        }
+
+        // can only contain alpha-numeric and underscores
+        for (let i = 1 ; i < idText.length ; i++){
+            if (!Utils.isAlpha(idText[i]) && !Utils.isNumeric(idText[i]) && idText[i] !== "_"){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static validateField(type: string, value: string) : boolean {
+        let valid: boolean = true;
+
+        // make sure JSON fields are parse-able
+        if (type === Eagle.DataType_Json){
+            try {
+                JSON.parse(value);
+            } catch(e) {
+                valid = false;
+            }
+        }
+
+        return valid;
+    }
+
+    static validateType(type: string) : boolean {
+        const typePrefix = Utils.dataTypePrefix(type);
+
+        for (const dt of Eagle.DataTypes){
+            if (dt === typePrefix){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     static downloadFile(error : string, data : string, fileName : string) : void {
@@ -1676,5 +1789,518 @@ export class Utils {
                 resolve(userString);
             });
         });
+    }
+
+    static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
+        const displayShorcuts : {description:string, shortcut : string, function : any} []=[];
+
+        for (const object of Eagle.shortcuts){
+            // skip if shortcut should not be displayed
+            if (object.display === KeyboardShortcut.Display.Disabled){
+                continue;
+            }
+
+            const shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false);
+            displayShorcuts.push({description: object.name, shortcut: shortcut,function:object.run});
+        }
+
+        return displayShorcuts;
+    }
+
+    static getKeyboardShortcutTextByKey = (key: string, addBrackets: boolean) : string => {
+        for (const shortcut of Eagle.shortcuts){
+            if (shortcut.key === key){
+                const ks = [];
+                for (const k of shortcut.keys){
+                    if (shortcut.modifier === KeyboardShortcut.Modifier.None){
+                        //some processing of the return
+                        //if the return should have brackets they are added here
+                        //the first letter of the string returned is also capitalised
+                        if (addBrackets){
+                            ks.push("["+k.charAt(0).toUpperCase() + k.slice(1)+"]");
+                        } else {
+                            ks.push(k.charAt(0).toUpperCase() + k.slice(1));
+                        }
+                    } else {
+                        if (addBrackets){
+                            ks.push("["+shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1)+"]");
+                        } else {
+                            ks.push(shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1));
+                        }
+                    }
+                }
+                return ks.join(",");
+            }
+        }
+
+        console.warn("Could not find keyboard shortcut text for key", key);
+        return "";
+    }
+
+    static markdown2html(markdown: string) : string {
+        // check that input is not undefined
+        if (typeof markdown === "undefined" || markdown === null){
+            console.warn("Could not convert markdown to html! Input:", markdown);
+            return "";
+        }
+
+        const converter = new Showdown.Converter();
+        converter.setOption('tables', true);
+        let html = converter.makeHtml(markdown);
+
+        // check that the returned html is not null
+        if (html === null){
+            console.warn("Could not convert markdown to html! Input:", markdown);
+            return "";
+        }
+
+        // add some bootstrap CSS to the converted html
+        html = html.replaceAll("<table>", "<table class='table'>");
+
+        return html;
+    }
+
+    static asBool(value: string) : boolean {
+        return value.toLowerCase() === "true";
+    }
+
+    static fixEdgeType(eagle: Eagle, edgeId: string, newType: string) : void {
+        const edge = eagle.logicalGraph().findEdgeById(edgeId);
+
+        if (edge === null){
+            return;
+        }
+
+        edge.setDataType(newType);
+    }
+
+    static fixDeleteEdge(eagle: Eagle, edgeId: string): void {
+        eagle.logicalGraph().removeEdgeById(edgeId);
+    }
+
+    static fixPortType(eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
+        destinationPort.setType(sourcePort.getType());
+    }
+
+    static fixNodeAddField(eagle: Eagle, node: Node, field: Field){
+        node.addField(field);
+    }
+
+    static fixNodeFieldIds(eagle: Eagle, nodeKey: number){
+        const node: Node = eagle.logicalGraph().findNodeByKey(nodeKey);
+
+        if (node === null){
+            return;
+        }
+
+        for (const field of node.getFields()){
+            if (field.getId() === ""){
+                field.setId(Utils.uuidv4());
+            }
+        }
+    }
+
+    static fixNodeCategory(eagle: Eagle, node: Node, category: Category){
+        node.setCategory(category);
+    }
+
+    // NOTE: merges field1 into field0
+    static fixNodeMergeFieldsByIndex(eagle: Eagle, node: Node, field0Index: number, field1Index: number){
+        //console.log("fixNodeMergeFieldsByIndex()", node.getName(), field0Index, field1Index);
+
+        // abort if one or more of the fields is not found
+        const field0 = node.getFields()[field0Index];
+        const field1 = node.getFields()[field1Index];
+        //console.log("field0", field0, field0 ? field0.getId() : "", field0 ? field0.getUsage() : "", "field1", field1, field1 ? field1.getId() : "", field1 ? field1.getUsage() : "");
+        if (typeof field0 === "undefined" || typeof field1 === "undefined"){
+            return;
+        }
+
+        const usage0 = field0.getUsage();
+        const usage1 = field1.getUsage();
+        const newUsage = this._mergeUsage(usage0, usage1);
+        //console.log("usage0", usage0, "usage1", usage1, "newUsage", newUsage);
+
+        // remove field1
+        node.removeFieldByIndex(field1Index);
+
+        // update usage of remaining field (field0)
+        field0.setUsage(newUsage);
+
+        // update all edges to use new field
+        this._mergeEdges(eagle, field1.getId(), field0.getId());
+    }
+
+    // NOTE: merges field1 into field0
+    static fixNodeMergeFields(eagle: Eagle, node: Node, field0: Field, field1: Field){
+        //console.log("fixNodeMergeFieldsById()", node.getName(), field0.getDisplayText(), field1.getDisplayText());
+
+        // abort if one or more of the fields is not found
+        const f0 = node.findFieldById(field0.getId());
+        const f1 = node.findFieldById(field1.getId());
+        //console.log("f0", f0, f0 ? f0.getId() : "", f0 ? f0.getUsage() : "", "f1", f1, f1 ? f1.getId() : "", f1 ? f1.getUsage() : "");
+        if (f0 === null || f1 === null){
+            return;
+        }
+
+        const usage0 = field0.getUsage();
+        const usage1 = field1.getUsage();
+        const newUsage = this._mergeUsage(usage0, usage1);
+        //console.log("usage0", usage0, "usage1", usage1, "newUsage", newUsage);
+
+        // remove field1
+        node.removeFieldById(field1.getId());
+
+        // update usage of remaining field (field0)
+        field0.setUsage(newUsage);
+
+        // update all edges to use new field
+        this._mergeEdges(eagle, field1.getId(), field0.getId());
+    }
+
+    static _mergeUsage(usage0: Eagle.ParameterUsage, usage1: Eagle.ParameterUsage) : Eagle.ParameterUsage {
+        let result: Eagle.ParameterUsage = usage0;
+
+        // decide if we need to merge an input port and output port
+        if (usage0 !== usage1 && (usage0 === Eagle.ParameterUsage.InputPort || usage0 === Eagle.ParameterUsage.OutputPort) && (usage1 === Eagle.ParameterUsage.InputPort || usage1 === Eagle.ParameterUsage.OutputPort)){
+            result = Eagle.ParameterUsage.InputOutput;
+        }
+
+        // if one field is a NoPort?
+        if (usage0 === Eagle.ParameterUsage.NoPort){
+            result = usage1;
+        }
+        if (usage1 === Eagle.ParameterUsage.NoPort){
+            result = usage0;
+        }
+
+        return result;
+    }
+
+    static _mergeEdges(eagle: Eagle, oldFieldId: string, newFieldId: string){
+        // update all edges to use new field
+        for (const edge of eagle.logicalGraph().getEdges()){
+            // update src port
+            if (edge.getSrcPortId() === oldFieldId){
+                edge.setSrcPortId(newFieldId);
+            }
+
+            // update dest port
+            if (edge.getDestPortId() === oldFieldId){
+                edge.setDestPortId(newFieldId);
+            }
+        }
+    }
+
+    static fixFieldId(eagle: Eagle, field: Field){
+        field.setId(Utils.uuidv4());
+    }
+
+    static fixFieldValue(eagle: Eagle, node: Node, exampleField: Field, value: string){
+        let field : Field = node.getFieldByIdText(exampleField.getIdText());
+
+        // if a field was not found, clone one from the example and add to node
+        if (field === null){
+            field = exampleField.clone();
+            field.setId(Utils.uuidv4());
+            node.addField(field);
+        }
+
+        field.setValue(value);
+    }
+
+    static fixFieldDefaultValue(eagle: Eagle, field: Field){
+        // depends on the type
+        switch(field.getType()){
+            case Eagle.DataType_Boolean:
+            field.setDefaultValue("false");
+            break;
+            case Eagle.DataType_Integer:
+            case Eagle.DataType_Float:
+            field.setDefaultValue("0");
+            break;
+            case Eagle.DataType_Json:
+            case Eagle.DataType_Python:
+            field.setDefaultValue("{}");
+            break;
+            default:
+            console.warn("No specific way to fix default value for field of this type:", field.getType());
+            field.setDefaultValue("");
+            break;
+        }
+    }
+
+    static fixFieldType(eagle: Eagle, field: Field){
+        if (field.getType() === Eagle.DataType_Unknown){
+            field.setType(Eagle.DataType_Object);
+            return;
+        }
+
+        // fix for redundant 'Complex' type
+        if (field.getType() === 'Complex'){
+            field.setType(Eagle.DataType_Object);
+            return;
+        }
+
+        field.setType(Eagle.DataType_Object + "." + field.getType());
+    }
+
+    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){
+        const edge = eagle.logicalGraph().findEdgeById(edgeId);
+        const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        const destNode = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+
+        // if the SOURCE node is a construct, find the port within the embedded apps, and modify the edge with a new source node
+        if (srcNode.getCategoryType() === Category.Type.Construct){
+            const embeddedApplicationKeyAndPort = srcNode.findPortInApplicationsById(edge.getSrcPortId());
+
+            if (embeddedApplicationKeyAndPort.key !== null){
+                edge.setSrcNodeKey(embeddedApplicationKeyAndPort.key);
+            }
+        }
+
+        // if the DESTINATION node is a construct, find the port within the embedded apps, and modify the edge with a new destination node
+        if (destNode.getCategoryType() === Category.Type.Construct){
+            const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPortId());
+
+            if (embeddedApplicationKeyAndPort.key !== null){
+                edge.setDestNodeKey(embeddedApplicationKeyAndPort.key);
+            }
+        }
+    }
+
+    static fixFieldParameterType(eagle: Eagle, field: Field, newType: Eagle.ParameterType){
+        field.setParameterType(newType);
+    }
+
+    static callFixFunc(eagle: Eagle, fixFunc: () => void){
+        fixFunc();
+        Utils.postFixFunc(eagle);
+    }
+
+    static postFixFunc(eagle: Eagle){
+        eagle.selectedObjects.valueHasMutated();
+        eagle.logicalGraph().fileInfo().modified = true;
+
+        eagle.checkGraph();
+        eagle.undo().pushSnapshot(eagle, "Fix");
+    }
+
+    static showEdge(eagle: Eagle, edgeId: string): void {
+        // close errors modal if visible
+        $('#errorsModal').modal("hide");
+
+        eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
+    }
+
+    static showNode(eagle: Eagle, nodeKey: number): void {
+        // close errors modal if visible
+        $('#errorsModal').modal("hide");
+
+        eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findNodeByKey(nodeKey), Eagle.FileType.Graph);
+    }
+
+    // only update result if it is worse that current result
+    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid {
+        if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
+            return Eagle.LinkValid.Valid;
+        }
+
+        if (errorsWarnings.errors.length !== 0){
+            return Eagle.LinkValid.Invalid;
+        }
+
+        return Eagle.LinkValid.Warning;
+    }
+
+    static printCategories = () : void => {
+        const tableData : any[] = [];
+
+        for (const category in CategoryData.cData){
+            const cData = CategoryData.getCategoryData(<Category>category);
+
+            tableData.push({
+                category: <Category>category,
+                categoryType: cData.categoryType,
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    static printLogicalGraphNodesTable = () : void => {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // add logical graph nodes to table
+        for (const node of eagle.logicalGraph().getNodes()){
+            tableData.push({
+                "name":node.getName(),
+                "key":node.getKey(),
+                "id":node.getId(),
+                "parentKey":node.getParentKey(),
+                "category":node.getCategory(),
+                "categoryType":node.getCategoryType(),
+                "expanded":node.getExpanded(),
+                "x":node.getPosition().x,
+                "y":node.getPosition().y,
+                "realX":node.getRealPosition().x,
+                "realY":node.getRealPosition().y,
+                "width":node.getWidth(),
+                "height":node.getHeight(),
+                "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
+                "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
+                "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
+                "outputAppKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getKey(),
+                "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
+                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey()
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    static printLogicalGraphEdgesTable = () : void => {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // add logical graph nodes to table
+        for (const edge of eagle.logicalGraph().getEdges()){
+            tableData.push({
+                "_id":edge.getId(),
+                "sourceNodeKey":edge.getSrcNodeKey(),
+                "sourcePortId":edge.getSrcPortId(),
+                "destNodeKey":edge.getDestNodeKey(),
+                "destPortId":edge.getDestPortId(),
+                "dataType":edge.getDataType(),
+                "loopAware":edge.isLoopAware(),
+                "isSelectionRelative":edge.getSelectionRelative()
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    static printPalettesTable = () : void => {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // add logical graph nodes to table
+        for (const palette of eagle.palettes()){
+            for (const node of palette.getNodes()){
+                tableData.push({
+                    "palette":palette.fileInfo().name,
+                    "name":node.getName(),
+                    "key":node.getKey(),
+                    "id":node.getId(),
+                    "embedKey":node.getEmbedKey(),
+                    "category":node.getCategory(),
+                    "categoryType":node.getCategoryType(),
+                    "numFields":node.getNumFields(),
+                    "repositoryUrl":node.getRepositoryUrl(),
+                    "commitHash":node.getCommitHash(),
+                    "paletteDownloadUrl":node.getPaletteDownloadUrl(),
+                    "dataHash":node.getDataHash()
+                });
+            }
+        }
+
+        console.table(tableData);
+    }
+
+    static printNodeFieldsTable = (nodeIndex: number) : void => {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // check that node at nodeIndex exists
+        if (nodeIndex >= eagle.logicalGraph().getNumNodes()){
+            console.warn("Unable to print node fields table, node", nodeIndex, "does not exist.");
+            return;
+        }
+
+        // add logical graph nodes to table
+        for (const field of eagle.logicalGraph().getNodes()[nodeIndex].getFields()){
+            tableData.push({
+                "id":field.getId(),
+                "idText":field.getIdText(),
+                "displayText":field.getDisplayText(),
+                "nodeKey":field.getNodeKey(),
+                "type":field.getType(),
+                "parameterType":field.getParameterType(),
+                "usage":field.getUsage(),
+                "isEvent":field.getIsEvent(),
+                "value":field.getValue(),
+                "defaultValue": field.getDefaultValue(),
+                "readonly":field.isReadonly()
+            });
+        }
+
+        console.table(tableData);
+    }
+
+    static copyInputTextModalInput = (): void => {
+        navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
+    }
+
+    static getReadOnlyText = () : string => {
+        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
+            return "Read Only - Turn on 'Expert Mode' and 'Allow Component Editing' in the settings to unlock"
+        }
+
+        // if a node or nodes in the palette are selected, then assume those are being moved to the destination
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
+            return "Read Only - Turn on 'Expert Mode' and 'Allow Palette Editing' in the settings to unlock"
+        }
+
+        return ''
+    }
+
+    static isTypeNode = (object : any) : boolean => {
+        return (object instanceof Node);
+    }
+
+    static loadSchemas = () : void => {
+        Utils.httpGet(Config.DALIUGE_GRAPH_SCHEMA_URL, (error : string, data : string) => {
+            if (error !== null){
+                console.error(error);
+                return;
+            }
+
+            Utils.ojsGraphSchema = JSON.parse(data);
+
+            // NOTE: we don't have a schema for the V3 or appRef versions
+            Utils.v3GraphSchema = JSON.parse(data);
+            Utils.appRefGraphSchema = JSON.parse(data);
+        });
+    }
+
+    static snapToGrid = (coord: number, offset: number) : number => {
+        const gridSize = Setting.findValue(Setting.SNAP_TO_GRID_SIZE);
+        return (gridSize * Math.round((coord + offset)/gridSize)) - offset;
+    }
+    
+    static enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
+        return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
+    }
+
+    static createCommitJsonString = (jsonString: string, repository: Repository, token: string, fullFileName: string, commitMessage: string): string => {
+        // NOTE: we need to build the JSON manually here, since we want to enforce a particular ordering of attributes within the jsonData attribute (modelData first)
+        let result = "";
+
+        result += "{\n";
+        result += '"jsonData": ' + jsonString + ",";
+        result += '"repositoryBranch": "' + repository.branch + '",';
+        result += '"repositoryName": "' + repository.name + '",';
+        result += '"repositoryService": "' + repository.service + '",';
+        result += '"token": "' + token + '",';
+        result += '"filename": "' + fullFileName + '",';
+        result += '"commitMessage": "' + commitMessage + '"';
+        result += "}\n";
+
+        return result;
+    }
+
+    static openRemoteFileFromUrl(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
+        Utils.httpGet(fileName, callback);
     }
 }

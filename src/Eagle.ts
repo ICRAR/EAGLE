@@ -25,165 +25,192 @@
 "use strict";
 
 import * as ko from "knockout";
-import * as ij from "intro.js";
-import * as bootstrap from 'bootstrap';
-
 
 import {Utils} from './Utils';
-import {Config} from './Config';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
+import {Repositories} from './Repositories';
 import {Repository} from './Repository';
-import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
 import {Translator} from './Translator';
+import {Category} from './Category';
+import {CategoryData} from './CategoryData';
 
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
 import {Node} from './Node';
-import {Port} from './Port';
 import {Edge} from './Edge';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
-import {Setting} from './Setting';
+import {Setting, SettingsGroup} from './Setting';
+import {Tutorial, TutorialStep, tutorialArray} from './Tutorial';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {SideWindow} from './SideWindow';
-import {InspectorState} from './InspectorState';
-import {PaletteInfo} from './PaletteInfo';
-import { treemapSquarify } from "d3";
+import {ExplorePalettes} from './ExplorePalettes';
+import {Hierarchy} from './Hierarchy';
+import {Undo} from './Undo';
+import {Errors} from './Errors';
+import {ComponentUpdater} from './ComponentUpdater';
+import {ParameterTable} from './ParameterTable';
 
 export class Eagle {
+    static _instance : Eagle;
+
     palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
-
-    repositories : ko.ObservableArray<Repository>;
+    tutorial : ko.Observable<Tutorial>;
 
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
 
     selectedObjects : ko.ObservableArray<Node|Edge>;
-    selectedLocation : ko.Observable<Eagle.FileType>;
+    static selectedLocation : ko.Observable<Eagle.FileType>;
 
+    static selectedRightClickObject : ko.Observable<any>;
+    static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
+    static selectedRightClickPosition : {x: number, y: number} = {x:0, y:0}
+
+    repositories: ko.Observable<Repositories>;
     translator : ko.Observable<Translator>;
+    undo : ko.Observable<Undo>;
+    parameterTable : ko.Observable<ParameterTable>;
 
     globalOffsetX : ko.Observable<number>;
     globalOffsetY : ko.Observable<number>;
     globalScale : ko.Observable<number>;
-
-    inspectorState : ko.Observable<InspectorState>;
 
     rendererFrameDisplay : ko.Observable<string>;
     rendererFrameMax : number;
     rendererFrameCountRender : number;
     rendererFrameCountTick : number;
 
-    explorePalettes : ko.ObservableArray<PaletteInfo>;
+    explorePalettes : ko.Observable<ExplorePalettes>;
 
     isDragging : ko.Observable<boolean>;
     draggingNode : ko.Observable<Node>;
-    graphWarnings : ko.ObservableArray<string>;
-    graphErrors : ko.ObservableArray<string>;
+    errorsMode : ko.Observable<Setting.ErrorsMode>;
+    graphWarnings : ko.ObservableArray<Errors.Issue>;
+    graphErrors : ko.ObservableArray<Errors.Issue>;
+    loadingWarnings : ko.ObservableArray<Errors.Issue>;
+    loadingErrors : ko.ObservableArray<Errors.Issue>;
+    tableModalType : ko.Observable<string>;
+    showTableModal : ko.Observable<boolean>;
+    currentFileInfo : ko.Observable<FileInfo>;
+    currentFileInfoTitle : ko.Observable<string>;
+
+    showDataNodes : ko.Observable<boolean>;
+    snapToGrid : ko.Observable<boolean>;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
-    static applicationParamsSearchString : ko.Observable<string>;
+    static applicationArgsSearchString : ko.Observable<string>;
+    static constructParamsSearchString : ko.Observable<string>;
+    static tableSearchString : ko.Observable<string>;
 
-
-    static settings : {[category:string] : Setting[]}
-    static shortcuts : ko.ObservableArray<KeyboardShortcut>;
+    static settings : SettingsGroup[];
+    static shortcuts : KeyboardShortcut[];
+    static tutorials : Tutorial[];
 
     static dragStartX : number;
     static lastClickTime : number = 0;
 
+    static defaultTranslatorAlgorithm : string;
+    static defaultTranslatorAlgorithmMethod : any;
+
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
     static nodeDragPaletteIndex : number;
     static nodeDragComponentIndex : number;
+    static shortcutModalCooldown : number;
 
     constructor(){
+        Eagle._instance = this;
+
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
-
-        this.repositories = ko.observableArray();
 
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
 
-        this.selectedObjects = ko.observableArray([]);
-        this.selectedLocation = ko.observable(Eagle.FileType.Unknown);
+        this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
+        Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
 
+        Eagle.selectedRightClickObject = ko.observable();
+        Eagle.selectedRightClickLocation = ko.observable(Eagle.FileType.Unknown);
+
+        this.repositories = ko.observable(new Repositories());
         this.translator = ko.observable(new Translator());
+        this.undo = ko.observable(new Undo());
+        this.parameterTable = ko.observable(new ParameterTable());
 
         Eagle.componentParamsSearchString = ko.observable("");
-        Eagle.paletteComponentSearchString = ko.observable("")
-        Eagle.applicationParamsSearchString = ko.observable("")
+        Eagle.paletteComponentSearchString = ko.observable("");
+        Eagle.applicationArgsSearchString = ko.observable("");
+        Eagle.constructParamsSearchString = ko.observable("");
+        Eagle.tableSearchString = ko.observable("");
 
-        Eagle.settings = {
-            "User Options" : [
-                new Setting("Confirm Discard Changes", "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", Setting.Type.Boolean, Utils.CONFIRM_DISCARD_CHANGES, true),
-                new Setting("Confirm Remove Repositories", "Prompt user to confirm removing a repository from the list of known repositories.", Setting.Type.Boolean, Utils.CONFIRM_REMOVE_REPOSITORES, true),
-                new Setting("Confirm Reload Palettes", "Prompt user to confirm when loading a palette that is already loaded.", Setting.Type.Boolean, Utils.CONFIRM_RELOAD_PALETTES, true),
-                new Setting("Open Default Palette on Startup", "Open a default palette on startup. The palette contains an example of all known node categories", Setting.Type.Boolean, Utils.OPEN_DEFAULT_PALETTE, true),
-                new Setting("Confirm Delete", "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", Setting.Type.Boolean, Utils.CONFIRM_DELETE_OBJECTS, true),
-                new Setting("Display Node Keys","Display Node Keys", Setting.Type.Boolean, Utils.DISPLAY_NODE_KEYS, false),
-                new Setting("Disable JSON Validation", "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", Setting.Type.Boolean, Utils.DISABLE_JSON_VALIDATION, false),
-                new Setting("Spawn Translation Tab", "When translating a graph, display the output of the translator in a new tab", Setting.Type.Boolean, Utils.SPAWN_TRANSLATION_TAB, true),
-                new Setting("Enable Performance Display", "Display the frame time of the graph renderer", Setting.Type.Boolean, Utils.ENABLE_PERFORMANCE_DISPLAY, false),
-                new Setting("Use Simplified Translator Options", "Hide the complex and rarely used translator options", Setting.Type.Boolean, Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS, true),
-                new Setting("Show File Loading Warnings", "Display list of issues with files encountered during loading.", Setting.Type.Boolean, Utils.SHOW_FILE_LOADING_ERRORS, false),
-                new Setting("Graph Zoom Divisor", "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", Setting.Type.Number, Utils.GRAPH_ZOOM_DIVISOR, 1000)
-            ],
-            "Advanced Editing" : [
-                new Setting("Allow Invalid edges", "Allow the user to create edges even if they would normally be determined invalid.", Setting.Type.Boolean, Utils.ALLOW_INVALID_EDGES, false),
-                new Setting("Allow Component Editing", "Allow the user to add/remove ports and parameters from components.", Setting.Type.Boolean, Utils.ALLOW_COMPONENT_EDITING, false),
-                new Setting("Allow Palette Editing", "Allow the user to edit palettes.", Setting.Type.Boolean, Utils.ALLOW_PALETTE_EDITING, false),
-                new Setting("Allow Readonly Palette Editing", "Allow the user to modify palettes that would otherwise be readonly.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PALETTE_EDITING, false),
-                new Setting("Translate with New Categories", "Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", Setting.Type.Boolean, Utils.TRANSLATE_WITH_NEW_CATEGORIES, false),
-                new Setting("Allow Readonly Parameter Editing", "Allow the user to edit values of readonly parameters in components.", Setting.Type.Boolean, Utils.ALLOW_READONLY_PARAMETER_EDITING, false),
-                new Setting("Create Applications for Construct Ports", "When loading old graph files with ports on construct nodes, move the port to an embedded application", Setting.Type.Boolean, Utils.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, true),
-                new Setting("Allow Edge Editing", "Allow the user to edit edge attributes.", Setting.Type.Boolean, Utils.ALLOW_EDGE_EDITING, false)
-            ],
-            "External Services" : [
-                new Setting("Translator URL", "The URL of the translator server", Setting.Type.String, Utils.TRANSLATOR_URL, "http://localhost:8084/gen_pgt"),
-                new Setting("GitHub Access Token", "A users access token for GitHub repositories.", Setting.Type.Password, Utils.GITHUB_ACCESS_TOKEN_KEY, ""),
-                new Setting("GitLab Access Token", "A users access token for GitLab repositories.", Setting.Type.Password, Utils.GITLAB_ACCESS_TOKEN_KEY, ""),
-                new Setting("Docker Hub Username", "The username to use when retrieving data on images stored on Docker Hub", Setting.Type.String, Utils.DOCKER_HUB_USERNAME, "icrar")
-            ]
-        };
+        Eagle.tutorials = tutorialArray
+        this.tutorial = ko.observable(Eagle.tutorials[0]);
 
-        Eagle.shortcuts = ko.observableArray();
-        Eagle.shortcuts.push(new KeyboardShortcut("Add Edge", ["e"], KeyboardShortcut.true, (eagle): void => {eagle.addEdgeToLogicalGraph();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Modify Selected Edge", ["m"], KeyboardShortcut.edgeIsSelected, (eagle): void => {eagle.editSelectedEdge();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Delete Selection", ["Backspace", "Delete"], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.deleteSelection(false);}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Duplicate Selection", ["d"], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.duplicateSelection();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Change Selected Node Parent", ["h"], KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.changeNodeParent();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Change Selected Node Subject", ["s"], KeyboardShortcut.commentNodeIsSelected, (eagle): void => {eagle.changeNodeSubject();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Toggle left window", ["1"], KeyboardShortcut.true, (eagle): void => {eagle.leftWindow().toggleShown();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Toggle right window", ["2"], KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().toggleShown();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Center graph", ["c"], KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("New palette", ["n"], this.allowPaletteEditing, (eagle): void => {eagle.newPalette();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Open palette from local disk", ["p"], KeyboardShortcut.true, (eagle): void => {eagle.getPaletteFileToLoad();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Open graph from local disk", ["g"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Insert graph from local disk", ["i"], KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToInsert();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Create subgraph from selection", ["["], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createSubgraphFromSelection();}));
-        Eagle.shortcuts.push(new KeyboardShortcut("Create construct from selection", ["]"], KeyboardShortcut.somethingIsSelected, (eagle): void => {eagle.createConstructFromSelection();}));
+        Eagle.settings = Setting.getSettings();
+        Eagle.shortcuts = KeyboardShortcut.getShortcuts();
+        
+        Eagle.nodeDragPaletteIndex = null;
+        Eagle.nodeDragComponentIndex = null;
 
         this.globalOffsetX = ko.observable(0);
         this.globalOffsetY = ko.observable(0);
         this.globalScale = ko.observable(1.0);
-
-        this.inspectorState = ko.observable(new InspectorState());
 
         this.rendererFrameDisplay = ko.observable("");
         this.rendererFrameMax = 0;
         this.rendererFrameCountRender = 0;
         this.rendererFrameCountTick = 0;
 
-        this.explorePalettes = ko.observableArray([]);
+        this.explorePalettes = ko.observable(new ExplorePalettes());
 
         this.isDragging = ko.observable(false);
         this.draggingNode = ko.observable(null);
+        this.errorsMode = ko.observable(Setting.ErrorsMode.Loading);
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);
+        this.loadingWarnings = ko.observableArray([]);
+        this.loadingErrors = ko.observableArray([]);
+
+        this.tableModalType = ko.observable('')
+        this.showTableModal = ko.observable(false)
+        this.currentFileInfo = ko.observable(null);
+        this.currentFileInfoTitle = ko.observable("");
+
+        this.showDataNodes = ko.observable(true);
+        this.snapToGrid = ko.observable(false);
+
+        this.selectedObjects.subscribe(function(){
+            this.logicalGraph.valueHasMutated();
+            Hierarchy.updateDisplay()
+            if(this.selectedObjects().length === 0){
+                this.tableModalType('keyParametersTableModal')
+
+                //changing shortcuts depending on if right window tabs are visible or not 
+                KeyboardShortcut.changeShortcutKey(this,'open_translation','3',KeyboardShortcut.Modifier.None)
+                KeyboardShortcut.changeShortcutKey(this,'open_inspector','4',KeyboardShortcut.Modifier.None)
+            }else{
+                KeyboardShortcut.changeShortcutKey(this,'open_translation','4',KeyboardShortcut.Modifier.None)
+                KeyboardShortcut.changeShortcutKey(this,'open_inspector','3',KeyboardShortcut.Modifier.None)
+            }
+        }, this)
+
+        this.rightWindow().mode.subscribe(function(newValue){
+            if (newValue === Eagle.RightWindowMode.Hierarchy){
+                window.setTimeout(function(){
+                    Hierarchy.updateDisplay()
+                }, 500)
+            }
+        }, this)
+       
+    }
+
+    static getInstance = () : Eagle => {
+        return Eagle._instance;
     }
 
     areAnyFilesModified = () : boolean => {
@@ -201,12 +228,193 @@ export class Eagle {
         return false;
     }
 
-    allowPaletteEditing = () : boolean => {
-        return Eagle.findSetting(Utils.ALLOW_PALETTE_EDITING).value();
+    static allowInvalidEdges = () : boolean => {
+        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_INVALID_EDGES);
+    }
+
+    static allowPaletteEditing = () : boolean => {
+        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_PALETTE_EDITING);
+    }
+
+    static hidePaletteTab = () : boolean => {
+        return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.HIDE_PALETTE_TAB);
+    }
+
+    static hideReadonlyParamters = () : boolean => {
+        return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.HIDE_READONLY_PARAMETERS);
+    }
+
+    static allowReadonlyPaletteEditing = () : boolean => {
+        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_READONLY_PALETTE_EDITING);
+    }
+
+    static allowComponentEditing = () : boolean => {
+        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
+    }
+
+    static allowEdgeEditing = (): boolean => {
+        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_EDGE_EDITING);
+    }
+
+    static showNonKeyParameters = () : boolean => {
+        return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || Eagle.isInUIMode(Setting.UIMode.Expert);
+    }
+
+    static allowSetKeyParameter = () : boolean => {
+        if(Eagle.isInUIMode(Setting.UIMode.Minimal)){
+            return false
+        }else{
+            return Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER) || Eagle.isInUIMode(Setting.UIMode.Expert);
+        }
+    }
+
+    static translatorUiMode = (mode : Setting.TranslatorMode) : boolean => {
+        return Setting.findValue(Setting.USER_TRANSLATOR_MODE) === mode;
+    }
+
+    static isInUIMode = (mode : Setting.UIMode) : boolean => {
+        return Setting.findValue(Setting.USER_INTERFACE_MODE) === mode;
+    }
+
+    static showInspectorWarnings = () : boolean => {
+        return Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings;
+    }
+
+    static showInspectorErrors = () : boolean => {
+        return Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings || Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Errors;
+    }
+
+    static showInspectorErrorsWarnings = () : boolean => {
+        const eagle = Eagle.getInstance();
+            
+        switch (Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS)){
+            case Setting.ShowErrorsMode.Warnings:
+                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length + eagle.selectedNode().getErrorsWarnings(eagle).warnings.length > 0;
+                break;
+            case Setting.ShowErrorsMode.Errors:
+                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length > 0;
+                break;
+            case Setting.ShowErrorsMode.None:
+            default:
+                return false;
+        }
+    }
+
+    static selectedNodeGraph = () : LogicalGraph => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        for (const node of eagle.logicalGraph().getNodes()){
+            if (Node.match(node, eagle.selectedNode())){
+                return eagle.logicalGraph();
+            }
+        }
+        
+        return null;
+    }
+
+    static selectedNodePalette = () : Palette => {
+        const eagle : Eagle = Eagle.getInstance();
+
+        for (const palette of eagle.palettes()){
+            for (const node of palette.getNodes()){
+                if (Node.match(node, eagle.selectedNode())){
+                    return palette;
+                }
+            }
+        }
+
+        return null;
     }
 
     displayNodeKeys = () :boolean => {
-        return Eagle.findSetting(Utils.DISPLAY_NODE_KEYS).value();
+        return Setting.findValue(Setting.DISPLAY_NODE_KEYS);
+    }
+
+    showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return Setting.findValue(Setting.ENABLE_PERFORMANCE_DISPLAY);
+    }, this);
+
+    types : ko.PureComputed<string[]> = ko.pureComputed(() => {
+        const result: string[] = [];
+
+
+        switch (Eagle.selectedLocation()){
+            case Eagle.FileType.Palette:
+                // build a list from the selected component in the palettes
+                if(this.selectedNode() !== null){
+
+                    for (const field of this.selectedNode().getFields()) {
+                        Utils.addTypeIfUnique(result, field.getType());
+                    }
+                }else{
+                    console.warn('selected node is null when selecting palette component')
+                }
+                break;
+            case Eagle.FileType.Graph:
+            default:
+                // build a list from all nodes in the current logical graph
+                for (const node of this.logicalGraph().getNodes()){
+                    for (const field of node.getFields()) {
+                        Utils.addTypeIfUnique(result, field.getType());
+                    }
+
+                    // also check for fields that belong to the inputApplication
+                    if (node.hasInputApplication()){
+                        for (const field of node.getInputApplication().getFields()){
+                            Utils.addTypeIfUnique(result, field.getType());
+                        }
+                    }
+
+                    // also check for fields that belong to the outputApplication
+                    if (node.hasOutputApplication()){
+                        for (const field of node.getOutputApplication().getFields()){
+                            Utils.addTypeIfUnique(result, field.getType());
+                        }
+                    }
+                }
+                break;
+        }
+        
+
+        return result;
+    }, this);
+
+    toggleShowDataNodes = () : void => {
+        // when we switch show/hide data nodes, some of the selected objects may become invisible,
+        // and some of the selected objects may have not existed in the first place,
+        // so it seems easier to just empty the selection
+        this.selectedObjects([]);
+
+        this.showDataNodes(!this.showDataNodes());
+    }
+
+    inspectorToggleAll = () : void => {
+        if($('#inspectorAccordion .accordion-button:not(.collapsed)').length>0){
+            $('#inspectorAccordion .accordion-button:not(.collapsed)').click();
+            $("#inspectorCollapseStateIcon i").removeClass('openIcon')
+        }else{
+            $('#inspectorAccordion .accordion-button.collapsed').click();
+        }
+    }
+
+    inspectorCollapseState = () :void => {
+        if($('#inspectorAccordion .accordion-button:not(.collapsed)').length>0){
+            $("#inspectorCollapseStateIcon i").addClass('openIcon')
+        }else{
+            $("#inspectorCollapseStateIcon i").removeClass('openIcon')
+        }
+        
+    }
+
+    toggleSnapToGrid = () : void => {
+        this.snapToGrid(!this.snapToGrid());
+
+        // store in settings
+        Setting.setValue(Setting.SNAP_TO_GRID, this.snapToGrid());
+    }
+
+    deployDefaultTranslationAlgorithm = () : void => {
+        this.translator().genPGT(Eagle.defaultTranslatorAlgorithmMethod, false, Eagle.DALiuGESchemaVersion.Unknown)
     }
 
     // TODO: remove?
@@ -259,6 +467,14 @@ export class Eagle {
         return list;
     }
 
+    getKeyAttributeDisplay = (isKeyAttribute : boolean) : string => {
+        if(!isKeyAttribute){
+            return '<i class="material-icons">favorite_border</i>'
+        }else{
+            return '<i class="material-icons">favorite</i>'
+        }
+    }
+
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
         if (this.logicalGraph() === null){
             return "";
@@ -274,32 +490,22 @@ export class Eagle {
         return fileInfo.getText();
     }, this);
 
-    getRepositoryList = (service : Eagle.RepositoryService) : Repository[] => {
-        const list : Repository[] = [];
+    toggleWindows = () : void  => {
+        this.rightWindow().toggleShown()
+        this.leftWindow().toggleShown()
+    }
 
-        for (const repository of this.repositories()){
-            if (repository.service === service){
-                list.push(repository);
-            }
-        }
-
-        return list;
-    };
-
-    getRepository = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
-        console.log("getRepository()", service, name, branch);
-
-        for (const repository of this.repositories()){
-            if (repository.service === service && repository.name === name && repository.branch === branch){
-                return repository;
-            }
-        }
-        console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
-        return null;
-    };
-
-    emptySearchBar = (target : ko.Observable) => {
+    emptySearchBar = (target : ko.Observable,data:string, event : Event) => {
         target("")
+        $(event.target).parent().hide()
+    }
+
+    setSearchBarClearBtnState = (data:string, event : Event) => {
+        if($(event.target).val() === ""){
+            $(event.target).parent().find('a').hide()
+        }else{
+            $(event.target).parent().find('a').show()
+        }
     }
 
     zoomIn = () : void => {
@@ -366,9 +572,8 @@ export class Eagle {
     }
 
     getSelectedText = () : string => {
-        var text
-        var nodeCount = 0
-        var edgeCount = 0
+        let nodeCount = 0
+        let edgeCount = 0
         this.selectedObjects().forEach(function(element){
             if(element instanceof Node){
                 nodeCount++
@@ -377,17 +582,17 @@ export class Eagle {
             }
         })
 
-        text = nodeCount + " nodes and " + edgeCount + " edges selected."
+        const text =  nodeCount + " nodes and " + edgeCount + " edges."
 
         return text
     }
 
-    isTypeNode = (object : any) : boolean => {
-        if (object instanceof Node){
-            return true;
-        }else{
-            return false;
-        }
+    getTotalText = () : string => {
+        const nodeCount = this.logicalGraph().getNodes().length
+        const edgeCount = this.logicalGraph().getEdges().length
+        const text =  nodeCount + " nodes and " + edgeCount + " edges."
+
+        return text
     }
 
     /**
@@ -396,10 +601,12 @@ export class Eagle {
      */
     resetEditor = () : void => {
         this.selectedObjects([]);
-        this.selectedLocation(Eagle.FileType.Unknown);
+        Eagle.selectedLocation(Eagle.FileType.Unknown);
 
         // Show the last open repository.
-        this.rightWindow().mode(Eagle.RightWindowMode.Repository);
+        if(this.rightWindow().mode() === Eagle.RightWindowMode.Inspector){
+            this.rightWindow().mode(Eagle.RightWindowMode.Repository);
+        }
     }
 
     // if selectedObjects contains nothing but one node, return the node, else null
@@ -433,24 +640,25 @@ export class Eagle {
     }, this);
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
+        Eagle.selectedLocation(selectedLocation);
         if (selection === null){
             this.selectedObjects([]);
+            this.rightWindow().mode(rightWindowMode);
         } else {
             this.selectedObjects([selection]);
+            if(this.rightWindow().mode() !== Eagle.RightWindowMode.Inspector && this.rightWindow().mode() !== Eagle.RightWindowMode.Hierarchy){
+                this.rightWindow().mode(Eagle.RightWindowMode.Inspector)
+            }
         }
-
-        this.selectedLocation(selectedLocation);
-        this.rightWindow().mode(rightWindowMode);
-
-        // update the display of all the sections of the node inspector (collapse/expand as appropriate)
-        this.inspectorState().updateAllInspectorSections();
     }
 
     editSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
         // check that location is the same, otherwise default back to set
-        if (selectedLocation !== this.selectedLocation()){
-            Utils.showNotification("Selection Error", "Can't add object from " + selectedLocation + " to existing selected objects in " + this.selectedLocation(), "warning");
+        if (selectedLocation !== Eagle.selectedLocation() && this.selectedObjects().length > 0){
+            Utils.showNotification("Selection Error", "Can't add object from " + selectedLocation + " to existing selected objects in " + Eagle.selectedLocation(), "warning");
             return;
+        } else {
+            Eagle.selectedLocation(selectedLocation);
         }
 
         // check if object is already selected
@@ -473,6 +681,9 @@ export class Eagle {
             this.selectedObjects.push(selection);
         }
 
+        if(this.rightWindow().mode() !== Eagle.RightWindowMode.Inspector && this.rightWindow().mode() !== Eagle.RightWindowMode.Hierarchy){
+            this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
+        }
     }
 
     objectIsSelected = (object: Node | Edge): boolean => {
@@ -516,98 +727,12 @@ export class Eagle {
         return false;
     }
 
-    showSimplifiedTranslatorOptions : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Eagle.findSetting(Utils.USE_SIMPLIFIED_TRANSLATOR_OPTIONS).value();
-    }, this);
-
-    //----------------- Physical Graph Generation --------------------------------
-    /**
-     * Generate Physical Graph Template.
-     * @param algorithmIndex Algorithm number.
-     */
-    genPGT = (algorithmIndex : number, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
-        if (this.logicalGraph().getNumNodes() === 0) {
-            Utils.showUserMessage("Error", "Unable to translate. Logical graph has no nodes!");
-            return;
-        }
-
-        if (this.logicalGraph().fileInfo().name === ""){
-            Utils.showUserMessage("Error", "Unable to translate. Logical graph does not have a name! Please save the graph first.");
-            return;
-        }
-
-        const translatorURL : string = Eagle.findSetting(Utils.TRANSLATOR_URL).value();
-        console.log("Eagle.getPGT() : algorithm index:", algorithmIndex, "algorithm name:", Config.translationAlgorithms[algorithmIndex], "translator URL", translatorURL);
-
-        if (format === Eagle.DALiuGESchemaVersion.Unknown){
-            const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS, Eagle.DALiuGESchemaVersion.AppRef];
-
-            // ask user to specify graph format to be sent to translator
-            Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number) => {
-                if (!completed){
-                    console.log("User aborted translation.");
-                    return;
-                }
-
-                this._genPGT(translatorURL, algorithmIndex, testingMode, schemas[userChoiceIndex]);
-            });
-        } else {
-            this._genPGT(translatorURL, algorithmIndex, testingMode, format);
-        }
-    }
-
-    _genPGT = (translatorURL: string, algorithmIndex : number, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
-        // get json for logical graph
-        let json;
-        switch (format){
-            case Eagle.DALiuGESchemaVersion.OJS:
-                json = LogicalGraph.toOJSJson(this.logicalGraph());
-                break;
-            case Eagle.DALiuGESchemaVersion.AppRef:
-                json = LogicalGraph.toAppRefJson(this.logicalGraph());
-                break;
-            default:
-                console.error("Unsupported graph format for translator!");
-                return;
-        }
-
-        // validate json
-        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, format, Eagle.FileType.Graph);
-            if (!validatorResult.valid){
-                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                console.error(message, validatorResult.errors);
-                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                //return;
-            }
-        }
-
-        const translatorData = {
-            algo: Config.translationAlgorithms[algorithmIndex],
-            lg_name: this.logicalGraph().fileInfo().name,
-            json_data: JSON.stringify(json),
-            test: testingMode.toString()
-        };
-
-        this.translator().submit(translatorURL, translatorData);
-
-        // mostly for debugging purposes
-        console.log("translator data");
-        console.log("---------");
-        console.log(translatorData);
-        console.log("---------");
-        console.log(json);
-        console.log("---------");
-    }
-
     /**
      * Uploads a file from a local file location.
-     * @param e The event to be handled.
      */
     uploadGraphFile = () : void => {
         const uploadedGraphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToLoad");
         const fileFullPath : string = uploadedGraphFileToLoadInputElement.value;
-        const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -625,7 +750,7 @@ export class Eagle {
                 return;
             }
 
-            this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
+            this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                 this.logicalGraph(lg);
 
                 // center graph
@@ -633,20 +758,23 @@ export class Eagle {
 
                 // update the activeFileInfo with details of the repository the file was loaded from
                 if (fileFullPath !== ""){
-                    this.updateLogicalGraphFileInfo(Eagle.RepositoryService.Unknown, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+                    this.updateLogicalGraphFileInfo(Eagle.RepositoryService.File, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
                 }
+
+                // check graph
+                this.checkGraph();
+                this.undo().pushSnapshot(this, "Loaded " + fileFullPath);
             });
         });
     }
 
     /**
      * Uploads a file from a local file location. File will be "insert"ed into the current graph
-     * @param e The event to be handled.
      */
     insertGraphFile = () : void => {
         const uploadedGraphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToInsert");
         const fileFullPath : string = uploadedGraphFileToInsertInputElement.value;
-        const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -664,18 +792,40 @@ export class Eagle {
                 return;
             }
 
-            this._loadGraphJSON(data, showErrors, fileFullPath, (lg: LogicalGraph) : void => {
-                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, false);
+            this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
-                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
+                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
+
+                // TODO: handle errors and warnings
 
                 this.checkGraph();
+                this.undo().pushSnapshot(this, "Insert Logical Graph");
                 this.logicalGraph.valueHasMutated();
             });
         });
     }
 
-    private _loadGraphJSON = (data: string, showErrors: boolean, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void) : void => {
+    private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
+        const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
+
+        // show errors (if found)
+        if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
+            if (showErrors){
+
+                // add warnings/errors to the arrays
+                this.loadingErrors(errorsWarnings.errors);
+                this.loadingWarnings(errorsWarnings.warnings);
+
+                this.errorsMode(Setting.ErrorsMode.Loading);
+                Utils.showErrorsModal("Loading File");
+            }
+        } else {
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
+        }
+    }
+
+    private _loadGraphJSON = (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void) : void => {
         let dataObject;
 
         // attempt to parse the JSON
@@ -698,39 +848,25 @@ export class Eagle {
         // attempt to determine schema version from FileInfo
         const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-        const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
+        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
         // use the correct parsing function based on schema version
         switch (schemaVersion){
-            case Eagle.DALiuGESchemaVersion.AppRef:
-                loadFunc(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errorsWarnings));
-                break;
-            case Eagle.DALiuGESchemaVersion.V3:
-                Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                loadFunc(LogicalGraph.fromV3Json(dataObject, dummyFile, errorsWarnings));
-                break;
             case Eagle.DALiuGESchemaVersion.OJS:
             case Eagle.DALiuGESchemaVersion.Unknown:
                 loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
                 break;
         }
 
-        // show errors (if found)
-        if (errorsWarnings.errors.length > 0){
-            if (showErrors){
-                Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
-            }
-        } else {
-            Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
-        }
+        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
     }
 
     createSubgraphFromSelection = () : void => {
         console.log("createSubgraphFromSelection()");
 
         // create new subgraph
-        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Eagle.Category.SubGraph, false);
+        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Category.SubGraph);
 
         // add the parent node to the logical graph
         this.logicalGraph().addNodeComplete(parentNode);
@@ -760,14 +896,20 @@ export class Eagle {
         // flag graph as changed
         this.flagActiveFileModified();
         this.checkGraph();
+        this.undo().pushSnapshot(this, "Create Subgraph from Selection");
         this.logicalGraph.valueHasMutated();
+    }
+
+    checkErrorModalShowError = (data:any) :void =>{
+        data.show()
+        this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
     }
 
     createConstructFromSelection = () : void => {
         console.log("createConstructFromSelection()");
 
-        const constructs : string[] = Utils.buildComponentList((cData: Eagle.CategoryData) => {
-            return cData.isGroup;
+        const constructs : string[] = Utils.buildComponentList((cData: Category.CategoryData) => {
+            return cData.categoryType === Category.Type.Construct;
         });
 
         // ask the user what type of construct to use
@@ -780,7 +922,7 @@ export class Eagle {
             const userChoice: string = constructs[userChoiceIndex];
 
             // create new subgraph
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Eagle.Category>userChoice, false);
+            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Category>userChoice);
 
             // add the parent node to the logical graph
             this.logicalGraph().addNodeComplete(parentNode);
@@ -800,17 +942,18 @@ export class Eagle {
             // flag graph as changed
             this.flagActiveFileModified();
             this.checkGraph();
+            this.undo().pushSnapshot(this, "Add Selection to Construct");
             this.logicalGraph.valueHasMutated();
         });
     }
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
-    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node) : void => {
+    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node, errorsWarnings: Errors.ErrorsWarnings) : void => {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
-        // create map of inserted graph keys to final graph keys
-        const keyMap: Map<number, number> = new Map();
-        const portMap: Map<string, string> = new Map();
+        // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
+        const keyMap: Map<number, Node> = new Map();
+        const portMap: Map<string, Field> = new Map();
         let parentNodePosition;
 
         // add the parent node to the logical graph
@@ -836,7 +979,7 @@ export class Eagle {
         for (const node of nodes){
             this.addNode(node.clone(), parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
                 // save mapping for node itself
-                keyMap.set(node.getKey(), insertedNode.getKey());
+                keyMap.set(node.getKey(), insertedNode);
 
                 // if insertedNode has no parent, make it a parent of the parent node
                 if (insertedNode.getParentKey() === null && parentNode !== null){
@@ -849,17 +992,17 @@ export class Eagle {
                     const clone : Node = inputApplication.clone();
                     const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
                     clone.setKey(newKey);
-                    keyMap.set(inputApplication.getKey(), newKey);
+                    keyMap.set(inputApplication.getKey(), clone);
 
                     insertedNode.setInputApplication(clone);
 
                     // loop through ports, adding them to the port map
                     for (const inputPort of inputApplication.getInputPorts()){
-                        portMap.set(inputPort.getId(), inputPort.getId());
+                        portMap.set(inputPort.getId(), inputPort);
                     }
 
                     for (const outputPort of inputApplication.getOutputPorts()){
-                        portMap.set(outputPort.getId(), outputPort.getId());
+                        portMap.set(outputPort.getId(), outputPort);
                     }
                 }
 
@@ -869,36 +1012,35 @@ export class Eagle {
                     const clone : Node = outputApplication.clone();
                     const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
                     clone.setKey(newKey);
-                    keyMap.set(outputApplication.getKey(), newKey);
+                    keyMap.set(outputApplication.getKey(), clone);
 
                     insertedNode.setOutputApplication(clone);
 
                     // loop through ports, adding them to the port map
                     for (const inputPort of outputApplication.getInputPorts()){
-                        portMap.set(inputPort.getId(), inputPort.getId());
+                        portMap.set(inputPort.getId(), inputPort);
                     }
 
                     for (const outputPort of outputApplication.getOutputPorts()){
-                        portMap.set(outputPort.getId(), outputPort.getId());
+                        portMap.set(outputPort.getId(), outputPort);
                     }
                 }
 
                 // save mapping for input ports
                 for (let j = 0 ; j < node.getInputPorts().length; j++){
-                    portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j].getId());
+                    portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j]);
                 }
 
                 // save mapping for output ports
                 for (let j = 0 ; j < node.getOutputPorts().length; j++){
-                    portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j].getId());
+                    portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j]);
                 }
             });
         }
 
         // update some other details of the nodes are updated correctly
         for (const node of nodes){
-            const insertedNodeKey: number = keyMap.get(node.getKey());
-            const insertedNode: Node = this.logicalGraph().findNodeByKey(insertedNodeKey);
+            const insertedNode: Node = keyMap.get(node.getKey());
 
             // if original node had no parent, skip
             if (node.getParentKey() === null){
@@ -906,23 +1048,41 @@ export class Eagle {
             }
 
             // check if parent of original node was also mapped to a new node
-            let mappedParentKey = keyMap.get(node.getParentKey());
+            const mappedParent: Node = keyMap.get(node.getParentKey());
 
             // make sure parent is set correctly
-            // if no mapping is available for the parent, then use the original parent as the parent for the new node
+            // if no mapping is available for the parent, then set parent to the new parentNode, or if no parentNode exists, just set parent to null
             // if a mapping is available, then use the mapped node as the parent for the new node
-            if (typeof mappedParentKey === 'undefined'){
-                insertedNode.setParentKey(node.getParentKey());
+            if (typeof mappedParent === 'undefined'){
+                if (parentNode === null){
+                    insertedNode.setParentKey(null);
+                } else {
+                    insertedNode.setParentKey(parentNode.getKey());
+                }
             } else {
-                insertedNode.setParentKey(mappedParentKey);
+                insertedNode.setParentKey(mappedParent.getKey());
             }
         }
 
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
+            const srcNode = keyMap.get(edge.getSrcNodeKey());
+            const destNode = keyMap.get(edge.getDestNodeKey());
+
+            if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
+                errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
+                continue;
+            }
+
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
-            this.addEdge(keyMap.get(edge.getSrcNodeKey()), portMap.get(edge.getSrcPortId()), keyMap.get(edge.getDestNodeKey()), portMap.get(edge.getDestPortId()), "", edge.getDataType(), edge.isLoopAware(), null);
+            this.addEdge(srcNode, portMap.get(edge.getSrcPortId()), destNode, portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
         }
+    }
+
+    triggerShortcut = (shortcut:any) :void => {
+        const eagle = (<any>window).eagle;
+        $('#shortcutsModal').modal("hide");
+        shortcut(eagle)
     }
 
     /**
@@ -931,7 +1091,6 @@ export class Eagle {
     uploadPaletteFile = () : void => {
         const uploadedPaletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedPaletteFileToLoad");
         const fileFullPath : string = uploadedPaletteFileInputElement.value;
-        const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -949,11 +1108,14 @@ export class Eagle {
                 return;
             }
 
-            this._loadPaletteJSON(data, showErrors, fileFullPath);
+            this._loadPaletteJSON(data, fileFullPath);
+
+            this.palettes()[0].fileInfo().repositoryService = Eagle.RepositoryService.File;
+            this.palettes()[0].fileInfo.valueHasMutated();
         });
     }
 
-    private _loadPaletteJSON = (data: string, showErrors: boolean, fileFullPath: string) => {
+    private _loadPaletteJSON = (data: string, fileFullPath: string) => {
         let dataObject;
 
         // attempt to parse the JSON
@@ -974,13 +1136,14 @@ export class Eagle {
             return;
         }
 
-        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
 
         // show errors (if found)
-        if (errorsWarnings.errors.length > 0 && showErrors){
-            Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
-        }
+        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
+
+        // sort the palette
+        p.sort();
 
         // add new palette to the START of the palettes array
         this.palettes.unshift(p);
@@ -996,6 +1159,7 @@ export class Eagle {
      */
      getGraphFileToLoad = () : void => {
          document.getElementById("uploadedGraphFileToLoad").click();
+         this.resetEditor()
      }
 
      getGraphFileToInsert = () : void => {
@@ -1013,13 +1177,12 @@ export class Eagle {
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
-            const node : Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Description", "", Eagle.Category.Description, false);
-            const pos = this.getNewNodePosition(node.getDisplayWidth(), node.getDisplayHeight());
-            node.setColor(Utils.getColorForNode(Eagle.Category.Description));
-            this.addNode(node, pos.x, pos.y, null);
             this.checkGraph();
+            this.undo().pushSnapshot(this, "New Logical Graph");
             this.logicalGraph.valueHasMutated();
+            Utils.showNotification("New Graph Created",name, "success");
         });
+        this.resetEditor()
     }
 
     /**
@@ -1032,13 +1195,78 @@ export class Eagle {
                 return;
             }
 
-            const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-
-            this._loadGraphJSON(userText, showErrors, "", (lg: LogicalGraph) : void => {
+            this._loadGraphJSON(userText, "", (lg: LogicalGraph) : void => {
                 this.logicalGraph(lg);
             });
         });
+        this.resetEditor()
     }
+
+    addToGraphFromJson = () : void => {
+        Utils.requestUserText("Add to Graph from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
+            if (!completed)
+            {   // Cancelling action.
+                return;
+            }
+
+            let clipboard = null;
+            try {
+                clipboard = JSON.parse(userText);
+            } catch(e) {
+                Utils.showNotification(e.name, e.message, "danger");
+                return;
+            }
+
+            const nodes : Node[] = [];
+            const edges : Edge[] = [];
+            const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
+
+            for (const n of clipboard.nodes){
+                const node = Node.fromOJSJson(n, null, false, (): number => {
+                    // TODO: add error to errorsWarnings
+                    console.error("Should not have to generate new key for node", n);
+                    return 0;
+                });
+
+                nodes.push(node);
+            }
+
+            for (const e of clipboard.edges){
+                const edge = Edge.fromOJSJson(e, null);
+
+                edges.push(edge);
+            }
+
+            this.insertGraph(nodes, edges, null, errorsWarnings);
+
+            // display notification to user
+            Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+            // TODO: show errors
+
+            // ensure changes are reflected in display
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Added from JSON");
+            this.logicalGraph.valueHasMutated();
+        });
+    }
+
+    displayLogicalGraphAsJson = () : void => {
+        const cloneLG: LogicalGraph = this.logicalGraph().clone();
+
+        // zero-out some info that isn't useful for comparison
+        cloneLG.fileInfo().repositoryUrl = "";
+        cloneLG.fileInfo().commitHash = "";
+        cloneLG.fileInfo().downloadUrl = "";
+        cloneLG.fileInfo().signature = "";
+        cloneLG.fileInfo().lastModifiedName = "";
+        cloneLG.fileInfo().lastModifiedEmail = "";
+        cloneLG.fileInfo().lastModifiedDatetime = 0;
+
+        const jsonString: string = LogicalGraph.toOJSJsonString(cloneLG, false);
+
+        Utils.requestUserText("Export Graph to JSON", "", jsonString, null);
+    }
+
 
     /**
      * Creates a new palette for editing.
@@ -1067,10 +1295,42 @@ export class Eagle {
                 return;
             }
 
-            const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-
-            this._loadPaletteJSON(userText, showErrors, "");
+            this._loadPaletteJSON(userText, "");
         });
+    }
+
+    /**
+     * Reloads a previously loaded palette.
+     */
+     reloadPalette = (palette: Palette, index: number) : void => {
+         const fileInfo : FileInfo = palette.fileInfo();
+         // remove palette
+         this.closePalette(palette);
+
+         switch (fileInfo.repositoryService){
+             case Eagle.RepositoryService.File:
+                // load palette
+                this.getPaletteFileToLoad();
+                break;
+            case Eagle.RepositoryService.GitLab:
+            case Eagle.RepositoryService.GitHub:
+                Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
+                break;
+            case Eagle.RepositoryService.Url:
+                this.loadPalettes([
+                    {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
+                ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
+                    for (const palette of palettes){
+                        if (palette !== null){
+                            this.palettes.splice(index, 0, palette);
+                        }
+                    }
+                });
+                break;
+            default:
+                // can't be fetched
+                break;
+         }
     }
 
     /**
@@ -1083,6 +1343,10 @@ export class Eagle {
             {   // Cancelling action.
                 return;
             }
+            if (userString === ""){
+            Utils.showNotification("Input Error", "Enter A Valid Name", "warning");
+                return;
+            }
 
             // Adding file extension to the title if it does not have it.
             if (!Utils.verifyFileExtension(userString)) {
@@ -1091,6 +1355,31 @@ export class Eagle {
 
             // Callback.
             callbackAction(userString);
+        });
+    }
+
+    saveGraph = () : void => {
+        if (this.logicalGraph().fileInfo().repositoryService === Eagle.RepositoryService.File){
+            this.saveFileToLocal(Eagle.FileType.Graph);
+        } else {
+            this.commitToGit(Eagle.FileType.Graph);
+        }
+    }
+
+    saveGraphAs = () : void => {
+        const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Eagle.RepositoryService.File;
+
+        Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "", (completed: boolean, userChoiceIndex: number) => {
+            if (!completed)
+            {   // Cancelling action.
+                return;
+            }
+
+            if (userChoiceIndex === 0){
+                this.saveFileToLocal(Eagle.FileType.Graph);
+            } else {
+                this.commitToGitAs(Eagle.FileType.Graph);
+            }
         });
     }
 
@@ -1128,7 +1417,7 @@ export class Eagle {
     /**
      * Saves a file to the remote server repository.
      */
-    saveFileToRemote = (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, json : object) : void => {
+    saveFileToRemote = (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, jsonString : string) : void => {
         console.log("saveFileToRemote() repository.name", repository.name, "repository.service", repository.service);
 
         let url : string;
@@ -1146,7 +1435,7 @@ export class Eagle {
         }
 
 
-        Utils.httpPostJSON(url, json, (error : string, data: string) : void => {
+        Utils.httpPostJSONString(url, jsonString, (error : string, data: string) : void => {
             if (error !== null){
                 Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
                 console.error("Error: " + JSON.stringify(error, null, 2) + " Data: " + data);
@@ -1232,10 +1521,31 @@ export class Eagle {
         let defaultRepository: Repository;
 
         if (this.logicalGraph()){
-            defaultRepository = new Repository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch, false);
+            // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
+            // just use any existing repo
+            if (fileInfo().repositoryService === Eagle.RepositoryService.Unknown || fileInfo().repositoryService === Eagle.RepositoryService.File){
+                const gitHubRepoList : Repository[] = Repositories.getList(Eagle.RepositoryService.GitHub);
+                const gitLabRepoList : Repository[] = Repositories.getList(Eagle.RepositoryService.GitLab);
+
+                // use first gitlab repo as second preference
+                if (gitLabRepoList.length > 0){
+                    defaultRepository = new Repository(Eagle.RepositoryService.GitLab, gitLabRepoList[0].name, gitLabRepoList[0].branch, false);
+                }
+
+                // overwrite with first github repo as first preference
+                if (gitHubRepoList.length > 0){
+                    defaultRepository = new Repository(Eagle.RepositoryService.GitHub, gitHubRepoList[0].name, gitHubRepoList[0].branch, false);
+                }
+
+                if (gitHubRepoList.length === 0 && gitLabRepoList.length === 0){
+                    defaultRepository = new Repository(Eagle.RepositoryService.GitHub, "", "", false);
+                }
+            } else {
+                defaultRepository = new Repository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch, false);
+            }
         }
 
-        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(fileInfo().repositoryService),  fileInfo().path, fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
@@ -1243,9 +1553,9 @@ export class Eagle {
             }
 
             // check repository name
-            const repository : Repository = this.getRepository(repositoryService, repositoryName, repositoryBranch);
+            const repository : Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
 
-            this._commit(repository, fileType, fileInfo, commitMessage, obj);
+            this._commit(repository, fileType, filePath, fileName, fileInfo, commitMessage, obj);
         });
     };
 
@@ -1282,9 +1592,14 @@ export class Eagle {
         console.log("fileInfo().repositoryService", fileInfo().repositoryService);
         console.log("fileInfo().repositoryName", fileInfo().repositoryName);
 
-        if (fileInfo().repositoryService === Eagle.RepositoryService.Unknown || fileInfo().repositoryName === null) {
-            Utils.showUserMessage("Error", "There is no git repository or filename defined for this file. Please use 'save as' instead!");
-            console.log("No repository selected!");
+        // if there is no git repository or filename defined for this file. Please use 'save as' instead!
+        if (
+            fileInfo().repositoryService === Eagle.RepositoryService.Unknown ||
+            fileInfo().repositoryService === Eagle.RepositoryService.File ||
+            fileInfo().repositoryService === Eagle.RepositoryService.Url ||
+            fileInfo().repositoryName === null
+        ) {
+            this.commitToGitAs(fileType);
             return;
         }
 
@@ -1307,20 +1622,19 @@ export class Eagle {
         // set the EAGLE version etc according to this running version
         fileInfo().updateEagleInfo();
 
-        const repository = this.getRepository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch);
+        const repository = Repositories.get(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch);
 
-        this._commit(repository, fileType, fileInfo, commitMessage, obj);
+        this._commit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, commitMessage, obj);
     };
 
-    _commit = (repository: Repository, fileType: Eagle.FileType, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : void => {
-        // check that repository was found
+    _commit = (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : void => {
+        // check that repository was found, if not try "save as"!
         if (repository === null){
-            Utils.showUserMessage("Error", "Unable to get find correct repository from the information from the active file.<br/>Service:" +
-             fileInfo().repositoryService + "<br/>Name:" + fileInfo().repositoryName + "<br/>Branch:" + fileInfo().repositoryBranch);
+            this.commitToGitAs(fileType);
             return;
         }
 
-        this.saveDiagramToGit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, commitMessage, obj);
+        this.saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, obj);
     }
 
     /**
@@ -1333,20 +1647,20 @@ export class Eagle {
             // clone the logical graph
             const lg_clone : LogicalGraph = (<LogicalGraph> obj).clone();
             lg_clone.fileInfo().updateEagleInfo();
-            const json = LogicalGraph.toOJSJson(lg_clone);
+            const jsonString: string = LogicalGraph.toOJSJsonString(lg_clone, false);
 
-            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, json);
+            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
         } else {
             // clone the palette
             const p_clone : Palette = (<Palette> obj).clone();
             p_clone.fileInfo().updateEagleInfo();
-            const json = Palette.toOJSJson(p_clone);
+            const jsonString: string = Palette.toOJSJsonString(p_clone);
 
-            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, json);
+            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
         }
     }
 
-    _saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, json: object) : void => {
+    _saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string) : void => {
         // generate filename
         const fullFileName : string = Utils.joinPath(filePath, fileName);
 
@@ -1355,10 +1669,10 @@ export class Eagle {
 
         switch (repository.service){
             case Eagle.RepositoryService.GitHub:
-                token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+                token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
                 break;
             case Eagle.RepositoryService.GitLab:
-                token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+                token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
                 break;
             default:
                 Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
@@ -1372,8 +1686,9 @@ export class Eagle {
         }
 
         // validate json
-        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, fileType);
+        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
+            const jsonObject = JSON.parse(jsonString);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.DALiuGESchemaVersion.OJS, fileType);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -1382,93 +1697,39 @@ export class Eagle {
             }
         }
 
-        const jsonData : object = {
-            jsonData: json,
-            repositoryBranch: repository.branch,
-            repositoryName: repository.name,
-            repositoryService: repository.service,
-            token: token,
-            filename: fullFileName,
-            commitMessage: commitMessage
-        };
-
-        this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, jsonData);
+        const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
+        this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
     }
 
-    /**
-     * Export file to V3 Json
-     */
-    exportV3Json = () : void => {
-        Utils.showUserMessage("Unsupported feature", "Saving files using the V3 schema is not supported.");
-
-        const fileInfo : ko.Observable<FileInfo> = this.logicalGraph().fileInfo;
-        const fileName : string = fileInfo().name;
-
-        // set the EAGLE version etc according to this running version
-        fileInfo().updateEagleInfo();
-
-        const json = LogicalGraph.toV3Json(this.logicalGraph());
-
-        // validate json
-        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.V3, Eagle.FileType.Graph);
-            if (!validatorResult.valid){
-                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                console.error(message, validatorResult.errors);
-                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                //return;
-            }
-        }
-
-        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
-            Utils.downloadFile(error, data, fileName);
-        });
-    }
-
-
-    /**
-     * Export file to AppRef Json
-     * This is an experimental new JSON format that moves embedded application
-     * nodes out of constructs to the end of the node array, and then refers to
-     * them by ID and key within the node
-     */
-    exportAppRefJson = () : void => {
-        const fileName : string = this.logicalGraph().fileInfo().name;
-
-        // set the EAGLE version etc according to this running version
-        this.logicalGraph().fileInfo().updateEagleInfo();
-
-        const json = LogicalGraph.toAppRefJson(this.logicalGraph());
-
-        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
-            Utils.downloadFile(error, data, fileName);
-        });
-    }
-
-    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (data: Palette[]) => void ) : void => {
+    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (errorsWarnings: Errors.ErrorsWarnings, data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
-        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
         for (let i = 0 ; i < paletteList.length ; i++){
             results.push(null);
             complete.push(false);
             const index = i;
+            const data = {url: paletteList[i].filename};
 
-            Utils.httpGet(paletteList[i].filename, (error: string, data: string) => {
+            Utils.httpPostJSON("/openRemoteUrlFile", data, (error: string, data: string) => {
                 complete[index] = true;
 
                 if  (error !== null){
                     console.error(error);
-                    errorsWarnings.errors.push(error);
+                    errorsWarnings.errors.push(Errors.Message(error));
                 } else {
                     const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
                     palette.fileInfo().clear();
                     palette.fileInfo().name = paletteList[index].name;
                     palette.fileInfo().readonly = paletteList[index].readonly;
-                    palette.fileInfo().gitUrl = paletteList[index].filename;
-                    palette.fileInfo().sha = "master";
+                    palette.fileInfo().builtIn = true;
+                    palette.fileInfo().downloadUrl = paletteList[index].filename;
                     palette.fileInfo().type = Eagle.FileType.Palette;
+                    palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
+
+                    // sort palette and add to results
+                    palette.sort();
                     results[index] = palette;
                 }
 
@@ -1480,213 +1741,10 @@ export class Eagle {
                     }
                 }
                 if (allComplete){
-                    callback(results);
+                    callback(errorsWarnings, results);
                 }
             });
         }
-    }
-
-    loadSchemas = () : void => {
-        console.log("loadSchemas()");
-
-        Utils.httpGet("./static/" + Config.graphSchemaFileName, (error : string, data : string) => {
-            if (error !== null){
-                console.error(error);
-                return;
-            }
-
-            Utils.ojsGraphSchema = JSON.parse(data);
-
-            // NOTE: we don't have a schema for the V3 or appRef versions
-            Utils.v3GraphSchema = JSON.parse(data);
-            Utils.appRefGraphSchema = JSON.parse(data);
-        });
-
-        Utils.httpGet("./static/" + Config.paletteSchemaFileName, (error : string, data : string) => {
-            if (error !== null){
-                console.error(error);
-                return;
-            }
-
-            Utils.ojsPaletteSchema = JSON.parse(data);
-        });
-    }
-
-    refreshRepositoryList = () : void => {
-        console.log("refreshRepositoryList()");
-
-        GitHub.loadRepoList(this);
-        GitLab.loadRepoList(this);
-    };
-
-    // TODO: move to Repository class?
-    selectRepository = (repository : Repository) : void => {
-        console.log("selectRepository(" + repository.name + ")");
-
-        // if we have already fetched data for this repo, just expand or collapse the list as appropriate
-        // otherwise fetch the data
-        if (repository.fetched()){
-            repository.expanded(!repository.expanded());
-        } else {
-            switch(repository.service){
-                case Eagle.RepositoryService.GitHub:
-                    GitHub.loadRepoContent(repository);
-                    break;
-                case Eagle.RepositoryService.GitLab:
-                    GitLab.loadRepoContent(repository);
-                    break;
-                default:
-                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
-            }
-        }
-    };
-
-    selectFolder = (folder : RepositoryFolder) : void => {
-        console.log("selectFolder()", folder.name);
-
-        // toggle expanded state
-        folder.expanded(!folder.expanded());
-    }
-
-    selectFile = (file : RepositoryFile) : void => {
-        console.log("selectFile() service:", file.repository.service, "repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
-
-        // check if the current file has been modified
-        let isModified = false;
-        switch (file.type){
-            case Eagle.FileType.Graph:
-                isModified = this.logicalGraph().fileInfo().modified;
-                break;
-            case Eagle.FileType.Palette:
-                const palette: Palette = this.findPalette(file.name, false);
-                isModified = palette !== null && palette.fileInfo().modified;
-                break;
-            case Eagle.FileType.JSON:
-                isModified = this.logicalGraph().fileInfo().modified;
-                break;
-        }
-
-        // if the file is modified, get the user to confirm they want to overwrite changes
-        if (isModified && Eagle.findSetting(Utils.CONFIRM_DISCARD_CHANGES).value()){
-            Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", (confirmed : boolean) : void => {
-                if (!confirmed){
-                    console.log("selectFile() cancelled");
-                    return;
-                }
-
-                this.openRemoteFile(file);
-            });
-        } else {
-            this.openRemoteFile(file);
-        }
-    }
-
-    insertFile = (file : RepositoryFile) : void => {
-        console.log("insertFile() repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
-
-        this.insertRemoteFile(file);
-    }
-
-    refreshRepository = (repository : Repository) : void => {
-        switch(repository.service){
-            case Eagle.RepositoryService.GitHub:
-                GitHub.loadRepoContent(repository);
-                break;
-            case Eagle.RepositoryService.GitLab:
-                GitLab.loadRepoContent(repository);
-                break;
-            default:
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
-        }
-    }
-
-    // use a custom modal to ask user for repository service and url at the same time
-    addCustomRepository = () : void => {
-        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : void => {
-            console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
-
-            if (!completed){
-                console.log("No repo entered");
-                return;
-            }
-
-            if (repositoryName.trim() == ""){
-                Utils.showUserMessage("Error", "Repository name is empty!");
-                return;
-            }
-
-            if (repositoryBranch.trim() == ""){
-                Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
-                return;
-            }
-
-            // debug
-            console.log("User entered new repo name:", repositoryService, repositoryName, repositoryBranch);
-
-            // add extension to userString to indicate repository service
-            const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
-            if (localStorageKey === null){
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
-                return;
-            }
-
-            // Adding the repo name into the local browser storage.
-            localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
-
-            // Reload the repository lists
-            if (repositoryService === Eagle.RepositoryService.GitHub)
-                GitHub.loadRepoList(this);
-            if (repositoryService === Eagle.RepositoryService.GitLab)
-                GitLab.loadRepoList(this);
-        });
-    };
-
-    removeCustomRepository = (repository : Repository) : void => {
-        // if settings dictates that we don't confirm with user, remove immediately
-        if (!Eagle.findSetting(Utils.CONFIRM_REMOVE_REPOSITORES).value()){
-            this._removeCustomRepository(repository);
-            return;
-        }
-
-        // otherwise, check with user
-        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", (confirmed : boolean) =>{
-            if (!confirmed){
-                console.log("User aborted removeCustomRepository()");
-                return;
-            }
-
-            this._removeCustomRepository(repository);
-        });
-    };
-
-    private _removeCustomRepository = (repository : Repository) : void => {
-        // abort if the repository is one of those that is builtin to the app
-        if (repository.isBuiltIn){
-            console.warn("User attempted to remove a builtin repository from the list");
-            return;
-        }
-
-        // remove from localStorage
-        switch(repository.service){
-            case Eagle.RepositoryService.GitHub:
-                localStorage.removeItem(repository.name + ".repository");
-                localStorage.removeItem(repository.name + ".github_repository");
-                localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
-                GitHub.loadRepoList(this);
-                break;
-            case Eagle.RepositoryService.GitLab:
-                localStorage.removeItem(repository.name + ".gitlab_repository");
-                localStorage.removeItem(repository.name + "|" + repository.branch + ".gitlab_repository_and_branch");
-                GitLab.loadRepoList(this);
-                break;
-            default:
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
-                return;
-        }
-    }
-
-    sortRepositories = () : void => {
-        this.repositories.sort(Repository.repositoriesSortFunc);
     }
 
     openRemoteFile = (file : RepositoryFile) : void => {
@@ -1701,6 +1759,9 @@ export class Eagle {
                 break;
             case Eagle.RepositoryService.GitLab:
                 openRemoteFileFunc = GitLab.openRemoteFile;
+                break;
+            case Eagle.RepositoryService.Url:
+                openRemoteFileFunc = Utils.openRemoteFileFromUrl;
                 break;
             default:
                 console.warn("Unsure how to fetch file with unknown service ", file.repository.service);
@@ -1719,61 +1780,51 @@ export class Eagle {
                 return;
             }
 
-            // if setting dictates, show errors during loading
-            const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
+            // determine file extension
+            const fileExtension = Utils.getFileExtension(file.name);
+            let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
+            let dataObject = null;
 
-            // attempt to parse the JSON
-            let dataObject;
-            try {
-                dataObject = JSON.parse(data);
-            }
-            catch(err){
-                Utils.showUserMessage("Error parsing file JSON", err.message);
-                return;
-            }
+            if (fileExtension !== "md"){
+                // attempt to parse the JSON
+                try {
+                    dataObject = JSON.parse(data);
+                }
+                catch(err){
+                    Utils.showUserMessage("Error parsing file JSON", err.message);
+                    return;
+                }
 
-            const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
+                fileTypeLoaded = Utils.determineFileType(dataObject);
+                console.log("fileTypeLoaded", fileTypeLoaded);
+            } else {
+                fileTypeLoaded = Eagle.FileType.Markdown;
+            }        
 
             switch (fileTypeLoaded){
                 case Eagle.FileType.Graph:
                     // attempt to determine schema version from FileInfo
                     const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-                    const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+                    const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // use the correct parsing function based on schema version
                     switch (schemaVersion){
-                        case Eagle.DALiuGESchemaVersion.AppRef:
-                            this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, file, errorsWarnings));
-                            break;
-                        case Eagle.DALiuGESchemaVersion.V3:
-                            Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                            this.logicalGraph(LogicalGraph.fromV3Json(dataObject, file, errorsWarnings));
-                            break;
                         case Eagle.DALiuGESchemaVersion.OJS:
                         case Eagle.DALiuGESchemaVersion.Unknown:
                             this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
                             break;
                     }
 
-                    if (errorsWarnings.errors.length > 0){
-                        if (showErrors){
-                            Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
-                        }
-                    } else {
-                        Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ". " + errorsWarnings.warnings.length + " warnings.", "success");
-                    }
-
-                    // print warnings in console
-                    for (const warning of errorsWarnings.warnings){
-                        console.warn(warning);
-                    }
+                    // show errors/warnings
+                    this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
                     // center graph
                     this.centerGraph();
 
                     // check graph
                     this.checkGraph();
+                    this.undo().pushSnapshot(this, "Loaded " + file.name);
 
                     // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
                     this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
@@ -1783,10 +1834,15 @@ export class Eagle {
                     this._remotePaletteLoaded(file, data);
                     break;
 
+                case Eagle.FileType.Markdown:
+                    Utils.showUserMessage(file.name, Utils.markdown2html(data));
+                    break;
+
                 default:
                     // Show error message
                     Utils.showUserMessage("Error", "The file type is neither graph nor palette!");
             }
+        this.resetEditor()
         });
     };
 
@@ -1820,9 +1876,6 @@ export class Eagle {
                 return;
             }
 
-            // if setting dictates, show errors during loading
-            const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-
             // attempt to parse the JSON
             let dataObject;
             try {
@@ -1845,18 +1898,11 @@ export class Eagle {
             // attempt to determine schema version from FileInfo
             const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-            const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
+            const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
             // use the correct parsing function based on schema version
             let lg: LogicalGraph;
             switch (schemaVersion){
-                case Eagle.DALiuGESchemaVersion.AppRef:
-                    lg = LogicalGraph.fromAppRefJson(dataObject, file, errorsWarnings);
-                    break;
-                case Eagle.DALiuGESchemaVersion.V3:
-                    Utils.showUserMessage("Unsupported feature", "Loading files using the V3 schema is not supported.");
-                    lg = LogicalGraph.fromV3Json(dataObject, file, errorsWarnings);
-                    break;
                 case Eagle.DALiuGESchemaVersion.OJS:
                 case Eagle.DALiuGESchemaVersion.Unknown:
                     lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
@@ -1864,22 +1910,18 @@ export class Eagle {
             }
 
             // create parent node
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Eagle.Category.SubGraph, false);
+            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
             // perform insert
-            this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode);
+            this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
 
             // trigger re-render
             this.logicalGraph.valueHasMutated();
+            this.undo().pushSnapshot(this, "Inserted " + file.name);
             this.checkGraph();
 
-            if (errorsWarnings.errors.length > 0){
-                if (showErrors){
-                    Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
-                }
-            } else {
-                Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
-            }
+            // show errors/warnings
+            this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
         });
     };
 
@@ -1890,8 +1932,8 @@ export class Eagle {
         const alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
 
         // if dictated by settings, reload the palette immediately
-        if (alreadyLoadedPalette !== null && Eagle.findSetting(Utils.CONFIRM_RELOAD_PALETTES).value()){
-            Utils.requestUserConfirm("Reload Palette?", "This palette is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
+        if (alreadyLoadedPalette !== null && Setting.findValue(Setting.CONFIRM_RELOAD_PALETTES)){
+            Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
                 if (confirmed){
                     this._reloadPalette(file, data, alreadyLoadedPalette);
                 }
@@ -1902,24 +1944,23 @@ export class Eagle {
     }
 
     private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
-        const showErrors: boolean = Eagle.findSetting(Utils.SHOW_FILE_LOADING_ERRORS).value();
-
         // close the existing version of the open palette
         if (palette !== null){
             this.closePalette(palette);
         }
 
         // load the new palette
-        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
-        this.palettes.unshift(Palette.fromOJSJson(data, file, errorsWarnings));
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
-        if (errorsWarnings.errors.length > 0){
-            if (showErrors){
-                Utils.showUserMessage("Errors during loading", errorsWarnings.errors.join('<br/>'));
-            }
-        } else {
-            Utils.showNotification("Success", file.name + " has been loaded from " + file.repository.service + ".", "success");
-        }
+        // sort items in palette
+        newPalette.sort();
+
+        // add to list of palettes
+        this.palettes.unshift(newPalette);
+
+        // show errors/warnings
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
         this.leftWindow().shown(true);
     }
@@ -1961,7 +2002,7 @@ export class Eagle {
             if (p.fileInfo().name === palette.fileInfo().name){
 
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
-                if (p.fileInfo().modified && Eagle.findSetting(Utils.CONFIRM_DISCARD_CHANGES).value()){
+                if (p.fileInfo().modified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
                     Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", (confirmed : boolean) : void => {
                         if (confirmed){
                             this.palettes.splice(i, 1);
@@ -1974,6 +2015,24 @@ export class Eagle {
                 break;
             }
         }
+        this.resetEditor()
+    }
+
+    getParentNameAndKey = (parentKey:number) : string => {
+        if(parentKey === null){
+            return ""
+        }
+
+        // TODO: temporary fix while we get lots of warnings about missing nodes
+        const parentNode = this.logicalGraph().findNodeByKeyQuiet(parentKey);
+
+        if (parentNode === null){
+            return ""
+        }
+
+        const parentText = parentNode.getName() + ' | Key: ' + parentKey;
+
+        return parentText
     }
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
@@ -1991,11 +2050,12 @@ export class Eagle {
         const p_clone : Palette = palette.clone();
         p_clone.fileInfo().removeGitInfo();
         p_clone.fileInfo().updateEagleInfo();
-        const json = Palette.toOJSJson(p_clone);
+        const jsonString: string = Palette.toOJSJsonString(p_clone);
 
         // validate json
-        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Palette);
+        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
+            const jsonObject = JSON.parse(jsonString);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Palette);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -2004,7 +2064,7 @@ export class Eagle {
             }
         }
 
-        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+        Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
             if (error != null){
                 Utils.showUserMessage("Error", "Error saving the file!");
                 console.error(error);
@@ -2018,8 +2078,9 @@ export class Eagle {
             palette.fileInfo().modified = false;
             palette.fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
             palette.fileInfo().repositoryName = "";
-            palette.fileInfo().gitUrl = "";
-            palette.fileInfo().sha = "";
+            palette.fileInfo().repositoryUrl = "";
+            palette.fileInfo().commitHash = "";
+            palette.fileInfo().downloadUrl = "";
             palette.fileInfo.valueHasMutated();
         });
     }
@@ -2048,11 +2109,12 @@ export class Eagle {
         const lg_clone : LogicalGraph = this.logicalGraph().clone();
         lg_clone.fileInfo().removeGitInfo();
         lg_clone.fileInfo().updateEagleInfo();
-        const json : object = LogicalGraph.toOJSJson(lg_clone);
+        const jsonString : string = LogicalGraph.toOJSJsonString(lg_clone, false);
 
         // validate json
-        if (!Eagle.findSettingValue(Utils.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
+        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
+            const jsonObject = JSON.parse(jsonString);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -2061,7 +2123,7 @@ export class Eagle {
             }
         }
 
-        Utils.httpPostJSON('/saveFileToLocal', json, (error : string, data : string) : void => {
+        Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
             if (error != null){
                 Utils.showUserMessage("Error", "Error saving the file!");
                 console.error(error);
@@ -2073,10 +2135,11 @@ export class Eagle {
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
             graph.fileInfo().modified = false;
-            graph.fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
+            graph.fileInfo().repositoryService = Eagle.RepositoryService.File;
             graph.fileInfo().repositoryName = "";
-            graph.fileInfo().gitUrl = "";
-            graph.fileInfo().sha = "";
+            graph.fileInfo().repositoryUrl = "";
+            graph.fileInfo().commitHash = "";
+            graph.fileInfo().downloadUrl = "";
             graph.fileInfo.valueHasMutated();
         });
     }
@@ -2086,7 +2149,7 @@ export class Eagle {
 
         const defaultRepository: Repository = new Repository(palette.fileInfo().repositoryService, palette.fileInfo().repositoryName, palette.fileInfo().repositoryBranch, false);
 
-        Utils.requestUserGitCommit(defaultRepository, this.getRepositoryList(Eagle.RepositoryService.GitHub),  palette.fileInfo().path, palette.fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Eagle.RepositoryService.GitHub),  palette.fileInfo().path, palette.fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
@@ -2094,7 +2157,7 @@ export class Eagle {
             }
 
             // check repository name
-            const repository : Repository = this.getRepository(repositoryService, repositoryName, repositoryBranch);
+            const repository : Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
             if (repository === null){
                 console.log("Abort commit");
                 return;
@@ -2105,10 +2168,10 @@ export class Eagle {
 
             switch (repositoryService){
                 case Eagle.RepositoryService.GitHub:
-                    token = Eagle.findSettingValue(Utils.GITHUB_ACCESS_TOKEN_KEY);
+                    token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
                     break;
                 case Eagle.RepositoryService.GitLab:
-                    token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+                    token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
                     break;
                 default:
                     Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
@@ -2126,25 +2189,16 @@ export class Eagle {
             // clone the palette
             const p_clone : Palette = palette.clone();
             p_clone.fileInfo().updateEagleInfo();
-            const json = Palette.toOJSJson(p_clone);
+            const jsonString: string = Palette.toOJSJsonString(p_clone);
 
-            const jsonData : object = {
-                jsonData: json,
-                repositoryBranch: repository.branch,
-                repositoryName: repository.name,
-                repositoryService: repository.service,
-                token: token,
-                filename: fullFileName,
-                commitMessage: commitMessage
-            };
+            const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
 
-
-            this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, palette.fileInfo, jsonData);
+            this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
         });
     }
 
     setTranslatorUrl = () : void => {
-        const translatorURLSetting : Setting = Eagle.findSetting(Utils.TRANSLATOR_URL);
+        const translatorURLSetting : Setting = Setting.find(Setting.TRANSLATOR_URL);
 
         Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false, (completed : boolean, userString : string) : void => {
             // abort if user cancelled the action
@@ -2154,6 +2208,27 @@ export class Eagle {
             translatorURLSetting.value(userString);
         });
     };
+
+    getTranslatorDefault = () : any => {
+        setTimeout(function(){
+            const defaultTranslatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
+            $('.simplifiedTranslator').append(defaultTranslatorHtml)
+            return defaultTranslatorHtml
+        },10000)
+    }
+
+    translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
+        const defaultTranslatorMode :any = Eagle.translatorUiMode(Setting.TranslatorMode.Default)
+        if(!defaultTranslatorMode){
+            return true
+        }
+
+        if(currentAlg === Eagle.defaultTranslatorAlgorithm){
+            return true
+        }
+    
+        return false
+    }
 
     saveAsPNG = () : void => {
         Utils.saveAsPNG('#logicalGraphD3Div svg', this.logicalGraph().fileInfo().name);
@@ -2215,18 +2290,28 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
+    toggleEdgeClosesLoop = () : void => {
+        this.selectedEdge().toggleClosesLoop();
+
+        // get nodes from edge
+        const sourceNode = this.logicalGraph().findNodeByKey(this.selectedEdge().getSrcNodeKey());
+        const destNode = this.logicalGraph().findNodeByKey(this.selectedEdge().getDestNodeKey());
+
+        sourceNode.setGroupEnd(this.selectedEdge().isClosesLoop());
+        destNode.setGroupStart(this.selectedEdge().isClosesLoop());
+
+        this.checkGraph();
+        Utils.showNotification("Toggle edge closes loop", "Node " + sourceNode.getName() + " component parameter 'group_end' set to " + sourceNode.getFieldByIdText("group_end").getValue() + ". Node " + destNode.getName() + " component parameter 'group_start' set to " + destNode.getFieldByIdText("group_start").getValue() + ".", "success");
+
+        this.selectedObjects.valueHasMutated();
+        this.logicalGraph.valueHasMutated();
+    }
+
     showAbout = () : void => {
         $('#aboutModal').modal('show');
     }
 
-    runTutorial = (name : string) : void => {
-        console.log("runTutorial(" + name + ")");
-
-        // start the tutorial
-        ij(name).setOption("showStepNumbers", false).setOption("skipLabel", "Exit").start();
-    }
-
-    onlineHelp = () : void => {
+    onlineDocs = () : void => {
         console.log("online help");
 
         // open in new tab:
@@ -2259,6 +2344,7 @@ export class Eagle {
         window.open("https://github.com/ICRAR/EAGLE/issues/new?body="+bodyText, "_blank");
     }
 
+    // TODO: move to Setting.ts?
     openSettings = () : void => {
         //if no tab is selected yet, default to the first tab
         if(!$(".settingCategoryActive").length){
@@ -2267,12 +2353,80 @@ export class Eagle {
         Utils.showSettingsModal();
     }
 
-    //used by the settings modal html to generate an id from the title
-    getSettingCategoryId = (title:string) : string => {
-        title = title.split(' ').join('')
-        return 'settingCategory' + title;
+    closeSettings = () : void => {
+        Utils.hideSettingsModal();
     }
 
+    closeErrorsModal = () : void => {
+        Utils.closeErrorsModal();
+    }
+
+    smartToggleModal = (modal:string) : void => {
+        //used for keyboard shortcuts, preventing opening several modals at once
+        console.log($('.modal.show').attr('id'),modal)
+        if($('.modal.show').length>0){
+            if($('.modal.show').attr('id')===modal){
+                $('#'+modal).modal('hide')
+            }else{
+                return
+            }
+        }else{
+            if(modal === 'settingsModal'){
+                if(!$(".settingCategoryActive").length){
+                    $(".settingsModalButton").first().click()
+                }
+            }
+            $('#'+modal).modal('show')
+        }
+    }
+
+    openParamsTableModal = (mode:string,selectType:string) : void => {
+        if($('.modal.show').length>0){
+            if($('.modal.show').attr('id')==='parameterTableModal'){
+                $('#parameterTableModal').modal('hide')
+            }else{
+                return
+            }
+        }
+        this.showTableModal(true)
+        if(selectType === 'rightClick'){
+            this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
+            $('#customContextMenu').remove();
+            setTimeout(function() {
+                Utils.showOpenParamsTableModal(mode);
+            }, 30);
+        }else{
+            if (mode==='inspectorTableModal' && !this.selectedNode()){
+                Utils.showNotification("Error", "No Node Is Selected", "warning");
+            }else{
+                Utils.showOpenParamsTableModal(mode);
+            }
+        }
+    }
+
+    getCurrentParamReadonly = (field: Field) : boolean => {
+        // check that we actually found the right field, otherwise abort
+        if (field === null){
+            console.warn("Supplied field is null");
+            return false;
+        }
+
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            if(Eagle.allowPaletteEditing()){
+                return false;
+            }else{
+                return field.isReadonly();
+            }
+        }else{
+            if(Eagle.allowComponentEditing()){
+                return false;
+            }else{
+                return field.isReadonly();
+            }
+        }
+    }
+
+    // TODO: move to Setting.ts?
     toggleSettingsTab = (btn:any, target:any) :void => {
         //deselect and deactivate current tab content and buttons
         $(".settingsModalButton").removeClass("settingCategoryBtnActive");
@@ -2283,77 +2437,35 @@ export class Eagle {
         $("#"+target).addClass("settingCategoryActive");
     }
 
+    // TODO: move to KeyboardShortcut.ts?
     openShortcuts = () : void => {
-        Utils.showShortcutsModal();
+        if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
+            Eagle.shortcutModalCooldown = Date.now()
+            Utils.showShortcutsModal();
+        }
+        return
     }
 
-    private static findSetting = (key : string) : Setting => {
-        // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
-        if (typeof Eagle.settings === 'undefined'){
-            return null;
-        }
+    closeShortcuts = () : void => {
+        Utils.closeShortcutsModal();
+    }
 
-        for (const categoryName of Object.keys(Eagle.settings)){
-            const category = Eagle.settings[categoryName];
-            for (const setting of category){
-                if (setting.getKey() === key){
-                    return setting;
-                }
+    // TODO: move to Setting.ts?
+    //copies currently set settings in case the user wishes to cancel changes in the setting modal
+    copyCurrentSettings = () : void => {
+        for (const group of Eagle.settings){
+            for (const setting of group.getSettings()){
+                setting.copyCurrentSettings();
             }
         }
-        return null;
     }
 
-    // TODO: maybe move to Field.ts
-    // TODO: add comments
-    getFieldType = (type:string, id:string, value:string) : string => {
-        if (type === "Float" || type === "Integer"){
-            return "number"
-        }else if(type === "Boolean"){
-            $("#"+id).addClass("form-check-input")
-            if (value === "true"){
-                $("#"+id).addClass("inputChecked")
-                $("#"+id).html("Checked")
-            }else {
-                $("#"+id).removeClass("inputChecked")
-                $("#"+id).html("Check")
-            }
-            return "checkbox"
-        }else{
-            return "text"
-        }
-    }
-
-    // TODO: seems too simple to be required
-    fieldIsBoolean = (type:string) : boolean => {
-        if (type === "Boolean"){
-            return true
-        }else{
-            return false
-        }
-    }
-
-    static findSettingValue = (key : string) : any => {
-        const setting = Eagle.findSetting(key);
-
-        if (setting === null){
-            console.warn("No setting", key);
-            return null;
-        }
-
-        return setting.value();
-    }
-
-    getShortcuts = () : KeyboardShortcut[] => {
-        return Eagle.shortcuts();
-    }
-
-    resetSettingsDefaults = () : void => {
-        for (const categoryName of Object.keys(Eagle.settings)){
-            const category = Eagle.settings[categoryName];
-
-            for (const setting of category){
-                setting.resetDefault();
+    // TODO: move to Setting.ts?
+    //returns settings values to the previously copied settings, canceling the settings editing
+    cancelSettingChanges = () : void => {
+        for (const group of Eagle.settings){
+            for (const setting of group.getSettings()){
+                setting.cancelChanges();
             }
         }
     }
@@ -2366,7 +2478,7 @@ export class Eagle {
         }
 
         // if input edge is null, then we are creating a new edge here, so initialise it with some default values
-        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "", false);
+        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "", false, false, false);
 
         // display edge editing modal UI
         Utils.requestUserEditEdge(newEdge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
@@ -2376,15 +2488,21 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, true);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
 
+            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
+            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
-            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), () => {
+            this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
                 this.checkGraph();
+                this.undo().pushSnapshot(this, "Add edge");
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -2409,33 +2527,51 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this.logicalGraph(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), false, true);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
 
+            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
+            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(edge.getId());
-            this.addEdge(edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), "", edge.getDataType(), edge.isLoopAware(), () => {
+            this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
                 this.checkGraph();
+                this.undo().pushSnapshot(this, "Edit edge");
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
         });
     }
 
-    duplicateSelection = () : void => {
+    duplicateSelection = (mode:string) : void => {
         console.log("duplicateSelection()", this.selectedObjects().length, "objects");
 
-        switch(this.selectedLocation()){
+        let location: string;
+        let incomingNodes = []; // TODO: declare type
+
+        if(mode === 'normal'){
+            location = Eagle.selectedLocation()
+            incomingNodes = this.selectedObjects()
+        }else{
+            location = Eagle.selectedRightClickLocation()
+            incomingNodes.push(Eagle.selectedRightClickObject())
+        }
+
+        switch(location){
             case Eagle.FileType.Graph:
                 {
                     const nodes : Node[] = [];
                     const edges : Edge[] = [];
+                    const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // split objects into nodes and edges
-                    for (const object of this.selectedObjects()){
+                    for (const object of incomingNodes){
                         if (object instanceof Node){
                             nodes.push(object);
                         }
@@ -2445,8 +2581,9 @@ export class Eagle {
                         }
                     }
 
-                    this.insertGraph(nodes, edges, null);
+                    this.insertGraph(nodes, edges, null, errorsWarnings);
                     this.checkGraph();
+                    this.undo().pushSnapshot(this, "Duplicate selection");
                     this.logicalGraph.valueHasMutated();
                 }
                 break;
@@ -2454,7 +2591,7 @@ export class Eagle {
                 {
                     const nodes: Node[] = [];
 
-                    for (const object of this.selectedObjects()){
+                    for (const object of incomingNodes){
                         if (object instanceof Node){
                             nodes.push(object);
                         }
@@ -2464,9 +2601,183 @@ export class Eagle {
                 }
                 break;
             default:
-                console.error("Unknown selectedLocation", this.selectedLocation());
+                console.error("Unknown selectedLocation", Eagle.selectedLocation());
                 break;
         }
+    }
+
+    // TODO: currently only works when copying from the LG, doesn't work when copying from a palette!
+    copySelectionToClipboard = (copyChildren: boolean) : void => {
+        console.log("copySelectionToClipboard()");
+
+        const nodes: Node[] = [];
+        const edges: Edge[] = [];
+
+        // add all items in selection to the set of objects to copy
+        // if copyChildren is true, add children of selected items too
+        for (const object of this.selectedObjects()){
+            if (object instanceof Node){
+                if (copyChildren){
+                    this._addNodeAndChildren(this.logicalGraph().getNodes(), object, nodes);
+                } else {
+                    this._addUniqueNode(nodes, object);
+                }
+            }
+
+            if (object instanceof Edge){
+                edges.push(object);
+            }
+        }
+
+        // if copyChildren, add all edges adjacent to the nodes in the list objects
+        if (copyChildren){
+            for (const edge of this.logicalGraph().getEdges()){
+                for (const node of nodes){
+                    if (node.getKey() === edge.getSrcNodeKey() || node.getKey() === edge.getDestNodeKey()){
+                        this._addUniqueEdge(edges, edge);
+                    }
+                }
+            }
+        }
+
+        // TODO: serialise nodes and edges
+        const serialisedNodes = [];
+        for (const node of nodes){
+            serialisedNodes.push(Node.toOJSGraphJson(node));
+        }
+        const serialisedEdges = [];
+        for (const edge of edges){
+            serialisedEdges.push(Edge.toOJSJson(edge));
+        }
+
+        const clipboard = {
+            nodes: serialisedNodes,
+            edges: serialisedEdges
+        };
+        
+        // write to clipboard
+        navigator.clipboard.writeText(JSON.stringify(clipboard)).then(
+            () => {
+                // success
+                Utils.showNotification("Copied to clipboard", "Copied " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+            },
+            () => {
+                // error
+                Utils.showNotification("Unable to copy to clipboard", "Your browser does not allow access to the clipboard for security reasons", "danger");
+            }
+        );
+    }
+
+    // NOTE: support func for copySelectionToKeyboard() above
+    _addNodeAndChildren = (nodes: Node[], node: Node, output:Node[]) : void => {
+        this._addUniqueNode(output, node);
+
+        for (const n of nodes){
+            if (n.getParentKey() === node.getKey()){
+                this._addNodeAndChildren(nodes, n, output);
+            }
+        }
+    }
+
+    // NOTE: support func for copySelectionToKeyboard() above
+    // only add the new node to the nodes list if it is not already present
+    _addUniqueNode = (nodes: Node[], newNode: Node): void => {
+        for (const node of nodes){
+            if (node.getKey() === newNode.getKey()){
+                return;
+            }
+        }
+
+        nodes.push(newNode);
+    }
+
+    // NOTE: support func for copySelectionToKeyboard() above
+    // only add the new edge to the edges list if it is not already present
+    _addUniqueEdge = (edges: Edge[], newEdge: Edge): void => {
+        for (const edge of edges){
+            if (edge.getId() === newEdge.getId()){
+                return;
+            }
+        }
+
+        edges.push(newEdge);
+    }
+
+    pasteFromClipboard = async () => {
+        console.log("pasteFromClipboard()");
+
+        // check if browser supports reading text from clipboard, if not, explain to user
+        if (typeof navigator.clipboard.readText === "undefined"){
+            Utils.showNotification("Unable to paste data", "Your browser does not allow access to the clipboard for security reasons. Workaround this issue using the 'Graph > New > Add to Graph from JSON' menu item and pasting your clipboard manually", "danger");
+            return;
+        }
+
+        let clipboard = null;
+
+        try {
+            clipboard = JSON.parse(await navigator.clipboard.readText());
+        } catch(e) {
+            Utils.showNotification("Unable to paste data", e.name + ": " + e.message, "danger");
+            return;
+        }
+
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const nodes : Node[] = [];
+        const edges : Edge[] = [];
+
+        for (const n of clipboard.nodes){
+            const node = Node.fromOJSJson(n, errorsWarnings, false, (): number => {
+                console.error("Should not have to generate new key for node", n);
+                return 0;
+            });
+
+            nodes.push(node);
+        }
+
+        for (const e of clipboard.edges){
+            const edge = Edge.fromOJSJson(e, errorsWarnings);
+
+            edges.push(edge);
+        }
+
+        this.insertGraph(nodes, edges, null, errorsWarnings);
+
+        // display notification to user
+        if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
+
+        } else {
+            Utils.showNotification("Pasted from clipboard", "Pasted " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+        }
+
+        // ensure changes are reflected in display
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Paste from Clipboard");
+        this.logicalGraph.valueHasMutated();
+    }
+
+    selectAllInGraph = () : void => {
+        console.log("selectAllInGraph()");
+
+        const newSelection : (Node | Edge)[] = [];
+
+        // add nodes
+        for (const node of this.logicalGraph().getNodes()){
+            newSelection.push(node);
+        }
+
+        // add edges
+        for (const edge of this.logicalGraph().getEdges()){
+            newSelection.push(edge);
+        }
+
+        // set selection
+        this.selectedObjects(newSelection);
+    }
+
+    selectNoneInGraph = () : void => {
+        console.log("selectNoneInGraph()");
+
+        this.selectedObjects([]);
     }
 
     addNodesToPalette = (nodes: Node[]) : void => {
@@ -2529,38 +2840,71 @@ export class Eagle {
 
                 // mark the palette as modified
                 destinationPalette.fileInfo().modified = true;
+                destinationPalette.sort();
             }
         });
     }
 
-    addSelectedNodeToPalette = () : void => {
-        const selectedNode = this.selectedNode();
+    addSelectedNodesToPalette = (mode:string) : void => {
+        const nodes = []
 
-        if (selectedNode === null){
+        if(mode === 'normal'){
+            for(const object of this.selectedObjects()){
+                if ((object instanceof Node)){
+                    nodes.push(object)
+                }
+            }
+        }else{
+            if ((Eagle.selectedRightClickObject() instanceof Node)){
+                nodes.push(Eagle.selectedRightClickObject())
+            }
+        }
+
+        if (nodes.length === 0){
             console.error("Attempt to add selected node to palette when no node selected");
             return;
         }
-        this.addNodesToPalette([selectedNode]);
+
+        this.addNodesToPalette(nodes);
     }
 
-    deleteSelection = (suppressUserConfirmationRequest: boolean) : void => {
+    // TODO: requestMode param here is spelt incorrectly, should be an enum? 
+    deleteSelection = (requstMode:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
+        let mode: string; // TODO: should be an enum?
+        let data: any = []; // TODO: declare type
+
         // if no objects selected, warn user
-        if (this.selectedObjects().length === 0){
+        if (requstMode === ''){
+            data = this.selectedObjects()
+            mode = 'normal'
+        }else{
+            data.push(Eagle.selectedRightClickObject())
+            mode = 'rightClick'
+        }
+
+        if (data.length === 0){
             console.warn("Unable to delete selection: Nothing selected");
             Utils.showNotification("Warning", "Unable to delete selection: Nothing selected", "warning");
             return;
         }
 
+        // if in "hide data nodes" mode, then recommend the user delete edges in "show data nodes" mode instead
+        if (!this.showDataNodes()){
+            console.warn("Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.");
+            Utils.showNotification("Warning", "Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.", "warning");
+            return;
+        }
+
         // skip confirmation if setting dictates
-        if (!Eagle.findSetting(Utils.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
-            this._deleteSelection();
+        if (!Setting.find(Setting.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
+            this._deleteSelection(deleteChildren,data,mode);
             return;
         }
 
         // determine number of nodes and edges in current selection
-        let numNodes = 0;
-        let numEdges = 0;
-        for (const object of this.selectedObjects()){
+        let numNodes: number = 0;
+        let numEdges: number = 0;
+        for (const object of data){
             if (object instanceof Node){
                 numNodes += 1;
             }
@@ -2570,21 +2914,95 @@ export class Eagle {
             }
         }
 
+        // determine number of child nodes that would be deleted
+        const childNodes: Node[] = [];
+        const childEdges: Edge[] = [];
+
+        // find child nodes
+        for (const object of data){
+            if (object instanceof Node){
+                childNodes.push(...this._findChildren(object));
+            }
+        }
+
+        // find child edges
+        for (const edge of this.logicalGraph().getEdges()){
+            for (const node of childNodes){
+                if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
+                    // check if edge as already in the list
+                    let found = false;
+                    for (const e of childEdges){
+                        if (e.getId() === edge.getId()){
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    // push edge into childEdges (if not already in there)
+                    if (!found){
+                        childEdges.push(edge);
+                    }
+                }
+            }
+        }
+
+        // build the confirmation message based on the current situation
+        let confirmMessage: string = "Are you sure you wish to delete " + numEdges + " edge(s) and " + numNodes + " node(s)";
+
+        // if no children exist, don't bother asking the user about them
+        if (childNodes.length === 0 && childEdges.length === 0){
+            confirmMessage += "?";
+        } else {
+            // if children will be deleted, let user know how many
+            if (deleteChildren){
+                confirmMessage += " (and their " + childNodes.length + " child node and " + childEdges.length + " child edges)?";
+            } else {
+                confirmMessage += "? All children will be preserved.";
+            }
+        }
+
         // request confirmation from user
-        Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete " + numEdges + " edge(s) and " + numNodes + " node(s) (and their children)?", "Yes", "No", (confirmed : boolean) : void => {
+        Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", (confirmed : boolean) : void => {
             if (!confirmed){
-                console.log("User aborted deleteSelectedNode()");
+                console.log("User aborted deleteSelection()");
                 return;
             }
 
-            this._deleteSelection();
+            this._deleteSelection(deleteChildren,data,mode);
         });
     }
 
-    private _deleteSelection = () : void => {
-        if (this.selectedLocation() === Eagle.FileType.Graph){
+    private _findChildren = (parent : Node) : Node[] => {
+        const children: Node[] = [];
 
-            for (const object of this.selectedObjects()){
+        for(const node of this.logicalGraph().getNodes()){
+            if (node.getParentKey() === parent.getKey()){
+                children.push(node);
+                children.push(...this._findChildren(node));
+            }
+        }
+
+        return children;
+    }
+
+    private _deleteSelection = (deleteChildren: boolean, data:any, mode:string) : void => {
+        let location: Eagle.FileType = Eagle.FileType.Unknown;
+
+        if (mode === 'normal'){
+            location = Eagle.selectedLocation()
+        }else{
+            location = Eagle.selectedRightClickLocation()
+        }
+
+        if (location === Eagle.FileType.Graph){
+
+            // if not deleting children, move them to different parents first
+            if (!deleteChildren){
+                this._moveChildrenOfSelection();
+            }
+
+            // delete the selection
+            for (const object of data){
                 if (object instanceof Node){
                     this.logicalGraph().removeNode(object);
                 }
@@ -2596,38 +3014,74 @@ export class Eagle {
 
             // flag LG has changed
             this.logicalGraph().fileInfo().modified = true;
+
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Delete Selection");
         }
 
-        if (this.selectedLocation() === Eagle.FileType.Palette){
+        if (location === Eagle.FileType.Palette){
 
-            for (const object of this.selectedObjects()){
+            for (const object of data){
                 if (object instanceof Node){
                     for (const palette of this.palettes()){
                         palette.removeNodeById(object.getId());
+
+                        // TODO: only flag palette has changed if a node was removed
+                        palette.fileInfo().modified = true;
                     }
                 }
 
                 // NOTE: do nothing with edges! shouldn't be any in palettes
             }
-
-            // flag LG has changed
-            this.logicalGraph().fileInfo().modified = true;
         }
 
-        this.checkGraph();
-
-        // empty the selected objects, should have all been deleted
-        this.selectedObjects([]);
+        if(mode = 'normal'){
+            // empty the selected objects, should have all been deleted
+            this.selectedObjects([]);
+        }
     }
 
-    addNodeToLogicalGraph = (node : Node) : void => {
-        let pos : {x:number, y:number};
+    // used before deleting a selection, if we wish to preserve the children of the selection
+    private _moveChildrenOfSelection = () : void => {
+        for (const object of this.selectedObjects()){
+            if (object instanceof Node){
+                for (const node of this.logicalGraph().getNodes()){
+                    if (node.getParentKey() === object.getKey()){
+                        node.setParentKey(object.getParentKey());
+                    }
+                }
+            }
+        }
+    }
 
-        // get new position for node
-        if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
-            pos = this.getNewNodePosition(node.getWidth(), node.getHeight());
-        } else {
-            pos = Eagle.nodeDropLocation;
+    addNodeToLogicalGraph = (node : any, callback: (node: Node) => void, mode:string) : void => {
+        let pos : {x:number, y:number};
+        pos = {x:0,y:0}
+        
+        if(mode === 'contextMenu'){
+            pos = Eagle.selectedRightClickPosition;
+            this.palettes().forEach(function(palette){
+                if(palette.findNodeById(node)!==null){
+                    node = palette.findNodeById(node)
+                }
+            })
+            $('#customContextMenu').remove()
+        }
+
+        // if node is a construct, set width and height a little larger
+        if (CategoryData.getCategoryData(node.getCategory()).canContainComponents){
+            node.setWidth(Node.GROUP_DEFAULT_WIDTH);
+            node.setHeight(Node.GROUP_DEFAULT_HEIGHT);
+        }
+
+        //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
+        if(pos.x === 0 && pos.y === 0){
+            // get new position for node
+            if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
+                pos = this.getNewNodePosition(node.getWidth(), node.getHeight());
+            } else {
+                pos = Eagle.nodeDropLocation;
+            }
         }
 
         this.addNode(node, pos.x, pos.y, (newNode: Node) => {
@@ -2652,12 +3106,62 @@ export class Eagle {
                 newNode.setParentKey(null);
             }
 
+            // if node is a PythonMemberFunction, then we should generate a new PythonObject node too
+            if (newNode.getCategory() === Category.PythonMemberFunction){
+                // create node
+                const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
+
+                // add node to LogicalGraph
+                const OBJECT_OFFSET_X = 300;
+                const OBJECT_OFFSET_Y = 0;
+                this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
+                    // set parent to same as PythonMemberFunction
+                    pythonObjectNode.setParentKey(newNode.getParentKey());
+
+                    // copy PythonMemberFunction node's 'basename' field to the PythonObject node
+                    const FIELD_NAME = 'basename';
+                    const basenameField: Field = newNode.findFieldByIdText(FIELD_NAME, Eagle.ParameterType.ApplicationArgument);
+                    if (basenameField !== null){
+                        pythonObjectNode.setName(basenameField.getValue());
+                        pythonObjectNode.addField(basenameField.clone());
+                    } else {
+                        Utils.showNotification("Python Object", "Unable to set " + FIELD_NAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
+                    }
+
+                    // find the "self" port on the PythonMemberFunction
+                    const sourcePort: Field = newNode.findPortByIdText("self", false, false);
+
+                    // make sure node has input/output "self" port
+                    const inputOutputPort = new Field(Utils.uuidv4(), "self", "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputOutput, false);
+                    pythonObjectNode.addField(inputOutputPort);
+
+
+                    // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
+                    if (sourcePort !== null){
+                        this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, null);
+                    } else {
+                        Utils.showNotification("Edge Error", "Unable to connect edge between PythonMemberFunction and new PythonObject. The PythonMemberFunction does not have a 'self' port.", "danger");
+                    }
+                });
+            }
+
             this.checkGraph();
+            this.undo().pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
+
+            if (callback !== null){
+                callback(newNode);
+            }
         });
     }
 
     addGraphNodesToPalette = () : void => {
+        //check if there are any nodes in the graph
+        if  (this.logicalGraph().getNodes().length === 0){
+            Utils.showNotification("Unable to add nodes to palette", "No nodes found in graph", "danger");
+            return
+        }
+
         // build a list of palette names
         const paletteNames: string[] = this.buildWritablePaletteNamesList();
 
@@ -2739,7 +3243,7 @@ export class Eagle {
         return paletteNames;
     }
 
-    private findPalette = (name: string, createIfNotFound: boolean) : Palette => {
+    findPalette = (name: string, createIfNotFound: boolean) : Palette => {
         let p: Palette = null;
 
         // look for palette in open palettes
@@ -2766,7 +3270,7 @@ export class Eagle {
         Utils.showNotification("EAGLE", "Fetching data from Docker Hub", "info");
 
         const that = this;
-        const username = Eagle.findSettingValue(Utils.DOCKER_HUB_USERNAME);
+        const username = Setting.findValue(Setting.DOCKER_HUB_USERNAME);
 
         // request eagle server to fetch a list of docker hub images
         Utils.httpPostJSON("/getDockerImages", {username:username}, function(error : string, data: any){
@@ -2816,9 +3320,9 @@ export class Eagle {
                         const selectedNode = that.selectedNode();
 
                         // get references to image, tag and digest fields in this component
-                        const imageField:  Field = selectedNode.getFieldByName("image");
-                        const tagField:    Field = selectedNode.getFieldByName("tag");
-                        const digestField: Field = selectedNode.getFieldByName("digest");
+                        const imageField:  Field = selectedNode.getFieldByIdText("image");
+                        const tagField:    Field = selectedNode.getFieldByIdText("tag");
+                        const digestField: Field = selectedNode.getFieldByIdText("digest");
 
                         // set values for the fields
                         if (imageField !== null){
@@ -2840,60 +3344,12 @@ export class Eagle {
         Utils.showPalettesModal(this);
     }
 
-    /**
-     * Adds an input port to the selected node via HTML.
-     */
-    addInputPortHTML = () : void => {
-        const node: Node = this.selectedNode();
+    // TODO: can probably combine addFieldHTML, addApplicationArgHTML, addConstructParameterHTML, addInputPortHTML, addOutputPortHTML
+    //       they are all basically the same
+    // TODO: the #nodeInspectorAddFieldDiv, #nodeInspectorAddApplicationParamDiv, #nodeInspectorAddConstructParameterDiv, #nodeInspectorAddInputPortDiv, #nodeInspectorAddOutputPortDiv
+    //       element are all basically the same too (I think)
 
-        if (node === null){
-            console.error("Attempt to add input port when no node selected");
-            return;
-        }
-
-        // check whether node already has maximum number of ports
-        const maxPorts: number = Eagle.getCategoryData(node.getCategory()).maxInputs;
-
-        if (node.getInputPorts().length >= maxPorts ){
-            Utils.showUserMessage("Error", "This node may not contain more input ports. Maximum is " + maxPorts + " for " + node.getCategory() + " nodes.");
-            return;
-        }
-
-        this.editPort(node, Eagle.ModalType.Add, null, true);
-        $("#editPortModal").addClass("forceHide");
-        $(".modal-backdrop").addClass("forceHide");
-        $("#nodeInspectorAddInputPortDiv").show();
-    }
-
-    /**
-     * Adds an output port to the selected node via HTML arguments.
-     */
-    addOutputPortHTML = () : void => {
-        const node: Node = this.selectedNode();
-
-        if (node === null){
-            console.error("Attempt to add output port when no node selected");
-            return;
-        }
-
-        // check whether node already has maximum number of ports
-        const maxPorts: number = Eagle.getCategoryData(node.getCategory()).maxOutputs;
-
-        if (node.getOutputPorts().length >= maxPorts ){
-            Utils.showUserMessage("Error", "This node may not contain more output ports. Maximum is " + maxPorts + " for " + node.getCategory() + " nodes.");
-            return;
-        }
-
-        this.editPort(node, Eagle.ModalType.Add, null, false);
-        $("#editPortModal").addClass("forceHide");
-        $("#editPortModal").removeClass("fade");
-        $(".modal-backdrop").addClass("forceHide");
-        $("#nodeInspectorAddOutputPortDiv").show();
-    }
-
-    /**
-     * Adds an field to the selected node via HTML.
-     */
+    // Adds an field to the selected node via HTML
     addFieldHTML = () : void => {
         const node: Node = this.selectedNode();
 
@@ -2902,17 +3358,15 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.Field, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
         $("#nodeInspectorAddFieldDiv").show();
     }
 
-    /**
-     * Adds an application param to the selected node via HTML.
-     */
-    addApplicationParamHTML = () : void => {
+    // Adds an application param to the selected node via HTML
+    addApplicationArgHTML = () : void => {
         const node: Node = this.selectedNode();
 
         if (node === null){
@@ -2920,63 +3374,132 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.FieldType.ApplicationParam, null);
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.NoPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
         $("#nodeInspectorAddApplicationParamDiv").show();
     }
 
+    // Adds an construct parameter to the selected node via HTML
+    addConstructParameterHTML = () : void => {
+        const node: Node = this.selectedNode();
+
+        if (node === null){
+            console.error("Attempt to add construct parameter when no node selected");
+            return;
+        }
+
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, null);
+        $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddConstructParameterDiv").show();
+    }
+
+    // Adds an output port to the selected node via HTML
+    addInputPortHTML = () : void => {
+        const node: Node = this.selectedNode();
+
+        if (node === null){
+            console.error("Attempt to add input port when no node selected");
+            return;
+        }
+
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.InputPort, null);
+        $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddInputPortDiv").show();
+    }
+
+    // Adds an output port to the selected node via HTML
+    addOutputPortHTML = () : void => {
+        const node: Node = this.selectedNode();
+
+        if (node === null){
+            console.error("Attempt to add output port when no node selected");
+            return;
+        }
+
+        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.OutputPort, null);
+        $("#editFieldModal").addClass("forceHide");
+        $("#editFieldModal").removeClass("fade");
+        $(".modal-backdrop").addClass("forceHide");
+        $("#nodeInspectorAddOutputPortDiv").show();
+    }
+
     getInspectorHeadingTooltip = (title:string, category:any, description:any) : string => {
-        var tooltipText = "<h5>"+title+":</h5>"+category+"<br>"+description;
+        const tooltipText = "<h5>"+title+":</h5>"+category+"<br>"+description;
         return tooltipText;
     }
 
+    // hide the drop down menu that appears when the user is adding a new field
     hideDropDown = (divID:string) : void => {
         if (divID === "nodeInspectorAddFieldDiv"){
             //hides the dropdown node inspector elements when stopping hovering over the element
             if(!$("#editFieldModal").hasClass("nodeSelected")){
                 $("#editFieldModal").modal('hide');
                 $("#editFieldModal").addClass("fade");
-
-                // $("#"+divID).hide();
-            }
-        }else{
-            //hides the dropdown node inspector elements when stopping hovering over the element
-            if(!$("#editPortModal").hasClass("nodeSelected")){
-                $("#editPortModal").modal('hide');
-                $("#editPortModal").addClass("fade");
-                // $("#"+divID).hide();
             }
         }
-         $("#editFieldModal").removeClass("nodeSelected");
-         $("#"+divID).hide();
+
+        $("#editFieldModal").removeClass("nodeSelected");
+        $("#"+divID).hide();
     }
 
-    nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
-        let selectSectionID;
-        let modalID;
-        let submitBtnID;
+    addEmptyTableRow = () : void => {
+        let fieldIndex:number
 
-        if(divID==="nodeInspectorAddFieldDiv" || divID==="nodeInspectorAddApplicationParamDiv"){
-            selectSectionID = "fieldModalSelect"
-            modalID = "editFieldModal"
-            submitBtnID = "editFieldModalAffirmativeButton"
+        if(ParameterTable.hasSelection()){
+            // A cell in the table is selected well insert new row instead of adding at the end
+            fieldIndex = ParameterTable.selectionParentIndex() + 1
+            this.selectedNode().addEmptyField(fieldIndex)
         }else{
-            selectSectionID = "portModalSelect"
-            modalID = "editPortModal"
-            submitBtnID = "editPortModalAffirmativeButton"
+            this.selectedNode().addEmptyField(-1)
+
+            //getting the length of the array to use as an index to select the last row in the table
+            fieldIndex = this.selectedNode().getFields().length-1;
         }
 
+        //a timeout was necessary to wait for the element to be added before counting how many there are
+        setTimeout(function() {
+            //handling selecting and highlighting the newly created row
+            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
+
+            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
+            clickTarget.focus() // used to focus the field allowing the user to immediately start typing
+
+            //scroll to new row
+            $("#parameterTableModal .modal-body").animate({
+                scrollTop: (fieldIndex*30)
+            }, 1000);
+        }, 100);
+    }
+
+    // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
+    // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
+    nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
+        const selectSectionID : string = "fieldModalSelect";
+        const modalID : string = "editFieldModal";
+        const submitBtnID: string = "editFieldModalAffirmativeButton";
+
+        // val -1 is an empty option, so just close the dropdown
         if (val===-1){
-            this.hideDropDown(divID)
-            return
-        }else if(val===num){
+            this.hideDropDown(divID);
+            return;
+        }
+
+        if (val===0){
             //select custom field externally and open custom properties menu
             $("#"+divID).hide();
             $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
+
+            // triggers the 'add application argument' modal to show
             $("#"+modalID).removeClass("forceHide");
+
+            // triggers the modal 'lightbox' to show
             $(".modal-backdrop").removeClass("forceHide");
         }else{
             $("#"+selectSectionID).val(val).trigger('change');
@@ -2986,6 +3509,16 @@ export class Eagle {
             $("#"+submitBtnID).click()
             this.hideDropDown(divID)
         }
+    }
+
+    editFieldDropdownClick = (newType: string, oldType: string) : void => {
+        // check if the types already match, therefore nothing to do
+        if (Utils.dataTypePrefix(oldType) === newType){
+            return;
+        }
+
+        // NOTE: this changes the value (using val()), then triggers a change event, so that validation can be done
+        $('#editFieldModalTypeInput').val(newType).change();
     }
 
     changeNodeParent = () : void => {
@@ -3000,14 +3533,12 @@ export class Eagle {
         const nodeList : string[] = [];
         let selectedChoiceIndex = 0;
 
+        //this is needed for the selected choice index as the index of the function will not work because many entries a skipped, the selected choice index was generally higher than the amount of legitimate choices available
+        let validChoiceIndex = 0
+
         // build list of nodes that are candidates to be the parent
         for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
             const node : Node = this.logicalGraph().getNodes()[i];
-
-            // if this node is already the parent, note its index, so that we can preselect this parent node in the modal dialog
-            if (node.getKey() === selectedNode.getParentKey()){
-                selectedChoiceIndex = i;
-            }
 
             // a node can't be its own parent
             if (node.getKey() === selectedNode.getKey()){
@@ -3019,11 +3550,19 @@ export class Eagle {
                 continue;
             }
 
+            //this index only counts up if the above doesnt filter out the choice
+            validChoiceIndex++
+
+            // if this node is already the parent, note its index, so that we can preselect this parent node in the modal dialog
+            if (node.getKey() === selectedNode.getParentKey()){
+                selectedChoiceIndex = validChoiceIndex;
+            }
+
             nodeList.push(node.getName() + " : " + node.getKey());
         }
 
         // add "None" to the list of possible parents
-        nodeList.push("None : 0");
+        nodeList.unshift("None : 0");
 
         // ask user to choose a parent
         Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number) => {
@@ -3044,6 +3583,7 @@ export class Eagle {
 
             // refresh the display
             this.checkGraph();
+            this.undo().pushSnapshot(this, "Change Node Parent");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -3071,7 +3611,7 @@ export class Eagle {
             }
 
             // comment and description nodes can't be the subject of comment nodes
-            if (node.getCategory() === Eagle.Category.Comment || node.getCategory() === Eagle.Category.Description){
+            if (node.getCategory() === Category.Comment || node.getCategory() === Category.Description){
                 continue;
             }
 
@@ -3091,76 +3631,83 @@ export class Eagle {
 
             // refresh the display
             this.checkGraph();
+            this.undo().pushSnapshot(this, "Change Node Subject");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
     }
 
-    removePortFromNodeByIndex = (node : Node, index : number, input : boolean) : void => {
-        console.log("removePortFromNodeByIndex(): node", node.getName(), "index", index, "input", input);
+    changeEdgeDataType = (edge: Edge) : void => {
+        // get reference to selected Edge
+        const selectedEdge: Edge = this.selectedEdge();
+
+        if (selectedEdge === null){
+            console.error("Attempt to change edge data type when no edge selected");
+            return;
+        }
+
+        // set selectedIndex to the index of the current data type within the allTypes list
+        let selectedIndex = 0;
+        for (let i = 0 ; i < this.types().length ; i++){
+            if (this.types()[i] === selectedEdge.getDataType()){
+                selectedIndex = i;
+                break;
+            }
+        }
+
+        // launch modal
+        Utils.requestUserChoice("Change Edge Data Type", "NOTE: changing a edge's data type will also change the data type of the source and destination ports", this.types(), selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
+            if (!completed){
+                return;
+            }
+
+            // get user selection
+            const newType = this.types()[userChoiceIndex];
+
+            // get references to the source and destination ports of this edge
+            const sourceNode = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const sourcePort = sourceNode.findFieldById(edge.getSrcPortId());
+            const destinationNode = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const destinationPort = destinationNode.findFieldById(edge.getDestPortId());
+
+            // update the edge and ports
+            edge.setDataType(newType);
+            sourcePort.setType(newType);
+            destinationPort.setType(newType);
+
+            // flag changes
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Change Edge Data Type");
+            this.selectedObjects.valueHasMutated();
+            this.logicalGraph.valueHasMutated();
+        });
+    }
+
+    removeFieldFromNodeById = (node : Node, id: string) : void => {
+        console.log("removeFieldFromNodeById(): node", node.getName(), "id", id);
 
         if (node === null){
             console.warn("Could not remove port from null node");
             return;
         }
 
-        // remember port id
-        let portId;
-        if (input){
-            portId = node.getInputPorts()[index].getId();
-        } else {
-            portId = node.getOutputPorts()[index].getId();
-        }
-
-        console.log("Found portId to remove:", portId);
-
         // remove port
-        if (input){
-            node.getInputPorts().splice(index, 1);
-        } else {
-            node.getOutputPorts().splice(index, 1);
-        }
+        node.removeFieldById(id);
 
         // remove any edges connected to that port
         const edges : Edge[] = this.logicalGraph().getEdges();
 
         for (let i = edges.length - 1; i >= 0; i--){
-            if (edges[i].getSrcPortId() === portId || edges[i].getDestPortId() === portId){
+            if (edges[i].getSrcPortId() === id || edges[i].getDestPortId() === id){
                 console.log("Remove incident edge", edges[i].getSrcPortId(), "->", edges[i].getDestPortId());
                 edges.splice(i, 1);
             }
         }
 
         this.checkGraph();
-    }
-
-    // dragdrop
-    nodeDragStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        // retrieve data about the node being dragged
-        // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
-        //       Using the native javascript works better, it always fetches the current value of the attribute
-        Eagle.nodeDragPaletteIndex = parseInt(e.target.getAttribute('data-palette-index'), 10);
-        Eagle.nodeDragComponentIndex = parseInt(e.target.getAttribute('data-component-index'), 10);
-
-        // discourage the rightWindow and navbar as drop targets
-        $(".rightWindow").addClass("noDropTarget");
-        $(".navbar").addClass("noDropTarget");
-
-        // grab and set the node's icon and sets it as drag image.
-        const drag = e.target.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
-        (<DragEvent> e.originalEvent).dataTransfer.setDragImage(drag, 0, 0);
-
-        return true;
-    }
-
-    nodeDragEnd = () : boolean => {
-        $(".rightWindow").removeClass("noDropTarget");
-        $(".navbar").removeClass("noDropTarget");
-        return true;
-    }
-
-    nodeDragOver = () : boolean => {
-        return false;
+        this.undo().pushSnapshot(this, "Remove port from node");
+        this.flagActiveFileModified();
+        this.selectedObjects.valueHasMutated();
     }
 
     nodeDropLogicalGraph = (eagle : Eagle, e : JQueryEventObject) : void => {
@@ -3170,14 +3717,18 @@ export class Eagle {
         // determine dropped node
         const sourceComponents : Node[] = [];
 
+        if(Eagle.nodeDragPaletteIndex === null || Eagle.nodeDragComponentIndex === null){
+            return;
+        }
+
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
-        if (this.selectedLocation() === Eagle.FileType.Graph || this.selectedLocation() === Eagle.FileType.Unknown){
+        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
             const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
             sourceComponents.push(component);
         }
 
         // if a node or nodes in the palette are selected, then assume those are being moved to the destination
-        if (this.selectedLocation() === Eagle.FileType.Palette){
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
                     sourceComponents.push(object);
@@ -3187,7 +3738,7 @@ export class Eagle {
 
         // add each of the nodes we are moving
         for (const sourceComponent of sourceComponents){
-            this.addNodeToLogicalGraph(sourceComponent);
+            this.addNodeToLogicalGraph(sourceComponent, null,'');
 
             // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
             Eagle.nodeDropLocation.x += 20;
@@ -3201,14 +3752,18 @@ export class Eagle {
     nodeDropPalette = (eagle: Eagle, e: JQueryEventObject) : void => {
         const sourceComponents : Node[] = [];
 
+        if(Eagle.nodeDragPaletteIndex === null || Eagle.nodeDragComponentIndex === null){
+            return;
+        }
+
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
-        if (this.selectedLocation() === Eagle.FileType.Graph || this.selectedLocation() === Eagle.FileType.Unknown){
+        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
             const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
             sourceComponents.push(component);
         }
 
         // if a node or nodes in the palette are selected, then assume those are being moved to the destination
-        if (this.selectedLocation() === Eagle.FileType.Palette){
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
                     sourceComponents.push(object);
@@ -3220,7 +3775,7 @@ export class Eagle {
         const destinationPaletteIndex : number = parseInt($(e.currentTarget)[0].getAttribute('data-palette-index'), 10);
         const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
 
-        const allowReadonlyPaletteEditing = Eagle.findSetting(Utils.ALLOW_READONLY_PALETTE_EDITING).value();
+        const allowReadonlyPaletteEditing = Eagle.allowReadonlyPaletteEditing();
 
         // check user can write to destination palette
         if (destinationPalette.fileInfo().readonly && !allowReadonlyPaletteEditing){
@@ -3239,6 +3794,7 @@ export class Eagle {
             // add to destination palette
             destinationPalette.addNode(sourceComponent, true);
             destinationPalette.fileInfo().modified = true;
+            destinationPalette.sort();
         }
     }
 
@@ -3261,79 +3817,6 @@ export class Eagle {
         return {x:x, y:y};
     };
 
-    rightWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        const img : HTMLImageElement = document.createElement("img");
-
-        (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
-        Eagle.dragStartX = e.clientX;
-        this.leftWindow().adjusting(false);
-        this.rightWindow().adjusting(true);
-
-        return true;
-    }
-
-    //workaround to aviod left or right window adjusting on any and all drag events
-    sideWindowAdjustEnd = () : boolean => {
-        this.leftWindow().adjusting(false);
-        this.rightWindow().adjusting(false);
-
-        return true;
-    }
-
-    sideWindowAdjust = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        // workaround to avoid final dragEvent at 0,0!
-        if (e.clientX === 0){
-            return true;
-        }
-
-        if (isNaN(this.leftWindow().width())){
-            console.warn("Had to reset left window width from invalid state (NaN)!");
-            this.leftWindow().width(Config.defaultLeftWindowWidth);
-        }
-        if (isNaN(this.rightWindow().width())){
-            console.warn("Had to reset right window width from invalid state (NaN)!");
-            this.rightWindow().width(Config.defaultRightWindowWidth);
-        }
-
-        const dragDiff : number = e.clientX - Eagle.dragStartX;
-        let newWidth : number;
-
-        if (this.leftWindow().adjusting()){
-            newWidth = this.leftWindow().width() + dragDiff;
-            if(newWidth <= Config.defaultLeftWindowWidth){
-                this.leftWindow().width(Config.defaultLeftWindowWidth);
-                Utils.setLeftWindowWidth(Config.defaultLeftWindowWidth);
-            }else{
-                this.leftWindow().width(newWidth);
-                Utils.setLeftWindowWidth(newWidth);
-            }
-        } else if(this.rightWindow().adjusting()) {
-            newWidth = this.rightWindow().width() - dragDiff;
-            if(newWidth <= Config.defaultRightWindowWidth){
-                this.rightWindow().width(Config.defaultRightWindowWidth);
-                Utils.setRightWindowWidth(Config.defaultRightWindowWidth);
-            }else{
-                this.rightWindow().width(newWidth);
-                Utils.setRightWindowWidth(newWidth);
-            }
-        }
-
-        Eagle.dragStartX = e.clientX;
-
-        return true;
-    }
-
-    leftWindowAdjustStart = (eagle : Eagle, e : JQueryEventObject) : boolean => {
-        const img : HTMLImageElement = document.createElement("img");
-        (<DragEvent> e.originalEvent).dataTransfer.setDragImage(img, 0, 0);
-
-        Eagle.dragStartX = e.clientX;
-        this.leftWindow().adjusting(true);
-        this.rightWindow().adjusting(false);
-
-        return true;
-    }
-
     paletteComponentClick = (node: Node, event:JQueryEventObject) : void => {
         if (event.shiftKey)
             this.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
@@ -3341,6 +3824,7 @@ export class Eagle {
             this.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
     }
 
+    /*
     selectedEdgeValid = () : Eagle.LinkValid => {
         const selectedEdge = this.selectedEdge();
 
@@ -3349,210 +3833,9 @@ export class Eagle {
             return Eagle.LinkValid.Unknown;
         }
 
-        return Edge.isValid(this.logicalGraph(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.isLoopAware(), false, true);
+        return Edge.isValid(this, selectedEdge.getId(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.getDataType(), selectedEdge.isLoopAware(), selectedEdge.isClosesLoop(), false, true, null);
     }
-
-    printLogicalGraphNodesTable = () : void => {
-        const tableData : any[] = [];
-
-        // add logical graph nodes to table
-        for (const node of this.logicalGraph().getNodes()){
-            tableData.push({
-                "name":node.getName(),
-                "key":node.getKey(),
-                "parentKey":node.getParentKey(),
-                "category":node.getCategory(),
-                "expanded":node.getExpanded(),
-                "x":node.getPosition().x,
-                "y":node.getPosition().y,
-                "width":node.getWidth(),
-                "height":node.getHeight(),
-                "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
-                "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
-                "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
-                "outputAppKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getKey(),
-                "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
-                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey()
-            });
-        }
-
-        console.table(tableData);
-    }
-
-    printLogicalGraphEdgesTable = () : void => {
-        const tableData : any[] = [];
-
-        // add logical graph nodes to table
-        for (const edge of this.logicalGraph().getEdges()){
-            tableData.push({
-                "_id":edge.getId(),
-                "sourceNodeKey":edge.getSrcNodeKey(),
-                "sourcePortId":edge.getSrcPortId(),
-                "destNodeKey":edge.getDestNodeKey(),
-                "destPortId":edge.getDestPortId(),
-                "dataType":edge.getDataType(),
-                "loopAware":edge.isLoopAware()
-            });
-        }
-
-        console.table(tableData);
-    }
-
-    printPalettesTable = () : void => {
-        const tableData : any[] = [];
-
-        // add logical graph nodes to table
-        for (const palette of this.palettes()){
-            for (const node of palette.getNodes()){
-                tableData.push({"palette":palette.fileInfo().name, "name":node.getName(), "key":node.getKey(), "id":node.getId(), "embedKey":node.getEmbedKey(), "category":node.getCategory()});
-            }
-        }
-
-        console.table(tableData);
-    }
-
-    generateLogicalGraphsTable = () : any[] => {
-        // check that all repos have been fetched
-        let foundUnfetched = false;
-        for (const repo of this.repositories()){
-            if (!repo.fetched()){
-                foundUnfetched = true;
-                console.warn("Unfetched repo:" + repo.getNameAndBranch());
-            }
-        }
-        if (foundUnfetched){
-            return [];
-        }
-
-        const tableData : any[] = [];
-
-        // add logical graph nodes to table
-        for (const repo of this.repositories()){
-            for (const folder of repo.folders()){
-                this._addGraphs(repo, folder, folder.name, tableData);
-            }
-
-            for (const file of repo.files()){
-                if (file.name.endsWith(".graph")){
-                    tableData.push({
-                        "service":repo.service,
-                        "name":repo.name,
-                        "branch":repo.branch,
-                        "folder":"",
-                        "file":file.name,
-                        "eagleVersion":"",
-                        "sha":"",
-                        "gitUrl":"",
-                        "lastModified":"",
-                        "lastModifiedBy":"",
-                        "numLoadWarnings":"",
-                        "numLoadErrors":"",
-                        "numCheckWarnings":"",
-                        "numCheckErrors":""
-                    });
-                }
-            }
-        }
-
-        return tableData;
-    }
-
-    // recursive traversal through the folder structure to find all graph files
-    _addGraphs = (repository: Repository, folder: RepositoryFolder, path: string, data: any[]) : void => {
-        for (const subfolder of folder.folders()){
-            this._addGraphs(repository, subfolder, path + "/" + subfolder.name, data);
-        }
-
-        for (const file of folder.files()){
-            if (file.name.endsWith(".graph")){
-                data.push({
-                    "service": repository.service,
-                    "name":repository.name,
-                    "branch":repository.branch,
-                    "folder":path,
-                    "file":file.name,
-                    "eagleVersion":"",
-                    "sha":"",
-                    "gitUrl":"",
-                    "lastModified":"",
-                    "lastModifiedBy":"",
-                    "numLoadWarnings":"",
-                    "numLoadErrors":"",
-                    "numCheckWarnings":"",
-                    "numCheckErrors":""
-                });
-            }
-        }
-    }
-
-    fetchAllRepositories = () : void => {
-        for (const repo of this.repositories()){
-            if (!repo.fetched()){
-                this.selectRepository(repo);
-            }
-        }
-    }
-
-    attemptLoadLogicalGraphTable = async(data: any[]) : Promise<void> => {
-        for (const row of data){
-            // determine the correct function to load the file
-            let openRemoteFileFunc: any;
-            if (row.service === Eagle.RepositoryService.GitHub){
-                openRemoteFileFunc = GitHub.openRemoteFile;
-            } else {
-                openRemoteFileFunc = GitLab.openRemoteFile;
-            }
-
-            // try to load the file
-            await new Promise<void>((resolve, reject) => {
-                openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file, (error: string, data: string) => {
-                    // if file fetched successfully
-                    if (error === null){
-                        const errorsWarnings: Eagle.ErrorsWarnings = {"errors":[], "warnings":[]};
-                        const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
-                        const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file, errorsWarnings);
-
-                        // record number of errors
-                        row.numLoadWarnings = errorsWarnings.warnings.length;
-                        row.numLoadErrors = errorsWarnings.errors.length;
-
-                        // use git-related info within file
-                        row.eagleVersion = lg.fileInfo().eagleVersion;
-                        row.lastModifiedBy = lg.fileInfo().lastModifiedName;
-                        row.sha = lg.fileInfo().sha;
-                        row.gitUrl = lg.fileInfo().gitUrl;
-
-                        // convert date from timestamp to date string
-                        const date = new Date(lg.fileInfo().lastModifiedDatetime * 1000);
-                        row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
-
-                        // check the graph once loaded
-                        const results: Eagle.ErrorsWarnings = Utils.checkGraph(lg);
-                        row.numCheckWarnings = results.warnings.length;
-                        row.numCheckErrors = results.errors.length;
-                    }
-
-                    resolve();
-                });
-            });
-        }
-    }
-
-
-    // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
-    selectNodeInHierarchy = (nodeViewModel : any) : void => {
-        const node : Node = this.logicalGraph().findNodeByKey(nodeViewModel.key());
-        if (node === null){
-            console.warn("Unable to find node in hierarchy!");
-            return;
-        }
-
-        node.toggleExpanded();
-
-        this.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
-
-        this.logicalGraph.valueHasMutated();
-    }
+    */
 
     selectInputApplicationNode = () : void => {
         this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getInputApplication(), Eagle.FileType.Graph);
@@ -3562,44 +3845,43 @@ export class Eagle {
         this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
-    editField = (node:Node, modalType: Eagle.ModalType, fieldType: Eagle.FieldType, fieldIndex: number) : void => {
-        // get field names list from the logical graph
-        let allFields: Field[];
-        let allFieldNames: string[] = [];
+    // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
+    editField = (node:Node, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage, id: string) : void => {
+        console.log("editField", modalType, parameterType, usage, id);
 
-        if (fieldType === Eagle.FieldType.Field){
-            allFields = Utils.getUniqueFieldsList(this.logicalGraph());
-        } else {
-            allFields = Utils.getUniqueApplicationParamsList(this.logicalGraph());
-        }
+        // get field names list from the logical graph
+        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), parameterType);
+        const allFieldNames: string[] = [];
 
         // once done, sort fields and then collect names into the allFieldNames list
         allFields.sort(Field.sortFunc);
         for (const field of allFields){
-            allFieldNames.push(field.getName() + " (" + field.getType() + ")");
+            allFieldNames.push(field.getIdText() + " (" + field.getType() + ")");
         }
 
-        //if creating a new field component parameter
+        // if we are summoning this editField modal from the params table, close the params table
+        if (modalType === Eagle.ModalType.Field){
+            $('#parameterTableModal').modal("hide");
+        }
+
+        //if creating a new field
         if (modalType === Eagle.ModalType.Add) {
-            if (fieldType == Eagle.FieldType.Field){
-                $("#editFieldModalTitle").html("Add Component Parameter")
-            } else {
-                $("#editFieldModalTitle").html("Add Application Parameter")
-            }
+            $("#editFieldModalTitle").html(this.selectedNode().getName() + " - " + Field.getHtmlTitleText(parameterType, usage));
+
+            // show hide part of the UI appropriate for adding
             $("#addParameterWrapper").show();
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field("", "", "", "", "", false, Eagle.DataType.Integer, false);
+            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Add, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
                 }
 
                 // check selected option in select tag
-                const choices : string[] = $('#editFieldModal').data('choices');
                 const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
 
                 // abort if -1 selected
@@ -3607,145 +3889,84 @@ export class Eagle {
                     return;
                 }
 
-                // hide the custom text input unless the last option in the select is chosen
-                if (choice === choices.length){
-                   //create field from user input in modal
-                   if (fieldType === Eagle.FieldType.Field){
-                       node.addField(newField);
-                   } else {
-                       node.addApplicationParam(newField);
-                   }
+                // hide the custom text input unless the first option in the select is chosen
+                if (choice === 0){
+                    newField.setParameterType(parameterType);
+
+                    //create field from user input in modal
+                    node.addField(newField);
+
                 } else {
-                   const clone : Field = allFields[choice].clone();
-                   if (fieldType === Eagle.FieldType.Field){
-                       node.addField(clone);
-                   } else {
-                       node.addApplicationParam(clone);
-                   }
+                    const clone : Field = allFields[choice-1].clone();
+                    clone.setId(Utils.uuidv4());
+                    clone.setParameterType(parameterType);
+                    node.addField(clone);
                 }
+
+                this.checkGraph();
+                this.undo().pushSnapshot(this, "Add field");
             });
 
         } else {
             //if editing an existing field
-            let field: Field;
+            const field: Field = this.selectedNode().findFieldById(id);
+            $("#editFieldModalTitle").html(this.selectedNode().getName() + " - " + field.getDisplayText() + " : " + Field.getHtmlTitleText(parameterType, usage));
 
-            if (fieldType == Eagle.FieldType.Field){
-                $("#editFieldModalTitle").html("Edit Component Parameter");
-                field = this.selectedNode().getFields()[fieldIndex];
-            } else {
-                $("#editFieldModalTitle").html("Edit Application Parameter");
-                field = this.selectedNode().getApplicationParams()[fieldIndex];
+            // check that we found a field
+            if (field === null || typeof field === 'undefined'){
+                console.error("Could not find the field to edit. parameterType", parameterType, "id", id);
+                return;
             }
+
             $("#addParameterWrapper").hide();
             $("#customParameterOptionsWrapper").show();
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Edit, fieldType, field, allFieldNames, (completed : boolean, newField: Field) => {
+            Utils.requestUserEditField(this, Eagle.ModalType.Edit, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
                 if (!completed){
                     return;
                 }
 
-                // update field data
-                field.setText(newField.getText());
-                field.setName(newField.getName());
-                field.setValue(newField.getValue());
-                field.setDefaultValue(newField.getDefaultValue());
-                field.setDescription(newField.getDescription());
-                field.setReadonly(newField.isReadonly());
-                field.setType(newField.getType());
-                field.setPrecious(newField.isPrecious());
-            });
-        }
-
-    // modal draggables
-    //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
-    (<any>$('.modal-dialog')).draggable({
-        handle: ".modal-header"
-      });
-    };
-
-    editPort = (node:Node, modalType: Eagle.ModalType, portIndex: number, input: boolean) : void => {
-        const allPorts: Port[] = Utils.getUniquePortsList(this.palettes(), this.logicalGraph());
-        allPorts.sort(Port.sortFunc);
-
-        const allPortNames: string[] = [];
-        // get list of port names from list of ports
-        for (const port of allPorts){
-            allPortNames.push(port.getName() + " (" + port.getType() + ")");
-        }
-
-        if (modalType === Eagle.ModalType.Add){
-            $("#editPortModalTitle").html("Add Port")
-            $("#addPortWrapper").show();
-            $("#customPortOptionsWrapper").hide();
-
-            // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const port: Port = new Port("", "", "", false, "String", "");
-
-            Utils.requestUserEditPort(this, Eagle.ModalType.Add, port, allPortNames, (completed : boolean, newPort: Port) => {
-                // abort if the user aborted
-                if (!completed){
-                    return;
-                }
-
-                // check selected option in select tag
-               const choices : string[] = $('#editPortModal').data('choices');
-               const choice : number = parseInt(<string>$('#portModalSelect').val(), 10);
-
-               // abort if -1 selected
-               if (choice === -1){
-                   return;
-               }
-
-               // hide the custom text input unless the last option in the select is chosen
-               if (choice === choices.length){
-                   newPort.setId(Utils.uuidv4());
-                   node.addPort(newPort, input);
-               } else {
-                   const clone : Port = allPorts[choice].clone();
-                   clone.setId(Utils.uuidv4());
-                   node.addPort(clone, input);
-               }
-
-               this.checkGraph();
-            });
-        } else {
-            $("#editPortModalTitle").html("Edit Port");
-            $("#addPortWrapper").hide();
-            $("#customPortOptionsWrapper").show();
-
-            // get a reference to the port we are editing
-            let port: Port;
-            if (input){
-                port = this.selectedNode().getInputPorts()[portIndex];
-            } else {
-                port = this.selectedNode().getOutputPorts()[portIndex];
-            }
-
-            Utils.requestUserEditPort(this, Eagle.ModalType.Edit, port, allPortNames, (completed : boolean, newPort: Port) => {
-                // abort if the user aborted
-                if (!completed){
-                    return;
-                }
-
-                // update port data (except nodeKey and id, those don't change)
-                const nodeKey = port.getNodeKey();
-                const portId = port.getId();
-                port.copyWithKeyAndId(newPort, nodeKey, portId);
+                // update field data (keep existing nodeKey and id)
+                field.copyWithKeyAndId(newField, field.getNodeKey(), field.getId());
 
                 this.checkGraph();
+                this.undo().pushSnapshot(this, "Edit Field");
+
+                // if we summoned this editField modal from the params table, now that we are done, re-open the params table
+                if (modalType === Eagle.ModalType.Field){
+                    $('#parameterTableModal').modal("show");
+                }
             });
         }
-    }
+    };
 
-    allowEdgeEditing = (): boolean => {
-        return Eagle.findSettingValue(Utils.ALLOW_EDGE_EDITING);
-    }
+    duplicateParameter = (index:number) : void => {
+        let fieldIndex:number //variable holds the index of which row to highlight after creation
 
-    explorePalettesClickHelper = (data:any, event:any): void => {
-        var newState = !data.isSelected()
-        data.isSelected(newState)
-        $(event.target).find('input').prop("checked",newState)
+        const copiedField = this.selectedNode().getFields()[index].clone()
+        copiedField.setId(Utils.uuidv4())
+        copiedField.setIdText(copiedField.getIdText()+'copy')
+        if(ParameterTable.hasSelection()){
+            //if a cell in the table is selected in this case the new node will be placed below the currently selected node
+            fieldIndex = ParameterTable.selectionParentIndex() + 1
+            this.selectedNode().addFieldAtPosition(copiedField,fieldIndex)
+        }else{
+            //if no call in the table is selected, in this case the new node is 
+            this.selectedNode().addField(copiedField)
+            fieldIndex = this.selectedNode().getFields().length -1
+        }
+
+        setTimeout(function() {
+            //handling selecting and highlighting the newly created node
+            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
+            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
+            clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
+
+            $("#parameterTableModal .modal-body").animate({
+                scrollTop: (fieldIndex*30)
+            }, 1000);
+        }, 100);
     }
 
     showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
@@ -3798,21 +4019,7 @@ export class Eagle {
 
             // update the correct field
             selectedNode.getFields()[fieldIndex].setValue(newValue);
-
-            this.hackObjectsUpdate();
         });
-    }
-
-    private hackObjectsUpdate = () : void => {
-        console.warn("hackObjectsUpdate()");
-
-        // HACK to make sure that new value is shown in the UI
-        const x = this.selectedObjects();
-        this.selectedObjects([]);
-        const that = this;
-        setTimeout(function(){
-            that.selectedObjects(x);
-        }, 1);
     }
 
     private setNodeApplication = (title: string, message: string, callback:(node:Node) => void) : void => {
@@ -3842,7 +4049,6 @@ export class Eagle {
             // clone the input application to make a local copy
             // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
             const clone : Node = application.clone();
-            clone.setReadonly(false);
             const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
             clone.setKey(newKey);
 
@@ -3850,45 +4056,47 @@ export class Eagle {
         });
     }
 
-    setNodeInputApplication = () : void => {
-        if (this.selectedLocation() === Eagle.FileType.Palette){
+    setNodeInputApplication = (nodeKey: number) : void => {
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
             Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
             return;
         }
 
-        this.setNodeApplication("Input Application", "Choose an input application", (node: Node) => {
-            const selectedNode: Node = this.selectedNode();
-            const oldApp: Node = selectedNode.getInputApplication();
+        this.setNodeApplication("Input Application", "Choose an input application", (inputApplication: Node) => {
+            const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
+            const oldApp: Node = node.getInputApplication();
 
             // remove all edges incident on the old input application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
             }
 
-            selectedNode.setInputApplication(node);
+            node.setInputApplication(inputApplication);
 
             this.checkGraph();
+            this.undo().pushSnapshot(this, "Set Node Input Application");
         });
     }
 
-    setNodeOutputApplication = () : void => {
-        if (this.selectedLocation() === Eagle.FileType.Palette){
+    setNodeOutputApplication = (nodeKey: number) : void => {
+        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
             Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
             return;
         }
 
-        this.setNodeApplication("Output Application", "Choose an output application", (node: Node) => {
-            const selectedNode: Node = this.selectedNode();
-            const oldApp: Node = selectedNode.getOutputApplication();
+        this.setNodeApplication("Output Application", "Choose an output application", (outputApplication: Node) => {
+            const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
+            const oldApp: Node = node.getOutputApplication();
 
             // remove all edges incident on the old output application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
             }
 
-            selectedNode.setOutputApplication(node);
+            node.setOutputApplication(outputApplication);
 
             this.checkGraph();
+            this.undo().pushSnapshot(this, "Set Node Output Application");
         });
     }
 
@@ -3938,27 +4146,14 @@ export class Eagle {
         return {x:x, y:y};
     }
 
-    autoLoad = (service: Eagle.RepositoryService, repository: string, branch: string, path: string, filename: string): void => {
-        console.log("autoLoadUrl()", service, repository, branch, path, filename);
-
-        // skip empty string urls
-        if (service === Eagle.RepositoryService.Unknown || repository === "" || branch === "" || filename === ""){
-            console.log("No auto load");
-            return;
-        }
-
-        // load
-        this.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
-    }
-
     copyGraphUrl = (): void => {
         // get reference to the LG fileInfo object
         const fileInfo: FileInfo = this.logicalGraph().fileInfo();
 
         // if we don't know where this file came from then we can't build a URL
         // for example, if the graph was loaded from local disk, then we can't build a URL for others to reach it
-        if (fileInfo.repositoryService === Eagle.RepositoryService.Unknown){
-            Utils.showNotification("Graph URL", "Source of graph is unknown or not publicly accessible, unable to create URL for graph.", "danger");
+        if (fileInfo.repositoryService === Eagle.RepositoryService.Unknown || fileInfo.repositoryService === Eagle.RepositoryService.File){
+            Utils.showNotification("Graph URL", "Source of graph is a local file or unknown, unable to create URL for graph.", "danger");
             return;
         }
 
@@ -3968,8 +4163,8 @@ export class Eagle {
         graph_url += "/?service=" + fileInfo.repositoryService;
         graph_url += "&repository=" + fileInfo.repositoryName;
         graph_url += "&branch=" + fileInfo.repositoryBranch;
-        graph_url += "&path=" + fileInfo.path;
-        graph_url += "&filename=" + fileInfo.name;
+        graph_url += "&path=" + encodeURI(fileInfo.path);
+        graph_url += "&filename=" + encodeURI(fileInfo.name);
 
         // copy to cliboard
         navigator.clipboard.writeText(graph_url);
@@ -3979,7 +4174,7 @@ export class Eagle {
     }
 
     checkGraph = (): void => {
-        const checkResult = Utils.checkGraph(this.logicalGraph());
+        const checkResult = Utils.checkGraph(this);
 
         this.graphWarnings(checkResult.warnings);
         this.graphErrors(checkResult.errors);
@@ -3987,27 +4182,16 @@ export class Eagle {
 
     showGraphErrors = (): void => {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
-            let message = "";
 
-            if (this.graphWarnings().length > 0){
-                message += "<h5>Warnings</h5>" + this.graphWarnings().join('<br/>');
-            }
-            if (this.graphWarnings().length > 0 && this.graphErrors().length > 0){
-                message += "<br/><br/>";
-            }
-            if (this.graphErrors().length > 0){
-                message += "<h5>Errors</h5>" + this.graphErrors().join('<br/>')
-            }
+            // switch to graph errors mode
+            this.errorsMode(Setting.ErrorsMode.Graph);
 
-            Utils.showUserMessage("Check graph", message);
+            // show graph modal
+            this.smartToggleModal('errorsModal')
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
     }
-
-    showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Eagle.findSetting(Utils.ENABLE_PERFORMANCE_DISPLAY).value();
-    }, this);
 
     mouseMove = (that: Eagle, event: JQueryEventObject) : void => {
         const mouseEvent: MouseEvent = <MouseEvent>event.originalEvent;
@@ -4065,23 +4249,16 @@ export class Eagle {
         }
     }
 
-    addEdge = (srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, portName: string, portType : string, loopAware: boolean, callback : (edge: Edge) => void) : void => {
-        // check if edge is connecting two application components, if so, we should insert a data component (of type chosen by user)
-        const srcNode : Node = this.logicalGraph().findNodeByKey(srcNodeKey);
-        const destNode : Node = this.logicalGraph().findNodeByKey(destNodeKey);
-
-        const srcPort : Port = srcNode.findPortById(srcPortId);
-        const destPort : Port = destNode.findPortById(destPortId);
-
+    addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
         const edgeConnectsTwoApplications : boolean =
             (srcNode.isApplication() || srcNode.isGroup()) &&
             (destNode.isApplication() || destNode.isGroup());
 
-        const twoEventPorts : boolean = srcPort.isEvent() && destPort.isEvent();
+        const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
-            const edge : Edge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, portType, loopAware);
+            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
             if (callback !== null) callback(edge);
             return;
@@ -4099,70 +4276,159 @@ export class Eagle {
             destNodePosition = this.logicalGraph().findNodeByKey(destNode.getEmbedKey()).getPosition();
         }
 
+        // count number of edges between source and destination
+        const PORT_HEIGHT : number = 24;
+        const numIncidentEdges = this.logicalGraph().countEdgesIncidentOnNode(srcNode);
+
         // calculate a position for a new data component, halfway between the srcPort and destPort
         const dataComponentPosition = {
             x: (srcNodePosition.x + destNodePosition.x) / 2.0,
-            y: (srcNodePosition.y + destNodePosition.y) / 2.0
+            y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
         };
 
         // if destination node is a BashShellApp, then the inserted data component may not be a Memory
-        const ineligibleCategories : Eagle.Category[] = [];
-        if (destNode.getCategory() === Eagle.Category.BashShellApp){
-            ineligibleCategories.push(Eagle.Category.Memory);
+        const ineligibleCategories : Category[] = [];
+        if (destNode.getCategory() === Category.BashShellApp){
+            ineligibleCategories.push(Category.Memory);
         }
 
-        const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), portName, portType, ineligibleCategories);
+        const memoryComponent = Utils.getDataComponentMemory(this.palettes());
 
-        // if edge DOES connect two applications, insert data component (of type chosen by user except ineligibleTypes)
-        this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
-            if (node === null) {
+        // if node not found, exit
+        if (memoryComponent === null) {
+            return;
+        }
+
+        // Add a data component to the graph.
+        const newNode : Node = this.logicalGraph().addDataComponentToGraph(memoryComponent, dataComponentPosition);
+        const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
+        newNode.setId(Utils.uuidv4());
+        newNode.setKey(newNodeKey);
+
+        // set name of new node (use user-facing name)
+        newNode.setName(srcPort.getDisplayText());
+
+        // remove existing ports from the memory node
+        newNode.removeAllInputPorts();
+        newNode.removeAllOutputPorts();
+
+        // add InputOutput port for dataType
+        const newInputOutputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), srcPort.getIdText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.InputOutput, false);
+        newNode.addField(newInputOutputPort);
+
+        // set the parent of the new node
+        // by default, set parent to parent of dest node,
+        newNode.setParentKey(destNode.getParentKey());
+
+        // if source node is a child of dest node, make the new node a child too
+        if (srcNode.getParentKey() === destNode.getKey()){
+            newNode.setParentKey(destNode.getKey());
+        }
+
+         // if dest node is a child of source node, make the new node a child too
+        if (destNode.getParentKey() === srcNode.getKey()){
+            newNode.setParentKey(srcNode.getKey());
+        }
+
+        // create TWO edges, one from src to data component, one from data component to dest
+        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputOutputPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
+        const secondEdge : Edge = new Edge(newNodeKey, newInputOutputPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
+
+        this.logicalGraph().addEdgeComplete(firstEdge);
+        this.logicalGraph().addEdgeComplete(secondEdge);
+
+        // reply with one of the edges
+        if (callback !== null) callback(firstEdge);
+    }
+
+    editNodeDescription = () : void => {
+        console.log("editNodeDescription()");
+
+        Utils.requestUserText("Node Description", "Please edit the description for the node", this.selectedNode().getDescription(), (completed, userText) => {
+            if (!completed){
                 return;
             }
 
-            // Add a data component to the graph.
-            const newNode : Node = this.logicalGraph().addDataComponentToGraph(node, dataComponentPosition);
-            const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
-            newNode.setKey(newNodeKey);
+            this.selectedNode().setDescription(userText);
+        })
+    }
 
-            // set name of new node
-            newNode.setName(portName);
+    editNodeCategory = () : void => {
+        let selectedIndex = 0;
+        let eligibleCategories : Category[];
 
-            // add input port and output port for dataType (if they don't exist)
-            // TODO: check by type, not name
-            if (!newNode.hasPortWithName(portName, true, false)){
-                newNode.addPort(new Port(Utils.uuidv4(), portName, portName, false, portType, ""), true);
+        if (this.selectedNode().isData()){
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        } else if (this.selectedNode().isApplication()){
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Application, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        } else if (this.selectedNode().isConstruct()){
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Construct, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        } else {
+            console.warn("Not sure which other nodes are suitable for change, show user all");
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        }
+
+        // set selectedIndex to the index of the current category within the eligibleCategories list
+        for (let i = 0 ; i < eligibleCategories.length ; i++){
+            if (eligibleCategories[i] === this.selectedNode().getCategory()){
+                selectedIndex = i;
+                break;
             }
-            if (!newNode.hasPortWithName(portName, false, false)){
-                newNode.addPort(new Port(Utils.uuidv4(), portName, portName, false, portType, ""), false);
+        }
+
+        // launch modal
+        Utils.requestUserChoice("Edit Node Category", "NOTE: changing a node's category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category", eligibleCategories, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
+            if (!completed){
+                return;
             }
 
-            // set the parent of the new node
-            // by default, set parent to parent of source node,
-            newNode.setParentKey(srcNode.getParentKey());
+            // change the category of the node
+            this.selectedNode().setCategory(eligibleCategories[userChoiceIndex]);
 
-            // if source node is a child of dest node, make the new node a child too
-            if (srcNode.getParentKey() === destNode.getKey()){
-                newNode.setParentKey(destNode.getKey());
+            // once the category is changed, some things about the node may no longer be valid
+            // for example, the node may contain ports, but no ports are allowed
+
+            // get category data
+            const categoryData = CategoryData.getCategoryData(eligibleCategories[userChoiceIndex]);
+
+            // delete parameters, if necessary
+            if (this.selectedNode().getComponentParameters().length > 0 && !categoryData.canHaveComponentParameters){
+                this.selectedNode().removeAllComponentParameters();
             }
 
-            // if dest node is a child of source node, make the new node a child too
-            if (destNode.getParentKey() === srcNode.getKey()){
-                newNode.setParentKey(srcNode.getKey());
+            // delete application args, if necessary
+            if (this.selectedNode().getApplicationArguments().length > 0 && !categoryData.canHaveApplicationArguments){
+                this.selectedNode().removeAllApplicationArguments();
             }
 
-            // get references to input port and output port
-            const newInputPortId : string = newNode.findPortByName(portName, true, false).getId();
-            const newOutputPortId : string = newNode.findPortByName(portName, false, false).getId();
+            // delete extra input ports
+            if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
+                for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
+                    this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
+                }
+            }
 
-            // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge(srcNodeKey, srcPortId, newNodeKey, newInputPortId, portType, loopAware);
-            const secondEdge : Edge = new Edge(newNodeKey, newOutputPortId, destNodeKey, destPortId, portType, loopAware);
+            // delete extra output ports
+            if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
+                for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
+                    this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
+                }
+            }
 
-            this.logicalGraph().addEdgeComplete(firstEdge);
-            this.logicalGraph().addEdgeComplete(secondEdge);
+            // delete input application, if necessary
+            if (this.selectedNode().hasInputApplication() && !categoryData.canHaveInputApplication){
+                this.selectedNode().setInputApplication(null);
+            }
 
-            // reply with one of the edges
-            if (callback !== null) callback(firstEdge);
+            // delete output application, if necessary
+            if (this.selectedNode().hasOutputApplication() && !categoryData.canHaveOutputApplication){
+                this.selectedNode().setOutputApplication(null);
+            }
+
+            this.flagActiveFileModified();
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Edit Node Category");
+            this.logicalGraph.valueHasMutated();
         });
     }
 
@@ -4175,16 +4441,15 @@ export class Eagle {
         newNode.setId(Utils.uuidv4());
         newNode.setKey(Utils.newKey(this.logicalGraph().getNodes()));
         newNode.setPosition(x, y);
-        newNode.setReadonly(false);
         newNode.setEmbedKey(null);
 
         // convert start of end nodes to data components
-        if (newNode.getCategory() === Eagle.Category.Start) {
+        if (newNode.getCategory() === Category.Start) {
             // Store the node's location.
             const nodePosition = newNode.getPosition();
 
             // build a list of ineligible types
-            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), null, null, [Eagle.Category.Memory]);
+            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), [Category.Memory, Category.SharedMemory]);
 
             // ask the user which data type should be added
             this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
@@ -4199,7 +4464,7 @@ export class Eagle {
                 newNode.setName(node.getName());
 
                 // Remove the redundant input port
-                newNode.removePortByIndex(0, true);
+                newNode.removeAllInputPorts();
 
                 // flag that the logical graph has been modified
                 this.logicalGraph().fileInfo().modified = true;
@@ -4235,78 +4500,30 @@ export class Eagle {
         }
     }
 
-    static getCategoryData = (category : Eagle.Category) : Eagle.CategoryData => {
-        const c = Eagle.cData[category];
+    checkForComponentUpdates = () : void => {
+        console.log("checkForComponentUpdates()");
 
-        if (typeof c === 'undefined'){
-            console.error("Could not fetch category data for category", category);
-            return {
-                isData: false,
-                isApplication: false,
-                isGroup: false,
-                isResizable: false,
-                minInputs: 0,
-                maxInputs: 0,
-                minOutputs: 0,
-                maxOutputs: 0,
-                canHaveInputApplication: false,
-                canHaveOutputApplication: false,
-                canHaveParameters: false,
-                icon: "error",
-                color: "pink",
-                collapsedHeaderOffsetY: 0,
-                expandedHeaderOffsetY: 20
-            };
-        }
+        ComponentUpdater.update(this.palettes(), this.logicalGraph(), function(errorsWarnings:Errors.ErrorsWarnings, updatedNodes:Node[]){
+            console.log("callback", errorsWarnings, updatedNodes);
 
-        return c;
+            // report missing palettes to the user
+            if (errorsWarnings.errors.length > 0){
+                const errorStrings = [];
+                for (const error of errorsWarnings.errors){
+                    errorStrings.push(error.message);
+                }
+
+                Utils.showNotification("Error", errorStrings.join("\n"), "danger");
+            } else {
+                const nodeNames = [];
+                for (const node of updatedNodes){
+                    nodeNames.push(node.getName());
+                }
+
+                Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
+            }
+        });
     }
-
-    static readonly dataIconColor : string = "#2c2c2c"
-    static readonly appIconColor : string = "#0059a5"
-    static readonly groupIconColor : string = "rgb(221, 173, 0)"
-    static readonly descriptionIconColor : string = "rgb(157 43 96)"
-    static readonly errorIconColor : string = "#FF66CC"
-    static readonly controlIconColor : string = "rgb(88 167 94)"
-    static readonly selectionColor : string = "rgb(47 22 213)"
-
-    static readonly cData : {[category:string] : Eagle.CategoryData} = {
-        Start              : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-play_arrow", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        End                : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-stop", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Comment            : {isData: false, isApplication: false, isGroup: false, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-comment", color: Eagle.descriptionIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Description        : {isData: false, isApplication: false, isGroup: false, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-description", color: Eagle.descriptionIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Scatter            : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-call_split", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 20},
-        Gather             : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-merge_type", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 20},
-        MKN                : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveParameters: true, icon: "icon-many-to-many", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        GroupBy            : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: true, canHaveParameters: true, icon: "icon-group", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Loop               : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-loop", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-
-        PythonApp          : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-python", color: Eagle.appIconColor, collapsedHeaderOffsetY: 10, expandedHeaderOffsetY: 20},
-        BashShellApp       : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-bash", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        DynlibApp          : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-dynamic_library", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Mpi                : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-mpi", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Docker             : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-docker", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Singularity        : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-singularity", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-
-        File               : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-hard-drive", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
-        Memory             : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 1, maxInputs: 1, minOutputs: 1, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-memory", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 16, expandedHeaderOffsetY: 20},
-        NGAS               : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-ngas", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
-        S3                 : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-s3_bucket", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
-        Plasma             : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-plasma", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
-        PlasmaFlight       : {isData: true, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-plasmaflight", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 4, expandedHeaderOffsetY: 20},
-
-        Service            : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: true, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-build", color: Eagle.appIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        ExclusiveForceNode : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-force_node", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-
-        Variables          : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-tune", color: Eagle.dataIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        Branch             : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 2, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-share", color: Eagle.controlIconColor, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 54},
-
-        SubGraph           : {isData: false, isApplication: false, isGroup: true, isResizable: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-subgraph", color: Eagle.groupIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-
-        Unknown            : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-question_mark", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        None               : {isData: false, isApplication: false, isGroup: false, isResizable: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: false, icon: "icon-none", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-        UnknownApplication : {isData: false, isApplication: true, isGroup: false, isResizable: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveParameters: true, icon: "icon-question_mark", color: Eagle.errorIconColor, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20},
-    };
 }
 
 export namespace Eagle
@@ -4328,6 +4545,7 @@ export namespace Eagle
         Graph = "Graph",
         Palette = "Palette",
         JSON = "JSON",
+        Markdown = "Markdown",
         Unknown = "Unknown"
     }
 
@@ -4342,8 +4560,6 @@ export namespace Eagle
     export enum DALiuGESchemaVersion {
         Unknown = "Unknown",
         OJS = "OJS",
-        V3 = "V3",
-        AppRef = "AppRef"
     }
 
     export enum LinkValid {
@@ -4353,68 +4569,55 @@ export namespace Eagle
         Valid = "Valid"
     }
 
-    export enum DataType {
-        Unknown = "Unknown",
-        String = "String",
-        Integer = "Integer",
-        Float = "Float",
-        Complex = "Complex",
-        Boolean = "Boolean"
-    }
+    export const DataType_Unknown = "Unknown";
+    export const DataType_String = "String";
+    export const DataType_Integer = "Integer";
+    export const DataType_Float = "Float";
+    export const DataType_Object = "Object";
+    export const DataType_Boolean = "Boolean";
+    export const DataType_Select = "Select";
+    export const DataType_Password = "Password";
+    export const DataType_Json = "Json";
+    export const DataType_Python = "Python";
+    export const DataTypes : string[] = [
+        DataType_Unknown,
+        DataType_String,
+        DataType_Integer,
+        DataType_Float,
+        DataType_Object,
+        DataType_Boolean,
+        DataType_Select,
+        DataType_Password,
+        DataType_Json,
+        DataType_Python,
+    ];
 
     export enum ModalType {
         Add = "Add",
-        Edit = "Edit"
+        Edit = "Edit",
+        Field = "Field"
     }
 
-    export enum FieldType {
-        Field = "Field",
-        ApplicationParam = "ApplicationParam"
+    export enum ParameterType {
+        Unknown = "Unknown",
+        ComponentParameter = "ComponentParameter",
+        ApplicationArgument = "ApplicationArgument",
+        ConstructParameter = "ConstructParameter"
+    }
+
+    export enum ParameterUsage {
+        NoPort = "NoPort",
+        InputPort = "InputPort",
+        OutputPort = "OutputPort",
+        InputOutput = "InputOutput"
     }
 
     export enum RepositoryService {
         GitHub = "GitHub",
         GitLab = "GitLab",
-        Unknown = "Unknown"
-    }
-
-    export enum Category {
-        Start = "Start",
-        End = "End",
-        Comment = "Comment",
-        Description = "Description",
-        Scatter = "Scatter",
-        Gather = "Gather",
-        MKN = "MKN",
-        GroupBy = "GroupBy",
-        Loop = "Loop",
-
-        PythonApp = "PythonApp",
-        BashShellApp = "BashShellApp",
-        DynlibApp = "DynlibApp",
-        MPI = "Mpi",
-        Docker = "Docker",
-
-        NGAS = "NGAS",
-        S3 = "S3",
-        Memory = "Memory",
         File = "File",
-        Plasma = "Plasma",
-        PlasmaFlight = "PlasmaFlight",
-
-        Service = "Service",
-        ExclusiveForceNode = "ExclusiveForceNode",
-
-        Variables = "Variables",
-        Branch = "Branch",
-
-        SubGraph = "SubGraph",
-
-        Unknown = "Unknown",
-        None = "None",
-        UnknownApplication = "UnknownApplication", // when we know the component is an application, but know wlmost nothing else about it
-
-        Component = "Component" // legacy only
+        Url = "Url",
+        Unknown = "Unknown"
     }
 
     export enum Direction {
@@ -4423,14 +4626,10 @@ export namespace Eagle
         Left = "Left",
         Right = "Right"
     }
-
-    export type CategoryData = {isData: boolean, isApplication: boolean, isGroup:boolean, isResizable:boolean, minInputs: number, maxInputs: number, minOutputs: number, maxOutputs: number, canHaveInputApplication: boolean, canHaveOutputApplication: boolean, canHaveParameters: boolean, icon: string, color: string, collapsedHeaderOffsetY: number, expandedHeaderOffsetY: number};
-    export type ErrorsWarnings = {warnings: string[], errors: string[]};
 }
 
-
 $( document ).ready(function() {
-    // jquery starts here
+    // jquery event listeners start here
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").mouseleave(function(){
@@ -4440,13 +4639,85 @@ $( document ).ready(function() {
 
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
-    });
+        $("#editFieldModal textarea").attr('style','')
+        $("#errorsModalAccordion").parent().parent().attr('style','')
 
-    //removes focus from input and textareas when using the canvas
+        //reset parameter table selecction
+        ParameterTable.resetSelection()
+    }); 
+
+    $('.modal').on('shown.bs.modal',function(){
+        // modal draggables
+        //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
+        (<any>$('.modal-dialog')).draggable({
+            handle: ".modal-header"
+        });
+    })
+
+    $('#parameterTableModal').on('hidden.bs.modal', function (event) {
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.showTableModal(false)
+    })
+
+
+    let defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
+    if(!defaultTranslatingAlgorithm){
+        localStorage.setItem('translationDefault','agl-1')
+        defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
+    }
+
+    $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').click()
+    Eagle.defaultTranslatorAlgorithm = defaultTranslatingAlgorithm;
+    if(defaultTranslatingAlgorithm !== "agl-0"){
+        $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').parent().find('.accordion-button').click()
+    }
+
+    Eagle.defaultTranslatorAlgorithmMethod = $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').val()
+
+    $(".translationDefault").on("click",function(){
+        const translationMethods = []
+        translationMethods.push($('.translationDefault'))
+        $('.translationDefault').each(function(){
+            if($(this).is(':checked')){
+                $(this).prop('checked', false).change()
+                $(this).val('false')
+            }
+        })
+
+        const element = $(event.target)
+        
+        if(element.val() === "true"){
+            element.val('false')
+        }else{
+            element.val('true')
+        }
+
+        const translationId = element.closest('.accordion-item').attr('id')
+        localStorage.setItem('translationDefault',translationId)
+        Eagle.defaultTranslatorAlgorithm = translationId
+        Eagle.defaultTranslatorAlgorithmMethod = $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').val()
+
+        
+        $(this).prop('checked',true).change()
+    })
+
+    //increased click bubble for edit modal flag booleans
+    $(".componentCheckbox").on("click",function(){
+        $(event.target).find("input").click()
+    })
+
+    //removes focus from input and textareas when clicking the canvas
     $("#logicalGraphParent").on("mousedown", function(){
         $("input").blur();
         $("textarea").blur();
+
+        //back up method of hiding the right click context menu in case it get stuck open
+        $('#customContextMenu').remove();
     });
+
+    $(".tableParameter").on("click", function(){
+        console.log(this)
+    })
 
     //expand palettes when using searchbar and return to prior collapsed state on completion.
     $("#paletteList .componentSearchBar").on("keyup",function(){
@@ -4459,5 +4730,23 @@ $( document ).ready(function() {
         }
     })
 
+    $(document).on('click', '.hierarchyEdgeExtra', function(){
+        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
+
+        if(!selectEdge){
+            console.log("no edge found")
+            return
+        }
+        if(!(<PointerEvent>event).shiftKey){
+            (<any>window).eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+        }else{
+            (<any>window).eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+        }
+
+    })
+
+    $(".hierarchy").on("click", function(){
+        (<any>window).eagle.selectedObjects([]);
+    })         
 
 });

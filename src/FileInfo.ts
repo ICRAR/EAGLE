@@ -2,9 +2,13 @@ import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
+import {Errors} from './Errors';
 
 export class FileInfo {
     private _name : ko.Observable<string>;
+    private _shortDescription : ko.Observable<string>;
+    private _detailedDescription : ko.Observable<string>;
+
     private _path : ko.Observable<string>;
     private _type : ko.Observable<Eagle.FileType>;
     private _repositoryService : ko.Observable<Eagle.RepositoryService>;
@@ -15,15 +19,24 @@ export class FileInfo {
     private _eagleCommitHash : ko.Observable<string>;
     private _schemaVersion : ko.Observable<Eagle.DALiuGESchemaVersion>;
     private _readonly : ko.Observable<boolean>;
+    private _builtIn : ko.Observable<boolean>;
 
-    private _sha : ko.Observable<string>;
-    private _gitUrl : ko.Observable<string>;
+    private _repositoryUrl : ko.Observable<string>;
+    private _commitHash : ko.Observable<string>;
+    private _downloadUrl : ko.Observable<string>;
+    private _signature : ko.Observable<string>;
+
     private _lastModifiedName : ko.Observable<string>;
     private _lastModifiedEmail : ko.Observable<string>;
     private _lastModifiedDatetime : ko.Observable<number>;
 
+    private _numLGNodes : ko.Observable<number>;  // NOTE: this is only updated prior to saving to disk, during editing it could be incorrect
+
     constructor(){
         this._name = ko.observable("");
+        this._shortDescription = ko.observable("");
+        this._detailedDescription = ko.observable("");
+
         this._path = ko.observable("");
         this._type = ko.observable(Eagle.FileType.Unknown);
         this._repositoryService = ko.observable(Eagle.RepositoryService.Unknown);
@@ -34,12 +47,18 @@ export class FileInfo {
         this._eagleCommitHash = ko.observable("");
         this._schemaVersion = ko.observable(Eagle.DALiuGESchemaVersion.Unknown);
         this._readonly = ko.observable(true);
+        this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
 
-        this._sha = ko.observable("");
-        this._gitUrl = ko.observable("");
+        this._repositoryUrl = ko.observable("");
+        this._commitHash = ko.observable("");
+        this._downloadUrl = ko.observable("");
+        this._signature = ko.observable("");
+
         this._lastModifiedName = ko.observable("");
         this._lastModifiedEmail = ko.observable("");
         this._lastModifiedDatetime = ko.observable(0);
+
+        this._numLGNodes = ko.observable(0);
     }
 
     get name() : string{
@@ -48,6 +67,22 @@ export class FileInfo {
 
     set name(name : string){
         this._name(name);
+    }
+
+    get shortDescription() : string{
+        return this._shortDescription();
+    }
+
+    set shortDescription(shortDescription : string){
+        this._shortDescription(shortDescription);
+    }
+
+    get detailedDescription() : string{
+        return this._detailedDescription();
+    }
+
+    set detailedDescription(detailedDescription : string){
+        this._detailedDescription(detailedDescription);
     }
 
     get path() : string{
@@ -130,20 +165,44 @@ export class FileInfo {
         this._readonly(readonly);
     }
 
-    get sha() : string{
-        return this._sha();
+    get builtIn() : boolean{
+        return this._builtIn();
     }
 
-    set sha(sha : string){
-        this._sha(sha);
+    set builtIn(builtIn : boolean){
+        this._builtIn(builtIn);
     }
 
-    get gitUrl() : string {
-        return this._gitUrl();
+    get repositoryUrl() : string {
+        return this._repositoryUrl();
     }
 
-    set gitUrl(gitUrl : string){
-        this._gitUrl(gitUrl);
+    set repositoryUrl(repositoryUrl : string){
+        this._repositoryUrl(repositoryUrl);
+    }
+
+    get commitHash() : string{
+        return this._commitHash();
+    }
+
+    set commitHash(commitHash : string){
+        this._commitHash(commitHash);
+    }
+
+    get downloadUrl() : string {
+        return this._downloadUrl();
+    }
+
+    set downloadUrl(downloadUrl : string){
+        this._downloadUrl(downloadUrl);
+    }
+
+    get signature() : string{
+        return this._signature();
+    }
+
+    set signature(signature : string){
+        this._signature(signature);
     }
 
     get lastModifiedName() : string{
@@ -170,8 +229,19 @@ export class FileInfo {
         this._lastModifiedDatetime(datetime);
     }
 
+    get numLGNodes() : number{
+        return this._numLGNodes();
+    }
+
+    set numLGNodes(numNodes : number){
+        this._numLGNodes(numNodes);
+    }
+
     clear = () : void => {
         this._name("");
+        this._shortDescription("");
+        this._detailedDescription("");
+
         this._path("");
         this._type(Eagle.FileType.Unknown);
         this._repositoryService(Eagle.RepositoryService.Unknown);
@@ -182,18 +252,27 @@ export class FileInfo {
         this._eagleCommitHash("");
         this._schemaVersion(Eagle.DALiuGESchemaVersion.Unknown);
         this._readonly(true);
+        this._builtIn(true);
 
-        this._sha("");
-        this._gitUrl("");
+        this._repositoryUrl("");
+        this._commitHash("");
+        this._downloadUrl("");
+        this._signature("");
+
         this._lastModifiedName("");
         this._lastModifiedEmail("");
         this._lastModifiedDatetime(0);
+
+        this._numLGNodes(0);
     }
 
     clone = () : FileInfo => {
         const result : FileInfo = new FileInfo();
 
         result.name = this._name();
+        result.shortDescription = this._shortDescription();
+        result.detailedDescription = this._detailedDescription();
+
         result.path = this._path();
         result.type = this._type();
         result.repositoryService = this._repositoryService();
@@ -204,12 +283,18 @@ export class FileInfo {
         result.eagleCommitHash = this._eagleCommitHash();
         result.schemaVersion = this._schemaVersion();
         result.readonly = this._readonly();
+        result.builtIn = this._builtIn();
 
-        result.sha = this._sha();
-        result.gitUrl = this._gitUrl();
+        result.repositoryUrl = this._repositoryUrl();
+        result.commitHash = this._commitHash();
+        result.downloadUrl = this._downloadUrl();
+        result.signature = this._signature();
+
         result.lastModifiedName = this._lastModifiedName();
         result.lastModifiedEmail = this._lastModifiedEmail();
         result.lastModifiedDatetime = this._lastModifiedDatetime();
+
+        result.numLGNodes = this._numLGNodes();
 
         return result;
     }
@@ -227,8 +312,11 @@ export class FileInfo {
         this._repositoryBranch("");
         this._repositoryName("");
         this._path("");
-        this._sha("");
-        this._gitUrl("");
+
+        this._repositoryUrl("");
+        this._commitHash("");
+        this._downloadUrl("");
+
         this._lastModifiedName("");
         this._lastModifiedEmail("");
         this._lastModifiedDatetime(0);
@@ -243,14 +331,17 @@ export class FileInfo {
         return this._name() + (this._modified() ? "*" : "");
     }, this);
 
+    lastModifiedDatetimeText : ko.PureComputed<string> = ko.pureComputed(() => {
+        return new Date(this._lastModifiedDatetime() * 1000).toLocaleString();
+    }, this);
+
     getSummaryHTML = (title : string) : string => {
-        var text
+        let text
         if (this._repositoryService() === Eagle.RepositoryService.Unknown){
-            text = "- Location -</br>Url:&nbsp;" + this._gitUrl() + "</br>Hash:&nbsp;" + this._sha();
-        }else{
+            text = "- Location -</br>Url:&nbsp;" + this._repositoryUrl() + "</br>Hash:&nbsp;" + this._commitHash();
+        } else {
             text = "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
         }
-
 
         return "<p><h5>" + title + "<h5><p><p>" + text + "</p>";
     }
@@ -271,6 +362,9 @@ export class FileInfo {
         let s = "";
 
         s += "Name:" + this._name();
+        s += " Short Description:" + this._shortDescription();
+        s += " Detailed Description:" + this._detailedDescription();
+
         s += " Path:" + this._path();
         s += " Type:" + this._type();
         s += " Repository Service:" + this._repositoryService();
@@ -281,44 +375,69 @@ export class FileInfo {
         s += " EAGLE Commit Hash:" + this._eagleCommitHash();
         s += " Schema Version:" + this._schemaVersion();
         s += " readonly:" + this._readonly();
+        s += " builtIn:" + this._builtIn();
 
-        s += " SHA:" + this._sha();
-        s += " Git URL:" + this._gitUrl();
+        s += " Repository URL:" + this._repositoryUrl();
+        s += " Commit Hash:" + this._commitHash();
+        s += " Download URL:" + this._downloadUrl();
+        s += " signature:" + this._signature();
+
         s += " Last Modified Name:" + this._lastModifiedName();
         s += " Last Modified Email:" + this._lastModifiedEmail();
         s += " Last Modified Date:" + this._lastModifiedDatetime();
+
+        s += " Num LG Nodes:" + this._numLGNodes();
 
         return s;
     }
 
     static toOJSJson = (fileInfo : FileInfo) : object => {
         return {
+            // name and path variables are written together into fullPath
+            filePath: fileInfo.fullPath(),
             fileType: fileInfo.type,
+
+            shortDescription: fileInfo.shortDescription,
+            detailedDescription: fileInfo.detailedDescription,
+
             repoService: fileInfo.repositoryService,
             repoBranch: fileInfo.repositoryBranch,
             repo: fileInfo.repositoryName,
-            filePath: fileInfo.fullPath(),
+            
             eagleVersion: fileInfo.eagleVersion,
             eagleCommitHash: fileInfo.eagleCommitHash,
             schemaVersion: fileInfo.schemaVersion,
             readonly: fileInfo.readonly,
 
-            sha: fileInfo.sha,
-            gitUrl: fileInfo.gitUrl,
+            repositoryUrl: fileInfo.repositoryUrl,
+            commitHash: fileInfo.commitHash,
+            downloadUrl: fileInfo.downloadUrl,
+            signature: fileInfo.signature,
+
             lastModifiedName: fileInfo.lastModifiedName,
             lastModifiedEmail: fileInfo.lastModifiedEmail,
-            lastModifiedDatetime: fileInfo.lastModifiedDatetime
+            lastModifiedDatetime: fileInfo.lastModifiedDatetime,
+
+            numLGNodes: fileInfo.numLGNodes,
         };
     }
 
     // TODO: use errors array if attributes cannot be found
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    static fromOJSJson = (modelData : any, errorsWarnings: Eagle.ErrorsWarnings) : FileInfo => {
+    static fromOJSJson = (modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo => {
         const result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
         result.name = Utils.getFileNameFromFullPath(modelData.filePath);
         result.type = Utils.translateStringToFileType(modelData.fileType);
+
+        result.shortDescription = modelData.shortDescription == undefined ? "" : modelData.shortDescription;
+        result.detailedDescription = modelData.detailedDescription == undefined ? "" : modelData.detailedDescription;
+
+        // if shortDescription is not set, and detailed description is set, then use first sentence of detailed as the short
+        // NOTE: doesn't actually do any semantic analysis of text, just grabs everything before the first '.' in the detailed description
+        if (result.shortDescription === "" && result.detailedDescription !== ""){
+            result.shortDescription = result.detailedDescription.split('. ', 1)[0];
+        }
 
         result.repositoryService = modelData.repoService == undefined ? Eagle.RepositoryService.Unknown : modelData.repoService;
         result.repositoryBranch = modelData.repoBranch == undefined ? "" : modelData.repoBranch;
@@ -330,11 +449,22 @@ export class FileInfo {
 
         result.readonly = modelData.readonly == undefined ? true : modelData.readonly;
 
-        result.sha = modelData.sha == undefined ? "" : modelData.sha;
-        result.gitUrl = modelData.gitUrl == undefined ? "" : modelData.gitUrl;
+        result.repositoryUrl = modelData.repositoryUrl == undefined ? "" : modelData.repositoryUrl;
+        result.commitHash = modelData.commitHash == undefined ? "" : modelData.commitHash;
+        result.downloadUrl = modelData.downloadUrl == undefined ? "" : modelData.downloadUrl;
+        result.signature = modelData.signature == undefined ? "" : modelData.signature;
+
         result.lastModifiedName = modelData.lastModifiedName == undefined ? "" : modelData.lastModifiedName;
         result.lastModifiedEmail = modelData.lastModifiedEmail == undefined ? "" : modelData.lastModifiedEmail;
-        result.lastModifiedDatetime = modelData.lastModifiedDatetime == undefined ? "" : modelData.lastModifiedDatetime;
+        result.lastModifiedDatetime = modelData.lastModifiedDatetime == undefined ? 0 : modelData.lastModifiedDatetime;
+
+        // check that lastModifiedDatetime is a Number, if not correct
+        if (typeof result.lastModifiedDatetime !== 'number'){
+            result.lastModifiedDatetime = 0;
+            errorsWarnings.errors.push(Errors.Message("Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value."));
+        }
+
+        result.numLGNodes = modelData.numLGNodes == undefined ? 0 : modelData.numLGNodes;
 
         return result;
     }

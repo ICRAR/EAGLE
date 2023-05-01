@@ -22,8 +22,17 @@
 #
 */
 
+import {Category} from './Category';
 import {Eagle} from './Eagle';
+import {Errors} from './Errors';
+import {GitHub} from './GitHub';
+import {GitLab} from './GitLab';
 import {LogicalGraph} from './LogicalGraph';
+import {Repositories} from './Repositories';
+import {Repository} from './Repository';
+import {RepositoryFolder} from './RepositoryFolder';
+import {RepositoryFile} from './RepositoryFile';
+import {Utils} from './Utils';
 
 export class GraphUpdater {
 
@@ -145,64 +154,58 @@ export class GraphUpdater {
         }
     ];
 
-    static translateOldCategory(category : string) : Eagle.Category {
+    static translateOldCategory(category : string) : Category {
         if (typeof category === "undefined"){
-            return Eagle.Category.Unknown;
+            return Category.Unknown;
         }
 
         if (category === "SplitData"){
-            return Eagle.Category.Scatter;
+            return Category.Scatter;
         }
 
         if (category === "DataGather"){
-            return Eagle.Category.Gather;
+            return Category.Gather;
         }
 
         if (category === "Component"){
-            return Eagle.Category.PythonApp;
+            return Category.PythonApp;
         }
 
         if (category === "ngas"){
-            return Eagle.Category.NGAS;
+            return Category.NGAS;
         }
 
         if (category === "s3"){
-            return Eagle.Category.S3;
+            return Category.S3;
         }
 
         if (category === "mpi"){
-            return Eagle.Category.MPI;
+            return Category.Mpi;
         }
 
         if (category === "docker"){
-            return Eagle.Category.Docker;
+            return Category.Docker;
         }
 
         if (category === "memory"){
-            return Eagle.Category.Memory;
+            return Category.Memory;
         }
 
         if (category === "file"){
-            return Eagle.Category.File;
+            return Category.File;
         }
 
         if (category === "Data"){
-            return Eagle.Category.File;
+            return Category.File;
         }
 
-        return <Eagle.Category>category;
+        return <Category>category;
     }
 
     static translateNewCategory(category : string) : string {
-        if (category === Eagle.Category.PythonApp){
+        if (category === Category.PythonApp){
             console.warn("Translated category from", category, "to Component");
             return "Component";
-        }
-
-        // NOTE: temporary fix until the translator supports Plasma nodes
-        if (category === Eagle.Category.Plasma || category === Eagle.Category.PlasmaFlight){
-            console.warn("Translated category from", category, "to", Eagle.Category.File);
-            return Eagle.Category.File;
         }
 
         return category;
@@ -255,5 +258,132 @@ export class GraphUpdater {
         }
 
         return true;
+    }
+
+    static generateLogicalGraphsTable = () : any[] => {
+        // check that all repos have been fetched
+        let foundUnfetched = false;
+        for (const repo of Repositories.repositories()){
+            if (!repo.fetched()){
+                foundUnfetched = true;
+                console.warn("Unfetched repo:" + repo.getNameAndBranch());
+            }
+        }
+        if (foundUnfetched){
+            return [];
+        }
+
+        const tableData : any[] = [];
+
+        // add logical graph nodes to table
+        for (const repo of Repositories.repositories()){
+            for (const folder of repo.folders()){
+                GraphUpdater._addGraphs(repo, folder, folder.name, tableData);
+            }
+
+            for (const file of repo.files()){
+                if (file.name.endsWith(".graph")){
+                    tableData.push({
+                        "service":repo.service,
+                        "name":repo.name,
+                        "branch":repo.branch,
+                        "folder":"",
+                        "file":file.name,
+                        "eagleVersion":"",
+                        "repositoryUrl":"",
+                        "commitHash":"",
+                        "downloadUrl":"",
+                        "signature":"",
+                        "lastModified":"",
+                        "lastModifiedBy":"",
+                        "numLoadWarnings":"",
+                        "numLoadErrors":"",
+                        "numCheckWarnings":"",
+                        "numCheckErrors":""
+                    });
+                }
+            }
+        }
+
+        return tableData;
+    }
+    
+    // recursive traversal through the folder structure to find all graph files
+    private static _addGraphs = (repository: Repository, folder: RepositoryFolder, path: string, data: any[]) : void => {
+        for (const subfolder of folder.folders()){
+            this._addGraphs(repository, subfolder, path + "/" + subfolder.name, data);
+        }
+
+        for (const file of folder.files()){
+            if (file.name.endsWith(".graph")){
+                data.push({
+                    "service": repository.service,
+                    "name":repository.name,
+                    "branch":repository.branch,
+                    "folder":path,
+                    "file":file.name,
+                    "eagleVersion":"",
+                    "repositoryUrl":"",
+                    "commitHash":"",
+                    "downloadUrl":"",
+                    "signature":"",
+                    "lastModified":"",
+                    "lastModifiedBy":"",
+                    "numLoadWarnings":"",
+                    "numLoadErrors":"",
+                    "numCheckWarnings":"",
+                    "numCheckErrors":""
+                });
+            }
+        }
+    }
+    
+    attemptLoadLogicalGraphTable = async(data: any[]) : Promise<void> => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        for (const row of data){
+            // determine the correct function to load the file
+            let openRemoteFileFunc: any;
+            if (row.service === Eagle.RepositoryService.GitHub){
+                openRemoteFileFunc = GitHub.openRemoteFile;
+            } else {
+                openRemoteFileFunc = GitLab.openRemoteFile;
+            }
+
+            // try to load the file
+            await new Promise<void>((resolve, reject) => {
+                openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file, (error: string, data: string) => {
+                    // if file fetched successfully
+                    if (error === null){
+                        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+                        const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
+                        const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file, errorsWarnings);
+
+                        // record number of errors
+                        row.numLoadWarnings = errorsWarnings.warnings.length;
+                        row.numLoadErrors = errorsWarnings.errors.length;
+
+                        // use git-related info within file
+                        row.eagleVersion = lg.fileInfo().eagleVersion;
+                        row.lastModifiedBy = lg.fileInfo().lastModifiedName;
+                        row.repositoryUrl = lg.fileInfo().repositoryUrl;
+                        row.commitHash = lg.fileInfo().commitHash;
+                        row.downloadUrl = lg.fileInfo().downloadUrl;
+                        row.signature = lg.fileInfo().signature;
+
+                        // convert date from timestamp to date string
+                        const date = new Date(lg.fileInfo().lastModifiedDatetime * 1000);
+                        row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
+
+                        // check the graph once loaded
+                        const results: Errors.ErrorsWarnings = Utils.checkGraph(eagle);
+                        row.numCheckWarnings = results.warnings.length;
+                        row.numCheckErrors = results.errors.length;
+                    }
+
+                    resolve();
+                });
+            });
+        }
     }
 }

@@ -23,6 +23,7 @@
 This is the main module of the EAGLE server side code.
 """
 import argparse
+import base64
 import json
 import logging
 import os
@@ -41,6 +42,7 @@ from flask import Flask, request, render_template, jsonify, send_from_directory
 import config.config
 from config.config import GITHUB_DEFAULT_REPO_LIST
 from config.config import GITLAB_DEFAULT_REPO_LIST
+from config.config import STUDENT_GITHUB_DEFAULT_REPO_LIST
 from config.config import SERVER_PORT
 
 
@@ -85,11 +87,6 @@ except:
 
 print("Version: " + version + " Commit Hash: " + commit_hash)
 
-@app.route("/intro.js")
-def hack():
-    print("hack")
-    return app.send_static_file("externals/intro.min.js")
-
 @app.route("/")
 def index():
     """
@@ -111,12 +108,17 @@ def index():
     branch     = request.args.get("branch")
     path       = request.args.get("path")
     filename   = request.args.get("filename")
+    url        = request.args.get("url")
+    mode       = request.args.get("mode")
 
     # if the url does not specify a graph to load, just send render the default template with no additional information
-    if service is None or repository is None or branch is None or path is None or filename is None:
-        return render_template("base.html", version=version, commit_hash=commit_hash)
+    if service is None:
+        if mode is None:
+            return render_template("base.html", version=version, commit_hash=commit_hash)
+        else:
+            return render_template("base.html", version=version, commit_hash=commit_hash, mode=mode)
 
-    return render_template("base.html", version=version, commit_hash=commit_hash, auto_load_service=service, auto_load_repository=repository, auto_load_branch=branch, auto_load_path=path, auto_load_filename=filename)
+    return render_template("base.html", version=version, commit_hash=commit_hash, auto_load_service=service, auto_load_repository=repository, auto_load_branch=branch, auto_load_path=path, auto_load_filename=filename, auto_load_url=url)
 
 
 @app.route('/src/<path:filename>')
@@ -211,6 +213,16 @@ def get_git_lab_repository_list():
     Returns the list of defined default GitLab repositories.
     """
     return jsonify(GITLAB_DEFAULT_REPO_LIST)
+
+
+@app.route("/getStudentRepositoryList", methods=["GET"])
+def get_student_repository_list():
+    """
+    FLASK GET routing method for '/getStudentRepositoryList'
+
+    Returns the list of defined default Student repositories.
+    """
+    return jsonify(STUDENT_GITHUB_DEFAULT_REPO_LIST)
 
 
 def extract_folder_and_repo_names(repo_name):
@@ -352,7 +364,12 @@ def get_git_lab_files_all():
         return jsonify({"error":"Repository, Branch or Token not specified in request"})
 
     gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
-    gl.auth()
+
+    try:
+        gl.auth()
+    except gitlab.exceptions.GitlabAuthenticationError as gae:
+        print("GitlabAuthenticationError {1}: {0}".format(str(gae), repo_name))
+        return jsonify({"error": "Gitlab Authentication Error. Access token may be invalid." + "\n" + str(gae)})
 
     try:
         project = gl.projects.get(repo_name)
@@ -512,11 +529,12 @@ def save_git_hub_file():
     graph["modelData"]["repoService"] = "GitHub"
     graph["modelData"]["filePath"] = filename
     # Clean the GitHub file reference.
-    graph["modelData"]["sha"] = ""
-    graph["modelData"]["gitUrl"] = ""
+    graph["modelData"]["repositoryUrl"] = ""
+    graph["modelData"]["commitHash"] = ""
+    graph["modelData"]["downloadUrl"] = ""
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = 0
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -582,11 +600,12 @@ def save_git_lab_file():
     graph["modelData"]["repoService"] = "GitLab"
     graph["modelData"]["filePath"] = filename
     # Clean the GitHub file reference.
-    graph["modelData"]["sha"] = ""
-    graph["modelData"]["gitUrl"] = ""
+    graph["modelData"]["repositoryUrl"] = ""
+    graph["modelData"]["commitHash"] = ""
+    graph["modelData"]["downloadUrl"] = ""
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = 0
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -652,35 +671,72 @@ def open_git_hub_file():
     most_recent_commit = commits[0]
 
     # get the file from this commit
-    f = repo.get_contents(filename, ref=most_recent_commit.sha)
-    raw_data = f.decoded_content
+    try:
+        f = repo.get_contents(filename, ref=most_recent_commit.sha)
+        download_url = f.download_url
+        raw_data = f.decoded_content
+    except github.GithubException as e:
+        # first get the branch reference
+        ref = repo.get_git_ref(f'heads/{repo_branch}')
+        # then get the tree
+        tree = repo.get_git_tree(ref.object.sha, recursive='/' in filename).tree
+        # look for path in tree
+        sha = [x.sha for x in tree if x.path == filename]
+        if not sha:
+            # well, not found..
+            return app.response_class(response=json.dumps({"error":"File not found"}), status=404, mimetype="application/json")
 
-    # parse JSON
-    graph = json.loads(raw_data)
+        # use the sha to get the blob, then decode it
+        blob = repo.get_git_blob(sha[0])
+        b64 = base64.b64decode(blob.content)
+        raw_data = b64.decode("utf8")
 
-    if isinstance(graph, list):
-        return app.response_class(response=json.dumps({"error":"File JSON data is a list, this file could be a Physical Graph instead of a Logical Graph."}), status=404, mimetype="application/json")
+        # manually build the download url
+        download_url = "https://raw.githubusercontent.com/" + repo_name + "/" + most_recent_commit.sha + "/" + filename
+    except AssertionError as e:
+        # download via http get
+        import certifi
+        import ssl
+        raw_data = urllib.request.urlopen(download_url, context=ssl.create_default_context(cafile=certifi.where())).read()
 
-    if not "modelData" in graph:
-        graph["modelData"] = {}
+    if extension != ".md":
+        # parse JSON
+        graph = json.loads(raw_data)
 
-    # replace some data in the header (modelData) of the file with info from git
-    graph["modelData"]["repo"] = repo_name
-    graph["modelData"]["repoBranch"] = repo_branch
-    graph["modelData"]["repoService"] = "GitHub"
-    graph["modelData"]["filePath"] = filename
+        if isinstance(graph, list):
+            return app.response_class(response=json.dumps({"error":"File JSON data is a list, this file could be a Physical Graph instead of a Logical Graph."}), status=404, mimetype="application/json")
 
-    graph["modelData"]["sha"] = most_recent_commit.sha
-    graph["modelData"]["gitUrl"] = f.download_url
-    graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
-    graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
-    graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
+        if not "modelData" in graph:
+            graph["modelData"] = {}
 
-    json_data = json.dumps(graph, indent=4)
+        # replace some data in the header (modelData) of the file with info from git
+        graph["modelData"]["repo"] = repo_name
+        graph["modelData"]["repoBranch"] = repo_branch
+        graph["modelData"]["repoService"] = "GitHub"
+        graph["modelData"]["filePath"] = filename
 
-    response = app.response_class(
-        response=json.dumps(json_data), status=200, mimetype="application/json"
-    )
+        graph["modelData"]["repositoryUrl"] = "TODO"
+        graph["modelData"]["commitHash"] = most_recent_commit.sha
+        graph["modelData"]["downloadUrl"] = download_url
+        graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
+        graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
+        graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
+
+        # for palettes, put downloadUrl in every component
+        if extension == ".palette":
+            for component in graph["nodeDataArray"]:
+                component["paletteDownloadUrl"] = download_url
+
+        json_data = json.dumps(graph, indent=4)
+
+        response = app.response_class(
+            response=json.dumps(json_data), status=200, mimetype="application/json"
+        )
+    else:
+        response = app.response_class(
+            response=raw_data, status=200, mimetype="text/plain"
+        )
+    
     return response
 
 
@@ -689,7 +745,7 @@ def open_git_lab_file():
     """
     FLASK POST routing method for '/openRemoteGitlabFile'
 
-    Reads a file from a GitLub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
+    Reads a file from a GitLab repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
     """
     content = request.get_json(silent=True)
     repo_name = content["repositoryName"]
@@ -723,6 +779,61 @@ def open_git_lab_file():
     # get the decoded content
     raw_data = f.decode().decode("utf-8")
 
+    if extension != ".md":
+        # parse JSON
+        graph = json.loads(raw_data)
+
+        if not "modelData" in graph:
+            graph["modelData"] = {}
+
+        # add the repository information
+        graph["modelData"]["repo"] = repo_name
+        graph["modelData"]["repoBranch"] = repo_branch
+        graph["modelData"]["repoService"] = "GitLab"
+        graph["modelData"]["filePath"] = filename
+
+        # TODO: Add the GitLab file information
+        graph["modelData"]["repositoryUrl"] = "TODO"
+        graph["modelData"]["commitHash"] = f.commit_id
+        graph["modelData"]["downloadUrl"] = "TODO"
+        graph["modelData"]["lastModifiedName"] = ""
+        graph["modelData"]["lastModifiedEmail"] = ""
+        graph["modelData"]["lastModifiedDatetime"] = 0
+
+        # for palettes, put downloadUrl in every component
+        if extension == ".palette":
+            for component in graph["nodeDataArray"]:
+                component["paletteDownloadUrl"] = "TODO"
+
+        json_data = json.dumps(graph, indent=4)
+
+        response = app.response_class(
+            response=json.dumps(json_data), status=200, mimetype="application/json"
+        )
+    else:
+        response = app.response_class(
+            response=raw_data, status=200, mimetype="text/plain"
+        )
+        
+    return response
+
+
+@app.route("/openRemoteUrlFile", methods=["POST"])
+def open_url_file():
+    """
+    FLASK POST routing method for '/openRemoteUrlFile'
+
+    Reads a file from a URL. The POST request content is a JSON string containing the URL.
+    """
+    content = request.get_json(silent=True)
+    url = content["url"]
+    extension = os.path.splitext(url)[1]
+
+    # download via http get
+    import certifi
+    import ssl
+    raw_data = urllib.request.urlopen(url, context=ssl.create_default_context(cafile=certifi.where())).read()
+
     # parse JSON
     graph = json.loads(raw_data)
 
@@ -730,17 +841,22 @@ def open_git_lab_file():
         graph["modelData"] = {}
 
     # add the repository information
-    graph["modelData"]["repo"] = repo_name
-    graph["modelData"]["repoBranch"] = repo_branch
-    graph["modelData"]["repoService"] = "GitLab"
-    graph["modelData"]["filePath"] = filename
+    graph["modelData"]["repo"] = ""
+    graph["modelData"]["repoBranch"] = ""
+    graph["modelData"]["repoService"] = "Url"
+    graph["modelData"]["filePath"] = ""
 
-    # TODO: Add the GitLab file information
-    graph["modelData"]["sha"] = f.commit_id
-    graph["modelData"]["gitUrl"] = ""
+    # add the GitLab file information
+    graph["modelData"]["commitHash"] = ""
+    graph["modelData"]["downloadUrl"] = url
     graph["modelData"]["lastModifiedName"] = ""
     graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = 0
+
+    # for palettes, put downloadUrl in every component
+    if extension == ".palette":
+        for component in graph["nodeDataArray"]:
+            component["paletteDownloadUrl"] = url
 
     json_data = json.dumps(graph, indent=4)
 
@@ -882,6 +998,13 @@ def parse_args():
         default=SERVER_PORT,
         help="EAGLE server port (%d by default)" % SERVER_PORT,
     )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="suppress info logging output from the server",
+
+    )
     args = parser.parse_args()
 
     if args.tempdir is not None:
@@ -903,6 +1026,10 @@ def main():
     """
     args = parse_args()
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+
+    if args.quiet:
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.ERROR)
 
     app.run(host="0.0.0.0", debug=True, port=args.port)
 

@@ -1,0 +1,132 @@
+<!-- ModelData Modal -->
+<div class="modal fade" id="modelDataModal" tabindex="-1" role="dialog" aria-labelledby="modelDataModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modelDataModalTitle" data-bind="text: $root.currentFileInfoTitle()">ModelData</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table id="modelDataModalTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td data-bind="text: 'File Type', eagleTooltip: 'The type of content in the file. Options: ' + Utils.enumKeys(Eagle.FileType)"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._type"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Location', eagleTooltip: 'The location in which this file is stored'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo().getText()"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr id="modelDataDescription">
+                            <td data-bind="text: 'Short Descripton', eagleTooltip: 'A one-line description of the purpose of this file'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Minimal) -->
+                                <td><input type="text" data-bind="value: $root.currentFileInfo()._shortDescription, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
+                            <!-- /ko -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Minimal) -->
+                                <td data-bind="text: $root.currentFileInfo()._shortDescription"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Detailed Descripton', eagleTooltip: 'A complete description of the purpose of this file'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                            <!-- ko ifnot: Eagle.isInUIMode(Setting.UIMode.Minimal) -->
+                                <td><textarea data-bind="value: $root.currentFileInfo()._detailedDescription, event: {keyup: function(){$root.flagActiveFileModified();}}"></textarea></td>
+                            <!-- /ko -->
+                            <!-- ko if: Eagle.isInUIMode(Setting.UIMode.Minimal) -->
+                                <td data-bind="text: $root.currentFileInfo()._detailedDescription"></td>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                        </tr>
+                        <tr id="modelDataEagleVersion">
+                            <td data-bind="text: 'Eagle Version', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._eagleVersion"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Eagle Commit Hash', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._eagleCommitHash"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Schema Version', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._schemaVersion"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Readonly', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._readonly"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Repository URL', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._repositoryUrl"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Commit Hash', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._commitHash"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Download URL', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._downloadURL"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Signature', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._signature"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Last Modified Name', eagleTooltip: 'Name of the user who last modified this file'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._lastModifiedName"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Last Modified Email', eagleTooltip: 'Email of the user who last modified this file'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._lastModifiedEmail"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Last Modified Datetime', eagleTooltip: 'Date and time when this file was last modified'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo().lastModifiedDatetimeText()"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr>
+                            <td data-bind="text: 'Num Nodes', eagleTooltip: 'Number of nodes within this file'"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._numLGNodes"></td>
+                            <!-- /ko -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="modelDataModalOKButton" data-bs-dismiss="modal"><span>OK</span></button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2,8 +2,8 @@
 
 import * as ko from "knockout";
 
-var collapseRunning:boolean = false;
-var allCollapseRunning:boolean = false;
+let collapseRunning:boolean = false;
+let allCollapseRunning:boolean = false;
 
 export class InspectorState {
     // NOTE: for these variables, false indicates expanded, true indicates collapsed
@@ -77,7 +77,7 @@ export class InspectorState {
                 return this.outputPorts;
             case "Component Parameters":
                 return this.componentParameters;
-            case "Application Parameters":
+            case "Application Arguments":
                 return this.applicationParameters;
             default:
                 console.warn("Unknown inspector section", sectionName);
@@ -89,7 +89,7 @@ export class InspectorState {
         return this.description() && this.displayOptions() && this.graphComment() && this.graphDescription() && this.inputApplication() && this.inputPorts() && this.outputApplication() && this.outputPorts() && this.componentParameters() && this.applicationParameters();
     }, this);
 
-    toggleAll = (item: any, e:JQueryEventObject): void => {
+    toggleAll = (): void => {
         const allCollapsed = this.all();
         allCollapseRunning
         if(!allCollapseRunning){
@@ -107,9 +107,7 @@ export class InspectorState {
     toggleSection = (item: any, e: JQueryEventObject): void => {
         const target: JQuery<Element> = $(e.currentTarget);
         const sectionName: string = target.data('section-name');
-        var that = this
-        // dont run function if class collapsing exists on collapsable section. the collapsing variable below is not correct yet.
-        const collapsing = target.parent().children(".nodeInspectorCollapseAll").hasClass("collapsing");
+        const that = this
 
         //timer equals the time it takes for bootstrap to finish collapsing. it is required to keep them in sync.
         if(!collapseRunning){
@@ -130,7 +128,7 @@ export class InspectorState {
 
         state(!state());
     }
-
+    
     updateAllInspectorSections = (): void => {
         $(".nodeInspectorCollapseAll").each((index: number, element: HTMLElement): void => {
             const h5 = $(element).parent().find('h5');

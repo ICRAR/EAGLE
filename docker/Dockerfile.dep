@@ -1,20 +1,13 @@
-# we are doing a two-stage build to keep the size of
-# the final image low.
-
-FROM tiangolo/meinheld-gunicorn-flask:python3.8-alpine3.11
+FROM tiangolo/meinheld-gunicorn-flask:python3.8
 COPY . .
-RUN apk add --update npm bash git curl alpine-sdk libffi-dev linux-headers &&\
+RUN apt-get update && apt-get install -y npm bash git curl libffi-dev &&\
     npm install -g typescript &&\
     pip install --upgrade pip &&\
-    pip install . &&\
-    # sphinx-apidoc -o docs/source eagleServer &&\
-    # cd docs; make html; cd .. &&\
-    # pip list | grep -i sphinx | awk '{print $1}'|xargs pip uninstall -y &&\
+    pip install --no-cache-dir . &&\
     pip uninstall -y pip &&\
     mv /app/docker/prestart.dep.sh /tmp/prestart.sh &&\
+    mv /app/docker/gunicorn_conf.py /tmp/gunicorn_conf.py &&\
     mv static/VERSION /usr/local/lib/python3.8/site-packages/static/. &&\
-    # cp -R static/docs /usr/local/lib/python3.8/site-packages/static &&\
-    npm uninstall -g typescript &&\
-    apk del git curl alpine-sdk linux-headers npm &&\
     rm -rf * .[a-z]* &&\
     mv /tmp/* .
+

@@ -23,16 +23,19 @@
 */
 
 import {Eagle} from './Eagle';
-import {Utils} from './Utils';
+import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
+import {Setting} from './Setting';
+import {Utils} from './Utils';
 
 export class GitLab {
     /**
      * Loads the GitLab repository list.
      */
-    static loadRepoList(eagle : Eagle) : void {
+    // TODO: should callback with the list of repositories
+    static loadRepoList() : void {
         Utils.httpGetJSON("/getGitLabRepositoryList", null, function(error : string, data: any){
             if (error != null){
                 console.error(error);
@@ -40,14 +43,14 @@ export class GitLab {
             }
 
             // remove all GitLab repos from the list of repositories
-            for (let i = eagle.repositories().length - 1 ; i >= 0 ; i--){
-                if (eagle.repositories()[i].service === Eagle.RepositoryService.GitLab)
-                    eagle.repositories.splice(i, 1);
+            for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
+                if (Repositories.repositories()[i].service === Eagle.RepositoryService.GitLab)
+                    Repositories.repositories.splice(i, 1);
             }
 
             // add the repositories from the POST response
             for (const d of data){
-                eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, d.repository, d.branch, true));
+                Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitLab, d.repository, d.branch, true));
             }
 
             // search for custom repositories, and add them into the list.
@@ -58,19 +61,19 @@ export class GitLab {
 
                 // handle legacy repositories where the branch is not specified (assume master)
                 if (keyExtension === "gitlab_repository"){
-                    eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, value, "master", false));
+                    Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitLab, value, "master", false));
                 }
 
                 // handle the current method of storing repositories where both the service and branch are specified
                 if (keyExtension === "gitlab_repository_and_branch") {
                     const repositoryName = value.split("|")[0];
                     const repositoryBranch = value.split("|")[1];
-                    eagle.repositories.push(new Repository(Eagle.RepositoryService.GitLab, repositoryName, repositoryBranch, false));
+                    Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitLab, repositoryName, repositoryBranch, false));
                 }
             }
 
             // sort the repository list
-            eagle.sortRepositories();
+            Repositories.sort();
         });
     }
 
@@ -78,7 +81,7 @@ export class GitLab {
      * Shows the remote files
      */
     static loadRepoContent(repository : Repository) : void {
-        const token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitLab access token is not set! To access GitLab repository, set the token via settings.");
@@ -129,7 +132,10 @@ export class GitLab {
 
             // add files to repo
             for (const fileName of fileNames){
-                repository.files.push(new RepositoryFile(repository, "", fileName));
+                // if file is not a .graph, .palette, or .json, just ignore it!
+                if (Utils.verifyFileExtension(fileName)){
+                    repository.files.push(new RepositoryFile(repository, "", fileName));
+                }
             }
 
             // add folders to repo
@@ -154,7 +160,10 @@ export class GitLab {
 
         // add files to repo
         for (const fileName of fileNames){
-            folder.files.push(new RepositoryFile(repository, path, fileName));
+            // if file is not a .graph, .palette, or .json, just ignore it!
+            if (Utils.verifyFileExtension(fileName)){
+                folder.files.push(new RepositoryFile(repository, path, fileName));
+            }
         }
 
         // add folders to repo
@@ -174,7 +183,7 @@ export class GitLab {
      * @param filePath File path.
      */
     static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        const token = Eagle.findSettingValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");

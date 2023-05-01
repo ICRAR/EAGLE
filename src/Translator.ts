@@ -25,6 +25,8 @@
 import * as ko from "knockout";
 
 import {Eagle} from './Eagle';
+import {LogicalGraph} from './LogicalGraph';
+import {Setting} from './Setting';
 import {Utils} from './Utils';
 
 export class Translator {
@@ -38,6 +40,7 @@ export class Translator {
     swarmSize : ko.Observable<number>;
     searchSpaceDimension : ko.Observable<number>;
     numberOfParallelTaskStreams : ko.Observable<number>;
+    rmode : ko.Observable<number>;
 
     isTranslating: ko.Observable<boolean>
 
@@ -52,23 +55,26 @@ export class Translator {
         this.swarmSize = ko.observable(40);
         this.searchSpaceDimension = ko.observable(30);
         this.numberOfParallelTaskStreams = ko.observable(1);
-
+        this.rmode = ko.observable(0);
         this.isTranslating = ko.observable(false);
     }
 
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
         // consult EAGLE settings to determine whether to open the transator in a new tab
-        const spawnTranslationTab: boolean = Eagle.findSettingValue(Utils.SPAWN_TRANSLATION_TAB);
+        const translateInCurrentTab: boolean = Setting.findValue(Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB);
+        const overwriteTranslationTab: boolean = Setting.findValue(Setting.OVERWRITE_TRANSLATION_TAB);
 
         // create form element
         const form = document.createElement("form");
         form.method = "POST";
         form.action = translatorURL;
 
-        if (spawnTranslationTab){
-            form.target = "_blank";
-        } else {
+        if (translateInCurrentTab){
             form.target = "_self";
+        } else if(overwriteTranslationTab) {
+            form.target = "translator";
+        } else {
+            form.target = "_blank";
         }
 
         // add formElements to form
@@ -86,6 +92,7 @@ export class Translator {
         this.addInput("max_load_imb", this.loadBalancing().toString(), form);
         this.addInput("max_cpu", this.maxCPUsPerPartition().toString(), form);
         this.addInput("num_parallel_task_streams", this.numberOfParallelTaskStreams().toString(), form);
+        this.addInput("rmode", this.rmode().toString(), form);
 
         // temporarily add form to document and submit
         document.body.appendChild(form);
@@ -98,5 +105,93 @@ export class Translator {
         element.name = name;
         element.value = value;
         form.appendChild(element);
+    }
+
+        //----------------- Physical Graph Generation --------------------------------
+    /**
+     * Generate Physical Graph Template.
+     * @param algorithmName
+     * @param testingMode
+     * @param format
+     */
+     genPGT = (algorithmName : string, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        if (eagle.logicalGraph().getNumNodes() === 0) {
+            Utils.showUserMessage("Error", "Unable to translate. Logical graph has no nodes!");
+            return;
+        }
+
+        if (eagle.logicalGraph().fileInfo().name === ""){
+            Utils.showUserMessage("Error", "Unable to translate. Logical graph does not have a name! Please save the graph first.");
+            return;
+        }
+
+        const translatorURL : string = Setting.findValue(Setting.TRANSLATOR_URL);
+        console.log("Eagle.getPGT() : ", "algorithm name:", algorithmName, "translator URL", translatorURL);
+
+        // set the schema version
+        format = Eagle.DALiuGESchemaVersion.OJS;
+
+        /*
+        if (format === Eagle.DALiuGESchemaVersion.Unknown){
+            const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS];
+
+            // ask user to specify graph format to be sent to translator
+            Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number) => {
+                if (!completed){
+                    console.log("User aborted translation.");
+                    return;
+                }
+
+                this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, schemas[userChoiceIndex]);
+            });
+        } else {
+            this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, format);
+        }
+        */
+        this._genPGT(eagle, translatorURL, algorithmName, testingMode, format);
+    }
+
+    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
+        // get json for logical graph
+        let jsonString: string;
+        switch (format){
+            case Eagle.DALiuGESchemaVersion.OJS:
+                jsonString = LogicalGraph.toOJSJsonString(eagle.logicalGraph(), true);
+                break;
+            default:
+                console.error("Unsupported graph format for translator!");
+                return;
+        }
+
+        // validate json
+        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
+            const jsonObject = JSON.parse(jsonString);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, format, Eagle.FileType.Graph);
+            if (!validatorResult.valid){
+                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+                console.error(message, validatorResult.errors);
+                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
+                //return;
+            }
+        }
+
+        const translatorData = {
+            algo: algorithmName,
+            lg_name: eagle.logicalGraph().fileInfo().name,
+            json_data: jsonString,
+            test: testingMode.toString()
+        };
+
+        eagle.translator().submit(translatorURL, translatorData);
+
+        // mostly for debugging purposes
+        console.log("translator data");
+        console.log("---------");
+        console.log(translatorData);
+        console.log("---------");
+        console.log(JSON.parse(jsonString));
+        console.log("---------");
     }
 }

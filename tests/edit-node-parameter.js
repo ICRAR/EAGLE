@@ -1,4 +1,5 @@
 import { Selector } from 'testcafe';
+import page from './page-model';
 
 /*
     run with:
@@ -6,8 +7,8 @@ import { Selector } from 'testcafe';
     testcafe chrome tests/edit-node-parameter.js
 */
 
-var NEW_PALETTE_NAME = "new.palette";
-var DUMMY_VALUE = "02348562";
+const NEW_PALETTE_NAME = "new.palette";
+const DUMMY_VALUE = "02348562";
 
 fixture `EAGLE Edit Node Parameter`
     .page `http://localhost:8888/`
@@ -20,17 +21,17 @@ test('Edit node parameter', async t =>{
         // open settings modal
         .click('#settings')
 
-        // switch to advanced editing tab in settings
-        .click('#settingCategoryAdvancedEditing')
+        // enable 'expert mode'
+        .click('#settingUserInterfaceModeValue')
 
-        // enable 'allow palette editing'
-        .click('#settingAllowPaletteEditingButton')
+        // click the 'expert' option
+        .click(Selector('#settingUserInterfaceModeValue').find('option').withText('expert'))
 
         // close settings modal
         .click('#settingsModalAffirmativeButton')
 
-        // select python app node in palette
-        .click("#selectPaletteNodePythonApp")
+        // select hello world app node in palette
+        .click("#selectPaletteNodeHelloWorldApp")
 
         // add selected node to palette
         .click("#addSelectedNodeToPalette")
@@ -43,20 +44,20 @@ test('Edit node parameter', async t =>{
         // click OK on modal dialog
         .click('#choiceModalAffirmativeButton')
 
-        // add a python node to the graph
-        .click("#addPaletteNodePythonApp")
+        // add a hello world node to the graph
+        .click("#addPaletteNodeHelloWorldApp")
 
         // check that a file node has been created
-        .expect(Selector("#nodeNameValue").value).eql("Python App")
+        .expect(Selector("#nodeNameValue").value).eql("HelloWorldApp")
 
         // click the header for the parameters section
-        .click(Selector('h5.card-header[href="#nodeCategoryCollapse9"]'))
+        .click(Selector('#inspectorComponentParamsHeading'))
 
         // edit first parameter in the node inspector
-        .typeText(Selector('#nodeInspectorFieldValue0'), DUMMY_VALUE, {replace: true})
+        .typeText(Selector('#field1'), DUMMY_VALUE, {replace: true})
 
         // check that first parameter was updated
-        .expect(Selector("#nodeInspectorFieldValue0").value).eql(DUMMY_VALUE)
+        .expect(Selector("#field1").value).eql(DUMMY_VALUE)
 
         // end
         .wait(3000);

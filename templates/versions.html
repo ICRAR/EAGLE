@@ -1,3 +1,129 @@
+v5.1.1 (2023/04/17)
+- Fixed issue where '+' button within inspector became obscured by accordion
+- Minor tutorial fixes
+- CSS fix for display of embedded applications in the inspector
+- Whole header of inspector now expands accordion
+v5.1.0 (2023/04/14)
+- Snap-to-grid mode
+- Users can now set attributes as 'key attributes' as view only those in a key attributes table
+- Improvements to right-click context menu in graph editor
+- Useful parts of 'Graph Components' palette moved to other palettes, and the 'Graph Components' palette now no longer loaded at startup
+- Documentation updates
+- Added button to delete embedded applications in the inspector
+- Improvements to graph checking and automatic fixing
+- Render markdown to html in component descriptions
+- Tutorial System with new Introduction and HelloWorld tutorials
+- Added PythonMemberFunction and PythonObject categories
+- ModelData modal dialog to show information about graph/palette files
+- Ctrl-C now also copies children of selected objects, use Shift-Ctrl-C to copy objects without children
+- Fixes for edge rendering when connected to InputOutput ports, and within constructs
+- Improvments to edge auto-completion and component suggestions
+- Disable spammy error messages when dragging edges
+- Improvements to port type matching, especially ports with 'Object' type or prefix
+- Fixed bug where changing a component parameter usage would remove a port and therefore orphan an edge
+- Added support for ConstructParameter parameter type
+- Improvements to accordion UI in inspector
+v5.0.2 (2023/01/12)
+- Fixed an issue with edge selection
+- Featureful "right click" context menu
+- Copy/paste selection to/from clipboard with Ctrl+C/Ctrl+V
+- Select all with Ctrl+A, clear selection with Escape
+- Fixed a performance issue rendering too many icons
+- Bug fix for types of parameters within construct apps
+- Now possible to shift-drag selection regions within constructs
+- Shift click to toggle selection of single objects
+v5.0.1 (2022/12/09)
+- Fixed the show error button not switching tab if in the hierarchy tab
+- "Edit field" modal title now includes the node and field names
+- Added "key parameters" heart toggle to the edit field modal
+- idText in the parameter table now copies displayText if empty
+- Fixed error when dragging side windows past their smallest size
+- Tooltip fixes
+- Checks on parameter table modal input
+- Clear selected objects when loading graphs or deleting palettes
+- Filter files in repositories by file name
+- README.md and other markdown files within repositories are now viewable
+- Fixed rendering of start location of comment links when the start node is collapsed
+v5.0.0 (2022/11/03)
+- Too many bugfixes to list!
+- Switch from the confusing 'Complex' data type to use the generic 'Object' instead
+- Allow users to change edge data type
+- Better error and warning layout and graph error automatic fix and show functions
+- 'Fix All' button the 'check graph' modal
+- 'Hierarchy' view available in right-hand window
+- Workaround for loading large files (>1Mb) from git repositories
+- Added reproducibility data to graph/palette files
+- 'Update Component' feature available in navbar
+- New 'PyFuncApp' component, new 'Data' component
+- Added a UI Mode setting, mode can also be set via a URL
+- Improved 'default' translation UI
+- Detect edges dragged into empty space and suggest new components for the destination
+- Improved Parameter Table UI
+- Allow users to set "keyAttribute" (favourite) fields
+- New Parameter Table mode that displays only key attributes for full graph
+- Performance improvements for large palettes
+- Improvements to settings behaviour
+- Resizeable modals
+v4.5.0 (2022/06/28)
+- Improvements to shift-clicking (add to selection), shift-dragging (select region) and selection of iconified nodes
+- Display edge errors/warnings in edge inspector
+- Detect duplicate edges in graphs and add to error messages
+- Improved display of errors/warning during file loading
+- Switched to matching ports based on underlying data type, rather than port name
+- Undo/redo memory savings
+- Improved display of node titles in graph view
+- Shift-Delete will delete selection but maintain children of selection
+- More info when deleting nodes on how many nodes and children will be deleted
+- Cleanup of 'Expert mode' setting, addition of new 'Developer' section in settings (visible in Expert Mode)
+- Easier resizing of side panels
+- New navbar button to hide/show data nodes in graph view
+- Updated navbar introduction text
+- Clicks on input/output application names drawn within constructs in the graph view now open the app in the inspector
+- Single parameters table now contains all component parameters, application arguments and input/output ports
+- Connecting two application components with an edge now generates a Memory component by default, instead of prompting the user to choose
+- Param/Arg/Port types are all stored as strings now, to allow for a completely custom ports
+v4.4.0 (2022/05/25)
+- Undo/Redo (Z/Shift-Z)
+- Overhaul of editing permissions settings, and addition of 'Expert mode'
+- Infrequently-used DALiuGE engine parameters (e.g. data_volume) now hidden unless 'Expert Mode' is enabled
+- Improvements to appearance and usability of the Parameter Table
+- Node event-type ports are now rendered as triangles
+- Fixes for orphaned tooltips appearing when UI changes occurred
+- Updated jQueryUI with version with tooltip support removed
+- Added 'closes loop' attribute to edges, which modifies group_start/group_end of connected nodes
+- Improvements to default palettes and new node categories (DynlibProcApp)
+- Update to use IdText/DisplayText attributes instead of the easily confused name/text
+- Additional usability improvements to the Explore Palettes UI
+v4.3.0 (2022/04/07)
+- Redesigned Explore Palettes interface
+- Fetch the JSON schema for graphs from the DALiuGE repository
+- Added password and JSON data types
+- Validation of parameter values
+- Improvements to resizing of left and right-hand windows
+- UI to edit node category
+- New EnvironmentVariables component
+- Support for markdown in component descriptions
+- User changes within settings modal can be discarded
+- New icon for SharedMemory component
+- Added slim docker build
+- New Parameter Table UI to easily edit many parameters quickly
+- Reproducibility Mode select on the Translation tab
+v4.2.0 (2022/02/15)
+- Improved summary of selected node when multiple nodes selected
+- Tooltips for palette search feature
+- Updated JSON schemas for graph and palette
+- Load/save/display "application arguments" within components
+- Additional functionality within palette "triple dot" menu, reload etc
+- Improved settings modal UI
+- Save function now defaults to Save As if existing location unknown
+- Improvements to Keyboard Shortcuts modal
+- Support for new ParameterSet component
+- Support for new SharedMemory component
+- Some text inputs expand to textareas when focussed, for easier editing
+- Added "select"-type parameters, where users can choose from a list of valid options
+- New UI for Graph warnings/errors modal
+- EAGLE now uses palettes fetched from the DALiuGE repo at startup
+- Added "positional" attribute to parameters
 v4.1.0 (2021/12/02)
 - Intermediate nodes automatically placed along new edges now contain all ports/parameters from the template palette
 - Improvements when saving files to git and local disk
@@ -18,7 +144,7 @@ v4.0.0 (2021/11/12)
 - Fixed issue where parents of duplicated nodes were not set correctly
 - Graph check now produces warnings and errors, not just errors
 - Now possible to select objects within a group
-- Added application parameters to components
+- Added Application Arguments to components
 - Added default and precious attributes to parameters in components
 - Search within palettes, and within component parameters
 - Users can now load palettes from local disk even when 'palette editing' mode disabled

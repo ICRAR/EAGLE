@@ -24,16 +24,19 @@
 
 import * as ko from "knockout";
 
-import {Utils} from './Utils';
-import {GraphUpdater} from './GraphUpdater';
 import {GraphRenderer} from './GraphRenderer';
 
+import {Category} from './Category';
 import {Eagle} from './Eagle';
-import {Node} from './Node';
 import {Edge} from './Edge';
-import {Port} from './Port';
+import {Errors} from './Errors';
+import {Field} from './Field';
 import {FileInfo} from './FileInfo';
+import {GraphUpdater} from './GraphUpdater';
+import {Node} from './Node';
 import {RepositoryFile} from './RepositoryFile';
+import {Setting} from './Setting';
+import {Utils} from './Utils';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
@@ -47,11 +50,12 @@ export class LogicalGraph {
         this.edges = [];
     }
 
-    static toOJSJson = (graph : LogicalGraph) : object => {
+    static toOJSJson = (graph : LogicalGraph, forTranslation : boolean) : object => {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
         result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.OJS;
+        result.modelData.numLGNodes = graph.getNodes().length;
 
         // add nodes
         result.nodeDataArray = [];
@@ -63,6 +67,14 @@ export class LogicalGraph {
         // add links
         result.linkDataArray = [];
         for (const edge of graph.getEdges()){
+
+            // depending on the settings and purpose, skip close-loop edges
+            if (forTranslation && Setting.findValue(Setting.SKIP_CLOSE_LOOP_EDGES)){
+                if (edge.isClosesLoop()){
+                    continue;
+                }
+            }
+
             const linkData : any = Edge.toOJSJson(edge);
 
             let srcKey = edge.getSrcNodeKey();
@@ -88,7 +100,22 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : LogicalGraph => {
+    static toOJSJsonString = (graph : LogicalGraph, forTranslation : boolean) : string => {
+        let result: string = "";
+
+        const json: any = this.toOJSJson(graph, forTranslation);
+
+        // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
+        result += "{\n";
+        result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
+        result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
+        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
+        result += "}\n";
+
+        return result;
+    }
+
+    static fromOJSJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
@@ -99,7 +126,7 @@ export class LogicalGraph {
         for (const nodeData of dataObject.nodeDataArray){
             const extraUsedKeys: number[] = [];
 
-            const newNode = Node.fromOJSJson(nodeData, errorsWarnings, (): number => {
+            const newNode = Node.fromOJSJson(nodeData, errorsWarnings, false, (): number => {
                 const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
                 const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
                 const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
@@ -131,88 +158,44 @@ export class LogicalGraph {
         }
 
         // add edges
-        for (let i = 0 ; i < dataObject.linkDataArray.length ; i++){
-            const linkData = dataObject.linkDataArray[i];
+        for (const linkData of dataObject.linkDataArray){       
+            const newEdge = Edge.fromOJSJson(linkData, errorsWarnings);
 
-            // find source node
-            const srcNode : Node = result.findNodeByKey(linkData.from);
-
-            // abort if source node not found
-            if (srcNode === null){
-                const error : string = "Unable to find node with key " + linkData.from + " used as source node in link " + i + ". Discarding link!";
-                errorsWarnings.errors.push(error);
+            if (newEdge === null){
                 continue;
             }
 
-            // find source port on source node
-            let srcPort : Port = srcNode.findPortById(linkData.fromPort);
-
-            // if source port was not found on source node, check the source node's embedded application nodes
-            // and if found on one of those, update the port's nodeKey to reflect the actual node it is on
-            if (srcPort === null){
-                const found: {key: number, port: Port} = srcNode.findPortInApplicationsById(linkData.fromPort);
-                if (found.port !== null){
-                    const message: string = "Updated edge " + i + " source node from construct " + linkData.from + " to embedded application node " + found.key+ " and port " + found.port.getId();
-                    srcPort = found.port;
-                    linkData.from = found.key;
-                    errorsWarnings.warnings.push(message);
-                }
-            }
-
-            // abort if source port not found
-            if (srcPort === null){
-                const error : string = "Unable to find port " + linkData.fromPort + " on node " + linkData.from + " used in link " + i;
-                errorsWarnings.errors.push(error);
-                continue;
-            }
-
-            // find destination node
-            const destNode : Node = result.findNodeByKey(linkData.to);
-
-            // abort if dest node not found
-            if (destNode === null){
-                const error : string = "Unable to find node with key " + linkData.to + " used as destination node in link " + i + ". Discarding link!";
-                errorsWarnings.errors.push(error);
-                continue;
-            }
-
-            // find dest port on dest node
-            let destPort : Port = destNode.findPortById(linkData.toPort);
-
-            // if destination port was not found on destination node, check the destination node's embedded application nodes
-            // and if found on one of those, update the port's nodeKey to reflect the actual node it is on
-            if (destPort === null){
-                const found: {key: number, port: Port} = destNode.findPortInApplicationsById(linkData.toPort);
-                if (found.port !== null){
-                    const message: string = "Updated edge " + i + " destination node from construct " + linkData.to + " to embedded application node " + found.key + " and port " + found.port.getId();
-                    destPort = found.port;
-                    linkData.to = found.key;
-                    errorsWarnings.warnings.push(message);
-                }
-            }
-
-            // abort if dest port not found
-            if (destPort === null){
-                const error : string = "Unable to find port " + linkData.toPort + " on node " + linkData.to + " used in link " + i;
-                errorsWarnings.errors.push(error);
-                continue;
-            }
-
-            // try to read loop_aware attribute
-            let loopAware: boolean = false;
-            if (typeof linkData.loop_aware !== 'undefined'){
-                loopAware = linkData.loop_aware !== "0";
-            }
-
-            result.edges.push(new Edge(linkData.from, linkData.fromPort, linkData.to, linkData.toPort, srcPort.getName(), loopAware));
+            result.edges.push(newEdge);
         }
 
         // check for missing name
         if (result.fileInfo().name === ""){
             const error : string = "FileInfo.name is empty. Setting name to " + file.name;
-            errorsWarnings.errors.push(error);
+            errorsWarnings.warnings.push(Errors.Message(error));
 
             result.fileInfo().name = file.name;
+        }
+
+        // add a step here to check that no edges are incident on constructs, and move any edges found to the embedded applications
+        // add warnings to errorsWarnings
+        for (const edge of result.edges){
+            // get references to actual source and destination nodes (from the keys)
+            const sourceNode : Node = result.findNodeByKey(edge.getSrcNodeKey());
+            const destinationNode : Node = result.findNodeByKey(edge.getDestNodeKey());
+
+            // if source node or destination node is a construct, then something is wrong, constructs should not have ports
+            if (sourceNode.getCategoryType() === Category.Type.Construct){
+                const srcKeyAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPortId());
+                const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNodeKey() + " to embedded application " + srcKeyAndPort.key;
+                errorsWarnings.warnings.push(Errors.Message(warning));
+                edge.setSrcNodeKey(srcKeyAndPort.key);
+            }
+            if (destinationNode.getCategoryType() === Category.Type.Construct){
+                const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPortId());
+                const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNodeKey() + " to embedded application " + destKeyAndPort.key;
+                errorsWarnings.warnings.push(Errors.Message(warning));
+                edge.setDestNodeKey(destKeyAndPort.key);
+            }
         }
 
         // move all the nodes into the
@@ -221,6 +204,7 @@ export class LogicalGraph {
         return result;
     }
 
+/*
     static toV3Json = (graph : LogicalGraph) : object => {
         const result : any = {};
 
@@ -263,7 +247,9 @@ export class LogicalGraph {
 
         return result;
     }
+    */
 
+/*
     static fromV3Json = (dataObject : any, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : LogicalGraph => {
         const result: LogicalGraph = new LogicalGraph();
         const dlgg = dataObject.DALiuGEGraph;
@@ -292,12 +278,14 @@ export class LogicalGraph {
 
         return result;
     }
-
+*/
+/*
     static toAppRefJson = (graph : LogicalGraph) : object => {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
         result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.AppRef;
+        result.modelData.numLGNodes = graph.getNodes().length;
 
         // add nodes
         result.nodeDataArray = [];
@@ -339,7 +327,8 @@ export class LogicalGraph {
 
         return result;
     }
-
+*/
+/*
     static fromAppRefJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
@@ -389,6 +378,7 @@ export class LogicalGraph {
 
         return result;
     }
+*/
 
     static _findNodeDataWithKey = (nodeDataArray: any[], key: number): any => {
         for (const nodeData of nodeDataArray){
@@ -417,6 +407,22 @@ export class LogicalGraph {
 
     getEdges = () : Edge[] => {
         return this.edges;
+    }
+
+    getNumEdges = () : number => {
+        return this.edges.length;
+    }
+
+    countEdgesIncidentOnNode = (node : Node) : number => {
+        let result: number = 0;
+
+        for (const edge of this.edges){
+            if ((edge.getSrcNodeKey() === node.getKey() ) || ( edge.getDestNodeKey() === node.getKey() )){
+                result += 1;
+            }
+        }
+
+        return result;
     }
 
     clear = () : void => {
@@ -485,7 +491,7 @@ export class LogicalGraph {
     }
 
     /**
-     * Adds data component to the graph
+     * Adds data component to the graph (with a new id)
      */
     addDataComponentToGraph = (node: Node, location : {x: number, y:number}) : Node => {
         // clone the template node, set position and add to logicalGraph
@@ -518,13 +524,67 @@ export class LogicalGraph {
                 }
             }
         }
-
         console.warn("findNodeByKey(): could not find node with key (", key, ")");
         return null;
     }
 
+    findNodeByKeyQuiet = (key : number) : Node => {
+        //used temporarily for the table modals to prevent console spam relating to too many calls when changing selected objects
+        for (let i = this.nodes.length - 1; i >= 0 ; i--){
+
+            // check if the node itself has a matching key
+            if (this.nodes[i].getKey() === key){
+                return this.nodes[i];
+            }
+
+            // check if the node's inputApp has a matching key
+            if (this.nodes[i].hasInputApplication()){
+                if (this.nodes[i].getInputApplication().getKey() === key){
+                    return this.nodes[i].getInputApplication();
+                }
+            }
+
+            // check if the node's outputApp has a matching key
+            if (this.nodes[i].hasOutputApplication()){
+                if (this.nodes[i].getOutputApplication().getKey() === key){
+                    return this.nodes[i].getOutputApplication();
+                }
+            }
+        }
+        return null;
+    }
+
+    findNodeGraphIdByNodeName = (name:string) :string =>{
+        const eagle: Eagle = Eagle.getInstance();
+        let graphNodeId:string
+        eagle.logicalGraph().getNodes().forEach(function(node){
+            if(node.getName() === name){
+                graphNodeId = node.getGraphNodeId()
+            }
+        })
+        return graphNodeId
+    }
+
     removeNode = (node: Node) : void => {
         const key = node.getKey();
+
+        // NOTE: this section handles an unusual case where:
+        //  - the removed node is an embedded node within a construct
+        //  - there are edge(s) connected to a port on the embedded node
+        //  - but the edge(s) have source or destination node id of the construct
+        // This situation should not occur in a well-formed graph, but does occur in many existing graphs
+        const that = this
+        if(node.isEmbedded()){
+            node.getFields().forEach(function(field:Field){
+                if(field.isInputPort() || field.isOutputPort()){
+                    that.getEdges().forEach(function(edge:Edge){
+                        if(edge.getDestPortId() === field.getId() || edge.getSrcPortId() === field.getId()){
+                            that.removeEdgeById(edge.getId())
+                        }
+                    })
+                }
+            })
+        }
 
         // delete edges incident on this node
         this.removeEdgesByKey(key);
@@ -537,10 +597,22 @@ export class LogicalGraph {
             this.removeEdgesByKey(node.getOutputApplication().getKey());
         }
 
-        // delete the node
+        // search through nodes in graph, looking for one with the correct key
         for (let i = this.nodes.length - 1; i >= 0 ; i--){
+            // delete the node
             if (this.nodes[i].getKey() === key){
                 this.nodes.splice(i, 1);
+                continue;
+            }
+
+            // delete the input application
+            if (this.nodes[i].hasInputApplication() && this.nodes[i].getInputApplication().getKey() === key){
+                this.nodes[i].setInputApplication(null);
+            }
+
+            // delete the output application
+            if (this.nodes[i].hasOutputApplication() && this.nodes[i].getOutputApplication().getKey() === key){
+                this.nodes[i].setOutputApplication(null);
             }
         }
 
@@ -715,9 +787,9 @@ export class LogicalGraph {
     }
 
     findDepthByKey = (key: number) : number => {
-        let depth = 0;
-        let node = this.findNodeByKey(key);
+        const node = this.findNodeByKey(key);
         let parentKey = node.getParentKey();
+        let depth = 0;
         let iterations = 0;
 
         while (parentKey !== null){
@@ -732,6 +804,23 @@ export class LogicalGraph {
         }
 
         return depth;
+    }
+
+    // similar to getChildrenOfNodeByKey() (below) except treats key as null always
+    getRootNodes = () : Node[] => {
+        return this.getChildrenOfNodeByKey(null);
+    }
+
+    getChildrenOfNodeByKey = (key: number) : Node[] => {
+        const result: Node[] = [];
+
+        for (const node of this.nodes){
+            if (node.getParentKey() === key){
+                result.push(node);
+            }
+        }
+
+        return result;
     }
 
     static normaliseNodes = (nodes: Node[]) : {x: number, y: number} => {
