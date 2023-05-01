@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
+import { Daliuge } from "./Daliuge";
 
 ko.components.register('repository-file', {
     viewModel: function(params : {data : any}){
@@ -48,7 +48,7 @@ ko.components.register('field', {
 });
 
 ko.components.register('port', {
-    viewModel: function(params : {id : string, name : string, description: string, multiplicity : number, isEventPort : boolean, toggleEvent : boolean, input : boolean, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage}){
+    viewModel: function(params : {id : string, name : string, description: string, multiplicity : number, isEventPort : boolean, toggleEvent : boolean, input : boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage}){
         return {
             id: params.id,
             name: params.name,

@@ -18,12 +18,12 @@ export class Field {
 
     // port-specific attributes
     private id : ko.Observable<string>;
-    private parameterType : ko.Observable<Eagle.ParameterType>;
-    private usage : ko.Observable<Eagle.ParameterUsage>;
+    private parameterType : ko.Observable<Daliuge.FieldType>;
+    private usage : ko.Observable<Daliuge.FieldUsage>;
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
-    constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage, keyAttribute: boolean){
+    constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
         this.value = ko.observable(value);
         this.defaultValue = ko.observable(defaultValue);
@@ -154,19 +154,19 @@ export class Field {
         this.positional(positional);
     }
 
-    getParameterType = (): Eagle.ParameterType => {
+    getParameterType = (): Daliuge.FieldType => {
         return this.parameterType();
     }
 
-    setParameterType = (parameterType: Eagle.ParameterType) : void => {
+    setParameterType = (parameterType: Daliuge.FieldType) : void => {
         this.parameterType(parameterType);
     }
 
-    getUsage = (): Eagle.ParameterUsage => {
+    getUsage = (): Daliuge.FieldUsage => {
         return this.usage();
     }
 
-    setUsage = (usage: Eagle.ParameterUsage) : void => {
+    setUsage = (usage: Daliuge.FieldUsage) : void => {
         this.usage(usage);
     }
 
@@ -196,12 +196,12 @@ export class Field {
         this.defaultValue("");
         this.description("");
         this.readonly(false);
-        this.type(Eagle.DataType_Unknown);
+        this.type(Daliuge.DataType_Unknown);
         this.precious(false);
         this.options([]);
         this.positional(false);
-        this.parameterType(Eagle.ParameterType.Unknown);
-        this.usage(Eagle.ParameterUsage.NoPort);
+        this.parameterType(Daliuge.FieldType.Unknown);
+        this.usage(Daliuge.FieldUsage.NoPort);
         this.keyAttribute(false);
 
         this.id("");
@@ -248,11 +248,11 @@ export class Field {
     }
 
     isInputPort = () : boolean => {
-        return this.usage() === Eagle.ParameterUsage.InputPort || this.usage() === Eagle.ParameterUsage.InputOutput;
+        return this.usage() === Daliuge.FieldUsage.InputPort || this.usage() === Daliuge.FieldUsage.InputOutput;
     }
 
     isOutputPort = () : boolean => {
-        return this.usage() === Eagle.ParameterUsage.OutputPort || this.usage() === Eagle.ParameterUsage.InputOutput;
+        return this.usage() === Daliuge.FieldUsage.OutputPort || this.usage() === Daliuge.FieldUsage.InputOutput;
     }
 
     fitsComponentSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
@@ -299,41 +299,41 @@ export class Field {
     }, this);
 
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Object.values<string>(Daliuge.ParameterNames).includes(this.displayText());
+        return Object.values<string>(Daliuge.FieldName).includes(this.displayText());
     }, this);
 
     getHtmlInputType = () : string => {
         const typePrefix = Utils.dataTypePrefix(this.type());
         switch (typePrefix){
-            case Eagle.DataType_Float:
-            case Eagle.DataType_Integer:
+            case Daliuge.DataType_Float:
+            case Daliuge.DataType_Integer:
                 return "number";
-            case Eagle.DataType_Boolean:
+            case Daliuge.DataType_Boolean:
                 return "checkbox";
-            case Eagle.DataType_Password:
+            case Daliuge.DataType_Password:
                 return "password";
-            case Eagle.DataType_Select:
+            case Daliuge.DataType_Select:
                 return "select";
             default:
                 return "text";
         }
     }
 
-    static getHtmlTitleText = (parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage) : string => {
-        if (usage === Eagle.ParameterUsage.NoPort){
+    static getHtmlTitleText = (parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage) : string => {
+        if (usage === Daliuge.FieldUsage.NoPort){
             switch(parameterType){
-                case Eagle.ParameterType.ApplicationArgument:
+                case Daliuge.FieldType.ApplicationArgument:
                 return "Application Argument";
-                case Eagle.ParameterType.ComponentParameter:
+                case Daliuge.FieldType.ComponentParameter:
                 return "Component Parameter";
             }
         } else {
             switch(usage){
-                case Eagle.ParameterUsage.InputPort:
+                case Daliuge.FieldUsage.InputPort:
                 return "Input Port";
-                case Eagle.ParameterUsage.OutputPort:
+                case Daliuge.FieldUsage.OutputPort:
                 return "Output Port";
-                case Eagle.ParameterUsage.InputOutput:
+                case Daliuge.FieldUsage.InputOutput:
                 return "Input/Output Port";
             }
         }
@@ -346,11 +346,11 @@ export class Field {
     // the value attribute is always stored as a string internally
     static stringAsType = (value: string, type: string) : any => {
         switch (type){
-            case Eagle.DataType_Boolean:
+            case Daliuge.DataType_Boolean:
                 return Utils.asBool(value);
-            case Eagle.DataType_Float:
+            case Daliuge.DataType_Float:
                 return parseFloat(value);
-            case Eagle.DataType_Integer:
+            case Daliuge.DataType_Integer:
                 return parseInt(value, 10);
             default:
                 return value;
@@ -413,14 +413,14 @@ export class Field {
         let name: string = "";
         let description: string = "";
         let readonly: boolean = false;
-        let type: string = Eagle.DataType_Unknown;
+        let type: string = Daliuge.DataType_Unknown;
         let value: string = "";
         let defaultValue: string = "";
         let precious: boolean = false;
         let options: string[] = [];
         let positional: boolean = false;
-        let parameterType: Eagle.ParameterType = Eagle.ParameterType.Unknown;
-        let usage: Eagle.ParameterUsage = Eagle.ParameterUsage.NoPort;
+        let parameterType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
+        let usage: Daliuge.FieldUsage = Daliuge.FieldUsage.NoPort;
         let isEvent: boolean = false;
         let keyAttribute: boolean = false;
 
@@ -436,7 +436,7 @@ export class Field {
         if (typeof data.type !== 'undefined'){
             if (data.type === "Event"){
                 isEvent = true;
-                type = Eagle.DataType_Unknown;
+                type = Daliuge.DataType_Unknown;
             } else {
                 isEvent = false;
                 type = data.type;
@@ -457,20 +457,20 @@ export class Field {
         if (typeof data.fieldType !== 'undefined'){
             switch (data.fieldType){
                 case "ComponentParameter":
-                    parameterType = Eagle.ParameterType.ComponentParameter;
-                    usage = Eagle.ParameterUsage.NoPort;
+                    parameterType = Daliuge.FieldType.ComponentParameter;
+                    usage = Daliuge.FieldUsage.NoPort;
                     break;
                 case "ApplicationArgument":
-                    parameterType = Eagle.ParameterType.ApplicationArgument;
-                    usage = Eagle.ParameterUsage.NoPort;
+                    parameterType = Daliuge.FieldType.ApplicationArgument;
+                    usage = Daliuge.FieldUsage.NoPort;
                     break;
                 case "InputPort":
-                    parameterType = Eagle.ParameterType.ApplicationArgument;
-                    usage = Eagle.ParameterUsage.InputPort;
+                    parameterType = Daliuge.FieldType.ApplicationArgument;
+                    usage = Daliuge.FieldUsage.InputPort;
                     break;
                 case "OutputPort":
-                    parameterType = Eagle.ParameterType.ApplicationArgument;
-                    usage = Eagle.ParameterUsage.OutputPort;
+                    parameterType = Daliuge.FieldType.ApplicationArgument;
+                    usage = Daliuge.FieldUsage.OutputPort;
                     break;
                 default:
                     console.log("Unhandled fieldType", data.fieldType);
@@ -513,7 +513,7 @@ export class Field {
             name = data.IdText;
         }
      
-        const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Eagle.ParameterType.Unknown, Eagle.ParameterUsage.NoPort, keyAttribute);
+        const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort, keyAttribute);
         f.setIsEvent(event);
         return f;
     }

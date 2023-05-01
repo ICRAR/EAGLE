@@ -411,7 +411,7 @@ export class Eagle {
     }
 
     deployDefaultTranslationAlgorithm = () : void => {
-        this.translator().genPGT(Eagle.defaultTranslatorAlgorithmMethod, false, Eagle.DALiuGESchemaVersion.Unknown)
+        this.translator().genPGT(Eagle.defaultTranslatorAlgorithmMethod, false, Daliuge.SchemaVersion.Unknown)
     }
 
     // TODO: remove?
@@ -843,15 +843,15 @@ export class Eagle {
         }
 
         // attempt to determine schema version from FileInfo
-        const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
+        const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
         // use the correct parsing function based on schema version
         switch (schemaVersion){
-            case Eagle.DALiuGESchemaVersion.OJS:
-            case Eagle.DALiuGESchemaVersion.Unknown:
+            case Daliuge.SchemaVersion.OJS:
+            case Daliuge.SchemaVersion.Unknown:
                 loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
                 break;
         }
@@ -1685,7 +1685,7 @@ export class Eagle {
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.DALiuGESchemaVersion.OJS, fileType);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, fileType);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -1801,14 +1801,14 @@ export class Eagle {
             switch (fileTypeLoaded){
                 case Eagle.FileType.Graph:
                     // attempt to determine schema version from FileInfo
-                    const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
+                    const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
                     const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // use the correct parsing function based on schema version
                     switch (schemaVersion){
-                        case Eagle.DALiuGESchemaVersion.OJS:
-                        case Eagle.DALiuGESchemaVersion.Unknown:
+                        case Daliuge.SchemaVersion.OJS:
+                        case Daliuge.SchemaVersion.Unknown:
                             this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
                             break;
                     }
@@ -1893,15 +1893,15 @@ export class Eagle {
             }
 
             // attempt to determine schema version from FileInfo
-            const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
+            const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
             const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
             // use the correct parsing function based on schema version
             let lg: LogicalGraph;
             switch (schemaVersion){
-                case Eagle.DALiuGESchemaVersion.OJS:
-                case Eagle.DALiuGESchemaVersion.Unknown:
+                case Daliuge.SchemaVersion.OJS:
+                case Daliuge.SchemaVersion.Unknown:
                     lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
                     break;
             }
@@ -2052,7 +2052,7 @@ export class Eagle {
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Palette);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, Eagle.FileType.Palette);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -2111,7 +2111,7 @@ export class Eagle {
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.DALiuGESchemaVersion.OJS, Eagle.FileType.Graph);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -2299,11 +2299,11 @@ export class Eagle {
 
         this.checkGraph();
 
-        const groupStartValue = destNode.getFieldByDisplayText(Daliuge.ParameterNames.GROUP_START).getValue();
-        const groupEndValue = sourceNode.getFieldByDisplayText(Daliuge.ParameterNames.GROUP_END).getValue();
+        const groupStartValue = destNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).getValue();
+        const groupEndValue = sourceNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).getValue();
         Utils.showNotification(
             "Toggle edge closes loop",
-            "Node " + sourceNode.getName() + " component parameter '" + Daliuge.ParameterNames.GROUP_END + "' set to " + groupEndValue + ". Node " + destNode.getName() + " component parameter '" + Daliuge.ParameterNames.GROUP_START + "' set to " + groupStartValue + ".", "success"
+            "Node " + sourceNode.getName() + " component parameter '" + Daliuge.FieldName.GROUP_END + "' set to " + groupEndValue + ". Node " + destNode.getName() + " component parameter '" + Daliuge.FieldName.GROUP_START + "' set to " + groupStartValue + ".", "success"
         );
 
         this.selectedObjects.valueHasMutated();
@@ -3122,19 +3122,19 @@ export class Eagle {
                     pythonObjectNode.setParentKey(newNode.getParentKey());
 
                     // copy PythonMemberFunction node's 'basename' field to the PythonObject node
-                    const basenameField: Field = newNode.findFieldByDisplayText(Daliuge.ParameterNames.BASENAME, Eagle.ParameterType.ApplicationArgument);
+                    const basenameField: Field = newNode.findFieldByDisplayText(Daliuge.FieldName.BASENAME, Daliuge.FieldType.ApplicationArgument);
                     if (basenameField !== null){
                         pythonObjectNode.setName(basenameField.getValue());
                         pythonObjectNode.addField(basenameField.clone());
                     } else {
-                        Utils.showNotification("Python Object", "Unable to set " + Daliuge.ParameterNames.BASENAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
+                        Utils.showNotification("Python Object", "Unable to set " + Daliuge.FieldName.BASENAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
                     }
 
                     // find the "self" port on the PythonMemberFunction
-                    const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.ParameterNames.SELF, false, false);
+                    const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);
 
                     // make sure node has input/output "self" port
-                    const inputOutputPort = new Field(Utils.uuidv4(), "self", "", "", "", true, sourcePort.getType(), false, null, false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.InputOutput, false);
+                    const inputOutputPort = new Field(Utils.uuidv4(), "self", "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput, false);
                     pythonObjectNode.addField(inputOutputPort);
 
 
@@ -3322,9 +3322,9 @@ export class Eagle {
                         const selectedNode = that.selectedNode();
 
                         // get references to image, tag and digest fields in this component
-                        const imageField:  Field = selectedNode.getFieldByDisplayText(Daliuge.ParameterNames.IMAGE);
-                        const tagField:    Field = selectedNode.getFieldByDisplayText(Daliuge.ParameterNames.TAG);
-                        const digestField: Field = selectedNode.getFieldByDisplayText(Daliuge.ParameterNames.DIGEST);
+                        const imageField:  Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.IMAGE);
+                        const tagField:    Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.TAG);
+                        const digestField: Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.DIGEST);
 
                         // set values for the fields
                         if (imageField !== null){
@@ -3360,7 +3360,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, null);
+        this.editField(node, Eagle.ModalType.Add, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3376,7 +3376,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.NoPort, null);
+        this.editField(node, Eagle.ModalType.Add, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.NoPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3392,7 +3392,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, null);
+        this.editField(node, Eagle.ModalType.Add, Daliuge.FieldType.ConstructParameter, Daliuge.FieldUsage.NoPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3408,7 +3408,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.InputPort, null);
+        this.editField(node, Eagle.ModalType.Add, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3424,7 +3424,7 @@ export class Eagle {
             return;
         }
 
-        this.editField(node, Eagle.ModalType.Add, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.OutputPort, null);
+        this.editField(node, Eagle.ModalType.Add, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort, null);
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
@@ -3848,7 +3848,7 @@ export class Eagle {
     }
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
-    editField = (node:Node, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, usage: Eagle.ParameterUsage, id: string) : void => {
+    editField = (node:Node, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, id: string) : void => {
         console.log("editField", modalType, parameterType, usage, id);
 
         // get field names list from the logical graph
@@ -3875,7 +3875,7 @@ export class Eagle {
             $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
+            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", false, Daliuge.DataType_Integer, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
@@ -4259,7 +4259,7 @@ export class Eagle {
         newNode.removeAllOutputPorts();
 
         // add InputOutput port for dataType
-        const newInputOutputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterUsage.InputOutput, false);
+        const newInputOutputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputOutput, false);
         newNode.addField(newInputOutputPort);
 
         // set the parent of the new node
@@ -4495,19 +4495,6 @@ export namespace Eagle
         Unknown = "Unknown"
     }
 
-    export enum DALiuGEFileType {
-        LogicalGraph = "LogicalGraph",
-        LogicalGraphTemplate = "LogicalGraphTemplate",
-        PhysicalGraph = "PhysicalGraph",
-        PhysicalGraphTemplate = "PhysicalGraphTemplate",
-        Unknown = "Unknown"
-    }
-
-    export enum DALiuGESchemaVersion {
-        Unknown = "Unknown",
-        OJS = "OJS",
-    }
-
     export enum LinkValid {
         Unknown = "Unknown",
         Invalid = "Invalid",
@@ -4515,47 +4502,10 @@ export namespace Eagle
         Valid = "Valid"
     }
 
-    export const DataType_Unknown = "Unknown";
-    export const DataType_String = "String";
-    export const DataType_Integer = "Integer";
-    export const DataType_Float = "Float";
-    export const DataType_Object = "Object";
-    export const DataType_Boolean = "Boolean";
-    export const DataType_Select = "Select";
-    export const DataType_Password = "Password";
-    export const DataType_Json = "Json";
-    export const DataType_Python = "Python";
-    export const DataTypes : string[] = [
-        DataType_Unknown,
-        DataType_String,
-        DataType_Integer,
-        DataType_Float,
-        DataType_Object,
-        DataType_Boolean,
-        DataType_Select,
-        DataType_Password,
-        DataType_Json,
-        DataType_Python,
-    ];
-
     export enum ModalType {
         Add = "Add",
         Edit = "Edit",
         Field = "Field"
-    }
-
-    export enum ParameterType {
-        Unknown = "Unknown",
-        ComponentParameter = "ComponentParameter",
-        ApplicationArgument = "ApplicationArgument",
-        ConstructParameter = "ConstructParameter"
-    }
-
-    export enum ParameterUsage {
-        NoPort = "NoPort",
-        InputPort = "InputPort",
-        OutputPort = "OutputPort",
-        InputOutput = "InputOutput"
     }
 
     export enum RepositoryService {

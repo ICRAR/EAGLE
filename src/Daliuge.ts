@@ -23,7 +23,6 @@
 */
 
 import { Category } from './Category';
-import { Eagle } from './Eagle';
 import { Field } from './Field';
 
 export class Daliuge {
@@ -33,41 +32,10 @@ export class Daliuge {
 
     // schemas
     static readonly GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg/dropmake/lg.graph.schema";
-
-    // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
-    static readonly requiredFields = [
-        {
-            category: Category.MKN,
-            fields: [
-                new Field("", "k", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false),
-            ]
-        },
-        {
-            category: Category.Scatter,
-            fields: [
-                new Field("", "num_of_copies", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
-            ]
-        },
-        {
-            category: Category.Gather,
-            fields: [
-                new Field("", "num_of_inputs", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
-            ]
-        },
-        {
-            category: Category.Loop,
-            fields: [
-                new Field("", "num_of_iter", "1", "1", "", false, Eagle.DataType_Integer, false, [], false, Eagle.ParameterType.ConstructParameter, Eagle.ParameterUsage.NoPort, false)
-            ]
-        }
-    ];
-
-    static readonly groupStartField = new Field("", "group_start", "true", "true", "", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
-    static readonly groupEndField = new Field("", "group_end", "true", "true", "", false, Eagle.DataType_Boolean, false, [], false, Eagle.ParameterType.ComponentParameter, Eagle.ParameterUsage.NoPort, false);
 }
 
 export namespace Daliuge {
-    export enum ParameterNames {
+    export enum FieldName {
         APPLICATION_CLASS = "Application Class",
         DATA_VOLUME = "Data volume",
         EXECUTION_TIME = "Execution Time",
@@ -96,4 +64,85 @@ export namespace Daliuge {
         TAG = "Tag",
         DIGEST = "Digest"
     }
+
+    export const DataType_Unknown = "Unknown";
+    export const DataType_String = "String";
+    export const DataType_Integer = "Integer";
+    export const DataType_Float = "Float";
+    export const DataType_Object = "Object";
+    export const DataType_Boolean = "Boolean";
+    export const DataType_Select = "Select";
+    export const DataType_Password = "Password";
+    export const DataType_Json = "Json";
+    export const DataType_Python = "Python";
+    export const DataTypes : string[] = [
+        DataType_Unknown,
+        DataType_String,
+        DataType_Integer,
+        DataType_Float,
+        DataType_Object,
+        DataType_Boolean,
+        DataType_Select,
+        DataType_Password,
+        DataType_Json,
+        DataType_Python,
+    ];
+
+    export enum FieldType {
+        Unknown = "Unknown",
+        ComponentParameter = "ComponentParameter",
+        ApplicationArgument = "ApplicationArgument",
+        ConstructParameter = "ConstructParameter"
+    }
+
+    export enum FieldUsage {
+        NoPort = "NoPort",
+        InputPort = "InputPort",
+        OutputPort = "OutputPort",
+        InputOutput = "InputOutput"
+    }
+
+    export enum FileType {
+        LogicalGraph = "LogicalGraph",
+        LogicalGraphTemplate = "LogicalGraphTemplate",
+        PhysicalGraph = "PhysicalGraph",
+        PhysicalGraphTemplate = "PhysicalGraphTemplate",
+        Unknown = "Unknown"
+    }
+
+    export enum SchemaVersion {
+        Unknown = "Unknown",
+        OJS = "OJS",
+    }
+
+    // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
+    export const requiredFields = [
+        {
+            category: Category.MKN,
+            fields: [
+                new Field("", "k", "1", "1", "", false, DataType_Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false),
+            ]
+        },
+        {
+            category: Category.Scatter,
+            fields: [
+                new Field("", "num_of_copies", "1", "1", "", false, DataType_Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
+            ]
+        },
+        {
+            category: Category.Gather,
+            fields: [
+                new Field("", "num_of_inputs", "1", "1", "", false, DataType_Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
+            ]
+        },
+        {
+            category: Category.Loop,
+            fields: [
+                new Field("", "num_of_iter", "1", "1", "", false, DataType_Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
+            ]
+        }
+    ];
+
+    export const groupStartField = new Field("", "group_start", "true", "true", "", false, DataType_Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
+    export const groupEndField = new Field("", "group_end", "true", "true", "", false, DataType_Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
 }
