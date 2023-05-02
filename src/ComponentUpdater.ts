@@ -1,8 +1,10 @@
-import {LogicalGraph} from './LogicalGraph';
-import {Palette} from './Palette';
-import {Node} from './Node';
-import {Utils} from './Utils';
-import {Errors} from './Errors';
+import { ActionMessage } from './ActionMessage';
+import { Errors } from './Errors';
+import { LogicalGraph } from './LogicalGraph';
+import { Node } from './Node';
+import { Palette } from './Palette';
+import { Utils } from './Utils';
+
 
 export class ComponentUpdater {
 
@@ -13,7 +15,7 @@ export class ComponentUpdater {
         // check if any nodes to update
         if (graph.getNodes().length === 0){
             // TODO: don't showNotification here! instead add a warning to the errorsWarnings and callback()
-            errorsWarnings.errors.push(Errors.Message("Graph contains no components to update"));
+            errorsWarnings.errors.push(ActionMessage.Message("Graph contains no components to update"));
             callback(errorsWarnings, updatedNodes);
             return;
         }
@@ -33,7 +35,7 @@ export class ComponentUpdater {
 
             if (newVersion === null){
                 console.log("No match for node", node.getName());
-                errorsWarnings.warnings.push(Errors.Message("Could not find appropriate palette for node " + node.getName() + " from repository " + node.getRepositoryUrl()));
+                errorsWarnings.warnings.push(ActionMessage.Message("Could not find appropriate palette for node " + node.getName() + " from repository " + node.getRepositoryUrl()));
                 continue;
             }
 
