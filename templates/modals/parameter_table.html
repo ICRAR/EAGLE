@@ -41,11 +41,16 @@
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('keyAttribute') -->
                                     <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'This Attribute is a Key Graph Attribute'" data-bs-placement="top">
                                         <div class="dropdown">
-                                            <a class="material-icons dropdown-toggle componentTableVisibilityBtn" id="parameterTableVisibilityDropdown"  data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bind="click:function(){$root.parameterTable().setParameterTableVisibility('value')}">filter_list</a>
+                                            <a class="material-icons dropdown-toggle componentTableVisibilityBtn" id="parameterTableVisibilityDropdown"  data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">filter_list</a>
                                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="parameterTableVisibilityDropdown">
-                                                <div class="parameterTableDropDownItem"><span>item</span><input type="checkbox"></div>
-                                                <div class="parameterTableDropDownItem"><span>item</span><input type="checkbox"></div>
-                                                <div class="parameterTableDropDownItem"><span>item</span><input type="checkbox"></div>
+                                                <div class="dropdown-item" data-bind="click:function(){$root.parameterTable().setParameterTableVisibility('displayText')}"><span>Attribute Name</span><input type="checkbox" data-bind="checked:$root.parameterTable().getParameterTableVisibility('displayText')"></div>
+                                                <div class="dropdown-item" data-bind="click:function(){$root.parameterTable().setParameterTableVisibility('idText')}"><span>idText</span><input type="checkbox" data-bind="checked:$root.parameterTable().getParameterTableVisibility('idText')"></div>
+                                                <div class="dropdown-item" data-bind="click:function(){$root.parameterTable().setParameterTableVisibility('description')}"><span>Description</span><input type="checkbox" data-bind="checked:$root.parameterTable().getParameterTableVisibility('description')"></div>
+                                                <div class="dropdown-item" data-bind="click:function(){$root.parameterTable().setParameterTableVisibility('type')}"><span>Type</span><input type="checkbox" data-bind="checked:$root.parameterTable().getParameterTableVisibility('type')"></div>
+                                                <div class="dropdown-item" data-bind="click:function(){$root.parameterTable().setParameterTableVisibility('flags')}"><span>Flags</span><input type="checkbox" data-bind="checked:$root.parameterTable().getParameterTableVisibility('flags')"></div>
+                                                <div class="dropdown-item" data-bind="click:function(){$root.parameterTable().setParameterTableVisibility('parameterType')}"><span>Parameter Type</span><input type="checkbox" data-bind="checked:$root.parameterTable().getParameterTableVisibility('parameterType')"></div>
+                                                <div class="dropdown-item" data-bind="click:function(){$root.parameterTable().setParameterTableVisibility('usage')}"><span>Use As</span><input type="checkbox" data-bind="checked:$root.parameterTable().getParameterTableVisibility('usage')"></div>
+                                                <div class="dropdown-item" data-bind="click:function(){$root.parameterTable().setParameterTableVisibility('actions')}"><span>Actions</span><input type="checkbox" data-bind="checked:$root.parameterTable().getParameterTableVisibility('actions')"></div>
                                             </div>
                                         </div>
                                     </th>
