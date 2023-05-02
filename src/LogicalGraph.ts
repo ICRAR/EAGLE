@@ -114,18 +114,18 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph => {
+    static fromOJSJson = (dataObject : any, file : RepositoryFile, errors: ActionMessage[]) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
 
         // add nodes
         for (const nodeData of dataObject.nodeDataArray){
             const extraUsedKeys: number[] = [];
 
-            const newNode = Node.fromOJSJson(nodeData, errorsWarnings, false, (): number => {
+            const newNode = Node.fromOJSJson(nodeData, errors, false, (): number => {
                 const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
                 const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
                 const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
@@ -158,7 +158,7 @@ export class LogicalGraph {
 
         // add edges
         for (const linkData of dataObject.linkDataArray){       
-            const newEdge = Edge.fromOJSJson(linkData, errorsWarnings);
+            const newEdge = Edge.fromOJSJson(linkData, errors);
 
             if (newEdge === null){
                 continue;
@@ -169,8 +169,8 @@ export class LogicalGraph {
 
         // check for missing name
         if (result.fileInfo().name === ""){
-            const error : string = "FileInfo.name is empty. Setting name to " + file.name;
-            errorsWarnings.warnings.push(ActionMessage.Message(error));
+            const warning : string = "FileInfo.name is empty. Setting name to " + file.name;
+            errors.push(ActionMessage.Message(ActionMessage.Level.Warning, warning));
 
             result.fileInfo().name = file.name;
         }
@@ -186,13 +186,13 @@ export class LogicalGraph {
             if (sourceNode.getCategoryType() === Category.Type.Construct){
                 const srcKeyAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPortId());
                 const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNodeKey() + " to embedded application " + srcKeyAndPort.key;
-                errorsWarnings.warnings.push(ActionMessage.Message(warning));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Warning, warning));
                 edge.setSrcNodeKey(srcKeyAndPort.key);
             }
             if (destinationNode.getCategoryType() === Category.Type.Construct){
                 const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPortId());
                 const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNodeKey() + " to embedded application " + destKeyAndPort.key;
-                errorsWarnings.warnings.push(ActionMessage.Message(warning));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Warning, warning));
                 edge.setDestNodeKey(destKeyAndPort.key);
             }
         }

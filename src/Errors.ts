@@ -47,12 +47,22 @@ export class Errors {
         Utils.postFixFunc(eagle);
     }
 
-    static hasWarnings = (errorsWarnings: Errors.ErrorsWarnings) : boolean => {
-        return errorsWarnings.warnings.length > 0;
+    static hasWarnings = (errors: ActionMessage[]) : boolean => {
+        for (const error of errors){
+            if (error.level === ActionMessage.Level.Warning){
+                return true;
+            }
+        }
+        return false;
     }
 
-    static hasErrors = (errorsWarnings: Errors.ErrorsWarnings) : boolean => {
-        return errorsWarnings.errors.length > 0;
+    static hasErrors = (errors: ActionMessage[]) : boolean => {
+        for (const error of errors){
+            if (error.level === ActionMessage.Level.Error){
+                return true;
+            }
+        }
+        return false;
     }
 
     static getWarnings : ko.PureComputed<ActionMessage[]> = ko.pureComputed(() => {

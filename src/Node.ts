@@ -1167,8 +1167,8 @@ export class Node {
         return result;
     }
 
-    getErrorsWarnings = (eagle: Eagle): Errors.ErrorsWarnings => {
-        const result: {warnings: ActionMessage[], errors: ActionMessage[]} = {warnings: [], errors: []};
+    getErrorsWarnings = (eagle: Eagle): ActionMessage[] => {
+        const result: ActionMessage[] = [];
 
         Node.isValid(eagle, this, Eagle.selectedLocation(), false, false, result);
 
@@ -1303,12 +1303,12 @@ export class Node {
         return CategoryData.getCategoryData(node.getCategory()).canHaveOutputApplication;
     }
 
-    static fromOJSJson = (nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node => {
+    static fromOJSJson = (nodeData : any, errors: ActionMessage[], isPaletteNode: boolean, generateKeyFunc: () => number) : Node => {
         let name = "";
         if (typeof nodeData.text !== 'undefined'){
             name = nodeData.text;
         } else {
-            errorsWarnings.errors.push(ActionMessage.Message("Node " + nodeData.key + " has undefined text " + nodeData + "!"));
+            errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Node " + nodeData.key + " has undefined text " + nodeData + "!"));
         }
 
         let x = 0;
@@ -1336,7 +1336,7 @@ export class Node {
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
-            errorsWarnings.errors.push(ActionMessage.Message("Node with name " + name + " has unknown category: " + category));
+            errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Node with name " + name + " has unknown category: " + category));
             category = Category.Unknown;
         }
 
@@ -1447,51 +1447,51 @@ export class Node {
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
         if (inputApplicationName !== ""){
             if (!CategoryData.getCategoryData(category).canHaveInputApplication){
-                errorsWarnings.errors.push(ActionMessage.Message("Attempt to add inputApplication to unsuitable node: " + category));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
                 if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
                     node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, inputApplicationName, inputApplicationType, inputApplicationDescription, node.getKey()));
                 } else {
-                    errorsWarnings.errors.push(ActionMessage.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
                 }
             }
         }
 
         if (inputApplicationName !== "" && inputApplicationType !== Category.None){
             if (!CategoryData.getCategoryData(category).canHaveInputApplication){
-                errorsWarnings.errors.push(ActionMessage.Message("Attempt to add inputApplication to unsuitable node: " + category));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
                 if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
                     node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, inputApplicationName, inputApplicationType, inputApplicationDescription, node.getKey()));
                 } else {
-                    errorsWarnings.errors.push(ActionMessage.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
                 }
             }
         }
 
         if (outputApplicationName !== ""){
             if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
-                errorsWarnings.errors.push(ActionMessage.Message("Attempt to add outputApplication to unsuitable node: " + category));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Attempt to add outputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
                 if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
                     node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, outputApplicationName, outputApplicationType, outputApplicationDescription, node.getKey()));
                 } else {
-                    errorsWarnings.errors.push(ActionMessage.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
                 }
             }
         }
 
         if (outputApplicationName !== "" && outputApplicationType !== Category.None){
             if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
-                errorsWarnings.errors.push(ActionMessage.Message("Attempt to add outputApplication to unsuitable node: " + category));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Attempt to add outputApplication to unsuitable node: " + category));
             } else {
                 if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
                     node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, outputApplicationName, outputApplicationType, outputApplicationDescription, node.getKey()));
                 } else {
-                    errorsWarnings.errors.push(ActionMessage.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
                 }
             }
         }
@@ -1508,15 +1508,15 @@ export class Node {
 
         // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
         if (nodeData.application !== undefined && nodeData.application !== ""){
-            errorsWarnings.errors.push(ActionMessage.Message("Only found old application type, not new input application type and output application type: " + category));
+            errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Only found old application type, not new input application type and output application type: " + category));
 
             if (!CategoryData.getCategoryData(category).canHaveInputApplication){
-                errorsWarnings.errors.push(ActionMessage.Message("Attempt to add inputApplication to unsuitable node: " + category));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 if (CategoryData.getCategoryData(category).categoryType === Category.Type.Application){
                     node.inputApplication(Node.createEmbeddedApplicationNode(null, nodeData.application, category, "", node.getKey()));
                 } else {
-                    errorsWarnings.errors.push(ActionMessage.Message("Attempt to add inputApplication of unsuitable type: " + category + ", to node."));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Attempt to add inputApplication of unsuitable type: " + category + ", to node."));
                 }
             }
         }
@@ -1524,17 +1524,17 @@ export class Node {
         // read the 'real' input and output apps, correctly specified as nested nodes
         if (typeof nodeData.inputApplication !== 'undefined' && nodeData.inputApplication !== null){
             if (!CategoryData.getCategoryData(category).canHaveInputApplication){
-                errorsWarnings.errors.push(ActionMessage.Message("Attempt to add inputApplication to unsuitable node: " + category));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Attempt to add inputApplication to unsuitable node: " + category));
             } else {
-                node.inputApplication(Node.fromOJSJson(nodeData.inputApplication, errorsWarnings, isPaletteNode, generateKeyFunc));
+                node.inputApplication(Node.fromOJSJson(nodeData.inputApplication, errors, isPaletteNode, generateKeyFunc));
                 node.inputApplication().setEmbedKey(node.getKey());
             }
         }
         if (typeof nodeData.outputApplication !== 'undefined' && nodeData.outputApplication !== null){
             if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
-                errorsWarnings.errors.push(ActionMessage.Message("Attempt to add outputApplication to unsuitable node: " + category));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Attempt to add outputApplication to unsuitable node: " + category));
             } else {
-                node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, isPaletteNode, generateKeyFunc));
+                node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errors, isPaletteNode, generateKeyFunc));
                 node.outputApplication().setEmbedKey(node.getKey());
             }
         }
@@ -1605,7 +1605,7 @@ export class Node {
                     const field = Field.fromOJSJson(fieldData);
                     node.inputApplication().addField(field);
                 } else {
-                    errorsWarnings.errors.push(ActionMessage.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
                 }
             }
         }
@@ -1617,7 +1617,7 @@ export class Node {
                     const field = Field.fromOJSJson(fieldData);
                     node.outputApplication().addField(field);
                 } else {
-                    errorsWarnings.errors.push(ActionMessage.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
                 }
             }
         }
@@ -1632,7 +1632,7 @@ export class Node {
                 if (node.canHaveInputs()){
                     node.addField(port);
                 } else {
-                    Node.addPortToEmbeddedApplication(node, port, true, errorsWarnings, generateKeyFunc);
+                    Node.addPortToEmbeddedApplication(node, port, true, errors, generateKeyFunc);
                 }
             }
         }
@@ -1647,7 +1647,7 @@ export class Node {
                 if (node.canHaveOutputs()){
                     node.addField(port);
                 } else {
-                    Node.addPortToEmbeddedApplication(node, port, false, errorsWarnings, generateKeyFunc);
+                    Node.addPortToEmbeddedApplication(node, port, false, errors, generateKeyFunc);
                 }
             }
         }
@@ -1662,7 +1662,7 @@ export class Node {
 
                     node.inputApplication().addField(port);
                 } else {
-                    errorsWarnings.errors.push(ActionMessage.Message("Can't add inputLocal port " + inputLocalPort.IdText + " to node " + node.getName() + ". No input application."));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Can't add inputLocal port " + inputLocalPort.IdText + " to node " + node.getName() + ". No input application."));
                 }
             }
         }
@@ -1677,7 +1677,7 @@ export class Node {
                 if (node.hasOutputApplication()){
                     node.outputApplication().addField(port);
                 } else {
-                    errorsWarnings.errors.push(ActionMessage.Message("Can't add outputLocal port " + outputLocalPort.IdText + " to node " + node.getName() + ". No output application."));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Can't add outputLocal port " + outputLocalPort.IdText + " to node " + node.getName() + ". No output application."));
                 }
             }
         }
@@ -1705,15 +1705,15 @@ export class Node {
         }
     }
 
-    private static addPortToEmbeddedApplication(node: Node, port: Field, input: boolean, errorsWarnings: Errors.ErrorsWarnings, generateKeyFunc: () => number){
+    private static addPortToEmbeddedApplication(node: Node, port: Field, input: boolean, errors: ActionMessage[], generateKeyFunc: () => number){
         // check that the node already has an appropriate embedded application, otherwise create it
         if (input){
             if (!node.hasInputApplication()){
                 if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                     node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Category.UnknownApplication, "", node.getKey()));
-                    errorsWarnings.errors.push(ActionMessage.Message("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention."));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention."));
                 } else {
-                    errorsWarnings.errors.push(ActionMessage.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
                     return;
                 }
             }

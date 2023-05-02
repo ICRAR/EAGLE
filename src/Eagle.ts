@@ -808,11 +808,11 @@ export class Eagle {
         });
     }
 
-    private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
+    private _handleLoadingErrors = (errors: ActionMessage[], fileName: string, service: Eagle.RepositoryService) : void => {
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
         // show errors (if found)
-        if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
+        if (Errors.hasErrors(errors) || Errors.hasWarnings(errors)){
             if (showErrors){
 
                 // add warnings/errors to the arrays
