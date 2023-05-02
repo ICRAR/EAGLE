@@ -273,7 +273,7 @@ export class Edge {
         return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware, edgeData.closesLoop, false);
     }
 
-    static isValid = (eagle: Eagle, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, dataType: string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
+    static isValid = (eagle: Eagle, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, dataType: string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errors: ActionMessage[]) : Eagle.LinkValid => {
         // check for problems
         if (isNaN(sourceNodeKey)){
             return Eagle.LinkValid.Unknown;
@@ -285,25 +285,25 @@ export class Edge {
 
         if (sourcePortId === ""){
             const issue = ActionMessage.Fix(ActionMessage.Level.Error, "source port has no id", function(){Utils.showNode(eagle, sourceNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on source node");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errors);
             return Eagle.LinkValid.Invalid;
         }
 
         if (destinationPortId === ""){
             const issue = ActionMessage.Fix(ActionMessage.Level.Error, "destination port has no id", function(){Utils.showNode(eagle, destinationNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on destination node");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errors);
             return Eagle.LinkValid.Invalid;
         }
 
         if (sourcePortId === null){
             const issue = ActionMessage.Fix(ActionMessage.Level.Error, "source port id is null", function(){Utils.showNode(eagle, sourceNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on source node");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errors);
             return Eagle.LinkValid.Invalid;
         }
 
         if (destinationPortId === null){
             const issue = ActionMessage.Fix(ActionMessage.Level.Error, "destination port id is null", function(){Utils.showNode(eagle, destinationNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on destination node");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errors);
             return Eagle.LinkValid.Invalid;
         }
 
@@ -317,23 +317,23 @@ export class Edge {
 
         // check that we are not connecting a Data component to a Data component, that is not supported
         if (sourceNode.getCategoryType() === Category.Type.Data && destinationNode.getCategoryType() === Category.Type.Data){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Data nodes may not be connected directly to other Data nodes", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Data nodes may not be connected directly to other Data nodes", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
             return Eagle.LinkValid.Invalid;
         }
 
         // if source node or destination node is a construct, then something is wrong, constructs should not have ports
         if (sourceNode.getCategoryType() === Category.Type.Construct){
             const issue: ActionMessage = ActionMessage.Fix(ActionMessage.Level.Error, "Edge (" + edgeId + ") cannot have a source node (" + sourceNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errors);
         }
         if (destinationNode.getCategoryType() === Category.Type.Construct){
             const issue: ActionMessage = ActionMessage.Fix(ActionMessage.Level.Error, "Edge (" + edgeId + ") cannot have a destination node (" + destinationNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errors);
         }
 
         // check that we are not connecting two ports within the same node
         if (sourceNodeKey === destinationNodeKey){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "sourceNodeKey and destinationNodeKey are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "sourceNodeKey and destinationNodeKey are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
         }
 
         // if source node is a memory, and destination is a BashShellApp, OR
@@ -342,7 +342,7 @@ export class Edge {
         if ((sourceNode.getCategory() === Category.Memory && destinationNode.getCategory() === Category.BashShellApp) ||
             (sourceNode.getCategory() === Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplication() !== undefined && destinationNode.hasInputApplication() && destinationNode.getInputApplication().getCategory() === Category.BashShellApp)){
             const issue: ActionMessage = ActionMessage.Fix(ActionMessage.Level.Error, "output from Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", function(){Utils.showNode(eagle, sourceNodeKey)}, function(){Utils.fixNodeCategory(eagle, sourceNode, Category.File)}, "Change data component type to File");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errors);
         }
 
         const sourcePort : Field = sourceNode.findFieldById(sourcePortId);
@@ -350,35 +350,35 @@ export class Edge {
 
         // check if source port was found
         if (sourcePort === null) {
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port doesn't exist on source node", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port doesn't exist on source node", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
             return Eagle.LinkValid.Invalid;
         }
 
         // check if destination port was found
         if (destinationPort === null){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Destination port doesn't exist on destination node", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Destination port doesn't exist on destination node", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
             return Eagle.LinkValid.Invalid;
         }
 
         // check that we are not connecting a port to itself
         if (sourcePortId === destinationPortId){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port and destination port are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port and destination port are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
         }
 
         // check that source is output
         if (!sourcePort.isOutputPort()){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port is not output port (" + sourcePort.getUsage() + ")", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port is not output port (" + sourcePort.getUsage() + ")", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
         }
 
         // check that destination in input
         if (!destinationPort.isInputPort()){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Destination port is not input port (" + destinationPort.getUsage() + ")", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Destination port is not input port (" + destinationPort.getUsage() + ")", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
         }
 
         if (sourcePort !== null && destinationPort !== null){
             // check that source and destination port are both event, or both not event
             if ((sourcePort.getIsEvent() && !destinationPort.getIsEvent()) || (!sourcePort.getIsEvent() && destinationPort.getIsEvent())){
-                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port and destination port are mix of event and non-event ports", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port and destination port are mix of event and non-event ports", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
             }
         }
 
@@ -407,53 +407,53 @@ export class Edge {
 
         // if a node is connecting to its parent, it must connect to the local port
         if (isParent && !destinationNode.hasLocalPortWithId(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port is connecting to its parent, yet destination port is not local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port is connecting to its parent, yet destination port is not local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
         }
 
         // if a node is connecting to a child, it must start from the local port
         if (isChild && !sourceNode.hasLocalPortWithId(sourcePortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source connecting to child, yet source port is not local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source connecting to child, yet source port is not local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
         }
 
         // if destination node is not a child, destination port cannot be a local port
         if (!parentIsEFN && !isParent && destinationNode.hasLocalPortWithId(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source is not a child of destination, yet destination port is local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source is not a child of destination, yet destination port is local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
         }
 
         if (!parentIsEFN && !isChild && sourceNode.hasLocalPortWithId(sourcePortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Destination is not a child of source, yet source port is local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Destination is not a child of source, yet source port is local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
         }
 
         if (sourcePort !== null && destinationPort !== null){
             // abort if source port and destination port have different data types
             if (!Utils.portsMatch(sourcePort, destinationPort)){
                 const x = ActionMessage.Fix(ActionMessage.Level.Error, "Source and destination ports don't match: sourcePort (" + sourcePort.getDisplayText() + ":" + sourcePort.getType() + ") destinationPort (" + destinationPort.getDisplayText() + ":" + destinationPort.getType() + ")", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixPortType(eagle, sourcePort, destinationPort);}, "Overwrite destination port type with source port type");
-                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errors);
             }
         }
 
         // if link is not a parent, child or sibling, then warn user
         if (!parentIsEFN && !isParent && !isChild && !isSibling && !loopAware && !isParentOfConstruct && !isChildOfConstruct){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, ActionMessage.Show(ActionMessage.Level.Warning, "Edge is not child->parent, parent->child or between siblings. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, ActionMessage.Show(ActionMessage.Level.Warning, "Edge is not child->parent, parent->child or between siblings. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errors);
         }
 
         // check if the edge already exists in the graph, there is no point in a duplicate
         for (const edge of eagle.logicalGraph().getEdges()){
             if (edge.getSrcPortId() === sourcePortId && edge.getDestPortId() === destinationPortId && edge.getId() !== edgeId){
                 const x = ActionMessage.Fix(ActionMessage.Level.Error, "Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDeleteEdge(eagle, edgeId);}, "Delete edge");
-                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errors);
             }
         }
 
         // check that all edges have same data type as their source and destination ports
         if (sourcePort !== null && !Utils.typesMatch(dataType, sourcePort.getType())){
             const x = ActionMessage.Fix(ActionMessage.Level.Error, "Edge data type (" + dataType + ") does not match start port (" + sourcePort.getDisplayText() + ") data type (" + sourcePort.getType() + ").", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixEdgeType(eagle, edgeId, sourcePort.getType());}, "Change edge data type to match source port type");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errors);
         }
 
         if (destinationPort !== null && !Utils.typesMatch(dataType, destinationPort.getType())){
             const x = ActionMessage.Fix(ActionMessage.Level.Error, "Edge data type (" + dataType + ") does not match end port (" + destinationPort.getDisplayText() + ") data type (" + destinationPort.getType() + ").", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixEdgeType(eagle, edgeId, destinationPort.getType());}, "Change edge data type to match destination port type");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errors);
         }
 
         // check that all "closes loop" edges:
@@ -464,43 +464,43 @@ export class Edge {
         if (closesLoop){
             if (!sourceNode.isData()){
                 const x = ActionMessage.Show(ActionMessage.Level.Error, "Closes Loop Edge (" + edgeId + ") does not start from a Data component.", function(){Utils.showEdge(eagle, edgeId);});
-                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errors);
             }
 
             if (!destinationNode.isApplication()){
                 const x = ActionMessage.Show(ActionMessage.Level.Error, "Closes Loop Edge (" + edgeId + ") does not end at an Application component.", function(){Utils.showEdge(eagle, edgeId);});
-                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errors);
             }
 
             if (!sourceNode.hasFieldWithIdText('group_end') || !Utils.asBool(sourceNode.getFieldByIdText('group_end').getValue())){
                 const x = ActionMessage.Fix(ActionMessage.Level.Error, "'Closes Loop' Edge (" + edgeId + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixFieldValue(eagle, sourceNode, CategoryData.groupEndField, "true")}, "Set 'group_end' to true");
-                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errors);
             }
 
             if (!destinationNode.hasFieldWithIdText('group_start') || !Utils.asBool(destinationNode.getFieldByIdText('group_start').getValue())){
                 const x = ActionMessage.Fix(ActionMessage.Level.Error, "'Closes Loop' Edge (" + edgeId + ") end node (" + destinationNode.getName() + ") does not have 'group_start' set to true.", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixFieldValue(eagle, destinationNode, CategoryData.groupStartField, "true")}, "Set 'group_start' to true");
-                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errors);
             }
         }
 
-        return Utils.worstEdgeError(errorsWarnings);
+        return Utils.worstEdgeError(errors);
     }
 
     // TODO: may not need linkValid arg here, we can probably just use issue.level
-    private static isValidLog = (edgeId : string, linkValid : Eagle.LinkValid, issue: ActionMessage, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : void => {
+    private static isValidLog = (edgeId : string, linkValid : Eagle.LinkValid, issue: ActionMessage, showNotification : boolean, showConsole : boolean, errors: ActionMessage[]) : void => {
         // determine correct title
         let title = "Edge Valid";
-        let type : "success" | "info" | "warning" | "danger" = "success";
+        let level : ActionMessage.Level = ActionMessage.Level.Success;
         let message = "";
 
         switch (linkValid){
             case Eagle.LinkValid.Warning:
             title = "Edge Warning";
-            type = "warning";
+            level = ActionMessage.Level.Warning;
             break;
             case Eagle.LinkValid.Invalid:
             title = "Edge Invalid";
-            type = "danger";
+            level = ActionMessage.Level.Error;
             break;
         }
 
@@ -513,14 +513,14 @@ export class Edge {
 
         // add log message to correct location(s)
         if (showNotification)
-            Utils.showNotification(title, message, type);
+            Utils.showNotification(title, message, ActionMessage.levelToCss(level));
         if (showConsole)
             console.warn(title + ":" + message);
-        if (type === "danger" && errorsWarnings !== null){
-            errorsWarnings.errors.push(issue);
+        if (level === ActionMessage.Level.Error && errors !== null){
+            errors.push(issue);
         }
-        if (type === "warning" && errorsWarnings !== null){
-            errorsWarnings.warnings.push(issue);
+        if (level === ActionMessage.Level.Warning && errors !== null){
+            errors.push(issue);
         }
     }
 }

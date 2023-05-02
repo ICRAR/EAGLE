@@ -41,6 +41,18 @@ export class ActionMessage {
 
         return 0;
     }
+
+    // TODO: more cases?
+    public static levelToCss(level: ActionMessage.Level) : "danger" | "warning" | "info" | "success" {
+        switch (level){
+            case ActionMessage.Level.Error:
+                return "danger";
+            case ActionMessage.Level.Warning:
+                return "warning";
+            default:
+                return "info";
+        }
+    }
 }
 
 export namespace ActionMessage {
