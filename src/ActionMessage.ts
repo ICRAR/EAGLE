@@ -26,13 +26,9 @@ export class ActionMessage {
 
 export namespace ActionMessage {
     export enum Level {
-        Primary = "Primary",
-        Secondary = "Secondary",
         Success = "Success",
-        Danger = "Danger",
+        Error = "Error",
         Warning = "Warning",
-        Info = "Info",
-        Light = "Light",
-        Dark ="Dark",
+        Info = "Info"
     }
 }

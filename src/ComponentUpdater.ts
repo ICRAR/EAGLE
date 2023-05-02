@@ -15,15 +15,15 @@ export class ComponentUpdater {
                node.getCommitHash() !== prototype.getCommitHash();
     }
 
-    static determineUpdates(palettes: Palette[], graph: LogicalGraph, callback : (errorsWarnings : Errors.ErrorsWarnings, updates : ActionMessage[]) => void) : void {
-        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+    static determineUpdates(palettes: Palette[], graph: LogicalGraph, callback : (errors: ActionMessage[], updates : ActionMessage[]) => void) : void {
+        const errors: ActionMessage[] = [];
         const updates: ActionMessage[] = [];
 
         // check if any nodes to update
         if (graph.getNodes().length === 0){
             // TODO: don't showNotification here! instead add a warning to the errorsWarnings and callback()
-            errorsWarnings.errors.push(ActionMessage.Message("Graph contains no components to update"));
-            callback(errorsWarnings, updates);
+            errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Graph contains no components to update"));
+            callback(errors, updates);
             return;
         }
 
@@ -45,7 +45,7 @@ export class ComponentUpdater {
 
             if (!foundPrototype){
                 //console.log("No match for node", node.getName());
-                errorsWarnings.warnings.push(ActionMessage.Message("Could not find appropriate palette for node " + node.getName() + " from repository " + node.getRepositoryUrl()));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Warning, "Could not find appropriate palette for node " + node.getName() + " from repository " + node.getRepositoryUrl()));
                 continue;
             }
 
@@ -54,7 +54,7 @@ export class ComponentUpdater {
             //updatedNodes.push(node);
         }
 
-        callback(errorsWarnings, updates);
+        callback(errors, updates);
     }
 
     // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
@@ -76,7 +76,7 @@ export class ComponentUpdater {
             if (destField === null){
                 //destField = srcField.clone();
                 //dest.addField(destField);
-                updates.push(ActionMessage.Message("Add " + srcField.getDisplayText() + " field to component"));
+                updates.push(ActionMessage.Message(ActionMessage.Level.Info, "Add " + srcField.getDisplayText() + " field to component"));
             }
            
             // NOTE: we could just use a copy() function here if we had one

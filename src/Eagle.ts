@@ -776,7 +776,7 @@ export class Eagle {
     insertGraphFile = () : void => {
         const uploadedGraphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToInsert");
         const fileFullPath : string = uploadedGraphFileToInsertInputElement.value;
-        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errors: ActionMessage[] = [];
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -797,7 +797,7 @@ export class Eagle {
             this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                 const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
-                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
+                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errors);
 
                 // TODO: handle errors and warnings
 
@@ -950,7 +950,7 @@ export class Eagle {
     }
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
-    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node, errorsWarnings: Errors.ErrorsWarnings) : void => {
+    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node, errors: ActionMessage[]) : void => {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
@@ -1072,7 +1072,7 @@ export class Eagle {
             const destNode = keyMap.get(edge.getDestNodeKey());
 
             if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
-                errorsWarnings.warnings.push(ActionMessage.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Warning, "Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
                 continue;
             }
 

@@ -105,8 +105,3 @@ export class Errors {
         return count;
     }, this);
 }
-
-export namespace Errors
-{
-    export type ErrorsWarnings = {warnings: ActionMessage[], errors: ActionMessage[]};
-}
