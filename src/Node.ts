@@ -1718,21 +1718,21 @@ export class Node {
                 }
             }
             node.inputApplication().addField(port);
-            errorsWarnings.warnings.push(ActionMessage.Message("Moved input port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")"));
+            errors.push(ActionMessage.Message(ActionMessage.Level.Warning, "Moved input port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")"));
         } else {
             // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
             if (node.canHaveOutputApplication()){
                 if (!node.hasOutputApplication()){
                     if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                         node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Category.UnknownApplication, "", node.getKey()));
-                        errorsWarnings.errors.push(ActionMessage.Message("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention."));
+                        errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention."));
                     } else {
-                        errorsWarnings.errors.push(ActionMessage.Message("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
+                        errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
                         return;
                     }
                 }
                 node.outputApplication().addField(port);
-                errorsWarnings.warnings.push(ActionMessage.Message("Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")"));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Warning, "Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")"));
             } else {
                 // if possible, add port to output side of input application
                 if (node.canHaveInputApplication()){
@@ -1740,14 +1740,14 @@ export class Node {
                         if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
                             node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getIdText(), Category.UnknownApplication, "", node.getKey()));
                         } else {
-                            errorsWarnings.errors.push(ActionMessage.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
+                            errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getIdText() ));
                             return;
                         }
                     }
                     node.inputApplication().addField(port);
-                    errorsWarnings.warnings.push(ActionMessage.Message("Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application"));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Warning, "Moved output port (" + port.getIdText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application"));
                 } else {
-                    errorsWarnings.errors.push(ActionMessage.Message("Can't add port to embedded application. Node can't have output OR exit application."));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Can't add port to embedded application. Node can't have output OR exit application."));
                 }
             }
         }
@@ -1938,7 +1938,7 @@ export class Node {
         return result;
     }
 
-    static fromV3NodeJson = (nodeData : any, key: string, errorsWarnings: Errors.ErrorsWarnings) : Node => {
+    static fromV3NodeJson = (nodeData : any, key: string, errors: ActionMessage[]) : Node => {
         const result = new Node(parseInt(key, 10), "", "", Category.Unknown);
 
         result.categoryType(nodeData.categoryType);
@@ -2038,18 +2038,18 @@ export class Node {
         return node;
     }
 
-    static isValid = (eagle: Eagle, node: Node, selectedLocation: Eagle.FileType, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
+    static isValid = (eagle: Eagle, node: Node, selectedLocation: Eagle.FileType, showNotification : boolean, showConsole : boolean, errors: ActionMessage[]) : Eagle.LinkValid => {
         // check that all port dataTypes have been defined
         for (const port of node.getInputPorts()){
             if (port.isType(Eagle.DataType_Unknown)){
-                const issue: ActionMessage = ActionMessage.Fix("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
-                errorsWarnings.warnings.push(issue);
+                const issue: ActionMessage = ActionMessage.Fix(ActionMessage.Level.Warning, "Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
+                errors.push(issue);
             }
         }
         for (const port of node.getOutputPorts()){
             if (port.isType(Eagle.DataType_Unknown)){
-                const issue: ActionMessage = ActionMessage.Fix("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
-                errorsWarnings.warnings.push(issue);
+                const issue: ActionMessage = ActionMessage.Fix(ActionMessage.Level.Warning, "Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldType(eagle, port)}, "");
+                errors.push(issue);
             }
         }
 
