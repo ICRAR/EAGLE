@@ -22,6 +22,25 @@ export class ActionMessage {
     static Fix(level: ActionMessage.Level, message: string, show: () => void, fix: () => void, fixDescription: string): ActionMessage {
         return new ActionMessage(level, message, show, fix, fixDescription);
     }
+
+    // sorting order
+    // 1. by level
+    // 2. alphabetically by message
+    public static actionMessageSortFunc(a : ActionMessage, b : ActionMessage) : number {
+        if (a.level < b.level)
+            return -1;
+
+        if (a.level > b.level)
+            return 1;
+
+        if (a.message < b.message)
+            return -1;
+
+        if (a.message > b.message)
+            return 1;
+
+        return 0;
+    }
 }
 
 export namespace ActionMessage {
