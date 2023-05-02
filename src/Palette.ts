@@ -49,13 +49,13 @@ export class Palette {
         this.searchExclude = ko.observable(false);
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette => {
+    static fromOJSJson = (data : string, file : RepositoryFile, errors: ActionMessage[]) : Palette => {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
         const result : Palette = new Palette();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
 
         // add nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
@@ -88,16 +88,15 @@ export class Palette {
 
         // check for missing name
         if (result.fileInfo().name === ""){
-            const error : string = file.name + " FileInfo.name is empty. Setting name to " + file.name;
-            errorsWarnings.warnings.push(ActionMessage.Message(error));
+            const message : string = file.name + " FileInfo.name is empty. Setting name to " + file.name;
+            errors.push(ActionMessage.Message(ActionMessage.Level.Warning, message));
 
             result.fileInfo().name = file.name;
         }
 
         // check palette, and then add any resulting errors/warnings to the end of the errors/warnings list
         const checkResult = Utils.checkPalette(result);
-        errorsWarnings.errors.push(...checkResult.errors);
-        errorsWarnings.warnings.push(...checkResult.warnings);
+        errors.push(...checkResult);
 
         return result;
     }

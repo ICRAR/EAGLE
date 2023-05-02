@@ -26,6 +26,7 @@ import * as Ajv from "ajv";
 import * as Showdown from "showdown";
 import * as ko from "knockout";
 
+import { ActionMessage } from "./ActionMessage";
 import {Category} from './Category';
 import {CategoryData} from "./CategoryData";
 import {Config} from './Config';
@@ -42,8 +43,6 @@ import {Repository} from './Repository';
 import {Setting} from './Setting';
 import {ParameterTable} from './ParameterTable';
 import {FileInfo} from "./FileInfo";
-
-import { ActionMessage } from "./ActionMessage";
 
 export class Utils {
     // Allowed file extenstions.
@@ -457,17 +456,13 @@ export class Utils {
         }
     }
 
-    static showErrorsModal(title: string){
-        const errors: ActionMessage[] = Errors.getErrors();
-        const warnings: ActionMessage[] = Errors.getWarnings();
-
-        console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
+    static showActionMessagesModal(title: string, messages: ActionMessage[]){
+        console.log("showActionMessagesModal() messages:", messages.length);
 
         $('#errorsModalTitle').text(title);
 
         // hide whole errors or warnings sections if none are found
-        $('#errorsModalErrorsAccordionItem').toggle(errors.length > 0);
-        $('#errorsModalWarningsAccordionItem').toggle(warnings.length > 0);
+        $('#errorsModalMessagesAccordionItem').toggle(messages.length > 0);
 
         $('#errorsModal').modal("toggle");
     }
@@ -1569,9 +1564,9 @@ export class Utils {
         return type0 === type1;
     }
 
-    static checkPalette(palette: Palette): Errors.ErrorsWarnings {
+    static checkPalette(palette: Palette): ActionMessage[] {
         const eagle: Eagle = Eagle.getInstance();
-        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
+        const errors: ActionMessage[] = [];
 
         // check for duplicate keys
         const keys: number[] = [];
@@ -1579,7 +1574,7 @@ export class Utils {
         for (const node of palette.getNodes()){
             // check existing keys
             if (keys.indexOf(node.getKey()) !== -1){
-                errorsWarnings.errors.push(ActionMessage.Message("Key " + node.getKey() + " used by multiple components in palette."));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Key " + node.getKey() + " used by multiple components in palette."));
             } else {
                 keys.push(node.getKey());
             }
@@ -1587,10 +1582,10 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of palette.getNodes()){
-            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errorsWarnings);
+            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errors);
         }
 
-        return errorsWarnings;
+        return errors;
     }
 
     static checkGraph(eagle: Eagle): Errors.ErrorsWarnings {

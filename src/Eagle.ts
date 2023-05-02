@@ -816,11 +816,7 @@ export class Eagle {
             if (showErrors){
 
                 // add warnings/errors to the arrays
-                this.loadingErrors(errorsWarnings.errors);
-                this.loadingWarnings(errorsWarnings.warnings);
-
-                this.errorsMode(Setting.ErrorsMode.Loading);
-                Utils.showErrorsModal("Loading File");
+                Utils.showErrorsModal("Loading File", errors);
             }
         } else {
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
