@@ -4,14 +4,11 @@
         <div class="modal-content">
             <!-- ko if: showTableModal() -->
                 <div class="modal-header" data-bind="click: function(){ParameterTable.resetSelection()}">
-
                     <!-- ko if: tableModalType() === 'keyParametersTableModal' -->
                         <h5 class="modal-title" id="parameterTableModalTitle">Key Graph Attributes</h5>
                     <!-- /ko -->
-
                     <!-- ko if: tableModalType() === 'inspectorTableModal' -->
                         <h5 class="modal-title" id="parameterTableModalTitle">Attributes: <span data-bind="html: selectedNode().getName()"></span></h5>
-
                         <!-- ko if: selectedNode() != null -->
                             <!-- ko if: selectedNode().isLocked() -->
                                 <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: Utils.getReadOnlyText">
@@ -25,7 +22,6 @@
                             <!-- /ko -->
                         <!-- /ko -->
                     <!-- /ko -->
-
                     <div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
                         <i class="material-icons md-18 searchBarIcon">search</i>
                         <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.tableSearchString,data,event)}">
@@ -43,7 +39,16 @@
                         <thead>
                             <tr>
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('keyAttribute') -->
-                                    <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'This Attribute is a Key Graph Attribute'" data-bs-placement="top"></th>
+                                    <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'This Attribute is a Key Graph Attribute'" data-bs-placement="top">
+                                        <div class="dropdown">
+                                            <a class="material-icons dropdown-toggle componentTableVisibilityBtn" id="parameterTableVisibilityDropdown"  data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bind="click:function(){$root.parameterTable().setParameterTableVisibility('value')}">filter_list</a>
+                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="parameterTableVisibilityDropdown">
+                                                <div class="parameterTableDropDownItem"><span>item</span><input type="checkbox"></div>
+                                                <div class="parameterTableDropDownItem"><span>item</span><input type="checkbox"></div>
+                                                <div class="parameterTableDropDownItem"><span>item</span><input type="checkbox"></div>
+                                            </div>
+                                        </div>
+                                    </th>
                                 <!-- /ko -->
                                 <!-- ko if: $root.tableModalType() === 'keyParametersTableModal'-->
                                     <th id="parameter_table_node_name" data-bind="eagleTooltip:`This Parameter's Parent Node Name`" data-bs-placement="top">

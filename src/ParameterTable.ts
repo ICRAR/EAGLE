@@ -118,7 +118,6 @@ export class ParameterTable {
     }
 
     getParameterTableVisibility = (columnName: string) : boolean => {
-        const eagle: Eagle = Eagle.getInstance();
         let returnValue : boolean
         const uiMode = UiModeSystem.getActiveUiMode().getName()
         
@@ -129,6 +128,25 @@ export class ParameterTable {
         })
 
         return returnValue
+    }
+
+    setParameterTableVisibility = (columnName: string, newValue:any) : void => {
+        const uiMode = UiModeSystem.getActiveUiMode().getName()
+        
+        ParameterTable.parameterTableVisibility.forEach(function(element:any){
+            if(element.uiModeName === uiMode){
+                console.log(element)
+                
+                for (const property in element) {
+                    if(property === columnName){
+                        console.log(`${property}: ${element[property]}`);
+                        element[property] = !element[property]
+                        console.log(`${property}: ${element[property]}`);
+                    }
+                }
+            }
+        })
+
     }
 
     formatTableInspectorSelection = () : string => {

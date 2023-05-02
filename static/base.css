@@ -262,6 +262,11 @@ td:first-child input {
     color: rgb(113 113 113);
 }
 
+.componentTableVisibilityBtn{
+    color: white;
+    text-decoration: none;
+}
+
 #parameter_table_flags{
     width: 101px;
 }
