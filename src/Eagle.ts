@@ -816,7 +816,7 @@ export class Eagle {
             if (showErrors){
 
                 // add warnings/errors to the arrays
-                Utils.showErrorsModal("Loading File", errors);
+                Utils.showActionMessagesModal("Loading File", errors);
             }
         } else {
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
@@ -846,7 +846,7 @@ export class Eagle {
         // attempt to determine schema version from FileInfo
         const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+        const errorsWarnings: ActionMessage[] = [];
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
         // use the correct parsing function based on schema version
@@ -1134,7 +1134,7 @@ export class Eagle {
             return;
         }
 
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: ActionMessage[] = [];
         const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
 
         // show errors (if found)
@@ -1217,7 +1217,7 @@ export class Eagle {
 
             const nodes : Node[] = [];
             const edges : Edge[] = [];
-            const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
+            const errorsWarnings : ActionMessage[] = [];
 
             for (const n of clipboard.nodes){
                 const node = Node.fromOJSJson(n, null, false, (): number => {
@@ -1317,7 +1317,7 @@ export class Eagle {
             case Eagle.RepositoryService.Url:
                 this.loadPalettes([
                     {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
-                ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
+                ], (errorsWarnings: ActionMessage[], palettes: Palette[]):void => {
                     for (const palette of palettes){
                         if (palette !== null){
                             this.palettes.splice(index, 0, palette);
@@ -1699,10 +1699,10 @@ export class Eagle {
         this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
     }
 
-    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (errorsWarnings: Errors.ErrorsWarnings, data: Palette[]) => void ) : void => {
+    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (errors: ActionMessage[], data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errors: ActionMessage[] = [];
 
         for (let i = 0 ; i < paletteList.length ; i++){
             results.push(null);
@@ -1715,9 +1715,9 @@ export class Eagle {
 
                 if  (error !== null){
                     console.error(error);
-                    errorsWarnings.errors.push(ActionMessage.Message(error));
+                    errors.push(ActionMessage.Message(ActionMessage.Level.Error, error));
                 } else {
-                    const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
+                    const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errors);
                     palette.fileInfo().clear();
                     palette.fileInfo().name = paletteList[index].name;
                     palette.fileInfo().readonly = paletteList[index].readonly;
@@ -1739,7 +1739,7 @@ export class Eagle {
                     }
                 }
                 if (allComplete){
-                    callback(errorsWarnings, results);
+                    callback(errors, results);
                 }
             });
         }
@@ -1804,7 +1804,7 @@ export class Eagle {
                     // attempt to determine schema version from FileInfo
                     const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-                    const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+                    const errorsWarnings: ActionMessage[] = [];
 
                     // use the correct parsing function based on schema version
                     switch (schemaVersion){
@@ -1896,14 +1896,14 @@ export class Eagle {
             // attempt to determine schema version from FileInfo
             const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-            const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+            const errors: ActionMessage[] = [];
 
             // use the correct parsing function based on schema version
             let lg: LogicalGraph;
             switch (schemaVersion){
                 case Eagle.DALiuGESchemaVersion.OJS:
                 case Eagle.DALiuGESchemaVersion.Unknown:
-                    lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
+                    lg = LogicalGraph.fromOJSJson(dataObject, file, errors);
                     break;
             }
 
@@ -1911,7 +1911,7 @@ export class Eagle {
             const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
             // perform insert
-            this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
+            this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errors);
 
             // trigger re-render
             this.logicalGraph.valueHasMutated();
@@ -1919,7 +1919,7 @@ export class Eagle {
             this.checkGraph();
 
             // show errors/warnings
-            this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+            this._handleLoadingErrors(errors, file.name, file.repository.service);
         });
     };
 
@@ -1948,7 +1948,7 @@ export class Eagle {
         }
 
         // load the new palette
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: ActionMessage[] = [];
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
         // sort items in palette
