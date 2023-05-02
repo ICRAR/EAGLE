@@ -88,11 +88,14 @@ export class Eagle {
 
     explorePalettes : ko.Observable<ExplorePalettes>;
 
-    errorsMode : ko.Observable<Setting.ErrorsMode>;
-    graphWarnings : ko.ObservableArray<ActionMessage>;
-    graphErrors : ko.ObservableArray<ActionMessage>;
-    loadingWarnings : ko.ObservableArray<ActionMessage>;
-    loadingErrors : ko.ObservableArray<ActionMessage>;
+    //errorsMode : ko.Observable<Setting.ErrorsMode>;
+    //graphWarnings : ko.ObservableArray<ActionMessage>;
+    //graphErrors : ko.ObservableArray<ActionMessage>;
+    //loadingWarnings : ko.ObservableArray<ActionMessage>;
+    //loadingErrors : ko.ObservableArray<ActionMessage>;
+    actionMessages : ko.ObservableArray<ActionMessage>;
+
+
     tableModalType : ko.Observable<string>;
     showTableModal : ko.Observable<boolean>;
     currentFileInfo : ko.Observable<FileInfo>;
@@ -168,11 +171,12 @@ export class Eagle {
 
         this.explorePalettes = ko.observable(new ExplorePalettes());
 
-        this.errorsMode = ko.observable(Setting.ErrorsMode.Loading);
-        this.graphWarnings = ko.observableArray([]);
-        this.graphErrors = ko.observableArray([]);
-        this.loadingWarnings = ko.observableArray([]);
-        this.loadingErrors = ko.observableArray([]);
+        //this.errorsMode = ko.observable(Setting.ErrorsMode.Loading);
+        //this.graphWarnings = ko.observableArray([]);
+        //this.graphErrors = ko.observableArray([]);
+        //this.loadingWarnings = ko.observableArray([]);
+        //this.loadingErrors = ko.observableArray([]);
+        this.actionMessages = ko.observableArray([]);
 
         this.tableModalType = ko.observable('')
         this.showTableModal = ko.observable(false)

@@ -44,7 +44,7 @@ export class ComponentUpdater {
             }
 
             if (!foundPrototype){
-                console.log("No match for node", node.getName());
+                //console.log("No match for node", node.getName());
                 errorsWarnings.warnings.push(ActionMessage.Message("Could not find appropriate palette for node " + node.getName() + " from repository " + node.getRepositoryUrl()));
                 continue;
             }
@@ -80,7 +80,7 @@ export class ComponentUpdater {
             }
            
             // NOTE: we could just use a copy() function here if we had one
-            destField.copyWithKeyAndId(srcField, srcField.getNodeKey(), srcField.getId());
+            //destField.copyWithKeyAndId(srcField, srcField.getNodeKey(), srcField.getId());
         }
 
         return updates;
