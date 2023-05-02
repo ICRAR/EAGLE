@@ -4445,8 +4445,8 @@ export class Eagle {
     checkForComponentUpdates = () : void => {
         console.log("checkForComponentUpdates()");
 
-        ComponentUpdater.update(this.palettes(), this.logicalGraph(), function(errorsWarnings:Errors.ErrorsWarnings, updatedNodes:Node[]){
-            console.log("callback", errorsWarnings, updatedNodes);
+        ComponentUpdater.determineUpdates(this.palettes(), this.logicalGraph(), function(errorsWarnings:Errors.ErrorsWarnings, updates:ActionMessage[]){
+            console.log("callback", errorsWarnings, updates);
 
             // report missing palettes to the user
             if (errorsWarnings.errors.length > 0){
@@ -4457,12 +4457,15 @@ export class Eagle {
 
                 Utils.showNotification("Error", errorStrings.join("\n"), "danger");
             } else {
+                // TODO: display updates list
+                /*
                 const nodeNames = [];
                 for (const node of updatedNodes){
                     nodeNames.push(node.getName());
                 }
 
                 Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
+                */
             }
         });
     }

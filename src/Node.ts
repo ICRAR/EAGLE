@@ -1295,14 +1295,6 @@ export class Node {
                node0.getCommitHash() === node1.getCommitHash();
     }
 
-    static requiresUpdate = (node0: Node, node1: Node) : boolean => {
-        return node0.getRepositoryUrl() !== "" &&
-               node1.getRepositoryUrl() !== "" &&
-               node0.getRepositoryUrl() === node1.getRepositoryUrl() &&
-               node0.getName() === node1.getName() &&
-               node0.getCommitHash() !== node1.getCommitHash();
-    }
-
     static canHaveInputApp = (node : Node) : boolean => {
         return CategoryData.getCategoryData(node.getCategory()).canHaveInputApplication;
     }
