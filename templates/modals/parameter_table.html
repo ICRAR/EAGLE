@@ -50,10 +50,12 @@
                                         Node Name
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_name') === true}"></div>
                                     </th>
-                                    <th id="parameter_table_node_key" data-bind="eagleTooltip:`This Parameter's Parent Node Key`" data-bs-placement="top">
-                                        Node Key
-                                        <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_key') === true}"></div>
-                                    </th>
+                                    <!-- ko if: $root.displayNodeKeys() -->
+                                        <th id="parameter_table_node_key" data-bind="eagleTooltip:`This Parameter's Parent Node Key`" data-bs-placement="top">
+                                            Node Key
+                                            <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_key') === true}"></div>
+                                        </th>
+                                    <!-- /ko -->
                                 <!-- /ko -->
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('displayText') -->
                                     <th id="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">
@@ -113,7 +115,9 @@
                                         <!-- /ko -->
                                         <!-- ko if: $root.tableModalType() === 'keyParametersTableModal' -->
                                             <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getName(), disabled: true"></td>
-                                            <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getKey(), disabled: true"></td>
+                                            <!-- ko if: $root.displayNodeKeys() -->
+                                                <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getKey(), disabled: true"></td>
+                                            <!-- /ko -->
                                         <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('displayText') -->
                                             <td  data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' }"><input class="tableParameter selectionTargets" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
