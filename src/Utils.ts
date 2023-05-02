@@ -768,7 +768,7 @@ export class Utils {
             $('#editFieldModalTypeSelect').append(li);
         }
 
-        // delete all options, then iterate through the values in the Eagle.ParameterType enum, adding each as an option to the select
+        // delete all options, then iterate through the values in the Daliuge.FieldType enum, adding each as an option to the select
         $('#editFieldModalParameterTypeSelect').empty();
         for (const ft of [Daliuge.FieldType.ComponentParameter, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldType.ConstructParameter]){
             $('#editFieldModalParameterTypeSelect').append(
@@ -780,7 +780,7 @@ export class Utils {
             );
         }
 
-        // delete all options, then iterate through the values in the Eagle.ParameterUsage enum, adding each as an option to the select
+        // delete all options, then iterate through the values in the Daliuge.FieldUsage enum, adding each as an option to the select
         $('#editFieldModalParameterUsageSelect').empty();
         for (const pu of Object.values(Daliuge.FieldUsage)){
             $('#editFieldModalParameterUsageSelect').append(
