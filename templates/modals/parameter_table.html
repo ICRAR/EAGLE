@@ -45,13 +45,11 @@
                                 <!-- ko if: $root.parameterTable().getParameterTableVisibility('keyAttribute') -->
                                     <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'This Attribute is a Key Graph Attribute'" data-bs-placement="top"></th>
                                 <!-- /ko -->
-                                <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeName') -->
+                                <!-- ko if: $root.tableModalType() === 'keyParametersTableModal'-->
                                     <th id="parameter_table_node_name" data-bind="eagleTooltip:`This Parameter's Parent Node Name`" data-bs-placement="top">
                                         Node Name
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_name') === true}"></div>
                                     </th>
-                                <!-- /ko -->
-                                <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeKey') -->
                                     <th id="parameter_table_node_key" data-bind="eagleTooltip:`This Parameter's Parent Node Key`" data-bs-placement="top">
                                         Node Key
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_key') === true}"></div>
@@ -113,10 +111,8 @@
                                                 <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'This Attribute is a Key Graph Attribute', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
                                             </td>
                                         <!-- /ko -->
-                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeName') -->
+                                        <!-- ko if: $root.tableModalType() === 'keyParametersTableModal' -->
                                             <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getName(), disabled: true"></td>
-                                        <!-- /ko -->
-                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('nodeKey') -->
                                             <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getKey(), disabled: true"></td>
                                         <!-- /ko -->
                                         <!-- ko if: $root.parameterTable().getParameterTableVisibility('displayText') -->

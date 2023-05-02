@@ -16,24 +16,22 @@ export class ParameterTable {
     static tableHeaderX : any;
     static tableHeaderW : any;
 
-    // static parameterTableVisibility : Array<{parameterName:string, keyVisibilityStudent:boolean, keyVisibilityMinimal:boolean, keyVisibilityGraph:boolean, keyVisibilityComponent:boolean, keyVisibilityExpert:boolean, inspectorVisibilityStudent:boolean, inspectorVisibilityMinimal:boolean, inspectorVisibilityGraph:boolean, inspectorVisibilityComponent:boolean, inspectorVisibilityExpert:boolean}> = []
-
     static parameterTableVisibility : Array<{
         uiModeName:string, 
-        keyAttributeKey:boolean, keyAttributeInspector:boolean,
-        nodeNameKey:boolean, nodeNameInspector:boolean,
-        nodeKeyKey:boolean,nodeKeyInspector:boolean,
-        displayTextKey:boolean,displayTextInspeactor:boolean,
-        idTextKey:boolean, idTextInspector:boolean,
-        valueKey:boolean, valueInspector:boolean,
-        readOnlyKey:boolean, readOnlyInspector:boolean,
-        defaultValueKey:boolean, defaultValueInspector:boolean,
-        descriptionKey:boolean,descriptionIsnpector:boolean,
-        typeKey:boolean, typeInspector:boolean,
-        parameterTypeKey:boolean, parameterTypeInspector:boolean,
-        usageKey:boolean,usageInspector:boolean,
-        flagsKey:boolean,flagsInspector:boolean,
-        actionsKey:boolean, actionsInspector:boolean
+        keyAttribute:boolean,
+        nodeName:boolean,
+        nodeKey:boolean,
+        displayText:boolean,
+        idText:boolean, 
+        value:boolean, 
+        readOnly:boolean, 
+        defaultValue:boolean, 
+        description:boolean,
+        type:boolean, 
+        parameterType:boolean, 
+        usage:boolean,
+        flags:boolean,
+        actions:boolean, 
     }> = []
 
     constructor(){
@@ -46,107 +44,99 @@ export class ParameterTable {
 
         ParameterTable.parameterTableVisibility.push({
             uiModeName:"Student",
-            keyAttributeKey:false,keyAttributeInspector:false,
-            nodeNameKey:true, nodeNameInspector:false,
-            nodeKeyKey:false,nodeKeyInspector:false,
-            displayTextKey:true,displayTextInspeactor:true,
-            idTextKey:false, idTextInspector:false,
-            valueKey:true, valueInspector:true,
-            readOnlyKey:true, readOnlyInspector:true,
-            defaultValueKey:false, defaultValueInspector:false,
-            descriptionKey:true,descriptionIsnpector:true,
-            typeKey:false, typeInspector:true,
-            parameterTypeKey:false, parameterTypeInspector:false,
-            usageKey:false,usageInspector:false,
-            flagsKey:false,flagsInspector:true,
-            actionsKey:false, actionsInspector:false
+            keyAttribute:false,
+            nodeName:true, 
+            nodeKey:false,
+            displayText:true,
+            idText:false,
+            value:true, 
+            readOnly:true, 
+            defaultValue:false, 
+            description:true,
+            type:false, 
+            parameterType:false,
+            usage:false,
+            flags:false,
+            actions:false, 
         })
         ParameterTable.parameterTableVisibility.push({
             uiModeName:"Minimal",
-            keyAttributeKey:true,keyAttributeInspector:true,
-            nodeNameKey:true, nodeNameInspector:false,
-            nodeKeyKey:true,nodeKeyInspector:false,
-            displayTextKey:true,displayTextInspeactor:true,
-            idTextKey:false, idTextInspector:false,
-            valueKey:true, valueInspector:true,
-            readOnlyKey:true, readOnlyInspector:true,
-            defaultValueKey:false, defaultValueInspector:false,
-            descriptionKey:true,descriptionIsnpector:true,
-            typeKey:false, typeInspector:false,
-            parameterTypeKey:false, parameterTypeInspector:false,
-            usageKey:false,usageInspector:false,
-            flagsKey:true,flagsInspector:true,
-            actionsKey:false, actionsInspector:false
+            keyAttribute:true,
+            nodeName:true, 
+            nodeKey:true,
+            displayText:true,
+            idText:false, 
+            value:true, 
+            readOnly:true, 
+            defaultValue:false, 
+            description:true,
+            type:false, 
+            parameterType:false, 
+            usage:false,
+            flags:true,
+            actions:false, 
         })
         ParameterTable.parameterTableVisibility.push({
             uiModeName:"Graph",
-            keyAttributeKey:true,keyAttributeInspector:true,
-            nodeNameKey:true, nodeNameInspector:false,
-            nodeKeyKey:true,nodeKeyInspector:false,
-            displayTextKey:true,displayTextInspeactor:true,
-            idTextKey:false, idTextInspector:false,
-            valueKey:true, valueInspector:true,
-            readOnlyKey:true, readOnlyInspector:true,
-            defaultValueKey:false, defaultValueInspector:true,
-            descriptionKey:true,descriptionIsnpector:true,
-            typeKey:true, typeInspector:true,
-            parameterTypeKey:true, parameterTypeInspector:true,
-            usageKey:true,usageInspector:true,
-            flagsKey:true,flagsInspector:true,
-            actionsKey:true, actionsInspector:true
+            keyAttribute:true,
+            nodeName:true, 
+            nodeKey:true,
+            displayText:true,
+            idText:false, 
+            value:true, 
+            readOnly:true, 
+            defaultValue:false, 
+            description:true,
+            type:true, 
+            parameterType:true, 
+            usage:true,
+            flags:true,
+            actions:true, 
         })
         ParameterTable.parameterTableVisibility.push({
             uiModeName:"Component",
-            keyAttributeKey:true,keyAttributeInspector:true,
-            nodeNameKey:true, nodeNameInspector:false,
-            nodeKeyKey:true,nodeKeyInspector:false,
-            displayTextKey:true,displayTextInspeactor:true,
-            idTextKey:false, idTextInspector:false,
-            valueKey:true, valueInspector:true,
-            readOnlyKey:true, readOnlyInspector:true,
-            defaultValueKey:false, defaultValueInspector:true,
-            descriptionKey:true,descriptionIsnpector:true,
-            typeKey:true, typeInspector:true,
-            parameterTypeKey:true, parameterTypeInspector:true,
-            usageKey:true,usageInspector:true,
-            flagsKey:true,flagsInspector:true,
-            actionsKey:true, actionsInspector:true
+            keyAttribute:true,
+            nodeName:true, 
+            nodeKey:true,
+            displayText:true,
+            idText:false, 
+            value:true, 
+            readOnly:true, 
+            defaultValue:false, 
+            description:true,
+            type:true, 
+            parameterType:true, 
+            usage:true,
+            flags:true,
+            actions:true, 
         })
         ParameterTable.parameterTableVisibility.push({
             uiModeName:"Expert",
-            keyAttributeKey:true,keyAttributeInspector:true,
-            nodeNameKey:true, nodeNameInspector:false,
-            nodeKeyKey:true,nodeKeyInspector:false,
-            displayTextKey:true,displayTextInspeactor:true,
-            idTextKey:false, idTextInspector:false,
-            valueKey:true, valueInspector:true,
-            readOnlyKey:true, readOnlyInspector:true,
-            defaultValueKey:false, defaultValueInspector:true,
-            descriptionKey:true,descriptionIsnpector:true,
-            typeKey:true, typeInspector:true,
-            parameterTypeKey:true, parameterTypeInspector:true,
-            usageKey:true,usageInspector:true,
-            flagsKey:true,flagsInspector:true,
-            actionsKey:true, actionsInspector:true
+            keyAttribute:true,
+            nodeName:true, 
+            nodeKey:true,
+            displayText:true,
+            idText:false, 
+            value:true, 
+            readOnly:true, 
+            defaultValue:false, 
+            description:true,
+            type:true, 
+            parameterType:true, 
+            usage:true,
+            flags:true,
+            actions:true, 
         })
     }
 
     getParameterTableVisibility = (columnName: string) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
-        const tableModalType = eagle.tableModalType()
         let returnValue : boolean
         const uiMode = UiModeSystem.getActiveUiMode().getName()
-        let requestedValueKey:string
-
-        if(tableModalType === "keyParametersTableModal"){
-            requestedValueKey = columnName+'Key'
-        }else if (tableModalType === "inspectorTableModal"){
-            requestedValueKey = columnName+'Inspector'
-        }
         
         ParameterTable.parameterTableVisibility.forEach(function(element:any){
             if(element.uiModeName === uiMode){
-                returnValue = element[requestedValueKey]
+                returnValue = element[columnName]
             }
         })
 
