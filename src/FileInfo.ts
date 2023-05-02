@@ -1,5 +1,6 @@
 import * as ko from "knockout";
 
+import { ActionMessage } from "./ActionMessage";
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import {Errors} from './Errors';
@@ -461,7 +462,7 @@ export class FileInfo {
         // check that lastModifiedDatetime is a Number, if not correct
         if (typeof result.lastModifiedDatetime !== 'number'){
             result.lastModifiedDatetime = 0;
-            errorsWarnings.errors.push(Errors.Message("Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value."));
+            errorsWarnings.errors.push(ActionMessage.Message("Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value."));
         }
 
         result.numLGNodes = modelData.numLGNodes == undefined ? 0 : modelData.numLGNodes;

@@ -24,6 +24,7 @@
 
 import * as ko from "knockout";
 
+import { ActionMessage } from "./ActionMessage";
 import {Utils} from './Utils';
 import {Eagle} from './Eagle';
 import {Node} from './Node';
@@ -68,7 +69,7 @@ export class Palette {
             // check that node has no group
             if (newNode.getParentKey() !== null){
                 const error : string = file.name + " Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
-                errorsWarnings.warnings.push(Errors.Message(error));
+                errorsWarnings.warnings.push(ActionMessage.Message(error));
 
                 newNode.setParentKey(null);
             }
@@ -76,7 +77,7 @@ export class Palette {
             // check that x, y, position is the default
             if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
                 const error : string = file.name + " Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
-                errorsWarnings.warnings.push(Errors.Message(error));
+                errorsWarnings.warnings.push(ActionMessage.Message(error));
 
                 newNode.setPosition(0, 0);
             }
@@ -88,7 +89,7 @@ export class Palette {
         // check for missing name
         if (result.fileInfo().name === ""){
             const error : string = file.name + " FileInfo.name is empty. Setting name to " + file.name;
-            errorsWarnings.warnings.push(Errors.Message(error));
+            errorsWarnings.warnings.push(ActionMessage.Message(error));
 
             result.fileInfo().name = file.name;
         }

@@ -24,6 +24,7 @@
 
 import * as ko from "knockout";
 
+import { ActionMessage } from "./ActionMessage";
 import {Category} from './Category';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
@@ -169,7 +170,7 @@ export class LogicalGraph {
         // check for missing name
         if (result.fileInfo().name === ""){
             const error : string = "FileInfo.name is empty. Setting name to " + file.name;
-            errorsWarnings.warnings.push(Errors.Message(error));
+            errorsWarnings.warnings.push(ActionMessage.Message(error));
 
             result.fileInfo().name = file.name;
         }
@@ -185,13 +186,13 @@ export class LogicalGraph {
             if (sourceNode.getCategoryType() === Category.Type.Construct){
                 const srcKeyAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPortId());
                 const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNodeKey() + " to embedded application " + srcKeyAndPort.key;
-                errorsWarnings.warnings.push(Errors.Message(warning));
+                errorsWarnings.warnings.push(ActionMessage.Message(warning));
                 edge.setSrcNodeKey(srcKeyAndPort.key);
             }
             if (destinationNode.getCategoryType() === Category.Type.Construct){
                 const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPortId());
                 const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNodeKey() + " to embedded application " + destKeyAndPort.key;
-                errorsWarnings.warnings.push(Errors.Message(warning));
+                errorsWarnings.warnings.push(ActionMessage.Message(warning));
                 edge.setDestNodeKey(destKeyAndPort.key);
             }
         }
