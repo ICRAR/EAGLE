@@ -761,7 +761,8 @@ export class Eagle {
 
                 // update the activeFileInfo with details of the repository the file was loaded from
                 if (fileFullPath !== ""){
-                    this.updateLogicalGraphFileInfo(Eagle.RepositoryService.File, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+                    const repositoryFile = new RepositoryFile(new Repository(Eagle.RepositoryService.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+                    this.updateLogicalGraphFileInfo(repositoryFile);
                 }
 
                 // check graph
@@ -1703,28 +1704,41 @@ export class Eagle {
         this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
     }
 
-    loadFiles = (files: RepositoryFile[], callback: (errors: ActionMessage[], data: Palette[]) => void ) : void => {
-        const results: Palette[] = [];
-        const complete: boolean[] = [];
+    loadFiles = (files: RepositoryFile[], callback: (errors: ActionMessage[], palettes: Palette[], graphs: LogicalGraph[]) => void ) : void => {
+        const palettes: Palette[] = [];
+        const graphs: LogicalGraph[] = [];
+        const filesComplete: boolean[] = [];
         const errors: ActionMessage[] = [];
 
         for (let i = 0 ; i < files.length ; i++){
-            results.push(null);
-            complete.push(false);
+            filesComplete.push(false);
             const index = i;
             
-            this.openRemoteFile(files[i], function(){
-                complete[index] = true;
+            this.openRemoteFile(files[i], function(err: ActionMessage[], file: LogicalGraph | Palette){
+                filesComplete[index] = true;
+
+                // add files to array
+                // TODO: use instanceof here?
+                if (file.fileInfo().type === Eagle.FileType.Graph){
+                    graphs.push(<LogicalGraph>file);
+                } else {
+                    palettes.push(<Palette>file);
+                }
+
+                // add errors
+                if (err.length !== 0){
+                    errors.push(...err);
+                }
 
                 // check if all requests are now complete, then we can call the callback
                 let allComplete = true;
-                for (const requestComplete of complete){
+                for (const requestComplete of filesComplete){
                     if (!requestComplete){
                         allComplete = false;
                     }
                 }
                 if (allComplete){
-                    callback(errors, results);
+                    callback(errors, palettes, graphs);
                 }
             });
 
@@ -1765,7 +1779,7 @@ export class Eagle {
         }
     }
 
-    openRemoteFile = (file : RepositoryFile, callback: () => void) : void => {
+    openRemoteFile = (file : RepositoryFile, callback: (errors: ActionMessage[], file: LogicalGraph | Palette) => void) : void => {
         // flag file as being fetched
         file.isFetching(true);
 
@@ -1787,7 +1801,7 @@ export class Eagle {
         }
 
         // load file from github or gitlab
-        openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string, data : string) : void => {
+        openRemoteFileFunc(file, (error : string, data : string) : void => {
             // flag fetching as complete
             file.isFetching(false);
 
@@ -1795,7 +1809,7 @@ export class Eagle {
             if (error != null){
                 Utils.showUserMessage("Error", error);
                 console.error(error);
-                if (callback !== null) callback();
+                if (callback !== null) callback([ActionMessage.Error(error)], null);
                 return;
             }
 
@@ -1811,7 +1825,7 @@ export class Eagle {
                 }
                 catch(err){
                     Utils.showUserMessage("Error parsing file JSON", err.message);
-                    if (callback !== null) callback();
+                    if (callback !== null) callback([ActionMessage.Error(err)], null);
                     return;
                 }
 
@@ -1821,33 +1835,40 @@ export class Eagle {
                 fileTypeLoaded = Eagle.FileType.Markdown;
             }        
 
+            const errors: ActionMessage[] = [];
+
             switch (fileTypeLoaded){
                 case Eagle.FileType.Graph:
                     // attempt to determine schema version from FileInfo
-                    const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
+                    //const schemaVersion: Eagle.DALiuGESchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-                    const errorsWarnings: ActionMessage[] = [];
+                    
 
                     // use the correct parsing function based on schema version
+                    /*
                     switch (schemaVersion){
                         case Eagle.DALiuGESchemaVersion.OJS:
                         case Eagle.DALiuGESchemaVersion.Unknown:
-                            this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
+                            
                             break;
                     }
+                    */
+
+                    // load graph
+                    this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
 
                     // show errors/warnings
-                    this.handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+                    //this.handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
                     // center graph
-                    this.centerGraph();
+                    //this.centerGraph();
 
                     // check graph
-                    this.checkGraph();
-                    this.undo().pushSnapshot(this, "Loaded " + file.name);
+                    //this.checkGraph();
+                    //this.undo().pushSnapshot(this, "Loaded " + file.name);
 
                     // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
-                    this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+                    //this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
                     break;
 
                 case Eagle.FileType.Palette:
@@ -1864,7 +1885,15 @@ export class Eagle {
             }
             this.resetEditor();
 
-            if (callback !== null) callback();
+            // HACK
+            let returnThing: LogicalGraph | Palette = null;
+            if (fileTypeLoaded === Eagle.FileType.Graph){
+                returnThing = this.logicalGraph();
+            } else {
+                returnThing = this.palettes()[this.palettes().length -1];
+            }
+
+            if (callback !== null) callback(errors, returnThing);
         });
     };
 
@@ -1887,7 +1916,7 @@ export class Eagle {
         }
 
         // load file from github or gitlab
-        insertRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string, data : string) : void => {
+        insertRemoteFileFunc(file, (error : string, data : string) : void => {
             // flag fetching as complete
             file.isFetching(false);
 
@@ -1982,24 +2011,23 @@ export class Eagle {
         this.palettes.unshift(newPalette);
 
         // show errors/warnings
-        this.handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        //this.handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
-        this.leftWindow().shown(true);
+        //this.leftWindow().shown(true);
     }
 
-    private updateLogicalGraphFileInfo = (repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
-        console.log("updateLogicalGraphFileInfo(): repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
+    updateLogicalGraphFileInfo = (file: RepositoryFile) : void => {
+        console.log("updateLogicalGraphFileInfo(): repositoryService:", file.repository.service, "repositoryName:", file.repository.name, "repositoryBranch:", file.repository.branch, "path:", file.path, "name:", file.name);
 
         // update the activeFileInfo with details of the repository the file was loaded from
-        this.logicalGraph().fileInfo().repositoryName = repositoryName;
-        this.logicalGraph().fileInfo().repositoryBranch = repositoryBranch;
-        this.logicalGraph().fileInfo().repositoryService = repositoryService;
-        this.logicalGraph().fileInfo().path = path;
-        this.logicalGraph().fileInfo().name = name;
+        this.logicalGraph().fileInfo().repositoryName = file.repository.name;
+        this.logicalGraph().fileInfo().repositoryBranch = file.repository.branch;
+        this.logicalGraph().fileInfo().repositoryService = file.repository.service;
+        this.logicalGraph().fileInfo().path = file.path;
+        this.logicalGraph().fileInfo().name = file.name;
 
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
         this.logicalGraph().fileInfo.valueHasMutated();
-
     }
 
     findPaletteByFile = (file : RepositoryFile) : Palette => {
@@ -4206,6 +4234,9 @@ export class Eagle {
 
             // switch to graph errors mode
             //this.errorsMode(Setting.ErrorsMode.Graph);
+
+            // make sure to display the check graph messages when the modal is displayed
+            this.actionMessages(this.checkGraphMessages());
 
             // show graph modal
             this.smartToggleModal('errorsModal')

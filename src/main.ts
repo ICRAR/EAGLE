@@ -135,27 +135,44 @@ $(function(){
     }
 
     // load the default palette
-    eagle.loadFiles(autoLoadFiles, (errors: ActionMessage[], palettes: Palette[]):void => {
-        //const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
-
-        // display of errors if setting is true
-        /*
-        if (showErrors && (Errors.hasErrors(errors) || Errors.hasWarnings(errors))){
-            // add warnings/errors to the arrays
-            eagle.actionMessages(errors);
-
-            Utils.showActionMessagesModal("Loading File", errors);
-        }
-        */
-        console.log("here");
-        eagle.handleLoadingErrors(errors, "", Eagle.RepositoryService.Unknown);  
-
+    eagle.loadFiles(autoLoadFiles, (errors: ActionMessage[], palettes: Palette[], graphs: LogicalGraph[]):void => {
+        console.log("loadFiles() callback: palettes", palettes.length, "graphs", graphs.length, "errors", errors.length);
+    
+        // handle palettes
         for (const palette of palettes){
             if (palette !== null){
                 eagle.palettes.push(palette);
             }
         }
-        eagle.leftWindow().shown(true);
+
+        // TODO: loop over graphs, and load
+
+        // 
+
+        // handle errors
+        eagle.handleLoadingErrors(errors, "", Eagle.RepositoryService.Unknown);  
+
+        // show the left window if palettes were loaded
+        // TODO: is this required? try removing
+        if (palettes.length > 0){
+            eagle.leftWindow().shown(true);
+        }
+
+        if (graphs.length > 0){
+            // center graph
+            eagle.centerGraph();
+
+            // check graph
+            eagle.checkGraph();
+
+            // HACK: we assume the urlAutoLoadFile is the graph file, may not be the case!
+
+            // push undo snapshot
+            eagle.undo().pushSnapshot(eagle, "Loaded " + urlAutoLoadFile.name);
+
+            // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
+            eagle.updateLogicalGraphFileInfo(urlAutoLoadFile);
+        }
     });
 
     // set other state based on settings values

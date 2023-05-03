@@ -13,6 +13,9 @@ export class ActionMessage {
         this.fixDescription = fixDescription;
     }
 
+    static Error(message: string): ActionMessage {
+        return new ActionMessage(ActionMessage.Level.Error, message, null, null, "");
+    }
     static Message(level: ActionMessage.Level, message: string): ActionMessage {
         return new ActionMessage(level, message, null, null, "");
     }

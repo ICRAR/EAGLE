@@ -16,7 +16,7 @@
                         <div id="checkGraphAccordionCollapseOne" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingOne">
                             <div class="accordion-body" id="errorsModalErrorsAccordionBody">
                                 <ul class="list-group">
-                                <!-- ko foreach: Errors.getErrors -->
+                                <!-- ko foreach: actionMessages -->
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span data-bind="text: $data.message"></span>
                                         <div>
@@ -41,7 +41,7 @@
                         <div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">
                             <div class="accordion-body" id="errorsModalWarningsAccordionBody">
                                 <ul class="list-group">
-                                <!-- ko foreach: Errors.getWarnings -->
+                                <!-- ko foreach: actionMessages -->
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span data-bind="text: $data.message"></span>
                                         <div>

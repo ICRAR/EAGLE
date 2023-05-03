@@ -43,6 +43,7 @@ import {Repository} from './Repository';
 import {Setting} from './Setting';
 import {ParameterTable} from './ParameterTable';
 import {FileInfo} from "./FileInfo";
+import { RepositoryFile } from "./RepositoryFile";
 
 export class Utils {
     // Allowed file extenstions.
@@ -458,6 +459,10 @@ export class Utils {
 
     static showActionMessagesModal(title: string, messages: ActionMessage[]){
         console.log("showActionMessagesModal() messages:", messages.length);
+        //console.trace();
+
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.actionMessages(messages);
 
         $('#errorsModalTitle').text(title);
 
@@ -2300,7 +2305,7 @@ export class Utils {
         return result;
     }
 
-    static openRemoteFileFromUrl(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        Utils.httpGet(filePath, callback);
+    static openRemoteFileFromUrl(file: RepositoryFile, callback: (error : string, data : string) => void ) : void {
+        Utils.httpGet(file.path, callback);
     }
 }
