@@ -33,6 +33,7 @@ import {Repository} from './Repository';
 import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
+import { ActionMessage } from './ActionMessage';
 
 export class GraphUpdater {
 
@@ -355,13 +356,12 @@ export class GraphUpdater {
                 openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file, (error: string, data: string) => {
                     // if file fetched successfully
                     if (error === null){
-                        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+                        const errors: ActionMessage[] = [];
                         const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
-                        const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file, errorsWarnings);
+                        const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file, errors);
 
                         // record number of errors
-                        row.numLoadWarnings = errorsWarnings.warnings.length;
-                        row.numLoadErrors = errorsWarnings.errors.length;
+                        row.numLoadErrors = errors.length;
 
                         // use git-related info within file
                         row.eagleVersion = lg.fileInfo().eagleVersion;
@@ -376,9 +376,8 @@ export class GraphUpdater {
                         row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
 
                         // check the graph once loaded
-                        const results: Errors.ErrorsWarnings = Utils.checkGraph(eagle);
-                        row.numCheckWarnings = results.warnings.length;
-                        row.numCheckErrors = results.errors.length;
+                        const results: ActionMessage[] = Utils.checkGraph(eagle);
+                        row.numCheckErrors = results.length;
                     }
 
                     resolve();

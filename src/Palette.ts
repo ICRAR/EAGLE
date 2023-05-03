@@ -25,14 +25,14 @@
 import * as ko from "knockout";
 
 import { ActionMessage } from "./ActionMessage";
-import {Utils} from './Utils';
-import {Eagle} from './Eagle';
-import {Node} from './Node';
-import {FileInfo} from './FileInfo';
-import {RepositoryFile} from './RepositoryFile';
-import {Errors} from './Errors';
-import {Category} from './Category';
-import {CategoryData} from './CategoryData';
+import { Category } from './Category';
+import { CategoryData } from './CategoryData';
+import { Eagle } from './Eagle';
+import { FileInfo } from './FileInfo';
+import { Node } from './Node';
+import { RepositoryFile } from './RepositoryFile';
+import { Utils } from './Utils';
+
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
@@ -62,14 +62,14 @@ export class Palette {
             const nodeData = dataObject.nodeDataArray[i];
 
             // read node
-            const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, true, (): number => {
+            const newNode : Node = Node.fromOJSJson(nodeData, errors, true, (): number => {
                 return Utils.newKey(result.nodes());
             });
 
             // check that node has no group
             if (newNode.getParentKey() !== null){
                 const error : string = file.name + " Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
-                errorsWarnings.warnings.push(ActionMessage.Message(error));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Warning, error));
 
                 newNode.setParentKey(null);
             }
@@ -77,7 +77,7 @@ export class Palette {
             // check that x, y, position is the default
             if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
                 const error : string = file.name + " Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
-                errorsWarnings.warnings.push(ActionMessage.Message(error));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Warning, error));
 
                 newNode.setPosition(0, 0);
             }

@@ -10,31 +10,22 @@ export class Errors {
 
     static fixAll = () : void => {
         const eagle: Eagle = Eagle.getInstance();
-        const initialNumWarnings = eagle.graphWarnings().length;
-        const initialNumErrors = eagle.graphErrors().length;
-        let numErrors   = Infinity;
-        let numWarnings = Infinity;
+        const initialNumMessages = eagle.checkGraphMessages().length;
+        let numMessages   = Infinity;
         let numIterations = 0;
 
-        while (numWarnings !== eagle.graphWarnings().length || numErrors !== eagle.graphErrors().length){
+        while (numMessages !== eagle.checkGraphMessages().length){
             if (numIterations > 10){
                 console.warn("Too many iterations in fixAll()");
                 break;
             }
             numIterations = numIterations+1;
 
-            numWarnings = eagle.graphWarnings().length;
-            numErrors = eagle.graphErrors().length;
+            numMessages = eagle.checkGraphMessages().length;
 
-            for (const error of eagle.graphErrors()){
-                if (error.fix !== null){
-                    error.fix();
-                }
-            }
-
-            for (const warning of eagle.graphWarnings()){
-                if (warning.fix !== null){
-                    warning.fix();
+            for (const message of eagle.checkGraphMessages()){
+                if (message.fix !== null){
+                    message.fix();
                 }
             }
 
@@ -42,7 +33,7 @@ export class Errors {
         }
 
         // show notification
-        Utils.showNotification("Fix All Graph Errors", initialNumErrors + " error(s), " + numErrors + " remain. " + initialNumWarnings + " warning(s), " + numWarnings + " remain.", "info");
+        Utils.showNotification("Fix All Graph Errors", initialNumMessages + " error(s), " + numMessages + " remain. ", "info");
 
         Utils.postFixFunc(eagle);
     }
@@ -67,30 +58,29 @@ export class Errors {
 
     static getWarnings : ko.PureComputed<ActionMessage[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
+        const result: ActionMessage[] = [];
 
-        switch (eagle.errorsMode()){
-            case Setting.ErrorsMode.Loading:
-                return eagle.loadingWarnings();
-            case Setting.ErrorsMode.Graph:
-                return eagle.graphWarnings();
-            default:
-                console.warn("Unknown errorsMode (" + eagle.errorsMode() + "). Unable to getWarnings()");
-                return [];
+        for (const error of eagle.checkGraphMessages()){
+            if (error.level === ActionMessage.Level.Warning){
+                result.push(error);
+            }
         }
+
+        return result;
+
     }, this);
 
     static getErrors : ko.PureComputed<ActionMessage[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
+        const result: ActionMessage[] = [];
 
-        switch (eagle.errorsMode()){
-            case Setting.ErrorsMode.Loading:
-                return eagle.loadingErrors();
-            case Setting.ErrorsMode.Graph:
-                return eagle.graphErrors();
-            default:
-                console.warn("Unknown errorsMode (" + eagle.errorsMode() + "). Unable to getErrors()");
-                return [];
+        for (const error of eagle.checkGraphMessages()){
+            if (error.level === ActionMessage.Level.Error){
+                result.push(error);
+            }
         }
+
+        return result;
     }, this);
 
     static getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {

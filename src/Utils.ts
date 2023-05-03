@@ -32,7 +32,7 @@ import {CategoryData} from "./CategoryData";
 import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
-import {Errors} from './Errors';
+import { Errors } from "./Errors";
 import {Field} from './Field';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {LogicalGraph} from './LogicalGraph';
@@ -1588,22 +1588,22 @@ export class Utils {
         return errors;
     }
 
-    static checkGraph(eagle: Eagle): Errors.ErrorsWarnings {
-        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
+    static checkGraph(eagle: Eagle): ActionMessage[] {
+        const errors: ActionMessage[] = [];
 
         const graph: LogicalGraph = eagle.logicalGraph();
 
         // check all nodes are valid
         for (const node of graph.getNodes()){
-            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errorsWarnings);
+            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errors);
         }
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
+            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errors);
         }
 
-        return errorsWarnings;
+        return errors;
     }
 
     static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
@@ -2098,12 +2098,15 @@ export class Utils {
     }
 
     // only update result if it is worse that current result
-    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid {
-        if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
+    static worstEdgeError(errors: ActionMessage[]) : Eagle.LinkValid {
+        const hasWarnings: boolean = Errors.hasWarnings(errors);
+        const hasErrors: boolean   = Errors.hasErrors(errors);
+
+        if (!hasWarnings && !hasErrors){
             return Eagle.LinkValid.Valid;
         }
 
-        if (errorsWarnings.errors.length !== 0){
+        if (hasErrors){
             return Eagle.LinkValid.Invalid;
         }
 

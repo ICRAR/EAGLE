@@ -93,6 +93,7 @@ export class Eagle {
     //graphErrors : ko.ObservableArray<ActionMessage>;
     //loadingWarnings : ko.ObservableArray<ActionMessage>;
     //loadingErrors : ko.ObservableArray<ActionMessage>;
+    checkGraphMessages : ko.ObservableArray<ActionMessage>;
     actionMessages : ko.ObservableArray<ActionMessage>;
 
 
@@ -176,6 +177,7 @@ export class Eagle {
         //this.graphErrors = ko.observableArray([]);
         //this.loadingWarnings = ko.observableArray([]);
         //this.loadingErrors = ko.observableArray([]);
+        this.checkGraphMessages = ko.observableArray([]);
         this.actionMessages = ko.observableArray([]);
 
         this.tableModalType = ko.observable('')
@@ -288,14 +290,13 @@ export class Eagle {
 
     static showInspectorErrorsWarnings = () : boolean => {
         const eagle = Eagle.getInstance();
-            
+        const errors = eagle.selectedNode().getErrorsWarnings(eagle);
+
         switch (Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS)){
             case Setting.ShowErrorsMode.Warnings:
-                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length + eagle.selectedNode().getErrorsWarnings(eagle).warnings.length > 0;
-                break;
+                return Errors.hasWarnings(errors) || Errors.hasErrors(errors);
             case Setting.ShowErrorsMode.Errors:
-                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length > 0;
-                break;
+                return Errors.hasErrors(errors);
             case Setting.ShowErrorsMode.None:
             default:
                 return false;
@@ -2566,7 +2567,7 @@ export class Eagle {
                 {
                     const nodes : Node[] = [];
                     const edges : Edge[] = [];
-                    const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+                    const errors : ActionMessage[] = [];
 
                     // split objects into nodes and edges
                     for (const object of incomingNodes){
@@ -2579,7 +2580,7 @@ export class Eagle {
                         }
                     }
 
-                    this.insertGraph(nodes, edges, null, errorsWarnings);
+                    this.insertGraph(nodes, edges, null, errors);
                     this.checkGraph();
                     this.undo().pushSnapshot(this, "Duplicate selection");
                     this.logicalGraph.valueHasMutated();
@@ -2719,12 +2720,12 @@ export class Eagle {
             return;
         }
 
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errors : ActionMessage[] = [];
         const nodes : Node[] = [];
         const edges : Edge[] = [];
 
         for (const n of clipboard.nodes){
-            const node = Node.fromOJSJson(n, errorsWarnings, false, (): number => {
+            const node = Node.fromOJSJson(n, errors, false, (): number => {
                 console.error("Should not have to generate new key for node", n);
                 return 0;
             });
@@ -2733,15 +2734,15 @@ export class Eagle {
         }
 
         for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, errorsWarnings);
+            const edge = Edge.fromOJSJson(e, errors);
 
             edges.push(edge);
         }
 
-        this.insertGraph(nodes, edges, null, errorsWarnings);
+        this.insertGraph(nodes, edges, null, errors);
 
         // display notification to user
-        if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
+        if (Errors.hasErrors(errors) || Errors.hasWarnings(errors)){
 
         } else {
             Utils.showNotification("Pasted from clipboard", "Pasted " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
@@ -4174,15 +4175,14 @@ export class Eagle {
     checkGraph = (): void => {
         const checkResult = Utils.checkGraph(this);
 
-        this.graphWarnings(checkResult.warnings);
-        this.graphErrors(checkResult.errors);
+        this.checkGraphMessages(checkResult);
     };
 
     showGraphErrors = (): void => {
-        if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
+        if (this.checkGraphMessages().length > 0){
 
             // switch to graph errors mode
-            this.errorsMode(Setting.ErrorsMode.Graph);
+            //this.errorsMode(Setting.ErrorsMode.Graph);
 
             // show graph modal
             this.smartToggleModal('errorsModal')
@@ -4445,13 +4445,13 @@ export class Eagle {
     checkForComponentUpdates = () : void => {
         console.log("checkForComponentUpdates()");
 
-        ComponentUpdater.determineUpdates(this.palettes(), this.logicalGraph(), function(errorsWarnings:Errors.ErrorsWarnings, updates:ActionMessage[]){
-            console.log("callback", errorsWarnings, updates);
+        ComponentUpdater.determineUpdates(this.palettes(), this.logicalGraph(), function(errors: ActionMessage[], updates: ActionMessage[]){
+            console.log("callback", errors, updates);
 
             // report missing palettes to the user
-            if (errorsWarnings.errors.length > 0){
+            if (errors.length > 0){
                 const errorStrings = [];
-                for (const error of errorsWarnings.errors){
+                for (const error of errors){
                     errorStrings.push(error.message);
                 }
 

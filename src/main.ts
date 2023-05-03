@@ -28,6 +28,7 @@ import "jqueryMigrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
+import { ActionMessage } from "./ActionMessage";
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Config} from './Config';
@@ -119,17 +120,15 @@ $(function(){
         eagle.loadPalettes([
             {name:"Builtin Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true}
-        ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
+        ], (errors: ActionMessage[], palettes: Palette[]):void => {
             const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
             // display of errors if setting is true
-            if (showErrors && (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings))){
+            if (showErrors && (Errors.hasErrors(errors) || Errors.hasWarnings(errors))){
                 // add warnings/errors to the arrays
-                eagle.loadingErrors(errorsWarnings.errors);
-                eagle.loadingWarnings(errorsWarnings.warnings);
+                eagle.actionMessages(errors);
 
-                eagle.errorsMode(Setting.ErrorsMode.Loading);
-                Utils.showErrorsModal("Loading File");
+                Utils.showActionMessagesModal("Loading File", errors);
             }
 
             for (const palette of palettes){

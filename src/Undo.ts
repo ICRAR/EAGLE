@@ -32,6 +32,7 @@ import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Setting} from './Setting';
 import {Utils} from './Utils';
+import { ActionMessage } from "./ActionMessage";
 
 
 class Snapshot {
@@ -176,10 +177,10 @@ export class Undo {
         }
 
         const dataObject = JSON.parse(snapshot.data());
-        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+        const errors: ActionMessage[] = [];
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", "");
 
-        eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
+        eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errors));
     }
 
     static printTable = () : void => {
