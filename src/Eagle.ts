@@ -139,6 +139,9 @@ export class Eagle {
         this.translator = ko.observable(new Translator());
         this.undo = ko.observable(new Undo());
         this.parameterTable = ko.observable(new ParameterTable());
+        
+        //load parameter table visibility from local storage
+        ParameterTable.getActiveColumnVisibility().loadFromLocalStorage()
 
         Eagle.componentParamsSearchString = ko.observable("");
         Eagle.paletteComponentSearchString = ko.observable("");

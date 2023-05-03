@@ -24,6 +24,7 @@ export class ParameterTable {
         ParameterTable.selection = ko.observable(null);
         ParameterTable.selectionName = ko.observable('');
         ParameterTable.selectionReadonly = ko.observable(false);
+
     }
 
     static setActiveColumnVisibility = () :void => {
@@ -38,6 +39,10 @@ export class ParameterTable {
 
     static getActiveColumnVisibility = () : ColumnVisibilities => {
        return ParameterTable.activeColumnVisibility
+    } 
+
+    static getColumnVisibilities = () : ColumnVisibilities[] => {
+       return columnVisibilities
     } 
 
     formatTableInspectorSelection = () : string => {
@@ -259,6 +264,8 @@ export class ParameterTable {
     }
 }
 
+let localStorageUpdateCooldown : boolean = false;
+
 export class ColumnVisibilities {
 
     private uiModeName : string;
@@ -276,7 +283,7 @@ export class ColumnVisibilities {
     private actions:ko.Observable<boolean>
 
     constructor(uiModeName:string, keyAttribute:boolean, displayText:boolean,idText:boolean,value:boolean,readOnly:boolean,defaultValue:boolean,description:boolean,type:boolean,parameterType:boolean,usage:boolean,flags:boolean,actions:boolean){
-        
+
         this.uiModeName = uiModeName;
         this.keyAttribute = ko.observable(keyAttribute);
         this.displayText = ko.observable(displayText);
@@ -301,56 +308,187 @@ export class ColumnVisibilities {
         return this.uiModeName;
     }
 
+    getModeByName = (name:string) : ColumnVisibilities => {
+        let columnVisibilityResult:ColumnVisibilities = null
+        columnVisibilities.forEach(function(columnVisibility){
+            if(columnVisibility.getModeName() === name){
+                columnVisibilityResult = columnVisibility
+            }
+        })
+        return columnVisibilityResult
+    }
+
     setModeName = (newUiModeName:string) : void => {
         this.uiModeName = newUiModeName;
     }
 
+    getKeyAttribute = () : boolean => {
+        return this.keyAttribute()
+    }
+
     private toggleKeyAttribute = () : void => {
         this.keyAttribute(!this.keyAttribute());
+        this.saveToLocalStorage()
     }
 
     private toggleDisplayText = () : void => {
         this.displayText(!this.displayText());
+        this.saveToLocalStorage()
     }
 
     private toggleIdText = () : void => {
         this.idText(!this.idText());
+        this.saveToLocalStorage()
     }
 
     private toggleValue = () : void => {
         this.value(!this.value());
+        this.saveToLocalStorage()
     }
 
     private toggleReadOnly = () : void => {
         this.readOnly(!this.readOnly());
+        this.saveToLocalStorage()
     }
 
     private toggleDefaultValue = () : void => {
         this.defaultValue(!this.defaultValue());
+        this.saveToLocalStorage()
     }
 
     private toggleDescription = () : void => {
         this.description(!this.description());
+        this.saveToLocalStorage()
     }
 
     private toggleType = () : void => {
         this.type(!this.type());
+        this.saveToLocalStorage()
     }
 
     private toggleParameterType = () : void => {
         this.parameterType(!this.parameterType());
+        this.saveToLocalStorage()
     }
 
     private toggleUsage = () : void => {
         this.usage(!this.usage());
+        this.saveToLocalStorage()
     }
 
     private toggleFlags = () : void => {
         this.flags(!this.flags());
+        this.saveToLocalStorage()
     }
 
     private toggleActions = () : void => {
         this.actions(!this.actions());
+        this.saveToLocalStorage()
+    }
+
+    private setKeyAttribute = (value:boolean) : void => {
+        this.keyAttribute(value);
+    }
+
+    private setDisplayText = (value:boolean) : void => {
+        this.displayText(value);
+    }
+
+    private setIdText = (value:boolean) : void => {
+        this.idText(value);
+    }
+
+    private setValue = (value:boolean) : void => {
+        this.value(value);
+    }
+
+    private setReadOnly = (value:boolean) : void => {
+        this.readOnly(value);
+    }
+
+    private setDefaultValue = (value:boolean) : void => {
+        this.defaultValue(value);
+    }
+
+    private setDescription = (value:boolean) : void => {
+        this.description(value);
+    }
+
+    private setType = (value:boolean) : void => {
+        this.type(value);
+    }
+
+    private setParameterType = (value:boolean) : void => {
+        this.parameterType(value);
+    }
+
+    private setUsage = (value:boolean) : void => {
+        this.usage(value);
+    }
+
+    private setFlags = (value:boolean) : void => {
+        this.flags(value);
+    }
+
+    private setActions = (value:boolean) : void => {
+        this.actions(value);
+    }
+
+    private saveToLocalStorage = () : void => {
+        if(localStorageUpdateCooldown===false){
+            localStorageUpdateCooldown = true;
+
+            setTimeout(function () {
+                const columnVisibilitiesObjArray : any[] = []
+                columnVisibilities.forEach(function(columnVis:ColumnVisibilities){
+                    const columnVisibilitiesObj = {
+                        name : columnVis.getModeName(),
+                        keyAttribute : columnVis.keyAttribute(),
+                        displayText : columnVis.displayText(),
+                        idText : columnVis.idText(),
+                        value : columnVis.value(),
+                        readOnly : columnVis.readOnly(),
+                        defaultValue : columnVis.defaultValue(),
+                        description : columnVis.description(),
+                        type : columnVis.type(),
+                        parameterType : columnVis.parameterType(),
+                        usage : columnVis.usage(),
+                        flags : columnVis.flags(),
+                        actions : columnVis.actions(),
+                        
+                    }
+                    columnVisibilitiesObjArray.push(columnVisibilitiesObj)
+                })
+                localStorage.setItem('ColumnVisibilities', JSON.stringify(columnVisibilitiesObjArray));
+                localStorageUpdateCooldown = false;
+            }, 1000)
+        }else{
+            return
+        }
+    }
+
+     loadFromLocalStorage = () : void => {
+        const columnVisibilitiesObjArray : any[] = JSON.parse(localStorage.getItem('ColumnVisibilities'))
+        const that = ParameterTable.getActiveColumnVisibility()
+        if(columnVisibilitiesObjArray === null){
+            return
+        }else{
+            columnVisibilitiesObjArray.forEach(function(columnvisibility){
+                const columnVisActual:ColumnVisibilities = that.getModeByName(columnvisibility.name)
+                columnVisActual.setKeyAttribute(columnvisibility.keyAttribute)
+                columnVisActual.setDisplayText(columnvisibility.displayText)
+                columnVisActual.setIdText(columnvisibility.idText)
+                columnVisActual.setValue(columnvisibility.value)
+                columnVisActual.setReadOnly(columnvisibility.readOnly)
+                columnVisActual.setDefaultValue(columnvisibility.defaultValue)
+                columnVisActual.setDescription(columnvisibility.description)
+                columnVisActual.setType(columnvisibility.type)
+                columnVisActual.setParameterType(columnvisibility.parameterType)
+                columnVisActual.setUsage(columnvisibility.usage)
+                columnVisActual.setFlags(columnvisibility.flags)
+                columnVisActual.setActions(columnvisibility.actions)
+            })
+        }
     }
 }
 

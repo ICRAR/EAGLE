@@ -118,13 +118,9 @@ export class UiModeSystem {
                 localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
                 UiModeSystem.localStorageUpdateCooldown = false;
             }, 1000)
-
-
         }else{
             return
         }
-
-
     }
 
     static loadFromLocalStorage = () : void => {
