@@ -37,7 +37,7 @@ export class ParameterTable {
     } 
 
     toggle = (columnName:string) : void => {
-        console.log('bop')
+        console.log(ParameterTable.getActiveColumnVisibility())
     }
     static getActiveColumnVisibility = () : ColumnVisibilities => {
        return ParameterTable.activeColumnVisibility
@@ -340,8 +340,52 @@ export class ColumnVisibilities {
         this.uiModeName = newUiModeName;
     }
 
-    toggle = (columnName:string) : void => {
-        console.log('bop')
+    private toggleKeyAttribute = () : void => {
+        this.keyAttribute(!this.keyAttribute());
+    }
+
+    private toggleDisplayText = () : void => {
+        this.displayText(!this.displayText());
+    }
+
+    private toggleIdText = () : void => {
+        this.idText(!this.idText());
+    }
+
+    private toggleValue = () : void => {
+        this.value(!this.value());
+    }
+    
+    private toggleReadOnly = () : void => {
+        this.readOnly(!this.readOnly());
+    }
+
+    private toggleDefaultValue = () : void => {
+        this.defaultValue(!this.defaultValue());
+    }
+
+    private toggleDescription = () : void => {
+        this.description(!this.description());
+    }
+
+    private toggleType = () : void => {
+        this.type(!this.type());
+    }
+
+    private toggleParameterType = () : void => {
+        this.parameterType(!this.parameterType());
+    }
+
+    private toggleUsage = () : void => {
+        this.usage(!this.usage());
+    }
+
+    private toggleFlags = () : void => {
+        this.flags(!this.flags());
+    }
+
+    private toggleActions = () : void => {
+        this.actions(!this.actions());
     }
 }
 
