@@ -36,44 +36,9 @@ export class ParameterTable {
         })
     } 
 
-    toggle = (columnName:string) : void => {
-        console.log(ParameterTable.getActiveColumnVisibility())
-    }
     static getActiveColumnVisibility = () : ColumnVisibilities => {
        return ParameterTable.activeColumnVisibility
     } 
-
-    // getParameterTableVisibility = (columnName: string) : boolean => {
-    //     let returnValue : boolean
-    //     const uiMode = UiModeSystem.getActiveUiMode().getName()
-        
-    //     ParameterTable.parameterTableVisibility.forEach(function(element:any){
-    //         if(element.uiModeName === uiMode){
-    //             returnValue = element[columnName]
-    //         }
-    //     })
-
-    //     return returnValue
-    // }
-
-    // setParameterTableVisibility = (columnName: string, newValue:any) : void => {
-    //     const uiMode = UiModeSystem.getActiveUiMode().getName()
-        
-    //     ParameterTable.parameterTableVisibility.forEach(function(element:any){
-    //         if(element.uiModeName === uiMode){
-    //             console.log(element)
-                
-    //             for (const property in element) {
-    //                 if(property === columnName){
-    //                     console.log(property+':'+ element[property]());
-    //                     element[property] = ko.observable(!element[property])
-    //                     console.log(property+':'+ element[property]());
-    //                 }
-    //             }
-    //         }
-    //     })
-
-    // }
 
     formatTableInspectorSelection = () : string => {
         if (ParameterTable.selection() === null){
@@ -355,7 +320,7 @@ export class ColumnVisibilities {
     private toggleValue = () : void => {
         this.value(!this.value());
     }
-    
+
     private toggleReadOnly = () : void => {
         this.readOnly(!this.readOnly());
     }
