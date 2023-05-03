@@ -293,6 +293,7 @@ td:first-child input {
     right: 7px;
     top: 11px;
     position:absolute;
+    /* pointer-events:none; */
 }
 
 #parameter_table_isKeyAttribute .dropdown-item:hover{

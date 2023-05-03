@@ -13,24 +13,10 @@ export class ParameterTable {
     static selectionName : ko.Observable<string>; // name of selected parameter in field
     static selectionReadonly : ko.Observable<boolean> // check if selection is readonly
 
+    static activeColumnVisibility : ColumnVisibilities;
+
     static tableHeaderX : any;
     static tableHeaderW : any;
-
-    static parameterTableVisibility : Array<{
-        uiModeName:string, 
-        keyAttribute:boolean,
-        displayText:boolean,
-        idText:boolean, 
-        value:boolean, 
-        readOnly:boolean, 
-        defaultValue:boolean, 
-        description:boolean,
-        type:boolean, 
-        parameterType:boolean, 
-        usage:boolean,
-        flags:boolean,
-        actions:boolean, 
-    }> = []
 
     constructor(){
         ParameterTable.selectionParent = ko.observable(null);
@@ -38,116 +24,56 @@ export class ParameterTable {
         ParameterTable.selection = ko.observable(null);
         ParameterTable.selectionName = ko.observable('');
         ParameterTable.selectionReadonly = ko.observable(false);
-
-
-        ParameterTable.parameterTableVisibility.push({
-            uiModeName:"Student",
-            keyAttribute:false,
-            displayText:true,
-            idText:false,
-            value:true, 
-            readOnly:true, 
-            defaultValue:false, 
-            description:true,
-            type:false, 
-            parameterType:false,
-            usage:false,
-            flags:false,
-            actions:false, 
-        })
-        ParameterTable.parameterTableVisibility.push({
-            uiModeName:"Minimal",
-            keyAttribute:true,
-            displayText:true,
-            idText:false, 
-            value:true, 
-            readOnly:true, 
-            defaultValue:false, 
-            description:true,
-            type:false, 
-            parameterType:false, 
-            usage:false,
-            flags:true,
-            actions:false, 
-        })
-        ParameterTable.parameterTableVisibility.push({
-            uiModeName:"Graph",
-            keyAttribute:true,
-            displayText:true,
-            idText:true, 
-            value:true, 
-            readOnly:true, 
-            defaultValue:true, 
-            description:true,
-            type:true, 
-            parameterType:true, 
-            usage:true,
-            flags:true,
-            actions:true, 
-        })
-        ParameterTable.parameterTableVisibility.push({
-            uiModeName:"Component",
-            keyAttribute:true,
-            displayText:true,
-            idText:true, 
-            value:true, 
-            readOnly:true, 
-            defaultValue:true, 
-            description:true,
-            type:true, 
-            parameterType:true, 
-            usage:true,
-            flags:true,
-            actions:true, 
-        })
-        ParameterTable.parameterTableVisibility.push({
-            uiModeName:"Expert",
-            keyAttribute:true,
-            displayText:true,
-            idText:true, 
-            value:true, 
-            readOnly:true, 
-            defaultValue:false, 
-            description:true,
-            type:true, 
-            parameterType:true, 
-            usage:true,
-            flags:true,
-            actions:true, 
-        })
     }
 
-    getParameterTableVisibility = (columnName: string) : boolean => {
-        let returnValue : boolean
-        const uiMode = UiModeSystem.getActiveUiMode().getName()
-        
-        ParameterTable.parameterTableVisibility.forEach(function(element:any){
-            if(element.uiModeName === uiMode){
-                returnValue = element[columnName]
+    static setActiveColumnVisibility = () :void => {
+        const uiModeName = UiModeSystem.activeUiMode.getName()
+
+        columnVisibilities.forEach(function(columnVisibility){
+            if(columnVisibility.getModeName() === uiModeName){
+                ParameterTable.activeColumnVisibility = columnVisibility
             }
         })
+    } 
 
-        return returnValue
+    toggle = (columnName:string) : void => {
+        console.log('bop')
     }
+    static getActiveColumnVisibility = () : ColumnVisibilities => {
+       return ParameterTable.activeColumnVisibility
+    } 
 
-    setParameterTableVisibility = (columnName: string, newValue:any) : void => {
-        const uiMode = UiModeSystem.getActiveUiMode().getName()
+    // getParameterTableVisibility = (columnName: string) : boolean => {
+    //     let returnValue : boolean
+    //     const uiMode = UiModeSystem.getActiveUiMode().getName()
         
-        ParameterTable.parameterTableVisibility.forEach(function(element:any){
-            if(element.uiModeName === uiMode){
-                console.log(element)
+    //     ParameterTable.parameterTableVisibility.forEach(function(element:any){
+    //         if(element.uiModeName === uiMode){
+    //             returnValue = element[columnName]
+    //         }
+    //     })
+
+    //     return returnValue
+    // }
+
+    // setParameterTableVisibility = (columnName: string, newValue:any) : void => {
+    //     const uiMode = UiModeSystem.getActiveUiMode().getName()
+        
+    //     ParameterTable.parameterTableVisibility.forEach(function(element:any){
+    //         if(element.uiModeName === uiMode){
+    //             console.log(element)
                 
-                for (const property in element) {
-                    if(property === columnName){
-                        console.log(`${property}: ${element[property]}`);
-                        element[property] = !element[property]
-                        console.log(`${property}: ${element[property]}`);
-                    }
-                }
-            }
-        })
+    //             for (const property in element) {
+    //                 if(property === columnName){
+    //                     console.log(property+':'+ element[property]());
+    //                     element[property] = ko.observable(!element[property])
+    //                     console.log(property+':'+ element[property]());
+    //                 }
+    //             }
+    //         }
+    //     })
 
-    }
+    // }
 
     formatTableInspectorSelection = () : string => {
         if (ParameterTable.selection() === null){
@@ -367,3 +293,64 @@ export class ParameterTable {
             upresizer.on('mousedown', mouseDownHandler);
     }
 }
+
+export class ColumnVisibilities {
+
+    private uiModeName : string;
+    private keyAttribute:ko.Observable<boolean>
+    private displayText:ko.Observable<boolean>
+    private idText:ko.Observable<boolean>
+    private value:ko.Observable<boolean>
+    private readOnly:ko.Observable<boolean>
+    private defaultValue:ko.Observable<boolean>
+    private description:ko.Observable<boolean>
+    private type:ko.Observable<boolean>
+    private parameterType:ko.Observable<boolean>
+    private usage:ko.Observable<boolean>
+    private flags:ko.Observable<boolean>
+    private actions:ko.Observable<boolean>
+
+    constructor(uiModeName:string, keyAttribute:boolean, displayText:boolean,idText:boolean,value:boolean,readOnly:boolean,defaultValue:boolean,description:boolean,type:boolean,parameterType:boolean,usage:boolean,flags:boolean,actions:boolean){
+        
+        this.uiModeName = uiModeName;
+        this.keyAttribute = ko.observable(keyAttribute);
+        this.displayText = ko.observable(displayText);
+        this.idText = ko.observable(idText);
+        this.value = ko.observable(value);
+        this.readOnly = ko.observable(readOnly);
+        this.defaultValue = ko.observable(defaultValue);
+        this.description = ko.observable(description);
+        this.type = ko.observable(type);
+        this.parameterType = ko.observable(parameterType);
+        this.usage = ko.observable(usage);
+        this.flags = ko.observable(flags);
+        this.actions = ko.observable(actions);
+
+    }
+
+    getVisibilities = () : ColumnVisibilities => {
+        return this;
+    }
+
+    getModeName = () : string => {
+        return this.uiModeName;
+    }
+
+    setModeName = (newUiModeName:string) : void => {
+        this.uiModeName = newUiModeName;
+    }
+
+    toggle = (columnName:string) : void => {
+        console.log('bop')
+    }
+}
+
+
+
+const columnVisibilities : ColumnVisibilities[] = [
+    new ColumnVisibilities( "Student", false, true,false,true,true,false,true,false,false,false,false,false),
+    new ColumnVisibilities("Minimal", true, true,false,true,true,false,true,false,false,false,true,false),
+    new ColumnVisibilities("Graph", true, true,true,true,true,true,true,true,true,true,true,true),
+    new ColumnVisibilities("Component", true, true,true,true,true,true,true,true,true,true,true,true),
+    new ColumnVisibilities("Expert", true, true,true,true,true,true,true,true,true,true,true,true),
+]
