@@ -20,6 +20,7 @@ export class Repository {
     folders : ko.ObservableArray<RepositoryFolder>
 
     // NOTE: I think we should be able to use the Eagle.RepositoryService.Unknown enum here, but it causes a javascript error. Not sure why.
+    // TODO: try again!
     static DUMMY = new Repository(<Eagle.RepositoryService>"Unknown", "", "", false);
 
     constructor(service : Eagle.RepositoryService, name : string, branch : string, isBuiltIn : boolean){

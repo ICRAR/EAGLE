@@ -60,10 +60,10 @@ export class Repositories {
                     return;
                 }
 
-                eagle.openRemoteFile(file);
+                eagle.openRemoteFile(file, null);
             });
         } else {
-            eagle.openRemoteFile(file);
+            eagle.openRemoteFile(file, null);
         }
     }
 

@@ -809,7 +809,7 @@ export class Eagle {
         });
     }
 
-    private _handleLoadingErrors = (errors: ActionMessage[], fileName: string, service: Eagle.RepositoryService) : void => {
+    handleLoadingErrors = (errors: ActionMessage[], fileName: string, service: Eagle.RepositoryService) : void => {
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
         // show errors (if found)
@@ -858,7 +858,7 @@ export class Eagle {
                 break;
         }
 
-        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
+        this.handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
     }
 
     createSubgraphFromSelection = () : void => {
@@ -1139,7 +1139,7 @@ export class Eagle {
         const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
 
         // show errors (if found)
-        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
+        this.handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
 
         // sort the palette
         p.sort();
@@ -1316,6 +1316,7 @@ export class Eagle {
                 Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
                 break;
             case Eagle.RepositoryService.Url:
+                /*
                 this.loadPalettes([
                     {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
                 ], (errorsWarnings: ActionMessage[], palettes: Palette[]):void => {
@@ -1325,6 +1326,8 @@ export class Eagle {
                         }
                     }
                 });
+                */
+                console.warn("Not implemented!");
                 break;
             default:
                 // can't be fetched
@@ -1700,17 +1703,32 @@ export class Eagle {
         this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
     }
 
-    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (errors: ActionMessage[], data: Palette[]) => void ) : void => {
+    loadFiles = (files: RepositoryFile[], callback: (errors: ActionMessage[], data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
         const errors: ActionMessage[] = [];
 
-        for (let i = 0 ; i < paletteList.length ; i++){
+        for (let i = 0 ; i < files.length ; i++){
             results.push(null);
             complete.push(false);
             const index = i;
-            const data = {url: paletteList[i].filename};
+            
+            this.openRemoteFile(files[i], function(){
+                complete[index] = true;
 
+                // check if all requests are now complete, then we can call the callback
+                let allComplete = true;
+                for (const requestComplete of complete){
+                    if (!requestComplete){
+                        allComplete = false;
+                    }
+                }
+                if (allComplete){
+                    callback(errors, results);
+                }
+            });
+
+            /*
             Utils.httpPostJSON("/openRemoteUrlFile", data, (error: string, data: string) => {
                 complete[index] = true;
 
@@ -1718,12 +1736,12 @@ export class Eagle {
                     console.error(error);
                     errors.push(ActionMessage.Message(ActionMessage.Level.Error, error));
                 } else {
-                    const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errors);
+                    const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", files[index].name), errors);
                     palette.fileInfo().clear();
-                    palette.fileInfo().name = paletteList[index].name;
-                    palette.fileInfo().readonly = paletteList[index].readonly;
+                    palette.fileInfo().name = files[index].name;
+                    //palette.fileInfo().readonly = files[index].readonly;
                     palette.fileInfo().builtIn = true;
-                    palette.fileInfo().downloadUrl = paletteList[index].filename;
+                    //palette.fileInfo().downloadUrl = files[index].filename;
                     palette.fileInfo().type = Eagle.FileType.Palette;
                     palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
 
@@ -1743,10 +1761,11 @@ export class Eagle {
                     callback(errors, results);
                 }
             });
+            */
         }
     }
 
-    openRemoteFile = (file : RepositoryFile) : void => {
+    openRemoteFile = (file : RepositoryFile, callback: () => void) : void => {
         // flag file as being fetched
         file.isFetching(true);
 
@@ -1776,6 +1795,7 @@ export class Eagle {
             if (error != null){
                 Utils.showUserMessage("Error", error);
                 console.error(error);
+                if (callback !== null) callback();
                 return;
             }
 
@@ -1791,6 +1811,7 @@ export class Eagle {
                 }
                 catch(err){
                     Utils.showUserMessage("Error parsing file JSON", err.message);
+                    if (callback !== null) callback();
                     return;
                 }
 
@@ -1816,7 +1837,7 @@ export class Eagle {
                     }
 
                     // show errors/warnings
-                    this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+                    this.handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
                     // center graph
                     this.centerGraph();
@@ -1841,7 +1862,9 @@ export class Eagle {
                     // Show error message
                     Utils.showUserMessage("Error", "The file type is neither graph nor palette!");
             }
-        this.resetEditor()
+            this.resetEditor();
+
+            if (callback !== null) callback();
         });
     };
 
@@ -1920,7 +1943,7 @@ export class Eagle {
             this.checkGraph();
 
             // show errors/warnings
-            this._handleLoadingErrors(errors, file.name, file.repository.service);
+            this.handleLoadingErrors(errors, file.name, file.repository.service);
         });
     };
 
@@ -1959,7 +1982,7 @@ export class Eagle {
         this.palettes.unshift(newPalette);
 
         // show errors/warnings
-        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        this.handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
         this.leftWindow().shown(true);
     }

@@ -68,12 +68,12 @@
                 <i class="material-icons md-18">table_chart</i>
             </button>
             <ul class="nav navbar-nav ms-4">
-                <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'">
+                <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: Errors.getWarnings().length === 0 && Errors.getErrors().length === 0, eagleTooltip: 'Check Graph for Errors'">
                     <i class="material-icons md-18">done_all</i>
                 </button>
-                <button id="checkGraphWarnings" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: showGraphErrors, visible: graphWarnings().length > 0 || graphErrors().length > 0, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)">
-                    <span class="badge bg-warning" data-bind="text: graphWarnings().length, visible: graphWarnings().length > 0"></span>
-                    <span class="badge bg-danger" data-bind="text: graphErrors().length, visible: graphErrors().length > 0"></span>
+                <button id="checkGraphWarnings" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: showGraphErrors, visible: Errors.getWarnings().length > 0 || Errors.getErrors().length > 0, css: {'btn-outline-warning': Errors.getWarnings().length > 0, 'btn-outline-danger': Errors.getErrors().length > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)">
+                    <span class="badge bg-warning" data-bind="text: Errors.getWarnings().length, visible: Errors.getWarnings().length > 0"></span>
+                    <span class="badge bg-danger" data-bind="text: Errors.getErrors().length, visible: Errors.getErrors().length > 0"></span>
                 </button>
             </ul>
         </ul>

@@ -28,7 +28,6 @@ import { ActionMessage } from "./ActionMessage";
 import {Category} from './Category';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
-import {Errors} from './Errors';
 import {Field} from './Field';
 import {FileInfo} from './FileInfo';
 import {GraphUpdater} from './GraphUpdater';

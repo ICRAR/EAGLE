@@ -30,7 +30,6 @@ import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Field } from './Field';
 import { Utils } from './Utils';
-import { Errors } from './Errors';
 
 export class Edge {
     private _id : string

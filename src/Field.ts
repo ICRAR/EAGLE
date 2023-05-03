@@ -490,6 +490,10 @@ export class Field {
                     parameterType = Eagle.ParameterType.ApplicationArgument;
                     usage = Eagle.ParameterUsage.OutputPort;
                     break;
+                case "ConstructParameter":
+                    parameterType = Eagle.ParameterType.ConstructParameter;
+                    usage = Eagle.ParameterUsage.NoPort;
+                    break;
                 default:
                     console.log("Unhandled fieldType", data.fieldType);
             }

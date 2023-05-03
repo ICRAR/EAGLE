@@ -1,5 +1,4 @@
 import { ActionMessage } from './ActionMessage';
-import { Errors } from './Errors';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Palette } from './Palette';

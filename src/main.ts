@@ -115,30 +115,48 @@ $(function(){
         GitLab.loadRepoList();
     }
 
-    // load the default palette
+    // build list of auto-load files
+    const autoLoadFiles: RepositoryFile[] = [];
+
+    // if url contains file to auto-load, add to auto-load files list
+    const urlAutoLoadFile = parseUrlAutoLoad();
+    if (urlAutoLoadFile !== null){
+        autoLoadFiles.push(urlAutoLoadFile);
+    }
+
+    // if 'load default palette' setting is set
     if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
-        eagle.loadPalettes([
+        autoLoadFiles.push(new RepositoryFile(new Repository(Eagle.RepositoryService.Url, "", "", false), Config.DALIUGE_PALETTE_URL, "Builtin Components"));
+        autoLoadFiles.push(new RepositoryFile(new Repository(Eagle.RepositoryService.Url, "", "", false), Config.DALIUGE_TEMPLATE_URL, Palette.DYNAMIC_PALETTE_NAME));
+        /*
             {name:"Builtin Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true}
-        ], (errors: ActionMessage[], palettes: Palette[]):void => {
-            const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
-
-            // display of errors if setting is true
-            if (showErrors && (Errors.hasErrors(errors) || Errors.hasWarnings(errors))){
-                // add warnings/errors to the arrays
-                eagle.actionMessages(errors);
-
-                Utils.showActionMessagesModal("Loading File", errors);
-            }
-
-            for (const palette of palettes){
-                if (palette !== null){
-                    eagle.palettes.push(palette);
-                }
-            }
-            eagle.leftWindow().shown(true);
-        });
+        */
     }
+
+    // load the default palette
+    eagle.loadFiles(autoLoadFiles, (errors: ActionMessage[], palettes: Palette[]):void => {
+        //const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
+
+        // display of errors if setting is true
+        /*
+        if (showErrors && (Errors.hasErrors(errors) || Errors.hasWarnings(errors))){
+            // add warnings/errors to the arrays
+            eagle.actionMessages(errors);
+
+            Utils.showActionMessagesModal("Loading File", errors);
+        }
+        */
+        console.log("here");
+        eagle.handleLoadingErrors(errors, "", Eagle.RepositoryService.Unknown);  
+
+        for (const palette of palettes){
+            if (palette !== null){
+                eagle.palettes.push(palette);
+            }
+        }
+        eagle.leftWindow().shown(true);
+    });
 
     // set other state based on settings values
     if (Setting.findValue(Setting.SNAP_TO_GRID)){
@@ -165,11 +183,8 @@ $(function(){
     //       not sure why, this wasn't always the case
     document.onwheel = () => {return;};
 
-    // auto load the file
-    autoLoad(eagle);
-
     // auto load a tutorial, if specified on the url
-    autoTutorial(eagle);
+    parseUrlAutoTutorial();
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").mouseleave(function(){
@@ -266,7 +281,7 @@ $(function(){
     }
 });
 
-function autoLoad(eagle: Eagle) {
+function parseUrlAutoLoad(): RepositoryFile {
     const service    = (<any>window).auto_load_service;
     const repository = (<any>window).auto_load_repository;
     const branch     = (<any>window).auto_load_branch;
@@ -280,30 +295,30 @@ function autoLoad(eagle: Eagle) {
     // skip unknown services
     if (typeof realService === "undefined" || realService === Eagle.RepositoryService.Unknown){
         console.log("No auto load. Service Unknown");
-        return;
+        return null;
     }
 
     // skip empty strings
     if ([Eagle.RepositoryService.GitHub, Eagle.RepositoryService.GitLab].includes(realService) && (repository === "" || branch === "" || filename === "")){
         console.log("No auto load. Repository, branch or filename not specified");
-        return;
+        return null;
     }
 
     // skip url if url is not specified
     if (realService === Eagle.RepositoryService.Url && url === ""){
         console.log("No auto load. Url not specified");
-        return;
+        return null;
     }
 
     // load
     if (service === Eagle.RepositoryService.Url){
-        Repositories.selectFile(new RepositoryFile(new Repository(service, "", "", false), "", url));
+        return new RepositoryFile(new Repository(service, "", "", false), url, "");
     } else {
-        Repositories.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+        return new RepositoryFile(new Repository(service, repository, branch, false), path, filename);
     }
 }
 
-function autoTutorial(eagle: Eagle){
+function parseUrlAutoTutorial(){
     const urlParams = new URLSearchParams(window.location.search);
     const tutorialName = urlParams.get('tutorial');
 
