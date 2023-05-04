@@ -262,6 +262,47 @@ td:first-child input {
     color: rgb(113 113 113);
 }
 
+.componentTableVisibilityBtn{
+    color: white;
+    text-decoration: none;
+    font-size: 19px!important;
+    padding-top: 3px;
+}
+
+#parameter_table_isKeyAttribute .dropdown-menu{
+    
+    border:solid 1px #000c1a;
+    border-radius: 6px;
+     position: absolute;
+     z-index: 100;
+     background-color: #0059a5;
+}
+
+#parameter_table_isKeyAttribute .dropdown-menu-right{
+    right: 0;
+    left: auto !important;
+}
+
+#parameter_table_isKeyAttribute .dropdown-item{
+    position: relative;
+}
+
+#parameter_table_isKeyAttribute .dropdown-item span{
+    color: white;
+}
+
+#parameter_table_isKeyAttribute .dropdown-item input{
+    right: 7px;
+    top: 11px;
+    position:absolute;
+    pointer-events:none;
+}
+
+#parameter_table_isKeyAttribute .dropdown-item:hover{
+    background-color: #001d3b;
+    color: white;
+}
+
 #parameter_table_flags{
     width: 101px;
 }

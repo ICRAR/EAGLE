@@ -1,4 +1,5 @@
 import {Eagle} from './Eagle';
+import { ParameterTable } from './ParameterTable';
 import { Setting } from './Setting';
 import {Utils} from './Utils';
 import * as ko from "knockout";
@@ -48,6 +49,7 @@ export class UiModeSystem {
     static setActiveUiMode = (newActiveUiMode:UiMode) : void => {
         this.activeUiMode = newActiveUiMode;
         this.updateSettingsArray()
+        ParameterTable.setActiveColumnVisibility()
         localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
     }
 
@@ -116,13 +118,9 @@ export class UiModeSystem {
                 localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
                 UiModeSystem.localStorageUpdateCooldown = false;
             }, 1000)
-
-
         }else{
             return
         }
-
-
     }
 
     static loadFromLocalStorage = () : void => {
