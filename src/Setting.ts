@@ -245,6 +245,7 @@ export class Setting {
     static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
     static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
     static readonly STUDENT_SETTINGS_MODE : string = "StudentSettingsMode"
+    static readonly VALUE_EDITING_PERMS : string = "ValueEditingPerms"
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
     static readonly TRANSLATOR_ALGORITHM_DEFAULT : string = "TranslatorAlgorithmDefault";
@@ -285,6 +286,12 @@ export namespace Setting {
         None = "None",
         Errors = "Errors",
         Warnings = "Warnings"
+    }
+
+    export enum valueEditingPerms {
+        KeyOnly = "keyOnly",
+        Normal = "Normal",
+        ReadOnly = "Readonly"
     }
             
     export enum UIMode {
@@ -352,6 +359,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Allow Edge Editing", Setting.ALLOW_EDGE_EDITING, "Allow the user to edit edge attributes.", false, Setting.Type.Boolean, false, false,false, false, true),
             new Setting(true, "Auto-suggest destination nodes", Setting.AUTO_SUGGEST_DESTINATION_NODES, "If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.", false, Setting.Type.Boolean,true,true,true,true,true),
             new Setting(false, "STUDENT_SETTINGS_MODE", Setting.STUDENT_SETTINGS_MODE, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
+            new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, Setting.Type.Select, Setting.valueEditingPerms.KeyOnly,Setting.valueEditingPerms.Normal,Setting.valueEditingPerms.Normal,Setting.valueEditingPerms.ReadOnly,Setting.valueEditingPerms.ReadOnly, Object.values(Setting.valueEditingPerms)),
         ]
     ),
     new SettingsGroup(

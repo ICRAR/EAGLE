@@ -2346,6 +2346,36 @@ export class Eagle {
         }
     }
 
+    getCurrentParamValueReadonly = (field: Field) : boolean => {
+        // check that we actually found the right field, otherwise abort
+        if (field === null){
+            return false;
+        }
+
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            console.log('palette mode')
+            if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+                return false;
+            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.ReadOnly){
+                return false;
+            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.Normal){
+                return field.isReadonly();
+            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.KeyOnly){
+                return !field.isKeyAttribute() || field.isReadonly();
+            }
+        }else{
+            if(Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
+                return false;
+            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.ReadOnly){
+                return false;
+            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.Normal){
+                return field.isReadonly();
+            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.KeyOnly){
+                return !field.isKeyAttribute() || field.isReadonly();
+            }
+        }
+    }
+
     // TODO: move to Setting.ts?
     toggleSettingsTab = (btn:any, target:any) :void => {
         //deselect and deactivate current tab content and buttons

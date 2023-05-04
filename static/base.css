@@ -1749,6 +1749,7 @@ div.rightWindow h5.card-header {
 .rightWindow button i.material-icons.md-18 {
     position: relative;
     top: 2px;
+    font-size: 18px;
 }
 
 ul.nav.navbar-nav .btn-outline-secondary {
