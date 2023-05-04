@@ -29,6 +29,7 @@ import * as ko from "knockout";
 import { ActionMessage } from "./ActionMessage";
 import {Category} from './Category';
 import {CategoryData} from "./CategoryData";
+import { ComponentUpdater } from "./ComponentUpdater";
 import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
@@ -474,7 +475,7 @@ export class Utils {
 
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
         $.notify({
-            title:title + ":",
+            title:title + ":<br/>",
             message:message
         }, {
             type: type,
@@ -2084,7 +2085,13 @@ export class Utils {
         eagle.selectedObjects.valueHasMutated();
         eagle.logicalGraph().fileInfo().modified = true;
 
+        // TODO: we only neet to re-check graph OR re-determine updates, we don't need to do both!
         eagle.checkGraph();
+
+        ComponentUpdater.determineUpdates(eagle.palettes(), eagle.logicalGraph(), function(errors: ActionMessage[], updates: ActionMessage[]){
+            eagle.actionMessages(errors.concat(updates));
+        });
+
         eagle.undo().pushSnapshot(eagle, "Fix");
     }
 

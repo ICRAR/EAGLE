@@ -810,7 +810,8 @@ export class Eagle {
         });
     }
 
-    handleLoadingErrors = (errors: ActionMessage[], fileName: string, service: Eagle.RepositoryService) : void => {
+    // TODO: consider changing input to {file: RepositoryFile, errors:ActionMessage[]}[], so that we can associate error messages with the file that generated them
+    handleLoadingErrors = (errors: ActionMessage[], files: RepositoryFile[]) : void => {
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
         // show errors (if found)
@@ -821,7 +822,17 @@ export class Eagle {
                 Utils.showActionMessagesModal("Loading File", errors);
             }
         } else {
-            Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
+            const messages: string[] = [];
+            
+            for (const file of files){
+                if (file.repository.service === Eagle.RepositoryService.Unknown){
+                    messages.push(file.name + " has been loaded.", "success");
+                } else {
+                    messages.push(file.name + " has been loaded from " + file.repository.service + ".");
+                }
+            }
+
+            Utils.showNotification("Success", messages.join('<br/>'), "success");
         }
     }
 
@@ -859,7 +870,7 @@ export class Eagle {
                 break;
         }
 
-        this.handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
+        this.handleLoadingErrors(errorsWarnings, [dummyFile]);
     }
 
     createSubgraphFromSelection = () : void => {
@@ -1137,10 +1148,11 @@ export class Eagle {
         }
 
         const errorsWarnings: ActionMessage[] = [];
-        const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
+        const dummyFile = new RepositoryFile(new Repository(Eagle.RepositoryService.File, "", "", false), "", Utils.getFileNameFromFullPath(fileFullPath));
+        const p : Palette = Palette.fromOJSJson(data, dummyFile, errorsWarnings);
 
         // show errors (if found)
-        this.handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
+        this.handleLoadingErrors(errorsWarnings, [dummyFile]);
 
         // sort the palette
         p.sort();
@@ -1972,7 +1984,7 @@ export class Eagle {
             this.checkGraph();
 
             // show errors/warnings
-            this.handleLoadingErrors(errors, file.name, file.repository.service);
+            this.handleLoadingErrors(errors, [file]);
         });
     };
 
@@ -4502,25 +4514,7 @@ export class Eagle {
         ComponentUpdater.determineUpdates(this.palettes(), this.logicalGraph(), function(errors: ActionMessage[], updates: ActionMessage[]){
             console.log("callback", errors, updates);
 
-            // report missing palettes to the user
-            if (errors.length > 0){
-                const errorStrings = [];
-                for (const error of errors){
-                    errorStrings.push(error.message);
-                }
-
-                Utils.showNotification("Error", errorStrings.join("\n"), "danger");
-            } else {
-                // TODO: display updates list
-                /*
-                const nodeNames = [];
-                for (const node of updatedNodes){
-                    nodeNames.push(node.getName());
-                }
-
-                Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
-                */
-            }
+            Utils.showActionMessagesModal("Update Graph Components", errors.concat(updates));
         });
     }
 }

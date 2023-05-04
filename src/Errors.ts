@@ -84,20 +84,12 @@ export class Errors {
     }, this);
 
     static getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {
+        const eagle: Eagle = Eagle.getInstance();
         let count: number = 0;
-        const errors: ActionMessage[] = Errors.getErrors();
-        const warnings: ActionMessage[] = Errors.getWarnings();
-
-        // count the errors
-        for (const error of errors){
-            if (error.fix !== null){
-                count += 1;
-            }
-        }
 
         // count the warnings
-        for (const warning of warnings){
-            if (warning.fix !== null){
+        for (const message of eagle.actionMessages()){
+            if (message.fix !== null){
                 count += 1;
             }
         }

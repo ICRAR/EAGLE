@@ -77,6 +77,7 @@ $(function(){
     (<any>window).ParameterTable = ParameterTable;
     (<any>window).SideWindow = SideWindow;
     (<any>window).TutorialSystem = TutorialSystem;
+    (<any>window).ActionMessage = ActionMessage;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
@@ -150,7 +151,7 @@ $(function(){
         // 
 
         // handle errors
-        eagle.handleLoadingErrors(errors, "", Eagle.RepositoryService.Unknown);  
+        eagle.handleLoadingErrors(errors, autoLoadFiles);  
 
         // show the left window if palettes were loaded
         // TODO: is this required? try removing

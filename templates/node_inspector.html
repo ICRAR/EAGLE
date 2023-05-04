@@ -133,14 +133,16 @@
         <!-- ko if: Eagle.showInspectorErrorsWarnings() -->
             <div class="card pt-2" id="nodeInspectorErrorsCard">
                 <div class="card-body">
-                    <!-- ko with: selectedNode().getErrorsWarnings($root) -->
-                        <!-- ko if: Eagle.showInspectorErrors() -->
-                            <!-- ko foreach: errors -->
+                    <!-- ko if: Eagle.showInspectorErrors() -->
+                        <!-- ko for: selectedNode().getErrorsWarnings($root) -->
+                            <!-- ko if: $data.level === ActionMessage.Level.Error -->
                                 <fix params="data: $data, isError: true"></fix>
                             <!-- /ko -->
                         <!-- /ko -->
-                        <!-- ko if: Eagle.showInspectorWarnings() -->
-                            <!-- ko foreach: warnings -->
+                    <!-- /ko -->
+                    <!-- ko if: Eagle.showInspectorWarnings() -->
+                        <!-- ko for: selectedNode().getErrorsWarnings($root) -->
+                            <!-- ko if: $data.level === ActionMessage.Level.Warning -->
                                 <fix params="data: $data, isError: false"></fix>
                             <!-- /ko -->
                         <!-- /ko -->

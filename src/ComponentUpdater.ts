@@ -1,7 +1,9 @@
 import { ActionMessage } from './ActionMessage';
+import { Eagle } from './Eagle';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Palette } from './Palette';
+import { Utils } from './Utils';
 
 
 export class ComponentUpdater {
@@ -44,7 +46,7 @@ export class ComponentUpdater {
 
             if (!foundPrototype){
                 //console.log("No match for node", node.getName());
-                errors.push(ActionMessage.Message(ActionMessage.Level.Warning, "Could not find appropriate palette for node " + node.getName() + " from repository " + node.getRepositoryUrl()));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Warning, "Could not find appropriate palette to use as prototype for " + node.getName() + " component."));
                 continue;
             }
 
@@ -58,6 +60,7 @@ export class ComponentUpdater {
 
     // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
     static nodeDetermineUpdates(dest:Node, src:Node) : ActionMessage[] {
+        const eagle = Eagle.getInstance();
         const updates: ActionMessage[] = [];
 
         for (let i = 0 ; i < src.getFields().length ; i++){
@@ -73,9 +76,9 @@ export class ComponentUpdater {
 
             // if dest field could not be found, then go ahead and add a NEW field to the dest node
             if (destField === null){
-                //destField = srcField.clone();
+                destField = srcField.clone();
                 //dest.addField(destField);
-                updates.push(ActionMessage.Message(ActionMessage.Level.Info, "Add " + srcField.getDisplayText() + " field to component"));
+                updates.push(ActionMessage.Fix(ActionMessage.Level.Info, dest.getName() + " (" + dest.getKey() + ") component is missing a '" + srcField.getDisplayText() + "' field", function(){Utils.showNode(eagle, dest.getKey())}, function(){Utils.fixNodeAddField(eagle, dest, destField)},  "Add '" + srcField.getDisplayText() + "' field to " + dest.getName() + " component"));
             }
            
             // NOTE: we could just use a copy() function here if we had one
