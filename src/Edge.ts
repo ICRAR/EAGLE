@@ -22,13 +22,14 @@
 #
 */
 
-import {Category} from './Category';
-import {Eagle} from './Eagle';
-import {LogicalGraph} from './LogicalGraph';
-import {Node} from './Node';
-import {Field} from './Field';
-import {Utils} from './Utils';
-import {Errors} from './Errors';
+import { Category } from './Category';
+import { CategoryData } from './CategoryData';
+import { Eagle } from './Eagle';
+import { LogicalGraph } from './LogicalGraph';
+import { Node } from './Node';
+import { Field } from './Field';
+import { Utils } from './Utils';
+import { Errors } from './Errors';
 
 export class Edge {
     private _id : string
@@ -471,12 +472,12 @@ export class Edge {
             }
 
             if (!sourceNode.hasFieldWithIdText('group_end') || !Utils.asBool(sourceNode.getFieldByIdText('group_end').getValue())){
-                const x = Errors.Show("'Closes Loop' Edge (" + edgeId + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.", function(){Utils.showEdge(eagle, edgeId);});
+                const x = Errors.Fix("'Closes Loop' Edge (" + edgeId + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixFieldValue(eagle, sourceNode, CategoryData.groupEndField, "true")}, "Set 'group_end' to true");
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
 
             if (!destinationNode.hasFieldWithIdText('group_start') || !Utils.asBool(destinationNode.getFieldByIdText('group_start').getValue())){
-                const x = Errors.Show("'Closes Loop' Edge (" + edgeId + ") end node (" + destinationNode.getName() + ") does not have 'group_start' set to true.", function(){Utils.showEdge(eagle, edgeId);});
+                const x = Errors.Fix("'Closes Loop' Edge (" + edgeId + ") end node (" + destinationNode.getName() + ") does not have 'group_start' set to true.", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixFieldValue(eagle, destinationNode, CategoryData.groupStartField, "true")}, "Set 'group_start' to true");
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
         }

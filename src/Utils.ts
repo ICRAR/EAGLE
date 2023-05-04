@@ -1869,6 +1869,10 @@ export class Utils {
         destinationPort.setType(sourcePort.getType());
     }
 
+    static fixNodeAddField(eagle: Eagle, node: Node, field: Field){
+        node.addField(field);
+    }
+
     static fixNodeFieldIds(eagle: Eagle, nodeKey: number){
         const node: Node = eagle.logicalGraph().findNodeByKey(nodeKey);
 
@@ -1979,6 +1983,19 @@ export class Utils {
         field.setId(Utils.uuidv4());
     }
 
+    static fixFieldValue(eagle: Eagle, node: Node, exampleField: Field, value: string){
+        let field : Field = node.getFieldByIdText(exampleField.getIdText());
+
+        // if a field was not found, clone one from the example and add to node
+        if (field === null){
+            field = exampleField.clone();
+            field.setId(Utils.uuidv4());
+            node.addField(field);
+        }
+
+        field.setValue(value);
+    }
+
     static fixFieldDefaultValue(eagle: Eagle, field: Field){
         // depends on the type
         switch(field.getType()){
@@ -2039,13 +2056,8 @@ export class Utils {
         }
     }
 
-    // WARN: this just blindly swaps the parameter type, which is not robust
-    static fixFieldParameterType(eagle: Eagle, field: Field){
-        if (field.getParameterType() === Eagle.ParameterType.ComponentParameter){
-            field.setParameterType(Eagle.ParameterType.ApplicationArgument);
-        } else {
-            field.setParameterType(Eagle.ParameterType.ComponentParameter);
-        }
+    static fixFieldParameterType(eagle: Eagle, field: Field, newType: Eagle.ParameterType){
+        field.setParameterType(newType);
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
