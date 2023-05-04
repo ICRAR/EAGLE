@@ -326,112 +326,113 @@ export class ColumnVisibilities {
         return this.keyAttribute()
     }
 
-    private toggleKeyAttribute = () : void => {
-        this.keyAttribute(!this.keyAttribute());
-        this.saveToLocalStorage()
-    }
-
-    private toggleDisplayText = () : void => {
-        this.displayText(!this.displayText());
-        this.saveToLocalStorage()
-    }
-
-    private toggleIdText = () : void => {
-        this.idText(!this.idText());
-        this.saveToLocalStorage()
-    }
-
-    private toggleValue = () : void => {
-        this.value(!this.value());
-        this.saveToLocalStorage()
-    }
-
-    private toggleReadOnly = () : void => {
-        this.readOnly(!this.readOnly());
-        this.saveToLocalStorage()
-    }
-
-    private toggleDefaultValue = () : void => {
-        this.defaultValue(!this.defaultValue());
-        this.saveToLocalStorage()
-    }
-
-    private toggleDescription = () : void => {
-        this.description(!this.description());
-        this.saveToLocalStorage()
-    }
-
-    private toggleType = () : void => {
-        this.type(!this.type());
-        this.saveToLocalStorage()
-    }
-
-    private toggleParameterType = () : void => {
-        this.parameterType(!this.parameterType());
-        this.saveToLocalStorage()
-    }
-
-    private toggleUsage = () : void => {
-        this.usage(!this.usage());
-        this.saveToLocalStorage()
-    }
-
-    private toggleFlags = () : void => {
-        this.flags(!this.flags());
-        this.saveToLocalStorage()
-    }
-
-    private toggleActions = () : void => {
-        this.actions(!this.actions());
-        this.saveToLocalStorage()
-    }
-
     private setKeyAttribute = (value:boolean) : void => {
-        this.keyAttribute(value);
+        if(value === null){
+            this.keyAttribute(!this.keyAttribute());
+            this.saveToLocalStorage()
+        }else{
+            this.keyAttribute(value);
+        }
     }
 
     private setDisplayText = (value:boolean) : void => {
-        this.displayText(value);
+        if(value === null){
+            this.displayText(!this.displayText());
+            this.saveToLocalStorage()
+
+        }else{
+            this.displayText(value);
+        }
     }
 
     private setIdText = (value:boolean) : void => {
-        this.idText(value);
+        if(value === null){
+            this.idText(!this.idText());
+            this.saveToLocalStorage()
+        }else{
+            this.idText(value);
+        }
     }
 
     private setValue = (value:boolean) : void => {
-        this.value(value);
+        if(value === null){
+            this.value(!this.value());
+            this.saveToLocalStorage()
+        }else{
+            this.value(value);
+        }
     }
 
     private setReadOnly = (value:boolean) : void => {
-        this.readOnly(value);
+        if(value === null){
+            this.readOnly(!this.readOnly());
+            this.saveToLocalStorage()
+        }else{
+            this.readOnly(value);
+        }
     }
 
     private setDefaultValue = (value:boolean) : void => {
-        this.defaultValue(value);
+        if(value === null){
+            this.defaultValue(!this.defaultValue());
+            this.saveToLocalStorage()
+        }else{
+            this.defaultValue(value);
+        }
     }
 
     private setDescription = (value:boolean) : void => {
-        this.description(value);
+        if(value === null){
+            this.description(!this.description());
+            this.saveToLocalStorage()
+        }else{
+            this.description(value);
+        }
     }
 
     private setType = (value:boolean) : void => {
-        this.type(value);
+        if(value === null){
+            this.type(!this.type());
+            this.saveToLocalStorage()
+        }else{
+            this.type(value);
+        }
     }
 
     private setParameterType = (value:boolean) : void => {
-        this.parameterType(value);
+        if(value === null){
+            this.parameterType(!this.parameterType());
+            this.saveToLocalStorage()
+        }else{
+            this.parameterType(value);
+        }
     }
 
     private setUsage = (value:boolean) : void => {
-        this.usage(value);
+        if(value === null){
+            this.usage(!this.usage());
+            this.saveToLocalStorage()
+        }else{
+            this.usage(value);
+        }
     }
 
     private setFlags = (value:boolean) : void => {
-        this.flags(value);
+        if(value === null){
+            this.flags(!this.flags());
+            this.saveToLocalStorage()
+        }else{
+            this.flags(value);
+        }
     }
 
     private setActions = (value:boolean) : void => {
-        this.actions(value);
+        if(value === null){
+            this.actions(!this.actions());
+            this.saveToLocalStorage()
+        }else{
+            this.actions(value);
+        }
     }
 
     private saveToLocalStorage = () : void => {
