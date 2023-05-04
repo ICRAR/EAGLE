@@ -2353,7 +2353,6 @@ export class Eagle {
         }
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            console.log('palette mode')
             if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                 return false;
             }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.ReadOnly){
