@@ -62,10 +62,10 @@
                 </div>
             </div>
             <div class="modal-footer" style="justify-content: space-between;">
-                <button id= 'errorModalFixAll' class="btn btn-primary" data-bind="click: Errors.fixAll, eagleTooltip: Errors.getNumFixableIssues() + ' fix(es) available', enable: Errors.getNumFixableIssues() > 0">Fix All
+                <button id="errorModalFixAll" class="btn btn-primary" data-bind="click: Errors.fixAll, eagleTooltip: Errors.getNumFixableIssues() + ' fix(es) available', enable: Errors.getNumFixableIssues() > 0">Fix All
                     <span data-bind="text: Utils.getKeyboardShortcutTextByKey('fix_all', true)"></span>
                 </button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                <button id="errorModalOK" type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
     </div>

@@ -36,7 +36,7 @@ export class ComponentUpdater {
             for (const palette of palettes){
                 for (const paletteNode of palette.getNodes()){
                     
-                    if (ComponentUpdater.nodeMatchesPrototype(node, paletteNode)){
+                    if (!foundPrototype && ComponentUpdater.nodeMatchesPrototype(node, paletteNode)){
                         foundPrototype = true;
                         const nodeUpdates : ActionMessage[] = ComponentUpdater.nodeDetermineUpdates(node, paletteNode);
                         updates.push(...nodeUpdates);
@@ -76,11 +76,25 @@ export class ComponentUpdater {
 
             // if dest field could not be found, then go ahead and add a NEW field to the dest node
             if (destField === null){
-                destField = srcField.clone();
+                const newField = srcField.clone();
                 //dest.addField(destField);
-                updates.push(ActionMessage.Fix(ActionMessage.Level.Info, dest.getName() + " (" + dest.getKey() + ") component is missing a '" + srcField.getDisplayText() + "' field", function(){Utils.showNode(eagle, dest.getKey())}, function(){Utils.fixNodeAddField(eagle, dest, destField)},  "Add '" + srcField.getDisplayText() + "' field to " + dest.getName() + " component"));
+                updates.push(ActionMessage.Fix(ActionMessage.Level.Info, dest.getName() + " (" + dest.getKey() + ") component is missing a '" + srcField.getDisplayText() + "' field", function(){Utils.showNode(eagle, dest.getKey())}, function(){Utils.fixNodeAddField(eagle, dest, newField)},  "Add '" + srcField.getDisplayText() + "' field to " + dest.getName() + " component"));
             }
            
+            if (destField !== null){
+                if (destField.getValue() !== srcField.getValue()){
+                    updates.push(
+                        ActionMessage.Fix(
+                            ActionMessage.Level.Info,
+                            dest.getName() + " (" + dest.getKey() + ") component '" + srcField.getDisplayText() + "' field has different value",
+                            function(){Utils.showNode(eagle, dest.getKey())},
+                            function(){Utils.fixFieldValue(eagle, dest, srcField, srcField.getValue())}, 
+                            "Update " + dest.getName() + " (" + dest.getKey() + ") field '" + srcField.getDisplayText() + "' from " + destField.getValue() + " to " + srcField.getValue()
+                        )
+                    );
+                }
+            }
+
             // NOTE: we could just use a copy() function here if we had one
             //destField.copyWithKeyAndId(srcField, srcField.getNodeKey(), srcField.getId());
         }

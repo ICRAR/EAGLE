@@ -10,25 +10,26 @@ export class Errors {
 
     static fixAll = () : void => {
         const eagle: Eagle = Eagle.getInstance();
-        const initialNumMessages = eagle.checkGraphMessages().length;
+        const initialNumMessages = eagle.actionMessages().length;
         let numMessages   = Infinity;
         let numIterations = 0;
 
-        while (numMessages !== eagle.checkGraphMessages().length){
+        while (numMessages !== eagle.actionMessages().length){
             if (numIterations > 10){
                 console.warn("Too many iterations in fixAll()");
                 break;
             }
             numIterations = numIterations+1;
 
-            numMessages = eagle.checkGraphMessages().length;
+            numMessages = eagle.actionMessages().length;
 
-            for (const message of eagle.checkGraphMessages()){
+            for (const message of eagle.actionMessages()){
                 if (message.fix !== null){
                     message.fix();
                 }
             }
 
+            // TODO: if the fixAll function performed component updates, then we do not need to re-check the graph
             eagle.checkGraph();
         }
 
