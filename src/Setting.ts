@@ -14,6 +14,10 @@ export class SettingsGroup {
         this.settings = settings;
     }
 
+    getName = () :string => {
+        return this.name;
+    }
+
     isVisible = (eagle: Eagle) : boolean => {
         return this.displayFunc(eagle) || Setting.findValue(Setting.SHOW_DEVELOPER_TAB);
     }
@@ -195,8 +199,12 @@ export class Setting {
 
     static resetDefaults = () : void => {
         for (const group of Eagle.settings){
-            for (const setting of group.getSettings()){
-                setting.resetDefault();
+            if(group.getName() === "External Services"){
+                return  
+            }else{
+                for (const setting of group.getSettings()){
+                    setting.resetDefault();
+                }
             }
         }
     }
