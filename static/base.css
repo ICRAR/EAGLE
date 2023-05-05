@@ -207,7 +207,7 @@ body {
 }
 
 #parameterTableModal .modal-dialog{
-    max-width: 70vw;
+    max-width: 1230px;
 }
 
 #parameterTableModal .modal-dialog input{
