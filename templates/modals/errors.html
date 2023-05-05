@@ -11,7 +11,7 @@
 
                     <div class="accordion-item" id="errorsModalErrorsAccordionItem">
                         <h2 class="accordion-header" id="checkGraphAccordionHeadingOne">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors&nbsp;<span id="errorsModalErrorCount" data-bind="text: '[' + Errors.getErrors().length + ']'"></span></button>
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors&nbsp;<span id="errorsModalErrorCount" data-bind="text: '[' + ActionMessage.getNumErrors() + ']'"></span></button>
                         </h2>
                         <div id="checkGraphAccordionCollapseOne" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingOne">
                             <div class="accordion-body" id="errorsModalErrorsAccordionBody">
@@ -38,7 +38,7 @@
 
                     <div class="accordion-item" id="errorsModalWarningsAccordionItem">
                         <h2 class="accordion-header" id="checkGraphAccordionHeadingTwo">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings&nbsp;<span id="errorsModalWarningCount" data-bind="text: '[' + Errors.getWarnings().length + ']'"></span></button>
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings&nbsp;<span id="errorsModalWarningCount" data-bind="text: '[' + ActionMessage.getNumWarnings() + ']'"></span></button>
                         </h2>
                         <div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">
                             <div class="accordion-body" id="errorsModalWarningsAccordionBody">
@@ -66,7 +66,7 @@
                 </div>
             </div>
             <div class="modal-footer" style="justify-content: space-between;">
-                <button id="errorModalFixAll" class="btn btn-primary" data-bind="click: Errors.fixAll, eagleTooltip: Errors.getNumFixableIssues() + ' fix(es) available', enable: Errors.getNumFixableIssues() > 0">Fix All
+                <button id="errorModalFixAll" class="btn btn-primary" data-bind="click: Errors.fixAll, eagleTooltip: ActionMessage.getNumFixableIssues() + ' fix(es) available', enable: ActionMessage.getNumFixableIssues() > 0">Fix All
                     <span data-bind="text: Utils.getKeyboardShortcutTextByKey('fix_all', true)"></span>
                 </button>
                 <button id="errorModalOK" type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>

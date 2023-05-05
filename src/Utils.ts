@@ -458,17 +458,25 @@ export class Utils {
         }
     }
 
-    static showActionMessagesModal(title: string, messages: ActionMessage[]){
-        console.log("showActionMessagesModal() messages:", messages.length);
+    static showActionMessagesModal(title: string, combinedMessages: {source: string, messages: ActionMessage[]}[]){
+        console.log("showActionMessagesModal() messages:", combinedMessages.length);
         //console.trace();
 
+        const flatMessages: ActionMessage[] = [];
+        for (const load of combinedMessages){
+            for (const am of load.messages){
+                flatMessages.push(new ActionMessage(am.level, load.source + ": " + am.message, am.show, am.fix, am.fixDescription));
+            }
+        }
+
+
         const eagle: Eagle = Eagle.getInstance();
-        eagle.actionMessages(messages);
+        eagle.actionMessages(flatMessages);
 
         $('#errorsModalTitle').text(title);
 
         // hide whole errors or warnings sections if none are found
-        $('#errorsModalMessagesAccordionItem').toggle(messages.length > 0);
+        $('#errorsModalMessagesAccordionItem').toggle(flatMessages.length > 0);
 
         $('#errorsModal').modal("toggle");
     }
@@ -2111,8 +2119,8 @@ export class Utils {
 
     // only update result if it is worse that current result
     static worstEdgeError(errors: ActionMessage[]) : Eagle.LinkValid {
-        const hasWarnings: boolean = Errors.hasWarnings(errors);
-        const hasErrors: boolean   = Errors.hasErrors(errors);
+        const hasWarnings: boolean = ActionMessage.hasWarnings(errors);
+        const hasErrors: boolean   = ActionMessage.hasErrors(errors);
 
         if (!hasWarnings && !hasErrors){
             return Eagle.LinkValid.Valid;

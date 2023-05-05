@@ -7,7 +7,6 @@ import {Utils} from './Utils';
 
 export class Errors {
 
-
     static fixAll = () : void => {
         const eagle: Eagle = Eagle.getInstance();
         const initialNumMessages = eagle.actionMessages().length;
@@ -39,31 +38,13 @@ export class Errors {
         Utils.postFixFunc(eagle);
     }
 
-    static hasWarnings = (errors: ActionMessage[]) : boolean => {
-        for (const error of errors){
-            if (error.level === ActionMessage.Level.Warning){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    static hasErrors = (errors: ActionMessage[]) : boolean => {
-        for (const error of errors){
-            if (error.level === ActionMessage.Level.Error){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    static getWarnings : ko.PureComputed<ActionMessage[]> = ko.pureComputed(() => {
+    static getNumWarnings : ko.PureComputed<number> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
-        const result: ActionMessage[] = [];
+        let result: number = 0;
 
         for (const error of eagle.checkGraphMessages()){
             if (error.level === ActionMessage.Level.Warning){
-                result.push(error);
+                result += 1;
             }
         }
 
@@ -71,30 +52,16 @@ export class Errors {
 
     }, this);
 
-    static getErrors : ko.PureComputed<ActionMessage[]> = ko.pureComputed(() => {
+    static getNumErrors : ko.PureComputed<number> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
-        const result: ActionMessage[] = [];
+         let result: number = 0;
 
         for (const error of eagle.checkGraphMessages()){
             if (error.level === ActionMessage.Level.Error){
-                result.push(error);
+                result += 1;
             }
         }
 
         return result;
-    }, this);
-
-    static getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {
-        const eagle: Eagle = Eagle.getInstance();
-        let count: number = 0;
-
-        // count the warnings
-        for (const message of eagle.actionMessages()){
-            if (message.fix !== null){
-                count += 1;
-            }
-        }
-
-        return count;
     }, this);
 }

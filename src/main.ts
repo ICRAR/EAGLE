@@ -136,23 +136,28 @@ $(function(){
     }
 
     // load the default palette
-    eagle.loadFiles(autoLoadFiles, (errors: ActionMessage[], palettes: {file: RepositoryFile, palette: Palette}[], logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph}[]):void => {
+    eagle.loadFiles(autoLoadFiles, (palettes: {file: RepositoryFile, palette: Palette, errors: ActionMessage[]}[], logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph, errors: ActionMessage[]}[]):void => {
+        const loads : {file: RepositoryFile, errors: ActionMessage[]}[] = [];
+
         // handle palettes
         for (const p of palettes){
+            loads.push({file:p.file, errors: p.errors});
             if (p.palette !== null){
-                eagle.remotePaletteLoaded(p.file, p.palette)
+                p.palette.fileInfo().name = p.file.name;
+                eagle.remotePaletteLoaded(p.file, p.palette);
             }
         }
 
-        // TODO: loop over graphs, and load
+        // handle graphs
         for (const g of logicalGraphs){
+            loads.push({file:g.file, errors: g.errors});
             if (g.logicalGraph !== null){
                 eagle.logicalGraph(g.logicalGraph);
             }
         }
 
         // handle errors
-        eagle.handleLoadingErrors(errors, autoLoadFiles);  
+        eagle.handleLoadingErrors(loads);
 
         // show the left window if palettes were loaded
         // TODO: is this required? try removing

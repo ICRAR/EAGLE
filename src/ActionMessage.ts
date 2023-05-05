@@ -1,3 +1,7 @@
+import * as ko from "knockout";
+
+import { Eagle } from "./Eagle";
+
 export class ActionMessage {
     level: ActionMessage.Level;
     message: string;
@@ -56,6 +60,66 @@ export class ActionMessage {
                 return "info";
         }
     }
+
+    static hasWarnings = (errors: ActionMessage[]) : boolean => {
+        for (const error of errors){
+            if (error.level === ActionMessage.Level.Warning){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static hasErrors = (errors: ActionMessage[]) : boolean => {
+        for (const error of errors){
+            if (error.level === ActionMessage.Level.Error){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {
+        const eagle: Eagle = Eagle.getInstance();
+        let count: number = 0;
+
+        // count the warnings
+        for (const message of eagle.actionMessages()){
+            if (message.fix !== null){
+                count += 1;
+            }
+        }
+
+        return count;
+    }, this);
+
+
+    static getNumWarnings : ko.PureComputed<number> = ko.pureComputed(() => {
+        const eagle: Eagle = Eagle.getInstance();
+        let result: number = 0;
+
+        for (const error of eagle.actionMessages()){
+            if (error.level === ActionMessage.Level.Warning){
+                result += 1;
+            }
+        }
+
+        return result;
+
+    }, this);
+
+    static getNumErrors : ko.PureComputed<number> = ko.pureComputed(() => {
+        const eagle: Eagle = Eagle.getInstance();
+         let result: number = 0;
+
+        for (const error of eagle.actionMessages()){
+            if (error.level === ActionMessage.Level.Error){
+                result += 1;
+            }
+        }
+
+        return result;
+    }, this);
 }
 
 export namespace ActionMessage {

@@ -294,9 +294,9 @@ export class Eagle {
 
         switch (Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS)){
             case Setting.ShowErrorsMode.Warnings:
-                return Errors.hasWarnings(errors) || Errors.hasErrors(errors);
+                return ActionMessage.hasWarnings(errors) || ActionMessage.hasErrors(errors);
             case Setting.ShowErrorsMode.Errors:
-                return Errors.hasErrors(errors);
+                return ActionMessage.hasErrors(errors);
             case Setting.ShowErrorsMode.None:
             default:
                 return false;
@@ -811,24 +811,31 @@ export class Eagle {
     }
 
     // TODO: consider changing input to {file: RepositoryFile, errors:ActionMessage[]}[], so that we can associate error messages with the file that generated them
-    handleLoadingErrors = (errors: ActionMessage[], files: RepositoryFile[]) : void => {
+    handleLoadingErrors = (loads: {file: RepositoryFile, errors: ActionMessage[]}[]) : void => {
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
-        // show errors (if found)
-        if (Errors.hasErrors(errors) || Errors.hasWarnings(errors)){
-            if (showErrors){
+        // combine all the data in loads
+        const combinedErrors: {source: string, messages: ActionMessage[]}[] = [];
+        let combinedErrorCount: number = 0;
+        for (const load of loads){
+            combinedErrors.push({source: load.file.name, messages: load.errors});
+            combinedErrorCount += load.errors.length;
+        }
 
+        // show errors (if found)
+        if (combinedErrorCount > 0){
+            if (showErrors){
                 // add warnings/errors to the arrays
-                Utils.showActionMessagesModal("Loading File", errors);
+                Utils.showActionMessagesModal("Loading File", combinedErrors);
             }
         } else {
             const messages: string[] = [];
             
-            for (const file of files){
-                if (file.repository.service === Eagle.RepositoryService.Unknown){
-                    messages.push(file.name + " has been loaded.", "success");
+            for (const load of loads){
+                if (load.file.repository.service === Eagle.RepositoryService.Unknown){
+                    messages.push(load.file.name + " has been loaded.", "success");
                 } else {
-                    messages.push(file.name + " has been loaded from " + file.repository.service + ".");
+                    messages.push(load.file.name + " has been loaded from " + load.file.repository.service + ".");
                 }
             }
 
@@ -870,7 +877,7 @@ export class Eagle {
                 break;
         }
 
-        this.handleLoadingErrors(errorsWarnings, [dummyFile]);
+        this.handleLoadingErrors([{file: dummyFile, errors: errorsWarnings}]);
     }
 
     createSubgraphFromSelection = () : void => {
@@ -1152,7 +1159,7 @@ export class Eagle {
         const p : Palette = Palette.fromOJSJson(data, dummyFile, errorsWarnings);
 
         // show errors (if found)
-        this.handleLoadingErrors(errorsWarnings, [dummyFile]);
+        this.handleLoadingErrors([{file: dummyFile, errors:errorsWarnings}]);
 
         // sort the palette
         p.sort();
@@ -1716,32 +1723,28 @@ export class Eagle {
         this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
     }
 
-    loadFiles = (files: RepositoryFile[], callback: (errors: ActionMessage[], palettes: {file: RepositoryFile, palette: Palette}[], logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph}[]) => void ) : void => {
-        const palettes: {file: RepositoryFile, palette: Palette}[] = [];
-        const logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph}[] = [];
+    loadFiles = (files: RepositoryFile[], callback: (palettes: {file: RepositoryFile, palette: Palette, errors: ActionMessage[]}[], logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph, errors: ActionMessage[]}[]) => void ) : void => {
+        const palettes: {file: RepositoryFile, palette: Palette, errors: ActionMessage[]}[] = [];
+        const logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph, errors: ActionMessage[]}[] = [];
         const filesComplete: boolean[] = [];
-        const errors: ActionMessage[] = [];
 
         for (let i = 0 ; i < files.length ; i++){
             filesComplete.push(false);
             const index = i;
             
-            this.openRemoteFile(files[i], function(err: ActionMessage[], fileType: Eagle.FileType, dataObject: object){
+            this.openRemoteFile(files[i], function(errors: ActionMessage[], fileType: Eagle.FileType, dataObject: object){
                 filesComplete[index] = true;
 
                 // add files to array
                 switch(fileType){
                     case Eagle.FileType.Graph:
-                        logicalGraphs.push({file: files[i], logicalGraph: LogicalGraph.fromOJSJson(dataObject, files[i], errors)});
+                        const lg = LogicalGraph.fromOJSJson(dataObject, files[i], errors);
+                        logicalGraphs.push({file: files[i], logicalGraph: lg, errors: errors});
                         break;
                     case Eagle.FileType.Palette:
-                        palettes.push({file: files[i], palette: Palette.fromOJSJson(dataObject, files[i], errors)});
+                        const p = Palette.fromOJSJson(dataObject, files[i], errors);
+                        palettes.push({file: files[i], palette: p, errors: errors});
                         break;
-                }
-
-                // add errors
-                if (err.length !== 0){
-                    errors.push(...err);
                 }
 
                 // check if all requests are now complete, then we can call the callback
@@ -1752,7 +1755,7 @@ export class Eagle {
                     }
                 }
                 if (allComplete){
-                    callback(errors, palettes, logicalGraphs);
+                    callback(palettes, logicalGraphs);
                 }
             });
 
@@ -1978,7 +1981,7 @@ export class Eagle {
             this.checkGraph();
 
             // show errors/warnings
-            this.handleLoadingErrors(errors, [file]);
+            this.handleLoadingErrors([{file: file, errors:errors}]);
         });
     };
 
@@ -2793,7 +2796,7 @@ export class Eagle {
         this.insertGraph(nodes, edges, null, errors);
 
         // display notification to user
-        if (Errors.hasErrors(errors) || Errors.hasWarnings(errors)){
+        if (ActionMessage.hasErrors(errors) || ActionMessage.hasWarnings(errors)){
 
         } else {
             Utils.showNotification("Pasted from clipboard", "Pasted " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
@@ -4502,7 +4505,7 @@ export class Eagle {
         ComponentUpdater.determineUpdates(this.palettes(), this.logicalGraph(), function(errors: ActionMessage[], updates: ActionMessage[]){
             console.log("callback", errors, updates);
 
-            Utils.showActionMessagesModal("Update Graph Components", errors.concat(updates));
+            Utils.showActionMessagesModal("Update Graph Components", [{source:"", messages:errors.concat(updates)}]);
         });
     }
 }
