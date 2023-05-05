@@ -113,7 +113,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson = (dataObject : any, file : RepositoryFile, errors: ActionMessage[]) : LogicalGraph => {
+    static fromOJSJson = (dataObject: any, file: RepositoryFile, errors: ActionMessage[]) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 

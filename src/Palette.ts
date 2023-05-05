@@ -49,9 +49,7 @@ export class Palette {
         this.searchExclude = ko.observable(false);
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, errors: ActionMessage[]) : Palette => {
-        // parse the JSON first
-        const dataObject : any = JSON.parse(data);
+    static fromOJSJson = (dataObject: any, file : RepositoryFile, errors: ActionMessage[]) : Palette => {
         const result : Palette = new Palette();
 
         // copy modelData into fileInfo

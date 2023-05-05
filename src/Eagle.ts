@@ -1716,9 +1716,9 @@ export class Eagle {
         this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
     }
 
-    loadFiles = (files: RepositoryFile[], callback: (errors: ActionMessage[], palettes: Palette[], graphs: LogicalGraph[]) => void ) : void => {
-        const palettes: Palette[] = [];
-        const graphs: LogicalGraph[] = [];
+    loadFiles = (files: RepositoryFile[], callback: (errors: ActionMessage[], palettes: {file: RepositoryFile, palette: Palette}[], logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph}[]) => void ) : void => {
+        const palettes: {file: RepositoryFile, palette: Palette}[] = [];
+        const logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph}[] = [];
         const filesComplete: boolean[] = [];
         const errors: ActionMessage[] = [];
 
@@ -1726,15 +1726,17 @@ export class Eagle {
             filesComplete.push(false);
             const index = i;
             
-            this.openRemoteFile(files[i], function(err: ActionMessage[], file: LogicalGraph | Palette){
+            this.openRemoteFile(files[i], function(err: ActionMessage[], fileType: Eagle.FileType, dataObject: object){
                 filesComplete[index] = true;
 
                 // add files to array
-                // TODO: use instanceof here?
-                if (file.fileInfo().type === Eagle.FileType.Graph){
-                    graphs.push(<LogicalGraph>file);
-                } else {
-                    palettes.push(<Palette>file);
+                switch(fileType){
+                    case Eagle.FileType.Graph:
+                        logicalGraphs.push({file: files[i], logicalGraph: LogicalGraph.fromOJSJson(dataObject, files[i], errors)});
+                        break;
+                    case Eagle.FileType.Palette:
+                        palettes.push({file: files[i], palette: Palette.fromOJSJson(dataObject, files[i], errors)});
+                        break;
                 }
 
                 // add errors
@@ -1750,7 +1752,7 @@ export class Eagle {
                     }
                 }
                 if (allComplete){
-                    callback(errors, palettes, graphs);
+                    callback(errors, palettes, logicalGraphs);
                 }
             });
 
@@ -1791,7 +1793,7 @@ export class Eagle {
         }
     }
 
-    openRemoteFile = (file : RepositoryFile, callback: (errors: ActionMessage[], file: LogicalGraph | Palette) => void) : void => {
+    openRemoteFile = (file : RepositoryFile, callback: (errors: ActionMessage[], fileType: Eagle.FileType, dataObject: object) => void) : void => {
         // flag file as being fetched
         file.isFetching(true);
 
@@ -1821,7 +1823,7 @@ export class Eagle {
             if (error != null){
                 Utils.showUserMessage("Error", error);
                 console.error(error);
-                if (callback !== null) callback([ActionMessage.Error(error)], null);
+                if (callback !== null) callback([ActionMessage.Error(error)], Eagle.FileType.Unknown, null);
                 return;
             }
 
@@ -1837,7 +1839,7 @@ export class Eagle {
                 }
                 catch(err){
                     Utils.showUserMessage("Error parsing file JSON", err.message);
-                    if (callback !== null) callback([ActionMessage.Error(err)], null);
+                    if (callback !== null) callback([ActionMessage.Error(err)], Eagle.FileType.Markdown, null);
                     return;
                 }
 
@@ -1867,7 +1869,7 @@ export class Eagle {
                     */
 
                     // load graph
-                    this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
+                    //this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errors));
 
                     // show errors/warnings
                     //this.handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
@@ -1884,11 +1886,11 @@ export class Eagle {
                     break;
 
                 case Eagle.FileType.Palette:
-                    this._remotePaletteLoaded(file, data);
+                    //this._remotePaletteLoaded(file, data);
                     break;
 
                 case Eagle.FileType.Markdown:
-                    Utils.showUserMessage(file.name, Utils.markdown2html(data));
+                    //Utils.showUserMessage(file.name, Utils.markdown2html(data));
                     break;
 
                 default:
@@ -1897,15 +1899,7 @@ export class Eagle {
             }
             this.resetEditor();
 
-            // HACK
-            let returnThing: LogicalGraph | Palette = null;
-            if (fileTypeLoaded === Eagle.FileType.Graph){
-                returnThing = this.logicalGraph();
-            } else {
-                returnThing = this.palettes()[this.palettes().length -1];
-            }
-
-            if (callback !== null) callback(errors, returnThing);
+            if (callback !== null) callback(errors, fileTypeLoaded, dataObject);
         });
     };
 
@@ -1988,9 +1982,7 @@ export class Eagle {
         });
     };
 
-    private _remotePaletteLoaded = (file : RepositoryFile, data : string) : void => {
-        // load the remote palette into EAGLE's palettes object.
-
+    public remotePaletteLoaded = (file : RepositoryFile, palette: Palette) : void => {
         // check palette is not already loaded
         const alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
 
@@ -1998,23 +1990,19 @@ export class Eagle {
         if (alreadyLoadedPalette !== null && Setting.findValue(Setting.CONFIRM_RELOAD_PALETTES)){
             Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
                 if (confirmed){
-                    this._reloadPalette(file, data, alreadyLoadedPalette);
+                    this._reloadPalette(file, palette, alreadyLoadedPalette);
                 }
             });
         } else {
-            this._reloadPalette(file, data, alreadyLoadedPalette);
+            this._reloadPalette(file, palette, alreadyLoadedPalette);
         }
     }
 
-    private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
+    private _reloadPalette = (file : RepositoryFile, newPalette : Palette, oldPalette : Palette) : void => {
         // close the existing version of the open palette
-        if (palette !== null){
-            this.closePalette(palette);
+        if (oldPalette !== null){
+            this.closePalette(oldPalette);
         }
-
-        // load the new palette
-        const errorsWarnings: ActionMessage[] = [];
-        const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
         // sort items in palette
         newPalette.sort();

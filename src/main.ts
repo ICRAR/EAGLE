@@ -136,19 +136,20 @@ $(function(){
     }
 
     // load the default palette
-    eagle.loadFiles(autoLoadFiles, (errors: ActionMessage[], palettes: Palette[], graphs: LogicalGraph[]):void => {
-        console.log("loadFiles() callback: palettes", palettes.length, "graphs", graphs.length, "errors", errors.length);
-    
+    eagle.loadFiles(autoLoadFiles, (errors: ActionMessage[], palettes: {file: RepositoryFile, palette: Palette}[], logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph}[]):void => {
         // handle palettes
-        for (const palette of palettes){
-            if (palette !== null){
-                eagle.palettes.push(palette);
+        for (const p of palettes){
+            if (p.palette !== null){
+                eagle.remotePaletteLoaded(p.file, p.palette)
             }
         }
 
         // TODO: loop over graphs, and load
-
-        // 
+        for (const g of logicalGraphs){
+            if (g.logicalGraph !== null){
+                eagle.logicalGraph(g.logicalGraph);
+            }
+        }
 
         // handle errors
         eagle.handleLoadingErrors(errors, autoLoadFiles);  
@@ -159,7 +160,7 @@ $(function(){
             eagle.leftWindow().shown(true);
         }
 
-        if (graphs.length > 0){
+        if (logicalGraphs.length > 0){
             // center graph
             eagle.centerGraph();
 
