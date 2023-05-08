@@ -29,6 +29,7 @@ import * as ko from "knockout";
 import {Category} from './Category';
 import {CategoryData} from "./CategoryData";
 import {Config} from './Config';
+import {Daliuge} from './Daliuge';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
 import {Errors} from './Errors';
@@ -40,7 +41,6 @@ import {Palette} from './Palette';
 import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
-import {ParameterTable} from './ParameterTable';
 import {FileInfo} from "./FileInfo";
 
 export class Utils {
@@ -268,43 +268,43 @@ export class Utils {
 
     static dataTypePrefix(dataType: string): string {
         if (typeof dataType === 'undefined'){
-            return Eagle.DataType_Unknown;
+            return Daliuge.DataType.Unknown;
         }
 
         return dataType.split(".")[0];
     }
 
     static translateStringToDataType(dataType: string): string {
-        for (const dt of Eagle.DataTypes){
+        for (const dt of Utils.enumKeys(Daliuge.DataType)){
             if (dt.toLowerCase() === dataType.toLowerCase()){
                 return dt;
             }
         }
         
         console.warn("Unknown DataType", dataType);
-        return Eagle.DataType_Unknown;
+        return Daliuge.DataType.Unknown;
     }
 
-    static translateStringToParameterType(parameterType: string): Eagle.ParameterType {
-        for (const pt of Object.values(Eagle.ParameterType)){
+    static translateStringToParameterType(parameterType: string): Daliuge.FieldType {
+        for (const pt of Object.values(Daliuge.FieldType)){
             if (pt.toLowerCase() === parameterType.toLowerCase()){
                 return pt;
             }
         }
 
         console.warn("Unknown ParameterType", parameterType);
-        return Eagle.ParameterType.Unknown;
+        return Daliuge.FieldType.Unknown;
     }
 
-    static translateStringToParameterUsage(parameterUsage: string): Eagle.ParameterUsage {
-        for (const pu of Object.values(Eagle.ParameterUsage)){
+    static translateStringToParameterUsage(parameterUsage: string): Daliuge.FieldUsage {
+        for (const pu of Object.values(Daliuge.FieldUsage)){
             if (pu.toLowerCase() === parameterUsage.toLowerCase()){
                 return pu;
             }
         }
 
         console.warn("Unknown ParameterUsage", parameterUsage);
-        return Eagle.ParameterUsage.NoPort;
+        return Daliuge.FieldUsage.NoPort;
     }
     
     static httpGet(url : string, callback : (error : string, data : string) => void) : void {
@@ -407,24 +407,6 @@ export class Utils {
                 callback(error + " " + xhr.responseText, null);
             }
         });
-    }
-
-    /**
-     * Returns true if the node parameter is an (Arg01...Arg10)-argument.
-     */
-    static isParameterArgument(parameterName : string) : boolean {
-        // Regular expression for Arg01...Arg10 parameters.
-        const re : RegExp = /Arg\d\d$/;
-        return re.test(parameterName);
-    }
-
-    static showParameter(name : string, value: string) : boolean {
-        if (Utils.isParameterArgument(name)){
-            // return true if we find a '='
-            return value.indexOf('=') !== -1;
-        } else {
-            return true;
-        }
     }
 
     static fieldTextToFieldName(text : string) : string {
@@ -638,21 +620,21 @@ export class Utils {
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, parameterUsage: Eagle.ParameterUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
         let dropDownKO;
         let divID;
 
         // determine which dropdown menu should be filled with appropriate items
         switch(parameterType){
-            case Eagle.ParameterType.ApplicationArgument:
+            case Daliuge.FieldType.ApplicationArgument:
                 dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
                 divID = "nodeInspectorAddApplicationParamDiv";
                 break;
-            case Eagle.ParameterType.ComponentParameter:
+            case Daliuge.FieldType.ComponentParameter:
                 dropDownKO = $("#nodeInspectorFieldDropDownKO");
                 divID = "nodeInspectorAddFieldDiv";
                 break;
-            case Eagle.ParameterType.ConstructParameter:
+            case Daliuge.FieldType.ConstructParameter:
                 dropDownKO = $("#nodeInspectorConstructParameterDropDownKO");
                 divID = "nodeInspectorAddConstructParameterDiv";
                 break;
@@ -662,11 +644,11 @@ export class Utils {
 
         // or if we are a port, then use different dropdowns
         switch(parameterUsage){
-            case Eagle.ParameterUsage.InputPort:
+            case Daliuge.FieldUsage.InputPort:
             dropDownKO = $("#nodeInspectorInputPortDropDownKO");
             divID = "nodeInspectorAddInputPortDiv";
             break;
-            case Eagle.ParameterUsage.OutputPort:
+            case Daliuge.FieldUsage.OutputPort:
             dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
             divID = "nodeInspectorAddOutputPortDiv";
             break;
@@ -729,11 +711,10 @@ export class Utils {
 
         // populate UI with current field data
         $('#editFieldModalDisplayTextInput').val(field.getDisplayText());
-        $('#editFieldModalIdTextInput').val(field.getIdText());
         $('#editFieldModalValueInputText').val(field.getValue());
         $('#editFieldModalValueInputNumber').val(field.getValue());
-        $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
-        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
+        $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Daliuge.DataType.Boolean));
+        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Daliuge.DataType.Boolean));
         $('#editFieldModalValueInputSelect').empty();
         for (const option of field.getOptions()){
             $('#editFieldModalValueInputSelect').append($('<option>', {
@@ -745,8 +726,8 @@ export class Utils {
 
         $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
         $('#editFieldModalDefaultValueInputNumber').val(field.getDefaultValue());
-        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Eagle.DataType_Boolean));
-        $('#editFieldModalDefaultValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
+        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Daliuge.DataType.Boolean));
+        $('#editFieldModalDefaultValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Daliuge.DataType.Boolean));
         $('#editFieldModalDefaultValueInputSelect').empty();
         for (const option of field.getOptions()){
             $('#editFieldModalDefaultValueInputSelect').append($('<option>', {
@@ -787,9 +768,9 @@ export class Utils {
             $('#editFieldModalTypeSelect').append(li);
         }
 
-        // delete all options, then iterate through the values in the Eagle.ParameterType enum, adding each as an option to the select
+        // delete all options, then iterate through the values in the Daliuge.FieldType enum, adding each as an option to the select
         $('#editFieldModalParameterTypeSelect').empty();
-        for (const ft of [Eagle.ParameterType.ComponentParameter, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterType.ConstructParameter]){
+        for (const ft of [Daliuge.FieldType.ComponentParameter, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldType.ConstructParameter]){
             $('#editFieldModalParameterTypeSelect').append(
                 $('<option>', {
                     value: ft,
@@ -799,9 +780,9 @@ export class Utils {
             );
         }
 
-        // delete all options, then iterate through the values in the Eagle.ParameterUsage enum, adding each as an option to the select
+        // delete all options, then iterate through the values in the Daliuge.FieldUsage enum, adding each as an option to the select
         $('#editFieldModalParameterUsageSelect').empty();
-        for (const pu of Object.values(Eagle.ParameterUsage)){
+        for (const pu of Object.values(Daliuge.FieldUsage)){
             $('#editFieldModalParameterUsageSelect').append(
                 $('<option>', {
                     value: pu,
@@ -1036,7 +1017,7 @@ export class Utils {
             for (const port of srcNode.getOutputPorts()){
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
-                    text: port.getIdText(),
+                    text: port.getDisplayText(),
                     selected: edge.getSrcPortId() === port.getId()
                 }));
             }
@@ -1094,7 +1075,7 @@ export class Utils {
             for (const port of destNode.getInputPorts()){
                 $('#editEdgeModalDestPortIdSelect').append($('<option>', {
                     value: port.getId(),
-                    text: port.getIdText(),
+                    text: port.getDisplayText(),
                     selected: edge.getDestPortId() === port.getId()
                 }));
             }
@@ -1115,14 +1096,14 @@ export class Utils {
                 // add input port names into the list
                 for (const port of node.getInputPorts()) {
                     if (!port.getIsEvent()){
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // add output port names into the list
                 for (const port of node.getOutputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
             }
@@ -1133,14 +1114,14 @@ export class Utils {
             // add input port names into the list
             for (const port of node.getInputPorts()) {
                 if (!port.getIsEvent()){
-                    Utils._addPortIfUnique(uniquePorts, port.clone());
+                    Utils._addFieldIfUnique(uniquePorts, port.clone());
                 }
             }
 
             // add output port names into the list
             for (const port of node.getOutputPorts()) {
                 if (!port.getIsEvent()) {
-                    Utils._addPortIfUnique(uniquePorts, port.clone());
+                    Utils._addFieldIfUnique(uniquePorts, port.clone());
                 }
             }
 
@@ -1149,14 +1130,14 @@ export class Utils {
                 // input ports
                 for (const port of node.getInputApplication().getInputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
                 for (const port of node.getInputApplication().getOutputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
             }
@@ -1166,14 +1147,14 @@ export class Utils {
                 // input ports
                 for (const port of node.getOutputApplication().getInputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
                 for (const port of node.getOutputApplication().getOutputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
             }
@@ -1326,19 +1307,6 @@ export class Utils {
         return result;
     }
 
-    private static _addPortIfUnique = (ports : Field[], port: Field) : void => {
-
-        // check if the new port matches an existing port (by name and type), if so, abort
-        for (const p of ports){
-            if (p.getIdText() === port.getIdText() && p.getType() === port.getType()){
-                return;
-            }
-        }
-
-        // otherwise add the port
-        ports.push(port);
-    }
-
     static addTypeIfUnique = (types: string[], newType: string) : void => {
         for (const t of types){
             if (t === newType){
@@ -1367,7 +1335,7 @@ export class Utils {
     /**
      * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, parameterType: Eagle.ParameterType) : Field[] => {
+    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, parameterType: Daliuge.FieldType) : Field[] => {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
@@ -1386,7 +1354,7 @@ export class Utils {
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
         // check if the new field matches an existing field (by name and type), if so, abort
         for (const f of fields){
-            if (f.getIdText() === field.getIdText() && f.getType() === field.getType()){
+            if (f.getDisplayText() === field.getDisplayText() && f.getType() === field.getType()){
                 return;
             }
         }
@@ -1529,18 +1497,18 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static determineSchemaVersion(data: any): Eagle.DALiuGESchemaVersion {
+    static determineSchemaVersion(data: any): Daliuge.SchemaVersion {
         // appref
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
-                if (data.modelData.schemaVersion === Eagle.DALiuGESchemaVersion.OJS){
-                    return Eagle.DALiuGESchemaVersion.OJS;
+                if (data.modelData.schemaVersion === Daliuge.SchemaVersion.OJS){
+                    return Daliuge.SchemaVersion.OJS;
                 }
                 return data.modelData.schemaVersion;
             }
         }
 
-        return Eagle.DALiuGESchemaVersion.Unknown;
+        return Daliuge.SchemaVersion.Unknown;
     }
 
     static portsMatch(port0: Field, port1: Field){
@@ -1609,14 +1577,14 @@ export class Utils {
         return errorsWarnings;
     }
 
-    static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
+    static validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
         console.log("validateJSON(): version:", version, " fileType:", fileType);
 
         const ajv = new Ajv();
         let valid : boolean;
 
         switch(version){
-            case Eagle.DALiuGESchemaVersion.OJS:
+            case Daliuge.SchemaVersion.OJS:
                 switch(fileType){
                     case Eagle.FileType.Graph:
                     case Eagle.FileType.Palette:
@@ -1645,27 +1613,11 @@ export class Utils {
         return /^[0-9]$/i.test(ch);
     }
 
-    static validateIdText(idText: string) : boolean {
-        // must start with a letter of underscore character
-        if (idText[0] !== "_" && !Utils.isAlpha(idText[0])){
-            return false;
-        }
-
-        // can only contain alpha-numeric and underscores
-        for (let i = 1 ; i < idText.length ; i++){
-            if (!Utils.isAlpha(idText[i]) && !Utils.isNumeric(idText[i]) && idText[i] !== "_"){
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     static validateField(type: string, value: string) : boolean {
         let valid: boolean = true;
 
         // make sure JSON fields are parse-able
-        if (type === Eagle.DataType_Json){
+        if (type === Daliuge.DataType.Json){
             try {
                 JSON.parse(value);
             } catch(e) {
@@ -1679,7 +1631,7 @@ export class Utils {
     static validateType(type: string) : boolean {
         const typePrefix = Utils.dataTypePrefix(type);
 
-        for (const dt of Eagle.DataTypes){
+        for (const dt of Utils.enumKeys(Daliuge.DataType)){
             if (dt === typePrefix){
                 return true;
             }
@@ -1958,19 +1910,19 @@ export class Utils {
         this._mergeEdges(eagle, field1.getId(), field0.getId());
     }
 
-    static _mergeUsage(usage0: Eagle.ParameterUsage, usage1: Eagle.ParameterUsage) : Eagle.ParameterUsage {
-        let result: Eagle.ParameterUsage = usage0;
+    static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
+        let result: Daliuge.FieldUsage = usage0;
 
         // decide if we need to merge an input port and output port
-        if (usage0 !== usage1 && (usage0 === Eagle.ParameterUsage.InputPort || usage0 === Eagle.ParameterUsage.OutputPort) && (usage1 === Eagle.ParameterUsage.InputPort || usage1 === Eagle.ParameterUsage.OutputPort)){
-            result = Eagle.ParameterUsage.InputOutput;
+        if (usage0 !== usage1 && (usage0 === Daliuge.FieldUsage.InputPort || usage0 === Daliuge.FieldUsage.OutputPort) && (usage1 === Daliuge.FieldUsage.InputPort || usage1 === Daliuge.FieldUsage.OutputPort)){
+            result = Daliuge.FieldUsage.InputOutput;
         }
 
         // if one field is a NoPort?
-        if (usage0 === Eagle.ParameterUsage.NoPort){
+        if (usage0 === Daliuge.FieldUsage.NoPort){
             result = usage1;
         }
-        if (usage1 === Eagle.ParameterUsage.NoPort){
+        if (usage1 === Daliuge.FieldUsage.NoPort){
             result = usage0;
         }
 
@@ -1997,7 +1949,7 @@ export class Utils {
     }
 
     static fixFieldValue(eagle: Eagle, node: Node, exampleField: Field, value: string){
-        let field : Field = node.getFieldByIdText(exampleField.getIdText());
+        let field : Field = node.getFieldByDisplayText(exampleField.getDisplayText());
 
         // if a field was not found, clone one from the example and add to node
         if (field === null){
@@ -2012,15 +1964,15 @@ export class Utils {
     static fixFieldDefaultValue(eagle: Eagle, field: Field){
         // depends on the type
         switch(field.getType()){
-            case Eagle.DataType_Boolean:
+            case Daliuge.DataType.Boolean:
             field.setDefaultValue("false");
             break;
-            case Eagle.DataType_Integer:
-            case Eagle.DataType_Float:
+            case Daliuge.DataType.Integer:
+            case Daliuge.DataType.Float:
             field.setDefaultValue("0");
             break;
-            case Eagle.DataType_Json:
-            case Eagle.DataType_Python:
+            case Daliuge.DataType.Json:
+            case Daliuge.DataType.Python:
             field.setDefaultValue("{}");
             break;
             default:
@@ -2031,18 +1983,18 @@ export class Utils {
     }
 
     static fixFieldType(eagle: Eagle, field: Field){
-        if (field.getType() === Eagle.DataType_Unknown){
-            field.setType(Eagle.DataType_Object);
+        if (field.getType() === Daliuge.DataType.Unknown){
+            field.setType(Daliuge.DataType.Object);
             return;
         }
 
         // fix for redundant 'Complex' type
         if (field.getType() === 'Complex'){
-            field.setType(Eagle.DataType_Object);
+            field.setType(Daliuge.DataType.Object);
             return;
         }
 
-        field.setType(Eagle.DataType_Object + "." + field.getType());
+        field.setType(Daliuge.DataType.Object + "." + field.getType());
     }
 
     static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){
@@ -2069,7 +2021,7 @@ export class Utils {
         }
     }
 
-    static fixFieldParameterType(eagle: Eagle, field: Field, newType: Eagle.ParameterType){
+    static fixFieldParameterType(eagle: Eagle, field: Field, newType: Daliuge.FieldType){
         field.setParameterType(newType);
     }
 
@@ -2102,6 +2054,11 @@ export class Utils {
 
     // only update result if it is worse that current result
     static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid {
+        if (errorsWarnings === null){
+            console.warn("errorsWarnings is null");
+            return Eagle.LinkValid.Valid;
+        }
+
         if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
             return Eagle.LinkValid.Valid;
         }
@@ -2222,7 +2179,6 @@ export class Utils {
         for (const field of eagle.logicalGraph().getNodes()[nodeIndex].getFields()){
             tableData.push({
                 "id":field.getId(),
-                "idText":field.getIdText(),
                 "displayText":field.getDisplayText(),
                 "nodeKey":field.getNodeKey(),
                 "type":field.getType(),
@@ -2260,7 +2216,7 @@ export class Utils {
     }
 
     static loadSchemas = () : void => {
-        Utils.httpGet(Config.DALIUGE_GRAPH_SCHEMA_URL, (error : string, data : string) => {
+        Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL, (error : string, data : string) => {
             if (error !== null){
                 console.error(error);
                 return;

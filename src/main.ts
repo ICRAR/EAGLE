@@ -31,6 +31,7 @@ import * as bootstrap from 'bootstrap';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Config} from './Config';
+import {Daliuge} from './Daliuge';
 import {Eagle} from './Eagle';
 import {Errors} from './Errors';
 import {GitHub} from './GitHub';
@@ -64,18 +65,20 @@ $(function(){
 
     // add eagle to the window object, slightly hacky, but useful for debugging
     (<any>window).eagle = eagle;
-    (<any>window).Eagle = Eagle;
-    (<any>window).Utils = Utils;
-    (<any>window).Config = Config;
+
     (<any>window).Category = Category;
+    (<any>window).Config = Config;
+    (<any>window).Daliuge = Daliuge;
+    (<any>window).Eagle = Eagle;
     (<any>window).Errors = Errors;
     (<any>window).Hierarchy = Hierarchy;
+    (<any>window).ParameterTable = ParameterTable;
+    (<any>window).Repositories = Repositories;
     (<any>window).RightClick = RightClick;
     (<any>window).Setting = Setting;
-    (<any>window).Repositories = Repositories;
-    (<any>window).ParameterTable = ParameterTable;
     (<any>window).SideWindow = SideWindow;
     (<any>window).TutorialSystem = TutorialSystem;
+    (<any>window).Utils = Utils;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
@@ -117,8 +120,8 @@ $(function(){
     // load the default palette
     if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
         eagle.loadPalettes([
-            {name:"Builtin Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
-            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true}
+            {name:"Builtin Components", filename:Daliuge.PALETTE_URL, readonly:true},
+            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true}
         ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
             const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 

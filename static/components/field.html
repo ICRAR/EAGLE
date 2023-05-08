@@ -5,23 +5,23 @@
             <span class="input-group-text" id="group-addon" data-bind="text: $data.displayText, eagleTooltip: $data.getDescriptionText()" data-bs-placement="left"></span>
         </div>
 
-        <!-- ko if: !isType(Eagle.DataType_Boolean) && !isType(Eagle.DataType_Select) -->
-            <!-- ko if: isType(Eagle.DataType_Integer) -->
+        <!-- ko if: !isType(Daliuge.DataType.Boolean) && !isType(Daliuge.DataType.Select) -->
+            <!-- ko if: isType(Daliuge.DataType.Integer) -->
             <input class="form-control" min="0" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: function(){return $root.getCurrentParamReadonly($data)}, attr: {type: $data.getHtmlInputType(), id: 'field' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue()">
             <!-- /ko -->
-            <!-- ko ifnot: isType(Eagle.DataType_Integer) -->    
+            <!-- ko ifnot: isType(Daliuge.DataType.Integer) -->    
             <input class="form-control inputNoArrows" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], readonly: function(){return $root.getCurrentParamReadonly($data)}, attr: {type: $data.getHtmlInputType(), id: 'field' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue()">
             <!-- /ko -->
         <!-- /ko -->
 
-        <!-- ko if: isType(Eagle.DataType_Boolean) -->
+        <!-- ko if: isType(Daliuge.DataType.Boolean) -->
         <div class="form-control checkboxParent">
             <input class="inspectorCheckbox form-check-input btn-check" placeholder="" aria-label="Label" onclick="$(this).val(this.checked ? true : false);this.blur();" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, checked: valIsTrue($data.value()), disabled: function(){return $root.getCurrentParamReadonly($data)}, attr: {type: $data.getHtmlInputType(), id: 'field' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();$root.checkGraph();}}, eagleTooltip: getFieldValue()">
             <label class="btn btn-outline-primary" data-bind="attr:{for: 'field' + $index()}, html: $data.value() "></label><br>
         </div>
         <!-- /ko -->
 
-        <!-- ko if: isType(Eagle.DataType_Select) -->
+        <!-- ko if: isType(Daliuge.DataType.Select) -->
         <div class="form-control">
             <select class="form-select" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="disabled: function(){return $root.getCurrentParamReadonly($data)}, attr: {type: $data.getHtmlInputType(), id: 'nodeInspectorFieldValue' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue(), options: $data.options, value: $data.value">
             </select>
@@ -29,7 +29,7 @@
         <!-- /ko -->
 
         <!-- ko ifnot: $root.selectedNode().isLocked() -->
-            <!-- ko if: isType(Eagle.DataType_String) -->
+            <!-- ko if: isType(Daliuge.DataType.String) -->
             <div class="input-group-append">
                 <button class="btn btn-secondary btn-sm" type="button" data-bind="click: function(){$root.showFieldValuePicker($index(), $data.input);}, attr: {id: 'nodeInspectorEditField' + $index()}, eagleTooltip: 'Open Field Value Wizard'" data-bs-placement="left">
                     <i class="material-icons md-18">link</i>
