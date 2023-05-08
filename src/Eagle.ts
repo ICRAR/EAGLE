@@ -2361,6 +2361,8 @@ export class Eagle {
                 return field.isReadonly();
             }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.KeyOnly){
                 return !field.isKeyAttribute() || field.isReadonly();
+            }else{
+                return false
             }
         }else{
             if(Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
@@ -2371,6 +2373,8 @@ export class Eagle {
                 return field.isReadonly();
             }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.KeyOnly){
                 return !field.isKeyAttribute() || field.isReadonly();
+            }else{
+                return false
             }
         }
     }
