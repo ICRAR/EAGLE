@@ -1,11 +1,15 @@
 import * as ko from "knockout";
 
-import { ActionMessage } from "./ActionMessage";
-import {Eagle} from './Eagle';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Action } from "./Action";
+import { Eagle } from './Eagle';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
-export class Errors {
+export class ActionList {
+
+    actions: Action[];
+
+    
 
     static fixAll = () : void => {
         const eagle: Eagle = Eagle.getInstance();
@@ -43,7 +47,7 @@ export class Errors {
         let result: number = 0;
 
         for (const error of eagle.checkGraphMessages()){
-            if (error.level === ActionMessage.Level.Warning){
+            if (error.level === Action.Level.Warning){
                 result += 1;
             }
         }
@@ -57,7 +61,7 @@ export class Errors {
          let result: number = 0;
 
         for (const error of eagle.checkGraphMessages()){
-            if (error.level === ActionMessage.Level.Error){
+            if (error.level === Action.Level.Error){
                 result += 1;
             }
         }
