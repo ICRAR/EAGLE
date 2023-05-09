@@ -56,6 +56,16 @@ export class LogicalGraph {
         result.modelData.schemaVersion = Daliuge.SchemaVersion.OJS;
         result.modelData.numLGNodes = graph.getNodes().length;
 
+        // add new nodes
+        result.nodeData = {};
+        for (const node of graph.nodes){
+            const key: string = node.getName() + node.getKey();
+            const value: any = Node.toNodeDataJson(node);
+
+            result.nodeData[key] = value;
+        }
+        console.log("nodeData", result.nodeData);
+
         // add nodes
         result.nodeDataArray = [];
         for (const node of graph.getNodes()){
@@ -117,6 +127,7 @@ export class LogicalGraph {
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
         result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
+        result += '"nodeData": ' + JSON.stringify(json.nodeData, null, 4) + ",\n";
         result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
         result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
         result += "}\n";

@@ -1698,6 +1698,25 @@ export class Node {
     }
     */
 
+    static toNodeDataJson = (node: Node): object => {
+        const result: any = {};
+
+        result.category = node.category();
+        result.categoryType = node.categoryType();
+
+        result.isGroup = node.isGroup();
+        result.key = node.key();
+        result.name = node.name();
+        result.description = node.description();
+
+        result.repositoryUrl = node.repositoryUrl();
+        result.commitHash = node.commitHash();
+        result.paletteDownloadUrl = node.paletteDownloadUrl();
+        result.dataHash = node.dataHash();
+
+        return result;
+    }
+
     static toOJSPaletteJson = (node : Node) : object => {
         const result : any = {};
         const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
