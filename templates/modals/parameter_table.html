@@ -186,29 +186,6 @@
                                                 </select>
                                             </td>
                                         <!-- /ko --> 
-                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('parameterType') -->
-                                        <td>
-                                            <select data-bind="options: Object.values(Daliuge.FieldType), value: parameterType, disabled: $root.parameterTable().getNodeLockedState($data)">
-                                                <!-- options are added dynamically -->
-                                            </select>
-                                        </td>
-                                        <!-- /ko -->
-                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('usage') -->
-                                        <td>
-                                            <select data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data), event: {change: $root.parameterTable().fieldUsageChanged}">
-                                                <!-- options are added dynamically -->
-                                            </select>
-                                        </td>
-                                        <!-- /ko -->
-                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious') -->
-                                        <td><input class="tableParameter" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
-                                        <!-- /ko -->
-                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('positional') -->
-                                        <td><input class="tableParameter" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
-                                        <!-- /ko -->
-                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('actions') -->
-                                        <td>
-                                            <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionEdit') -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().flags() -->
                                             <td>    
                                                 <!-- ko if: $root.parameterTable().getNodeLockedState($data) -->
@@ -275,7 +252,7 @@
                                         <!-- /ko -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().parameterType() -->
                                             <td>
-                                                <select data-bind="options: Object.values(Eagle.ParameterType), value: parameterType, disabled: $root.parameterTable().getNodeLockedState($data)">
+                                                <select data-bind="options: Object.values(Daliuge.FieldType), value: parameterType, disabled: $root.parameterTable().getNodeLockedState($data)">
                                                     <!-- options are added dynamically -->
                                                 </select>
                                             </td>
@@ -283,7 +260,7 @@
                                        
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
                                             <td>
-                                                <select data-bind="options: Object.values(Eagle.ParameterUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data), event: {change: $root.parameterTable().fieldUsageChanged}">
+                                                <select data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data), event: {change: $root.parameterTable().fieldUsageChanged}">
                                                     <!-- options are added dynamically -->
                                                 </select>
                                             </td>
