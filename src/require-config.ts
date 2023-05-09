@@ -20,6 +20,7 @@ require.config({
         "components":"./static/built/components",
         "main":"./static/built/main",
         "Config": "./static/built/Config",
+        "Daliuge": "./static/built/Daliuge",
         "GitHub": "./static/built/GitHub",
         "GitLab": "./static/built/GitLab",
         "Eagle": "./static/built/Eagle",

@@ -74,12 +74,6 @@
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_text') === true}"></div>
                                     </th>
                                 <!-- /ko -->
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().idText() -->
-                                    <th id="parameter_table_name" data-bind="eagleTooltip:'Identifier name (must be a valid variable name)'" data-bs-placement="top">
-                                        idText
-                                        <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_name') === true}"></div>
-                                    </th>
-                                <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().value() -->
                                     <th id="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">
                                         Value
@@ -132,9 +126,6 @@
                                         <!-- /ko -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
                                             <td  data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' }"><input class="tableParameter selectionTargets" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
-                                        <!-- /ko -->
-                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().idText() -->
-                                            <td data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'idText' }"><input class="tableParameter" type="string" data-bind="value: idText, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.idText(), 'idText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.idText(), 'idText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
                                         <!-- /ko -->
 
                                         <!-- value fields -->
@@ -195,6 +186,29 @@
                                                 </select>
                                             </td>
                                         <!-- /ko --> 
+                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('parameterType') -->
+                                        <td>
+                                            <select data-bind="options: Object.values(Daliuge.FieldType), value: parameterType, disabled: $root.parameterTable().getNodeLockedState($data)">
+                                                <!-- options are added dynamically -->
+                                            </select>
+                                        </td>
+                                        <!-- /ko -->
+                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('usage') -->
+                                        <td>
+                                            <select data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data), event: {change: $root.parameterTable().fieldUsageChanged}">
+                                                <!-- options are added dynamically -->
+                                            </select>
+                                        </td>
+                                        <!-- /ko -->
+                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('precious') -->
+                                        <td><input class="tableParameter" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: precious, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
+                                        <!-- /ko -->
+                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('positional') -->
+                                        <td><input class="tableParameter" data-bind="disabled: $root.parameterTable().getNodeLockedState($data), checked: positional, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, attr:{ type: 'checkbox'}"></td>
+                                        <!-- /ko -->
+                                        <!-- ko if: $root.parameterTable().getParameterTableVisibility('actions') -->
+                                        <td>
+                                            <!-- ko if: $root.parameterTable().getParameterTableVisibility('actionEdit') -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().flags() -->
                                             <td>    
                                                 <!-- ko if: $root.parameterTable().getNodeLockedState($data) -->
@@ -244,7 +258,7 @@
                                                             </button>
                                                         <!-- /ko -->
                                                     <!-- /ko -->
-                                                    <!-- ko ifnot: $data.usage() === Eagle.ParameterUsage.NoPort-->
+                                                    <!-- ko ifnot: $data.usage() === Daliuge.FieldUsage.NoPort-->
                                                         <!-- ko if: $data.isEvent() -->
                                                             <button type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is event port<br/>Click to toggle'" data-bs-placement="left">
                                                                 <i class="material-icons">alarm_on</i>

@@ -4,18 +4,19 @@ import * as ko from "knockout";
 import * as d3 from "d3";
 import * as $ from "jquery";
 
-import {Category} from '../Category';
-import {CategoryData} from '../CategoryData';
-import {Config} from '../Config';
-import {Eagle} from '../Eagle';
-import {Edge} from '../Edge';
-import {Errors} from '../Errors';
-import {Field} from '../Field';
-import {LogicalGraph} from '../LogicalGraph';
-import {Node} from '../Node';
-import {Setting} from '../Setting';
-import {Utils} from '../Utils';
+import { Category} from '../Category';
+import { CategoryData} from '../CategoryData';
+import { Config} from '../Config';
+import { Daliuge } from "../Daliuge";
+import { Eagle} from '../Eagle';
+import { Edge} from '../Edge';
+import { Field} from '../Field';
+import { LogicalGraph} from '../LogicalGraph';
+import { Node} from '../Node';
 import { RightClick } from "../RightClick";
+import { Setting} from '../Setting';
+import { Utils} from '../Utils';
+
 
 
 ko.bindingHandlers.graphRenderer = {
@@ -1275,7 +1276,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .attr("fill", "transparent")
         .style("display", "inline");
 
-    function determineDirection(source: boolean, node: Node, portIndex: number, portType: Eagle.ParameterUsage): Eagle.Direction {
+    function determineDirection(source: boolean, node: Node, portIndex: number, portType: Daliuge.FieldUsage): Eagle.Direction {
         if (source){
             if (node.isBranch()){
                 if (portIndex === 0){
@@ -1286,7 +1287,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 }
             }
 
-            if (portType === Eagle.ParameterUsage.OutputPort || portType === Eagle.ParameterUsage.InputOutput){
+            if (portType === Daliuge.FieldUsage.OutputPort || portType === Daliuge.FieldUsage.InputOutput){
                 return node.isFlipPorts() ? Eagle.Direction.Left : Eagle.Direction.Right;
             } else {
                 return node.isFlipPorts() ? Eagle.Direction.Right : Eagle.Direction.Left;
@@ -1301,7 +1302,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 }
             }
 
-            if (portType === Eagle.ParameterUsage.InputPort || portType === Eagle.ParameterUsage.InputOutput){
+            if (portType === Daliuge.FieldUsage.InputPort || portType === Daliuge.FieldUsage.InputOutput){
                 return node.isFlipPorts() ? Eagle.Direction.Left : Eagle.Direction.Right;
             } else {
                 return node.isFlipPorts() ? Eagle.Direction.Right : Eagle.Direction.Left;
@@ -1319,8 +1320,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return createBezier(0,0,0,0,Eagle.Direction.Down,Eagle.Direction.Down, edge.isClosesLoop());
         }
 
-        const srcPortType : Eagle.ParameterUsage = srcNode.findFieldById(edge.getSrcPortId()).getUsage();
-        const destPortType : Eagle.ParameterUsage = destNode.findFieldById(edge.getDestPortId()).getUsage();
+        const srcPortType : Daliuge.FieldUsage = srcNode.findFieldById(edge.getSrcPortId()).getUsage();
+        const destPortType : Daliuge.FieldUsage = destNode.findFieldById(edge.getDestPortId()).getUsage();
         const srcPortIndex : number = srcNode.findPortIndexById(edge.getSrcPortId());
         const destPortIndex : number = destNode.findPortIndexById(edge.getDestPortId());
 

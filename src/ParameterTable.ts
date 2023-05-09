@@ -71,8 +71,6 @@ export class ParameterTable {
         const selectedForm = ParameterTable.selectionParent()
         if(selected === 'displayText'){
             selectedForm.setDisplayText(value)
-        } else if(selected === 'idText'){
-            selectedForm.setIdText(value)
         } else if(selected === 'value'){
             selectedForm.setValue(value)
         } else if(selected === 'defaultValue'){
@@ -171,14 +169,6 @@ export class ParameterTable {
         ParameterTable.selectionParentIndex(selectionIndex);
         ParameterTable.selection(selection);
         ParameterTable.selectionReadonly(readOnlyState);
-
-        //this is for the funcionality that empty idtexts will copy the display text removing spaces and caps while you type. This functionality gets removed when the display text looses focus signifying the changes are complete
-        if(selectionParent.getIdText()===''){
-            $(event.target).addClass('newEmpty')
-        }
-        if($(event.target).hasClass('newEmpty')){
-            selectionParent.setIdText(selection.toLowerCase().split(' ').join('_'))
-        }
     }
 
     static resetSelection = ():void => {

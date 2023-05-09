@@ -1,13 +1,15 @@
-import {Eagle} from './Eagle';
-import {Edge} from './Edge';
-import {Field} from './Field';
-import {LogicalGraph} from './LogicalGraph';
-import {Repositories} from './Repositories';
-import {Repository} from './Repository';
-import {RepositoryFile} from './RepositoryFile';
-import {Utils} from './Utils';
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+import { Edge } from './Edge';
+import { Field } from './Field';
+import { LogicalGraph } from './LogicalGraph';
+import { Repositories } from './Repositories';
+import { Repository } from './Repository';
+import { RepositoryFile } from './RepositoryFile';
 import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
+import { Utils } from './Utils';
+
 export class Modals {
 
     static init(eagle : Eagle) : void {
@@ -288,7 +290,6 @@ export class Modals {
 
             // extract field data from HTML elements
             const id : string = Utils.uuidv4();
-            const idText : string = $('#editFieldModalIdTextInput').val().toString();
             const displayText : string = $('#editFieldModalDisplayTextInput').val().toString();
 
             // only one of these three ui elements contains the "real" value,
@@ -332,25 +333,25 @@ export class Modals {
 
             // translate type
             const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
-            const realParameterType: Eagle.ParameterType = Utils.translateStringToParameterType(parameterType);
-            const realParameterUsage: Eagle.ParameterUsage = Utils.translateStringToParameterUsage(parameterUsage);
+            const realParameterType: Daliuge.FieldType = Utils.translateStringToParameterType(parameterType);
+            const realParameterUsage: Daliuge.FieldUsage = Utils.translateStringToParameterUsage(parameterUsage);
 
             let newField;
             switch(realType){
-                case Eagle.DataType_Boolean:
-                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                case Daliuge.DataType.Boolean:
+                    newField = new Field(id, displayText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
-                case Eagle.DataType_Select:
-                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                case Daliuge.DataType.Select:
+                    newField = new Field(id, displayText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
-                case Eagle.DataType_Integer:
-                    newField = new Field(id, displayText, idText, valueNumber, defaultValueNumber, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                case Daliuge.DataType.Integer:
+                    newField = new Field(id, displayText, valueNumber, defaultValueNumber, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
-                case Eagle.DataType_Float:
-                    newField = new Field(id, displayText, idText, valueNumber, defaultValueNumber, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                case Daliuge.DataType.Float:
+                    newField = new Field(id, displayText, valueNumber, defaultValueNumber, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
                 default:
-                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                    newField = new Field(id, displayText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
             }
 
@@ -372,10 +373,6 @@ export class Modals {
 
             // re-validate, given the new type
             Modals._validateFieldModalValueInputText();
-        });
-        // add some validation of the idText
-        $('#editFieldModalIdTextInput').on('keyup', function(){
-            Modals._validateFieldModalIdText();
         });
 
         // add some validation to the value entry field
@@ -412,7 +409,7 @@ export class Modals {
             const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
             const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
 
-            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop,false);
+            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop, false);
 
             callback(true, newEdge);
         });
@@ -474,20 +471,13 @@ export class Modals {
         });
     }
 
-    static _validateFieldModalIdText(){
-        const idText: string = $('#editFieldModalIdTextInput').val().toString();
-        const isValid = Utils.validateIdText(idText);
-
-        Modals._setValidClasses('#editFieldModalIdTextInput', isValid);
-    }
-
     static _validateFieldModalValueInputText(){
         const type: string = $('#editFieldModalTypeInput').val().toString();
         const value: string = $('#editFieldModalValueInputText').val().toString();
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
         // only validate Json fields
-        if (realType !== Eagle.DataType_Json){
+        if (realType !== Daliuge.DataType.Json){
             $('#editFieldModalValueInputText').removeClass('is-valid');
             $('#editFieldModalValueInputText').removeClass('is-invalid');
             return;
@@ -518,22 +508,22 @@ export class Modals {
         
 
         //toggle on the correct value input fields depending on type
-        $('#editFieldModalValueInputText').toggle(dataType !== Eagle.DataType_Boolean && dataType !== Eagle.DataType_Select && dataType !== Eagle.DataType_Float && dataType !== Eagle.DataType_Integer);
-        $('#editFieldModalValueInputNumber').toggle(dataType === Eagle.DataType_Float || dataType === Eagle.DataType_Integer);
-        $('#editFieldModalValueInputCheckbox').parent().toggle(dataType === Eagle.DataType_Boolean);
-        $('#editFieldModalValueInputSelect').toggle(dataType === Eagle.DataType_Select);
+        $('#editFieldModalValueInputText').toggle(dataType !== Daliuge.DataType.Boolean && dataType !== Daliuge.DataType.Select && dataType !== Daliuge.DataType.Float && dataType !== Daliuge.DataType.Integer);
+        $('#editFieldModalValueInputNumber').toggle(dataType === Daliuge.DataType.Float || dataType === Daliuge.DataType.Integer);
+        $('#editFieldModalValueInputCheckbox').parent().toggle(dataType === Daliuge.DataType.Boolean);
+        $('#editFieldModalValueInputSelect').toggle(dataType === Daliuge.DataType.Select);
 
-        $('#editFieldModalDefaultValueInputText').toggle(dataType !== Eagle.DataType_Boolean && dataType !== Eagle.DataType_Select && dataType !== Eagle.DataType_Float && dataType !== Eagle.DataType_Integer);
-        $('#editFieldModalDefaultValueInputNumber').toggle(dataType === Eagle.DataType_Float || dataType === Eagle.DataType_Integer);
-        $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === Eagle.DataType_Boolean);
-        $('#editFieldModalDefaultValueInputSelect').toggle(dataType === Eagle.DataType_Select);
+        $('#editFieldModalDefaultValueInputText').toggle(dataType !== Daliuge.DataType.Boolean && dataType !== Daliuge.DataType.Select && dataType !== Daliuge.DataType.Float && dataType !== Daliuge.DataType.Integer);
+        $('#editFieldModalDefaultValueInputNumber').toggle(dataType === Daliuge.DataType.Float || dataType === Daliuge.DataType.Integer);
+        $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === Daliuge.DataType.Boolean);
+        $('#editFieldModalDefaultValueInputSelect').toggle(dataType === Daliuge.DataType.Select);
 
         //setting up number value input specific things that are different for integers of floats 
-        if(dataType === Eagle.DataType_Integer){
+        if(dataType === Daliuge.DataType.Integer){
             $('#editFieldModalValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
             $('#editFieldModalDefaultValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
 
-        }else if (dataType === Eagle.DataType_Float){
+        }else if (dataType === Daliuge.DataType.Float){
             $('#editFieldModalValueInputNumber').addClass('inputNoArrows')
             $('#editFieldModalDefaultValueInputNumber').addClass('inputNoArrows')
         }

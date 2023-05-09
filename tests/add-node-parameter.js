@@ -51,7 +51,6 @@ test('Add node parameter with usage InputPort', async t =>{
         .click('.nodeInspectorDropdownOption:nth-child(2)')
 
         // add info to modal
-        .typeText(Selector('#editFieldModalIdTextInput'), FIELD_NAME)
         .typeText(Selector('#editFieldModalDisplayTextInput'), FIELD_NAME)
 
         // click OK on modal dialog

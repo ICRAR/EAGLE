@@ -66,7 +66,7 @@ test('Update components', async t =>{
     const obj2 = JSON.parse(outputJSON);
 
     // !!!!!!!!!!!!! CHECK FOR EXPECTED INPUT COMPONENTS
-    await t.expect(obj1.nodeDataArray[2].fields.length).eql(5, {timeout:3000});
+    await t.expect(obj1.nodeDataArray[2].fields.length).eql(7, {timeout:3000});
     await t.expect(obj1.nodeDataArray[2].fields[0].name).eql("appclass", {timeout:3000});
     await t.expect(obj1.nodeDataArray[2].fields[0].value).eql("dlg.apps.simple.CopyAppBad", {timeout:3000});
 
