@@ -61,6 +61,16 @@ export class LogicalGraph {
         for (const node of graph.getNodes()){
             const nodeData : any = Node.toOJSGraphJson(node);
             result.nodeDataArray.push(nodeData);
+
+            if (node.hasInputApplication()){
+                const inputApplicationData : any = Node.toOJSGraphJson(node.getInputApplication());
+                result.nodeDataArray.push(inputApplicationData);
+            }
+
+            if (node.hasOutputApplication()){
+                const outputApplicationData : any = Node.toOJSGraphJson(node.getOutputApplication());
+                result.nodeDataArray.push(outputApplicationData);
+            }
         }
 
         // add links
@@ -140,11 +150,54 @@ export class LogicalGraph {
                 continue;
             }
 
+            // if this node is embedded within another node, we don't add it to the main nodes array, instead it is placed within the node that embeds it (handled later)
+            if (newNode.getEmbedKey() !== null){
+                continue;
+            }
+
+            if (nodeData.inputApplicationKey !== null){
+                const inputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.inputApplicationKey);
+
+                if (inputApplicationIndex !== -1){
+                    const inputApplicationNode = Node.fromOJSJson(dataObject.nodeDataArray[inputApplicationIndex], errorsWarnings, false, (): number => {
+                        const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
+                        const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
+                        const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
+        
+                        const newKey = Utils.findNewKey(combinedKeys);
+        
+                        extraUsedKeys.push(newKey);
+                        return newKey;
+                    });
+
+                    newNode.setInputApplication(inputApplicationNode);
+                }
+            }
+
+            if (nodeData.outputApplicationKey !== null){
+                const outputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.outputApplicationKey);
+
+                if (outputApplicationIndex !== -1){
+                    const outputApplicationNode = Node.fromOJSJson(dataObject.nodeDataArray[outputApplicationIndex], errorsWarnings, false, (): number => {
+                        const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
+                        const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
+                        const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
+        
+                        const newKey = Utils.findNewKey(combinedKeys);
+        
+                        extraUsedKeys.push(newKey);
+                        return newKey;
+                    });
+
+                    newNode.setOutputApplication(outputApplicationNode);
+                }
+            }
+
             result.nodes.push(newNode);
         }
 
-        // set keys for all embedded nodes
-        Utils.setEmbeddedApplicationNodeKeys(result);
+        // set node.embedKey for all embedded nodes
+        //Utils.setEmbeddedApplicationNodeKeys(result);
 
         // make sure to set parentId for all nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
@@ -203,81 +256,6 @@ export class LogicalGraph {
         return result;
     }
 
-/*
-    static toV3Json = (graph : LogicalGraph) : object => {
-        const result : any = {};
-
-        result.DALiuGEGraph = {};
-        const dlgg = result.DALiuGEGraph;
-
-        // top level element info
-        dlgg.type = Eagle.DALiuGEFileType.LogicalGraph;
-        dlgg.name = graph.fileInfo().name;
-        dlgg.schemaVersion = Eagle.DALiuGESchemaVersion.V3;
-        dlgg.commitHash = graph.fileInfo().sha;
-        dlgg.repositoryService = graph.fileInfo().repositoryService;
-        dlgg.repositoryBranch = graph.fileInfo().repositoryBranch;
-        dlgg.repositoryName = graph.fileInfo().repositoryName;
-        dlgg.repositoryPath = graph.fileInfo().path;
-
-        // add nodes
-        dlgg.nodeData = {};
-        for (let i = 0 ; i < graph.getNodes().length ; i++){
-            const node : Node = graph.getNodes()[i];
-            const nodeData : any = Node.toV3NodeJson(node, i);
-
-            dlgg.nodeData[node.getKey()] = nodeData;
-        }
-
-        // add links
-        dlgg.linkData = {};
-        for (let i = 0 ; i < graph.getEdges().length ; i++){
-            const edge : Edge = graph.getEdges()[i];
-            const linkData : any = Edge.toV3Json(edge);
-
-            dlgg.linkData[i] = linkData;
-        }
-
-        // add components
-        dlgg.componentData = {};
-        for (const node of graph.getNodes()){
-            dlgg.componentData[node.getKey()] = Node.toV3ComponentJson(node);
-        }
-
-        return result;
-    }
-    */
-
-/*
-    static fromV3Json = (dataObject : any, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : LogicalGraph => {
-        const result: LogicalGraph = new LogicalGraph();
-        const dlgg = dataObject.DALiuGEGraph;
-
-        result.fileInfo().type = dlgg.type;
-        result.fileInfo().name = dlgg.name;
-        result.fileInfo().schemaVersion = dlgg.schemaVersion;
-        result.fileInfo().sha = dlgg.commitHash;
-        result.fileInfo().repositoryService = dlgg.repositoryService;
-        result.fileInfo().repositoryBranch = dlgg.repositoryBranch;
-        result.fileInfo().repositoryName = dlgg.repositoryName;
-        result.fileInfo().path = dlgg.repositoryPath;
-
-        for (const key in dlgg.nodeData){
-            const node = Node.fromV3NodeJson(dlgg.nodeData[key], key, errorsWarnings);
-
-            Node.fromV3ComponentJson(dlgg.componentData[key], node, errorsWarnings);
-
-            result.nodes.push(node);
-        }
-
-        for (const key in dlgg.linkData){
-            const edge = Edge.fromV3Json(dlgg.linkData[key], errorsWarnings);
-            result.edges.push(edge);
-        }
-
-        return result;
-    }
-*/
 /*
     static toAppRefJson = (graph : LogicalGraph) : object => {
         const result : any = {};

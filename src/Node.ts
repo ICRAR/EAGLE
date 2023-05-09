@@ -1419,108 +1419,6 @@ export class Node {
             node.drawOrderHint(nodeData.drawOrderHint);
         }
 
-        // keys for embedded applications
-        let inputApplicationKey: number = null;
-        let outputApplicationKey: number = null;
-        if (typeof nodeData.inputApplicationKey !== 'undefined'){
-            inputApplicationKey = nodeData.inputApplicationKey;
-        }
-        if (typeof nodeData.outputApplicationKey !== 'undefined'){
-            outputApplicationKey = nodeData.outputApplicationKey;
-        }
-
-        // read embedded application data from node
-        let inputApplicationName: string = "";
-        let inputApplicationType: Category = Category.None;
-        let inputApplicationDescription: string = "";
-        let outputApplicationName: string = "";
-        let outputApplicationType: Category = Category.None;
-        let outputApplicationDescription: string = "";
-
-        if (typeof nodeData.inputAppName !== 'undefined'){
-            inputApplicationName = nodeData.inputAppName;
-        }
-        if (typeof nodeData.inputApplicationName !== 'undefined'){
-            inputApplicationName = nodeData.inputApplicationName;
-        }
-        if (typeof nodeData.inputApplicationType !== 'undefined'){
-            inputApplicationType = nodeData.inputApplicationType;
-        }
-        if (typeof nodeData.inputApplicationDescription !== 'undefined'){
-            inputApplicationDescription = nodeData.inputApplicationDescription;
-        }
-        if (typeof nodeData.outputAppName !== 'undefined'){
-            outputApplicationName = nodeData.outputAppName;
-        }
-        if (typeof nodeData.outputApplicationName !== 'undefined'){
-            outputApplicationName = nodeData.outputApplicationName;
-        }
-        if (typeof nodeData.outputApplicationType !== 'undefined'){
-            outputApplicationType = nodeData.outputApplicationType;
-        }
-        if (typeof nodeData.outputApplicationDescription !== 'undefined'){
-            outputApplicationDescription = nodeData.outputApplicationDescription;
-        }
-
-        // debug
-        //console.log("node", nodeData.text);
-        //console.log("inputAppName", nodeData.inputAppName, "inputApplicationName", nodeData.inputApplicationName, "inpuApplication", nodeData.inputApplication, "inputApplicationType", nodeData.inputApplicationType);
-        //console.log("outputAppName", nodeData.outputAppName, "outputApplicationName", nodeData.outputApplicationName, "outputApplication", nodeData.outputApplication, "outputApplicationType", nodeData.outputApplicationType);
-
-        // these next six if statements are covering old versions of nodes, that
-        // specified input and output applications using name strings rather than nested nodes.
-        // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
-        if (inputApplicationName !== ""){
-            if (!CategoryData.getCategoryData(category).canHaveInputApplication){
-                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
-            } else {
-                // check applicationType is an application
-                if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, inputApplicationName, inputApplicationType, inputApplicationDescription, node.getKey()));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
-                }
-            }
-        }
-
-        if (inputApplicationName !== "" && inputApplicationType !== Category.None){
-            if (!CategoryData.getCategoryData(category).canHaveInputApplication){
-                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
-            } else {
-                // check applicationType is an application
-                if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, inputApplicationName, inputApplicationType, inputApplicationDescription, node.getKey()));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
-                }
-            }
-        }
-
-        if (outputApplicationName !== ""){
-            if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
-                errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
-            } else {
-                // check applicationType is an application
-                if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, outputApplicationName, outputApplicationType, outputApplicationDescription, node.getKey()));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
-                }
-            }
-        }
-
-        if (outputApplicationName !== "" && outputApplicationType !== Category.None){
-            if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
-                errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
-            } else {
-                if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, outputApplicationName, outputApplicationType, outputApplicationDescription, node.getKey()));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
-                }
-            }
-        }
-
         // set parentKey if a group is defined
         if (typeof nodeData.group !== 'undefined'){
             node.parentKey(nodeData.group);
@@ -1529,21 +1427,6 @@ export class Node {
         // set embedKey if defined
         if (typeof nodeData.embedKey !== 'undefined'){
             node.embedKey(nodeData.embedKey);
-        }
-
-        // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
-        if (nodeData.application !== undefined && nodeData.application !== ""){
-            errorsWarnings.errors.push(Errors.Message("Only found old application type, not new input application type and output application type: " + category));
-
-            if (!CategoryData.getCategoryData(category).canHaveInputApplication){
-                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
-            } else {
-                if (CategoryData.getCategoryData(category).categoryType === Category.Type.Application){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(null, nodeData.application, category, "", node.getKey()));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + category + ", to node."));
-                }
-            }
         }
 
         // read the 'real' input and output apps, correctly specified as nested nodes
@@ -1641,6 +1524,7 @@ export class Node {
         }
 
         // add application params
+        // TODO: remove
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
                 const field = Field.fromOJSJson(paramData);
@@ -1650,6 +1534,7 @@ export class Node {
         }
 
         // add inputAppFields
+        // TODO: remove
         if (typeof nodeData.inputAppFields !== 'undefined'){
             for (const fieldData of nodeData.inputAppFields){
                 if (node.hasInputApplication()){
@@ -1662,6 +1547,7 @@ export class Node {
         }
 
         // add outputAppFields
+        // TODO: remove
         if (typeof nodeData.outputAppFields !== 'undefined'){
             for (const fieldData of nodeData.outputAppFields){
                 if (node.hasOutputApplication()){
@@ -1674,6 +1560,7 @@ export class Node {
         }
 
         // add input ports
+        // TODO: remove
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
                 const port = Field.fromOJSJsonPort(inputPort);
@@ -1683,12 +1570,14 @@ export class Node {
                 if (node.canHaveInputs()){
                     node.addField(port);
                 } else {
-                    Node.addPortToEmbeddedApplication(node, port, true, errorsWarnings, generateKeyFunc);
+                    //Node.addPortToEmbeddedApplication(node, port, true, errorsWarnings, generateKeyFunc);
+                    errorsWarnings.errors.push(Errors.Message("Node (" + node.getName() + ") not allowed to have input ports. Can't add " + port.getDisplayText()));
                 }
             }
         }
 
         // add output ports
+        // TODO: remove
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
                 const port = Field.fromOJSJsonPort(outputPort);
@@ -1698,12 +1587,14 @@ export class Node {
                 if (node.canHaveOutputs()){
                     node.addField(port);
                 } else {
-                    Node.addPortToEmbeddedApplication(node, port, false, errorsWarnings, generateKeyFunc);
+                    //Node.addPortToEmbeddedApplication(node, port, false, errorsWarnings, generateKeyFunc);
+                    errorsWarnings.errors.push(Errors.Message("Node (" + node.getName() + ") not allowed to have output ports. Can't add " + port.getDisplayText()));
                 }
             }
         }
 
         // add input local ports
+        // TODO: remove
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (const inputLocalPort of nodeData.inputLocalPorts){
                 if (node.hasInputApplication()){
@@ -1719,6 +1610,7 @@ export class Node {
         }
 
         // add output local ports
+        // TODO: remove
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
                 const port = Field.fromOJSJsonPort(outputLocalPort);
@@ -1756,6 +1648,7 @@ export class Node {
         }
     }
 
+    /*
     private static addPortToEmbeddedApplication(node: Node, port: Field, input: boolean, errorsWarnings: Errors.ErrorsWarnings, generateKeyFunc: () => number){
         // check that the node already has an appropriate embedded application, otherwise create it
         if (input){
@@ -1803,6 +1696,7 @@ export class Node {
             }
         }
     }
+    */
 
     static toOJSPaletteJson = (node : Node) : object => {
         const result : any = {};
@@ -1834,44 +1728,16 @@ export class Node {
             result.fields.push(Field.toOJSJson(field));
         }
 
-        // add fields from inputApplication
-        result.inputAppFields = [];
-        if (node.hasInputApplication()){
-            for (const field of node.inputApplication().fields()){
-                result.inputAppFields.push(Field.toOJSJson(field));
-            }
-        }
-
-        // add fields from outputApplication
-        result.outputAppFields = [];
-        if (node.hasOutputApplication()){
-            for (const field of node.outputApplication().fields()){
-                result.outputAppFields.push(Field.toOJSJson(field));
-            }
-        }
-
         // write application names and types
         if (node.hasInputApplication()){
-            result.inputApplicationName = node.inputApplication().name();
-            result.inputApplicationType = node.inputApplication().category();
             result.inputApplicationKey  = node.inputApplication().key();
-            result.inputApplicationDescription = node.inputApplication().description();
         } else {
-            result.inputApplicationName = "";
-            result.inputApplicationType = Category.None;
             result.inputApplicationKey  = null;
-            result.inputApplicationDescription = "";
         }
         if (node.hasOutputApplication()){
-            result.outputApplicationName = node.outputApplication().name();
-            result.outputApplicationType = node.outputApplication().category();
             result.outputApplicationKey  = node.outputApplication().key();
-            result.outputApplicationDescription = node.outputApplication().description();
         } else {
-            result.outputApplicationName = "";
-            result.outputApplicationType = Category.None;
             result.outputApplicationKey  = null;
-            result.outputApplicationDescription = "";
         }
 
         return result;
@@ -1919,169 +1785,20 @@ export class Node {
             result.fields.push(Field.toOJSJson(field));
         }
 
-        // add fields from inputApplication
-        result.inputAppFields = [];
-        if (node.hasInputApplication()){
-            for (const field of node.inputApplication().fields()){
-                result.inputAppFields.push(Field.toOJSJson(field));
-            }
-        }
-
-        // add fields from outputApplication
-        result.outputAppFields = [];
-        if (node.hasOutputApplication()){
-            for (const field of node.outputApplication().fields()){
-                result.outputAppFields.push(Field.toOJSJson(field));
-            }
-        }
-
         // write application names and types
         if (node.hasInputApplication()){
-            result.inputApplicationName = node.inputApplication().name();
-            result.inputApplicationType = node.inputApplication().category();
             result.inputApplicationKey  = node.inputApplication().key();
-            result.inputApplicationDescription = node.inputApplication().description();
         } else {
-            result.inputApplicationName = "";
-            result.inputApplicationType = Category.None;
             result.inputApplicationKey  = null;
-            result.inputApplicationDescription = "";
         }
         if (node.hasOutputApplication()){
-            result.outputApplicationName = node.outputApplication().name();
-            result.outputApplicationType = node.outputApplication().category();
             result.outputApplicationKey  = node.outputApplication().key();
-            result.outputApplicationDescription = node.outputApplication().description();
         } else {
-            result.outputApplicationName = "";
-            result.outputApplicationType = Category.None;
             result.outputApplicationKey  = null;
-            result.outputApplicationDescription = "";
         }
 
         return result;
     }
-
-    /*
-    // display/visualisation data
-    static toV3NodeJson = (node : Node, index : number) : object => {
-        const result : any = {};
-
-        result.categoryType = node.categoryType();
-        result.componentKey = index.toString();
-
-        result.color = node.color();
-        result.drawOrderHint = node.drawOrderHint();
-
-        result.x = node.x;
-        result.y = node.y;
-        result.width = node.width;
-        result.height = node.height;
-        result.collapsed = node.collapsed();
-        result.flipPorts = node.flipPorts();
-
-        result.expanded = node.expanded();
-
-        result.repositoryUrl = node.repositoryUrl();
-        result.commitHash = node.commitHash();
-        result.paletteDownloadUrl = node.paletteDownloadUrl();
-        result.dataHash = node.dataHash();
-
-        return result;
-    }
-
-    static fromV3NodeJson = (nodeData : any, key: string, errorsWarnings: Errors.ErrorsWarnings) : Node => {
-        const result = new Node(parseInt(key, 10), "", "", Category.Unknown);
-
-        result.categoryType(nodeData.categoryType);
-        result.color(nodeData.color);
-        result.drawOrderHint(nodeData.drawOrderHint);
-
-        result.x = nodeData.x;
-        result.y = nodeData.y;
-        result.width = nodeData.width;
-        result.height = nodeData.height;
-        result.collapsed(nodeData.collapsed);
-        result.flipPorts(nodeData.flipPorts);
-
-        result.expanded(nodeData.expanded);
-
-        result.repositoryUrl(nodeData.repositoryUrl);
-        result.commitHash(nodeData.commitHash);
-        result.paletteDownloadUrl(nodeData.paletteDownloadUrl);
-        result.dataHash(nodeData.dataHash);
-
-        return result;
-    }
-    */
-
-    // graph data
-    // "name" and "description" are considered part of the structure of the graph, it would be hard to add them to the display part (parameters would have to be treated the same way)
-    /*
-    static toV3ComponentJson = (node : Node) : object => {
-        const result : any = {};
-        const useNewCategories : boolean = Setting.findValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
-
-        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
-
-        result.name = node.name();
-        result.description = node.description();
-
-        result.streaming = node.streaming();
-        result.precious = node.precious();
-        result.subject = node.subject(); // TODO: not sure if this should be here or in Node JSON
-
-
-        result.parentKey = node.parentKey();
-        result.embedKey = node.embedKey();
-
-        result.inputApplicationKey = -1;
-        result.outputApplicationKey = -1;
-
-        // add input ports
-        result.inputPorts = {};
-        for (const inputPort of node.getInputPorts()){
-            result.inputPorts[inputPort.getId()] = Port.toV3Json(inputPort);
-        }
-
-        // add output ports
-        result.outputPorts = {};
-        for (const outputPort of node.getOutputPorts()){
-            result.outputPorts[outputPort.getId()] = Port.toV3Json(outputPort);
-        }
-
-        // add component parameters
-        result.componentParameters = {};
-        for (let i = 0 ; i < node.fields().length ; i++){
-            const field = node.fields()[i];
-            result.componentParameters[i] = Field.toV3Json(field);
-        }
-
-        // add Application Arguments
-        result.applicationParameters = {};
-        for (let i = 0 ; i < node.applicationArgs().length ; i++){
-            const field = node.applicationArgs()[i];
-            result.applicationParameters[i] = Field.toV3Json(field);
-        }
-
-        return result;
-    }
-    */
-
-    /*
-    static fromV3ComponentJson = (nodeData: any, node: Node, errors: Eagle.ErrorsWarnings): void => {
-        node.category(nodeData.category);
-        node.name(nodeData.name);
-        node.description(nodeData.description);
-
-        node.streaming(nodeData.streaming);
-        node.precious(nodeData.precious);
-        node.subject(nodeData.subject);
-
-        node.parentKey(nodeData.parentKey);
-        node.embedKey(nodeData.embedKey);
-    }
-    */
 
     static createEmbeddedApplicationNode = (key: number, name : string, category: Category, description: string, embedKey: number) : Node => {
         console.assert(CategoryData.getCategoryData(category).categoryType === Category.Type.Application);
