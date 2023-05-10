@@ -38,12 +38,11 @@ export class Edge {
     private srcPortId : string;
     private destNodeKey : number;
     private destPortId : string;
-    private dataType : string;
     private loopAware : boolean; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
     private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
     private selectionRelative : boolean // indicates if the edge is either selected or attatched to a selected node
 
-    constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
+    constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
         this._id = Utils.uuidv4();
 
         this.srcNodeKey = srcNodeKey;
@@ -51,7 +50,6 @@ export class Edge {
         this.destNodeKey = destNodeKey;
         this.destPortId = destPortId;
 
-        this.dataType = dataType;
         this.loopAware = loopAware;
         this.closesLoop = closesLoop;
         this.selectionRelative = selectionRelative;
@@ -97,14 +95,6 @@ export class Edge {
         this.destPortId = id;
     }
 
-    getDataType = () : string => {
-        return this.dataType;
-    }
-
-    setDataType = (dataType: string) : void => {
-        this.dataType = dataType;
-    }
-
     isLoopAware = () : boolean => {
         return this.loopAware;
     }
@@ -143,13 +133,12 @@ export class Edge {
         this.srcPortId = "";
         this.destNodeKey = 0;
         this.destPortId = "";
-        this.dataType = "";
         this.loopAware = false;
         this.closesLoop = false;
     }
 
     clone = () : Edge => {
-        const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware, this.closesLoop, this.selectionRelative);
+        const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, this.selectionRelative);
 
         result._id = this._id;
 
@@ -159,24 +148,28 @@ export class Edge {
     getErrorsWarnings = (eagle: Eagle): Errors.ErrorsWarnings => {
         const result: {warnings: Errors.Issue[], errors: Errors.Issue[]} = {warnings: [], errors: []};
 
-        Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware, this.closesLoop, false, false, result);
+        Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, false, false, result);
 
         return result;
     }
 
-    static toOJSJson = (edge : Edge) : object => {
+    static getUniqueKey = (index: number, srcNode: Node, destNode: Node): string => {
+        return (index + 1) + ":" + srcNode.getName() + srcNode.getKey() + ">>" + destNode.getName() + destNode.getKey();
+    }
+
+    static toJson = (edge : Edge, srcPort: Field, destPort: Field) : object => {
         return {
-            from: edge.srcNodeKey,
-            fromPort: edge.srcPortId,
-            to: edge.destNodeKey,
-            toPort: edge.destPortId,
-            dataType: edge.dataType,
-            loop_aware: edge.loopAware ? "1" : "0",
-            closesLoop: edge.closesLoop
+            fromPort: srcPort.getId(),
+            toPort: destPort.getId(),            
+            loopAware: edge.loopAware,
+            closesLoop: edge.closesLoop,
+            id: edge._id,
+            fromField: srcPort.getDisplayText(),
+            toField: destPort.getDisplayText()
         };
     }
 
-    static fromOJSJson = (linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
+    static fromJson = (linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
         // try to read source and destination nodes and ports
         let srcNodeKey : number = 0;
         let srcPortId : string = "";
@@ -204,12 +197,6 @@ export class Edge {
             destPortId = linkData.toPort;
         }
 
-        // try to read the dataType attribute
-        let dataType: string = Daliuge.DataType.Unknown;
-        if (typeof linkData.dataType !== 'undefined'){
-            dataType = linkData.dataType;
-        }
-
         // try to read loop_aware attribute
         let loopAware: boolean = false;
         if (typeof linkData.loop_aware !== 'undefined'){
@@ -225,55 +212,10 @@ export class Edge {
             closesLoop = linkData.closesLoop;
         }
 
-        return new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop, false);
+        return new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, loopAware, closesLoop, false);
     }
 
-    static toV3Json = (edge : Edge) : object => {
-        return {
-            srcNode: edge.srcNodeKey.toString(),
-            srcPort: edge.srcPortId,
-            destNode: edge.destNodeKey.toString(),
-            destPort: edge.destPortId,
-            loop_aware: edge.loopAware ? "1" : "0",
-            closesLoop: edge.closesLoop
-        }
-    }
-
-    static fromV3Json = (edgeData: any, errorsWarnings: Errors.ErrorsWarnings): Edge => {
-        return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, "", edgeData.loop_aware === "1", edgeData.closesLoop, false);
-    }
-
-    static toAppRefJson = (edge : Edge, lg: LogicalGraph) : object => {
-        const result : any = {
-            from: edge.srcNodeKey,
-            fromPort: edge.srcPortId,
-            to: edge.destNodeKey,
-            toPort: edge.destPortId,
-            loopAware: edge.loopAware,
-            closesLoop: edge.closesLoop,
-            dataType: edge.dataType
-        };
-
-        // if srcNode is an embedded application, add a 'fromRef' attribute to the edge
-        const srcNode : Node = lg.findNodeByKey(edge.srcNodeKey);
-        if (srcNode.getEmbedKey() !== null){
-            result.fromRef = srcNode.getEmbedKey();
-        }
-
-        // if destNode is an embedded application, add a 'toRef' attribute to the edge
-        const destNode : Node = lg.findNodeByKey(edge.destNodeKey);
-        if (destNode.getEmbedKey() != null){
-            result.toRef = destNode.getEmbedKey();
-        }
-
-        return result;
-    }
-
-    static fromAppRefJson = (edgeData: any, errorsWarnings: Errors.ErrorsWarnings): Edge => {
-        return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware, edgeData.closesLoop, false);
-    }
-
-    static isValid = (eagle: Eagle, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, dataType: string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
+    static isValid = (eagle: Eagle, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
         // check for problems
         if (isNaN(sourceNodeKey)){
             return Eagle.LinkValid.Unknown;
@@ -303,6 +245,18 @@ export class Edge {
 
         if (destinationPortId === null){
             const issue = Errors.Fix("destination port id is null", function(){Utils.showNode(eagle, destinationNodeKey)}, function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on destination node");
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            return Eagle.LinkValid.Invalid;
+        }
+
+        if (sourceNodeKey === null){
+            const issue = Errors.Fix("Edge (" + edgeId + ") sourceNodeKey is null", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixDeleteEdge(eagle, edgeId)}, "Delete edge");
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            return Eagle.LinkValid.Invalid;
+        }
+
+        if (destinationNodeKey === null){
+            const issue = Errors.Fix("Edge (" + edgeId + ") destinationNodeKey is null", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixDeleteEdge(eagle, edgeId)}, "Delete edge");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
             return Eagle.LinkValid.Invalid;
         }
@@ -443,17 +397,6 @@ export class Edge {
                 const x = Errors.Fix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDeleteEdge(eagle, edgeId);}, "Delete edge");
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
-        }
-
-        // check that all edges have same data type as their source and destination ports
-        if (sourcePort !== null && !Utils.typesMatch(dataType, sourcePort.getType())){
-            const x = Errors.Fix("Edge data type (" + dataType + ") does not match start port (" + sourcePort.getDisplayText() + ") data type (" + sourcePort.getType() + ").", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixEdgeType(eagle, edgeId, sourcePort.getType());}, "Change edge data type to match source port type");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
-        }
-
-        if (destinationPort !== null && !Utils.typesMatch(dataType, destinationPort.getType())){
-            const x = Errors.Fix("Edge data type (" + dataType + ") does not match end port (" + destinationPort.getDisplayText() + ") data type (" + destinationPort.getType() + ").", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixEdgeType(eagle, edgeId, destinationPort.getType());}, "Change edge data type to match destination port type");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
         }
 
         // check that all "closes loop" edges:

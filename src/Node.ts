@@ -1295,6 +1295,10 @@ export class Node {
         this.keepExpanded(value);
     }
 
+    static getUniqueKey = (node: Node): string => {
+        return node.name() + node.key();    
+    }
+
     static match = (node0: Node, node1: Node) : boolean => {
         // first just check if they have matching ids
         if (node0.getId() === node1.getId()){
@@ -1512,7 +1516,7 @@ export class Node {
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
-                const field = Field.fromOJSJson(fieldData);
+                const field = Field.fromJson(fieldData);
 
                 // if the parameter type is not specified, assume it is a ComponentParameter
                 if (field.getParameterType() === Daliuge.FieldType.Unknown){
@@ -1527,7 +1531,7 @@ export class Node {
         // TODO: remove
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
-                const field = Field.fromOJSJson(paramData);
+                const field = Field.fromJson(paramData);
                 field.setParameterType(Daliuge.FieldType.ApplicationArgument);
                 node.addField(field);
             }
@@ -1538,7 +1542,7 @@ export class Node {
         if (typeof nodeData.inputAppFields !== 'undefined'){
             for (const fieldData of nodeData.inputAppFields){
                 if (node.hasInputApplication()){
-                    const field = Field.fromOJSJson(fieldData);
+                    const field = Field.fromJson(fieldData);
                     node.inputApplication().addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
@@ -1551,7 +1555,7 @@ export class Node {
         if (typeof nodeData.outputAppFields !== 'undefined'){
             for (const fieldData of nodeData.outputAppFields){
                 if (node.hasOutputApplication()){
-                    const field = Field.fromOJSJson(fieldData);
+                    const field = Field.fromJson(fieldData);
                     node.outputApplication().addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
@@ -1563,7 +1567,7 @@ export class Node {
         // TODO: remove
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
-                const port = Field.fromOJSJsonPort(inputPort);
+                const port = Field.fromJson(inputPort);
                 port.setParameterType(Daliuge.FieldType.ApplicationArgument);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1580,7 +1584,7 @@ export class Node {
         // TODO: remove
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
-                const port = Field.fromOJSJsonPort(outputPort);
+                const port = Field.fromJson(outputPort);
                 port.setParameterType(Daliuge.FieldType.ApplicationArgument);
                 port.setUsage(Daliuge.FieldUsage.OutputPort);
 
@@ -1598,7 +1602,7 @@ export class Node {
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (const inputLocalPort of nodeData.inputLocalPorts){
                 if (node.hasInputApplication()){
-                    const port = Field.fromOJSJsonPort(inputLocalPort);
+                    const port = Field.fromJson(inputLocalPort);
                     port.setParameterType(Daliuge.FieldType.ApplicationArgument);
                     port.setUsage(Daliuge.FieldUsage.OutputPort);
 
@@ -1613,7 +1617,7 @@ export class Node {
         // TODO: remove
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
-                const port = Field.fromOJSJsonPort(outputLocalPort);
+                const port = Field.fromJson(outputLocalPort);
                 port.setParameterType(Daliuge.FieldType.ApplicationArgument);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1644,59 +1648,9 @@ export class Node {
 
     private static copyPorts(src: Field[], dest: {}[]):void{
         for (const port of src){
-            dest.push(Field.toOJSJsonPort(port));
+            dest.push(Field.toJson(port));
         }
     }
-
-    /*
-    private static addPortToEmbeddedApplication(node: Node, port: Field, input: boolean, errorsWarnings: Errors.ErrorsWarnings, generateKeyFunc: () => number){
-        // check that the node already has an appropriate embedded application, otherwise create it
-        if (input){
-            if (!node.hasInputApplication()){
-                if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getDisplayText(), Category.UnknownApplication, "", node.getKey()));
-                    errorsWarnings.errors.push(Errors.Message("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention."));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
-                    return;
-                }
-            }
-            node.inputApplication().addField(port);
-            errorsWarnings.warnings.push(Errors.Message("Moved input port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")"));
-        } else {
-            // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
-            if (node.canHaveOutputApplication()){
-                if (!node.hasOutputApplication()){
-                    if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                        node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getDisplayText(), Category.UnknownApplication, "", node.getKey()));
-                        errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention."));
-                    } else {
-                        errorsWarnings.errors.push(Errors.Message("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
-                        return;
-                    }
-                }
-                node.outputApplication().addField(port);
-                errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")"));
-            } else {
-                // if possible, add port to output side of input application
-                if (node.canHaveInputApplication()){
-                    if (!node.hasInputApplication()){
-                        if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                            node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getDisplayText(), Category.UnknownApplication, "", node.getKey()));
-                        } else {
-                            errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
-                            return;
-                        }
-                    }
-                    node.inputApplication().addField(port);
-                    errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application"));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Can't add port to embedded application. Node can't have output OR exit application."));
-                }
-            }
-        }
-    }
-    */
 
     static toNodeDataJson = (node: Node): object => {
         const result: any = {};
@@ -1713,6 +1667,48 @@ export class Node {
         result.commitHash = node.commitHash();
         result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
+
+        result.fields = {};
+        for (const field of node.fields()){
+            const key: string = field.getDisplayText();
+            const value: object = Field.toJson(field);
+            result.fields[key] = value;
+        }
+
+        if (node.hasInputApplication()){
+            result.inputApplicationKey = node.getInputApplication().getName() + node.getInputApplication().getKey();
+        } else {
+            result.inputApplicationKey = null;
+        }
+        
+        if (node.hasOutputApplication()){
+            result.outputApplicationKey = node.getOutputApplication().getName() + node.getOutputApplication().getKey();
+        } else {
+            result.outputApplicationKey = null;
+        }
+
+        result.reprodata = Node.reproData(node);
+
+        result.id = node.getId();
+        result.parentConstructKey = node.getEmbedKey();
+
+        return result;
+    }
+
+    static toNodeUxJson = (node: Node): object => {
+        const result: any = {};
+
+        result.color = node.color();
+        result.drawOrderHint = node.drawOrderHint();
+        result.x = node.x;
+        result.y = node.y;
+        result.width = node.width;
+        result.height = node.height;
+        result.collapsed = node.collapsed();
+        result.flipPorts = node.flipPorts();
+        result.subject = node.subject();
+        result.expanded = node.expanded();
+        result.id = node._id;
 
         return result;
     }
@@ -1744,7 +1740,7 @@ export class Node {
         // add fields
         result.fields = [];
         for (const field of node.fields()){
-            result.fields.push(Field.toOJSJson(field));
+            result.fields.push(Field.toJson(field));
         }
 
         // write application names and types
@@ -1762,7 +1758,7 @@ export class Node {
         return result;
     }
 
-    static toOJSGraphJson = (node : Node) : object => {
+    static toGraphJson = (node : Node) : object => {
         const result : any = {};
         const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
 
@@ -1801,7 +1797,7 @@ export class Node {
         // add fields
         result.fields = [];
         for (const field of node.fields()){
-            result.fields.push(Field.toOJSJson(field));
+            result.fields.push(Field.toJson(field));
         }
 
         // write application names and types
@@ -1825,6 +1821,24 @@ export class Node {
         const node = new Node(key, name, description, category);
         node.setEmbedKey(embedKey);
         return node;
+    }
+
+    // TODO: replace
+    static reproData = (node: Node) : object => {
+        return {
+            "rmode": "0",
+            "NOTHING": {
+                "rmode": "0",
+                "lgt_data": {
+                    "merkleroot": null
+                },
+                "lg_parenthashes": {},
+                "lg_data": {
+                    "merkleroot": null
+                },
+                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+            }
+        };
     }
 
     static isValid = (eagle: Eagle, node: Node, selectedLocation: Eagle.FileType, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {

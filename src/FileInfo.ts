@@ -19,7 +19,6 @@ export class FileInfo {
     private _modified : ko.Observable<boolean>;
     private _eagleVersion : ko.Observable<string>;
     private _eagleCommitHash : ko.Observable<string>;
-    private _schemaVersion : ko.Observable<Daliuge.SchemaVersion>;
     private _readonly : ko.Observable<boolean>;
     private _builtIn : ko.Observable<boolean>;
 
@@ -47,7 +46,6 @@ export class FileInfo {
         this._modified = ko.observable(false);
         this._eagleVersion = ko.observable("");
         this._eagleCommitHash = ko.observable("");
-        this._schemaVersion = ko.observable(Daliuge.SchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
 
@@ -151,14 +149,6 @@ export class FileInfo {
         this._eagleCommitHash(hash);
     }
 
-    get schemaVersion(): Daliuge.SchemaVersion{
-        return this._schemaVersion();
-    }
-
-    set schemaVersion(version: Daliuge.SchemaVersion){
-        this._schemaVersion(version);
-    }
-
     get readonly() : boolean{
         return this._readonly();
     }
@@ -252,7 +242,6 @@ export class FileInfo {
         this._modified(false);
         this._eagleVersion("");
         this._eagleCommitHash("");
-        this._schemaVersion(Daliuge.SchemaVersion.Unknown);
         this._readonly(true);
         this._builtIn(true);
 
@@ -283,7 +272,6 @@ export class FileInfo {
         result.modified = this._modified();
         result.eagleVersion = this._eagleVersion();
         result.eagleCommitHash = this._eagleCommitHash();
-        result.schemaVersion = this._schemaVersion();
         result.readonly = this._readonly();
         result.builtIn = this._builtIn();
 
@@ -375,7 +363,6 @@ export class FileInfo {
         s += " Modified:" + this._modified();
         s += " EAGLE Version:" + this._eagleVersion();
         s += " EAGLE Commit Hash:" + this._eagleCommitHash();
-        s += " Schema Version:" + this._schemaVersion();
         s += " readonly:" + this._readonly();
         s += " builtIn:" + this._builtIn();
 
@@ -393,7 +380,7 @@ export class FileInfo {
         return s;
     }
 
-    static toOJSJson = (fileInfo : FileInfo) : object => {
+    static toJson = (fileInfo : FileInfo) : object => {
         return {
             // name and path variables are written together into fullPath
             filePath: fileInfo.fullPath(),
@@ -408,7 +395,6 @@ export class FileInfo {
             
             eagleVersion: fileInfo.eagleVersion,
             eagleCommitHash: fileInfo.eagleCommitHash,
-            schemaVersion: fileInfo.schemaVersion,
             readonly: fileInfo.readonly,
 
             repositoryUrl: fileInfo.repositoryUrl,
@@ -425,7 +411,7 @@ export class FileInfo {
     }
 
     // TODO: use errors array if attributes cannot be found
-    static fromOJSJson = (modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo => {
+    static fromJson = (modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo => {
         const result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
@@ -447,7 +433,6 @@ export class FileInfo {
 
         result.eagleVersion = modelData.eagleVersion == undefined ? "" : modelData.eagleVersion;
         result.eagleCommitHash = modelData.eagleCommitHash == undefined ? "" : modelData.eagleCommitHash;
-        result.schemaVersion = modelData.schemaVersion == undefined ? "" : modelData.schemaVersion;
 
         result.readonly = modelData.readonly == undefined ? true : modelData.readonly;
 

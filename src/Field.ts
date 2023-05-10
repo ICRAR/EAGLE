@@ -357,9 +357,8 @@ export class Field {
         }
     }
 
-    static toOJSJson = (field : Field) : object => {
+    static toJson = (field : Field) : object => {
         const result : any = {
-            name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
             description:field.description(),
@@ -377,38 +376,7 @@ export class Field {
         return result;
     }
 
-    static toV3Json = (field : Field) : object => {
-        const result : any =  {
-            name:field.displayText(),
-            value:Field.stringAsType(field.value(), field.type()),
-            defaultValue:field.defaultValue(),
-            description:field.description(),
-            readonly:field.readonly(),
-            type:field.isEvent() ? "Event" : field.type(),
-            precious:field.precious(),
-            options:field.options(),
-            positional: field.positional(),
-            keyAttribute:field.keyAttribute(),
-            id: field.id(),
-            parameterType: field.parameterType(),
-            usage: field.usage()
-        };
-
-        return result;
-    }
-
-    static toOJSJsonPort = (field : Field) : object => {
-        return {
-            Id:field.id(),
-            name:field.displayText(),
-            event:field.isEvent(),
-            type:field.type(),
-            description:field.description(),
-            keyAttribute:field.keyAttribute()
-        };
-    }
-
-    static fromOJSJson = (data : any) : Field => {
+    static fromJson = (data : any) : Field => {
         let id: string = Utils.uuidv4();
         let name: string = "";
         let description: string = "";
@@ -488,34 +456,6 @@ export class Field {
         const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage, keyAttribute);
         result.setIsEvent(isEvent);
         return result;
-    }
-
-    static fromOJSJsonPort = (data : any) : Field => {
-        let name: string = "";
-        let event: boolean = false;
-        let type: string;
-        let description: string = "";
-        let keyAttribute: boolean = false;
-
-        if (typeof data.name !== 'undefined')
-            name = data.name;
-        if (typeof data.event !== 'undefined')
-            event = data.event;
-        if (typeof data.type !== 'undefined')
-            type = data.type;
-        if (typeof data.description !== 'undefined')
-            description = data.description;
-        if (typeof data.keyAttribute !== 'undefined')
-            keyAttribute = data.keyAttribute;
-
-        // avoid empty text fields if we can
-        if (name === ""){
-            name = data.IdText;
-        }
-     
-        const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort, keyAttribute);
-        f.setIsEvent(event);
-        return f;
     }
 
     public static sortFunc = (a: Field, b: Field) : number => {

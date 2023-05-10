@@ -411,7 +411,7 @@ export class Eagle {
     }
 
     deployDefaultTranslationAlgorithm = () : void => {
-        this.translator().genPGT(Eagle.defaultTranslatorAlgorithmMethod, false, Daliuge.SchemaVersion.Unknown)
+        this.translator().genPGT(Eagle.defaultTranslatorAlgorithmMethod, false);
     }
 
     // TODO: remove?
@@ -842,19 +842,11 @@ export class Eagle {
             return;
         }
 
-        // attempt to determine schema version from FileInfo
-        const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
-
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
-        // use the correct parsing function based on schema version
-        switch (schemaVersion){
-            case Daliuge.SchemaVersion.OJS:
-            case Daliuge.SchemaVersion.Unknown:
-                loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
-                break;
-        }
+
+        loadFunc(LogicalGraph.fromJson(dataObject, dummyFile, errorsWarnings));
 
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
     }
@@ -1134,7 +1126,7 @@ export class Eagle {
         }
 
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
+        const p : Palette = Palette.fromJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
 
         // show errors (if found)
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
@@ -1229,7 +1221,7 @@ export class Eagle {
             }
 
             for (const e of clipboard.edges){
-                const edge = Edge.fromOJSJson(e, null);
+                const edge = Edge.fromJson(e, null);
 
                 edges.push(edge);
             }
@@ -1259,7 +1251,7 @@ export class Eagle {
         cloneLG.fileInfo().lastModifiedEmail = "";
         cloneLG.fileInfo().lastModifiedDatetime = 0;
 
-        const jsonString: string = LogicalGraph.toOJSJsonString(cloneLG, false);
+        const jsonString: string = LogicalGraph.toJsonString(cloneLG, false);
 
         Utils.requestUserText("Export Graph to JSON", "", jsonString, null);
     }
@@ -1644,14 +1636,14 @@ export class Eagle {
             // clone the logical graph
             const lg_clone : LogicalGraph = (<LogicalGraph> obj).clone();
             lg_clone.fileInfo().updateEagleInfo();
-            const jsonString: string = LogicalGraph.toOJSJsonString(lg_clone, false);
+            const jsonString: string = LogicalGraph.toJsonString(lg_clone, false);
 
             this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
         } else {
             // clone the palette
             const p_clone : Palette = (<Palette> obj).clone();
             p_clone.fileInfo().updateEagleInfo();
-            const jsonString: string = Palette.toOJSJsonString(p_clone);
+            const jsonString: string = Palette.toJsonString(p_clone);
 
             this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
         }
@@ -1685,7 +1677,7 @@ export class Eagle {
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, fileType);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, fileType);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -1716,7 +1708,7 @@ export class Eagle {
                     console.error(error);
                     errorsWarnings.errors.push(Errors.Message(error));
                 } else {
-                    const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
+                    const palette: Palette = Palette.fromJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
                     palette.fileInfo().clear();
                     palette.fileInfo().name = paletteList[index].name;
                     palette.fileInfo().readonly = paletteList[index].readonly;
@@ -1800,18 +1792,10 @@ export class Eagle {
 
             switch (fileTypeLoaded){
                 case Eagle.FileType.Graph:
-                    // attempt to determine schema version from FileInfo
-                    const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
-
                     const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
-                    // use the correct parsing function based on schema version
-                    switch (schemaVersion){
-                        case Daliuge.SchemaVersion.OJS:
-                        case Daliuge.SchemaVersion.Unknown:
-                            this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
-                            break;
-                    }
+                    // parse json
+                    this.logicalGraph(LogicalGraph.fromJson(dataObject, file, errorsWarnings));
 
                     // show errors/warnings
                     this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
@@ -1892,19 +1876,10 @@ export class Eagle {
                 return;
             }
 
-            // attempt to determine schema version from FileInfo
-            const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
-
             const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
             // use the correct parsing function based on schema version
-            let lg: LogicalGraph;
-            switch (schemaVersion){
-                case Daliuge.SchemaVersion.OJS:
-                case Daliuge.SchemaVersion.Unknown:
-                    lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
-                    break;
-            }
+            const lg: LogicalGraph = LogicalGraph.fromJson(dataObject, file, errorsWarnings);
 
             // create parent node
             const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
@@ -1948,7 +1923,7 @@ export class Eagle {
 
         // load the new palette
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
+        const newPalette = Palette.fromJson(data, file, errorsWarnings);
 
         // sort items in palette
         newPalette.sort();
@@ -2047,12 +2022,12 @@ export class Eagle {
         const p_clone : Palette = palette.clone();
         p_clone.fileInfo().removeGitInfo();
         p_clone.fileInfo().updateEagleInfo();
-        const jsonString: string = Palette.toOJSJsonString(p_clone);
+        const jsonString: string = Palette.toJsonString(p_clone);
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, Eagle.FileType.Palette);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.FileType.Palette);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -2106,12 +2081,12 @@ export class Eagle {
         const lg_clone : LogicalGraph = this.logicalGraph().clone();
         lg_clone.fileInfo().removeGitInfo();
         lg_clone.fileInfo().updateEagleInfo();
-        const jsonString : string = LogicalGraph.toOJSJsonString(lg_clone, false);
+        const jsonString : string = LogicalGraph.toJsonString(lg_clone, false);
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, Eagle.FileType.Graph);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -2120,7 +2095,7 @@ export class Eagle {
             }
         }
 
-        Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
+        Utils.httpPost('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
             if (error != null){
                 Utils.showUserMessage("Error", "Error saving the file!");
                 console.error(error);
@@ -2186,7 +2161,7 @@ export class Eagle {
             // clone the palette
             const p_clone : Palette = palette.clone();
             p_clone.fileInfo().updateEagleInfo();
-            const jsonString: string = Palette.toOJSJsonString(p_clone);
+            const jsonString: string = Palette.toJsonString(p_clone);
 
             const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
 
@@ -2481,7 +2456,7 @@ export class Eagle {
         }
 
         // if input edge is null, then we are creating a new edge here, so initialise it with some default values
-        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "", false, false, false);
+        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", false, false, false);
 
         // display edge editing modal UI
         Utils.requestUserEditEdge(newEdge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
@@ -2491,7 +2466,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -2530,7 +2505,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -2646,11 +2621,15 @@ export class Eagle {
         // TODO: serialise nodes and edges
         const serialisedNodes = [];
         for (const node of nodes){
-            serialisedNodes.push(Node.toOJSGraphJson(node));
+            serialisedNodes.push(Node.toGraphJson(node));
         }
         const serialisedEdges = [];
         for (const edge of edges){
-            serialisedEdges.push(Edge.toOJSJson(edge));
+            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
+            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+            serialisedEdges.push(Edge.toJson(edge, srcPort, destPort));
         }
 
         const clipboard = {
@@ -2738,7 +2717,7 @@ export class Eagle {
         }
 
         for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, errorsWarnings);
+            const edge = Edge.fromJson(e, errorsWarnings);
 
             edges.push(edge);
         }
@@ -3638,52 +3617,6 @@ export class Eagle {
         });
     }
 
-    changeEdgeDataType = (edge: Edge) : void => {
-        // get reference to selected Edge
-        const selectedEdge: Edge = this.selectedEdge();
-
-        if (selectedEdge === null){
-            console.error("Attempt to change edge data type when no edge selected");
-            return;
-        }
-
-        // set selectedIndex to the index of the current data type within the allTypes list
-        let selectedIndex = 0;
-        for (let i = 0 ; i < this.types().length ; i++){
-            if (this.types()[i] === selectedEdge.getDataType()){
-                selectedIndex = i;
-                break;
-            }
-        }
-
-        // launch modal
-        Utils.requestUserChoice("Change Edge Data Type", "NOTE: changing a edge's data type will also change the data type of the source and destination ports", this.types(), selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
-            if (!completed){
-                return;
-            }
-
-            // get user selection
-            const newType = this.types()[userChoiceIndex];
-
-            // get references to the source and destination ports of this edge
-            const sourceNode = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const sourcePort = sourceNode.findFieldById(edge.getSrcPortId());
-            const destinationNode = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const destinationPort = destinationNode.findFieldById(edge.getDestPortId());
-
-            // update the edge and ports
-            edge.setDataType(newType);
-            sourcePort.setType(newType);
-            destinationPort.setType(newType);
-
-            // flag changes
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Change Edge Data Type");
-            this.selectedObjects.valueHasMutated();
-            this.logicalGraph.valueHasMutated();
-        });
-    }
-
     removeFieldFromNodeById = (node : Node, id: string) : void => {
         console.log("removeFieldFromNodeById(): node", node.getName(), "id", id);
 
@@ -4203,7 +4136,7 @@ export class Eagle {
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
-            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
+            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
             if (callback !== null) callback(edge);
             return;
@@ -4276,8 +4209,8 @@ export class Eagle {
         }
 
         // create TWO edges, one from src to data component, one from data component to dest
-        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputOutputPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
-        const secondEdge : Edge = new Edge(newNodeKey, newInputOutputPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
+        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputOutputPort.getId(), loopAware, closesLoop, false);
+        const secondEdge : Edge = new Edge(newNodeKey, newInputOutputPort.getId(), destNode.getKey(), destPort.getId(), loopAware, closesLoop, false);
 
         this.logicalGraph().addEdgeComplete(firstEdge);
         this.logicalGraph().addEdgeComplete(secondEdge);

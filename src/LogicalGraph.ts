@@ -49,98 +49,77 @@ export class LogicalGraph {
         this.edges = [];
     }
 
-    static toOJSJson = (graph : LogicalGraph, forTranslation : boolean) : object => {
+    static toJson = (graph : LogicalGraph, forTranslation : boolean) : object => {
         const result : any = {};
 
-        result.modelData = FileInfo.toOJSJson(graph.fileInfo());
-        result.modelData.schemaVersion = Daliuge.SchemaVersion.OJS;
+        result.modelData = FileInfo.toJson(graph.fileInfo());
         result.modelData.numLGNodes = graph.getNodes().length;
 
-        // add new nodes
+        // add nodeData
         result.nodeData = {};
         for (const node of graph.nodes){
-            const key: string = node.getName() + node.getKey();
+            const key: string = Node.getUniqueKey(node);
             const value: any = Node.toNodeDataJson(node);
 
             result.nodeData[key] = value;
         }
-        console.log("nodeData", result.nodeData);
 
-        // add nodes
-        result.nodeDataArray = [];
-        for (const node of graph.getNodes()){
-            const nodeData : any = Node.toOJSGraphJson(node);
-            result.nodeDataArray.push(nodeData);
+        // add reproData
+        result.reproData = LogicalGraph.reproData(graph);
 
-            if (node.hasInputApplication()){
-                const inputApplicationData : any = Node.toOJSGraphJson(node.getInputApplication());
-                result.nodeDataArray.push(inputApplicationData);
-            }
+        // add uxData
+        result.uxData = {};
+        for (const node of graph.nodes){
+            const key: string = Node.getUniqueKey(node);
+            const value: any = Node.toNodeUxJson(node);
 
-            if (node.hasOutputApplication()){
-                const outputApplicationData : any = Node.toOJSGraphJson(node.getOutputApplication());
-                result.nodeDataArray.push(outputApplicationData);
-            }
+            result.uxData[key] = value;
         }
 
-        // add links
-        result.linkDataArray = [];
-        for (const edge of graph.getEdges()){
+        // add linkData
+        result.linkData = {};
+        for (let i = 0 ; i < graph.edges.length ; i++){
+            const edge = graph.edges[i];
+            const srcNode = graph.findNodeByKey(edge.getSrcNodeKey());
+            const destNode = graph.findNodeByKey(edge.getDestNodeKey());
 
-            // depending on the settings and purpose, skip close-loop edges
-            if (forTranslation && Setting.findValue(Setting.SKIP_CLOSE_LOOP_EDGES)){
-                if (edge.isClosesLoop()){
-                    continue;
-                }
-            }
+            const srcPort = srcNode.findFieldById(edge.getSrcPortId());
+            const destPort = destNode.findFieldById(edge.getDestPortId());
 
-            const linkData : any = Edge.toOJSJson(edge);
+            const key: string = Edge.getUniqueKey(i, srcNode, destNode);
+            const value: any = Edge.toJson(edge, srcPort, destPort);
 
-            let srcKey = edge.getSrcNodeKey();
-            let destKey = edge.getDestNodeKey();
-
-            const srcNode = graph.findNodeByKey(srcKey);
-            const destNode = graph.findNodeByKey(destKey);
-
-            // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
-            if (srcNode.isEmbedded()){
-                srcKey = srcNode.getEmbedKey();
-            }
-            if (destNode.isEmbedded()){
-                destKey = destNode.getEmbedKey();
-            }
-
-            linkData.from = srcKey;
-            linkData.to   = destKey;
-
-            result.linkDataArray.push(linkData);
+            result.linkData[key] = value;
         }
 
         return result;
     }
 
-    static toOJSJsonString = (graph : LogicalGraph, forTranslation : boolean) : string => {
+    static toJsonString = (graph : LogicalGraph, forTranslation : boolean) : string => {
         let result: string = "";
 
-        const json: any = this.toOJSJson(graph, forTranslation);
+        const json: any = this.toJson(graph, forTranslation);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
         result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
+        result += '"reproData": ' + JSON.stringify(json.reproData, null, 4) + ",\n";
         result += '"nodeData": ' + JSON.stringify(json.nodeData, null, 4) + ",\n";
-        result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
-        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
+        result += '"uxData": ' + JSON.stringify(json.uxData, null, 4) + ",\n";
+        result += '"linkData": ' + JSON.stringify(json.linkData, null, 4) + "\n";
+        //result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
+        //result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
         result += "}\n";
 
         return result;
     }
 
-    static fromOJSJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph => {
+    static fromJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
+        result.fileInfo(FileInfo.fromJson(dataObject.modelData, errorsWarnings));
 
         // add nodes
         for (const nodeData of dataObject.nodeDataArray){
@@ -207,9 +186,6 @@ export class LogicalGraph {
             result.nodes.push(newNode);
         }
 
-        // set node.embedKey for all embedded nodes
-        //Utils.setEmbeddedApplicationNodeKeys(result);
-
         // make sure to set parentId for all nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             const nodeData = dataObject.nodeDataArray[i];
@@ -222,7 +198,7 @@ export class LogicalGraph {
 
         // add edges
         for (const linkData of dataObject.linkDataArray){       
-            const newEdge = Edge.fromOJSJson(linkData, errorsWarnings);
+            const newEdge = Edge.fromJson(linkData, errorsWarnings);
 
             if (newEdge === null){
                 continue;
@@ -267,107 +243,6 @@ export class LogicalGraph {
         return result;
     }
 
-/*
-    static toAppRefJson = (graph : LogicalGraph) : object => {
-        const result : any = {};
-
-        result.modelData = FileInfo.toOJSJson(graph.fileInfo());
-        result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.AppRef;
-        result.modelData.numLGNodes = graph.getNodes().length;
-
-        // add nodes
-        result.nodeDataArray = [];
-        for (const node of graph.getNodes()){
-            const nodeData : any = Node.toAppRefJson(node);
-            result.nodeDataArray.push(nodeData);
-        }
-
-        // add embedded nodes
-        for (let i = 0 ; i < graph.getNodes().length ; i++){
-            const node : Node = graph.getNodes()[i];
-
-            if (node.hasInputApplication()){
-                const nodeData : any = Node.toAppRefJson(node.getInputApplication());
-
-                // update ref in parent
-                result.nodeDataArray[i].inputApplicationRef = nodeData.key;
-
-                // add child to nodeDataArray
-                result.nodeDataArray.push(nodeData);
-            }
-
-            if (node.hasOutputApplication()){
-                const nodeData : any = Node.toAppRefJson(node.getOutputApplication());
-
-                // update ref in parent
-                result.nodeDataArray[i].outputApplicationRef = nodeData.key;
-
-                // add child to nodeDataArray
-                result.nodeDataArray.push(nodeData);
-            }
-        }
-
-        // add links
-        result.linkDataArray = [];
-        for (const edge of graph.getEdges()){
-            result.linkDataArray.push(Edge.toAppRefJson(edge, graph));
-        }
-
-        return result;
-    }
-*/
-/*
-    static fromAppRefJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Eagle.ErrorsWarnings) : LogicalGraph => {
-        // create new logical graph object
-        const result : LogicalGraph = new LogicalGraph();
-
-        // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
-
-        // add nodes
-        for (const nodeData of dataObject.nodeDataArray){
-            let node;
-
-            // check if node is an embedded node, if so, don't push to nodes array
-            if (nodeData.embedKey === null){
-                node = Node.fromAppRefJson(nodeData, errorsWarnings);
-            } else {
-                // skip node
-                continue;
-            }
-
-            // check if this node has an embedded input application, if so, find and copy it now
-            if (typeof nodeData.inputApplicationRef !== 'undefined'){
-                const inputAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.inputApplicationRef);
-                node.setInputApplication(Node.fromAppRefJson(inputAppNodeData, errorsWarnings));
-            }
-            // check if this node has an embedded output application, if so, find and copy it now
-            if (typeof nodeData.outputApplicationRef !== 'undefined'){
-                const outputAppNodeData = LogicalGraph._findNodeDataWithKey(dataObject.nodeDataArray, nodeData.outputApplicationRef);
-                node.setOutputApplication(Node.fromAppRefJson(outputAppNodeData, errorsWarnings));
-            }
-
-            result.nodes.push(node);
-        }
-
-        // add edges
-        for (const linkData of dataObject.linkDataArray){
-            result.edges.push(Edge.fromAppRefJson(linkData, errorsWarnings));
-        }
-
-        // check for missing name
-        if (result.fileInfo().name === ""){
-            const error : string = "FileInfo.name is empty. Setting name to " + file.name;
-            console.warn(error);
-            errorsWarnings.errors.push(error);
-
-            result.fileInfo().name = file.name;
-        }
-
-        return result;
-    }
-*/
-
     static _findNodeDataWithKey = (nodeDataArray: any[], key: number): any => {
         for (const nodeData of nodeDataArray){
             if (nodeData.key === key){
@@ -375,6 +250,21 @@ export class LogicalGraph {
             }
         }
         return null;
+    }
+
+    // TODO: replace
+    static reproData = (lg: LogicalGraph): object => {
+        return {
+            "rmode": "0",
+            "meta_data": {
+                "repro_protocol": 1.0,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "d6fe04ac53bff66cede8d962dfc870cb0f8609ff901a000817512fc18b954a43",
+            "NOTHING": {
+                "signature": "1e05f5ee8cbc254c0892129ce851d1ad3ae9c9d551627238b71d6bc63d7ff6e5"
+            }
+        };
     }
 
     addNodeComplete = (node : Node) => {

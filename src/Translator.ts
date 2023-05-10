@@ -115,7 +115,7 @@ export class Translator {
      * @param testingMode
      * @param format
      */
-     genPGT = (algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
+     genPGT = (algorithmName : string, testingMode: boolean) : void => {
         const eagle: Eagle = Eagle.getInstance();
 
         if (eagle.logicalGraph().getNumNodes() === 0) {
@@ -131,45 +131,17 @@ export class Translator {
         const translatorURL : string = Setting.findValue(Setting.TRANSLATOR_URL);
         console.log("Eagle.getPGT() : ", "algorithm name:", algorithmName, "translator URL", translatorURL);
 
-        // set the schema version
-        format = Daliuge.SchemaVersion.OJS;
-
-        /*
-        if (format === Eagle.DALiuGESchemaVersion.Unknown){
-            const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS];
-
-            // ask user to specify graph format to be sent to translator
-            Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number) => {
-                if (!completed){
-                    console.log("User aborted translation.");
-                    return;
-                }
-
-                this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, schemas[userChoiceIndex]);
-            });
-        } else {
-            this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, format);
-        }
-        */
-        this._genPGT(eagle, translatorURL, algorithmName, testingMode, format);
+        this._genPGT(eagle, translatorURL, algorithmName, testingMode);
     }
 
-    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
+    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean) : void => {
         // get json for logical graph
-        let jsonString: string;
-        switch (format){
-            case Daliuge.SchemaVersion.OJS:
-                jsonString = LogicalGraph.toOJSJsonString(eagle.logicalGraph(), true);
-                break;
-            default:
-                console.error("Unsupported graph format for translator!");
-                return;
-        }
+        const jsonString: string = LogicalGraph.toJsonString(eagle.logicalGraph(), true);
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, format, Eagle.FileType.Graph);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);

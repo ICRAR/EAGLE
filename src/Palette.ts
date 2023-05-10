@@ -49,13 +49,13 @@ export class Palette {
         this.searchExclude = ko.observable(false);
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette => {
+    static fromJson = (data : string, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette => {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
         const result : Palette = new Palette();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
+        result.fileInfo(FileInfo.fromJson(dataObject.modelData, errorsWarnings));
 
         // add nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
@@ -135,10 +135,10 @@ export class Palette {
         return result;
     }
 
-    static toOJSJson = (palette: Palette) : object => {
+    static toJson = (palette: Palette) : object => {
         const result : any = {};
 
-        result.modelData = FileInfo.toOJSJson(palette.fileInfo());
+        result.modelData = FileInfo.toJson(palette.fileInfo());
         result.modelData.numLGNodes = palette.getNodes().length;
 
         // add nodes
@@ -153,10 +153,10 @@ export class Palette {
         return result;
     }
 
-    static toOJSJsonString = (palette: Palette) : string => {
+    static toJsonString = (palette: Palette) : string => {
         let result: string = "";
 
-        const json: any = this.toOJSJson(palette);
+        const json: any = this.toJson(palette);
 
         // manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";

@@ -154,26 +154,7 @@ def save():
 
     Saves a file to local computer.
     """
-    content = request.get_json(silent=True)
-    temp_file = tempfile.TemporaryFile()
-
-    try:
-        json_string = json.dumps(content)
-        if sys.version_info < (3, 2, 0):
-            temp_file.write(json_string)
-        else:
-            temp_file = tempfile.TemporaryFile(mode="w+t")
-            temp_file.write(json.dumps(content, indent=4, sort_keys=True))
-
-        # Reset the seeker
-        temp_file.seek(0)
-        string = temp_file.read()
-        # Indent json for human readable formatting.
-        graph = json.loads(string)
-        json_data = json.dumps(graph, indent=4)
-        return json_data
-    finally:
-        temp_file.close()
+    return request.get_data()
 
 
 @app.route("/openRemoteFileLocalServer/<filetype>/<path:filename>", methods=["POST"])

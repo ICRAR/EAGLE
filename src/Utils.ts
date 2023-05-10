@@ -53,9 +53,7 @@ export class Utils {
         "md" // for markdown e.g. README.md
     ];
 
-    static ojsGraphSchema : object = {};
-    static v3GraphSchema : object = {};
-    static appRefGraphSchema : object = {};
+    static graphSchema : object = {};
 
     /**
      * Generates a UUID.
@@ -1080,8 +1078,6 @@ export class Utils {
                 }));
             }
         }
-
-        $('#editEdgeModalDataTypeInput').val(edge.getDataType());
     }
 
     /**
@@ -1497,20 +1493,6 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static determineSchemaVersion(data: any): Daliuge.SchemaVersion {
-        // appref
-        if (typeof data.modelData !== 'undefined'){
-            if (typeof data.modelData.schemaVersion !== 'undefined'){
-                if (data.modelData.schemaVersion === Daliuge.SchemaVersion.OJS){
-                    return Daliuge.SchemaVersion.OJS;
-                }
-                return data.modelData.schemaVersion;
-            }
-        }
-
-        return Daliuge.SchemaVersion.Unknown;
-    }
-
     static portsMatch(port0: Field, port1: Field){
         return Utils.typesMatch(port0.getType(), port1.getType());
     }
@@ -1571,33 +1553,25 @@ export class Utils {
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
+            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
         }
 
         return errorsWarnings;
     }
 
-    static validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
-        console.log("validateJSON(): version:", version, " fileType:", fileType);
+    static validateJSON(json : object, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
+        console.log("validateJSON(): fileType:", fileType);
 
         const ajv = new Ajv();
         let valid : boolean;
 
-        switch(version){
-            case Daliuge.SchemaVersion.OJS:
-                switch(fileType){
-                    case Eagle.FileType.Graph:
-                    case Eagle.FileType.Palette:
-                        valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
-                        break;
-                    default:
-                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
-                        valid = true;
-                        break;
-                }
+        switch(fileType){
+            case Eagle.FileType.Graph:
+            case Eagle.FileType.Palette:
+                valid = ajv.validate(Utils.graphSchema, json) as boolean;
                 break;
             default:
-                console.warn("Unknown format for validation");
+                console.log("Unknown fileType:", fileType, "Unable to validate JSON");
                 valid = true;
                 break;
         }
@@ -1814,16 +1788,6 @@ export class Utils {
 
     static asBool(value: string) : boolean {
         return value.toLowerCase() === "true";
-    }
-
-    static fixEdgeType(eagle: Eagle, edgeId: string, newType: string) : void {
-        const edge = eagle.logicalGraph().findEdgeById(edgeId);
-
-        if (edge === null){
-            return;
-        }
-
-        edge.setDataType(newType);
     }
 
     static fixDeleteEdge(eagle: Eagle, edgeId: string): void {
@@ -2129,7 +2093,6 @@ export class Utils {
                 "sourcePortId":edge.getSrcPortId(),
                 "destNodeKey":edge.getDestNodeKey(),
                 "destPortId":edge.getDestPortId(),
-                "dataType":edge.getDataType(),
                 "loopAware":edge.isLoopAware(),
                 "isSelectionRelative":edge.getSelectionRelative()
             });
@@ -2224,11 +2187,7 @@ export class Utils {
                 return;
             }
 
-            Utils.ojsGraphSchema = JSON.parse(data);
-
-            // NOTE: we don't have a schema for the V3 or appRef versions
-            Utils.v3GraphSchema = JSON.parse(data);
-            Utils.appRefGraphSchema = JSON.parse(data);
+            Utils.graphSchema = JSON.parse(data);
         });
     }
 

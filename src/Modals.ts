@@ -403,11 +403,10 @@ export class Modals {
             const srcPortId : string = $('#editEdgeModalSrcPortIdSelect').val().toString();
             const destNodeKey : number = parseInt($('#editEdgeModalDestNodeKeySelect').val().toString(), 10);
             const destPortId: string = $('#editEdgeModalDestPortIdSelect').val().toString();
-            const dataType: string = $('#editEdgeModalDataTypeInput').val().toString();
             const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
             const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
 
-            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop, false);
+            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, loopAware, closesLoop, false);
 
             callback(true, newEdge);
         });

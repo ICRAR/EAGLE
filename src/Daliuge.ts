@@ -100,11 +100,6 @@ export namespace Daliuge {
         Unknown = "Unknown"
     }
 
-    export enum SchemaVersion {
-        Unknown = "Unknown",
-        OJS = "OJS",
-    }
-
     // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
     export const requiredFields = [
         {
