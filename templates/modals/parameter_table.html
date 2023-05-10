@@ -185,11 +185,13 @@
                                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="parameterTableTpeCustomSelect">
                                                         <!-- ko foreach:$root.types()-->
                                                             <div class="dropdown-item" data-bind="click:function(){}">
-                                                                <input data-bind="value:$data" type="text">
+                                                                <input disabled data-bind="value:$data" type="text">
                                                                 <button class="typeSelectDelete" data-bind="click: function(){}"><i class="material-icons md-24">delete</i></button>
                                                             </div>
                                                         <!-- /ko --> 
-                                                                        
+                                                        <div class="dropdown-item add" data-bind="click:function(){}">
+                                                            <i class="material-icons">add</i>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
