@@ -180,9 +180,18 @@
                                         
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
                                             <td>
-                                                <select data-bind="options: $root.types(), value: type, disabled: $root.parameterTable().getNodeLockedState($data)">
-                                                <!-- options are added dynamically -->
-                                                </select>
+                                                <div class="dropdown"id="parameterTableTypeCustomSelect">
+                                                    <a class="dropdown-toggle" data-bind="text:type,disabled: $root.parameterTable().getNodeLockedState($data)" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+                                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="parameterTableTpeCustomSelect">
+                                                        <!-- ko foreach:$root.types()-->
+                                                            <div class="dropdown-item" data-bind="click:function(){}">
+                                                                <input data-bind="value:$data" type="text">
+                                                                <button class="typeSelectDelete" data-bind="click: function(){}"><i class="material-icons md-24">delete</i></button>
+                                                            </div>
+                                                        <!-- /ko --> 
+                                                                        
+                                                    </div>
+                                                </div>
                                             </td>
                                         <!-- /ko --> 
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().flags() -->
@@ -266,7 +275,7 @@
                                         <!-- /ko -->
                                         
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
-                                            <td>
+                                            <td class="actionsTd">
                                                 <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
                                                 <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
                                                     <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', $data.parameterType(), $data.usage(), $data.getId());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>

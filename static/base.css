@@ -237,13 +237,45 @@ body {
 
 #parameterTableModal .modal-dialog td{
     padding:0px 3px;
-    overflow: hidden;
+    /* overflow: hidden; */
     border-right: 1px solid rgb(14 2 76 / 16%);
 }
 
 #parameterTableModal .modal-dialog td i{
     margin-left: 50%;
     transform: translate(-50%, 2px);
+}
+
+#parameterTableModal .typeSelectDelete{
+    position: absolute;
+    right:5px
+}
+
+#parameterTableModal .dropdown-item{
+    padding:4px 5px;
+}
+#parameterTableModal .dropdown-menu{
+    padding: 0px;
+}
+
+#parameterTableTypeCustomSelect a {
+    color: #000;
+    border: 1px solid black;
+    border-radius: 2px;
+    font-size: 14px;
+    text-decoration: none;
+    width: 100%;
+    display: block;
+    padding: 0px 3px;
+}
+#parameterTableTypeCustomSelect a::after {
+    right: 5px;
+    top: 45%;
+    position: absolute;
+}
+
+#parameterTableModal .actionsTd {
+    overflow: hidden;
 }
 
 td:first-child input {
