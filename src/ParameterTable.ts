@@ -261,7 +261,6 @@ export class ColumnVisibilities {
     private uiModeName : string;
     private keyAttribute:ko.Observable<boolean>
     private displayText:ko.Observable<boolean>
-    private idText:ko.Observable<boolean>
     private value:ko.Observable<boolean>
     private readOnly:ko.Observable<boolean>
     private defaultValue:ko.Observable<boolean>
@@ -272,12 +271,11 @@ export class ColumnVisibilities {
     private flags:ko.Observable<boolean>
     private actions:ko.Observable<boolean>
 
-    constructor(uiModeName:string, keyAttribute:boolean, displayText:boolean,idText:boolean,value:boolean,readOnly:boolean,defaultValue:boolean,description:boolean,type:boolean,parameterType:boolean,usage:boolean,flags:boolean,actions:boolean){
+    constructor(uiModeName:string, keyAttribute:boolean, displayText:boolean,value:boolean,readOnly:boolean,defaultValue:boolean,description:boolean,type:boolean,parameterType:boolean,usage:boolean,flags:boolean,actions:boolean){
 
         this.uiModeName = uiModeName;
         this.keyAttribute = ko.observable(keyAttribute);
         this.displayText = ko.observable(displayText);
-        this.idText = ko.observable(idText);
         this.value = ko.observable(value);
         this.readOnly = ko.observable(readOnly);
         this.defaultValue = ko.observable(defaultValue);
@@ -332,15 +330,6 @@ export class ColumnVisibilities {
 
         }else{
             this.displayText(value);
-        }
-    }
-
-    private setIdText = (value:boolean) : void => {
-        if(value === null){
-            this.idText(!this.idText());
-            this.saveToLocalStorage()
-        }else{
-            this.idText(value);
         }
     }
 
@@ -436,7 +425,6 @@ export class ColumnVisibilities {
                         name : columnVis.getModeName(),
                         keyAttribute : columnVis.keyAttribute(),
                         displayText : columnVis.displayText(),
-                        idText : columnVis.idText(),
                         value : columnVis.value(),
                         readOnly : columnVis.readOnly(),
                         defaultValue : columnVis.defaultValue(),
@@ -468,7 +456,6 @@ export class ColumnVisibilities {
                 const columnVisActual:ColumnVisibilities = that.getModeByName(columnvisibility.name)
                 columnVisActual.setKeyAttribute(columnvisibility.keyAttribute)
                 columnVisActual.setDisplayText(columnvisibility.displayText)
-                columnVisActual.setIdText(columnvisibility.idText)
                 columnVisActual.setValue(columnvisibility.value)
                 columnVisActual.setReadOnly(columnvisibility.readOnly)
                 columnVisActual.setDefaultValue(columnvisibility.defaultValue)
@@ -484,11 +471,11 @@ export class ColumnVisibilities {
 }
 
 
-// name,  keyAttribute,displayText,idText,value,readOnly,defaultValue,description,type,parameterType,usage,flags,actions
+// name, keyAttribute,displayText,value,readOnly,defaultValue,description,type,parameterType,usage,flags,actions
 const columnVisibilities : ColumnVisibilities[] = [
-    new ColumnVisibilities( "Student", false, true,false,true,true,false,true,false,false,false,false,false),
-    new ColumnVisibilities("Minimal", true, true,false,true,true,false,true,false,false,false,true,false),
-    new ColumnVisibilities("Graph", true, true,true,true,true,true,true,true,true,true,true,true),
-    new ColumnVisibilities("Component", true, true,true,true,true,true,true,true,true,true,true,true),
-    new ColumnVisibilities("Expert", true, true,true,true,true,true,true,true,true,true,true,true),
+    new ColumnVisibilities( "Student", false, true,true,true,false,true,false,false,false,false,false),
+    new ColumnVisibilities("Minimal", true, true,true,true,false,true,false,false,false,true,false),
+    new ColumnVisibilities("Graph", true, true,true,true,true,true,true,true,true,true,true),
+    new ColumnVisibilities("Component", true, true,true,true,true,true,true,true,true,true,true),
+    new ColumnVisibilities("Expert", true, true,true,true,true,true,true,true,true,true,true),
 ]
