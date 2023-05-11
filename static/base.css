@@ -265,6 +265,18 @@ body {
     overflow: hidden;
 }
 
+#parameterTableModal .modal-dialog .typesInput{
+    
+  font-size: 18px;
+  padding: 5px;
+  height: 35px;
+  width: 100%;
+  border: 1px solid black;
+  outline: none;
+  border-radius: 5px;
+  color: black;
+}
+
 #parameterTableTypeCustomSelect a {
     color: #000;
     border: 1px solid black;
