@@ -22,6 +22,7 @@ export class Field {
     private usage : ko.Observable<Daliuge.FieldUsage>;
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
+    private linkKey : ko.Observable<number>;
 
     constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
@@ -40,6 +41,7 @@ export class Field {
         this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
         this.nodeKey = ko.observable(0);
+        this.linkKey = ko.observable(null);
     }
 
     getId = () : string => {
@@ -188,6 +190,14 @@ export class Field {
 
     setNodeKey = (key : number) : void => {
         this.nodeKey(key);
+    }
+
+    getLinkKey = () : number => {
+        return this.linkKey();
+    }
+
+    setLinkKey = (key: number) : void => {
+        this.linkKey(key);
     }
 
     clear = () : void => {
@@ -371,6 +381,7 @@ export class Field {
             id: field.id(),
             parameterType: field.parameterType(),
             usage: field.usage(),
+            linkKey: field.linkKey()
         }
 
         return result;
