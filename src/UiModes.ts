@@ -78,9 +78,9 @@ export class UiModeSystem {
             settingsGroup.getSettings().forEach(function(setting){
                 UiModes[0].getSettings().push(new SettingData(setting.getKey(),setting.getStudentDefaultVal(),setting.getPerpetual()))
                 UiModes[1].getSettings().push(new SettingData(setting.getKey(),setting.getMinimalDefaultVal(),setting.getPerpetual()))
-                UiModes[2].getSettings().push(new SettingData(setting.getKey(),setting.getExpertDefaultVal(),setting.getPerpetual()))
+                UiModes[2].getSettings().push(new SettingData(setting.getKey(),setting.getGraphDefaultVal(),setting.getPerpetual()))
                 UiModes[3].getSettings().push(new SettingData(setting.getKey(),setting.getComponentDefaultVal(),setting.getPerpetual()))
-                UiModes[4].getSettings().push(new SettingData(setting.getKey(),setting.getGraphDefaultVal(),setting.getPerpetual()))
+                UiModes[4].getSettings().push(new SettingData(setting.getKey(),setting.getExpertDefaultVal(),setting.getPerpetual()))
             })
         })
         UiModeSystem.loadFromLocalStorage()
