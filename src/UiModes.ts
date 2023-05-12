@@ -182,7 +182,7 @@ export class UiModeSystem {
         //if a setting is marked perpetual we will write the value to all ui modes, this means it stayes the same regardless of which ui  mode is active
         UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
             if(setting.getKey() === settingName){
-                settingIsPerpetual = setting.isPerpetural()
+                settingIsPerpetual = setting.isPerpetual()
             }
         })
 
@@ -277,7 +277,7 @@ export class SettingData {
         return this.value()
     }
 
-    isPerpetural = () : boolean => {
+    isPerpetual = () : boolean => {
         return this.perpetual;
     }
 
