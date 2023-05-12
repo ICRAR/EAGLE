@@ -160,55 +160,34 @@ export class UiModeSystem {
         })
     }
 
-    static getActiveSetting = (settingName:string) : any => {
-        let found = false
-        let value:any = null
-        UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
-            if(setting.getKey() === settingName){
-                value = setting.getValue();
-                found = true;
-            }
-        })
-        if(!found){
-            console.warn('Requested setting: "'+ settingName+'" can not be found')
-        }else{
-            return value
-        }
-    }
-
     static setActiveSetting = (settingName:string,newValue:any) : any => {
-        let found = false
-        let settingIsPerpetual = false
+        let activeSetting: SettingData  = null
 
         //if a setting is marked perpetual we will write the value to all ui modes, this means it stayes the same regardless of which ui  mode is active
         UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
             if(setting.getKey() === settingName){
-                settingIsPerpetual = setting.isPerpetual()
+                activeSetting = setting
             }
         })
+        
+        if(activeSetting === null){
+            console.warn('Requested setting key to change: "'+ settingName+'" can not be found')
+            return
+        }
 
-        if(settingIsPerpetual){
+        if(activeSetting.isPerpetual()){
                 UiModeSystem.getUiModes().forEach(function(uiMode){
                     uiMode.getSettings().forEach(function(setting){
                         if(setting.getKey() === settingName){
-                            found = true
                             setting.setValue(newValue)
                         }
                     })
                 })
         }else{
-            UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
-                if(setting.getKey() === settingName){
-                    found = true
-                    setting.setValue(newValue)
-                }
-            })
+            activeSetting.setValue(newValue)
         }
-        if(!found){
-            console.warn('Requested setting key to change: "'+ settingName+'" can not be found')
-        }else{
-            UiModeSystem.saveToLocalStorage()
-        }
+
+        UiModeSystem.saveToLocalStorage()
     }
 
 }
@@ -243,19 +222,20 @@ export class UiMode {
     }
 
     getSettingByKey = (key:string) : void => {
-        this.getSettings().forEach(function(setting:any){
+        for(const setting of this.getSettings()){
             if(setting.getKey() === key){
                 return setting.getValue()
             }
-        })
+        }
     }
 
     setSettingByKey = (key:string, value:any) : void => {
-        this.getSettings().forEach(function(setting:any){
+        for(const setting of this.getSettings()){
             if(setting.getKey() === key){
                 setting.setValue(value)
+                break
             }
-        })
+        }
     }
 }
 

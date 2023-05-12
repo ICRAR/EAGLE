@@ -102,7 +102,6 @@ $(function(){
     if (typeof user_interface_mode !== 'undefined' && user_interface_mode !== ""){
         // make sure that the specified user interface mode is a known mode
         if (UiModeSystem.getFullUiModeNamesList().includes(user_interface_mode)){
-            console.log('name found')
             UiModeSystem.setActiveUiModeByName(user_interface_mode)
         } else {
             console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", UiModeSystem.getFullUiModeNamesList().join(','));
