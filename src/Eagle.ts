@@ -2359,22 +2359,12 @@ export class Eagle {
             return false;
         }
 
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                 return false;
-            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.ReadOnly){
+        }else if (Eagle.selectedLocation() != Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
                 return false;
-            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.Normal){
-                return field.isReadonly();
-            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.KeyOnly){
-                return !field.isKeyAttribute() || field.isReadonly();
-            }else{
-                return false
-            }
         }else{
-            if(Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
-                return false;
-            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.ReadOnly){
+            if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.ReadOnly){
                 return false;
             }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.Normal){
                 return field.isReadonly();
