@@ -68,11 +68,11 @@ export class UiModeSystem {
     }
 
     static initialise = () : void => {
-        //setting cooldown for the update to local storage funciton to prevent uploads during eagle's initialisation
+        //setting cooldown for the update to local storage function to prevent uploads during eagle's initialisation
         UiModeSystem.localStorageUpdateCooldown = true;
         setTimeout(function () {
             UiModeSystem.localStorageUpdateCooldown = false;
-        }, 1000)
+        }, 2000)
 
         Setting.getSettings().forEach(function(settingsGroup){
             settingsGroup.getSettings().forEach(function(setting){
@@ -93,9 +93,12 @@ export class UiModeSystem {
     }
 
     static saveToLocalStorage = () : void => {
+        //we are using a cooldown function here. this is to prevent rapid saving when many changes happen to the array at once, for example when loading eagle or changing ui modes.
+        //essentially we wait for one second with the cooldown, then upload the accumulated changes and reset the cooldown.
+        //the unwanted calls to save are due to the need to have the Settings class array and UiModes Class Array linked
+        //this is because settings is essentially a copy of the active ui mode interacting with the ui and it has a subscribe function to keep the uimodes array in sync when it is changed by the user.
         if(this.localStorageUpdateCooldown===false){
             this.localStorageUpdateCooldown = true;
-
             setTimeout(function () {
                 const uiModesObj : any[] = []
                 UiModeSystem.getUiModes().forEach(function(uiMode:UiMode){

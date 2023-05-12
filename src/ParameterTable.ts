@@ -254,8 +254,6 @@ export class ParameterTable {
     }
 }
 
-let localStorageUpdateCooldown : boolean = false;
-
 export class ColumnVisibilities {
 
     private uiModeName : string;
@@ -357,6 +355,8 @@ export class ColumnVisibilities {
     private setActions = (value:boolean) : void => {
         this.actions(value);
     }
+
+    //these toggle functions are used in the knockout for the ui elements
     private toggleKeyAttribute = () : void => {
             this.keyAttribute(!this.keyAttribute());
             this.saveToLocalStorage()
@@ -413,37 +413,26 @@ export class ColumnVisibilities {
     }
 
     private saveToLocalStorage = () : void => {
-        //we are using a cooldown function here. this is to prevent rapid saving when many changes happen to the array at once, for example when loading or changing ui modes.
-        //essentially we wait for one second with the cooldown, then upload the accumulated changes and reset the cooldown.
-        if(localStorageUpdateCooldown===false){
-            localStorageUpdateCooldown = true;
-
-            setTimeout(function () {
-                const columnVisibilitiesObjArray : any[] = []
-                columnVisibilities.forEach(function(columnVis:ColumnVisibilities){
-                    const columnVisibilitiesObj = {
-                        name : columnVis.getModeName(),
-                        keyAttribute : columnVis.keyAttribute(),
-                        displayText : columnVis.displayText(),
-                        value : columnVis.value(),
-                        readOnly : columnVis.readOnly(),
-                        defaultValue : columnVis.defaultValue(),
-                        description : columnVis.description(),
-                        type : columnVis.type(),
-                        parameterType : columnVis.parameterType(),
-                        usage : columnVis.usage(),
-                        flags : columnVis.flags(),
-                        actions : columnVis.actions(),
-                        
-                    }
-                    columnVisibilitiesObjArray.push(columnVisibilitiesObj)
-                })
-                localStorage.setItem('ColumnVisibilities', JSON.stringify(columnVisibilitiesObjArray));
-                localStorageUpdateCooldown = false;
-            }, 1000)
-        }else{
-            return
-        }
+        const columnVisibilitiesObjArray : any[] = []
+        columnVisibilities.forEach(function(columnVis:ColumnVisibilities){
+            const columnVisibilitiesObj = {
+                name : columnVis.getModeName(),
+                keyAttribute : columnVis.keyAttribute(),
+                displayText : columnVis.displayText(),
+                value : columnVis.value(),
+                readOnly : columnVis.readOnly(),
+                defaultValue : columnVis.defaultValue(),
+                description : columnVis.description(),
+                type : columnVis.type(),
+                parameterType : columnVis.parameterType(),
+                usage : columnVis.usage(),
+                flags : columnVis.flags(),
+                actions : columnVis.actions(),
+                
+            }
+            columnVisibilitiesObjArray.push(columnVisibilitiesObj)
+        })
+        localStorage.setItem('ColumnVisibilities', JSON.stringify(columnVisibilitiesObjArray));
     }
 
      loadFromLocalStorage = () : void => {
