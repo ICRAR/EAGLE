@@ -111,6 +111,13 @@ export class Setting {
         return this.expertDefaultValue
     }
 
+    getPerpetualDefaultVal = () :any => {
+        if(!this.perpetual){
+            console.warn(this.name + " is not a perpetual setting: ",this)
+        }
+        return this.graphDefaultValue
+    }
+
     getPerpetual = () : boolean => {
         return this.perpetual;
     }
