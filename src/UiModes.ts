@@ -50,7 +50,12 @@ export class UiModeSystem {
 
     static setActiveUiMode = (newActiveUiMode:UiMode) : void => {
         this.activeUiMode = newActiveUiMode;
-        this.updateSettingsArray()
+
+        //setting up the settings array with the selected ui mode
+        UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
+            Setting.setValue(setting.getKey(),setting.getValue())
+        })
+
         ParameterTable.setActiveColumnVisibility()
         localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
     }
@@ -152,12 +157,6 @@ export class UiModeSystem {
                 destUiMode.setSettingByKey(settingObj.key,settingObj.value)
             } )
 
-        })
-    }
-
-    static updateSettingsArray = () : void => {
-        UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
-            Setting.setValue(setting.getKey(),setting.getValue())
         })
     }
 
