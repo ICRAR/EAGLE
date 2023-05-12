@@ -157,7 +157,7 @@ export class Edge {
         return (index + 1) + ":" + srcNode.getName() + srcNode.getKey() + ">>" + destNode.getName() + destNode.getKey();
     }
 
-    static toJson = (edge : Edge, srcPort: Field, destPort: Field) : object => {
+    static toAppRefJson = (edge : Edge, srcPort: Field, destPort: Field) : object => {
         return {
             fromPort: srcPort.getId(),
             toPort: destPort.getId(),            
@@ -169,7 +169,26 @@ export class Edge {
         };
     }
 
-    static fromJson = (linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
+    static fromAppRefJson = (linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
+        const result: Edge = null;
+
+        // TODO: more
+
+        return result;
+    }
+
+    static toOJSJson = (edge: Edge): object => {
+        return {
+            from: edge.srcNodeKey,
+            fromPort: edge.srcPortId,
+            to: edge.destNodeKey,
+            toPort: edge.destPortId,
+            loop_aware: edge.loopAware ? "1" : "0",
+            closesLoop: edge.closesLoop
+        };
+    }
+
+    static fromOJSJson = (linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
         // try to read source and destination nodes and ports
         let srcNodeKey : number = 0;
         let srcPortId : string = "";

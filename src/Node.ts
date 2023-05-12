@@ -1646,6 +1646,14 @@ export class Node {
         return node;
     }
 
+    static toOJSJson = (node: Node): object => {
+        const result: any = {};
+
+        // TODO: more
+
+        return result;
+    }
+
     private static copyPorts(src: Field[], dest: {}[]):void{
         for (const port of src){
             dest.push(Field.toJson(port));

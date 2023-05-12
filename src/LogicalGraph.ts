@@ -49,7 +49,7 @@ export class LogicalGraph {
         this.edges = [];
     }
 
-    static toJson = (graph : LogicalGraph, forTranslation : boolean) : object => {
+    static toAppRefJson = (graph : LogicalGraph, forTranslation : boolean) : object => {
         const result : any = {};
 
         result.modelData = FileInfo.toJson(graph.fileInfo());
@@ -87,7 +87,7 @@ export class LogicalGraph {
             const destPort = destNode.findFieldById(edge.getDestPortId());
 
             const key: string = Edge.getUniqueKey(i, srcNode, destNode);
-            const value: any = Edge.toJson(edge, srcPort, destPort);
+            const value: any = Edge.toAppRefJson(edge, srcPort, destPort);
 
             result.linkData[key] = value;
         }
@@ -98,7 +98,7 @@ export class LogicalGraph {
     static toAppRefJsonString = (graph : LogicalGraph, forTranslation : boolean) : string => {
         let result: string = "";
 
-        const json: any = this.toJson(graph, forTranslation);
+        const json: any = this.toAppRefJson(graph, forTranslation);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
@@ -207,7 +207,7 @@ export class LogicalGraph {
 
         // add edges
         for (const linkData of dataObject.linkDataArray){       
-            const newEdge = Edge.fromJson(linkData, errorsWarnings);
+            const newEdge = Edge.fromOJSJson(linkData, errorsWarnings);
 
             if (newEdge === null){
                 continue;

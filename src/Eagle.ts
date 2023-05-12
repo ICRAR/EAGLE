@@ -1244,7 +1244,7 @@ export class Eagle {
             }
 
             for (const e of clipboard.edges){
-                const edge = Edge.fromJson(e, null);
+                const edge = Edge.fromOJSJson(e, null);
 
                 edges.push(edge);
             }
@@ -2706,15 +2706,17 @@ export class Eagle {
         // TODO: serialise nodes and edges
         const serialisedNodes = [];
         for (const node of nodes){
-            serialisedNodes.push(Node.toGraphJson(node));
+            serialisedNodes.push(Node.toOJSJson(node));
         }
         const serialisedEdges = [];
         for (const edge of edges){
+            /*
             const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
             const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
             const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
             const destPort: Field = destNode.findFieldById(edge.getDestPortId());
-            serialisedEdges.push(Edge.toJson(edge, srcPort, destPort));
+            */
+            serialisedEdges.push(Edge.toOJSJson(edge));
         }
 
         const clipboard = {
@@ -2802,7 +2804,7 @@ export class Eagle {
         }
 
         for (const e of clipboard.edges){
-            const edge = Edge.fromJson(e, errorsWarnings);
+            const edge = Edge.fromOJSJson(e, errorsWarnings);
 
             edges.push(edge);
         }
