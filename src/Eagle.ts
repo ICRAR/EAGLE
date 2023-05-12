@@ -842,11 +842,22 @@ export class Eagle {
             return;
         }
 
+        // attempt to determine schema version from FileInfo
+        const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
+
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
-
-        loadFunc(LogicalGraph.fromJson(dataObject, dummyFile, errorsWarnings));
+        // use the correct parsing function based on schema version
+        switch (schemaVersion){
+            case Daliuge.SchemaVersion.OJS:
+            case Daliuge.SchemaVersion.Unknown:
+                loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
+                break;
+            case Daliuge.SchemaVersion.AppRef:
+                loadFunc(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errorsWarnings));
+                break;
+        }
 
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
     }
@@ -1118,6 +1129,7 @@ export class Eagle {
 
         // determine file type
         const loadedFileType : Eagle.FileType = Utils.determineFileType(dataObject);
+        const schemaVersion : Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         // abort if not palette
         if (loadedFileType !== Eagle.FileType.Palette){
@@ -1126,7 +1138,17 @@ export class Eagle {
         }
 
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const p : Palette = Palette.fromJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
+        let p: Palette = null;
+        const repositoryFile = new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath));
+
+        switch(schemaVersion){
+            case Daliuge.SchemaVersion.AppRef:
+                p = Palette.fromAppRefJson(dataObject, repositoryFile, errorsWarnings);
+                break;
+            default:
+                p = Palette.fromOJSJson(dataObject, repositoryFile, errorsWarnings);
+                break;
+        }
 
         // show errors (if found)
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
@@ -1191,6 +1213,7 @@ export class Eagle {
         this.resetEditor()
     }
 
+    // TODO: change to read data from clipboard as though it were an actual LogicalGraph object, not just nodes/edges
     addToGraphFromJson = () : void => {
         Utils.requestUserText("Add to Graph from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
             if (!completed)
@@ -1251,7 +1274,7 @@ export class Eagle {
         cloneLG.fileInfo().lastModifiedEmail = "";
         cloneLG.fileInfo().lastModifiedDatetime = 0;
 
-        const jsonString: string = LogicalGraph.toJsonString(cloneLG, false);
+        const jsonString: string = LogicalGraph.toAppRefJsonString(cloneLG, false);
 
         Utils.requestUserText("Export Graph to JSON", "", jsonString, null);
     }
@@ -1636,14 +1659,14 @@ export class Eagle {
             // clone the logical graph
             const lg_clone : LogicalGraph = (<LogicalGraph> obj).clone();
             lg_clone.fileInfo().updateEagleInfo();
-            const jsonString: string = LogicalGraph.toJsonString(lg_clone, false);
+            const jsonString: string = LogicalGraph.toAppRefJsonString(lg_clone, false);
 
             this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
         } else {
             // clone the palette
             const p_clone : Palette = (<Palette> obj).clone();
             p_clone.fileInfo().updateEagleInfo();
-            const jsonString: string = Palette.toJsonString(p_clone);
+            const jsonString: string = Palette.toAppRefJsonString(p_clone);
 
             this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
         }
@@ -1677,7 +1700,7 @@ export class Eagle {
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, fileType);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.AppRef, fileType);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -1708,7 +1731,30 @@ export class Eagle {
                     console.error(error);
                     errorsWarnings.errors.push(Errors.Message(error));
                 } else {
-                    const palette: Palette = Palette.fromJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
+                    let dataObject = null;
+
+                    // attempt to parse the JSON
+                    try {
+                        dataObject = JSON.parse(data);
+                    }
+                    catch(err){
+                        Utils.showUserMessage("Error parsing file JSON", err.message);
+                        return;
+                    }
+
+                    const schemaVersion = Utils.determineSchemaVersion(dataObject);
+                    let palette: Palette = null;
+                    const repositoryFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", paletteList[index].name);
+
+                    switch (schemaVersion){
+                        case Daliuge.SchemaVersion.AppRef:
+                            palette = Palette.fromAppRefJson(dataObject, repositoryFile, errorsWarnings);
+                            break;
+                        default:
+                            palette = Palette.fromOJSJson(dataObject, repositoryFile, errorsWarnings);
+                            break;
+                    }
+                     
                     palette.fileInfo().clear();
                     palette.fileInfo().name = paletteList[index].name;
                     palette.fileInfo().readonly = paletteList[index].readonly;
@@ -1772,6 +1818,7 @@ export class Eagle {
             // determine file extension
             const fileExtension = Utils.getFileExtension(file.name);
             let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
+            let schemaVersion: Daliuge.SchemaVersion = Daliuge.SchemaVersion.Unknown;
             let dataObject = null;
 
             if (fileExtension !== "md"){
@@ -1785,6 +1832,7 @@ export class Eagle {
                 }
 
                 fileTypeLoaded = Utils.determineFileType(dataObject);
+                schemaVersion = Utils.determineSchemaVersion(dataObject);
                 console.log("fileTypeLoaded", fileTypeLoaded);
             } else {
                 fileTypeLoaded = Eagle.FileType.Markdown;
@@ -1795,7 +1843,14 @@ export class Eagle {
                     const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // parse json
-                    this.logicalGraph(LogicalGraph.fromJson(dataObject, file, errorsWarnings));
+                    switch (schemaVersion){
+                        case Daliuge.SchemaVersion.AppRef:
+                            this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, file, errorsWarnings));
+                            break;
+                        default:
+                            this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
+                            break;
+                    }
 
                     // show errors/warnings
                     this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
@@ -1868,6 +1923,7 @@ export class Eagle {
             }
 
             const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
+            const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
             // only do this for graphs at the moment
             if (fileTypeLoaded !== Eagle.FileType.Graph){
@@ -1877,9 +1933,17 @@ export class Eagle {
             }
 
             const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+            let lg: LogicalGraph = null;
 
             // use the correct parsing function based on schema version
-            const lg: LogicalGraph = LogicalGraph.fromJson(dataObject, file, errorsWarnings);
+            switch (schemaVersion){
+                case Daliuge.SchemaVersion.AppRef:
+                    lg = LogicalGraph.fromAppRefJson(dataObject, file, errorsWarnings);
+                    break;
+                default:
+                    lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
+                    break;
+            }
 
             // create parent node
             const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
@@ -1921,9 +1985,29 @@ export class Eagle {
             this.closePalette(palette);
         }
 
-        // load the new palette
+        // attempt to parse the JSON
+        let dataObject;
+        try {
+            dataObject = JSON.parse(data);
+        }
+        catch(err){
+            Utils.showUserMessage("Error parsing file JSON", err.message);
+            return;
+        }        
+
+        const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const newPalette = Palette.fromJson(data, file, errorsWarnings);
+        let newPalette: Palette = null;
+
+        // load the new palette
+        switch (schemaVersion){
+            case Daliuge.SchemaVersion.AppRef:
+                newPalette = Palette.fromAppRefJson(dataObject, file, errorsWarnings);
+                break;
+            default:
+                newPalette = Palette.fromOJSJson(dataObject, file, errorsWarnings);
+                break;
+        }
 
         // sort items in palette
         newPalette.sort();
@@ -2022,12 +2106,12 @@ export class Eagle {
         const p_clone : Palette = palette.clone();
         p_clone.fileInfo().removeGitInfo();
         p_clone.fileInfo().updateEagleInfo();
-        const jsonString: string = Palette.toJsonString(p_clone);
+        const jsonString: string = Palette.toAppRefJsonString(p_clone);
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.FileType.Palette);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.AppRef, Eagle.FileType.Palette);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -2081,12 +2165,12 @@ export class Eagle {
         const lg_clone : LogicalGraph = this.logicalGraph().clone();
         lg_clone.fileInfo().removeGitInfo();
         lg_clone.fileInfo().updateEagleInfo();
-        const jsonString : string = LogicalGraph.toJsonString(lg_clone, false);
+        const jsonString : string = LogicalGraph.toAppRefJsonString(lg_clone, false);
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.FileType.Graph);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.AppRef, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);
@@ -2161,7 +2245,7 @@ export class Eagle {
             // clone the palette
             const p_clone : Palette = palette.clone();
             p_clone.fileInfo().updateEagleInfo();
-            const jsonString: string = Palette.toJsonString(p_clone);
+            const jsonString: string = Palette.toAppRefJsonString(p_clone);
 
             const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
 

@@ -108,7 +108,7 @@ export class Translator {
         form.appendChild(element);
     }
 
-        //----------------- Physical Graph Generation --------------------------------
+    //----------------- Physical Graph Generation --------------------------------
     /**
      * Generate Physical Graph Template.
      * @param algorithmName
@@ -136,12 +136,12 @@ export class Translator {
 
     private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean) : void => {
         // get json for logical graph
-        const jsonString: string = LogicalGraph.toJsonString(eagle.logicalGraph(), true);
+        const jsonString: string = LogicalGraph.toAppRefJsonString(eagle.logicalGraph(), true);
 
         // validate json
         if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Eagle.FileType.Graph);
+            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.AppRef, Eagle.FileType.Graph);
             if (!validatorResult.valid){
                 const message = "JSON Output failed validation against internal JSON schema, saving anyway";
                 console.error(message, validatorResult.errors);

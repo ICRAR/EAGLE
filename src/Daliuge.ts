@@ -100,6 +100,12 @@ export namespace Daliuge {
         Unknown = "Unknown"
     }
 
+    export enum SchemaVersion {
+        Unknown = "Unknown",
+        OJS = "OJS",
+        AppRef = "AppRef"
+    }
+
     // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
     export const requiredFields = [
         {
@@ -130,4 +136,7 @@ export namespace Daliuge {
 
     export const groupStartField = new Field("", FieldName.GROUP_START, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
     export const groupEndField = new Field("", FieldName.GROUP_END, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
+
+    export type OJSObject = {modelData: object, nodeDataArray: any[], linkDataArray: any[]};
+    export type AppRefObject = {modelData: object, nodeData: object, linkData: object, uxData: object, reproData: object};
 }

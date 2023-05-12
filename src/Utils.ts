@@ -1493,6 +1493,16 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
+    static determineSchemaVersion(data: any): Daliuge.SchemaVersion {
+        if (typeof data.modelData !== 'undefined'){
+            if (typeof data.modelData.schemaVersion !== 'undefined'){
+                return data.modelData.schemaVersion;
+            }
+        }
+
+        return Daliuge.SchemaVersion.Unknown;
+    }
+
     static portsMatch(port0: Field, port1: Field){
         return Utils.typesMatch(port0.getType(), port1.getType());
     }
@@ -1559,7 +1569,8 @@ export class Utils {
         return errorsWarnings;
     }
 
-    static validateJSON(json : object, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
+    // NOTE: we don't actually have multiple versions of the schema for the different file formats. We always validate against Utils.graphSchema
+    static validateJSON(json : object, schemaVersion: Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
         console.log("validateJSON(): fileType:", fileType);
 
         const ajv = new Ajv();

@@ -74,7 +74,7 @@ export class Undo {
     pushSnapshot = (eagle: Eagle, description: string) : void => {
         const previousIndex = (this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
         const previousSnapshot : Snapshot = this.memory()[previousIndex];
-        const newContent : string = LogicalGraph.toJsonString(eagle.logicalGraph(), false);
+        const newContent : string = LogicalGraph.toAppRefJsonString(eagle.logicalGraph(), false);
 
         // check if newContent matches old content, if so, no need to push
         // TODO: maybe speed this up with checksums? or maybe not required
@@ -179,7 +179,7 @@ export class Undo {
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", "");
 
-        eagle.logicalGraph(LogicalGraph.fromJson(dataObject, dummyFile, errorsWarnings));
+        eagle.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, dummyFile, errorsWarnings));
     }
 
     static printTable = () : void => {

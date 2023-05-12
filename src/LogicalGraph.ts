@@ -95,7 +95,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static toJsonString = (graph : LogicalGraph, forTranslation : boolean) : string => {
+    static toAppRefJsonString = (graph : LogicalGraph, forTranslation : boolean) : string => {
         let result: string = "";
 
         const json: any = this.toJson(graph, forTranslation);
@@ -114,7 +114,16 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph => {
+    static fromAppRefJson = (dataObject : Daliuge.AppRefObject, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph => {
+        // create new logical graph object
+        const result : LogicalGraph = new LogicalGraph();
+
+        // TODO: more here
+
+        return result;
+    }
+
+    static fromOJSJson = (dataObject : Daliuge.OJSObject, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 

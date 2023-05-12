@@ -24,15 +24,16 @@
 
 import * as ko from "knockout";
 
-import {Utils} from './Utils';
-import {Eagle} from './Eagle';
-import {Node} from './Node';
-import {FileInfo} from './FileInfo';
-import {RepositoryFile} from './RepositoryFile';
-import {Errors} from './Errors';
-import {Category} from './Category';
-import {CategoryData} from './CategoryData';
-import {GraphUpdater} from "./GraphUpdater";
+import { Category } from './Category';
+import { CategoryData } from './CategoryData';
+import { Daliuge } from "./Daliuge";
+import { Eagle } from './Eagle';
+import { Errors } from './Errors';
+import { FileInfo } from './FileInfo';
+import { GraphUpdater } from "./GraphUpdater";
+import { Node } from './Node';
+import { RepositoryFile } from './RepositoryFile';
+import { Utils } from './Utils';
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
@@ -49,9 +50,16 @@ export class Palette {
         this.searchExclude = ko.observable(false);
     }
 
-    static fromJson = (data : string, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette => {
-        // parse the JSON first
-        const dataObject : any = JSON.parse(data);
+    static fromAppRefJson = (dataObject : Daliuge.AppRefObject, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette => {
+        const result : Palette = new Palette();
+
+        // TODO: more
+
+        return result;
+    }
+
+
+    static fromOJSJson = (dataObject : Daliuge.OJSObject, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette => {
         const result : Palette = new Palette();
 
         // copy modelData into fileInfo
@@ -135,7 +143,7 @@ export class Palette {
         return result;
     }
 
-    static toJson = (palette: Palette) : object => {
+    static toAppRefJson = (palette: Palette) : object => {
         const result : any = {};
 
         result.modelData = FileInfo.toJson(palette.fileInfo());
@@ -153,10 +161,10 @@ export class Palette {
         return result;
     }
 
-    static toJsonString = (palette: Palette) : string => {
+    static toAppRefJsonString = (palette: Palette) : string => {
         let result: string = "";
 
-        const json: any = this.toJson(palette);
+        const json: any = this.toAppRefJson(palette);
 
         // manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";

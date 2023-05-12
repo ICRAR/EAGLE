@@ -22,17 +22,18 @@
 #
 */
 
-import {Category} from './Category';
-import {Eagle} from './Eagle';
-import {Errors} from './Errors';
-import {GitHub} from './GitHub';
-import {GitLab} from './GitLab';
-import {LogicalGraph} from './LogicalGraph';
-import {Repositories} from './Repositories';
-import {Repository} from './Repository';
-import {RepositoryFolder} from './RepositoryFolder';
-import {RepositoryFile} from './RepositoryFile';
-import {Utils} from './Utils';
+import { Category } from './Category';
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+import { Errors } from './Errors';
+import { GitHub } from './GitHub';
+import { GitLab } from './GitLab';
+import { LogicalGraph } from './LogicalGraph';
+import { Repositories } from './Repositories';
+import { Repository } from './Repository';
+import { RepositoryFolder } from './RepositoryFolder';
+import { RepositoryFile } from './RepositoryFile';
+import { Utils } from './Utils';
 
 export class GraphUpdater {
 
@@ -357,7 +358,29 @@ export class GraphUpdater {
                     if (error === null){
                         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
                         const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
-                        const lg: LogicalGraph = LogicalGraph.fromJson(JSON.parse(data), file, errorsWarnings);
+                        let dataObject;
+
+                        // attempt to parse the JSON
+                        try {
+                            dataObject = JSON.parse(data);
+                        }
+                        catch(err){
+                            Utils.showUserMessage("Error parsing file JSON", err.message);
+                            return;
+                        }
+
+                        // determine file schema
+                        const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
+                        let lg: LogicalGraph = null;
+
+                        switch (schemaVersion){
+                            case Daliuge.SchemaVersion.AppRef:
+                                lg = LogicalGraph.fromAppRefJson(dataObject, file, errorsWarnings);
+                                break;
+                            default:
+                                lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
+                                break;
+                        }
 
                         // record number of errors
                         row.numLoadWarnings = errorsWarnings.warnings.length;
