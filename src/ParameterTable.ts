@@ -413,6 +413,8 @@ export class ColumnVisibilities {
     }
 
     private saveToLocalStorage = () : void => {
+        //we are using a cooldown function here. this is to prevent rapid saving when many changes happen to the array at once, for example when loading or changing ui modes.
+        //essentially we wait for one second with the cooldown, then upload the accumulated changes and reset the cooldown.
         if(localStorageUpdateCooldown===false){
             localStorageUpdateCooldown = true;
 
