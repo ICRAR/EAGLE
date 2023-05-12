@@ -20,6 +20,8 @@ export class UiModeSystem {
         const uiModeNamesList : string[]= []
         UiModeSystem.getUiModes().forEach(function(uiMode){
             if(uiMode.getName() === 'Student'){
+                //this generates the list of ui mode options the user can select in the settings modal, student mode is not added to this list of options as it is not meant for the normal user. 
+                //It is only used when loading eagle with a specific url
                 return
             }else{
                 uiModeNamesList.push(uiMode.getName())
