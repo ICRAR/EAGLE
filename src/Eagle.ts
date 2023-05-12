@@ -1818,7 +1818,6 @@ export class Eagle {
             // determine file extension
             const fileExtension = Utils.getFileExtension(file.name);
             let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
-            let schemaVersion: Daliuge.SchemaVersion = Daliuge.SchemaVersion.Unknown;
             let dataObject = null;
 
             if (fileExtension !== "md"){
@@ -1832,7 +1831,6 @@ export class Eagle {
                 }
 
                 fileTypeLoaded = Utils.determineFileType(dataObject);
-                schemaVersion = Utils.determineSchemaVersion(dataObject);
                 console.log("fileTypeLoaded", fileTypeLoaded);
             } else {
                 fileTypeLoaded = Eagle.FileType.Markdown;
@@ -1840,9 +1838,12 @@ export class Eagle {
 
             switch (fileTypeLoaded){
                 case Eagle.FileType.Graph:
+                    // attempt to determine schema version from FileInfo
+                    const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
+
                     const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
-                    // parse json
+                    // use the correct parsing function based on schema version
                     switch (schemaVersion){
                         case Daliuge.SchemaVersion.AppRef:
                             this.logicalGraph(LogicalGraph.fromAppRefJson(dataObject, file, errorsWarnings));
@@ -1933,9 +1934,9 @@ export class Eagle {
             }
 
             const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-            let lg: LogicalGraph = null;
 
             // use the correct parsing function based on schema version
+            let lg: LogicalGraph = null;
             switch (schemaVersion){
                 case Daliuge.SchemaVersion.AppRef:
                     lg = LogicalGraph.fromAppRefJson(dataObject, file, errorsWarnings);
