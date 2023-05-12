@@ -224,11 +224,11 @@
                                                     </div>
                                                 <!-- /ko --> 
                                                 <div class="input-group">
-                                                    <input  class="typesInput" autocomplete="off" role="combobox" list="" id="input" data-bind="value:type, attr:{id:'typeInputFor_'+$data.getId()}">
-                                                    <button class="btn btn-outline-secondary" data-bind="attr:{id:'typeButtonFor_'+$data.getId()}, click:function($data){$('#typeInputFor_'+$data.getId()).val('');$('#typeFor_'+$data.getId()).css('display','block');}" type="button">Types</button>
-                                                    <ul class="dropdown-menu dropdown-menu-end" data-bind="attr:{id:'typeFor_'+$data.getId()}" role="listbox">
+                                                    <input  class="typesInput form-control" type="text" autocomplete="off" data-bind="value:type, attr:{id:'typeInputFor_'+$data.getId()}">
+                                                    <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bind="attr:{id:'typeButtonFor_'+$data.getId()}, click:function($data){$('#typeInputFor_'+$data.getId()).val('');$('#typeFor_'+$data.getId()).css('display','block');}" type="button">Types</button>
+                                                    <ul class="dropdown-menu dropdown-menu-end" data-bind="attr:{id:'typeFor_'+$data.getId()}">
                                                         <!-- ko foreach:$root.types()-->
-                                                            <a data-bind="text:$data, click:function(){$root.editFieldDropdownClick($data,type)}"></a>
+                                                            <a class="dropdown-item" data-bind="text:$data, click:function(){$root.editFieldDropdownClick($data,type)}"></a>
                                                         <!-- /ko --> 
                                                     </ul>
                                                 </div>
