@@ -3,6 +3,7 @@ import {Edge} from './Edge';
 import {Node} from './Node';
 import { Palette } from './Palette';
 import { TutorialSystem } from './Tutorial';
+import { Setting } from './Setting';
 
 export class RightClick {
 
@@ -318,7 +319,7 @@ export class RightClick {
             //if we right clicked an individual object
             //append function options depending on the right click object
             if(targetClass.includes('rightClick_logicalGraph')){
-                if(!Eagle.hidePaletteTab()){
+                if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
                     var searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
                         <i class="material-icons md-18 searchBarIcon">search</i>
                         <a onclick="RightClick.clearSearchField()">
@@ -345,7 +346,7 @@ export class RightClick {
             }else if(targetClass.includes('rightClick_paletteComponent')){
                 Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
     
-                if(Eagle.allowPaletteEditing()){
+                if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
                     $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Table Modal</a>')
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
@@ -358,7 +359,7 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Inspector Table</a>')
                 $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`keyParametersTableModal`,`rightClick`)">Key Parameters Table</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
-                if(Eagle.allowPaletteEditing()){
+                if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
                 }
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
@@ -371,7 +372,7 @@ export class RightClick {
                 if (data.isConstruct()){
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,true)>Delete All</a>')
                 }
-                if(Eagle.allowPaletteEditing()){
+                if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
                 }
                     $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
@@ -387,7 +388,7 @@ export class RightClick {
                 if(data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown){
                     $('#customContextMenu').append('<a onclick="RightClick.rightClickReloadPalette()"><span>Reload Palette</span></a>')
                 }
-                if(Eagle.allowPaletteEditing()){
+                if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToDisk()"><span>Save Locally</span></a>')
                     $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToGit()"><span>Save To Git</span></a>')
                 }

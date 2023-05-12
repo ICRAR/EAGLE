@@ -7,6 +7,7 @@ import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { TutorialSystem } from './Tutorial';
+import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 
 export class Modals {
@@ -223,6 +224,7 @@ export class Modals {
 
         $("#settingsModalAffirmativeButton").on('click', function(){
             $('#settingsModal').data('completed', true);
+            UiModeSystem.saveToLocalStorage()
         })
 
         $('#settingsModal').on('hidden.bs.modal', function () {

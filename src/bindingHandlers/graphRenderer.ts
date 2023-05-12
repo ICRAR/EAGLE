@@ -346,6 +346,18 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         .style("stroke-width", NODE_STROKE_WIDTH)
         .attr("stroke-dasharray", nodeGetStrokeDashArray);
 
+    // update the parent of the given node
+    // however, if allGraphEditing is false, then don't update
+    // always keep track of whether an update would have happened, sp we can warn user
+    function _updateNodeParent(node: Node, parentKey: number, updated: {parent: boolean}, allowGraphEditing: boolean){
+        if (node.getParentKey() !== parentKey){
+            if (allowGraphEditing){
+                node.setParentKey(parentKey);
+            }
+            updated.parent = true;
+        }
+    }
+
     const nodeDragHandler = d3
         .drag()
         .on("start", function (node : Node) {
@@ -461,54 +473,54 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         })
         .on("end", function(node : Node){
 
-        // if we dragged a selection region
-        if (isDraggingSelectionRegion){
-            const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
+            // if we dragged a selection region
+            if (isDraggingSelectionRegion){
+                const nodes: Node[] = findNodesInRegion(selectionRegionStart.x, selectionRegionEnd.x, selectionRegionStart.y, selectionRegionEnd.y);
 
-            //checking if there was no drag distance, if so we are clicking a single objectw and we will toggle its seletion
-            if(Math.abs(selectionRegionStart.x-selectionRegionEnd.x)+Math.abs(selectionRegionStart.y - selectionRegionEnd.y)<3){
-                    eagle.editSelection(Eagle.RightWindowMode.Inspector, node,Eagle.FileType.Graph);
-                    return
-            }
-
-            const edges: Edge[] = findEdgesContainedByNodes(getEdges(eagle.logicalGraph(), eagle.showDataNodes()), nodes);
-            console.log("Found", nodes.length, "nodes and", edges.length, "edges in region");
-            const objects: (Node | Edge)[] = [];
-
-            // only add those objects which are not already selected
-            for (const node of nodes){
-                if (!eagle.objectIsSelected(node)){
-                    objects.push(node);
+                //checking if there was no drag distance, if so we are clicking a single object and we will toggle its seletion
+                if(Math.abs(selectionRegionStart.x-selectionRegionEnd.x)+Math.abs(selectionRegionStart.y - selectionRegionEnd.y)<3){
+                        eagle.editSelection(Eagle.RightWindowMode.Inspector, node,Eagle.FileType.Graph);
+                        return
                 }
-            }
-            for (const edge of edges){
-                if (!eagle.objectIsSelected(edge)){
-                    objects.push(edge);
-                }
-            }
 
-            objects.forEach(function(element){
-                eagle.editSelection(Eagle.RightWindowMode.Hierarchy, element, Eagle.FileType.Graph )
-            })
+                const edges: Edge[] = findEdgesContainedByNodes(getEdges(eagle.logicalGraph(), eagle.showDataNodes()), nodes);
+                console.log("Found", nodes.length, "nodes and", edges.length, "edges in region");
+                const objects: (Node | Edge)[] = [];
 
-            if (isDraggingWithAlt){
+                // only add those objects which are not already selected
                 for (const node of nodes){
-                    node.setCollapsed(false);
+                    if (!eagle.objectIsSelected(node)){
+                        objects.push(node);
+                    }
                 }
+                for (const edge of edges){
+                    if (!eagle.objectIsSelected(edge)){
+                        objects.push(edge);
+                    }
+                }
+
+                objects.forEach(function(element){
+                    eagle.editSelection(Eagle.RightWindowMode.Hierarchy, element, Eagle.FileType.Graph )
+                })
+
+                if (isDraggingWithAlt){
+                    for (const node of nodes){
+                        node.setCollapsed(false);
+                    }
+                }
+
+                selectionRegionStart.x = 0;
+                selectionRegionStart.y = 0;
+                selectionRegionEnd.x = 0;
+                selectionRegionEnd.y = 0;
+
+                // finish selecting a region
+                isDraggingSelectionRegion = false;
+
+                // necessary to make uncollapsed nodes show up
+                eagle.logicalGraph.valueHasMutated();
+                return
             }
-
-            selectionRegionStart.x = 0;
-            selectionRegionStart.y = 0;
-            selectionRegionEnd.x = 0;
-            selectionRegionEnd.y = 0;
-
-            // finish selecting a region
-            isDraggingSelectionRegion = false;
-
-            // necessary to make uncollapsed nodes show up
-            eagle.logicalGraph.valueHasMutated();
-            return
-        }
 
             // update location (in real node data, not sortedData)
             // guarding this behind 'isDraggingNode' is a hack to get around the fact that d3.event.x and d3.event.y behave strangely
@@ -547,16 +559,22 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
             const ancestorOfParent = isAncestor(parent, node);
 
+            // keep track of whether we would update any node parents
+            const updated = {parent: false};
+            const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+
             // if a parent was found, update
             if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && !ancestorOfParent){
                 //console.log("set parent", parent.getKey());
-                node.setParentKey(parent.getKey());
+                //node.setParentKey(parent.getKey());
+                _updateNodeParent(node, parent.getKey(), updated, allowGraphEditing);
             }
 
             // if no parent found, update
             if (parent === null && node.getParentKey() !== null){
                 //console.log("set parent", null);
-                node.setParentKey(null);
+                //node.setParentKey(null);
+                _updateNodeParent(node, null, updated, allowGraphEditing);
             }
 
             // also check that to see if current children are still in within the group
@@ -571,13 +589,19 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
                         // un-parent the child if no longer contained within the node we are dragging
                         if (parent === null || parent.getKey() !== node.getKey()){
-                            child.setParentKey(null);
+                            //child.setParentKey(null);
+                            _updateNodeParent(child, null, updated, allowGraphEditing);
                         }
                     }
                 }
             }
 
             eagle.undo().pushSnapshot(eagle, "Move node " + node.getName());
+
+            if (!allowGraphEditing && updated.parent){
+                Utils.showNotification("Node Parent not Changed", "Graph Editing is disabled", "danger");
+            }
+
             //tick();
         });
 
@@ -1066,7 +1090,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     const linkValid : Eagle.LinkValid = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), realSourcePort.getType(), false, false, true, true, {errors:[], warnings:[]});
 
                                     // abort if edge is invalid
-                                    if (Eagle.allowInvalidEdges() || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
+                                    if (Setting.findValue(Setting.ALLOW_INVALID_EDGES) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
                                         if (linkValid === Eagle.LinkValid.Warning){
                                             addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
                                         } else {
@@ -1112,6 +1136,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                                 Eagle.nodeDropLocation.y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
 
                                                 eagle.addNodeToLogicalGraph(choice, (node: Node) => {
+                                                    // check that a node was actually added, user may not have had permission
+                                                    if (node === null){
+                                                        return;
+                                                    }
+
                                                     const realSourceNode = sNode;
                                                     const realSourcePort = sPort;
                                                     const realDestNode = node;

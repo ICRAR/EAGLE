@@ -28,6 +28,7 @@ import "jqueryMigrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
+import {UiMode, UiModeSystem, SettingData} from './UiModes';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Config} from './Config';
@@ -78,6 +79,7 @@ $(function(){
     (<any>window).Setting = Setting;
     (<any>window).SideWindow = SideWindow;
     (<any>window).TutorialSystem = TutorialSystem;
+    (<any>window).UiModeSystem = UiModeSystem;
     (<any>window).Utils = Utils;
 
     ko.options.deferUpdates = true;
@@ -99,10 +101,10 @@ $(function(){
     const user_interface_mode = (<any>window).mode;
     if (typeof user_interface_mode !== 'undefined' && user_interface_mode !== ""){
         // make sure that the specified user interface mode is a known mode
-        if (Object.values(Setting.UIMode).includes(user_interface_mode)){
-            Setting.find(Setting.USER_INTERFACE_MODE).setValue(user_interface_mode);
+        if (UiModeSystem.getFullUiModeNamesList().includes(user_interface_mode)){
+            UiModeSystem.setActiveUiModeByName(user_interface_mode)
         } else {
-            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", Object.values(Setting.UIMode).join(','));
+            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", UiModeSystem.getFullUiModeNamesList().join(','));
         }
 
         // hide the ?mode=x part of the url
@@ -110,7 +112,7 @@ $(function(){
     }
 
     // Get the list of git repos
-    if (Eagle.isInUIMode(Setting.UIMode.Minimal)){
+    if (UiModeSystem.getActiveUiMode().getName()==='Student'){
         GitHub.loadStudentRepoList();
     } else {
         GitHub.loadRepoList();

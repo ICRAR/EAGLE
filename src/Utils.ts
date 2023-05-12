@@ -42,6 +42,7 @@ import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
 import {FileInfo} from "./FileInfo";
+import { UiModeSystem } from "./UiModes";
 
 export class Utils {
     // Allowed file extenstions.
@@ -901,10 +902,9 @@ export class Utils {
             return;
         }
 
-        // Add parameters in json data.
-        // TODO: make repository and branch settings, or at least config options
+        // add parameters in json data
         const jsonData = {
-            repository: Config.DEFAULT_PALETTE_REPOSITORY,
+            repository: Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY),
             branch: "master",
             token: token,
         };
@@ -1414,35 +1414,21 @@ export class Utils {
     }
 
     static getRightWindowWidth() : number {
-        // try localStorage first
-        const local : string = localStorage.getItem(Setting.RIGHT_WINDOW_WIDTH_KEY);
-
-        // if found, return
-        if (local !== null){
-            return parseInt(local, 10);
-        } else {
-            return Config.defaultRightWindowWidth;
-        }
+        return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH_KEY)
     }
 
     static setRightWindowWidth(width : number) : void {
-        localStorage.setItem(Setting.RIGHT_WINDOW_WIDTH_KEY, width.toString());
+        Setting.find(Setting.RIGHT_WINDOW_WIDTH_KEY).setValue(width)
+        UiModeSystem.saveToLocalStorage()
     }
 
     static getLeftWindowWidth() : number {
-        // try localStorage first
-        const local : string = localStorage.getItem(Setting.LEFT_WINDOW_WIDTH_KEY);
-
-        // if found, return
-        if (local !== null){
-            return parseInt(local, 10);
-        } else {
-            return Config.defaultLeftWindowWidth;
-        }
+        return Setting.findValue(Setting.LEFT_WINDOW_WIDTH_KEY)
     }
 
     static setLeftWindowWidth(width : number) : void {
-        localStorage.setItem(Setting.LEFT_WINDOW_WIDTH_KEY, width.toString());
+        Setting.find(Setting.LEFT_WINDOW_WIDTH_KEY).setValue(width)
+        UiModeSystem.saveToLocalStorage()
     }
 
     static getLocalStorageKey(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
@@ -1745,10 +1731,11 @@ export class Utils {
 
     static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
         const displayShorcuts : {description:string, shortcut : string, function : any} []=[];
+        const eagle = (<any>window).eagle;
 
         for (const object of Eagle.shortcuts){
             // skip if shortcut should not be displayed
-            if (object.display === KeyboardShortcut.Display.Disabled){
+            if (!object.display(eagle)){
                 continue;
             }
 
