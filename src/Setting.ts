@@ -301,15 +301,6 @@ export namespace Setting {
         Normal = "Normal",
         ReadOnly = "Readonly"
     }
-            
-    export enum UIMode {
-        Minimal = "minimal",
-        Default = "default",
-        Graph = "graph",
-        Palette = "palette",
-        Expert = "expert",
-        Custom = "custom"
-    }
 
     export enum ErrorsMode {
         Loading = "Loading",
