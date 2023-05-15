@@ -232,7 +232,7 @@
                                                     </button>
                                                     <ul class="dropdown-menu dropdown-menu-end" data-bind="attr:{id:'typeFor_'+$data.getId()}">
                                                         <!-- ko foreach:$root.types()-->
-                                                            <a class="dropdown-item" data-bind="text:$data, click:function($data,event){$root.tableDropdownClick($data, event);}"></a>
+                                                            <a class="dropdown-item" data-bind="text:$data, click:function(){$root.tableDropdownClick($data, $parent);}"></a>
                                                         <!-- /ko --> 
                                                     </ul>
                                                 </div>

@@ -3523,12 +3523,11 @@ export class Eagle {
         $('#editFieldModalTypeInput').val(newType).change();
     }
 
-    tableDropdownClick = (newType:string,selectEvent: any) : void => {
-        //getting the input element of this field's type dropdown
-        const inputfield = $(selectEvent.target).parent().parent().find('.typesInput')
+    tableDropdownClick = (newType:string,parentData: any) : void => {
+        const inputField = $('#typeInputFor_'+parentData.getId())
 
         // NOTE: this changes the value (using val()), then triggers a change event, so that validation can be done
-        inputfield.val(newType).change();
+        inputField.val(newType).change();
     }
 
     changeNodeParent = () : void => {

@@ -1800,6 +1800,9 @@ export class Utils {
     }
 
     static asBool(value: string) : boolean {
+        if(value === undefined){
+            return false
+        }
         return value.toLowerCase() === "true";
     }
 
