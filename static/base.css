@@ -266,15 +266,22 @@ body {
 }
 
 #parameterTableModal .modal-dialog .typesInput{
-    
-  font-size: 18px;
-  padding: 5px;
-  height: 35px;
-  width: 100%;
-  border: 1px solid black;
-  outline: none;
-  border-radius: 5px;
-  color: black;
+    padding: 0px;
+    height: 35px;
+    width: 100%;
+    outline: none;
+    color: black;
+    height: fit-content;
+    border-right: solid 1px #bbbbbb;
+}
+
+#parameterTableModal .modal-dialog .input-group{
+    border:black solid 1px;
+    border-radius: 2px;
+    flex-wrap: unset;
+    height: fit-content;
+    background-color: white;
+    padding-left:2px;
 }
 
 #parameterTableTypeCustomSelect a {
@@ -286,6 +293,7 @@ body {
     width: 100%;
     display: block;
     padding: 0px 3px;
+    background-color:white;
 }
 
 #parameterTableTypeCustomSelect a::after {
@@ -312,6 +320,7 @@ td:first-child input {
     color: #002e5f;
     display: inline-block;
     padding: 0px;
+    height:20px
 }
 
 #parameterTableModal .modal-dialog td button:disabled{
