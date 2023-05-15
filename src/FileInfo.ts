@@ -327,6 +327,7 @@ export class FileInfo {
     updateEagleInfo = () : void => {
         this.eagleVersion = (<any>window).version;
         this.eagleCommitHash = (<any>window).commit_hash;
+        this.schemaVersion = Daliuge.SchemaVersion.AppRef;
     }
 
     nameAndModifiedIndicator : ko.PureComputed<string> = ko.pureComputed(() => {
