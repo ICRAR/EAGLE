@@ -40,7 +40,6 @@ export class Field {
         this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
         this.nodeKey = ko.observable(0);
-        // this.options.push('test')
 
     }
 
