@@ -59,6 +59,10 @@ export class Edge {
         return this._id;
     }
 
+    setId = (id: string) => {
+        this._id = id;
+    }
+
     getSrcNodeKey = () : number => {
         return this.srcNodeKey;
     }
@@ -170,11 +174,61 @@ export class Edge {
     }
 
     static fromAppRefJson = (linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
-        const result: Edge = null;
+        let srcNodeKey : number = 0;
+        let destNodeKey : number = 0;
+        let fromPort: string = "";
+        let toPort: string = "";
+        let loopAware: boolean = false;
+        let closesLoop: boolean = false;
+        let id: string = "";
+        //let fromField: string = "";
+        //let toField: string = "";
 
-        // TODO: more
+        if (typeof linkData.from === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'from' attribute"));
+        } else {
+            srcNodeKey = linkData.from;
+        }
+        if (typeof linkData.to === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'to' attribute"));
+        } else {
+            destNodeKey = linkData.to;
+        }
 
-        return result;
+        if (typeof linkData.fromPort === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'fromPort' attribute"));
+        } else {
+            fromPort = linkData.from;
+        }
+        if (typeof linkData.toPort === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'toPort' attribute"));
+        } else {
+            toPort = linkData.toPort;
+        }
+
+        // try to read loopAware attribute
+        if (typeof linkData.loopAware !== 'undefined'){
+            loopAware = linkData.loopAware;
+        }
+
+        // try to read the closesLoop attribute
+        if (typeof linkData.closesLoop !== 'undefined'){
+            closesLoop = linkData.closesLoop;
+        }
+        // try to read the id
+        if (typeof linkData.id !== 'undefined'){
+            id = linkData.id;
+        } else {
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'id' attribute. Generating new id"));
+            id = Utils.uuidv4();
+        }
+
+        // TODO: fromField/toField ?
+
+        const edge = new Edge(srcNodeKey, fromPort, destNodeKey, toPort, loopAware, closesLoop, false);
+        edge.setId(id);
+
+        return edge;
     }
 
     static toOJSJson = (edge: Edge): object => {
