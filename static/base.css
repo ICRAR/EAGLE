@@ -252,7 +252,7 @@ body {
 }
 
 #parameterTableModal .dropdown-item{
-    padding:4px 5px;
+    padding:1px 5px;
 }
 
 #parameterTableModal .dropdown-item.add{
@@ -263,6 +263,7 @@ body {
     padding: 0px;
     border:1px solid black;
     overflow: hidden;
+    min-width: 8rem;
 }
 
 #parameterTableModal .modal-dialog .typesInput{
