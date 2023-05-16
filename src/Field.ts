@@ -152,7 +152,38 @@ export class Field {
         return this.options();
     }
 
+    editOption = (optionIndex:any,newVal:string) : void => {
+        console.log(this.options())
+        if(this.options()[optionIndex] === this.value()){
+            this.value(newVal)
+        }
+        if(this.options()[optionIndex] === this.defaultValue()){
+            this.defaultValue(newVal)
+        }
+
+        this.options()[optionIndex] = newVal
+        
+        this.options.valueHasMutated()
+
+        console.log(this.options())
+
+    }
+
     addOption = (newOption:string) : void => {
+        console.log(this.options())
+        let duplicate = false;
+        
+        for(const option of this.options()){
+            if(option.toLowerCase() === newOption.toLowerCase()){
+                duplicate = true
+                break
+            }
+        }
+        if(!duplicate){
+            this.options().push(newOption)
+            this.options.valueHasMutated()
+        }
+        
         console.log(this.options())
     }
 
