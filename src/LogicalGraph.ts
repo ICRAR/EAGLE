@@ -121,6 +121,71 @@ export class LogicalGraph {
         // copy modelData into fileInfo
         result.fileInfo(FileInfo.fromJson(dataObject.modelData, errorsWarnings));
 
+        // add nodes
+        for (const [nodeKey, nodeData] of Object.entries(dataObject.nodeData)){
+            const extraUsedKeys: number[] = [];
+
+            const newNode = Node.fromOJSJson(nodeData, errorsWarnings, false, (): number => {
+                const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
+                const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
+                const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
+
+                const newKey = Utils.findNewKey(combinedKeys);
+
+                extraUsedKeys.push(newKey);
+                return newKey;
+            });
+
+            if (newNode === null){
+                continue;
+            }
+
+            // if this node is embedded within another node, we don't add it to the main nodes array, instead it is placed within the node that embeds it (handled later)
+            if (newNode.getEmbedKey() !== null){
+                continue;
+            }
+
+            if (nodeData.inputApplicationKey !== null){
+                const inputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.inputApplicationKey);
+
+                if (inputApplicationIndex !== -1){
+                    const inputApplicationNode = Node.fromOJSJson(dataObject.nodeDataArray[inputApplicationIndex], errorsWarnings, false, (): number => {
+                        const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
+                        const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
+                        const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
+        
+                        const newKey = Utils.findNewKey(combinedKeys);
+        
+                        extraUsedKeys.push(newKey);
+                        return newKey;
+                    });
+
+                    newNode.setInputApplication(inputApplicationNode);
+                }
+            }
+
+            if (nodeData.outputApplicationKey !== null){
+                const outputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.outputApplicationKey);
+
+                if (outputApplicationIndex !== -1){
+                    const outputApplicationNode = Node.fromOJSJson(dataObject.nodeDataArray[outputApplicationIndex], errorsWarnings, false, (): number => {
+                        const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
+                        const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
+                        const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
+        
+                        const newKey = Utils.findNewKey(combinedKeys);
+        
+                        extraUsedKeys.push(newKey);
+                        return newKey;
+                    });
+
+                    newNode.setOutputApplication(outputApplicationNode);
+                }
+            }
+
+            result.nodes.push(newNode);
+        }
+
         return result;
     }
 
