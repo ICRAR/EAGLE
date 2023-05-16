@@ -124,10 +124,11 @@ export class LogicalGraph {
         // add nodes
         for (const [nodeKey, nodeData] of Object.entries(dataObject.nodeData)){
             const extraUsedKeys: number[] = [];
+            const uxData = dataObject.uxData[nodeKey];
 
-            const newNode = Node.fromOJSJson(nodeData, errorsWarnings, false, (): number => {
+            const newNode = Node.fromAppRefJson(nodeData, uxData, errorsWarnings, false, (): number => {
                 const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
-                const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
+                const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeData);
                 const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
 
                 const newKey = Utils.findNewKey(combinedKeys);
@@ -146,7 +147,7 @@ export class LogicalGraph {
             }
 
             if (nodeData.inputApplicationKey !== null){
-                const inputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.inputApplicationKey);
+                const inputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeData, nodeData.inputApplicationKey);
 
                 if (inputApplicationIndex !== -1){
                     const inputApplicationNode = Node.fromOJSJson(dataObject.nodeDataArray[inputApplicationIndex], errorsWarnings, false, (): number => {

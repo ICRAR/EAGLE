@@ -1704,6 +1704,17 @@ export class Node {
         return result;
     }
 
+    static fromAppRefJson = (nodeData : any, usData: any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node => {
+        let key: number = 0;
+        let name: string = "";
+        let description: string = "";
+        let category: Category = Category.Unknown;
+        
+        const result: Node = new Node(key, name, description, category);
+
+        return result;
+    }
+
     static toNodeUxJson = (node: Node): object => {
         const result: any = {};
 
