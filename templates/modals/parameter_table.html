@@ -201,42 +201,25 @@
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
                                             <td>
                                                 <!-- ko ifnot: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
-                                                    <div class="dropdown parameterTableTypeCustomSelect">
-                                                        <a class="dropdown-toggle" data-bind="text:type,disabled: $root.parameterTable().getNodeLockedState($data)" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-                                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="parameterTableTpeCustomSelect">
+                                                    <select data-bind="options: $root.types(), value: type, disabled: $root.parameterTable().getNodeLockedState($data)">
+                                                        <!-- options are added dynamically -->
+                                                    </select>
+                                                <!-- /ko --> 
+                                                <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
+                                                    <div class="input-group">
+                                                        <input  class="typesInput form-control" type="text" autocomplete="off" data-bind="value:type, attr:{id:'typeInputFor_'+$data.getId()}">
+                                                        <button class="btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false" data-bind="attr:{id:'typeButtonFor_'+$data.getId()}" type="button">
+                                                            <span class="material-icons-outlined">
+                                                                arrow_drop_down
+                                                            </span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end" data-bind="attr:{id:'typeFor_'+$data.getId()}">
                                                             <!-- ko foreach:$root.types()-->
-                                                                <div class="dropdown-item" data-bind="click:function(){}">
-                                                                    <input disabled data-bind="value:$data" type="text">
-                                                                    <button class="typeSelectDelete" data-bind="click: function(){}"><i class="material-icons md-24">delete</i></button>
-                                                                </div>
+                                                                <a class="dropdown-item" data-bind="text:$data, click:function(){$root.tableDropdownClick($data, $parent);}"></a>
                                                             <!-- /ko --> 
-                                                            <div class="dropdown-item add" data-bind="click:function(){}">
-                                                                <i class="material-icons">add</i>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="input-group mb-3">
-                                                        <input id="editFieldModalTypeInput" type="text" class="form-control" aria-label="Text input with dropdown button" autocomplete="false">
-                                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Types</button>
-                                                        <ul id="editFieldModalTypeSelect" class="dropdown-menu dropdown-menu-end">
                                                         </ul>
                                                     </div>
                                                 <!-- /ko --> 
-                                                <div class="input-group">
-                                                    <input  class="typesInput form-control" type="text" autocomplete="off" data-bind="value:type, attr:{id:'typeInputFor_'+$data.getId()}">
-                                                    <button class="btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false" data-bind="attr:{id:'typeButtonFor_'+$data.getId()}" type="button">
-                                                        <span class="material-icons-outlined">
-                                                            arrow_drop_down
-                                                        </span>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end" data-bind="attr:{id:'typeFor_'+$data.getId()}">
-                                                        <!-- ko foreach:$root.types()-->
-                                                            <a class="dropdown-item" data-bind="text:$data, click:function(){$root.tableDropdownClick($data, $parent);}"></a>
-                                                        <!-- /ko --> 
-                                                    </ul>
-                                                </div>
-                                                
                                             </td>
                                         <!-- /ko --> 
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().flags() -->
