@@ -295,6 +295,7 @@ body {
     display: block;
     padding: 0px 3px;
     background-color:white;
+    height:23px;
 }
 
 .parameterTableTypeCustomSelect a::after {

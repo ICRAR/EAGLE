@@ -153,7 +153,7 @@ export class Field {
     }
 
     editOption = (optionIndex:any,newVal:string) : void => {
-        console.log(this.options())
+        //if the option we are editing is selected well update the value or default value
         if(this.options()[optionIndex] === this.value()){
             this.value(newVal)
         }
@@ -162,15 +162,10 @@ export class Field {
         }
 
         this.options()[optionIndex] = newVal
-        
         this.options.valueHasMutated()
-
-        console.log(this.options())
-
     }
 
     addOption = (newOption:string) : void => {
-        console.log(this.options())
         let duplicate = false;
         
         for(const option of this.options()){
@@ -183,12 +178,30 @@ export class Field {
             this.options().push(newOption)
             this.options.valueHasMutated()
         }
-        
-        console.log(this.options())
     }
 
-    removeOption = (option:string) : void => {
-        console.log(this.options())
+    removeOption = (index:number) : void => {
+        //checking if a selected option is being deleted
+        let valueDeleted = false
+        let defaultValueDeleted = false;
+        if(this.options()[index] === this.value()){
+            valueDeleted = true
+        }
+        if(this.options()[index] === this.defaultValue()){
+            defaultValueDeleted = true
+        }
+
+        //deleting the option
+        this.options().splice(index,1)
+
+        //if either the selected value or selected default value option was deleted we set it to the first option on the select
+        if(valueDeleted){
+            this.value(this.options()[0])
+        }
+        if(defaultValueDeleted){
+            this.defaultValue(this.options()[0])
+        }
+        this.options.valueHasMutated()
     }
 
     isPositionalArgument = () : boolean => {
