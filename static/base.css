@@ -285,7 +285,7 @@ body {
     padding-left:2px;
 }
 
-#parameterTableTypeCustomSelect a {
+.parameterTableTypeCustomSelect a {
     color: #000;
     border: 1px solid black;
     border-radius: 2px;
@@ -297,13 +297,13 @@ body {
     background-color:white;
 }
 
-#parameterTableTypeCustomSelect a::after {
+.parameterTableTypeCustomSelect a::after {
     right: 5px;
     top: 45%;
     position: absolute;
 }
 
-#parameterTableTypeCustomSelect .dropdown-item input:read-only {
+.parameterTableTypeCustomSelect .dropdown-item input:read-only {
     color: black;
 }
 

@@ -152,6 +152,14 @@ export class Field {
         return this.options();
     }
 
+    addOption = (newOption:string) : void => {
+        console.log(this.options())
+    }
+
+    removeOption = (option:string) : void => {
+        console.log(this.options())
+    }
+
     isPositionalArgument = () : boolean => {
         return this.positional();
     }
