@@ -177,7 +177,7 @@
                                                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="parameterTableTpeCustomSelect">
                                                                 <!-- ko foreach:$data.options()-->
                                                                     <div class="dropdown-item" data-bind="click:function(data, event){$parent.setDefaultValue($data);}">
-                                                                        <input data-bind="value:$data, valueUpdate:  ['afterkeydown', 'input'], event: {change:function(data,event){$parent.editOption($index(),$(event.target).val())}}" type="text">
+                                                                        <input data-bind="value:$data, event: {input:function(data,event){$parent.editOption($index(),$(event.target).val())}}" type="text">
                                                                         <button class="typeSelectDelete" data-bind="clickBubble:false, click: function(){$parent.removeOption($data)}"><i class="material-icons md-24">delete</i></button>
                                                                     </div>
                                                                 <!-- /ko --> 
