@@ -34,7 +34,6 @@ import { FileInfo } from './FileInfo';
 import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
-import { Setting } from './Setting';
 import { Utils } from './Utils';
 
 export class LogicalGraph {
@@ -117,8 +116,10 @@ export class LogicalGraph {
     static fromAppRefJson = (dataObject : Daliuge.AppRefObject, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
+        console.log("dataObject", dataObject);
 
-        // TODO: more here
+        // copy modelData into fileInfo
+        result.fileInfo(FileInfo.fromJson(dataObject.modelData, errorsWarnings));
 
         return result;
     }
