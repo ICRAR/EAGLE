@@ -1738,7 +1738,7 @@ export class Eagle {
                 }
 
                 fileTypeLoaded = Utils.determineFileType(dataObject);
-                console.log("fileTypeLoaded", fileTypeLoaded);
+                // console.log("fileTypeLoaded", fileTypeLoaded);
             } else {
                 fileTypeLoaded = Eagle.FileType.Markdown;
             }        
@@ -1908,7 +1908,7 @@ export class Eagle {
     }
 
     private updateLogicalGraphFileInfo = (repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
-        console.log("updateLogicalGraphFileInfo(): repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
+        // console.log("updateLogicalGraphFileInfo(): repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
 
         // update the activeFileInfo with details of the repository the file was loaded from
         this.logicalGraph().fileInfo().repositoryName = repositoryName;
@@ -2328,7 +2328,6 @@ export class Eagle {
             }
         }
         this.showTableModal(true)
-        console.log('setting table modal to true' ,this.showTableModal())
         if(selectType === 'rightClick'){
             this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
             $('#customContextMenu').remove();

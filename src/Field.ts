@@ -122,8 +122,7 @@ export class Field {
         this.keyAttribute(!this.keyAttribute())
     }
 
-    valIsTrue = (val:string, originName: string) : boolean => {
-        console.log(this.displayText(), originName, val);
+    valIsTrue = (val:string) : boolean => {
         return Utils.asBool(val);
     }
 
@@ -533,8 +532,12 @@ export class Field {
                     parameterType = Daliuge.FieldType.ApplicationArgument;
                     usage = Daliuge.FieldUsage.OutputPort;
                     break;
+                case "ConstructParameter":
+                    parameterType = Daliuge.FieldType.ConstructParameter;
+                    usage = Daliuge.FieldUsage.NoPort;
+                    break;
                 default:
-                    console.log("Unhandled fieldType", data.fieldType);
+                    console.warn("Unhandled fieldType", data.fieldType);
             }
         }
 
