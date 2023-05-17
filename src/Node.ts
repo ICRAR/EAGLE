@@ -1733,6 +1733,45 @@ export class Node {
         // set categoryType based on the category
         result.categoryType(categoryData.categoryType);
 
+        // group - nodeData
+        if (typeof nodeData.group !== 'undefined'){
+            result.parentKey(nodeData.group);
+        }
+
+        // parentConstructKey - nodeData
+        if (typeof nodeData.parentConstructKey !== 'undefined'){
+            result.embedKey(nodeData.parentConstructKey);
+        }
+
+        // subject (for comment nodes) - nodeData
+        if (typeof nodeData.subject !== 'undefined'){
+            result.subject(nodeData.subject);
+        } else {
+            result.subject(null);
+        }
+
+        // fields - nodeData
+        if (typeof nodeData.fields !== 'undefined'){
+            for (const [fieldKey, fieldData] of Object.entries(nodeData.fields)){
+                const field = Field.fromJson(fieldData);
+                result.addField(field);
+            }
+        }
+
+        // git url and hash - nodeData
+        if (typeof nodeData.repositoryUrl !== 'undefined'){
+            result.repositoryUrl(nodeData.repositoryUrl);
+        }
+        if (typeof nodeData.commitHash !== 'undefined'){
+            result.commitHash(nodeData.commitHash);
+        }
+        if (typeof nodeData.paletteDownloadUrl != 'undefined'){
+            result.paletteDownloadUrl(nodeData.paletteDownloadUrl);
+        }
+        if (typeof nodeData.dataHash !== 'undefined'){
+            result.dataHash(nodeData.dataHash);
+        }
+
         // x/y - uxData
         let x = 0;
         let y = 0;

@@ -163,6 +163,8 @@ export class Edge {
 
     static toAppRefJson = (edge : Edge, srcPort: Field, destPort: Field) : object => {
         return {
+            srcNodeKey: edge.srcNodeKey,
+            destNodeKey: edge.destNodeKey,
             fromPort: srcPort.getId(),
             toPort: destPort.getId(),            
             loopAware: edge.loopAware,
@@ -181,8 +183,8 @@ export class Edge {
         let loopAware: boolean = false;
         let closesLoop: boolean = false;
         let id: string = "";
-        //let fromField: string = "";
-        //let toField: string = "";
+        let fromField: string = "";
+        let toField: string = "";
 
         if (typeof linkData.from === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'from' attribute"));
@@ -198,7 +200,7 @@ export class Edge {
         if (typeof linkData.fromPort === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'fromPort' attribute"));
         } else {
-            fromPort = linkData.from;
+            fromPort = linkData.fromPort;
         }
         if (typeof linkData.toPort === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'toPort' attribute"));
@@ -223,7 +225,16 @@ export class Edge {
             id = Utils.uuidv4();
         }
 
-        // TODO: fromField/toField ?
+        if (typeof linkData.fromField === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'fromField' attribute"));
+        } else {
+            fromField = linkData.fromField;
+        }
+        if (typeof linkData.toField === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'toField' attribute"));
+        } else {
+            toField = linkData.toField;
+        }
 
         const edge = new Edge(srcNodeKey, fromPort, destNodeKey, toPort, loopAware, closesLoop, false);
         edge.setId(id);

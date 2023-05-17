@@ -187,6 +187,21 @@ export class LogicalGraph {
             result.nodes.push(newNode);
         }
 
+        // add edges
+        for (const [linkKey, linkData] of Object.entries(dataObject.linkData)){
+            const edge = Edge.fromAppRefJson(linkData, errorsWarnings);
+
+            // debug
+            const srcNode = result.findNodeByFieldId(edge.getSrcPortId());
+            const destNode = result.findNodeByFieldId(edge.getDestPortId());
+            if (srcNode !== null && destNode !== null){
+                edge.setSrcNodeKey(srcNode.getKey());
+                edge.setDestNodeKey(destNode.getKey());
+            }
+
+            result.edges.push(edge);
+        }
+
         return result;
     }
 
@@ -479,6 +494,17 @@ export class LogicalGraph {
             }
         }
         console.warn("findNodeByKey(): could not find node with key (", key, ")");
+        return null;
+    }
+
+    findNodeByFieldId = (id: string) : Node => {
+        for (const node of this.nodes){
+            for (const field of node.getFields()){
+                if (field.getId() === id){
+                    return node;
+                }
+            }
+        }
         return null;
     }
 
