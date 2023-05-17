@@ -48,7 +48,6 @@ export class Node {
     
     private width : number;
     private height : number;
-    private color : ko.Observable<string>;
     private drawOrderHint : ko.Observable<number>; // a secondary sorting hint when ordering the nodes for drawing
                                                    // (primary method is using parent-child relationships)
                                                    // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
@@ -113,7 +112,6 @@ export class Node {
 
         this.width = Node.DEFAULT_WIDTH;
         this.height = Node.DEFAULT_HEIGHT;
-        this.color = ko.observable(Utils.getColorForNode(category));
         this.drawOrderHint = ko.observable(0);
 
         this.parentKey = ko.observable(null);
@@ -187,6 +185,10 @@ export class Node {
         } else {
             return this.name();
         }
+    }, this);
+
+    getColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        return CategoryData.getCategoryData(this.category()).color;
     }, this);
 
     getPaletteComponentId = () : string => {
@@ -270,14 +272,6 @@ export class Node {
 
     setHeight = (height : number) : void => {
         this.height = height;
-    }
-
-    getColor = () : string => {
-        return this.color();
-    }
-
-    setColor = (color: string) : void => {
-        this.color(color);
     }
 
     getDrawOrderHint = () : number => {
@@ -574,7 +568,6 @@ export class Node {
 
     setCategory = (category: Category): void => {
         this.category(category);
-        this.color(Utils.getColorForNode(category));
     }
 
     getCategoryType = () : Category.Type => {
@@ -772,7 +765,6 @@ export class Node {
         this.y = 0;
         this.width = Node.DEFAULT_WIDTH;
         this.height = Node.DEFAULT_HEIGHT;
-        this.color(Node.DEFAULT_COLOR);
         this.drawOrderHint(0);
 
         this.parentKey(null);
@@ -1140,7 +1132,6 @@ export class Node {
         result.width = this.width;
         result.height = this.height;
         result.categoryType(this.categoryType());
-        result.color(this.color());
         result.drawOrderHint(this.drawOrderHint());
 
         result.parentKey(this.parentKey());
@@ -1704,13 +1695,95 @@ export class Node {
         return result;
     }
 
-    static fromAppRefJson = (nodeData : any, usData: any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node => {
+    static fromAppRefJson = (nodeData : any, uxData: any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node => {
         let key: number = 0;
         let name: string = "";
         let description: string = "";
         let category: Category = Category.Unknown;
         
+        // key - nodeData
+        if (typeof nodeData.key !== 'undefined' && nodeData.key !== null){
+            key = nodeData.key;
+        } else {
+            key = generateKeyFunc();
+        }
+
+        // name - nodeData
+        if (typeof nodeData.name !== 'undefined' && nodeData.name !== null){
+            name = nodeData.name;
+        }
+
+        // description - nodeData
+        if (typeof nodeData.description !== 'undefined'){
+            description = nodeData.description;
+        }
+
+        // category - nodeData
+        category = GraphUpdater.translateOldCategory(nodeData.category);
+
+        // if category is not known, then add error
+        if (!Utils.isKnownCategory(category)){
+            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
+            category = Category.Unknown;
+        }
+
         const result: Node = new Node(key, name, description, category);
+        const categoryData: Category.CategoryData = CategoryData.getCategoryData(category);
+
+        // set categoryType based on the category
+        result.categoryType(categoryData.categoryType);
+
+        // x/y - uxData
+        let x = 0;
+        let y = 0;
+        if (typeof uxData.x !== 'undefined'){
+            x = uxData.x;
+        }
+        if (typeof uxData.y !== 'undefined'){
+            y = uxData.y;
+        }
+        result.setPosition(x, y, !isPaletteNode);
+
+        // width/height - uxData
+        let width = Node.DEFAULT_WIDTH;
+        let height = Node.DEFAULT_HEIGHT;
+        if (typeof uxData.width !== 'undefined'){
+            width = uxData.width;
+        }
+        if (typeof uxData.height !== 'undefined'){
+            height = uxData.height;
+        }
+        // if node is not a group or comment/description, make its width/height the default values
+        if (!categoryData.isResizable){
+            width = Node.DEFAULT_WIDTH;
+            height = Node.DEFAULT_HEIGHT;
+        }
+        result.width = width;
+        result.height = height;
+
+        // flipPorts - uxData
+        if (typeof uxData.flipPorts !== 'undefined'){
+            result.flipPorts(uxData.flipPorts);
+        }
+
+        // expanded - uxData
+        if (typeof uxData.expanded !== 'undefined'){
+            result.expanded(uxData.expanded)
+        }else{
+            result.expanded(true);
+        }
+
+        // collapsed - uxData
+        if (typeof uxData.collapsed !== 'undefined'){
+            result.collapsed(uxData.collapsed);
+        } else {
+            result.collapsed(true);
+        }
+
+        // drawOrderHint - uxData
+        if (typeof uxData.drawOrderHint !== 'undefined'){
+            result.drawOrderHint(uxData.drawOrderHint);
+        }
 
         return result;
     }
@@ -1718,7 +1791,6 @@ export class Node {
     static toNodeUxJson = (node: Node): object => {
         const result: any = {};
 
-        result.color = node.color();
         result.drawOrderHint = node.drawOrderHint();
         result.x = node.x;
         result.y = node.y;
@@ -1786,7 +1858,6 @@ export class Node {
         result.categoryType = node.categoryType();
 
         result.isGroup = node.isGroup();
-        result.color = node.color();
         result.drawOrderHint = node.drawOrderHint();
 
         result.key = node.key();

@@ -2787,7 +2787,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function nodeGetColor(node : Node) : string {
-        return node.getColor();
+        // lookup the color to use from the category data class
+        return CategoryData.getCategoryData(node.getCategory()).color;
     }
 
     function nodeGetFill(node : Node) : string {
