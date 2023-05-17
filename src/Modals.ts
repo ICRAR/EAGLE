@@ -358,22 +358,22 @@ export class Modals {
             callback(true, newField);
         });
 
-        $('#editFieldModal').on('shown.bs.modal', function(){
-            const type: string = $('#editFieldModalTypeInput').val().toString();
-            const realType = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
+        // $('#editFieldModal').on('shown.bs.modal', function(){
+        //     const type: string = $('#editFieldModalTypeInput').val().toString();
+        //     const realType = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
-            Modals._updateFieldModalDataType(realType);
-        });
-        $('#editFieldModalTypeInput').on('change', function(){
-            // show the correct entry field based on the field type
-            const type: string = $('#editFieldModalTypeInput').val().toString();
-            const realType = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
+        //     Modals._updateFieldModalDataType(realType);
+        // });
+        // $('#editFieldModalTypeInput').on('change', function(){
+        //     // show the correct entry field based on the field type
+        //     const type: string = $('#editFieldModalTypeInput').val().toString();
+        //     const realType = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
-            Modals._updateFieldModalDataType(realType);
+        //     Modals._updateFieldModalDataType(realType);
 
-            // re-validate, given the new type
-            Modals._validateFieldModalValueInputText();
-        });
+        //     // re-validate, given the new type
+        //     Modals._validateFieldModalValueInputText();
+        // });
 
         // add some validation to the value entry field
         $('#editFieldModalValueInputText').on('keyup', function(){

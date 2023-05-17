@@ -246,20 +246,20 @@ body {
     transform: translate(-50%, 2px);
 }
 
-#parameterTableModal .typeSelectDelete{
+#parameterTableModal .typeSelectDelete,#editFieldModal .typeSelectDelete{
     position: absolute;
     right:5px
 }
 
-#parameterTableModal .dropdown-item{
+#parameterTableModal .dropdown-item,#editFieldModal .dropdown-item{
     padding:1px 5px;
 }
 
-#parameterTableModal .dropdown-item.add{
+#parameterTableModal .dropdown-item.add,#editFieldModal .dropdown-item.add{
     background-color: rgb(235 236 241);
 }
 
-#parameterTableModal .dropdown-menu{
+#parameterTableModal .dropdown-menu,#editFieldModal .dropdown-menu{
     padding: 0px;
     border:1px solid black;
     overflow: hidden;
