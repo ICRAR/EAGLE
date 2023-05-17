@@ -1738,7 +1738,7 @@ export class Eagle {
                 }
 
                 fileTypeLoaded = Utils.determineFileType(dataObject);
-                console.log("fileTypeLoaded", fileTypeLoaded);
+                // console.log("fileTypeLoaded", fileTypeLoaded);
             } else {
                 fileTypeLoaded = Eagle.FileType.Markdown;
             }        
@@ -1908,7 +1908,7 @@ export class Eagle {
     }
 
     private updateLogicalGraphFileInfo = (repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
-        console.log("updateLogicalGraphFileInfo(): repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
+        // console.log("updateLogicalGraphFileInfo(): repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
 
         // update the activeFileInfo with details of the repository the file was loaded from
         this.logicalGraph().fileInfo().repositoryName = repositoryName;
@@ -2322,6 +2322,7 @@ export class Eagle {
         if($('.modal.show').length>0){
             if($('.modal.show').attr('id')==='parameterTableModal'){
                 $('#parameterTableModal').modal('hide')
+                this.showTableModal(false)
             }else{
                 return
             }
@@ -3530,6 +3531,21 @@ export class Eagle {
         $('#editFieldModalTypeInput').val(newType).change();
     }
 
+    tableDropdownClick = (newType:string, field: Field) : void => {
+        // if the field contains no options, then it's value will be immediately set to undefined
+        // therefore, we add at least one option, so the value remains well defined
+        if (newType === Daliuge.DataType.Select){
+            if (field.getOptions().length === 0){
+                field.addOption(field.getValue());
+                field.addOption(field.getDefaultValue());
+            }
+        }
+
+        // update the type of the field
+        field.setType(newType);
+
+    }
+
     changeNodeParent = () : void => {
         // build list of node name + ids (exclude self)
         const selectedNode: Node = this.selectedNode();
@@ -4570,13 +4586,7 @@ $( document ).ready(function() {
         });
     })
 
-    $('#parameterTableModal').on('hidden.bs.modal', function (event) {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.showTableModal(false)
-    })
-
     $(".translationDefault").on("click",function(){
-
         //sets all other translation methods to false
         const translationMethods = []
         translationMethods.push($('.translationDefault'))

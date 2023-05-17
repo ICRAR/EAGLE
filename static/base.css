@@ -237,13 +237,79 @@ body {
 
 #parameterTableModal .modal-dialog td{
     padding:0px 3px;
-    overflow: hidden;
+    /* overflow: hidden; */
     border-right: 1px solid rgb(14 2 76 / 16%);
 }
 
 #parameterTableModal .modal-dialog td i{
     margin-left: 50%;
     transform: translate(-50%, 2px);
+}
+
+#parameterTableModal .typeSelectDelete{
+    position: absolute;
+    right:5px
+}
+
+#parameterTableModal .dropdown-item{
+    padding:1px 5px;
+}
+
+#parameterTableModal .dropdown-item.add{
+    background-color: rgb(235 236 241);
+}
+
+#parameterTableModal .dropdown-menu{
+    padding: 0px;
+    border:1px solid black;
+    overflow: hidden;
+    min-width: 8rem;
+}
+
+#parameterTableModal .modal-dialog .typesInput{
+    padding: 0px;
+    height: 35px;
+    width: 100%;
+    outline: none;
+    color: black;
+    height: fit-content;
+    border-right: solid 1px #bbbbbb;
+}
+
+#parameterTableModal .modal-dialog .input-group{
+    border:black solid 1px;
+    border-radius: 2px;
+    flex-wrap: unset;
+    height: fit-content;
+    background-color: white;
+    padding-left:2px;
+}
+
+.parameterTableTypeCustomSelect a {
+    color: #000;
+    border: 1px solid black;
+    border-radius: 2px;
+    font-size: 14px;
+    text-decoration: none;
+    width: 100%;
+    display: block;
+    padding: 0px 3px;
+    background-color:white;
+    height:23px;
+}
+
+.parameterTableTypeCustomSelect a::after {
+    right: 5px;
+    top: 45%;
+    position: absolute;
+}
+
+.parameterTableTypeCustomSelect .dropdown-item input:read-only {
+    color: black;
+}
+
+#parameterTableModal .actionsTd {
+    overflow: hidden;
 }
 
 td:first-child input {
@@ -256,6 +322,7 @@ td:first-child input {
     color: #002e5f;
     display: inline-block;
     padding: 0px;
+    height:20px
 }
 
 #parameterTableModal .modal-dialog td button:disabled{
@@ -2306,6 +2373,10 @@ palette-component input.form-control.selected {
 
 #nodeInspectorErrorsCard fix .alert {
     overflow: hidden;
+}
+
+.alert{
+    z-index: 2000!important;
 }
 
 #customContextMenu{
