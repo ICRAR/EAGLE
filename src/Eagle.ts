@@ -2311,11 +2311,13 @@ export class Eagle {
         if($('.modal.show').length>0){
             if($('.modal.show').attr('id')==='parameterTableModal'){
                 $('#parameterTableModal').modal('hide')
+                this.showTableModal(false)
             }else{
                 return
             }
         }
         this.showTableModal(true)
+        console.log('setting table modal to true' ,this.showTableModal())
         if(selectType === 'rightClick'){
             this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
             $('#customContextMenu').remove();
@@ -4578,13 +4580,7 @@ $( document ).ready(function() {
         });
     })
 
-    $('#parameterTableModal').on('hidden.bs.modal', function (event) {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.showTableModal(false)
-    })
-
     $(".translationDefault").on("click",function(){
-
         //sets all other translation methods to false
         const translationMethods = []
         translationMethods.push($('.translationDefault'))

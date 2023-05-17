@@ -877,9 +877,10 @@ export class Utils {
     }
 
     static showOpenParamsTableModal(mode:string) : void {
+        console.log(mode)
         const eagle: Eagle = Eagle.getInstance();
         eagle.tableModalType(mode)
-        $('#parameterTableModal').modal("toggle");
+        $('#parameterTableModal').modal("show");
     }
 
     static showShortcutsModal() : void {
