@@ -36,33 +36,33 @@ export class Daliuge {
 
 export namespace Daliuge {
     export enum FieldName {
-        APPLICATION_CLASS = "Application Class",
-        DATA_VOLUME = "Data volume",
-        EXECUTION_TIME = "Execution Time",
-        GROUP_START = "Group start",
-        GROUP_END = "Group end",
+        APPLICATION_CLASS = "appclass",
+        DATA_VOLUME = "data_volume",
+        EXECUTION_TIME = "execution_time",
+        GROUP_START = "group_start",
+        GROUP_END = "group_end",
     
-        INPUT_ERROR_RATE = "Input error rate (%)",
-        NUM_OF_COPIES = "No. of copies",
-        NUM_OF_CPUS = "No. of CPUs",
-        NUM_OF_INPUTS = "No. of inputs",
-        NUM_OF_ITERATIONS = "No. of iterations",
-        NUM_OF_TRIES = "No. of tries",
+        INPUT_ERROR_RATE = "input_error_threshold",
+        NUM_OF_COPIES = "num_of_copies",
+        NUM_OF_CPUS = "num_cpus",
+        NUM_OF_INPUTS = "num_of_inputs",
+        NUM_OF_ITERATIONS = "num_of_iter",
+        NUM_OF_TRIES = "n_tries",
     
-        STREAMING = "Streaming",
-        PERSIST = "Persist",
+        STREAMING = "streaming",
+        PERSIST = "persist",
         
-        M = "M",
-        K = "K",
-        N = "N",
+        M = "m",
+        K = "k",
+        N = "n",
     
-        BASENAME = "Basename", // used in PythonMemberFunction components to specify base Python class
-        SELF = "Self", // also PythonMemberFunction
+        BASENAME = "basename", // used in PythonMemberFunction components to specify base Python class
+        SELF = "self", // also PythonMemberFunction
     
         // docker
-        IMAGE = "Image",
-        TAG = "Tag",
-        DIGEST = "Digest"
+        IMAGE = "image",
+        TAG = "tag",
+        DIGEST = "digest"
     }
 
     export enum DataType {
@@ -110,25 +110,25 @@ export namespace Daliuge {
         {
             category: Category.MKN,
             fields: [
-                new Field("", "k", "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false),
+                new Field("", FieldName.K, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false),
             ]
         },
         {
             category: Category.Scatter,
             fields: [
-                new Field("", "num_of_copies", "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
+                new Field("", FieldName.NUM_OF_COPIES, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
             ]
         },
         {
             category: Category.Gather,
             fields: [
-                new Field("", "num_of_inputs", "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
+                new Field("", FieldName.NUM_OF_INPUTS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
             ]
         },
         {
             category: Category.Loop,
             fields: [
-                new Field("", "num_of_iter", "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
+                new Field("", FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
             ]
         }
     ];

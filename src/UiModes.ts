@@ -20,6 +20,8 @@ export class UiModeSystem {
         const uiModeNamesList : string[]= []
         UiModeSystem.getUiModes().forEach(function(uiMode){
             if(uiMode.getName() === 'Student'){
+                //this generates the list of ui mode options the user can select in the settings modal, student mode is not added to this list of options as it is not meant for the normal user. 
+                //It is only used when loading eagle with a specific url
                 return
             }else{
                 uiModeNamesList.push(uiMode.getName())
@@ -48,7 +50,12 @@ export class UiModeSystem {
 
     static setActiveUiMode = (newActiveUiMode:UiMode) : void => {
         this.activeUiMode = newActiveUiMode;
-        this.updateSettingsArray()
+
+        //setting up the settings array with the selected ui mode
+        UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
+            Setting.setValue(setting.getKey(),setting.getValue())
+        })
+
         ParameterTable.setActiveColumnVisibility()
         localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
     }
@@ -68,11 +75,11 @@ export class UiModeSystem {
     }
 
     static initialise = () : void => {
-        //setting cooldown for the update to local storage funciton to prevent uploads during eagle's initialisation
+        //setting cooldown for the update to local storage function to prevent uploads during eagle's initialisation
         UiModeSystem.localStorageUpdateCooldown = true;
         setTimeout(function () {
             UiModeSystem.localStorageUpdateCooldown = false;
-        }, 1000)
+        }, 2000)
 
         Setting.getSettings().forEach(function(settingsGroup){
             settingsGroup.getSettings().forEach(function(setting){
@@ -93,9 +100,12 @@ export class UiModeSystem {
     }
 
     static saveToLocalStorage = () : void => {
+        //we are using a cooldown function here. this is to prevent rapid saving when many changes happen to the array at once, for example when loading eagle or changing ui modes.
+        //essentially we wait for one second with the cooldown, then upload the accumulated changes and reset the cooldown.
+        //the unwanted calls to save are due to the need to have the Settings class array and UiModes Class Array linked
+        //this is because settings is essentially a copy of the active ui mode interacting with the ui and it has a subscribe function to keep the uimodes array in sync when it is changed by the user.
         if(this.localStorageUpdateCooldown===false){
             this.localStorageUpdateCooldown = true;
-
             setTimeout(function () {
                 const uiModesObj : any[] = []
                 UiModeSystem.getUiModes().forEach(function(uiMode:UiMode){
@@ -150,61 +160,34 @@ export class UiModeSystem {
         })
     }
 
-    static updateSettingsArray = () : void => {
-        UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
-            Setting.setValue(setting.getKey(),setting.getValue())
-        })
-    }
-
-    static getActiveSetting = (settingName:string) : any => {
-        let found = false
-        let value:any = null
-        UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
-            if(setting.getKey() === settingName){
-                value = setting.getValue();
-                found = true;
-            }
-        })
-        if(!found){
-            console.warn('Requested setting: "'+ settingName+'" can not be found')
-        }else{
-            return value
-        }
-    }
-
     static setActiveSetting = (settingName:string,newValue:any) : any => {
-        let found = false
-        let settingIsPerpetual = false
+        let activeSetting: SettingData  = null
 
         //if a setting is marked perpetual we will write the value to all ui modes, this means it stayes the same regardless of which ui  mode is active
         UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
             if(setting.getKey() === settingName){
-                settingIsPerpetual = setting.isPerpetural()
+                activeSetting = setting
             }
         })
+        
+        if(activeSetting === null){
+            console.warn('Requested setting key to change: "'+ settingName+'" can not be found')
+            return
+        }
 
-        if(settingIsPerpetual){
+        if(activeSetting.isPerpetual()){
                 UiModeSystem.getUiModes().forEach(function(uiMode){
                     uiMode.getSettings().forEach(function(setting){
                         if(setting.getKey() === settingName){
-                            found = true
                             setting.setValue(newValue)
                         }
                     })
                 })
         }else{
-            UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
-                if(setting.getKey() === settingName){
-                    found = true
-                    setting.setValue(newValue)
-                }
-            })
+            activeSetting.setValue(newValue)
         }
-        if(!found){
-            console.warn('Requested setting key to change: "'+ settingName+'" can not be found')
-        }else{
-            UiModeSystem.saveToLocalStorage()
-        }
+
+        UiModeSystem.saveToLocalStorage()
     }
 
 }
@@ -239,19 +222,20 @@ export class UiMode {
     }
 
     getSettingByKey = (key:string) : void => {
-        this.getSettings().forEach(function(setting:any){
+        for(const setting of this.getSettings()){
             if(setting.getKey() === key){
                 return setting.getValue()
             }
-        })
+        }
     }
 
     setSettingByKey = (key:string, value:any) : void => {
-        this.getSettings().forEach(function(setting:any){
+        for(const setting of this.getSettings()){
             if(setting.getKey() === key){
                 setting.setValue(value)
+                break
             }
-        })
+        }
     }
 }
 
@@ -274,7 +258,7 @@ export class SettingData {
         return this.value()
     }
 
-    isPerpetural = () : boolean => {
+    isPerpetual = () : boolean => {
         return this.perpetual;
     }
 

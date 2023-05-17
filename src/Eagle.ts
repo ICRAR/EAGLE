@@ -261,9 +261,20 @@ export class Eagle {
     }, this);
 
     types : ko.PureComputed<string[]> = ko.pureComputed(() => {
-        const result: string[] = [];
+        // add all the built-in types
+        const result: string[] = [
+            Daliuge.DataType.Boolean,
+            Daliuge.DataType.Float,
+            Daliuge.DataType.Integer,
+            Daliuge.DataType.Json,
+            Daliuge.DataType.Object,
+            Daliuge.DataType.Password,
+            Daliuge.DataType.Python,
+            Daliuge.DataType.Select,
+            Daliuge.DataType.String
+        ];
 
-
+        // add additional custom types
         switch (Eagle.selectedLocation()){
             case Eagle.FileType.Palette:
                 // build a list from the selected component in the palettes
@@ -2358,34 +2369,30 @@ export class Eagle {
     getCurrentParamValueReadonly = (field: Field) : boolean => {
         // check that we actually found the right field, otherwise abort
         if (field === null){
-            return false;
+            console.warn("Supplied field is null");
+            return true;
         }
 
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
-                return false;
-            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.ReadOnly){
-                return false;
-            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.Normal){
-                return field.isReadonly();
-            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.KeyOnly){
-                return !field.isKeyAttribute() || field.isReadonly();
-            }else{
-                return false
-            }
-        }else{
-            if(Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
-                return false;
-            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.ReadOnly){
-                return false;
-            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.Normal){
-                return field.isReadonly();
-            }else if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.KeyOnly){
-                return !field.isKeyAttribute() || field.isReadonly();
-            }else{
-                return false
-            }
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+            return false;
         }
+        
+        if (Eagle.selectedLocation() != Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
+            return false;
+        }
+        
+        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.ReadOnly){
+            return false;
+        }
+        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.Normal){
+            return field.isReadonly();
+        }
+        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.KeyOnly){
+            return !field.isKeyAttribute() || field.isReadonly();
+        }
+        
+        console.warn("something in value readonly permissions has one wrong!");
+        return true
     }
 
     // TODO: move to Setting.ts?

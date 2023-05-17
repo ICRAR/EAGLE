@@ -111,6 +111,13 @@ export class Setting {
         return this.expertDefaultValue
     }
 
+    getPerpetualDefaultVal = () :any => {
+        if(!this.perpetual){
+            console.warn(this.name + " is not a perpetual setting: ",this)
+        }
+        return this.graphDefaultValue
+    }
+
     getPerpetual = () : boolean => {
         return this.perpetual;
     }
@@ -300,15 +307,6 @@ export namespace Setting {
         KeyOnly = "keyOnly",
         Normal = "Normal",
         ReadOnly = "Readonly"
-    }
-            
-    export enum UIMode {
-        Minimal = "minimal",
-        Default = "default",
-        Graph = "graph",
-        Palette = "palette",
-        Expert = "expert",
-        Custom = "custom"
     }
 
     export enum ErrorsMode {

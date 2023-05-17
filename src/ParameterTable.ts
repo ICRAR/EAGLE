@@ -254,8 +254,6 @@ export class ParameterTable {
     }
 }
 
-let localStorageUpdateCooldown : boolean = false;
-
 export class ColumnVisibilities {
 
     private uiModeName : string;
@@ -315,135 +313,126 @@ export class ColumnVisibilities {
     }
 
     private setKeyAttribute = (value:boolean) : void => {
-        if(value === null){
-            this.keyAttribute(!this.keyAttribute());
-            this.saveToLocalStorage()
-        }else{
-            this.keyAttribute(value);
-        }
+        this.keyAttribute(value);
     }
 
     private setDisplayText = (value:boolean) : void => {
-        if(value === null){
-            this.displayText(!this.displayText());
-            this.saveToLocalStorage()
-
-        }else{
-            this.displayText(value);
-        }
+        this.displayText(value);
     }
 
     private setValue = (value:boolean) : void => {
-        if(value === null){
-            this.value(!this.value());
-            this.saveToLocalStorage()
-        }else{
-            this.value(value);
-        }
+        this.value(value);
     }
 
     private setReadOnly = (value:boolean) : void => {
-        if(value === null){
-            this.readOnly(!this.readOnly());
-            this.saveToLocalStorage()
-        }else{
-            this.readOnly(value);
-        }
+        this.readOnly(value);
     }
 
     private setDefaultValue = (value:boolean) : void => {
-        if(value === null){
-            this.defaultValue(!this.defaultValue());
-            this.saveToLocalStorage()
-        }else{
-            this.defaultValue(value);
-        }
+        this.defaultValue(value);
     }
 
     private setDescription = (value:boolean) : void => {
-        if(value === null){
-            this.description(!this.description());
-            this.saveToLocalStorage()
-        }else{
-            this.description(value);
-        }
+        this.description(value);
     }
 
     private setType = (value:boolean) : void => {
-        if(value === null){
-            this.type(!this.type());
-            this.saveToLocalStorage()
-        }else{
-            this.type(value);
-        }
+        this.type(value);
     }
 
     private setParameterType = (value:boolean) : void => {
-        if(value === null){
-            this.parameterType(!this.parameterType());
-            this.saveToLocalStorage()
-        }else{
-            this.parameterType(value);
-        }
+        this.parameterType(value);
     }
 
     private setUsage = (value:boolean) : void => {
-        if(value === null){
-            this.usage(!this.usage());
-            this.saveToLocalStorage()
-        }else{
-            this.usage(value);
-        }
+        this.usage(value);
     }
 
     private setFlags = (value:boolean) : void => {
-        if(value === null){
-            this.flags(!this.flags());
-            this.saveToLocalStorage()
-        }else{
-            this.flags(value);
-        }
+        this.flags(value);
     }
 
     private setActions = (value:boolean) : void => {
-        if(value === null){
-            this.actions(!this.actions());
+        this.actions(value);
+    }
+
+    //these toggle functions are used in the knockout for the ui elements
+    private toggleKeyAttribute = () : void => {
+            this.keyAttribute(!this.keyAttribute());
             this.saveToLocalStorage()
-        }else{
-            this.actions(value);
-        }
+    }
+
+    private toggleDisplayText = () : void => {
+            this.displayText(!this.displayText());
+            this.saveToLocalStorage()
+    }
+
+    private toggleValue = () : void => {
+            this.value(!this.value());
+            this.saveToLocalStorage()
+    }
+
+    private toggleReadOnly = () : void => {
+        this.readOnly(!this.readOnly());
+        this.saveToLocalStorage()
+    }
+
+    private toggleDefaultValue = () : void => {
+        this.defaultValue(!this.defaultValue());
+        this.saveToLocalStorage()
+    }
+
+    private toggleDescription = () : void => {
+        this.description(!this.description());
+        this.saveToLocalStorage()
+    }
+
+    private toggleType = () : void => {
+        this.type(!this.type());
+        this.saveToLocalStorage()
+    }
+
+    private toggleParameterType = () : void => {
+        this.parameterType(!this.parameterType());
+        this.saveToLocalStorage()
+    }
+
+    private toggleUsage = () : void => {
+        this.usage(!this.usage());
+        this.saveToLocalStorage()
+    }
+
+    private toggleFlags = () : void => {
+        this.flags(!this.flags());
+        this.saveToLocalStorage()
+    }
+
+    private toggleActions = () : void => {
+        this.actions(!this.actions());
+        this.saveToLocalStorage()
     }
 
     private saveToLocalStorage = () : void => {
-        if(localStorageUpdateCooldown===false){
-            localStorageUpdateCooldown = true;
-
-            setTimeout(function () {
-                const columnVisibilitiesObjArray : any[] = []
-                columnVisibilities.forEach(function(columnVis:ColumnVisibilities){
-                    const columnVisibilitiesObj = {
-                        name : columnVis.getModeName(),
-                        keyAttribute : columnVis.keyAttribute(),
-                        displayText : columnVis.displayText(),
-                        value : columnVis.value(),
-                        readOnly : columnVis.readOnly(),
-                        defaultValue : columnVis.defaultValue(),
-                        description : columnVis.description(),
-                        type : columnVis.type(),
-                        parameterType : columnVis.parameterType(),
-                        usage : columnVis.usage(),
-                        flags : columnVis.flags(),
-                        actions : columnVis.actions(),
-                        
-                    }
-                    columnVisibilitiesObjArray.push(columnVisibilitiesObj)
-                })
-                localStorage.setItem('ColumnVisibilities', JSON.stringify(columnVisibilitiesObjArray));
-                localStorageUpdateCooldown = false;
-            }, 1000)
-        }else{
-            return
-        }
+        const columnVisibilitiesObjArray : any[] = []
+        columnVisibilities.forEach(function(columnVis:ColumnVisibilities){
+            const columnVisibilitiesObj = {
+                name : columnVis.getModeName(),
+                keyAttribute : columnVis.keyAttribute(),
+                displayText : columnVis.displayText(),
+                value : columnVis.value(),
+                readOnly : columnVis.readOnly(),
+                defaultValue : columnVis.defaultValue(),
+                description : columnVis.description(),
+                type : columnVis.type(),
+                parameterType : columnVis.parameterType(),
+                usage : columnVis.usage(),
+                flags : columnVis.flags(),
+                actions : columnVis.actions(),
+                
+            }
+            columnVisibilitiesObjArray.push(columnVisibilitiesObj)
+        })
+        localStorage.setItem('ColumnVisibilities', JSON.stringify(columnVisibilitiesObjArray));
     }
 
      loadFromLocalStorage = () : void => {
