@@ -2375,6 +2375,10 @@ palette-component input.form-control.selected {
     overflow: hidden;
 }
 
+.alert{
+    z-index: 2000!important;
+}
+
 #customContextMenu{
     background-color: #0059a5;
     padding:0px;
