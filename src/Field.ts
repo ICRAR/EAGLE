@@ -40,7 +40,6 @@ export class Field {
         this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
         this.nodeKey = ko.observable(0);
-
     }
 
     getId = () : string => {
@@ -123,8 +122,8 @@ export class Field {
         this.keyAttribute(!this.keyAttribute())
     }
 
-    valIsTrue = (val:string) : boolean => {
-        console.log(this.displayText(),val)
+    valIsTrue = (val:string, originName: string) : boolean => {
+        console.log(this.displayText(), originName, val);
         return Utils.asBool(val);
     }
 

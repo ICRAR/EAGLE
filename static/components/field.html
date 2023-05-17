@@ -16,7 +16,7 @@
 
         <!-- ko if: isType(Daliuge.DataType.Boolean) -->
         <div class="form-control checkboxParent">
-            <input class="inspectorCheckbox form-check-input btn-check" placeholder="" aria-label="Label" onclick="$(this).val(this.checked ? true : false);this.blur();" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, checked: valIsTrue($data.value()), disabled: function(){return $root.getCurrentParamValueReadonly($data)}, attr: {type: $data.getHtmlInputType(), id: 'field' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();$root.checkGraph();}}, eagleTooltip: getFieldValue()">
+            <input class="inspectorCheckbox form-check-input btn-check" placeholder="" aria-label="Label" onclick="$(this).val(this.checked ? true : false);this.blur();" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, checked: valIsTrue($data.value(), 'inspectorCheckbox'), disabled: function(){return $root.getCurrentParamValueReadonly($data)}, attr: {type: $data.getHtmlInputType(), id: 'field' + $index()}, event: {change: function(){$root.selectedObjects.valueHasMutated();$root.checkGraph();}}, eagleTooltip: getFieldValue()">
             <label class="btn btn-outline-primary" data-bind="attr:{for: 'field' + $index()}, html: $data.value() "></label><br>
         </div>
         <!-- /ko -->

@@ -340,7 +340,7 @@ export class Node {
         const streamingField = this.findFieldByDisplayText(Daliuge.FieldName.STREAMING, Daliuge.FieldType.ComponentParameter);
 
         if (streamingField !== null){
-            return streamingField.valIsTrue(streamingField.getValue());
+            return streamingField.valIsTrue(streamingField.getValue(), 'Node.isStreaming');
         }
 
         return false;
@@ -350,7 +350,7 @@ export class Node {
         const persistField = this.findFieldByDisplayText(Daliuge.FieldName.PERSIST, Daliuge.FieldType.ComponentParameter);
 
         if (persistField !== null){
-            return persistField.valIsTrue(persistField.getValue());
+            return persistField.valIsTrue(persistField.getValue(), 'Node.isPersist');
         }
 
         return false;

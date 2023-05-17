@@ -3523,11 +3523,19 @@ export class Eagle {
         $('#editFieldModalTypeInput').val(newType).change();
     }
 
-    tableDropdownClick = (newType:string,parentData: any) : void => {
-        const inputField = $('#typeInputFor_'+parentData.getId())
+    tableDropdownClick = (newType:string, field: Field) : void => {
+        // if the field contains no options, then it's value will be immediately set to undefined
+        // therefore, we add at least one option, so the value remains well defined
+        if (newType === Daliuge.DataType.Select){
+            if (field.getOptions().length === 0){
+                field.addOption(field.getValue());
+                field.addOption(field.getDefaultValue());
+            }
+        }
 
-        // NOTE: this changes the value (using val()), then triggers a change event, so that validation can be done
-        inputField.val(newType).change();
+        // update the type of the field
+        field.setType(newType);
+
     }
 
     changeNodeParent = () : void => {
