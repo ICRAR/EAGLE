@@ -67,6 +67,7 @@ export class Eagle {
 
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
+    currentField :ko.Observable<Field>;
 
     static selectedRightClickObject : ko.Observable<any>;
     static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
@@ -132,6 +133,7 @@ export class Eagle {
 
         this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
+        this.currentField = ko.observable(null);
 
         Eagle.selectedRightClickObject = ko.observable();
         Eagle.selectedRightClickLocation = ko.observable(Eagle.FileType.Unknown);

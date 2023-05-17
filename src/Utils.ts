@@ -625,6 +625,8 @@ export class Utils {
         let dropDownKO;
         let divID;
 
+        eagle.currentField(field)
+
         // determine which dropdown menu should be filled with appropriate items
         switch(parameterType){
             case Daliuge.FieldType.ApplicationArgument:
