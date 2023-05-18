@@ -163,8 +163,8 @@ export class Edge {
 
     static toAppRefJson = (edge : Edge, srcPort: Field, destPort: Field) : object => {
         return {
-            srcNodeKey: edge.srcNodeKey,
-            destNodeKey: edge.destNodeKey,
+            //srcNodeKey: edge.srcNodeKey,
+            //destNodeKey: edge.destNodeKey,
             fromPort: srcPort.getId(),
             toPort: destPort.getId(),            
             loopAware: edge.loopAware,

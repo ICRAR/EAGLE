@@ -1696,11 +1696,17 @@ export class Node {
     }
 
     static fromAppRefJson = (nodeData : any, uxData: any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node => {
+        let id: string = "";
         let key: number = 0;
         let name: string = "";
         let description: string = "";
         let category: Category = Category.Unknown;
         
+        // id - nodeData
+        if (typeof nodeData.id !== 'undefined'){
+            id = nodeData.id;
+        }
+
         // key - nodeData
         if (typeof nodeData.key !== 'undefined' && nodeData.key !== null){
             key = nodeData.key;
@@ -1728,6 +1734,7 @@ export class Node {
         }
 
         const result: Node = new Node(key, name, description, category);
+        result.setId(id);
         const categoryData: Category.CategoryData = CategoryData.getCategoryData(category);
 
         // set categoryType based on the category
