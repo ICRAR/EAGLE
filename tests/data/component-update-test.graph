@@ -13,7 +13,7 @@
             "closesLoop": false,
             "dataType": "String",
             "from": -2,
-            "fromPort": "7596a83d-93c9-42f3-ba4e-4f85f4a1442d",
+            "fromPort": "e459d094-ad85-4028-a805-76d08b3c26fc",
             "loop_aware": "0",
             "to": -3,
             "toPort": "9cf38a5a-6536-4e02-b0ce-1b87df6b5eab"
@@ -510,22 +510,7 @@
                     "readonly": false,
                     "name": "hello",
                     "type": "String",
-                    "usage": "InputPort",
-                    "value": ""
-                },
-                {
-                    "defaultValue": "",
-                    "description": "",
-                    "id": "7596a83d-93c9-42f3-ba4e-4f85f4a1442d",
-                    "keyAttribute": false,
-                    "options": [],
-                    "parameterType": "ApplicationArgument",
-                    "positional": false,
-                    "precious": false,
-                    "readonly": false,
-                    "name": "hello",
-                    "type": "String",
-                    "usage": "OutputPort",
+                    "usage": "InputOutput",
                     "value": ""
                 }
             ],
