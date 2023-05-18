@@ -13,19 +13,6 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="container" id="addParameterWrapper">
-                            <div class="row">
-                                <p id="ComponentModalMessage">Please select a parameter name or create a custom parameter.</p>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-group">
-                                        <select class="form-control" id="fieldModalSelect">
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <div class="container" id="customParameterOptionsWrapper">
                             <div class="row">
                                 <div class="col-3">
@@ -33,7 +20,7 @@
                                 </div>
                                 <div class="col">
                                     <div class="input-group mb-3">
-                                        <input type="text" class="form-control" id="editFieldModalDisplayTextInput">
+                                        <input type="text" class="form-control" id="editFieldModalDisplayTextInput" placeholder="New Parameter" data-bind="value: displayText, valueUpdate: ['afterkeydown', 'input']">
                                     </div>
                                 </div>
                             </div>
@@ -43,16 +30,18 @@
                                 </div>
                                 <div class="col">
                                     <div class="input-group mb-3 has-validation">
-                                        <!-- ko ifnot: $data.getType() === 'Integer' -->    
-                                            <textarea type="text" class="form-control" id="editFieldModalValueInputText"></textarea>
-                                        <!-- /ko --> 
-                                        <!-- ko if: $data.getType() === 'Integer' -->    
-                                            <input type="number" id="editFieldModalValueInputNumber" class="form-control ">
+                                        <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
+                                            <!-- ko ifnot: $data.getType() === 'Integer' -->    
+                                                <textarea type="text" class="form-control" id="editFieldModalValueInputText" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], attr: {type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();}}, eagleTooltip: getFieldValue()"></textarea>
+                                            <!-- /ko --> 
+                                            <!-- ko if: $data.getType() === 'Integer' -->    
+                                                <input type="number" id="editFieldModalValueInputNumber" class="form-control" min="0" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind=" valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
+                                            <!-- /ko --> 
                                         <!-- /ko --> 
                                         <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
                                             <div class="input-group componentCheckbox" id="componentValueCheckbox">
                                                 <span class="noselect"></span>
-                                                <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalValueInputCheckbox">
+                                                <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalValueInputCheckbox" data-bind="checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$data.toggle(); $root.selectedObjects.valueHasMutated();}}">
                                             </div>
                                         <!-- /ko --> 
                                         <!-- ko if: $data.getHtmlInputType() === 'select' -->
@@ -69,11 +58,13 @@
                                 </div>
                                 <div class="col">
                                     <div class="input-group mb-3">
-                                        <!-- ko ifnot: $data.getType() === 'Integer' -->    
-                                            <textarea type="text" class="form-control" id="editFieldModalDefaultValueInputText"></textarea>
-                                        <!-- /ko --> 
-                                        <!-- ko if: $data.getType() === 'Integer' -->    
-                                            <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control ">
+                                        <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
+                                            <!-- ko ifnot: $data.getType() === 'Integer' -->    
+                                                <textarea type="text" class="form-control" id="editFieldModalDefaultValueInputText"></textarea>
+                                            <!-- /ko --> 
+                                            <!-- ko if: $data.getType() === 'Integer' -->    
+                                                <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control ">
+                                            <!-- /ko --> 
                                         <!-- /ko --> 
                                         <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
                                             <div class="input-group componentCheckbox" id="componentDefaultValueCheckbox">
