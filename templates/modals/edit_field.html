@@ -1,12 +1,12 @@
 <!-- Edit Field Modal -->
 
-<!-- ko with: $root.currentField() -->
-    <!-- ko ifnot: $data === null -->
-        <div data-bind="text:console.log('field?:',$data)"></div>
-        <div class="modal fade" id="editFieldModal" tabindex="-1" role="dialog" aria-labelledby="editFieldModalTitle" aria-hidden="true">
+<!-- ko using: $root.currentField() -->
+    <div data-bind="text:console.log('field?:',$data)"></div>
+    <div class="modal fade" id="editFieldModal" tabindex="-1" role="dialog" aria-labelledby="editFieldModalTitle" aria-hidden="true">
 
-            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                <div class="modal-content">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <!-- ko ifnot: $data === null -->
                     <div class="modal-header">
                         <input type="checkbox" tabindex='-1' class="form-control form-check-input material-icons" id="editFieldModalKeyParameterCheckbox">
                         <h5 class="modal-title" id="editFieldModalTitle">Edit Parameter</h5>
@@ -187,9 +187,8 @@
                         <button type="button" class="btn btn-secondary" id="editFieldModalResetToDefaultButton"><span>Reset to Default</span></button>
                         <button type="button" class="btn btn-primary" id="editFieldModalAffirmativeButton" data-bs-dismiss="modal"><span id="editFieldModalAffirmativeAnswer">OK</span></button>
                     </div>
-                </div>
+                <!-- /ko -->
             </div>
         </div>
-
-    <!-- /ko -->
+    </div>
 <!-- /ko -->
