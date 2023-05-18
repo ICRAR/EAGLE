@@ -1754,6 +1754,7 @@ export class Node {
         if (typeof nodeData.fields !== 'undefined'){
             for (const [fieldKey, fieldData] of Object.entries(nodeData.fields)){
                 const field = Field.fromJson(fieldData);
+                field.setDisplayText(fieldKey);
                 result.addField(field);
             }
         }
