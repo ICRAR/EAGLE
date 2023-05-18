@@ -74,7 +74,7 @@
                                         <!-- /ko --> 
                                         <!-- ko if: $data.getHtmlInputType() === 'select' -->
                                             <!-- ko ifnot: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
-                                                <select class="form-control" id="editFieldModalDefaultValueInputSelect">
+                                                <select class="form-control" id="editFieldModalDefaultValueInputSelect" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="event: {change: function(){$root.selectedObjects.valueHasMutated();}}, options: $data.options, value: $data.defaultValue">
                                                     <!-- options are added dynamically -->
                                                 </select>
                                             <!-- /ko --> 

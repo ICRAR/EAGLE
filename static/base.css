@@ -210,9 +210,10 @@ body {
     max-width: 1230px;
 }
 
-#parameterTableModal .modal-dialog input{
+#parameterTableModal .modal-dialog input, #editFieldModal .modal-dialog .dropdown input{
     border: none;
     width:100%;
+    background: transparent;
 }
 
 #parameterTableModal .modal-dialog input:read-only{
@@ -266,7 +267,7 @@ body {
     min-width: 8rem;
 }
 
-#parameterTableModal .modal-dialog .typesInput{
+#parameterTableModal .modal-dialog .typesInput, #edintFieldModal .modal-dialog .typesInput{
     padding: 0px;
     height: 35px;
     width: 100%;
@@ -298,6 +299,17 @@ body {
     height:23px;
 }
 
+#editFieldModal .parameterTableTypeCustomSelect a {    
+    border: 1px solid #ced4da;
+    height: 38px;
+    padding: 6px 15px;
+    font-size: 16px;
+}
+
+#editFieldModal .dropdown {
+    width:100%;
+}
+
 .parameterTableTypeCustomSelect a::after {
     right: 5px;
     top: 45%;
@@ -316,7 +328,7 @@ td:first-child input {
     font-weight: 700;
 }
 
-#parameterTableModal .modal-dialog td button{
+#parameterTableModal .modal-dialog td button,#editFieldModal .dropdown-menu button{
     border: none;
     background-color: transparent;
     color: #002e5f;
