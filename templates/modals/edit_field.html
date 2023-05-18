@@ -39,13 +39,13 @@
                                             <!-- /ko --> 
                                         <!-- /ko --> 
                                         <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
-                                            <div class="input-group componentCheckbox" id="componentValueCheckbox">
-                                                <span class="noselect"></span>
+                                            <div class="input-group componentCheckbox" id="componentValueCheckbox" data-bind="click:$data.toggle">
+                                                <span class="noselect" data-bind="text:value"></span>
                                                 <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalValueInputCheckbox" data-bind="checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$data.toggle(); $root.selectedObjects.valueHasMutated();}}">
                                             </div>
                                         <!-- /ko --> 
                                         <!-- ko if: $data.getHtmlInputType() === 'select' -->
-                                            <select class="form-control" id="editFieldModalValueInputSelect">
+                                            <select class="form-control" id="editFieldModalValueInputSelect" data-bind=" event: {change: function(){$root.selectedObjects.valueHasMutated();}}, options: $data.options, value: $data.value">
                                                 <!-- options are added dynamically -->
                                             </select>
                                         <!-- /ko --> 
@@ -60,16 +60,16 @@
                                     <div class="input-group mb-3">
                                         <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
                                             <!-- ko ifnot: $data.getType() === 'Integer' -->    
-                                                <textarea type="text" class="form-control" id="editFieldModalDefaultValueInputText"></textarea>
+                                                <textarea type="text" class="form-control" id="editFieldModalDefaultValueInputText" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated()}}"></textarea>
                                             <!-- /ko --> 
                                             <!-- ko if: $data.getType() === 'Integer' -->    
-                                                <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control ">
+                                                <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control" min="0" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
                                             <!-- /ko --> 
                                         <!-- /ko --> 
                                         <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
-                                            <div class="input-group componentCheckbox" id="componentDefaultValueCheckbox">
-                                                <span class="noselect"></span>
-                                                <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox">
+                                            <div class="input-group componentCheckbox" id="componentDefaultValueCheckbox" data-bind="click:$data.toggleDefault">
+                                                <span class="noselect" data-bind="text:defaultValue"></span>
+                                                <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue,attr:{type: $data.getHtmlInputType()}, event: {change: function(){$data.toggleDefault(); $root.selectedObjects.valueHasMutated();}}">
                                             </div>
                                         <!-- /ko --> 
                                         <!-- ko if: $data.getHtmlInputType() === 'select' -->
