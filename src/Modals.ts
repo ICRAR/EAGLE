@@ -252,17 +252,19 @@ export class Modals {
         $('#editFieldModalAffirmativeButton').on('click', function(){
             $('#editFieldModal').data('completed', true);
         });
-        $('#editFieldModalResetToDefaultButton').on('click', function(){
-            const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
-            const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
-            const type: string = $('#editFieldModalTypeInput').val().toString();
-            const parameterType: string = $('#editFieldModalParameterTypeSelect').val().toString();
-            const parameterUsage: string = $('#editFieldModalParameterUsageSelect').val().toString();
+        
+        //not needed?
+        // $('#editFieldModalResetToDefaultButton').on('click', function(){
+        //     const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
+        //     const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
+        //     const type: string = $('#editFieldModalTypeInput').val().toString();
+        //     const parameterType: string = $('#editFieldModalParameterTypeSelect').val().toString();
+        //     const parameterUsage: string = $('#editFieldModalParameterUsageSelect').val().toString();
 
-            // translate type
-            const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
+        //     // translate type
+        //     const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
-        });
+        // });
 
         $('#editFieldModal').on('shown.bs.modal', function(){
             $('#editFieldModalAffirmativeButton').focus();
