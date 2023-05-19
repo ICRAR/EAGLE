@@ -623,7 +623,7 @@ export class Utils {
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
         
-        console.log('usereditfield requested')
+        //WIP do wwe need anything here?
         let dropDownKO;
         let divID;
 
@@ -805,7 +805,6 @@ export class Utils {
         $('#editFieldModal').data('completed', false);
         $('#editFieldModal').data('callback', callback);
         $('#editFieldModal').data('choices', choices);
-        console.log('toggling..',$('#editFieldModal'))
         $('#editFieldModal').modal("toggle");
 
     }

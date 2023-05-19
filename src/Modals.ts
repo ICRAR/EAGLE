@@ -248,11 +248,11 @@ export class Modals {
             }
         });
 
-        // #editFieldModal - requestUserEditField()
+        // WIP #editFieldModal - requestUserEditField()
         $('#editFieldModalAffirmativeButton').on('click', function(){
             $('#editFieldModal').data('completed', true);
         });
-        
+
         //not needed?
         // $('#editFieldModalResetToDefaultButton').on('click', function(){
         //     const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
@@ -269,6 +269,8 @@ export class Modals {
         $('#editFieldModal').on('shown.bs.modal', function(){
             $('#editFieldModalAffirmativeButton').focus();
         });
+
+        //WIP whats this?
         $('#fieldModalSelect').on('change', function(){
             // check selected option in select tag
             const choice : number = parseInt($('#fieldModalSelect').val().toString(), 10);
@@ -280,6 +282,8 @@ export class Modals {
                 $('#customParameterOptionsWrapper').slideUp();
             }
         });
+
+        //WIP how much can we remove?
         $('#editFieldModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
             const completed : boolean = $('#editFieldModal').data('completed');
@@ -360,6 +364,7 @@ export class Modals {
             callback(true, newField);
         });
 
+        //WIP was already commenteds out, whats this
         // $('#editFieldModal').on('shown.bs.modal', function(){
         //     const type: string = $('#editFieldModalTypeInput').val().toString();
         //     const realType = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
@@ -377,6 +382,7 @@ export class Modals {
         //     Modals._validateFieldModalValueInputText();
         // });
 
+        //WIP needed?
         // add some validation to the value entry field
         $('#editFieldModalValueInputText').on('keyup', function(){
             Modals._validateFieldModalValueInputText();
