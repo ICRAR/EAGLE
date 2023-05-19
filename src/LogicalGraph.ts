@@ -34,6 +34,7 @@ import { FileInfo } from './FileInfo';
 import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
+import { Setting } from "./Setting";
 import { Utils } from './Utils';
 
 export class LogicalGraph {
@@ -106,8 +107,6 @@ export class LogicalGraph {
         result += '"nodeData": ' + JSON.stringify(json.nodeData, null, 4) + ",\n";
         result += '"uxData": ' + JSON.stringify(json.uxData, null, 4) + ",\n";
         result += '"linkData": ' + JSON.stringify(json.linkData, null, 4) + "\n";
-        //result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
-        //result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
         result += "}\n";
 
         return result;
@@ -148,6 +147,7 @@ export class LogicalGraph {
 
             if (nodeData.inputApplicationKey !== null){
                 const inputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(Object.values(dataObject.nodeData), nodeData.inputApplicationKey);
+                console.log("node", nodeKey, "has input application with key", nodeData.inputApplicationKey, "index", inputApplicationIndex);
 
                 if (inputApplicationIndex !== -1){
                     const inputApplicationNode = Node.fromOJSJson(dataObject.nodeData[inputApplicationIndex], errorsWarnings, false, (): number => {
@@ -162,6 +162,9 @@ export class LogicalGraph {
                     });
 
                     newNode.setInputApplication(inputApplicationNode);
+                }
+                else {
+                    console.error("Could not find inputApplication (", nodeData.inputApplicationKey, ") for node", nodeKey);
                 }
             }
 
@@ -182,6 +185,9 @@ export class LogicalGraph {
 
                     newNode.setOutputApplication(outputApplicationNode);
                 }
+                else {
+                    console.error("Could not find outputApplication (", nodeData.outputApplicationKey, ") for node", nodeKey);
+                }
             }
 
             result.nodes.push(newNode);
@@ -191,7 +197,7 @@ export class LogicalGraph {
         for (const [linkKey, linkData] of Object.entries(dataObject.linkData)){
             const edge = Edge.fromAppRefJson(linkData, errorsWarnings);
 
-            // debug
+            // find source node and destination node based on field ids
             const srcNode = result.findNodeByFieldId(edge.getSrcPortId());
             const destNode = result.findNodeByFieldId(edge.getDestPortId());
             if (srcNode !== null && destNode !== null){
@@ -201,6 +207,71 @@ export class LogicalGraph {
 
             result.edges.push(edge);
         }
+
+        return result;
+    }
+
+    static toOJSJson = (graph : LogicalGraph, forTranslation : boolean) : object => {
+        const result : any = {};
+
+        result.modelData = FileInfo.toJson(graph.fileInfo());
+        result.modelData.schemaVersion = Daliuge.SchemaVersion.OJS;
+        result.modelData.numLGNodes = graph.getNodes().length;
+
+        // add nodes
+        result.nodeDataArray = [];
+        for (const node of graph.getNodes()){
+            const nodeData : any = Node.toOJSGraphJson(node);
+            result.nodeDataArray.push(nodeData);
+        }
+
+        // add links
+        result.linkDataArray = [];
+        for (const edge of graph.getEdges()){
+
+            // depending on the settings and purpose, skip close-loop edges
+            if (forTranslation && Setting.findValue(Setting.SKIP_CLOSE_LOOP_EDGES)){
+                if (edge.isClosesLoop()){
+                    continue;
+                }
+            }
+
+            const linkData : any = Edge.toOJSJson(edge);
+
+            let srcKey = edge.getSrcNodeKey();
+            let destKey = edge.getDestNodeKey();
+
+            const srcNode = graph.findNodeByKey(srcKey);
+            const destNode = graph.findNodeByKey(destKey);
+
+            // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
+            if (srcNode.isEmbedded()){
+                srcKey = srcNode.getEmbedKey();
+            }
+            if (destNode.isEmbedded()){
+                destKey = destNode.getEmbedKey();
+            }
+
+            linkData.from = srcKey;
+            linkData.to   = destKey;
+
+            result.linkDataArray.push(linkData);
+        }
+
+        return result;
+    }
+
+    static toOJSJsonString = (graph : LogicalGraph, forTranslation : boolean) : string => {
+        let result: string = "";
+
+        const json: any = this.toOJSJson(graph, forTranslation);
+
+        // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
+        result += "{\n";
+        result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
+        result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
+        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
+        result += "}\n";
 
         return result;
     }

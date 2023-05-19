@@ -2231,4 +2231,30 @@ export class Utils {
     static openRemoteFileFromUrl(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
         Utils.httpGet(fileName, callback);
     }
+
+    static isEmpty(o) {
+        for ( const p in o ) {
+            if ( o.hasOwnProperty( p ) ) { return false; }
+        }
+        return true;
+    }
+
+    static compareObj(obj1: any, obj2: any) {
+        const ret: any = {};
+        let rett;
+        for(const i in obj2) {
+            rett = {};
+            if (typeof obj2[i] === 'object' && typeof obj1 !== 'undefined'){
+                rett = Utils.compareObj(obj1[i], obj2[i]);
+                if (!Utils.isEmpty(rett) ){
+                 ret[i]= rett
+                }
+             }else{
+                 if(!obj1 || !obj1.hasOwnProperty(i) || obj2[i] !== obj1[i]) {
+                    ret[i] = obj2[i];
+            }
+         }
+        }
+        return ret;
+      };
 }

@@ -1897,7 +1897,7 @@ export class Node {
         return result;
     }
 
-    static toGraphJson = (node : Node) : object => {
+    static toOJSGraphJson = (node : Node) : object => {
         const result : any = {};
         const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
 

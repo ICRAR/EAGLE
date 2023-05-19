@@ -263,21 +263,21 @@ export class GraphUpdater {
 
     static generateLogicalGraphsTable = () : any[] => {
         // check that all repos have been fetched
-        let foundUnfetched = false;
         for (const repo of Repositories.repositories()){
             if (!repo.fetched()){
-                foundUnfetched = true;
-                console.warn("Unfetched repo:" + repo.getNameAndBranch());
+                console.warn("Unfetched " + repo.service + " repo:" + repo.getNameAndBranch());
             }
-        }
-        if (foundUnfetched){
-            return [];
         }
 
         const tableData : any[] = [];
 
         // add logical graph nodes to table
         for (const repo of Repositories.repositories()){
+            // skip unfetched repos
+            if (!repo.fetched()){
+                continue;
+            }
+
             for (const folder of repo.folders()){
                 GraphUpdater._addGraphs(repo, folder, folder.name, tableData);
             }
@@ -290,6 +290,7 @@ export class GraphUpdater {
                         "branch":repo.branch,
                         "folder":"",
                         "file":file.name,
+                        "schemaVersion":"",
                         "eagleVersion":"",
                         "repositoryUrl":"",
                         "commitHash":"",
@@ -300,7 +301,8 @@ export class GraphUpdater {
                         "numLoadWarnings":"",
                         "numLoadErrors":"",
                         "numCheckWarnings":"",
-                        "numCheckErrors":""
+                        "numCheckErrors":"",
+                        "loadSaveSame":true
                     });
                 }
             }
@@ -309,6 +311,27 @@ export class GraphUpdater {
         return tableData;
     }
     
+        
+    static logicalGraphsTableToCSV = (table: any[]) : string => {
+        let result: string = "";
+
+        // abort if table has zero rows
+        if (typeof table === 'undefined' || table === null || table.length === 0){
+            console.warn("No data in table");
+            return "";
+        }
+
+        // add heading row
+        result += Object.keys(table[0]).join(',') + "\n";
+
+        // add data rows
+        for (const row of table){
+            result += Object.values(row).join(',') + "\n";
+        }
+
+        return result;
+    }
+
     // recursive traversal through the folder structure to find all graph files
     private static _addGraphs = (repository: Repository, folder: RepositoryFolder, path: string, data: any[]) : void => {
         for (const subfolder of folder.folders()){
@@ -323,6 +346,7 @@ export class GraphUpdater {
                     "branch":repository.branch,
                     "folder":path,
                     "file":file.name,
+                    "schemaVersion":"",
                     "eagleVersion":"",
                     "repositoryUrl":"",
                     "commitHash":"",
@@ -333,12 +357,13 @@ export class GraphUpdater {
                     "numLoadWarnings":"",
                     "numLoadErrors":"",
                     "numCheckWarnings":"",
-                    "numCheckErrors":""
+                    "numCheckErrors":"",
+                    "loadSaveSame":true
                 });
             }
         }
     }
-    
+
     attemptLoadLogicalGraphTable = async(data: any[]) : Promise<void> => {
         const eagle: Eagle = Eagle.getInstance();
 
@@ -387,6 +412,7 @@ export class GraphUpdater {
                         row.numLoadErrors = errorsWarnings.errors.length;
 
                         // use git-related info within file
+                        row.schemaVersion = lg.fileInfo().schemaVersion;
                         row.eagleVersion = lg.fileInfo().eagleVersion;
                         row.lastModifiedBy = lg.fileInfo().lastModifiedName;
                         row.repositoryUrl = lg.fileInfo().repositoryUrl;
@@ -402,11 +428,45 @@ export class GraphUpdater {
                         const results: Errors.ErrorsWarnings = Utils.checkGraph(eagle);
                         row.numCheckWarnings = results.warnings.length;
                         row.numCheckErrors = results.errors.length;
+
+                        // write the logical graph back to JSON
+                        let outputJSON: object = null;
+                        switch (lg.fileInfo().schemaVersion){
+                            case Daliuge.SchemaVersion.AppRef:
+                                outputJSON = LogicalGraph.toAppRefJson(lg, false);
+                                break;
+                            default:
+                                //outputJSON = LogicalGraph.toOJSJson(lg);
+                                outputJSON = LogicalGraph.toOJSJson(lg, false);
+                                break;
+                        }
+
+                        // check that it matches the input
+                        const diff0 = Utils.compareObj(dataObject, outputJSON);
+                        const diff1 = Utils.compareObj(outputJSON, dataObject);
+
+                        console.log("lg", lg.fileInfo().getText(), "inputJSON", dataObject, "outputJSON", outputJSON, "diff0", diff0, "diff1", diff1);
+                        row.loadSaveSame = Utils.isEmpty(diff0) && Utils.isEmpty(diff1);
+
                     }
 
                     resolve();
                 });
             });
         }
+    }
+
+    test = async() => {
+        // builds a table with one row for each graph in all repositories that are open (have had contents fetched)
+        const table = GraphUpdater.generateLogicalGraphsTable();
+
+        // instruct the GraphUpdater object to fetch (and test) all graphs in the table, and to fill the table columns with the results
+        await this.attemptLoadLogicalGraphTable(table);
+
+        // print the table to the console
+        console.table(table);
+
+        const tableCsv = GraphUpdater.logicalGraphsTableToCSV(table);
+        console.log(tableCsv);
     }
 }
