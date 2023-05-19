@@ -104,7 +104,7 @@
                                 </div>
                                 <div class="col">
                                     <div class="input-group mb-3">
-                                        <textarea type="text" class="form-control" id="editFieldModalDescriptionInput"></textarea>
+                                        <textarea type="text" class="form-control" id="editFieldModalDescriptionInput" data-bind="value: description, valueUpdate: ['afterkeydown', 'input']"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -114,9 +114,12 @@
                                 </div>
                                 <div class="col">
                                     <div class="input-group mb-3">
-                                        <input id="editFieldModalTypeInput" type="text" class="form-control" aria-label="Text input with dropdown button" autocomplete="false">
+                                        <input id="editFieldModalTypeInput" type="text" class="form-control" aria-label="Text input with dropdown button" autocomplete="off" data-bind="value:type">
                                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Types</button>
                                         <ul id="editFieldModalTypeSelect" class="dropdown-menu dropdown-menu-end">
+                                            <!-- ko foreach:$root.types()-->
+                                                <a class="dropdown-item" data-bind="text:$data, click:function(){$root.tableDropdownClick($data, $parent);}"></a>
+                                            <!-- /ko --> 
                                         </ul>
                                     </div>
                                 </div>
