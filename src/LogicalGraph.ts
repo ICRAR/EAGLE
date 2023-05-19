@@ -147,7 +147,6 @@ export class LogicalGraph {
 
             if (nodeData.inputApplicationKey !== null){
                 const inputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(Object.values(dataObject.nodeData), nodeData.inputApplicationKey);
-                console.log("node", nodeKey, "has input application with key", nodeData.inputApplicationKey, "index", inputApplicationIndex);
 
                 if (inputApplicationIndex !== -1){
                     const inputApplicationNode = Node.fromOJSJson(dataObject.nodeData[inputApplicationIndex], errorsWarnings, false, (): number => {
