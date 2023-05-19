@@ -157,7 +157,7 @@
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
-                                        <select class="form-control" id="editFieldModalParameterTypeSelect">
+                                        <select class="form-control" id="editFieldModalParameterTypeSelect"data-bind="options: Object.values(Daliuge.FieldType), value: parameterType">
                                             <!-- options are added dynamically -->
                                         </select>
                                     </div>
@@ -169,7 +169,7 @@
                                 </div>
                                 <div class="col">
                                     <div class="form-group">
-                                        <select class="form-control" id="editFieldModalParameterUsageSelect">
+                                        <select class="form-control" id="editFieldModalParameterUsageSelect" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, event: {change: $root.parameterTable().fieldUsageChanged}">
                                             <!-- options are added dynamically -->
                                         </select>
                                     </div>
