@@ -179,7 +179,7 @@
                     </div>
                     <div class="modal-footer" style="justify-content:space-between;">
                         <button type="button" class="btn btn-secondary" id="editFieldModalResetToDefaultButton" data-bind="click:function(){$data.resetToDefault()}"><span>Reset to Default</span></button>
-                        <button type="button" class="btn btn-primary" id="editFieldModalAffirmativeButton" data-bs-dismiss="modal"><span id="editFieldModalAffirmativeAnswer">OK</span></button>
+                        <button type="button" class="btn btn-primary" id="editFieldModalAffirmativeButton" data-bs-dismiss="modal" data-bind="click:function(){$('#editFieldModal').data('completed', true);}"><span id="editFieldModalAffirmativeAnswer">OK</span></button>
                     </div>
                 <!-- /ko -->
             </div>

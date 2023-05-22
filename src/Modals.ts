@@ -249,21 +249,11 @@ export class Modals {
         });
 
         // WIP #editFieldModal - requestUserEditField()
-        $('#editFieldModalAffirmativeButton').on('click', function(){
-            $('#editFieldModal').data('completed', true);
-        });
 
-        //not needed?
-        // $('#editFieldModalResetToDefaultButton').on('click', function(){
-        //     const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
-        //     const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
-        //     const type: string = $('#editFieldModalTypeInput').val().toString();
-        //     const parameterType: string = $('#editFieldModalParameterTypeSelect').val().toString();
-        //     const parameterUsage: string = $('#editFieldModalParameterUsageSelect').val().toString();
-
-        //     // translate type
-        //     const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
-
+        //WIP probably not needed, doing this in ko now
+        // $('#editFieldModalAffirmativeButton').on('click', function(){
+        //     console.log('marking form complete')
+        //     $('#editFieldModal').data('completed', true);
         // });
 
         $('#editFieldModal').on('shown.bs.modal', function(){
@@ -271,17 +261,17 @@ export class Modals {
         });
 
         //WIP whats this?
-        $('#fieldModalSelect').on('change', function(){
-            // check selected option in select tag
-            const choice : number = parseInt($('#fieldModalSelect').val().toString(), 10);
+        // $('#fieldModalSelect').on('change', function(){
+        //     // check selected option in select tag
+        //     const choice : number = parseInt($('#fieldModalSelect').val().toString(), 10);
 
-            // hide the custom text input unless the last option in the select is chosen
-            if (choice === 0){
-                $('#customParameterOptionsWrapper').slideDown();
-            } else {
-                $('#customParameterOptionsWrapper').slideUp();
-            }
-        });
+        //     // hide the custom text input unless the last option in the select is chosen
+        //     if (choice === 0){
+        //         $('#customParameterOptionsWrapper').slideDown();
+        //     } else {
+        //         $('#customParameterOptionsWrapper').slideUp();
+        //     }
+        // });
 
         //WIP how much can we remove?
         $('#editFieldModal').on('hidden.bs.modal', function(){
@@ -291,8 +281,11 @@ export class Modals {
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
                 callback(false, null);
+                console.log('not completed')
                 return;
             }
+            console.log('marked completed')
+
 
             // extract field data from HTML elements
             const id : string = Utils.uuidv4();
@@ -300,23 +293,25 @@ export class Modals {
 
             // only one of these three ui elements contains the "real" value,
             // but we get all three and then choose correctly based on field type
-            const valueText : string = $('#editFieldModalValueInputText').val().toString();
-            const valueNumber : string = $('#editFieldModalValueInputNumber').val().toString();
-            const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
-            let valueSelect : string = "";
-            if ($('#editFieldModalValueInputSelect').val()){
-                valueSelect = $('#editFieldModalValueInputSelect').val().toString();
-            }
+            let newValue :any;
+            let newDefaultValue : any;
+            // const valueText : string = $('#editFieldModalValueInputText').val().toString();
+            // const valueNumber : string = $('#editFieldModalValueInputNumber').val().toString();
+            // const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
+            // let valueSelect : string = "";
+            // if ($('#editFieldModalValueInputSelect').val()){
+            //     valueSelect = $('#editFieldModalValueInputSelect').val().toString();
+            // }
 
             // only one of these three ui elements contains the "real" default value,
             // but we get all three and then choose correctly based on field type
-            const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
-            const defaultValueNumber : string = $('#editFieldModalDefaultValueInputNumber').val().toString();
-            const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
-            let defaultValueSelect : string = "";
-            if ($('#editFieldModalDefaultValueInputSelect').val()){
-                defaultValueSelect = $('#editFieldModalDefaultValueInputSelect').val().toString();
-            }
+            // const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
+            // const defaultValueNumber : string = $('#editFieldModalDefaultValueInputNumber').val().toString();
+            // const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
+            // let defaultValueSelect : string = "";
+            // if ($('#editFieldModalDefaultValueInputSelect').val()){
+            //     defaultValueSelect = $('#editFieldModalDefaultValueInputSelect').val().toString();
+            // }
 
             const description: string = $('#editFieldModalDescriptionInput').val().toString();
             const type: string = $('#editFieldModalTypeInput').val().toString();
@@ -345,26 +340,40 @@ export class Modals {
             let newField;
             switch(realType){
                 case Daliuge.DataType.Boolean:
-                    newField = new Field(id, displayText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                    newValue = $('#editFieldModalValueInputCheckbox').prop('checked').toString();
+                    newDefaultValue = $('#editFieldModalDefaultValueInputCheckbox').prop('checked').toString();
+                    newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
                 case Daliuge.DataType.Select:
-                    newField = new Field(id, displayText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                    if ($('#editFieldModalValueInputSelect').val()){
+                        newValue = $('#editFieldModalValueInputSelect').val().toString();
+                    }
+                    if ($('#editFieldModalDefaultValueInputSelect').val()){
+                        newDefaultValue = $('#editFieldModalDefaultValueInputSelect').val().toString();
+                    }
+                    newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
                 case Daliuge.DataType.Integer:
-                    newField = new Field(id, displayText, valueNumber, defaultValueNumber, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                    newValue = $('#editFieldModalValueInputNumber').val().toString();
+                    newDefaultValue = $('#editFieldModalDefaultValueInputNumber').val().toString();
+                    newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
                 case Daliuge.DataType.Float:
-                    newField = new Field(id, displayText, valueNumber, defaultValueNumber, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                    newValue = $('#editFieldModalValueInputNumber').val().toString();
+                    newDefaultValue = $('#editFieldModalDefaultValueInputNumber').val().toString();
+                    newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
                 default:
-                    newField = new Field(id, displayText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+                    newValue = $('#editFieldModalValueInputText').val().toString();
+                    newDefaultValue = $('#editFieldModalDefaultValueInputText').val().toString();
+                    newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
                     break;
             }
 
             callback(true, newField);
         });
 
-        //WIP was already commenteds out, whats this
+        //WIP was already commented out, whats this
         // $('#editFieldModal').on('shown.bs.modal', function(){
         //     const type: string = $('#editFieldModalTypeInput').val().toString();
         //     const realType = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
