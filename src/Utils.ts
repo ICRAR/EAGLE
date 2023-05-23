@@ -630,89 +630,89 @@ export class Utils {
         eagle.currentField(field)
 
         // // determine which dropdown menu should be filled with appropriate items
-        switch(parameterType){
-            case Daliuge.FieldType.ApplicationArgument:
-                dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
-                divID = "nodeInspectorAddApplicationParamDiv";
-                break;
-            case Daliuge.FieldType.ComponentParameter:
-                dropDownKO = $("#nodeInspectorFieldDropDownKO");
-                divID = "nodeInspectorAddFieldDiv";
-                break;
-            case Daliuge.FieldType.ConstructParameter:
-                dropDownKO = $("#nodeInspectorConstructParameterDropDownKO");
-                divID = "nodeInspectorAddConstructParameterDiv";
-                break;
-            default:
-            console.error("Unknown parameter type");
-        }
+        // switch(parameterType){
+        //     case Daliuge.FieldType.ApplicationArgument:
+        //         dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
+        //         divID = "nodeInspectorAddApplicationParamDiv";
+        //         break;
+        //     case Daliuge.FieldType.ComponentParameter:
+        //         dropDownKO = $("#nodeInspectorFieldDropDownKO");
+        //         divID = "nodeInspectorAddFieldDiv";
+        //         break;
+        //     case Daliuge.FieldType.ConstructParameter:
+        //         dropDownKO = $("#nodeInspectorConstructParameterDropDownKO");
+        //         divID = "nodeInspectorAddConstructParameterDiv";
+        //         break;
+        //     default:
+        //     console.error("Unknown parameter type");
+        // }
 
-        // or if we are a port, then use different dropdowns
-        switch(parameterUsage){
-            case Daliuge.FieldUsage.InputPort:
-            dropDownKO = $("#nodeInspectorInputPortDropDownKO");
-            divID = "nodeInspectorAddInputPortDiv";
-            break;
-            case Daliuge.FieldUsage.OutputPort:
-            dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
-            divID = "nodeInspectorAddOutputPortDiv";
-            break;
-        }
+        // // or if we are a port, then use different dropdowns
+        // switch(parameterUsage){
+        //     case Daliuge.FieldUsage.InputPort:
+        //     dropDownKO = $("#nodeInspectorInputPortDropDownKO");
+        //     divID = "nodeInspectorAddInputPortDiv";
+        //     break;
+        //     case Daliuge.FieldUsage.OutputPort:
+        //     dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
+        //     divID = "nodeInspectorAddOutputPortDiv";
+        //     break;
+        // }
 
-        if (modalType === Eagle.ModalType.Add){
-            // remove existing options from the select tag
-            $('#fieldModalSelect').empty();
-            dropDownKO.empty();
+        // if (modalType === Eagle.ModalType.Add){
+        //     // remove existing options from the select tag
+        //     $('#fieldModalSelect').empty();
+        //     dropDownKO.empty();
 
-            // add empty choice
-            $('#fieldModalSelect').append($('<option>', {
-                value: -1,
-                text: ""
-            }));
-            dropDownKO.append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'" + divID + "')}",
-                value: -1,
-                text: ""
-            }));
+        //     // add empty choice
+        //     $('#fieldModalSelect').append($('<option>', {
+        //         value: -1,
+        //         text: ""
+        //     }));
+        //     dropDownKO.append($('<a>', {
+        //         href: "#",
+        //         class: "nodeInspectorDropdownOption",
+        //         "data-bind":"click:function(){nodeInspectorDropdownClick(-1,'" + divID + "')}",
+        //         value: -1,
+        //         text: ""
+        //     }));
 
-            // add custom choice first
-            $('#fieldModalSelect').append($('<option>', {
-                value: 0,
-                text: "<Custom>"
-            }));
-            dropDownKO.append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+0+", "+choices.length+",'" + divID + "')}",
-                value: 0,
-                text: "<Custom>"
-            }));
+        //     // add custom choice first
+        //     $('#fieldModalSelect').append($('<option>', {
+        //         value: 0,
+        //         text: "<Custom>"
+        //     }));
+        //     dropDownKO.append($('<a>', {
+        //         href: "#",
+        //         class: "nodeInspectorDropdownOption",
+        //         "data-bind":"click:function(){nodeInspectorDropdownClick("+0+",'" + divID + "')}",
+        //         value: 0,
+        //         text: "<Custom>"
+        //     }));
 
-            // add options to the modal select tag
-            for (let i = 0 ; i < choices.length ; i++){
-                $('#fieldModalSelect').append($('<option>', {
-                    value: i+1,
-                    text: choices[i]
-                }));
-                dropDownKO.append($('<a>', {
-                    href: "#",
-                    class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+(i+1)+", "+choices.length+",'" + divID + "')}",
-                    value: i+1,
-                    text: choices[i]
-                }));
-            }
+        //     // add options to the modal select tag
+        //     for (let i = 0 ; i < choices.length ; i++){
+        //         $('#fieldModalSelect').append($('<option>', {
+        //             value: i+1,
+        //             text: choices[i]
+        //         }));
+        //         dropDownKO.append($('<a>', {
+        //             href: "#",
+        //             class: "nodeInspectorDropdownOption",
+        //             "data-bind":"click:function(){nodeInspectorDropdownClick("+(i+1)+",'" + divID + "')}",
+        //             value: i+1,
+        //             text: choices[i]
+        //         }));
+        //     }
 
-            //applying knockout bindings for the new buttons generated above
-            ko.cleanNode(dropDownKO[0]);
-            ko.applyBindings(eagle, dropDownKO[0]);
+        //     //applying knockout bindings for the new buttons generated above
+        //     ko.cleanNode(dropDownKO[0]);
+        //     ko.applyBindings(eagle, dropDownKO[0]);
 
-            // set the type/usage of the new field to match the details requested by the user
-            field.setParameterType(parameterType);
-            field.setUsage(parameterUsage);
-        }
+        //     // set the type/usage of the new field to match the details requested by the user
+        //     field.setParameterType(parameterType);
+        //     field.setUsage(parameterUsage);
+        // }
 
         // console.log($('#editFieldModalDisplayTextInput'))
 

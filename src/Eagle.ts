@@ -3491,7 +3491,7 @@ export class Eagle {
 
     // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
     // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
-    nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
+    nodeInspectorDropdownClick = (val:number, divID:string) : void => {
         const selectSectionID : string = "fieldModalSelect";
         const modalID : string = "editFieldModal";
         const submitBtnID: string = "editFieldModalAffirmativeButton";
@@ -3514,9 +3514,11 @@ export class Eagle {
             // triggers the modal 'lightbox' to show
             $(".modal-backdrop").removeClass("forceHide");
         }else{
+            console.log('bop',this.selectedNode().getFields()[val].getDisplayText())
+            this.currentField(this.selectedNode().getFields()[val])
             $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
-            $("#"+modalID).removeClass("forceHide");
+            $("#"+modalID).removeClass("forceHide");   
             $(".modal-backdrop").removeClass("forceHide");
             $("#"+submitBtnID).click()
             this.hideDropDown(divID)
@@ -3921,7 +3923,7 @@ export class Eagle {
                 if (choice === -1){
                     return;
                 }
-
+                console.log('choice: ', choice)
                 // hide the custom text input unless the first option in the select is chosen
                 if (choice === 0){
                     newField.setParameterType(parameterType);
@@ -3930,7 +3932,8 @@ export class Eagle {
                     node.addField(newField);
 
                 } else {
-                    const clone : Field = allFields[choice-1].clone();
+                    console.log('field: ',this.currentField().getDisplayText())
+                    const clone : Field = this.currentField().clone();
                     clone.setId(Utils.uuidv4());
                     clone.setParameterType(parameterType);
                     node.addField(clone);
