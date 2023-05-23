@@ -34,17 +34,22 @@ import { FileInfo } from './FileInfo';
 import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
+import { ReproData } from "./ReproData";
 import { Setting } from "./Setting";
 import { Utils } from './Utils';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
+    reproData : ko.Observable<ReproData>;
     private nodes : Node[];
     private edges : Edge[];
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Graph;
+
+        this.reproData = ko.observable(new ReproData());
+        
         this.nodes = [];
         this.edges = [];
     }
@@ -54,6 +59,8 @@ export class LogicalGraph {
 
         result.modelData = FileInfo.toJson(graph.fileInfo());
         result.modelData.numLGNodes = graph.getNodes().length;
+
+        result.reproData = ReproData.toJson(graph.reproData());
 
         // add nodeData
         result.nodeData = {};
@@ -65,7 +72,7 @@ export class LogicalGraph {
         }
 
         // add reproData
-        result.reproData = LogicalGraph.reproData(graph);
+        result.reproData = ReproData.toJson(graph.reproData());
 
         // add uxData
         result.uxData = {};
@@ -120,6 +127,9 @@ export class LogicalGraph {
 
         // copy modelData into fileInfo
         result.fileInfo(FileInfo.fromJson(dataObject.modelData, errorsWarnings));
+
+        // copy reproducibility data
+        result.reproData(ReproData.fromJson(dataObject.reproData, errorsWarnings));
 
         // add nodes
         for (const [nodeKey, nodeData] of Object.entries(dataObject.nodeData)){
@@ -378,21 +388,6 @@ export class LogicalGraph {
             }
         }
         return null;
-    }
-
-    // TODO: replace
-    static reproData = (lg: LogicalGraph): object => {
-        return {
-            "rmode": "0",
-            "meta_data": {
-                "repro_protocol": 1.0,
-                "HashingAlg": "sha3_256"
-            },
-            "merkleroot": "d6fe04ac53bff66cede8d962dfc870cb0f8609ff901a000817512fc18b954a43",
-            "NOTHING": {
-                "signature": "1e05f5ee8cbc254c0892129ce851d1ad3ae9c9d551627238b71d6bc63d7ff6e5"
-            }
-        };
     }
 
     addNodeComplete = (node : Node) => {

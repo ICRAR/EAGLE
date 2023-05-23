@@ -106,6 +106,18 @@ export namespace Daliuge {
         AppRef = "AppRef"
     }
 
+    export enum ReproducibilityMode {
+        Nothing = 0,
+        All = -1,
+        Rerun = 1,
+        Repeat = 2,
+        Recompute = 4,
+        Reproduce = 5,
+        Replicate_Sci = 6,
+        Replicate_Comp = 7,
+        Replicate_Totally = 8
+    }
+
     // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
     export const requiredFields = [
         {

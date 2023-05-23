@@ -26,7 +26,6 @@ export class FileInfo {
     private _repositoryUrl : ko.Observable<string>;
     private _commitHash : ko.Observable<string>;
     private _downloadUrl : ko.Observable<string>;
-    private _signature : ko.Observable<string>;
 
     private _lastModifiedName : ko.Observable<string>;
     private _lastModifiedEmail : ko.Observable<string>;
@@ -54,7 +53,6 @@ export class FileInfo {
         this._repositoryUrl = ko.observable("");
         this._commitHash = ko.observable("");
         this._downloadUrl = ko.observable("");
-        this._signature = ko.observable("");
 
         this._lastModifiedName = ko.observable("");
         this._lastModifiedEmail = ko.observable("");
@@ -199,14 +197,6 @@ export class FileInfo {
         this._downloadUrl(downloadUrl);
     }
 
-    get signature() : string{
-        return this._signature();
-    }
-
-    set signature(signature : string){
-        this._signature(signature);
-    }
-
     get lastModifiedName() : string{
         return this._lastModifiedName();
     }
@@ -259,7 +249,6 @@ export class FileInfo {
         this._repositoryUrl("");
         this._commitHash("");
         this._downloadUrl("");
-        this._signature("");
 
         this._lastModifiedName("");
         this._lastModifiedEmail("");
@@ -290,7 +279,6 @@ export class FileInfo {
         result.repositoryUrl = this._repositoryUrl();
         result.commitHash = this._commitHash();
         result.downloadUrl = this._downloadUrl();
-        result.signature = this._signature();
 
         result.lastModifiedName = this._lastModifiedName();
         result.lastModifiedEmail = this._lastModifiedEmail();
@@ -383,7 +371,6 @@ export class FileInfo {
         s += " Repository URL:" + this._repositoryUrl();
         s += " Commit Hash:" + this._commitHash();
         s += " Download URL:" + this._downloadUrl();
-        s += " signature:" + this._signature();
 
         s += " Last Modified Name:" + this._lastModifiedName();
         s += " Last Modified Email:" + this._lastModifiedEmail();
@@ -415,7 +402,6 @@ export class FileInfo {
             repositoryUrl: fileInfo.repositoryUrl,
             commitHash: fileInfo.commitHash,
             downloadUrl: fileInfo.downloadUrl,
-            signature: fileInfo.signature,
 
             lastModifiedName: fileInfo.lastModifiedName,
             lastModifiedEmail: fileInfo.lastModifiedEmail,
@@ -455,7 +441,6 @@ export class FileInfo {
         result.repositoryUrl = modelData.repositoryUrl == undefined ? "" : modelData.repositoryUrl;
         result.commitHash = modelData.commitHash == undefined ? "" : modelData.commitHash;
         result.downloadUrl = modelData.downloadUrl == undefined ? "" : modelData.downloadUrl;
-        result.signature = modelData.signature == undefined ? "" : modelData.signature;
 
         result.lastModifiedName = modelData.lastModifiedName == undefined ? "" : modelData.lastModifiedName;
         result.lastModifiedEmail = modelData.lastModifiedEmail == undefined ? "" : modelData.lastModifiedEmail;

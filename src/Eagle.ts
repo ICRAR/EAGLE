@@ -1269,7 +1269,6 @@ export class Eagle {
         cloneLG.fileInfo().repositoryUrl = "";
         cloneLG.fileInfo().commitHash = "";
         cloneLG.fileInfo().downloadUrl = "";
-        cloneLG.fileInfo().signature = "";
         cloneLG.fileInfo().lastModifiedName = "";
         cloneLG.fileInfo().lastModifiedEmail = "";
         cloneLG.fileInfo().lastModifiedDatetime = 0;

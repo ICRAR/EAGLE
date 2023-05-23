@@ -418,7 +418,9 @@ export class GraphUpdater {
                         row.repositoryUrl = lg.fileInfo().repositoryUrl;
                         row.commitHash = lg.fileInfo().commitHash;
                         row.downloadUrl = lg.fileInfo().downloadUrl;
-                        row.signature = lg.fileInfo().signature;
+                        row.merkleroot = lg.reproData().merkleroot;
+                        row.signature = lg.reproData().signature;
+                        row.rmode = lg.reproData().mode;
 
                         // convert date from timestamp to date string
                         const date = new Date(lg.fileInfo().lastModifiedDatetime * 1000);
