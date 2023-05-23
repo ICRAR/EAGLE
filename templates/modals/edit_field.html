@@ -30,8 +30,12 @@
                                 <div class="col">
                                     <div class="input-group mb-3 has-validation">
                                         <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
-                                            <!-- ko ifnot: $data.getType() === 'Integer' -->    
+                                            <!-- ko ifnot: $data.getHtmlInputType() === 'number' -->    
                                                 <textarea type="text" class="form-control" id="editFieldModalValueInputText" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], attr: {type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();},input:function(data,event){Modals.validateFieldModalValueInputText(data,event)}}, eagleTooltip: getFieldValue()"></textarea>
+                                            <!-- /ko --> 
+                                            <!-- ko if: $data.getType() === 'Float' -->    
+                                                <input type="number" id="editFieldModalValueInputNumber" class="form-control" min="0" data-bind=" valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
+
                                             <!-- /ko --> 
                                             <!-- ko if: $data.getType() === 'Integer' -->    
                                                 <input type="number" id="editFieldModalValueInputNumber" class="form-control" min="0" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind=" valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
@@ -58,9 +62,12 @@
                                 <div class="col">
                                     <div class="input-group mb-3">
                                         <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
-                                            <!-- ko ifnot: $data.getType() === 'Integer' -->    
+                                            <!-- ko ifnot: $data.getHtmlInputType() === 'number' -->    
                                                 <textarea type="text" class="form-control" id="editFieldModalDefaultValueInputText" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated()},keyup:function(data,event){Modals.validateFieldModalValueInputText(data,event)}}"></textarea>
                                             <!-- /ko --> 
+                                            <!-- ko if: $data.getType() === 'Float' -->    
+                                                <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control" min="0" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
+                                                <!-- /ko --> 
                                             <!-- ko if: $data.getType() === 'Integer' -->    
                                                 <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control" min="0" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
                                             <!-- /ko --> 
