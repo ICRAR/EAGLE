@@ -213,6 +213,9 @@ body {
 #parameterTableModal .modal-dialog input, #editFieldModal .modal-dialog .dropdown input{
     border: none;
     width:100%;
+}
+
+#editFieldModal .defaultSelectCustom{
     background: transparent;
 }
 
@@ -242,7 +245,7 @@ body {
     border-right: 1px solid rgb(14 2 76 / 16%);
 }
 
-#parameterTableModal .modal-dialog td i{
+#parameterTableModal .modal-dialog td i,#editFieldModal .modal-body .dropdown-item i{
     margin-left: 50%;
     transform: translate(-50%, 2px);
 }
@@ -258,6 +261,7 @@ body {
 
 #parameterTableModal .dropdown-item.add,#editFieldModal .dropdown-item.add{
     background-color: rgb(235 236 241);
+    cursor: pointer;
 }
 
 #parameterTableModal .dropdown-menu,#editFieldModal .dropdown-menu{
@@ -265,6 +269,8 @@ body {
     border:1px solid black;
     overflow: hidden;
     min-width: 8rem;
+    max-height:200px;
+    overflow-y: auto;
 }
 
 #parameterTableModal .modal-dialog .typesInput, #edintFieldModal .modal-dialog .typesInput{
