@@ -1414,6 +1414,108 @@ export class Node {
             node.drawOrderHint(nodeData.drawOrderHint);
         }
 
+        // keys for embedded applications
+        let inputApplicationKey: number = null;
+        let outputApplicationKey: number = null;
+        if (typeof nodeData.inputApplicationKey !== 'undefined'){
+            inputApplicationKey = nodeData.inputApplicationKey;
+        }
+        if (typeof nodeData.outputApplicationKey !== 'undefined'){
+            outputApplicationKey = nodeData.outputApplicationKey;
+        }
+
+        // read embedded application data from node
+        let inputApplicationName: string = "";
+        let inputApplicationType: Category = Category.None;
+        let inputApplicationDescription: string = "";
+        let outputApplicationName: string = "";
+        let outputApplicationType: Category = Category.None;
+        let outputApplicationDescription: string = "";
+
+        if (typeof nodeData.inputAppName !== 'undefined'){
+            inputApplicationName = nodeData.inputAppName;
+        }
+        if (typeof nodeData.inputApplicationName !== 'undefined'){
+            inputApplicationName = nodeData.inputApplicationName;
+        }
+        if (typeof nodeData.inputApplicationType !== 'undefined'){
+            inputApplicationType = nodeData.inputApplicationType;
+        }
+        if (typeof nodeData.inputApplicationDescription !== 'undefined'){
+            inputApplicationDescription = nodeData.inputApplicationDescription;
+        }
+        if (typeof nodeData.outputAppName !== 'undefined'){
+            outputApplicationName = nodeData.outputAppName;
+        }
+        if (typeof nodeData.outputApplicationName !== 'undefined'){
+            outputApplicationName = nodeData.outputApplicationName;
+        }
+        if (typeof nodeData.outputApplicationType !== 'undefined'){
+            outputApplicationType = nodeData.outputApplicationType; 
+        }
+        if (typeof nodeData.outputApplicationDescription !== 'undefined'){
+            outputApplicationDescription = nodeData.outputApplicationDescription;
+        }
+
+        // debug
+        //console.log("node", nodeData.text);
+        //console.log("inputAppName", nodeData.inputAppName, "inputApplicationName", nodeData.inputApplicationName, "inpuApplication", nodeData.inputApplication, "inputApplicationType", nodeData.inputApplicationType);
+        //console.log("outputAppName", nodeData.outputAppName, "outputApplicationName", nodeData.outputApplicationName, "outputApplication", nodeData.outputApplication, "outputApplicationType", nodeData.outputApplicationType);
+
+        // these next six if statements are covering old versions of nodes, that
+        // specified input and output applications using name strings rather than nested nodes.
+        // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
+        if (inputApplicationName !== ""){
+            if (!CategoryData.getCategoryData(category).canHaveInputApplication){
+                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
+            } else {
+                // check applicationType is an application
+                if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
+                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, inputApplicationName, inputApplicationType, inputApplicationDescription, node.getKey()));
+                } else {
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
+                }
+            }
+        }
+
+        if (inputApplicationName !== "" && inputApplicationType !== Category.None){
+            if (!CategoryData.getCategoryData(category).canHaveInputApplication){
+                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
+            } else {
+                // check applicationType is an application
+                if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
+                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, inputApplicationName, inputApplicationType, inputApplicationDescription, node.getKey()));
+                } else {
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
+                }
+            }
+        }
+
+        if (outputApplicationName !== ""){
+            if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
+                errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
+            } else {
+                // check applicationType is an application
+                if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
+                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, outputApplicationName, outputApplicationType, outputApplicationDescription, node.getKey()));
+                } else {
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
+                }
+            }
+        }
+
+        if (outputApplicationName !== "" && outputApplicationType !== Category.None){
+            if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
+                errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
+            } else {
+                if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
+                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, outputApplicationName, outputApplicationType, outputApplicationDescription, node.getKey()));
+                } else {
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
+                }
+            }
+        }
+
         // set parentKey if a group is defined
         if (typeof nodeData.group !== 'undefined'){
             node.parentKey(nodeData.group);
@@ -1422,6 +1524,21 @@ export class Node {
         // set embedKey if defined
         if (typeof nodeData.embedKey !== 'undefined'){
             node.embedKey(nodeData.embedKey);
+        }
+
+        // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
+        if (nodeData.application !== undefined && nodeData.application !== ""){
+            errorsWarnings.errors.push(Errors.Message("Only found old application type, not new input application type and output application type: " + category));
+
+            if (!CategoryData.getCategoryData(category).canHaveInputApplication){
+                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
+            } else {
+                if (CategoryData.getCategoryData(category).categoryType === Category.Type.Application){
+                    node.inputApplication(Node.createEmbeddedApplicationNode(null, nodeData.application, category, "", node.getKey()));
+                } else {
+                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + category + ", to node."));
+                }
+            }
         }
 
         // read the 'real' input and output apps, correctly specified as nested nodes
@@ -1519,7 +1636,6 @@ export class Node {
         }
 
         // add application params
-        // TODO: remove
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
                 const field = Field.fromJson(paramData);
@@ -1529,7 +1645,6 @@ export class Node {
         }
 
         // add inputAppFields
-        // TODO: remove
         if (typeof nodeData.inputAppFields !== 'undefined'){
             for (const fieldData of nodeData.inputAppFields){
                 if (node.hasInputApplication()){
@@ -1542,7 +1657,6 @@ export class Node {
         }
 
         // add outputAppFields
-        // TODO: remove
         if (typeof nodeData.outputAppFields !== 'undefined'){
             for (const fieldData of nodeData.outputAppFields){
                 if (node.hasOutputApplication()){
@@ -1555,7 +1669,6 @@ export class Node {
         }
 
         // add input ports
-        // TODO: remove
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
                 const port = Field.fromJson(inputPort);
@@ -1565,14 +1678,12 @@ export class Node {
                 if (node.canHaveInputs()){
                     node.addField(port);
                 } else {
-                    //Node.addPortToEmbeddedApplication(node, port, true, errorsWarnings, generateKeyFunc);
-                    errorsWarnings.errors.push(Errors.Message("Node (" + node.getName() + ") not allowed to have input ports. Can't add " + port.getDisplayText()));
+                    Node.addPortToEmbeddedApplication(node, port, true, errorsWarnings, generateKeyFunc);
                 }
             }
         }
 
         // add output ports
-        // TODO: remove
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
                 const port = Field.fromJson(outputPort);
@@ -1582,14 +1693,12 @@ export class Node {
                 if (node.canHaveOutputs()){
                     node.addField(port);
                 } else {
-                    //Node.addPortToEmbeddedApplication(node, port, false, errorsWarnings, generateKeyFunc);
-                    errorsWarnings.errors.push(Errors.Message("Node (" + node.getName() + ") not allowed to have output ports. Can't add " + port.getDisplayText()));
+                    Node.addPortToEmbeddedApplication(node, port, false, errorsWarnings, generateKeyFunc);
                 }
             }
         }
 
         // add input local ports
-        // TODO: remove
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (const inputLocalPort of nodeData.inputLocalPorts){
                 if (node.hasInputApplication()){
@@ -1605,7 +1714,6 @@ export class Node {
         }
 
         // add output local ports
-        // TODO: remove
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
                 const port = Field.fromJson(outputLocalPort);
@@ -1648,6 +1756,54 @@ export class Node {
     private static copyPorts(src: Field[], dest: {}[]):void{
         for (const port of src){
             dest.push(Field.toJson(port));
+        }
+    }
+
+    private static addPortToEmbeddedApplication(node: Node, port: Field, input: boolean, errorsWarnings: Errors.ErrorsWarnings, generateKeyFunc: () => number){
+        // check that the node already has an appropriate embedded application, otherwise create it
+        if (input){
+            if (!node.hasInputApplication()){
+                if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
+                    node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getDisplayText(), Category.UnknownApplication, "", node.getKey()));
+                    errorsWarnings.errors.push(Errors.Message("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention."));
+                } else {
+                    errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
+                    return;
+                }
+            }
+            node.inputApplication().addField(port);
+            errorsWarnings.warnings.push(Errors.Message("Moved input port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")"));
+        } else {
+            // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
+            if (node.canHaveOutputApplication()){
+                if (!node.hasOutputApplication()){
+                    if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
+                        node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getDisplayText(), Category.UnknownApplication, "", node.getKey()));
+                        errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention."));
+                    } else {
+                        errorsWarnings.errors.push(Errors.Message("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
+                        return;
+                    }
+                }
+                node.outputApplication().addField(port);
+                errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")"));
+            } else {
+                // if possible, add port to output side of input application
+                if (node.canHaveInputApplication()){
+                    if (!node.hasInputApplication()){
+                        if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
+                            node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getDisplayText(), Category.UnknownApplication, "", node.getKey()));
+                        } else {
+                            errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
+                            return;
+                        }
+                    }
+                    node.inputApplication().addField(port);
+                    errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application"));
+                } else {
+                    errorsWarnings.errors.push(Errors.Message("Can't add port to embedded application. Node can't have output OR exit application."));
+                }
+            }
         }
     }
 

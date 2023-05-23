@@ -439,6 +439,10 @@ export class Field {
                     parameterType = Daliuge.FieldType.ComponentParameter;
                     usage = Daliuge.FieldUsage.NoPort;
                     break;
+                case "ConstructParameter":
+                    parameterType = Daliuge.FieldType.ComponentParameter;
+                    usage = Daliuge.FieldUsage.NoPort;
+                    break;
                 case "ApplicationArgument":
                     parameterType = Daliuge.FieldType.ApplicationArgument;
                     usage = Daliuge.FieldUsage.NoPort;

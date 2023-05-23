@@ -80,6 +80,7 @@ export class LogicalGraph {
         result.linkData = {};
         for (let i = 0 ; i < graph.edges.length ; i++){
             const edge = graph.edges[i];
+
             const srcNode = graph.findNodeByKey(edge.getSrcNodeKey());
             const destNode = graph.findNodeByKey(edge.getDestNodeKey());
 
@@ -242,6 +243,10 @@ export class LogicalGraph {
 
             const srcNode = graph.findNodeByKey(srcKey);
             const destNode = graph.findNodeByKey(destKey);
+            if (srcNode === null || destNode === null){
+                console.warn("Could not find edge src and/or dest node in graph", srcKey, srcNode, destKey, destNode);
+                continue;
+            }
 
             // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
             if (srcNode.isEmbedded()){
@@ -301,51 +306,11 @@ export class LogicalGraph {
                 continue;
             }
 
-            // if this node is embedded within another node, we don't add it to the main nodes array, instead it is placed within the node that embeds it (handled later)
-            if (newNode.getEmbedKey() !== null){
-                continue;
-            }
-
-            if (nodeData.inputApplicationKey !== null){
-                const inputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.inputApplicationKey);
-
-                if (inputApplicationIndex !== -1){
-                    const inputApplicationNode = Node.fromOJSJson(dataObject.nodeDataArray[inputApplicationIndex], errorsWarnings, false, (): number => {
-                        const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
-                        const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
-                        const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
-        
-                        const newKey = Utils.findNewKey(combinedKeys);
-        
-                        extraUsedKeys.push(newKey);
-                        return newKey;
-                    });
-
-                    newNode.setInputApplication(inputApplicationNode);
-                }
-            }
-
-            if (nodeData.outputApplicationKey !== null){
-                const outputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.outputApplicationKey);
-
-                if (outputApplicationIndex !== -1){
-                    const outputApplicationNode = Node.fromOJSJson(dataObject.nodeDataArray[outputApplicationIndex], errorsWarnings, false, (): number => {
-                        const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
-                        const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
-                        const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
-        
-                        const newKey = Utils.findNewKey(combinedKeys);
-        
-                        extraUsedKeys.push(newKey);
-                        return newKey;
-                    });
-
-                    newNode.setOutputApplication(outputApplicationNode);
-                }
-            }
-
             result.nodes.push(newNode);
         }
+
+        // set keys for all embedded nodes
+        Utils.setEmbeddedApplicationNodeKeys(result);
 
         // make sure to set parentId for all nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
@@ -388,12 +353,14 @@ export class LogicalGraph {
                 const srcKeyAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPortId());
                 const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNodeKey() + " to embedded application " + srcKeyAndPort.key;
                 errorsWarnings.warnings.push(Errors.Message(warning));
+                console.warn(warning);
                 edge.setSrcNodeKey(srcKeyAndPort.key);
             }
             if (destinationNode.getCategoryType() === Category.Type.Construct){
                 const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPortId());
                 const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNodeKey() + " to embedded application " + destKeyAndPort.key;
                 errorsWarnings.warnings.push(Errors.Message(warning));
+                console.warn(warning);
                 edge.setDestNodeKey(destKeyAndPort.key);
             }
         }

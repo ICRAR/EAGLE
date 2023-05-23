@@ -2105,6 +2105,7 @@ export class Utils {
                 "destNodeKey":edge.getDestNodeKey(),
                 "destPortId":edge.getDestPortId(),
                 "loopAware":edge.isLoopAware(),
+                "closesLoop":edge.isClosesLoop(),
                 "isSelectionRelative":edge.getSelectionRelative()
             });
         }
@@ -2232,7 +2233,7 @@ export class Utils {
         Utils.httpGet(fileName, callback);
     }
 
-    static isEmpty(o) {
+    static isEmpty(o: any) {
         for ( const p in o ) {
             if ( o.hasOwnProperty( p ) ) { return false; }
         }
@@ -2256,5 +2257,5 @@ export class Utils {
          }
         }
         return ret;
-      };
+    }
 }
