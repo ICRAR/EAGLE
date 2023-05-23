@@ -3882,7 +3882,7 @@ export class Eagle {
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
     editField = (node:Node, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, id: string) : void => {
-        console.log("editField", modalType, parameterType, usage, id);
+        // console.log("editField", modalType, parameterType, usage, id);
 
         // get field names list from the logical graph
         const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), parameterType);

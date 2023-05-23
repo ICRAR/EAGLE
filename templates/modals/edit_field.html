@@ -28,7 +28,7 @@
                                     <p>Value:</p>
                                 </div>
                                 <div class="col">
-                                    <div class="input-group mb-3 has-validation">
+                                    <div class="input-group mb-3">
                                         <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
                                             <!-- ko ifnot: $data.getHtmlInputType() === 'number' -->    
                                                 <textarea type="text" class="form-control" id="editFieldModalValueInputText" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], attr: {type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();},input:function(data,event){Modals.validateFieldModalValueInputText(data,event)}}, eagleTooltip: getFieldValue()"></textarea>
@@ -162,7 +162,7 @@
                                     <p>Parameter Type:</p>
                                 </div>
                                 <div class="col">
-                                    <div class="form-group">
+                                    <div class="form-group mb-3">
                                         <select class="form-control" id="editFieldModalParameterTypeSelect"data-bind="options: Object.values(Daliuge.FieldType), value: parameterType">
                                             <!-- options are added dynamically -->
                                         </select>
@@ -174,7 +174,7 @@
                                     <p>Parameter Usage:</p>
                                 </div>
                                 <div class="col">
-                                    <div class="form-group">
+                                    <div class="form-group mb-3">
                                         <select class="form-control" id="editFieldModalParameterUsageSelect" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, event: {change: $root.parameterTable().fieldUsageChanged}">
                                             <!-- options are added dynamically -->
                                         </select>

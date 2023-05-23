@@ -219,6 +219,10 @@ body {
     background: transparent;
 }
 
+#editFieldModal select{
+    margin: 0px;
+}
+
 #parameterTableModal .modal-dialog input:read-only{
     color: rgb(91 91 91);
 }
