@@ -1814,7 +1814,7 @@ export class Node {
         result.categoryType = node.categoryType();
 
         result.isGroup = node.isGroup();
-        result.group = node.getEmbedKey();
+        result.group = node.getParentKey();
         result.key = node.key();
         result.name = node.name();
         result.description = node.description();
