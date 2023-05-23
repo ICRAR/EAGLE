@@ -313,64 +313,66 @@ export class Modals {
             //     defaultValueSelect = $('#editFieldModalDefaultValueInputSelect').val().toString();
             // }
 
-            const description: string = $('#editFieldModalDescriptionInput').val().toString();
-            const type: string = $('#editFieldModalTypeInput').val().toString();
-            let parameterType: string = "";
-            if ($('#editFieldModalParameterTypeSelect').val()){
-                parameterType = $('#editFieldModalParameterTypeSelect').val().toString();
-            }
-            let parameterUsage: string = "";
-            if ($('#editFieldModalParameterUsageSelect').val()){
-                parameterUsage = $('#editFieldModalParameterUsageSelect').val().toString();
-            }
+            // const description: string = $('#editFieldModalDescriptionInput').val().toString();
+            // const type: string = $('#editFieldModalTypeInput').val().toString();
+            // let parameterType: string = "";
+            // if ($('#editFieldModalParameterTypeSelect').val()){
+            //     parameterType = $('#editFieldModalParameterTypeSelect').val().toString();
+            // }
+            // let parameterUsage: string = "";
+            // if ($('#editFieldModalParameterUsageSelect').val()){
+            //     parameterUsage = $('#editFieldModalParameterUsageSelect').val().toString();
+            // }
 
-            // NOTE: currently no way to edit options in the "select"-type fields
-            const options: string[] = [];
+            // // NOTE: currently no way to edit options in the "select"-type fields
+            // const options: string[] = [];
 
-            const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
-            const readonly: boolean = $('#editFieldModalAccessInputCheckbox').prop('checked');
-            const keyParameter: boolean = $('#editFieldModalKeyParameterCheckbox').prop('checked');
-            const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
+            // const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
+            // const readonly: boolean = $('#editFieldModalAccessInputCheckbox').prop('checked');
+            // const keyParameter: boolean = $('#editFieldModalKeyParameterCheckbox').prop('checked');
+            // const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
 
-            // translate type
-            const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
-            const realParameterType: Daliuge.FieldType = Utils.translateStringToParameterType(parameterType);
-            const realParameterUsage: Daliuge.FieldUsage = Utils.translateStringToParameterUsage(parameterUsage);
+            // // translate type
+            // const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
+            // const realParameterType: Daliuge.FieldType = Utils.translateStringToParameterType(parameterType);
+            // const realParameterUsage: Daliuge.FieldUsage = Utils.translateStringToParameterUsage(parameterUsage);
 
-            let newField;
-            switch(realType){
-                case Daliuge.DataType.Boolean:
-                    newValue = $('#editFieldModalValueInputCheckbox').prop('checked').toString();
-                    newDefaultValue = $('#editFieldModalDefaultValueInputCheckbox').prop('checked').toString();
-                    newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
-                    break;
-                case Daliuge.DataType.Select:
-                    if ($('#editFieldModalValueInputSelect').val()){
-                        newValue = $('#editFieldModalValueInputSelect').val().toString();
-                    }
-                    if ($('#editFieldModalDefaultValueInputSelect').val()){
-                        newDefaultValue = $('#editFieldModalDefaultValueInputSelect').val().toString();
-                    }
-                    newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
-                    break;
-                case Daliuge.DataType.Integer:
-                    newValue = $('#editFieldModalValueInputNumber').val().toString();
-                    newDefaultValue = $('#editFieldModalDefaultValueInputNumber').val().toString();
-                    newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
-                    break;
-                case Daliuge.DataType.Float:
-                    newValue = $('#editFieldModalValueInputNumber').val().toString();
-                    newDefaultValue = $('#editFieldModalDefaultValueInputNumber').val().toString();
-                    newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
-                    break;
-                default:
-                    newValue = $('#editFieldModalValueInputText').val().toString();
-                    newDefaultValue = $('#editFieldModalDefaultValueInputText').val().toString();
-                    newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
-                    break;
-            }
+            // let newField;
+            // switch(realType){
+            //     case Daliuge.DataType.Boolean:
+            //         newValue = $('#editFieldModalValueInputCheckbox').prop('checked').toString();
+            //         newDefaultValue = $('#editFieldModalDefaultValueInputCheckbox').prop('checked').toString();
+            //         newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+            //         break;
+            //     case Daliuge.DataType.Select:
+            //         if ($('#editFieldModalValueInputSelect').val()){
+            //             newValue = $('#editFieldModalValueInputSelect').val().toString();
+            //         }
+            //         if ($('#editFieldModalDefaultValueInputSelect').val()){
+            //             newDefaultValue = $('#editFieldModalDefaultValueInputSelect').val().toString();
+            //         }
+            //         newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+            //         break;
+            //     case Daliuge.DataType.Integer:
+            //         newValue = $('#editFieldModalValueInputNumber').val().toString();
+            //         newDefaultValue = $('#editFieldModalDefaultValueInputNumber').val().toString();
+            //         newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+            //         break;
+            //     case Daliuge.DataType.Float:
+            //         newValue = $('#editFieldModalValueInputNumber').val().toString();
+            //         newDefaultValue = $('#editFieldModalDefaultValueInputNumber').val().toString();
+            //         newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+            //         break;
+            //     default:
+            //         newValue = $('#editFieldModalValueInputText').val().toString();
+            //         newDefaultValue = $('#editFieldModalDefaultValueInputText').val().toString();
+            //         newField = new Field(id, displayText, newValue, newDefaultValue, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
+            //         break;
+            // }
 
-            callback(true, newField);
+            eagle.openParamsTableModal('inspectorTableModal','normal')
+
+            // callback(true, newField);
         });
 
         //WIP was already commented out, whats this
