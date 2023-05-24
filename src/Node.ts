@@ -24,15 +24,18 @@
 
 import * as ko from "knockout";
 
-import {Utils} from './Utils';
-import {GraphUpdater} from './GraphUpdater';
-import {Eagle} from './Eagle';
-import {Field} from './Field';
-import {Errors} from './Errors';
-import {Category} from './Category';
-import {CategoryData} from './CategoryData';
-import {Setting} from './Setting';
-import {Daliuge} from './Daliuge';
+import { Category } from './Category';
+import { CategoryData } from './CategoryData';
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+
+import { Errors } from './Errors';
+import { Field } from './Field';
+import { GraphUpdater } from './GraphUpdater';
+
+import { ReproData } from "./ReproData";
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class Node {
     private _id : string
@@ -75,6 +78,8 @@ export class Node {
     private commitHash : ko.Observable<string>;
     private paletteDownloadUrl : ko.Observable<string>;
     private dataHash : ko.Observable<string>;
+
+    private reproData : ko.Observable<ReproData>;
 
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 72;
@@ -139,6 +144,8 @@ export class Node {
         this.commitHash = ko.observable("");
         this.paletteDownloadUrl = ko.observable("");
         this.dataHash = ko.observable("");
+
+        this.reproData = ko.observable(new ReproData());
     }
 
     getId = () : string => {
@@ -1843,7 +1850,7 @@ export class Node {
             result.outputApplicationKey = null;
         }
 
-        result.reprodata = Node.reproData(node);
+        result.reprodata = ReproData.toJson(node.reproData());
 
         result.id = node.getId();
         result.parentConstructKey = node.getEmbedKey();
@@ -1935,6 +1942,9 @@ export class Node {
         if (typeof nodeData.dataHash !== 'undefined'){
             result.dataHash(nodeData.dataHash);
         }
+
+        // reproData - nodeData
+        result.reproData(ReproData.fromJson(nodeData.reproData, errorsWarnings));
 
         // x/y - uxData
         let x = 0;
@@ -2115,24 +2125,6 @@ export class Node {
         const node = new Node(key, name, description, category);
         node.setEmbedKey(embedKey);
         return node;
-    }
-
-    // TODO: replace
-    static reproData = (node: Node) : object => {
-        return {
-            "rmode": "0",
-            "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
-            }
-        };
     }
 
     static isValid = (eagle: Eagle, node: Node, selectedLocation: Eagle.FileType, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
