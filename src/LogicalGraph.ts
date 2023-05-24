@@ -91,6 +91,10 @@ export class LogicalGraph {
             const srcNode = graph.findNodeByKey(edge.getSrcNodeKey());
             const destNode = graph.findNodeByKey(edge.getDestNodeKey());
 
+            if (srcNode === null || destNode === null){
+                continue;
+            }
+
             const srcPort = srcNode.findFieldById(edge.getSrcPortId());
             const destPort = destNode.findFieldById(edge.getDestPortId());
 

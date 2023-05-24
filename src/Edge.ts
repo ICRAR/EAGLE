@@ -349,8 +349,16 @@ export class Edge {
         const sourceNode : Node = eagle.logicalGraph().findNodeByKey(sourceNodeKey);
         const destinationNode : Node = eagle.logicalGraph().findNodeByKey(destinationNodeKey);
 
-        if (sourceNode === null || typeof sourceNode === "undefined" || destinationNode === null || typeof destinationNode === "undefined"){
-            return Eagle.LinkValid.Unknown;
+        // check that the sourceNode and destinationNode could be found
+        if (sourceNode === null || typeof sourceNode === "undefined"){
+            const issue = Errors.Fix("Edge (" + edgeId + ") sourceNodeKey (" + sourceNodeKey + ") refers to a node that does not exist", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixDeleteEdge(eagle, edgeId)}, "Delete edge");
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            return Eagle.LinkValid.Invalid;
+        }
+        if (destinationNode === null || typeof destinationNode === "undefined"){
+            const issue = Errors.Fix("Edge (" + edgeId + ") destinationNodeKey (" + destinationNodeKey + ") refers to a node that does not exist", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixDeleteEdge(eagle, edgeId)}, "Delete edge");
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            return Eagle.LinkValid.Invalid;
         }
 
         // check that we are not connecting a Data component to a Data component, that is not supported

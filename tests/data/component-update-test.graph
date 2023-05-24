@@ -341,7 +341,7 @@
                 "keyAttribute": false,
                 "id": "01343d7d-a489-4614-9ba8-9a08b729d960",
                 "parameterType": "ApplicationArgument",
-                "usage": "OutputPort",
+                "usage": "InputOutput",
                 "linkKey": null
             }
         },
@@ -761,7 +761,7 @@
                 "keyAttribute": false,
                 "id": "ee14a67f-d799-4caa-964f-3d4ce9d46312",
                 "parameterType": "ApplicationArgument",
-                "usage": "OutputPort",
+                "usage": "InputOutput",
                 "linkKey": null
             }
         },
@@ -897,7 +897,7 @@
     },
     "2:CopyApp-2>>hello-3": {
         "fromPort": "e459d094-ad85-4028-a805-76d08b3c26fc",
-        "toPort": "9cf38a5a-6536-4e02-b0ce-1b87df6b5eab",
+        "toPort": "01343d7d-a489-4614-9ba8-9a08b729d960",
         "loopAware": false,
         "closesLoop": false,
         "id": "c06bc73c-77b0-4149-b35f-2e1e15f9a498",
@@ -906,7 +906,7 @@
     },
     "3:hello-3>>CopyApp-5": {
         "fromPort": "01343d7d-a489-4614-9ba8-9a08b729d960",
-        "toPort": "43e97584-3b56-47c4-b8a5-bce5e64461a8",
+        "toPort": "ee14a67f-d799-4caa-964f-3d4ce9d46312",
         "loopAware": false,
         "closesLoop": false,
         "id": "ba540963-b9aa-4dac-bd78-ae32434ab18a",
