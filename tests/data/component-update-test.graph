@@ -433,7 +433,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": true,
-                    "name": "appclass",
+                    "name": "dropclass",
                     "type": "String",
                     "usage": "NoPort",
                     "value": "dlg.apps.simple.CopyAppBad"
@@ -771,7 +771,7 @@
                     "positional": false,
                     "precious": false,
                     "readonly": true,
-                    "name": "appclass",
+                    "name": "dropclass",
                     "type": "String",
                     "usage": "NoPort",
                     "value": "dlg.apps.simple.CopyAppBad"

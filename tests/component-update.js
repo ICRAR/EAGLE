@@ -67,12 +67,12 @@ test('Update components', async t =>{
 
     // !!!!!!!!!!!!! CHECK FOR EXPECTED INPUT COMPONENTS
     await t.expect(obj1.nodeDataArray[2].fields.length).eql(7, {timeout:3000});
-    await t.expect(obj1.nodeDataArray[2].fields[0].name).eql("appclass", {timeout:3000});
+    await t.expect(obj1.nodeDataArray[2].fields[0].name).eql("dropclass", {timeout:3000});
     await t.expect(obj1.nodeDataArray[2].fields[0].value).eql("dlg.apps.simple.CopyAppBad", {timeout:3000});
 
     // !!!!!!!!!!!!! CHECK FOR CORRECTLY UPDATED OUTPUT COMPONENTS
-    await t.expect(obj2.nodeDataArray[2].fields.length).eql(11, {timeout:3000});
-    await t.expect(obj2.nodeDataArray[2].fields[0].name).eql("appclass", {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields.length).eql(13, {timeout:3000});
+    await t.expect(obj2.nodeDataArray[2].fields[0].name).eql("dropclass", {timeout:3000});
     await t.expect(obj2.nodeDataArray[2].fields[0].value).eql("dlg.apps.simple.CopyApp", {timeout:3000});
     await t.expect(obj2.nodeDataArray[2].fields[5].name).eql("hello", {timeout:3000});
     await t.expect(obj2.nodeDataArray[2].fields[6].name).eql("hello", {timeout:3000});
