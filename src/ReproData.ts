@@ -82,9 +82,19 @@ export class ReproData {
     static fromJson = (reproData : any, errorsWarnings: Errors.ErrorsWarnings) : ReproData => {
         const result : ReproData = new ReproData();
 
-        result.merkleroot = reproData.merkleroot;
-        result.signature = reproData.signature;
-        result.mode = reproData.rmode;
+        if (typeof reproData.merkleroot !== 'undefined'){
+            result.merkleroot = reproData.merkleroot;
+        } else {
+            errorsWarnings.warnings.push(Errors.Message("Missing merkleroot within reproducibility data"));
+        }
+
+        if (typeof reproData.signature !== 'undefined'){
+            result.signature = reproData.signature;
+        }
+
+        if (typeof reproData.rmode !== 'undefined'){
+            result.mode = reproData.rmode;
+        }
 
         return result;
     }

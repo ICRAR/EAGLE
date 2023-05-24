@@ -1944,7 +1944,9 @@ export class Node {
         }
 
         // reproData - nodeData
-        result.reproData(ReproData.fromJson(nodeData.reproData, errorsWarnings));
+        if (typeof nodeData.reproData !== 'undefined'){
+            result.reproData(ReproData.fromJson(nodeData.reproData, errorsWarnings));
+        }
 
         // x/y - uxData
         let x = 0;

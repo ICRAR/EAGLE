@@ -14,21 +14,20 @@
     "repositoryUrl": "",
     "commitHash": "",
     "downloadUrl": "",
-    "signature": "",
     "lastModifiedName": "",
     "lastModifiedEmail": "",
     "lastModifiedDatetime": 0,
     "numLGNodes": 76
 },
 "reproData": {
-    "rmode": "0",
+    "rmode": 0,
     "meta_data": {
         "repro_protocol": 1,
         "HashingAlg": "sha3_256"
     },
-    "merkleroot": "d6fe04ac53bff66cede8d962dfc870cb0f8609ff901a000817512fc18b954a43",
+    "merkleroot": "",
     "NOTHING": {
-        "signature": "1e05f5ee8cbc254c0892129ce851d1ad3ae9c9d551627238b71d6bc63d7ff6e5"
+        "signature": ""
     }
 },
 "nodeData": {
@@ -109,17 +108,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "c71deb00-ca2f-4099-b3b2-b78dabb68135",
@@ -202,17 +198,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "d9751f21-3844-42ae-9184-61ab37710f9d",
@@ -340,17 +333,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "0a583050-06e3-492b-a952-b43e25852346",
@@ -478,17 +468,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "6d506683-4986-4d5f-9b25-c01beea40f75",
@@ -811,17 +798,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "137fc2f9-ff8c-4932-ae17-2567aa4d7537",
@@ -1024,17 +1008,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "e70b7afa-a913-4cad-84d1-711dd283f3b9",
@@ -1237,17 +1218,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "d14ddcd8-a184-4467-b713-f3fdbf551ba9",
@@ -1495,17 +1473,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "1ce597a6-d594-4658-92c2-4c70e1dcfc69",
@@ -1738,17 +1713,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "b10edbfe-83fc-4519-9b02-458297bd5fbd",
@@ -1936,17 +1908,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "0c17ed2e-53e0-4043-96f7-c630339b247b",
@@ -2149,17 +2118,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "aada94f3-f678-4760-87fe-bcb2ddd26977",
@@ -2362,17 +2328,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "b9af21c6-c36f-430a-8f3a-5081c172f995",
@@ -2650,17 +2613,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "80c708d2-1bce-4dfe-add4-c5b1cf1fb7b9",
@@ -2758,17 +2718,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "ad22f9e6-b79d-466e-b863-263a3fb45a2f",
@@ -2866,17 +2823,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "c64d8c8e-26ed-4b57-a047-d31913552ac7",
@@ -2974,17 +2928,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "76efd2f3-3be3-42ec-9597-80417d076924",
@@ -3082,17 +3033,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "0debee9f-289d-4741-b8bf-ec62d0b350ed",
@@ -3190,17 +3138,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "06a14fa8-b2db-4b26-8e68-6e8ba1187cb9",
@@ -3298,17 +3243,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "965d8375-ecd5-43af-9192-40b8a401f24d",
@@ -3406,17 +3348,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "687aeae4-5478-405b-8478-1f87e1431038",
@@ -3514,17 +3453,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "a8d16b57-3dce-40c9-972e-3a15ed171bd6",
@@ -3757,17 +3693,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "46996981-7666-4c35-a73d-a13008915c19",
@@ -3865,17 +3798,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "0908bad9-0ed9-495c-b3d2-c12d9dede4da",
@@ -3973,17 +3903,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "88ee7b3d-8f3b-49e7-99fe-07271940f7e4",
@@ -4081,17 +4008,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "f383b276-3e8c-44c6-be17-e21f4b49c875",
@@ -4174,17 +4098,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "a6fb091f-449f-4005-a1a4-e00f9327f260",
@@ -4402,17 +4323,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "f9ae4d5b-df57-4928-9527-7439fb3e9532",
@@ -4525,17 +4443,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "ef511276-eb45-4a79-87b4-dbf69efadebe",
@@ -4633,17 +4548,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "67418566-9d36-4676-b419-cd7503c43fd9",
@@ -4741,17 +4653,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "38559679-1569-41e5-9d32-39ed7c5810e8",
@@ -4864,17 +4773,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "487694fa-ed3c-4c26-ad53-9d209c5e2b4d",
@@ -5017,17 +4923,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "a6efdc7d-f056-4f88-b381-dd1e41487ece",
@@ -5170,17 +5073,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "40df9f02-5e5b-45b9-b1b3-3b9c4b886447",
@@ -5278,17 +5178,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "f3e31878-666b-429e-93a1-3af5050dc15c",
@@ -5386,17 +5283,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "e034b1e1-1d82-4da5-ba15-2b6e76456831",
@@ -5599,17 +5493,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "17b462eb-edef-475a-ae4d-5ea5071812e7",
@@ -5707,17 +5598,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "318d5f6a-3a52-4c39-a5c2-6522d13c1b6e",
@@ -5890,17 +5778,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "743011dc-085a-4f96-bc8d-42b575295c23",
@@ -5998,17 +5883,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "1ce82ac6-9036-4c3e-9c4f-a2ee31a1d03d",
@@ -6286,17 +6168,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "390d3676-cd2f-43d9-ac07-4c20a17a1d78",
@@ -6394,17 +6273,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "c275fbe1-15ed-4b8c-95bf-fb2f583b0f60",
@@ -6622,17 +6498,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "b9d830b4-7d66-48f7-bfd1-c0ab3dae59a2",
@@ -6730,17 +6603,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "3228cbdd-5bf5-4053-a4dc-3de65288c634",
@@ -6838,17 +6708,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "dec53de3-e485-45e2-90d3-af6ab61de6bc",
@@ -6946,17 +6813,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "db917935-0377-4efd-b2b0-0d7743ea9355",
@@ -7174,17 +7038,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "01405349-1f6a-4881-82f9-9060746dff66",
@@ -7327,17 +7188,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "b0ee4bdc-4c55-4d3c-896b-67d5b36dec01",
@@ -7480,17 +7338,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "94cf3592-6377-46ab-a33c-3b24de502595",
@@ -7633,17 +7488,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "660d3bb2-300d-43a1-bcf5-de8ced343938",
@@ -7786,17 +7638,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "7c16ecb7-7512-40d3-ad6b-81a5a7a90324",
@@ -7939,17 +7788,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "10d4a7ec-77d3-407b-9f1b-b868e9d4e711",
@@ -8167,17 +8013,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "2a2b77e9-c6ca-4c79-88ea-1add69d8c287",
@@ -8380,17 +8223,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "abfbefd0-e3ea-4f6a-9858-9a6c1534e76f",
@@ -8412,17 +8252,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "478742c5-1179-4dca-9de9-10bc66012056",
@@ -8444,17 +8281,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "ef33cc7d-0f11-45d2-9862-d1af60710f38",
@@ -8476,17 +8310,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "2a15e7d7-cf0f-4f61-a940-1a07d4d99302",
@@ -8704,17 +8535,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "72296cab-f287-4500-9a7d-1cfe4672f0ad",
@@ -8932,17 +8760,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "0e22eebc-c9e1-43e6-b898-828b926f444d",
@@ -9040,17 +8865,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "60449b86-53e9-404e-af1f-2f63bca93644",
@@ -9358,17 +9180,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "61206468-0cf1-4a4d-aa32-500113e5a75e",
@@ -9541,17 +9360,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "5b8d25af-5547-49b5-b1d2-6e0bda2df48a",
@@ -9649,17 +9465,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "d04be5de-baa0-4d70-8c58-99507b047fb3",
@@ -9862,17 +9675,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "de99a9be-a467-411e-8607-fc828eb88776",
@@ -9970,17 +9780,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "43d5f16e-3b60-4425-88a7-8022b6fce9dd",
@@ -10078,17 +9885,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "13bf9855-eb4b-475e-96dd-ce889094961f",
@@ -10186,17 +9990,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "838ef46b-7c06-4434-b358-e7508918f0fb",
@@ -10294,17 +10095,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "14f78040-9a0e-4af5-b745-ee9010a08fcb",
@@ -10402,17 +10200,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "8cfb1615-eb83-46c6-946d-e5c72207264f",
@@ -10510,17 +10305,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "fbc30190-690c-4fb8-9e97-06e19935775c",
@@ -10723,17 +10515,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "c6aaf401-fdf7-4022-99e4-70a1ab97e124",
@@ -10755,17 +10544,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "92f2f586-70a1-449f-ae7f-a31b136e793f",
@@ -10787,17 +10573,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "b5a8085e-09dc-4a37-adda-a2c0fee95ae9",
@@ -10819,17 +10602,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "28d68676-37a1-4824-9810-f2b96fdee405",
@@ -10851,17 +10631,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "a7a6bf36-7bf8-40e9-b4b7-262fd1baf4f1",
@@ -10883,17 +10660,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "6068be56-b942-455c-a087-29b524f2bc8e",
@@ -10991,17 +10765,14 @@
         "inputApplicationKey": null,
         "outputApplicationKey": null,
         "reprodata": {
-            "rmode": "0",
+            "rmode": 0,
+            "meta_data": {
+                "repro_protocol": 1,
+                "HashingAlg": "sha3_256"
+            },
+            "merkleroot": "",
             "NOTHING": {
-                "rmode": "0",
-                "lgt_data": {
-                    "merkleroot": null
-                },
-                "lg_parenthashes": {},
-                "lg_data": {
-                    "merkleroot": null
-                },
-                "lg_blockhash": "b33f465166e678698582a66db1f75d28949c4bd51a72e6f608c9d124b9196e73"
+                "signature": ""
             }
         },
         "id": "8968d640-8576-4883-ada4-9863c5d56e7c",

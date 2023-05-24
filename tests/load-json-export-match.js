@@ -1,6 +1,5 @@
 import { Selector } from 'testcafe';
 import https from 'https';
-import { Utils } from '../src/Utils';
 
 /*
     run with:
@@ -47,8 +46,8 @@ test('Load JSON export match', async t =>{
     const obj1 = JSON.parse(graphJSON);
     const obj2 = JSON.parse(outputJSON);
 
-    const result0 = Utils.compareObj(obj1, obj2);
-    const result1 = Utils.compareObj(obj2, obj1);
+    const result0 = compareObj(obj1, obj2);
+    const result1 = compareObj(obj2, obj1);
 
     // !!!!!!!!!!!!! CHECK FOR MATCH
     await t.expect(JSON.stringify(result0)).eql("{}", {timeout:3000});
@@ -78,3 +77,29 @@ const fetchGraph = (url) => {
         req.end();
     });
 };
+
+const isEmpty = (o) => {
+    for ( const p in o ) {
+        if ( o.hasOwnProperty( p ) ) { return false; }
+    }
+    return true;
+}
+
+const compareObj = (obj1, obj2) => {
+    const ret = {};
+    let rett;
+    for(const i in obj2) {
+        rett = {};
+        if (typeof obj2[i] === 'object' && typeof obj1 !== 'undefined'){
+            rett = compareObj(obj1[i], obj2[i]);
+            if (!isEmpty(rett) ){
+             ret[i]= rett
+            }
+         }else{
+             if(!obj1 || !obj1.hasOwnProperty(i) || obj2[i] !== obj1[i]) {
+                ret[i] = obj2[i];
+        }
+     }
+    }
+    return ret;
+}
