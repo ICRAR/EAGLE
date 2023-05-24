@@ -15,14 +15,16 @@
                 <i class="material-icons">settings</i>
                 <span>Edge Attributes</span>
                 <div id="edgeInspectorIcons">
-                    <!-- ko if: Eagle.allowEdgeEditing() -->
+                    <!-- ko if: Setting.findValue(Setting.ALLOW_EDGE_EDITING) -->
                         <button type="button" id="edgeEditBtn" class="btn" data-bind="click: editSelectedEdge, eagleTooltip: 'Edit Selected Edge ' + Utils.getKeyboardShortcutTextByKey('modify_selected_edge', true)">
                             <i class="material-icons md-24">edit</i>
                         </button>
                     <!-- /ko -->
-                    <button  type="button" id="edgeDeleteBtn" class="btn" data-bind="click: function(){deleteSelection('',false,false);}, eagleTooltip: 'Delete Selected Edge ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)">
-                        <i class="material-icons md-24">delete</i>
-                    </button>
+                    <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
+                        <button  type="button" id="edgeDeleteBtn" class="btn" data-bind="click: function(){deleteSelection('',false,false);}, eagleTooltip: 'Delete Selected Edge ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)">
+                            <i class="material-icons md-24">delete</i>
+                        </button>
+                    <!-- /ko -->
                 </div>
             </h5>
             <div class="card-body">
@@ -57,11 +59,21 @@
                         <span class="input-group-text" id="edge-addon5">DataType</span>
                     </div>
                     <input type="text" class="form-control" id="edge-data-type" placeholder="" aria-label="DataType" aria-describedby="edge-addon5" readonly data-bind="value: selectedEdge().dataType">
+<<<<<<< HEAD
+=======
+                    <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary btn-sm" id="edgeInspectorChangeDataType" type="button" data-bind="click: function(){$root.changeEdgeDataType(selectedEdge());}">
+                                <i class="material-icons md-18">edit</i>
+                            </button>
+                        </div>
+                    <!-- /ko -->
+>>>>>>> master
                 </div>
                 <div class="input-group mb-1">
                     <input type="text" class="form-control edgeInspectorCheckboxLabel" id="nodeLoopAwareValue" data-bind="eagleTooltip: 'Indicates the user is aware that the components at either end of the edge may differ in multiplicity'" placeholder="" aria-label="LoopAware" aria-describedby="node-loop-aware" value="Loop Aware" readonly>
                     <div class="input-group-append">
-                        <button class="btn btn-secondary btn-sm" id="edgeInspectorToggleLoopAware" type="button" data-bind="click: function(){selectedEdge().toggleLoopAware();selectedObjects.valueHasMutated();eagle.logicalGraph.valueHasMutated();}">
+                        <button class="btn btn-secondary btn-sm" id="edgeInspectorToggleLoopAware" type="button" data-bind="click: function(){selectedEdge().toggleLoopAware();selectedObjects.valueHasMutated();eagle.logicalGraph.valueHasMutated();},disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
                             <i class="material-icons md-18" data-bind="visible: selectedEdge().isLoopAware()">radio_button_checked</i>
                             <i class="material-icons md-18" data-bind="hidden: selectedEdge().isLoopAware()">radio_button_unchecked</i>
                         </button>
@@ -70,7 +82,7 @@
                 <div class="input-group mb-1">
                     <input type="text" class="form-control edgeInspectorCheckboxLabel" id="nodeClosesLoopValue" data-bind="eagleTooltip:'Indicates that this is a special type of edge that can be drawn in Eagle to specify the start/end of groups.'" placeholder="" aria-label="ClosesLoop" aria-describedby="node-closes-loop" value="Closes Loop" readonly>
                     <div class="input-group-append">
-                        <button class="btn btn-secondary btn-sm" id="edgeInspectorToggleClosesLoop" type="button" data-bind="click:toggleEdgeClosesLoop">
+                        <button class="btn btn-secondary btn-sm" id="edgeInspectorToggleClosesLoop" type="button" data-bind="click:toggleEdgeClosesLoop,disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
                             <i class="material-icons md-18" data-bind="visible: selectedEdge().isClosesLoop()">radio_button_checked</i>
                             <i class="material-icons md-18" data-bind="hidden: selectedEdge().isClosesLoop()">radio_button_unchecked</i>
                         </button>
@@ -81,12 +93,12 @@
             <!-- ko if: selectedEdge() != null -->
                 <div class="card-body">
                     <!-- ko with: selectedEdge().getErrorsWarnings($root) -->
-                        <!-- ko if: Eagle.showInspectorErrors() -->
+                        <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) != Setting.ShowErrorsMode.None -->
                             <!-- ko foreach: errors -->
                                 <fix params="data: $data, isError: true"></fix>
                             <!-- /ko -->
                         <!-- /ko -->
-                        <!-- ko if: Eagle.showInspectorWarnings() -->
+                        <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings -->
                             <!-- ko foreach: warnings -->
                                 <fix params="data: $data, isError: false"></fix>
                             <!-- /ko -->

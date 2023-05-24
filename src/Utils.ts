@@ -42,6 +42,7 @@ import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
 import {FileInfo} from "./FileInfo";
+import { UiModeSystem } from "./UiModes";
 
 export class Utils {
     // Allowed file extenstions.
@@ -318,7 +319,7 @@ export class Utils {
     }
 
     static httpGetJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
-        console.log("httpGetJSON() : ", url);
+        // console.log("httpGetJSON() : ", url);
         $.ajax({
             url : url,
             type : 'GET',
@@ -350,7 +351,7 @@ export class Utils {
     }
 
     static httpPostJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
-        console.log("httpPostJSON() : ", url);
+        // console.log("httpPostJSON() : ", url);
         $.ajax({
             url : url,
             type : 'POST',
@@ -370,7 +371,7 @@ export class Utils {
     }
 
     static httpPostJSONString(url : string, jsonString : string, callback : (error : string, data : string) => void) : void {
-        console.log("httpPostJSON() : ", url);
+        // console.log("httpPostJSONString() : ", url);
         $.ajax({
             url : url,
             type : 'POST',
@@ -390,7 +391,7 @@ export class Utils {
     }
 
     static httpPostForm(url : string, formData : FormData, callback : (error : string, data : string) => void) : void {
-        console.log("httpPostForm() : ", url);
+        // console.log("httpPostForm() : ", url);
 
         $.ajax({
             url : url,
@@ -423,7 +424,7 @@ export class Utils {
     }
 
     static showUserMessage (title : string, message : string) : void {
-        console.log("showUserMessage()", title, message);
+        // console.log("showUserMessage()", title, message);
 
         $('#messageModalTitle').text(title);
         $('#messageModalMessage').html(message);
@@ -473,7 +474,7 @@ export class Utils {
     }
 
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, callback : (completed : boolean, userString : string) => void ) : void {
-        console.log("requestUserString()", title, message);
+        // console.log("requestUserString()", title, message);
 
         $('#inputModalTitle').text(title);
         $('#inputModalMessage').html(message);
@@ -491,7 +492,7 @@ export class Utils {
     }
 
     static requestUserText(title : string, message : string, defaultText: string, callback : (completed : boolean, userText : string) => void) : void {
-        console.log("requestUserText()", title, message);
+        // console.log("requestUserText()", title, message);
 
         $('#inputTextModalTitle').text(title);
         $('#inputTextModalMessage').html(message);
@@ -507,7 +508,7 @@ export class Utils {
     }
 
     static requestUserNumber(title : string, message : string, defaultNumber: number, callback : (completed : boolean, userNumber : number) => void ) : void {
-        console.log("requestUserNumber()", title, message);
+        // console.log("requestUserNumber()", title, message);
 
         $('#inputModalTitle').text(title);
         $('#inputModalMessage').html(message);
@@ -523,7 +524,7 @@ export class Utils {
     }
 
     static requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ) : void {
-        console.log("requestUserChoice()", title, message, choices, selectedChoiceIndex, allowCustomChoice, customChoiceText);
+        // console.log("requestUserChoice()", title, message, choices, selectedChoiceIndex, allowCustomChoice, customChoiceText);
 
         $('#choiceModalTitle').text(title);
         $('#choiceModalMessage').html(message);
@@ -568,7 +569,7 @@ export class Utils {
     }
 
     static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, callback : (confirmed : boolean) => void ) : void {
-        console.log("requestUserConfirm()", title, message, affirmativeAnswer, negativeAnswer);
+        // console.log("requestUserConfirm()", title, message, affirmativeAnswer, negativeAnswer);
 
         $('#confirmModalTitle').text(title);
         $('#confirmModalMessage').html(message);
@@ -581,7 +582,7 @@ export class Utils {
     }
 
     static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
-        console.log("requestUserGitCommit()");
+        // console.log("requestUserGitCommit()");
 
         $('#gitCommitModal').data('completed', false);
         $('#gitCommitModal').data('callback', callback);
@@ -801,7 +802,7 @@ export class Utils {
     }
 
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void) : void {
-        console.log("requestUserAddCustomRepository()");
+        // console.log("requestUserAddCustomRepository()");
 
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
         $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
@@ -876,7 +877,7 @@ export class Utils {
     static showOpenParamsTableModal(mode:string) : void {
         const eagle: Eagle = Eagle.getInstance();
         eagle.tableModalType(mode)
-        $('#parameterTableModal').modal("toggle");
+        $('#parameterTableModal').modal("show");
     }
 
     static showShortcutsModal() : void {
@@ -899,10 +900,9 @@ export class Utils {
             return;
         }
 
-        // Add parameters in json data.
-        // TODO: make repository and branch settings, or at least config options
+        // add parameters in json data
         const jsonData = {
-            repository: Config.DEFAULT_PALETTE_REPOSITORY,
+            repository: Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY),
             branch: "master",
             token: token,
         };
@@ -1160,7 +1160,7 @@ export class Utils {
     }
 
     static getDataComponentsWithPortTypeList(palettes: Palette[], ineligibleCategories: Category[]) : Node[] {
-        console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
+        // console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
 
         const result: Node[] = [];
 
@@ -1192,7 +1192,7 @@ export class Utils {
     }
 
     static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
-        console.log("getDataComponentsWithInputsAndOutputs");
+        // console.log("getDataComponentsWithInputsAndOutputs");
 
         const result: Node[] = [];
 
@@ -1410,35 +1410,21 @@ export class Utils {
     }
 
     static getRightWindowWidth() : number {
-        // try localStorage first
-        const local : string = localStorage.getItem(Setting.RIGHT_WINDOW_WIDTH_KEY);
-
-        // if found, return
-        if (local !== null){
-            return parseInt(local, 10);
-        } else {
-            return Config.defaultRightWindowWidth;
-        }
+        return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH_KEY)
     }
 
     static setRightWindowWidth(width : number) : void {
-        localStorage.setItem(Setting.RIGHT_WINDOW_WIDTH_KEY, width.toString());
+        Setting.find(Setting.RIGHT_WINDOW_WIDTH_KEY).setValue(width)
+        UiModeSystem.saveToLocalStorage()
     }
 
     static getLeftWindowWidth() : number {
-        // try localStorage first
-        const local : string = localStorage.getItem(Setting.LEFT_WINDOW_WIDTH_KEY);
-
-        // if found, return
-        if (local !== null){
-            return parseInt(local, 10);
-        } else {
-            return Config.defaultLeftWindowWidth;
-        }
+        return Setting.findValue(Setting.LEFT_WINDOW_WIDTH_KEY)
     }
 
     static setLeftWindowWidth(width : number) : void {
-        localStorage.setItem(Setting.LEFT_WINDOW_WIDTH_KEY, width.toString());
+        Setting.find(Setting.LEFT_WINDOW_WIDTH_KEY).setValue(width)
+        UiModeSystem.saveToLocalStorage()
     }
 
     static getLocalStorageKey(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
@@ -1571,7 +1557,7 @@ export class Utils {
 
     // NOTE: we don't actually have multiple versions of the schema for the different file formats. We always validate against Utils.graphSchema
     static validateJSON(json : object, schemaVersion: Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
-        console.log("validateJSON(): fileType:", fileType);
+        //console.log("validateJSON(): fileType:", fileType);
 
         const ajv = new Ajv();
         let valid : boolean;
@@ -1730,10 +1716,11 @@ export class Utils {
 
     static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
         const displayShorcuts : {description:string, shortcut : string, function : any} []=[];
+        const eagle = (<any>window).eagle;
 
         for (const object of Eagle.shortcuts){
             // skip if shortcut should not be displayed
-            if (object.display === KeyboardShortcut.Display.Disabled){
+            if (!object.display(eagle)){
                 continue;
             }
 
@@ -1798,6 +1785,9 @@ export class Utils {
     }
 
     static asBool(value: string) : boolean {
+        if(value === undefined){
+            return false
+        }
         return value.toLowerCase() === "true";
     }
 

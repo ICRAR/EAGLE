@@ -25,7 +25,7 @@ test('Edit node parameter', async t =>{
         .click('#settingUserInterfaceModeValue')
 
         // click the 'expert' option
-        .click(Selector('#settingUserInterfaceModeValue').find('option').withText('expert'))
+        .click(Selector('#settingUserInterfaceModeValue').find('option').withText('Expert'))
 
         // close settings modal
         .click('#settingsModalAffirmativeButton')

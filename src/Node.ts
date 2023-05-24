@@ -379,10 +379,10 @@ export class Node {
 
     isLocked : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if(Eagle.selectedLocation() === Eagle.FileType.Graph){
-            const allowComponentEditing : boolean = Eagle.allowComponentEditing();
+            const allowComponentEditing : boolean = Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
             return !allowComponentEditing;
         }else{
-            const allowPaletteEditing : boolean = Eagle.allowPaletteEditing();
+            const allowPaletteEditing : boolean = Setting.findValue(Setting.ALLOW_PALETTE_EDITING);
             return !allowPaletteEditing;
         }
     }, this);
@@ -564,7 +564,7 @@ export class Node {
     }
 
     getDescriptionReadonly = () : boolean => {
-        const allowParam : boolean = Eagle.allowComponentEditing();
+        const allowParam : boolean =Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
 
         return !allowParam;
     }

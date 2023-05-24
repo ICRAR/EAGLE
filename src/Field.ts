@@ -140,6 +140,10 @@ export class Field {
         this.precious(precious);
     }
 
+    togglePrecious = () : void => {
+        this.precious(!this.precious());
+    }
+
     isPrecious = () : boolean => {
         return this.precious();
     }
@@ -148,8 +152,70 @@ export class Field {
         return this.options();
     }
 
+    editOption = (optionIndex:any,newVal:string) : void => {
+        //if the option we are editing is selected well update the value or default value
+        if(this.options()[optionIndex] === this.value()){
+            this.value(newVal)
+        }
+        if(this.options()[optionIndex] === this.defaultValue()){
+            this.defaultValue(newVal)
+        }
+
+        this.options()[optionIndex] = newVal
+        this.options.valueHasMutated()
+    }
+
+    addOption = (newOption:string) : void => {
+        let duplicate = false;
+        
+        for(const option of this.options()){
+            if(option.toLowerCase() === newOption.toLowerCase()){
+                duplicate = true
+                break
+            }
+        }
+        if(!duplicate){
+            this.options().push(newOption)
+            this.options.valueHasMutated()
+        }
+    }
+
+    removeOption = (index:number) : void => {
+        if(this.options().length <= 1){
+            Utils.showNotification("Cannot Remove","There must be at least one option in the select!",'danger');
+
+            return
+        }
+
+        //checking if a selected option is being deleted
+        let valueDeleted = false
+        let defaultValueDeleted = false;
+        if(this.options()[index] === this.value()){
+            valueDeleted = true
+        }
+        if(this.options()[index] === this.defaultValue()){
+            defaultValueDeleted = true
+        }
+
+        //deleting the option
+        this.options().splice(index,1)
+
+        //if either the selected value or selected default value option was deleted we set it to the first option on the select
+        if(valueDeleted){
+            this.value(this.options()[0])
+        }
+        if(defaultValueDeleted){
+            this.defaultValue(this.options()[0])
+        }
+        this.options.valueHasMutated()
+    }
+
     isPositionalArgument = () : boolean => {
         return this.positional();
+    }
+
+    togglePositionalArgument = () : void => {
+        this.positional(!this.positional());
     }
 
     setPositionalArgument = (positional: boolean): void => {
@@ -455,8 +521,12 @@ export class Field {
                     parameterType = Daliuge.FieldType.ApplicationArgument;
                     usage = Daliuge.FieldUsage.OutputPort;
                     break;
+                case "ConstructParameter":
+                    parameterType = Daliuge.FieldType.ConstructParameter;
+                    usage = Daliuge.FieldUsage.NoPort;
+                    break;
                 default:
-                    console.log("Unhandled fieldType", data.fieldType);
+                    console.warn("Unhandled fieldType", data.fieldType);
             }
         }
 

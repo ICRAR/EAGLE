@@ -37,6 +37,7 @@ import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Daliuge} from './Daliuge';
 
+import {UiMode, UiModeSystem, SettingData} from './UiModes';
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
 import {Node} from './Node';
@@ -113,9 +114,6 @@ export class Eagle {
     static dragStartX : number;
     static lastClickTime : number = 0;
 
-    static defaultTranslatorAlgorithm : string;
-    static defaultTranslatorAlgorithmMethod : any;
-
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
     static nodeDragPaletteIndex : number;
     static nodeDragComponentIndex : number;
@@ -123,10 +121,12 @@ export class Eagle {
 
     constructor(){
         Eagle._instance = this;
+        Eagle.settings = Setting.getSettings();
+        UiModeSystem.initialise()
+        Eagle.shortcuts = KeyboardShortcut.getShortcuts();
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
-
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
 
@@ -140,6 +140,9 @@ export class Eagle {
         this.translator = ko.observable(new Translator());
         this.undo = ko.observable(new Undo());
         this.parameterTable = ko.observable(new ParameterTable());
+        
+        //load parameter table visibility from local storage
+        ParameterTable.getActiveColumnVisibility().loadFromLocalStorage()
 
         Eagle.componentParamsSearchString = ko.observable("");
         Eagle.paletteComponentSearchString = ko.observable("");
@@ -150,8 +153,6 @@ export class Eagle {
         Eagle.tutorials = tutorialArray
         this.tutorial = ko.observable(Eagle.tutorials[0]);
 
-        Eagle.settings = Setting.getSettings();
-        Eagle.shortcuts = KeyboardShortcut.getShortcuts();
         
         Eagle.nodeDragPaletteIndex = null;
         Eagle.nodeDragComponentIndex = null;
@@ -225,78 +226,6 @@ export class Eagle {
         return false;
     }
 
-    static allowInvalidEdges = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_INVALID_EDGES);
-    }
-
-    static allowPaletteEditing = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_PALETTE_EDITING);
-    }
-
-    static hidePaletteTab = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.HIDE_PALETTE_TAB);
-    }
-
-    static hideReadonlyParamters = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.HIDE_READONLY_PARAMETERS);
-    }
-
-    static allowReadonlyPaletteEditing = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_READONLY_PALETTE_EDITING);
-    }
-
-    static allowComponentEditing = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
-    }
-
-    static allowEdgeEditing = (): boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Expert) && Setting.findValue(Setting.ALLOW_EDGE_EDITING);
-    }
-
-    static showNonKeyParameters = () : boolean => {
-        return Eagle.isInUIMode(Setting.UIMode.Minimal) || Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || Eagle.isInUIMode(Setting.UIMode.Expert);
-    }
-
-    static allowSetKeyParameter = () : boolean => {
-        if(Eagle.isInUIMode(Setting.UIMode.Minimal)){
-            return false
-        }else{
-            return Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER) || Eagle.isInUIMode(Setting.UIMode.Expert);
-        }
-    }
-
-    static translatorUiMode = (mode : Setting.TranslatorMode) : boolean => {
-        return Setting.findValue(Setting.USER_TRANSLATOR_MODE) === mode;
-    }
-
-    static isInUIMode = (mode : Setting.UIMode) : boolean => {
-        return Setting.findValue(Setting.USER_INTERFACE_MODE) === mode;
-    }
-
-    static showInspectorWarnings = () : boolean => {
-        return Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings;
-    }
-
-    static showInspectorErrors = () : boolean => {
-        return Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings || Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Errors;
-    }
-
-    static showInspectorErrorsWarnings = () : boolean => {
-        const eagle = Eagle.getInstance();
-            
-        switch (Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS)){
-            case Setting.ShowErrorsMode.Warnings:
-                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length + eagle.selectedNode().getErrorsWarnings(eagle).warnings.length > 0;
-                break;
-            case Setting.ShowErrorsMode.Errors:
-                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length > 0;
-                break;
-            case Setting.ShowErrorsMode.None:
-            default:
-                return false;
-        }
-    }
-
     static selectedNodeGraph = () : LogicalGraph => {
         const eagle: Eagle = Eagle.getInstance();
 
@@ -332,9 +261,20 @@ export class Eagle {
     }, this);
 
     types : ko.PureComputed<string[]> = ko.pureComputed(() => {
-        const result: string[] = [];
+        // add all the built-in types
+        const result: string[] = [
+            Daliuge.DataType.Boolean,
+            Daliuge.DataType.Float,
+            Daliuge.DataType.Integer,
+            Daliuge.DataType.Json,
+            Daliuge.DataType.Object,
+            Daliuge.DataType.Password,
+            Daliuge.DataType.Python,
+            Daliuge.DataType.Select,
+            Daliuge.DataType.String
+        ];
 
-
+        // add additional custom types
         switch (Eagle.selectedLocation()){
             case Eagle.FileType.Palette:
                 // build a list from the selected component in the palettes
@@ -411,7 +351,8 @@ export class Eagle {
     }
 
     deployDefaultTranslationAlgorithm = () : void => {
-        this.translator().genPGT(Eagle.defaultTranslatorAlgorithmMethod, false);
+        const defaultTranslatorAlgorithmMethod : string = $('#'+Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)+ ' .generatePgt').val().toString()
+        this.translator().genPGT(defaultTranslatorAlgorithmMethod, false);
     }
 
     // TODO: remove?
@@ -462,6 +403,10 @@ export class Eagle {
         }
 
         return list;
+    }
+
+    isTranslationDefault = (algorithmName:string) : Boolean => {
+        return algorithmName === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)
     }
 
     getKeyAttributeDisplay = (isKeyAttribute : boolean) : string => {
@@ -1830,7 +1775,7 @@ export class Eagle {
                 }
 
                 fileTypeLoaded = Utils.determineFileType(dataObject);
-                console.log("fileTypeLoaded", fileTypeLoaded);
+                // console.log("fileTypeLoaded", fileTypeLoaded);
             } else {
                 fileTypeLoaded = Eagle.FileType.Markdown;
             }        
@@ -2022,7 +1967,7 @@ export class Eagle {
     }
 
     private updateLogicalGraphFileInfo = (repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
-        console.log("updateLogicalGraphFileInfo(): repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
+        // console.log("updateLogicalGraphFileInfo(): repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
 
         // update the activeFileInfo with details of the repository the file was loaded from
         this.logicalGraph().fileInfo().repositoryName = repositoryName;
@@ -2265,21 +2210,12 @@ export class Eagle {
         });
     };
 
-    getTranslatorDefault = () : any => {
-        setTimeout(function(){
-            const defaultTranslatorHtml = $(".rightWindowContainer #"+Eagle.defaultTranslatorAlgorithm).clone(true)
-            $('.simplifiedTranslator').append(defaultTranslatorHtml)
-            return defaultTranslatorHtml
-        },10000)
-    }
-
     translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        const defaultTranslatorMode :any = Eagle.translatorUiMode(Setting.TranslatorMode.Default)
-        if(!defaultTranslatorMode){
+        const normalTranslatorMode :boolean = Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Normal;
+        if(!normalTranslatorMode){
             return true
         }
-
-        if(currentAlg === Eagle.defaultTranslatorAlgorithm){
+        if(currentAlg === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)){
             return true
         }
     
@@ -2425,7 +2361,6 @@ export class Eagle {
 
     smartToggleModal = (modal:string) : void => {
         //used for keyboard shortcuts, preventing opening several modals at once
-        console.log($('.modal.show').attr('id'),modal)
         if($('.modal.show').length>0){
             if($('.modal.show').attr('id')===modal){
                 $('#'+modal).modal('hide')
@@ -2446,6 +2381,7 @@ export class Eagle {
         if($('.modal.show').length>0){
             if($('.modal.show').attr('id')==='parameterTableModal'){
                 $('#parameterTableModal').modal('hide')
+                this.showTableModal(false)
             }else{
                 return
             }
@@ -2474,18 +2410,47 @@ export class Eagle {
         }
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(Eagle.allowPaletteEditing()){
+            if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                 return false;
             }else{
                 return field.isReadonly();
             }
         }else{
-            if(Eagle.allowComponentEditing()){
+            if(Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
                 return false;
             }else{
                 return field.isReadonly();
             }
         }
+    }
+
+    getCurrentParamValueReadonly = (field: Field) : boolean => {
+        // check that we actually found the right field, otherwise abort
+        if (field === null){
+            console.warn("Supplied field is null");
+            return true;
+        }
+
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+            return false;
+        }
+        
+        if (Eagle.selectedLocation() != Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
+            return false;
+        }
+        
+        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.ReadOnly){
+            return false;
+        }
+        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.Normal){
+            return field.isReadonly();
+        }
+        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.KeyOnly){
+            return !field.isKeyAttribute() || field.isReadonly();
+        }
+        
+        console.warn("something in value readonly permissions has one wrong!");
+        return true
     }
 
     // TODO: move to Setting.ts?
@@ -2533,9 +2498,15 @@ export class Eagle {
     }
 
     addEdgeToLogicalGraph = () : void => {
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
+            return;
+        }
+
         // check that there is at least one node in the graph, otherwise it is difficult to create an edge
         if (this.logicalGraph().getNumNodes() === 0){
-            Utils.showUserMessage("Error", "Can't add an edge to a graph with zero nodes.");
+            Utils.showNotification("Unable to Add Edge", "Can't add an edge to a graph with zero nodes.", "danger");
             return;
         }
 
@@ -2576,6 +2547,12 @@ export class Eagle {
 
         if (selectedEdge === null){
             console.log("Unable to edit selected edge: No edge selected");
+            return;
+        }
+
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Edit Edge", "Graph Editing is disabled", "danger");
             return;
         }
 
@@ -2628,6 +2605,12 @@ export class Eagle {
         switch(location){
             case Eagle.FileType.Graph:
                 {
+                    // check that graph editing is allowed
+                    if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                        Utils.showNotification("Unable to Duplicate Selection", "Graph Editing is disabled", "danger");
+                        return;
+                    }
+
                     const nodes : Node[] = [];
                     const edges : Edge[] = [];
                     const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
@@ -2651,6 +2634,12 @@ export class Eagle {
                 break;
             case Eagle.FileType.Palette:
                 {
+                    // check that palette editing is allowed
+                    if (!Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+                        Utils.showNotification("Unable to Duplicate Selection", "Palette Editing is disabled", "danger");
+                        return;
+                    }
+
                     const nodes: Node[] = [];
 
                     for (const object of incomingNodes){
@@ -2773,6 +2762,12 @@ export class Eagle {
 
     pasteFromClipboard = async () => {
         console.log("pasteFromClipboard()");
+
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Paste from Clipboard", "Graph Editing is disabled", "danger");
+            return;
+        }
 
         // check if browser supports reading text from clipboard, if not, explain to user
         if (typeof navigator.clipboard.readText === "undefined"){
@@ -2950,6 +2945,12 @@ export class Eagle {
             mode = 'rightClick'
         }
 
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Delete Selection", "Graph Editing is disabled", "danger");
+            return;
+        }
+
         if (data.length === 0){
             console.warn("Unable to delete selection: Nothing selected");
             Utils.showNotification("Warning", "Unable to delete selection: Nothing selected", "warning");
@@ -3124,6 +3125,13 @@ export class Eagle {
 
     addNodeToLogicalGraph = (node : any, callback: (node: Node) => void, mode:string) : void => {
         let pos : {x:number, y:number} = {x:0,y:0};
+        
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Add Component", "Graph Editing is disabled", "danger");
+            if (callback !== null) callback(null);
+            return;
+        }
 
         if(mode === 'contextMenu'){
             pos = Eagle.selectedRightClickPosition;
@@ -3587,12 +3595,33 @@ export class Eagle {
         $('#editFieldModalTypeInput').val(newType).change();
     }
 
+    tableDropdownClick = (newType:string, field: Field) : void => {
+        // if the field contains no options, then it's value will be immediately set to undefined
+        // therefore, we add at least one option, so the value remains well defined
+        if (newType === Daliuge.DataType.Select){
+            if (field.getOptions().length === 0){
+                field.addOption(field.getValue());
+                field.addOption(field.getDefaultValue());
+            }
+        }
+
+        // update the type of the field
+        field.setType(newType);
+
+    }
+
     changeNodeParent = () : void => {
         // build list of node name + ids (exclude self)
         const selectedNode: Node = this.selectedNode();
 
         if (selectedNode === null){
             console.error("Attempt to add change parent node when no node selected");
+            return;
+        }
+
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Change Node Parent", "Graph Editing is disabled", "danger");
             return;
         }
 
@@ -3795,7 +3824,7 @@ export class Eagle {
         const destinationPaletteIndex : number = parseInt($(e.currentTarget)[0].getAttribute('data-palette-index'), 10);
         const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
 
-        const allowReadonlyPaletteEditing = Eagle.allowReadonlyPaletteEditing();
+        const allowReadonlyPaletteEditing = Setting.findValue(Setting.ALLOW_READONLY_PALETTE_EDITING);
 
         // check user can write to destination palette
         if (destinationPalette.fileInfo().readonly && !allowReadonlyPaletteEditing){
@@ -4214,6 +4243,13 @@ export class Eagle {
     }
 
     addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
+        // check that graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
+            if (callback !== null) callback(null);
+            return;
+        }
+
         const edgeConnectsTwoApplications : boolean =
             (srcNode.isApplication() || srcNode.isGroup()) &&
             (destNode.isApplication() || destNode.isGroup());
@@ -4568,27 +4604,8 @@ $( document ).ready(function() {
         });
     })
 
-    $('#parameterTableModal').on('hidden.bs.modal', function (event) {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.showTableModal(false)
-    })
-
-
-    let defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
-    if(!defaultTranslatingAlgorithm){
-        localStorage.setItem('translationDefault','agl-1')
-        defaultTranslatingAlgorithm = localStorage.getItem('translationDefault')
-    }
-
-    $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').click()
-    Eagle.defaultTranslatorAlgorithm = defaultTranslatingAlgorithm;
-    if(defaultTranslatingAlgorithm !== "agl-0"){
-        $('#'+defaultTranslatingAlgorithm+ ' .translationDefault').parent().find('.accordion-button').click()
-    }
-
-    Eagle.defaultTranslatorAlgorithmMethod = $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').val()
-
     $(".translationDefault").on("click",function(){
+        //sets all other translation methods to false
         const translationMethods = []
         translationMethods.push($('.translationDefault'))
         $('.translationDefault').each(function(){
@@ -4598,19 +4615,17 @@ $( document ).ready(function() {
             }
         })
 
+        //toggle method on
         const element = $(event.target)
-        
         if(element.val() === "true"){
             element.val('false')
         }else{
             element.val('true')
         }
 
+        //saving the new translation default into the settings system
         const translationId = element.closest('.accordion-item').attr('id')
-        localStorage.setItem('translationDefault',translationId)
-        Eagle.defaultTranslatorAlgorithm = translationId
-        Eagle.defaultTranslatorAlgorithmMethod = $('#'+defaultTranslatingAlgorithm+ ' .generatePgt').val()
-
+        Setting.find(Setting.TRANSLATOR_ALGORITHM_DEFAULT).setValue(translationId)
         
         $(this).prop('checked',true).change()
     })
@@ -4656,7 +4671,6 @@ $( document ).ready(function() {
         }else{
             (<any>window).eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
         }
-
     })
 
     $(".hierarchy").on("click", function(){

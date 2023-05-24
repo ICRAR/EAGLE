@@ -207,7 +207,7 @@ body {
 }
 
 #parameterTableModal .modal-dialog{
-    max-width: 70vw;
+    max-width: 1230px;
 }
 
 #parameterTableModal .modal-dialog input{
@@ -237,13 +237,79 @@ body {
 
 #parameterTableModal .modal-dialog td{
     padding:0px 3px;
-    overflow: hidden;
+    /* overflow: hidden; */
     border-right: 1px solid rgb(14 2 76 / 16%);
 }
 
 #parameterTableModal .modal-dialog td i{
     margin-left: 50%;
     transform: translate(-50%, 2px);
+}
+
+#parameterTableModal .typeSelectDelete{
+    position: absolute;
+    right:5px
+}
+
+#parameterTableModal .dropdown-item{
+    padding:1px 5px;
+}
+
+#parameterTableModal .dropdown-item.add{
+    background-color: rgb(235 236 241);
+}
+
+#parameterTableModal .dropdown-menu{
+    padding: 0px;
+    border:1px solid black;
+    overflow: hidden;
+    min-width: 8rem;
+}
+
+#parameterTableModal .modal-dialog .typesInput{
+    padding: 0px;
+    height: 35px;
+    width: 100%;
+    outline: none;
+    color: black;
+    height: fit-content;
+    border-right: solid 1px #bbbbbb;
+}
+
+#parameterTableModal .modal-dialog .input-group{
+    border:black solid 1px;
+    border-radius: 2px;
+    flex-wrap: unset;
+    height: fit-content;
+    background-color: white;
+    padding-left:2px;
+}
+
+.parameterTableTypeCustomSelect a {
+    color: #000;
+    border: 1px solid black;
+    border-radius: 2px;
+    font-size: 14px;
+    text-decoration: none;
+    width: 100%;
+    display: block;
+    padding: 0px 3px;
+    background-color:white;
+    height:23px;
+}
+
+.parameterTableTypeCustomSelect a::after {
+    right: 5px;
+    top: 45%;
+    position: absolute;
+}
+
+.parameterTableTypeCustomSelect .dropdown-item input:read-only {
+    color: black;
+}
+
+#parameterTableModal .actionsTd {
+    overflow: hidden;
 }
 
 td:first-child input {
@@ -256,14 +322,60 @@ td:first-child input {
     color: #002e5f;
     display: inline-block;
     padding: 0px;
+    height:20px
 }
 
 #parameterTableModal .modal-dialog td button:disabled{
     color: rgb(113 113 113);
 }
 
+.componentTableVisibilityBtn{
+    color: white;
+    text-decoration: none;
+    font-size: 19px!important;
+    padding-top: 3px;
+}
+
+#parameter_table_isKeyAttribute .dropdown-menu{
+    
+    border:solid 1px #000c1a;
+    border-radius: 6px;
+     position: absolute;
+     z-index: 100;
+     background-color: #0059a5;
+}
+
+#parameter_table_isKeyAttribute .dropdown-menu-right{
+    right: 0;
+    left: auto !important;
+}
+
+#parameter_table_isKeyAttribute .dropdown-item{
+    position: relative;
+}
+
+#parameter_table_isKeyAttribute .dropdown-item span{
+    color: white;
+}
+
+#parameter_table_isKeyAttribute .dropdown-item input{
+    right: 7px;
+    top: 11px;
+    position:absolute;
+    pointer-events:none;
+}
+
+#parameter_table_isKeyAttribute .dropdown-item:hover{
+    background-color: #001d3b;
+    color: white;
+}
+
+#parameter_table_flags{
+    width: 101px;
+}
+
 #parameter_table_actions{
-    width: 123px;
+    width: 101px;
 }
 
 #parameter_table_usage{
@@ -702,9 +814,27 @@ td:first-child input {
     background-color:#002349;
 }
 
+#settingsModal #uiModeDiv {
+    display: flex;
+}
+
+#settingsModal #uiModeDiv span,#settingsModal #uiModeDiv select{
+    display: inline-block;
+}
+
+#settingsModal #uiModeDiv select{
+    padding: 0px;
+    height: 27px;
+    margin-left: 5px;
+}
+
 .settingsModalCategoryWrapper{
     display: none;
     width: 100%;
+}
+
+.settingStudentWrapper{
+    padding: 20px;
 }
 
 .settingsModalButton{
@@ -1511,6 +1641,7 @@ select.form-control{
 .navbar-btn i.material-icons.md-18 {
     position: relative;
     top: 3px;
+    font-size: 20px;
 }
 
 .navbar-center .navbar-btn.navbar-btn-active{
@@ -1685,6 +1816,7 @@ div.rightWindow h5.card-header {
 .rightWindow button i.material-icons.md-18 {
     position: relative;
     top: 2px;
+    font-size: 18px;
 }
 
 ul.nav.navbar-nav .btn-outline-secondary {
@@ -2241,6 +2373,10 @@ palette-component input.form-control.selected {
 
 #nodeInspectorErrorsCard fix .alert {
     overflow: hidden;
+}
+
+.alert{
+    z-index: 2000!important;
 }
 
 #customContextMenu{

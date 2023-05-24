@@ -3,6 +3,7 @@ import * as ko from "knockout";
 import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
+import { Setting } from "./Setting";
 
 export class SideWindow {
     shown : ko.Observable<boolean>;
@@ -94,11 +95,11 @@ export class SideWindow {
 
         if (isNaN(eagle.leftWindow().width())){
             console.warn("Had to reset left window width from invalid state (NaN)!");
-            eagle.leftWindow().width(Config.defaultLeftWindowWidth);
+            eagle.leftWindow().width(Setting.find(Setting.LEFT_WINDOW_WIDTH_KEY).getPerpetualDefaultVal());
         }
         if (isNaN(eagle.rightWindow().width())){
             console.warn("Had to reset right window width from invalid state (NaN)!");
-            eagle.rightWindow().width(Config.defaultRightWindowWidth);
+            eagle.rightWindow().width(Setting.find(Setting.RIGHT_WINDOW_WIDTH_KEY).getPerpetualDefaultVal());
         }
 
         const dragDiff : number = e.clientX - Eagle.dragStartX;
@@ -106,18 +107,18 @@ export class SideWindow {
 
         if (eagle.leftWindow().adjusting()){
             newWidth = eagle.leftWindow().width() + dragDiff;
-            if(newWidth <= Config.defaultLeftWindowWidth){
-                eagle.leftWindow().width(Config.defaultLeftWindowWidth);
-                Utils.setLeftWindowWidth(Config.defaultLeftWindowWidth);
+            if(newWidth <= Setting.find(Setting.LEFT_WINDOW_WIDTH_KEY).getPerpetualDefaultVal()){
+                eagle.leftWindow().width(Setting.find(Setting.LEFT_WINDOW_WIDTH_KEY).getPerpetualDefaultVal());
+                Utils.setLeftWindowWidth(Setting.find(Setting.LEFT_WINDOW_WIDTH_KEY).getPerpetualDefaultVal());
             }else{
                 eagle.leftWindow().width(newWidth);
                 Utils.setLeftWindowWidth(newWidth);
             }
         } else if(eagle.rightWindow().adjusting()) {
             newWidth = eagle.rightWindow().width() - dragDiff;
-            if(newWidth <= Config.defaultRightWindowWidth){
-                eagle.rightWindow().width(Config.defaultRightWindowWidth);
-                Utils.setRightWindowWidth(Config.defaultRightWindowWidth);
+            if(newWidth <= Setting.find(Setting.RIGHT_WINDOW_WIDTH_KEY).getPerpetualDefaultVal()){
+                eagle.rightWindow().width(Setting.find(Setting.RIGHT_WINDOW_WIDTH_KEY).getPerpetualDefaultVal());
+                Utils.setRightWindowWidth(Setting.find(Setting.RIGHT_WINDOW_WIDTH_KEY).getPerpetualDefaultVal());
             }else{
                 eagle.rightWindow().width(newWidth);
                 Utils.setRightWindowWidth(newWidth);

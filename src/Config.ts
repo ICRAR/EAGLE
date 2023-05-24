@@ -27,8 +27,6 @@ export class Config {
     static readonly paletteNodeHeight : number = 22;
     static readonly paletteNodeWidth : number = 130;
 
-    static readonly defaultRightWindowWidth : number = 400;
-    static readonly defaultLeftWindowWidth : number = 310;
 
     static readonly DEFAULT_PALETTE_REPOSITORY : string = "ICRAR/EAGLE_test_repo";
 
