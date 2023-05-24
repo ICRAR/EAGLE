@@ -341,6 +341,7 @@ export class Modals {
         });
 
         $('#parameterTableModal').on('hidden.bs.modal', function(){
+            eagle.showTableModal(false)
             eagle.checkGraph();
         });
     }
