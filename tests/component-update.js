@@ -66,20 +66,20 @@ test('Update components', async t =>{
     const obj2 = JSON.parse(outputJSON);
 
     // !!!!!!!!!!!!! CHECK FOR EXPECTED INPUT COMPONENTS
-    await t.expect(obj1.nodeDataArray[2].fields.length).eql(6, {timeout:3000});
-    await t.expect(obj1.nodeDataArray[2].fields[0].name).eql("dropclass", {timeout:3000});
-    await t.expect(obj1.nodeDataArray[2].fields[0].value).eql("dlg.apps.simple.CopyAppBad", {timeout:3000});
+    const copyApp1 = obj1.nodeData['CopyApp-2'];
+    await t.expect(Object.values(copyApp1.fields).length).eql(6, {timeout:3000});
+    await t.expect(copyApp1.fields["dropclass"].value).eql("dlg.apps.simple.CopyAppBad", {timeout:3000});
 
     // !!!!!!!!!!!!! CHECK FOR CORRECTLY UPDATED OUTPUT COMPONENTS
-    const copyApp = obj2.nodeData['CopyApp-2'];
-    await t.expect(Object.values(copyApp.fields).length).eql(10, {timeout:3000});
-    await t.expect(copyApp.fields["dropclass"].value).eql("dlg.apps.simple.CopyApp", {timeout:3000});
-    await t.expect(copyApp.fields["hello"].value).eql("", {timeout:3000});
-    await t.expect(copyApp.fields["hello"].usage).eql("InputOutput", {timeout:3000});
-    await t.expect(copyApp.fields["bufsize"].value).eql(65536, {timeout:3000});
-    await t.expect(copyApp.fields["n_tries"].value).eql(1, {timeout:3000});
-    await t.expect(copyApp.fields["dummy_in"].usage).eql("InputPort", {timeout:3000});
-    await t.expect(copyApp.fields["dummy_out"].usage).eql("OutputPort", {timeout:3000});
+    const copyApp2 = obj2.nodeData['CopyApp-2'];
+    await t.expect(Object.values(copyApp2.fields).length).eql(12, {timeout:3000});
+    await t.expect(copyApp2.fields["dropclass"].value).eql("dlg.apps.simple.CopyApp", {timeout:3000});
+    await t.expect(copyApp2.fields["hello"].value).eql("", {timeout:3000});
+    await t.expect(copyApp2.fields["hello"].usage).eql("InputOutput", {timeout:3000});
+    await t.expect(copyApp2.fields["bufsize"].value).eql(65536, {timeout:3000});
+    await t.expect(copyApp2.fields["n_tries"].value).eql(1, {timeout:3000});
+    await t.expect(copyApp2.fields["dummy_in"].usage).eql("InputPort", {timeout:3000});
+    await t.expect(copyApp2.fields["dummy_out"].usage).eql("OutputPort", {timeout:3000});
 });
 
 const fetchGraph = (filename) => {
