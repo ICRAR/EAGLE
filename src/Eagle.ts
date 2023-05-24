@@ -3422,7 +3422,6 @@ export class Eagle {
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
-        $("#nodeInspectorAddInputPortDiv").show();
     }
 
     // Adds an output port to the selected node via HTML

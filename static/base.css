@@ -1747,18 +1747,6 @@ select.form-control{
     position: relative;
 }
 
-#nodeInspectorAddField, #nodeInspectorAddApplicationParam{
-    padding:0px;
-}
-
-#nodeInspectorAddInputPort{
-    padding:0px;
-}
-
-#nodeInspectorAddOutputPort{
-    padding:0px;
-}
-
 .forceHide{
     display: none !important;
 }

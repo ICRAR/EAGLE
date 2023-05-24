@@ -41,8 +41,8 @@ test('Add node parameter with usage InputPort', async t =>{
 
     
     const numInputPortsBefore = await getNumInputPorts();
-    
-    await page.addField(FIELD_NAME,'test', 'ApplicationArgument', 'InputPort')
+
+    await page.addField(FIELD_NAME,'', 'ApplicationArgument', 'InputPort')
 
     const numInputPortsAfter = await getNumInputPorts();
 

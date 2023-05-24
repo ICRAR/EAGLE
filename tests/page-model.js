@@ -186,9 +186,6 @@ class Page {
       //setting the name of the new field
       .typeText(Selector('#paramsTableWrapper').find('tr').nth(-1).find('.tableFieldDisplayName'), name, { replace: true })
 
-      //setting up the value field
-      .typeText(Selector('#paramsTableWrapper').find('tr').nth(-1).find('.tableFieldStringValueInput'), value, { replace: true })
-
       //setting the requested parameter type 
       .click(Selector('#paramsTableWrapper').find('tr').nth(-1).find('.tableFieldParamTypeSelect'))
       .click(Selector('#paramsTableWrapper').find('tr').nth(-1).find('.tableFieldParamTypeSelect').find('option').withText(parameterType))
@@ -197,6 +194,16 @@ class Page {
       .click(Selector('#paramsTableWrapper').find('tr').nth(-1).find('.tbaleFieldUseAs'))
       .click(Selector('#paramsTableWrapper').find('tr').nth(-1).find('.tbaleFieldUseAs').find('option').withText(useAs))
     
+    if(value != ''){
+      await t
+        
+        //setting up the value field
+        .typeText(Selector('#paramsTableWrapper').find('tr').nth(-1).find('.tableFieldStringValueInput'), value, { replace: true })
+
+    }
+    
+    await t
+
       .click('#parameterTableModalAffirmativeButton')
   }
 
