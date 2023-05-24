@@ -1,4 +1,5 @@
 import { Selector, ClientFunction } from 'testcafe';
+import page from './page-model';
 
 /*
     run with:
@@ -53,34 +54,15 @@ test('Change destination port used by edge', async t =>{
         .wait(1000);
     
     const numEdgesBefore = await getNumEdges();
-
     await t
-        // expand the node inspector
-        .click('#inspectorCollapseStateIcon')
+        .debug()
 
-        // click the '+' button to add input port
-        .click('#nodeInspectorAddInputPort')
-
-        .wait(200)
-
-        // click the 'custom' option
-        .click('.nodeInspectorDropdownOption:nth-child(2)')
-
-        // add info to modal
-        .typeText(Selector('#editFieldModalDisplayTextInput'), FIELD_NAME)
-
-        // click OK on modal dialog
-        .click('#editFieldModalAffirmativeButton')
-
-        .wait(200);
-
-        // select the edge
-        //.click('.link')
+    await page.addField(FIELD_NAME,'','ApplicationArgument','InputPort')
+    
     await selectFirstEdge();
 
     await t
         .wait(200)
-
         // edit the edge
         .click('#edgeEditBtn')
 
