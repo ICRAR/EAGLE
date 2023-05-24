@@ -1,8 +1,10 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
-import {Daliuge} from './Daliuge';
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+import { Edge } from "./Edge";
+import { Node } from "./Node";
+import { Utils } from './Utils';
 
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
@@ -22,7 +24,7 @@ export class Field {
     private usage : ko.Observable<Daliuge.FieldUsage>;
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
-    private linkKey : ko.Observable<number>;
+    private links : ko.ObservableArray<Edge>;
 
     constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
@@ -41,7 +43,7 @@ export class Field {
         this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
         this.nodeKey = ko.observable(0);
-        this.linkKey = ko.observable(null);
+        this.links = ko.observableArray([]);
     }
 
     getId = () : string => {
@@ -258,12 +260,30 @@ export class Field {
         this.nodeKey(key);
     }
 
-    getLinkKey = () : number => {
-        return this.linkKey();
+    getLinks = () : Edge[] => {
+        return this.links();
     }
 
-    setLinkKey = (key: number) : void => {
-        this.linkKey(key);
+    setLinks = (links: Edge[]) : void => {
+        this.links(links);
+    }
+
+    addLink = (field: Edge) : void => {
+        // TODO: check that not already present
+
+
+        this.links.push(field);
+    }
+
+    removeLinkById = (id: string) : void => {
+        for (let i = 0; i < this.links().length ; i++){
+            if (this.links()[i].getId() === id){
+                this.links.splice(i, 1);
+                return;
+            }
+        }
+
+        console.warn("Could not remove link from field, id not found:", id);
     }
 
     clear = () : void => {
@@ -283,11 +303,13 @@ export class Field {
         this.id("");
         this.isEvent(false);
         this.nodeKey(0);
+        this.links([]);
     }
 
     clone = () : Field => {
         const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
         f.setIsEvent(this.isEvent());
+        f.setLinks(this.links());
         return f;
     }
 
@@ -317,6 +339,7 @@ export class Field {
         this.usage(src.usage());
         this.setKeyAttribute(src.keyAttribute());
         this.isEvent(src.isEvent());
+        this.links(src.links());
 
         // NOTE: these two are not copied from the src, but come from the function's parameters
         this.id(id);
@@ -434,6 +457,16 @@ export class Field {
     }
 
     static toJson = (field : Field) : object => {
+        const linkKeys: string[] = [];
+
+        // build the linkKeys array first
+        for (let i = 0 ; i < field.links.length ; i++){
+            const srcNode: Node = null;
+            const destNode: Node = null;
+
+            linkKeys.push(Edge.getUniqueKey(i, srcNode, destNode));
+        }
+
         const result : any = {
             value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
@@ -447,7 +480,7 @@ export class Field {
             id: field.id(),
             parameterType: field.parameterType(),
             usage: field.usage(),
-            linkKey: field.linkKey()
+            linkKeys: linkKeys
         }
 
         return result;
@@ -538,6 +571,10 @@ export class Field {
             event = data.event;
         if (typeof data.keyAttribute !== 'undefined')
             keyAttribute = data.keyAttribute;
+
+
+        // TODO: read linkKeys
+
         const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage, keyAttribute);
         result.setIsEvent(isEvent);
         return result;
