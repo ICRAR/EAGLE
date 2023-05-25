@@ -970,7 +970,7 @@ export class Utils {
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
                     value: node.getKey(),
                     text: node.getName(),
-                    selected: edge.getSrcNodeKey() === node.getKey()
+                    selected: edge.getSrcNode().getKey() === node.getKey()
                 }));
             }
 
@@ -981,7 +981,7 @@ export class Utils {
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
                     value: inputApp.getKey(),
                     text: inputApp.getName(),
-                    selected: edge.getSrcNodeKey() === inputApp.getKey()
+                    selected: edge.getSrcNode().getKey() === inputApp.getKey()
                 }));
             }
 
@@ -992,7 +992,7 @@ export class Utils {
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
                     value: outputApp.getKey(),
                     text: outputApp.getName(),
-                    selected: edge.getSrcNodeKey() === outputApp.getKey()
+                    selected: edge.getSrcNode().getKey() === outputApp.getKey()
                 }));
             }
         }
@@ -1016,7 +1016,7 @@ export class Utils {
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getDisplayText(),
-                    selected: edge.getSrcPortId() === port.getId()
+                    selected: edge.getSrcPort().getId() === port.getId()
                 }));
             }
         }
@@ -1028,7 +1028,7 @@ export class Utils {
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
                     value: node.getKey(),
                     text: node.getName(),
-                    selected: edge.getDestNodeKey() === node.getKey()
+                    selected: edge.getDestNode().getKey() === node.getKey()
                 }));
             }
 
@@ -1039,7 +1039,7 @@ export class Utils {
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
                     value: inputApp.getKey(),
                     text: inputApp.getName(),
-                    selected: edge.getDestNodeKey() === inputApp.getKey()
+                    selected: edge.getDestNode().getKey() === inputApp.getKey()
                 }));
             }
 
@@ -1050,7 +1050,7 @@ export class Utils {
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
                     value: outputApp.getKey(),
                     text: outputApp.getName(),
-                    selected: edge.getDestNodeKey() === outputApp.getKey()
+                    selected: edge.getDestNode().getKey() === outputApp.getKey()
                 }));
             }
         }
@@ -1074,7 +1074,7 @@ export class Utils {
                 $('#editEdgeModalDestPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getDisplayText(),
-                    selected: edge.getDestPortId() === port.getId()
+                    selected: edge.getDestPort().getId() === port.getId()
                 }));
             }
         }
@@ -1549,7 +1549,7 @@ export class Utils {
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
+            Edge.isValid(eagle, edge.getId(), edge.getSrcNode().getKey(), edge.getSrcPort().getId(), edge.getDestNode().getKey(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
         }
 
         return errorsWarnings;

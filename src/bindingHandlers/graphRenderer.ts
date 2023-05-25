@@ -1312,8 +1312,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
     function createLink(edge : Edge) : string {
         // determine if edge is "forward" or not
-        const srcNode : Node  = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
-        const destNode : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
+        const srcNode : Node  = edge.getSrcNode();
+        const destNode : Node = edge.getDestNode();
 
         if (srcNode === null || destNode === null){
             console.warn("Can't find srcNode or can't find destNode for edge.");

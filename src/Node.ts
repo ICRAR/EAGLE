@@ -2262,7 +2262,7 @@ export class Node {
         // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
         let isConnected: boolean = false;
         for (const edge of eagle.logicalGraph().getEdges()){
-            if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
+            if (edge.getSrcNode().getKey() === node.getKey() || edge.getDestNode().getKey() === node.getKey()){
                 isConnected = true;
                 break;
             }
