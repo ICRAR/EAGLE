@@ -2918,11 +2918,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
             // check if node has connected input and output
             for (const edge of graph.getEdges()){
-                if (edge.getDestNodeKey() === node.getKey()){
+                if (edge.getDestNode().getKey() === node.getKey()){
                     nodeHasConnectedInput = true;
                 }
 
-                if (edge.getSrcNodeKey() === node.getKey()){
+                if (edge.getSrcNode().getKey() === node.getKey()){
                     nodeHasConnectedOutput = true;
                 }
             }
@@ -2980,8 +2980,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function getEdgeDisplay(edge : Edge) : string {
-        const srcNode : Node = findNodeWithKey(edge.getSrcNodeKey(), nodeData);
-        const destNode : Node = findNodeWithKey(edge.getDestNodeKey(), nodeData);
+        const srcNode : Node = edge.getSrcNode();
+        const destNode : Node = edge.getDestNode();
 
         if (srcNode === null || destNode === null){
             return "none";
@@ -2992,7 +2992,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // also collapse if source port is local port of collapsed node
-        if (srcNode.hasLocalPortWithId(edge.getSrcPortId()) && srcNode.isCollapsed()){
+        if (srcNode.hasLocalPortWithId(edge.getSrcPort().getId()) && srcNode.isCollapsed()){
             return "none";
         }
 
@@ -3250,10 +3250,10 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         let selectedColor: string = LINK_COLORS.DEFAULT_SELECTED;
 
         // check if source node is an event, if so, draw in blue
-        const srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        const srcNode : Node = edge.getSrcNode();
 
         if (srcNode !== null){
-            const srcPort : Field = srcNode.findFieldById(edge.getSrcPortId());
+            const srcPort : Field = edge.getSrcPort();
 
             if (srcPort !== null && srcPort.getIsEvent()){
                 normalColor = LINK_COLORS.EVENT;
@@ -3262,7 +3262,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // check if link has a warning or is invalid
-        const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge.getId(), edge.getSrcNode().getKey(), edge.getSrcPort().getId(), edge.getDestNode().getKey(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
 
         if (linkValid === Eagle.LinkValid.Invalid){
             normalColor = LINK_COLORS.INVALID;
@@ -3292,8 +3292,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function edgeGetStrokeDashArray(edge: Edge, index: number) : string {
-        const srcNode : Node  = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-        const destNode : Node = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+        const srcNode : Node  = edge.getSrcNode();
+        const destNode : Node = edge.getDestNode();
 
         // if we can't find the edge
         if (srcNode === null){
@@ -3691,8 +3691,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const result: Edge[] = [];
 
         for (const edge of edges){
-            const srcKey = edge.getSrcNodeKey();
-            const destKey = edge.getDestNodeKey();
+            const srcKey = edge.getSrcNode().getKey();
+            const destKey = edge.getDestNode().getKey();
             let srcFound = false;
             let destFound = false;
 
