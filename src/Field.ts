@@ -461,10 +461,8 @@ export class Field {
 
         // build the linkKeys array first
         for (let i = 0 ; i < field.links.length ; i++){
-            const srcNode: Node = null;
-            const destNode: Node = null;
-
-            linkKeys.push(Edge.getUniqueKey(i, srcNode, destNode));
+            const link = field.links()[i];
+            linkKeys.push(Edge.getUniqueKey(i, link.getSrcNode(), link.getDestNode()));
         }
 
         const result : any = {

@@ -88,18 +88,8 @@ export class LogicalGraph {
         for (let i = 0 ; i < graph.edges.length ; i++){
             const edge = graph.edges[i];
 
-            const srcNode = graph.findNodeByKey(edge.getSrcNodeKey());
-            const destNode = graph.findNodeByKey(edge.getDestNodeKey());
-
-            if (srcNode === null || destNode === null){
-                continue;
-            }
-
-            const srcPort = srcNode.findFieldById(edge.getSrcPortId());
-            const destPort = destNode.findFieldById(edge.getDestPortId());
-
-            const key: string = Edge.getUniqueKey(i, srcNode, destNode);
-            const value: any = Edge.toAppRefJson(edge, srcPort, destPort);
+            const key: string = Edge.getUniqueKey(i, edge.getSrcNode(), edge.getDestNode());
+            const value: any = Edge.toAppRefJson(edge, edge.getSrcPort(), edge.getDestPort());
 
             result.linkData[key] = value;
         }
@@ -209,14 +199,15 @@ export class LogicalGraph {
 
         // add edges
         for (const [linkKey, linkData] of Object.entries(dataObject.linkData)){
-            const edge = Edge.fromAppRefJson(linkData, errorsWarnings);
+            const edge = Edge.fromAppRefJson(linkData, result, errorsWarnings);
 
             // find source node and destination node based on field ids
-            const srcNode = result.findNodeByFieldId(edge.getSrcPortId());
-            const destNode = result.findNodeByFieldId(edge.getDestPortId());
+            // we assume here that the edge's srcNode and destNode are not known, so we have to look them up
+            const srcNode = result.findNodeByFieldId(edge.getSrcPort().getId());
+            const destNode = result.findNodeByFieldId(edge.getDestPort().getId());
             if (srcNode !== null && destNode !== null){
-                edge.setSrcNodeKey(srcNode.getKey());
-                edge.setDestNodeKey(destNode.getKey());
+                edge.setSrcNode(srcNode);
+                edge.setDestNode(destNode);
             }
 
             result.edges.push(edge);

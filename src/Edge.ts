@@ -33,22 +33,22 @@ import { Utils } from './Utils';
 import { Errors } from './Errors';
 
 export class Edge {
-    private _id : string
-    private srcNodeKey : number;
-    private srcPortId : string;
-    private destNodeKey : number;
-    private destPortId : string;
-    private loopAware : boolean; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
-    private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
-    private selectionRelative : boolean // indicates if the edge is either selected or attatched to a selected node
+    private _id: string
+    private srcNode: Node;
+    private srcPort: Field;
+    private destNode: Node;
+    private destPort: Field;
+    private loopAware: boolean; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
+    private closesLoop: boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
+    private selectionRelative: boolean // indicates if the edge is either selected or attatched to a selected node
 
-    constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
+    constructor(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, selectionRelative: boolean){
         this._id = Utils.uuidv4();
 
-        this.srcNodeKey = srcNodeKey;
-        this.srcPortId = srcPortId;
-        this.destNodeKey = destNodeKey;
-        this.destPortId = destPortId;
+        this.srcNode = srcNode;
+        this.srcPort = srcPort;
+        this.destNode = destNode;
+        this.destPort = destPort;
 
         this.loopAware = loopAware;
         this.closesLoop = closesLoop;
@@ -63,40 +63,40 @@ export class Edge {
         this._id = id;
     }
 
-    getSrcNodeKey = () : number => {
-        return this.srcNodeKey;
+    getSrcNode = () : Node => {
+        return this.srcNode;
     }
 
-    setSrcNodeKey = (key: number): void => {
-        this.srcNodeKey = key;
+    setSrcNode = (node: Node): void => {
+        this.srcNode = node;
     }
 
-    getSrcPortId = () : string => {
-        return this.srcPortId;
+    getSrcPort = () : Field => {
+        return this.srcPort;
     }
 
-    setSrcPortId = (id: string) : void => {
-        this.srcPortId = id;
+    setSrcPort = (field: Field) : void => {
+        this.srcPort = field;
     }
 
-    getDestNodeKey = () : number => {
-        return this.destNodeKey;
+    getDestNode = () : Node => {
+        return this.destNode;
     }
 
-    setDestNodeKey = (key: number): void => {
-        this.destNodeKey = key;
+    setDestNode = (node: Node): void => {
+        this.destNode = node;
     }
 
-    getDestPortId = () : string => {
-        return this.destPortId;
+    getDestPort = () : Field => {
+        return this.destPort;
     }
 
     getSelectionRelative = () : boolean => {
         return this.selectionRelative;
     }
 
-    setDestPortId = (id: string) : void => {
-        this.destPortId = id;
+    setDestPort = (field: Field) : void => {
+        this.destPort = field;
     }
 
     isLoopAware = () : boolean => {
@@ -133,16 +133,16 @@ export class Edge {
 
     clear = () : void => {
         this._id = "";
-        this.srcNodeKey = 0;
-        this.srcPortId = "";
-        this.destNodeKey = 0;
-        this.destPortId = "";
+        this.srcNode = null;
+        this.srcPort = null;
+        this.destNode = null;
+        this.destPort = null;
         this.loopAware = false;
         this.closesLoop = false;
     }
 
     clone = () : Edge => {
-        const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, this.selectionRelative);
+        const result : Edge = new Edge(this.srcNode, this.srcPort, this.destNode, this.destPort, this.loopAware, this.closesLoop, this.selectionRelative);
 
         result._id = this._id;
 
@@ -152,7 +152,7 @@ export class Edge {
     getErrorsWarnings = (eagle: Eagle): Errors.ErrorsWarnings => {
         const result: {warnings: Errors.Issue[], errors: Errors.Issue[]} = {warnings: [], errors: []};
 
-        Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, false, false, result);
+        Edge.isValid(eagle, this._id, this.srcNode.getKey(), this.srcPort.getId(), this.destNode.getKey(), this.destPort.getId(), this.loopAware, this.closesLoop, false, false, result);
 
         return result;
     }
@@ -175,11 +175,11 @@ export class Edge {
         };
     }
 
-    static fromAppRefJson = (linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
+    static fromAppRefJson = (linkData: any, logicalGraph: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
         let srcNodeKey : number = 0;
         let destNodeKey : number = 0;
-        let fromPort: string = "";
-        let toPort: string = "";
+        let srcPortId: string = "";
+        let destPortId: string = "";
         let loopAware: boolean = false;
         let closesLoop: boolean = false;
         let id: string = "";
@@ -200,12 +200,12 @@ export class Edge {
         if (typeof linkData.fromPort === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'fromPort' attribute"));
         } else {
-            fromPort = linkData.fromPort;
+            srcPortId = linkData.fromPort;
         }
         if (typeof linkData.toPort === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'toPort' attribute"));
         } else {
-            toPort = linkData.toPort;
+            destPortId = linkData.toPort;
         }
 
         // try to read loopAware attribute
@@ -236,7 +236,12 @@ export class Edge {
             toField = linkData.toField;
         }
 
-        const edge = new Edge(srcNodeKey, fromPort, destNodeKey, toPort, loopAware, closesLoop, false);
+        const srcNode: Node = logicalGraph.findNodeByKey(srcNodeKey);
+        const fromPort: Field = srcNode.findFieldById(srcPortId);
+        const destNode: Node = logicalGraph.findNodeByKey(destNodeKey);
+        const toPort: Field = destNode.findFieldById(destPortId);
+
+        const edge = new Edge(srcNode, fromPort, destNode, toPort, loopAware, closesLoop, false);
         edge.setId(id);
 
         return edge;
@@ -244,16 +249,16 @@ export class Edge {
 
     static toOJSJson = (edge: Edge): object => {
         return {
-            from: edge.srcNodeKey,
-            fromPort: edge.srcPortId,
-            to: edge.destNodeKey,
-            toPort: edge.destPortId,
+            from: edge.srcNode.getKey(),
+            fromPort: edge.srcPort.getId(),
+            to: edge.destNode.getKey(),
+            toPort: edge.destPort.getId(),
             loop_aware: edge.loopAware ? "1" : "0",
             closesLoop: edge.closesLoop
         };
     }
 
-    static fromOJSJson = (linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
+    static fromOJSJson = (linkData: any, logicalGraph: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
         // try to read source and destination nodes and ports
         let srcNodeKey : number = 0;
         let srcPortId : string = "";
@@ -296,9 +301,15 @@ export class Edge {
             closesLoop = linkData.closesLoop;
         }
 
-        return new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, loopAware, closesLoop, false);
+        const srcNode: Node = logicalGraph.findNodeByKey(srcNodeKey);
+        const srcPort: Field = srcNode.findFieldById(srcPortId);
+        const destNode: Node = logicalGraph.findNodeByKey(destNodeKey);
+        const destPort: Field = destNode.findFieldById(destPortId);
+
+        return new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
     }
 
+    // TODO: switch to input of nodes and fields instead of nodeKeys and fieldIds?
     static isValid = (eagle: Eagle, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
         // check for problems
         if (isNaN(sourceNodeKey)){
@@ -485,7 +496,7 @@ export class Edge {
 
         // check if the edge already exists in the graph, there is no point in a duplicate
         for (const edge of eagle.logicalGraph().getEdges()){
-            if (edge.getSrcPortId() === sourcePortId && edge.getDestPortId() === destinationPortId && edge.getId() !== edgeId){
+            if (edge.getSrcPort().getId() === sourcePortId && edge.getDestPort().getId() === destinationPortId && edge.getId() !== edgeId){
                 const x = Errors.Fix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDeleteEdge(eagle, edgeId);}, "Delete edge");
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }

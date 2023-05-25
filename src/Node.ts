@@ -876,17 +876,17 @@ export class Node {
         return null;
     }
 
-    findPortInApplicationsById = (portId : string) : {key: number, port: Field} => {
+    findPortInApplicationsById = (portId : string) : {node: Node, port: Field} => {
         // if node has an inputApplication, check those ports too
         if (this.hasInputApplication()){
             for (const inputPort of this.inputApplication().getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {key: this.inputApplication().getKey(), port: inputPort};
+                    return {node: this.inputApplication(), port: inputPort};
                 }
             }
             for (const outputPort of this.inputApplication().getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {key: this.inputApplication().getKey(), port: outputPort};
+                    return {node: this.inputApplication(), port: outputPort};
                 }
             }
         }
@@ -895,17 +895,17 @@ export class Node {
         if (this.hasOutputApplication()){
             for (const inputPort of this.outputApplication().getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {key: this.outputApplication().getKey(), port: inputPort};
+                    return {node: this.outputApplication(), port: inputPort};
                 }
             }
             for (const outputPort of this.outputApplication().getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {key: this.outputApplication().getKey(), port: outputPort};
+                    return {node: this.outputApplication(), port: outputPort};
                 }
             }
         }
 
-        return {key: null, port: null};
+        return {node: null, port: null};
     }
 
     findPortIndexById = (portId : string) : number => {

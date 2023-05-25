@@ -1845,7 +1845,7 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(eagle, field1.getId(), field0.getId());
+        this._updateEdgesField(eagle, field1, field0);
     }
 
     // NOTE: merges field1 into field0
@@ -1872,7 +1872,7 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(eagle, field1.getId(), field0.getId());
+        this._updateEdgesField(eagle, field1, field0);
     }
 
     static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
@@ -1894,17 +1894,17 @@ export class Utils {
         return result;
     }
 
-    static _mergeEdges(eagle: Eagle, oldFieldId: string, newFieldId: string){
+    static _updateEdgesField(eagle: Eagle, oldField: Field, newField: Field){
         // update all edges to use new field
         for (const edge of eagle.logicalGraph().getEdges()){
             // update src port
-            if (edge.getSrcPortId() === oldFieldId){
-                edge.setSrcPortId(newFieldId);
+            if (edge.getSrcPort().getId() === oldField.getId()){
+                edge.setSrcPort(newField);
             }
 
             // update dest port
-            if (edge.getDestPortId() === oldFieldId){
-                edge.setDestPortId(newFieldId);
+            if (edge.getDestPort().getId() === oldField.getId()){
+                edge.setDestPort(newField);
             }
         }
     }
@@ -1964,24 +1964,24 @@ export class Utils {
 
     static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){
         const edge = eagle.logicalGraph().findEdgeById(edgeId);
-        const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-        const destNode = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+        const srcNode = edge.getSrcNode();
+        const destNode = edge.getDestNode();
 
         // if the SOURCE node is a construct, find the port within the embedded apps, and modify the edge with a new source node
         if (srcNode.getCategoryType() === Category.Type.Construct){
-            const embeddedApplicationKeyAndPort = srcNode.findPortInApplicationsById(edge.getSrcPortId());
+            const embeddedApplicationKeyAndPort = srcNode.findPortInApplicationsById(edge.getSrcPort().getId());
 
-            if (embeddedApplicationKeyAndPort.key !== null){
-                edge.setSrcNodeKey(embeddedApplicationKeyAndPort.key);
+            if (embeddedApplicationKeyAndPort.node !== null){
+                edge.setSrcNode(embeddedApplicationKeyAndPort.node);
             }
         }
 
         // if the DESTINATION node is a construct, find the port within the embedded apps, and modify the edge with a new destination node
         if (destNode.getCategoryType() === Category.Type.Construct){
-            const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPortId());
+            const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPort().getId());
 
-            if (embeddedApplicationKeyAndPort.key !== null){
-                edge.setDestNodeKey(embeddedApplicationKeyAndPort.key);
+            if (embeddedApplicationKeyAndPort.node !== null){
+                edge.setDestNode(embeddedApplicationKeyAndPort.node);
             }
         }
     }
@@ -2090,10 +2090,10 @@ export class Utils {
         for (const edge of eagle.logicalGraph().getEdges()){
             tableData.push({
                 "_id":edge.getId(),
-                "sourceNodeKey":edge.getSrcNodeKey(),
-                "sourcePortId":edge.getSrcPortId(),
-                "destNodeKey":edge.getDestNodeKey(),
-                "destPortId":edge.getDestPortId(),
+                "sourceNodeKey":edge.getSrcNode().getKey(),
+                "sourcePortId":edge.getSrcPort().getId(),
+                "destNodeKey":edge.getDestNode().getKey(),
+                "destPortId":edge.getDestPort().getId(),
                 "loopAware":edge.isLoopAware(),
                 "closesLoop":edge.isClosesLoop(),
                 "isSelectionRelative":edge.getSelectionRelative()
