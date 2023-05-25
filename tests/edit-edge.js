@@ -58,11 +58,14 @@ test('Change destination port used by edge', async t =>{
         .debug()
 
     await page.addField(FIELD_NAME,'','ApplicationArgument','InputPort')
+
+    await t
+    .wait(500)
     
     await selectFirstEdge();
 
     await t
-        .wait(200)
+        .wait(500)
         // edit the edge
         .click('#edgeEditBtn')
 
