@@ -1363,16 +1363,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 let destHasConnectedOutput: boolean = false;
 
                 for (const e of graph.getEdges()){
-                    if (e.getDestNodeKey() === edge.getSrcNodeKey()){
+                    if (e.getDestNode().getKey() === edge.getSrcNode().getKey()){
                         srcHasConnectedInput = true;
                     }
-                    if (e.getSrcNodeKey() === edge.getDestNodeKey()){
+                    if (e.getSrcNode().getKey() === edge.getDestNode().getKey()){
                         destHasConnectedOutput = true;
                     }
                 }
 
-                const srcIsDataNode: boolean = findNodeWithKey(edge.getSrcNodeKey(), graph.getNodes()).isData();
-                const destIsDataNode: boolean = findNodeWithKey(edge.getDestNodeKey(), graph.getNodes()).isData();
+                const srcIsDataNode: boolean = edge.getSrcNode().isData();
+                const destIsDataNode: boolean = edge.getDestNode().isData();
                 //console.log("edge", edge.getId(), "srcIsDataNode", srcIsDataNode, "srcHasConnectedInput", srcHasConnectedInput, "destIsDataNode", destIsDataNode, "destHasConnectedOutput", destHasConnectedOutput);
 
                 if (destIsDataNode){
@@ -1386,8 +1386,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                 if (srcIsDataNode){
                     if (srcHasConnectedInput){
                         // build a new edge
-                        const newSrc = findInputToDataNode(graph.getEdges(), edge.getSrcNodeKey());
-                        edges.push(new Edge(newSrc.nodeKey, newSrc.portId, edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false));
+                        const newSrc = findInputToDataNode(graph.getEdges(), edge.getSrcNode().getKey());
+                        edges.push(new Edge(newSrc.node, newSrc.port, edge.getDestNode(), edge.getDestPort(), edge.isLoopAware(), edge.isClosesLoop(), false));
                     } else {
                         // draw edge as normal
                         edges.push(edge);
@@ -1399,12 +1399,12 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function findInputToDataNode(edges: Edge[], nodeKey: number) : {nodeKey:number, portId: string}{
+    function findInputToDataNode(edges: Edge[], nodeKey: number) : {node: Node, port: Field}{
         for (const edge of edges){
-            if (edge.getDestNodeKey() === nodeKey){
+            if (edge.getDestNode().getKey() === nodeKey){
                 return {
-                    nodeKey: edge.getSrcNodeKey(),
-                    portId: edge.getSrcPortId()
+                    node: edge.getSrcNode(),
+                    port: edge.getSrcPort()
                 };
             }
         }
