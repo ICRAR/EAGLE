@@ -54,9 +54,7 @@ test('Change destination port used by edge', async t =>{
         .wait(1000);
     
     const numEdgesBefore = await getNumEdges();
-    await t
-        .debug()
-
+    
     await page.addField(FIELD_NAME,'','ApplicationArgument','InputPort')
 
     await t
