@@ -1320,13 +1320,13 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return createBezier(0,0,0,0,Eagle.Direction.Down,Eagle.Direction.Down, edge.isClosesLoop());
         }
 
-        const srcPortType : Daliuge.FieldUsage = srcNode.findFieldById(edge.getSrcPortId()).getUsage();
-        const destPortType : Daliuge.FieldUsage = destNode.findFieldById(edge.getDestPortId()).getUsage();
-        const srcPortIndex : number = srcNode.findPortIndexById(edge.getSrcPortId());
-        const destPortIndex : number = destNode.findPortIndexById(edge.getDestPortId());
+        const srcPortType : Daliuge.FieldUsage = edge.getSrcPort().getUsage();
+        const destPortType : Daliuge.FieldUsage = edge.getDestPort().getUsage();
+        const srcPortIndex : number = srcNode.findPortIndexById(edge.getSrcPort().getId());
+        const destPortIndex : number = destNode.findPortIndexById(edge.getDestPort().getId());
 
-        const srcPortPos = findNodePortPosition(srcNode, edge.getSrcPortId(), false, false);
-        const destPortPos = findNodePortPosition(destNode, edge.getDestPortId(), true, false);
+        const srcPortPos = findNodePortPosition(srcNode, edge.getSrcPort().getId(), false, false);
+        const destPortPos = findNodePortPosition(destNode, edge.getDestPort().getId(), true, false);
 
         let x1 = srcPortPos.x;
         let y1 = srcPortPos.y;

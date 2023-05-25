@@ -433,7 +433,8 @@ export class Modals {
             const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
             const destNodeKey : number = parseInt($('#editEdgeModalDestNodeKeySelect').val().toString(), 10);
-            edge.setDestNodeKey(destNodeKey);
+            const destNode: Node = logicalGraph.findNodeByKey(destNodeKey);
+            edge.setDestNode(destNode);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
         });
