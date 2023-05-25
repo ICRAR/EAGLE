@@ -1174,27 +1174,10 @@ export class Eagle {
                 return;
             }
 
-            const nodes : Node[] = [];
-            const edges : Edge[] = [];
             const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
+            const logicalGraph: LogicalGraph = LogicalGraph.fromAppRefJson(clipboard, new RepositoryFile(Repository.DUMMY, "", ""), errorsWarnings);
 
-            for (const n of clipboard.nodes){
-                const node = Node.fromOJSJson(n, null, false, (): number => {
-                    // TODO: add error to errorsWarnings
-                    console.error("Should not have to generate new key for node", n);
-                    return 0;
-                });
-
-                nodes.push(node);
-            }
-
-            for (const e of clipboard.edges){
-                const edge = Edge.fromOJSJson(e, null);
-
-                edges.push(edge);
-            }
-
-            this.insertGraph(nodes, edges, null, errorsWarnings);
+            this.insertGraph(logicalGraph.getNodes(), logicalGraph.getEdges(), null, errorsWarnings);
 
             // display notification to user
             Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
@@ -2787,25 +2770,9 @@ export class Eagle {
         }
 
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const nodes : Node[] = [];
-        const edges : Edge[] = [];
+        const logicalGraph: LogicalGraph = LogicalGraph.fromAppRefJson(clipboard, new RepositoryFile(Repository.DUMMY, "", ""), errorsWarnings);
 
-        for (const n of clipboard.nodes){
-            const node = Node.fromOJSJson(n, errorsWarnings, false, (): number => {
-                console.error("Should not have to generate new key for node", n);
-                return 0;
-            });
-
-            nodes.push(node);
-        }
-
-        for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, errorsWarnings);
-
-            edges.push(edge);
-        }
-
-        this.insertGraph(nodes, edges, null, errorsWarnings);
+        this.insertGraph(logicalGraph.getNodes(), logicalGraph.getEdges(), null, errorsWarnings);
 
         // display notification to user
         if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
