@@ -130,6 +130,10 @@ export class Field {
         this.value((!Utils.asBool(this.value())).toString());
     }
 
+    toggleDefault = () => {
+        this.defaultValue((!Utils.asBool(this.defaultValue())).toString());
+    }
+
     setType = (type: string) : void => {
         this.type(type);
     }

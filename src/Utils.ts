@@ -614,187 +614,13 @@ export class Utils {
 
         Utils.updateGitCommitRepositoriesList(repositories, defaultRepository);
 
-        // pre-selected the currently selected index
-        //$('#gitCommitModalRepositorySelect').val(selectedChoiceIndex);
-
         $('#gitCommitModalFilePathInput').val(filePath);
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
-        let dropDownKO;
-        let divID;
 
-        // determine which dropdown menu should be filled with appropriate items
-        switch(parameterType){
-            case Daliuge.FieldType.ApplicationArgument:
-                dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
-                divID = "nodeInspectorAddApplicationParamDiv";
-                break;
-            case Daliuge.FieldType.ComponentParameter:
-                dropDownKO = $("#nodeInspectorFieldDropDownKO");
-                divID = "nodeInspectorAddFieldDiv";
-                break;
-            case Daliuge.FieldType.ConstructParameter:
-                dropDownKO = $("#nodeInspectorConstructParameterDropDownKO");
-                divID = "nodeInspectorAddConstructParameterDiv";
-                break;
-            default:
-            console.error("Unknown parameter type");
-        }
-
-        // or if we are a port, then use different dropdowns
-        switch(parameterUsage){
-            case Daliuge.FieldUsage.InputPort:
-            dropDownKO = $("#nodeInspectorInputPortDropDownKO");
-            divID = "nodeInspectorAddInputPortDiv";
-            break;
-            case Daliuge.FieldUsage.OutputPort:
-            dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
-            divID = "nodeInspectorAddOutputPortDiv";
-            break;
-        }
-
-        if (modalType === Eagle.ModalType.Add){
-            // remove existing options from the select tag
-            $('#fieldModalSelect').empty();
-            dropDownKO.empty();
-
-            // add empty choice
-            $('#fieldModalSelect').append($('<option>', {
-                value: -1,
-                text: ""
-            }));
-            dropDownKO.append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'" + divID + "')}",
-                value: -1,
-                text: ""
-            }));
-
-            // add custom choice first
-            $('#fieldModalSelect').append($('<option>', {
-                value: 0,
-                text: "<Custom>"
-            }));
-            dropDownKO.append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+0+", "+choices.length+",'" + divID + "')}",
-                value: 0,
-                text: "<Custom>"
-            }));
-
-            // add options to the modal select tag
-            for (let i = 0 ; i < choices.length ; i++){
-                $('#fieldModalSelect').append($('<option>', {
-                    value: i+1,
-                    text: choices[i]
-                }));
-                dropDownKO.append($('<a>', {
-                    href: "#",
-                    class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+(i+1)+", "+choices.length+",'" + divID + "')}",
-                    value: i+1,
-                    text: choices[i]
-                }));
-            }
-
-            //applying knockout bindings for the new buttons generated above
-            ko.cleanNode(dropDownKO[0]);
-            ko.applyBindings(eagle, dropDownKO[0]);
-
-            // set the type/usage of the new field to match the details requested by the user
-            field.setParameterType(parameterType);
-            field.setUsage(parameterUsage);
-        }
-
-        // populate UI with current field data
-        $('#editFieldModalDisplayTextInput').val(field.getDisplayText());
-        $('#editFieldModalValueInputText').val(field.getValue());
-        $('#editFieldModalValueInputNumber').val(field.getValue());
-        $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Daliuge.DataType.Boolean));
-        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Daliuge.DataType.Boolean));
-        $('#editFieldModalValueInputSelect').empty();
-        for (const option of field.getOptions()){
-            $('#editFieldModalValueInputSelect').append($('<option>', {
-                value: option,
-                text: option,
-                selected: field.getValue() === option
-            }));
-        }
-
-        $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
-        $('#editFieldModalDefaultValueInputNumber').val(field.getDefaultValue());
-        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Daliuge.DataType.Boolean));
-        $('#editFieldModalDefaultValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Daliuge.DataType.Boolean));
-        $('#editFieldModalDefaultValueInputSelect').empty();
-        for (const option of field.getOptions()){
-            $('#editFieldModalDefaultValueInputSelect').append($('<option>', {
-                value: option,
-                text: option,
-                selected: field.getDefaultValue() === option
-            }));
-        }
-
-        // set accessibility state checkbox
-        $('#editFieldModalAccessInputCheckbox').prop('checked', field.isReadonly());
-
-        // set accessibility state checkbox
-        $('#editFieldModalKeyParameterCheckbox').prop('checked', field.isKeyAttribute());
-
-        // set positional argument checkbox
-        $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
-
-        $('#editFieldModalDescriptionInput').val(field.getDescription());
-
-        $('#editFieldModalTypeInput').val(field.getType());
-
-
-        // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
-        $('#editFieldModalTypeSelect').empty();
-        for (const dataType of eagle.types()){
-            const li = $('<li></li>');
-            const a = $('<a class="dropdown-item" href="#">' + dataType + '</a>');
-
-            a.attr("href", "javascript:eagle.editFieldDropdownClick('" + dataType + "','" + field.getType() + "');");
-
-            if (Utils.dataTypePrefix(field.getType()) === dataType){
-                a.addClass("active");
-            }
-
-            // add to the html
-            li.append(a);
-            $('#editFieldModalTypeSelect').append(li);
-        }
-
-        // delete all options, then iterate through the values in the Daliuge.FieldType enum, adding each as an option to the select
-        $('#editFieldModalParameterTypeSelect').empty();
-        for (const ft of [Daliuge.FieldType.ComponentParameter, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldType.ConstructParameter]){
-            $('#editFieldModalParameterTypeSelect').append(
-                $('<option>', {
-                    value: ft,
-                    text: ft,
-                    selected: field.getParameterType() === ft
-                })
-            );
-        }
-
-        // delete all options, then iterate through the values in the Daliuge.FieldUsage enum, adding each as an option to the select
-        $('#editFieldModalParameterUsageSelect').empty();
-        for (const pu of Object.values(Daliuge.FieldUsage)){
-            $('#editFieldModalParameterUsageSelect').append(
-                $('<option>', {
-                    value: pu,
-                    text: pu,
-                    selected: field.getUsage() === pu
-                })
-            );
-        }
-
-
-        $('#editFieldModalPreciousInputCheckbox').prop('checked', field.isPrecious());
+        eagle.currentField(field)
 
         $('#editFieldModal').data('completed', false);
         $('#editFieldModal').data('callback', callback);
@@ -804,7 +630,6 @@ export class Utils {
     }
 
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void) : void {
-        // console.log("requestUserAddCustomRepository()");
 
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
         $('#gitCustomRepositoryModalRepositoryBranchInput').val("");

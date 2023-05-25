@@ -210,9 +210,17 @@ body {
     max-width: 1230px;
 }
 
-#parameterTableModal .modal-dialog input{
+#parameterTableModal .modal-dialog input, #editFieldModal .modal-dialog .dropdown input{
     border: none;
     width:100%;
+}
+
+#editFieldModal .defaultSelectCustom{
+    background: transparent;
+}
+
+#editFieldModal select{
+    margin: 0px;
 }
 
 #parameterTableModal .modal-dialog input:read-only{
@@ -241,32 +249,35 @@ body {
     border-right: 1px solid rgb(14 2 76 / 16%);
 }
 
-#parameterTableModal .modal-dialog td i{
+#parameterTableModal .modal-dialog td i,#editFieldModal .modal-body .dropdown-item i{
     margin-left: 50%;
     transform: translate(-50%, 2px);
 }
 
-#parameterTableModal .typeSelectDelete{
+#parameterTableModal .typeSelectDelete,#editFieldModal .typeSelectDelete{
     position: absolute;
     right:5px
 }
 
-#parameterTableModal .dropdown-item{
+#parameterTableModal .dropdown-item,#editFieldModal .dropdown-item{
     padding:1px 5px;
 }
 
-#parameterTableModal .dropdown-item.add{
+#parameterTableModal .dropdown-item.add,#editFieldModal .dropdown-item.add{
     background-color: rgb(235 236 241);
+    cursor: pointer;
 }
 
-#parameterTableModal .dropdown-menu{
+#parameterTableModal .dropdown-menu,#editFieldModal .dropdown-menu{
     padding: 0px;
     border:1px solid black;
     overflow: hidden;
     min-width: 8rem;
+    max-height:200px;
+    overflow-y: auto;
 }
 
-#parameterTableModal .modal-dialog .typesInput{
+#parameterTableModal .modal-dialog .typesInput, #edintFieldModal .modal-dialog .typesInput{
     padding: 0px;
     height: 35px;
     width: 100%;
@@ -298,6 +309,17 @@ body {
     height:23px;
 }
 
+#editFieldModal .parameterTableTypeCustomSelect a {    
+    border: 1px solid #ced4da;
+    height: 38px;
+    padding: 6px 15px;
+    font-size: 16px;
+}
+
+#editFieldModal .dropdown {
+    width:100%;
+}
+
 .parameterTableTypeCustomSelect a::after {
     right: 5px;
     top: 45%;
@@ -316,7 +338,7 @@ td:first-child input {
     font-weight: 700;
 }
 
-#parameterTableModal .modal-dialog td button{
+#parameterTableModal .modal-dialog td button,#editFieldModal .dropdown-menu button{
     border: none;
     background-color: transparent;
     color: #002e5f;
@@ -1723,18 +1745,6 @@ select.form-control{
 
 #nodeList .col{
     position: relative;
-}
-
-#nodeInspectorAddField, #nodeInspectorAddApplicationParam{
-    padding:0px;
-}
-
-#nodeInspectorAddInputPort{
-    padding:0px;
-}
-
-#nodeInspectorAddOutputPort{
-    padding:0px;
 }
 
 .forceHide{

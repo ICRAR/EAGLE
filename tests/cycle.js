@@ -142,6 +142,7 @@ test('Create palette', async t =>{
 
         .typeText(Selector('#nodeInspectorInputAppFieldValue4'), "/home/wu082/proj/jacal/summit_demo/oskar/ingest/conf/recv.json", {replace:true})
 
+
         // create an input port on the gather
         .click('#nodeInspectorAddInputPort')
         .wait(250)
