@@ -99,7 +99,7 @@ export class Palette {
                 continue;
             }
 
-            if (nodeData.inputApplicationKey !== null){
+            if (nodeData.inputApplicationKey !== null && typeof nodeData.inputApplicationKey !== "undefined"){
                 const inputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.inputApplicationKey);
 
                 if (inputApplicationIndex !== -1){
@@ -108,10 +108,12 @@ export class Palette {
                     });
 
                     newNode.setInputApplication(inputApplicationNode);
+                } else {
+                    // TODO: error message
                 }
             }
 
-            if (nodeData.outputApplicationKey !== null){
+            if (nodeData.outputApplicationKey !== null && typeof nodeData.outputApplicationKey !== "undefined"){
                 const outputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.outputApplicationKey);
 
                 if (outputApplicationIndex !== -1){
@@ -120,6 +122,8 @@ export class Palette {
                     });
 
                     newNode.setOutputApplication(outputApplicationNode);
+                } else {
+                    // TODO: error message
                 }
             }
 

@@ -69,6 +69,20 @@ export class LogicalGraph {
             const value: any = Node.toNodeDataJson(node);
 
             result.nodeData[key] = value;
+
+            // TODO: add input and output applications
+            if (node.hasInputApplication()){
+                const key: string = Node.getUniqueKey(node.getInputApplication());
+                const value: any = Node.toNodeDataJson(node.getInputApplication());
+
+                result.nodeData[key] = value;
+            }
+            if (node.hasOutputApplication()){
+                const key: string = Node.getUniqueKey(node.getOutputApplication());
+                const value: any = Node.toNodeDataJson(node.getOutputApplication());
+
+                result.nodeData[key] = value;
+            }
         }
 
         // add reproData
@@ -81,6 +95,20 @@ export class LogicalGraph {
             const value: any = Node.toNodeUxJson(node);
 
             result.uxData[key] = value;
+
+            // TODO: add input and output applications
+            if (node.hasInputApplication()){
+                const key: string = Node.getUniqueKey(node.getInputApplication());
+                const value: any = Node.toNodeUxJson(node.getInputApplication());
+
+                result.uxData[key] = value;
+            }
+            if (node.hasOutputApplication()){
+                const key: string = Node.getUniqueKey(node.getOutputApplication());
+                const value: any = Node.toNodeUxJson(node.getOutputApplication());
+
+                result.uxData[key] = value;
+            }
         }
 
         // add linkData
@@ -150,11 +178,12 @@ export class LogicalGraph {
                 continue;
             }
 
-            if (nodeData.inputApplicationKey !== null){
-                const inputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(Object.values(dataObject.nodeData), nodeData.inputApplicationKey);
+            if (typeof nodeData.inputApplicationKey !== "undefined" && nodeData.inputApplicationKey !== null ){
+                const inputApplicationNodeData = dataObject.nodeData[nodeData.inputApplicationKey];
+                const inputApplicationUxData   = dataObject.uxData[nodeData.inputApplicationKey];
 
-                if (inputApplicationIndex !== -1){
-                    const inputApplicationNode = Node.fromOJSJson(dataObject.nodeData[inputApplicationIndex], errorsWarnings, false, (): number => {
+                if (typeof inputApplicationNodeData !== "undefined" && typeof inputApplicationUxData !== "undefined"){
+                    const inputApplicationNode = Node.fromAppRefJson(inputApplicationNodeData, inputApplicationUxData, errorsWarnings, false, (): number => {
                         const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
                         const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(Object.values(dataObject.nodeData));
                         const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
@@ -168,15 +197,17 @@ export class LogicalGraph {
                     newNode.setInputApplication(inputApplicationNode);
                 }
                 else {
-                    console.error("Could not find inputApplication (", nodeData.inputApplicationKey, ") for node", nodeKey);
+                    // TODO: Issue!
+                    console.error("Could not find inputApplication (", nodeData.inputApplicationKey, ") for node", nodeKey, "nodes are:", Object.keys(dataObject.nodeData));
                 }
             }
 
-            if (nodeData.outputApplicationKey !== null){
-                const outputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(Object.values(dataObject.nodeData), nodeData.outputApplicationKey);
+            if (typeof nodeData.outputApplicationKey !== "undefined" && nodeData.outputApplicationKey !== null){
+                const outputApplicationNodeData = dataObject.nodeData[nodeData.outputApplicationKey];
+                const outputApplicationUxData   = dataObject.uxData[nodeData.outputApplicationKey];
 
-                if (outputApplicationIndex !== -1){
-                    const outputApplicationNode = Node.fromOJSJson(dataObject.nodeData[outputApplicationIndex], errorsWarnings, false, (): number => {
+                if (typeof outputApplicationNodeData !== "undefined" && typeof outputApplicationUxData !== "undefined"){
+                    const outputApplicationNode = Node.fromAppRefJson(outputApplicationNodeData, outputApplicationUxData, errorsWarnings, false, (): number => {
                         const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
                         const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(Object.values(dataObject.nodeData));
                         const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
@@ -190,7 +221,8 @@ export class LogicalGraph {
                     newNode.setOutputApplication(outputApplicationNode);
                 }
                 else {
-                    console.error("Could not find outputApplication (", nodeData.outputApplicationKey, ") for node", nodeKey);
+                    // TODO: Issue!
+                    console.error("Could not find outputApplication (", nodeData.outputApplicationKey, ") for node", nodeKey, "nodes are:", Object.keys(dataObject.nodeData));
                 }
             }
 
