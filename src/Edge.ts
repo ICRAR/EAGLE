@@ -236,9 +236,22 @@ export class Edge {
             toField = linkData.toField;
         }
 
-        const srcNode: Node = logicalGraph.findNodeByKey(srcNodeKey);
+        let srcNode: Node = null;
+        if (srcNodeKey === 0){
+            srcNode = logicalGraph.findNodeByFieldId(srcPortId);
+        } else {
+            srcNode = logicalGraph.findNodeByKey(srcNodeKey);
+        }
+
         const fromPort: Field = srcNode.findFieldById(srcPortId);
-        const destNode: Node = logicalGraph.findNodeByKey(destNodeKey);
+
+        let destNode: Node = null;
+        if (destNodeKey === 0){
+            destNode = logicalGraph.findNodeByFieldId(destPortId);
+        } else {
+            destNode = logicalGraph.findNodeByKey(destNodeKey);
+        }
+
         const toPort: Field = destNode.findFieldById(destPortId);
 
         const edge = new Edge(srcNode, fromPort, destNode, toPort, loopAware, closesLoop, false);
