@@ -3,7 +3,7 @@ import { Selector, ClientFunction } from 'testcafe';
 /*
     run with:
 
-    testcafe chrome tests/add-node-parameter.js
+    testcafe chrome tests/edit-edge.js
 */
 
 const FIELD_NAME = "dummy2";

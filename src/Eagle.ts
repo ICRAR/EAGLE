@@ -1180,7 +1180,7 @@ export class Eagle {
             this.insertGraph(logicalGraph.getNodes(), logicalGraph.getEdges(), null, errorsWarnings);
 
             // display notification to user
-            Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+            Utils.showNotification("Added to Graph from JSON", "Added " + logicalGraph.getNumNodes() + " nodes and " + logicalGraph.getNumEdges() + " edges.", "info");
             // TODO: show errors
 
             // ensure changes are reflected in display
@@ -2643,7 +2643,7 @@ export class Eagle {
     }
 
     // TODO: currently only works when copying from the LG, doesn't work when copying from a palette!
-    copySelectionToClipboard = (copyChildren: boolean) : void => {
+    copySelectionToClipboard = (copyChildren: boolean) : string => {
         console.log("copySelectionToClipboard()");
 
         const nodes: Node[] = [];
@@ -2676,41 +2676,40 @@ export class Eagle {
             }
         }
 
-        // TODO: serialise nodes and edges
-        const serialisedNodes = [];
+        // build a logicalGraph
+        const logicalGraph = new LogicalGraph();
+        logicalGraph.fileInfo().schemaVersion = Daliuge.SchemaVersion.AppRef;
         for (const node of nodes){
-            serialisedNodes.push(Node.toOJSJson(node));
+            logicalGraph.addNodeComplete(node.clone());
         }
-        const serialisedEdges = [];
         for (const edge of edges){
-            /*
-            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
-            */
-            serialisedEdges.push(Edge.toOJSJson(edge));
+            logicalGraph.addEdgeComplete(edge.clone());
+        }
+        
+        const lgString: string = JSON.stringify(LogicalGraph.toAppRefJson(logicalGraph, false));
+
+        // check if clipboard object is available for use
+        if (window.isSecureContext && navigator.clipboard){
+            // write to clipboard
+            navigator.clipboard.writeText(lgString).then(
+                () => {
+                    // success
+                    Utils.showNotification("Copied to clipboard", "Copied " + logicalGraph.getNumNodes() + " nodes and " + logicalGraph.getNumEdges() + " edges.", "info");
+                },
+                () => {
+                    // error
+                    Utils.showNotification("Unable to copy to clipboard", "Your browser does not allow access to the clipboard for security reasons", "danger");
+                }
+            );
+        } else {
+            // we can't use the clipboard
+            this._unsecuredCopyToClipboard(JSON.stringify(lgString));
         }
 
-        const clipboard = {
-            nodes: serialisedNodes,
-            edges: serialisedEdges
-        };
-        
-        // write to clipboard
-        navigator.clipboard.writeText(JSON.stringify(clipboard)).then(
-            () => {
-                // success
-                Utils.showNotification("Copied to clipboard", "Copied " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
-            },
-            () => {
-                // error
-                Utils.showNotification("Unable to copy to clipboard", "Your browser does not allow access to the clipboard for security reasons", "danger");
-            }
-        );
+        return lgString;
     }
 
-    // NOTE: support func for copySelectionToKeyboard() above
+    // NOTE: support func for copySelectionToClipboard() above
     _addNodeAndChildren = (nodes: Node[], node: Node, output:Node[]) : void => {
         this._addUniqueNode(output, node);
 
@@ -2721,7 +2720,7 @@ export class Eagle {
         }
     }
 
-    // NOTE: support func for copySelectionToKeyboard() above
+    // NOTE: support func for copySelectionToClipboard() above
     // only add the new node to the nodes list if it is not already present
     _addUniqueNode = (nodes: Node[], newNode: Node): void => {
         for (const node of nodes){
@@ -2733,7 +2732,7 @@ export class Eagle {
         nodes.push(newNode);
     }
 
-    // NOTE: support func for copySelectionToKeyboard() above
+    // NOTE: support func for copySelectionToClipboard() above
     // only add the new edge to the edges list if it is not already present
     _addUniqueEdge = (edges: Edge[], newEdge: Edge): void => {
         for (const edge of edges){
@@ -2745,6 +2744,20 @@ export class Eagle {
         edges.push(newEdge);
     }
 
+    _unsecuredCopyToClipboard = (text: string) => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+        } catch (err) {
+            console.error('Unable to copy to clipboard', err);
+        }
+        document.body.removeChild(textArea);
+    }
+
     pasteFromClipboard = async () => {
         console.log("pasteFromClipboard()");
 
@@ -2754,18 +2767,18 @@ export class Eagle {
             return;
         }
 
-        // check if browser supports reading text from clipboard, if not, explain to user
-        if (typeof navigator.clipboard.readText === "undefined"){
-            Utils.showNotification("Unable to paste data", "Your browser does not allow access to the clipboard for security reasons. Workaround this issue using the 'Graph > New > Add to Graph from JSON' menu item and pasting your clipboard manually", "danger");
-            return;
-        }
-
         let clipboard = null;
 
-        try {
-            clipboard = JSON.parse(await navigator.clipboard.readText());
-        } catch(e) {
-            Utils.showNotification("Unable to paste data", e.name + ": " + e.message, "danger");
+        // check if clipboard object is available for use
+        if (window.isSecureContext && navigator.clipboard){
+            try {
+                clipboard = JSON.parse(await navigator.clipboard.readText());
+            } catch(e) {
+                Utils.showNotification("Unable to paste data", e.name + ": " + e.message, "danger");
+                return;
+            }
+        } else {
+            Utils.showNotification("Unable to paste data", "Your browser does not allow access to the clipboard for security reasons. Workaround this issue using the 'Graph > New > Add to Graph from JSON' menu item and pasting your clipboard manually", "danger");
             return;
         }
 
