@@ -319,7 +319,27 @@ export class Edge {
         const destNode: Node = logicalGraph.findNodeByKey(destNodeKey);
         const destPort: Field = destNode.findFieldById(destPortId);
 
-        return new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
+        if (srcNode === null){
+            errorsWarnings.warnings.push(Errors.Message("Edge couldn't find source node " + srcNodeKey + " for edge"));
+        }
+
+        if (destNode === null){
+            errorsWarnings.warnings.push(Errors.Message("Couldn't find destination node " + destNodeKey + " for edge"));
+        }
+
+        if (srcPort === null){
+            errorsWarnings.warnings.push(Errors.Message("Couldn't find source port " + srcPortId + " for edge"));
+        }
+
+        if (destPort === null){
+            errorsWarnings.warnings.push(Errors.Message("Couldn't find destination port " + destPortId + " for edge"));
+        }
+
+        if (srcNode === null || destNode === null || srcPort === null || destPort === null){
+            return null;
+        } else {
+            return new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
+        }
     }
 
     // TODO: switch to input of nodes and fields instead of nodeKeys and fieldIds?

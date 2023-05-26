@@ -350,8 +350,8 @@ export class LogicalGraph {
         // add warnings to errorsWarnings
         for (const edge of result.edges){
             // get references to actual source and destination nodes (from the keys)
-            const sourceNode : Node = result.findNodeByKey(edge.getSrcNode().getKey());
-            const destinationNode : Node = result.findNodeByKey(edge.getDestNode().getKey());
+            const sourceNode : Node = edge.getSrcNode();
+            const destinationNode : Node = edge.getDestNode();
 
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
             if (sourceNode.getCategoryType() === Category.Type.Construct){
