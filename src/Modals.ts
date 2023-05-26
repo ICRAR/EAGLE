@@ -412,7 +412,7 @@ export class Modals {
             const srcNode: Node = eagle.logicalGraph().findNodeByKey(srcNodeKey);
             const srcPort: Field = srcNode.findFieldById(srcPortId);
             const destNode: Node = eagle.logicalGraph().findNodeByKey(destNodeKey);
-            const destPort: Field = srcNode.findFieldById(destPortId);
+            const destPort: Field = destNode.findFieldById(destPortId);
 
             const newEdge = new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
 
