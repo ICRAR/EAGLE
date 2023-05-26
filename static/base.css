@@ -2261,6 +2261,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
     font-size: 1.25em;
     font-weight: bold;
     user-select: none;
+    margin-left:27px;
 }
 
 .modal-dialog {
@@ -2291,6 +2292,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 .headerBtns {
     padding: 0px 10px;
+    position:relative;
 }
 
 #inspectorNodeDescriptionWrapper{
@@ -2324,7 +2326,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 #inspectorAccordion .accordion-button {
     padding: 5px 10px 5px 45px;
     z-index: 0;
-    
     color: rgb(66, 66, 66);
     background-color: rgba(0,0,0,.03);
 }
@@ -2333,7 +2334,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
     position: relative !important;
 }
 
-.headerBtns button {
+.headerBtns button,.inspectorTitleBtns button {
     background-color: transparent;
     padding:0px 4px;
     margin-left:-4px;
@@ -2341,15 +2342,27 @@ ul.nav.navbar-nav .dropdown-item:hover{
     box-shadow: none;
 }
 
-.headerBtns button:hover {
+.headerBtns button:hover,.inspectorTitleBtns button:hover {
     color:#001933;
     background-color: transparent;
 }
 
-.headerBtns button.btn:focus {
+.headerBtns button.btn:focus, .inspectorTitleBtns button:focus {
     box-shadow: none;
     background-color:transparent;
     border:none;
+}
+
+.inspectorTitleBtns.inspectorTitleBtnsRight{
+    position:absolute;
+    top: 3px;
+    right: 9px;
+}
+
+.inspectorTitleBtns.inspectorTitleBtnsLeft{
+    position:absolute;
+    top: 3px;
+    left: 9px;
 }
 
 #multiSelectionHeader .headerBtns button{
