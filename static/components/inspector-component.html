@@ -9,7 +9,7 @@
 
             <!-- ko ifnot: $data.node() === null -->
                 <div class="input-group-prepend prepend-Icon" data-bind="eagleTooltip: $data.node().getHelpHTML()" data-bs-placement="left">
-                    <span class="input-group-text" data-bind="style: {'background-color': $data.node().color}">
+                    <span class="input-group-text" data-bind="style: {'background-color': $data.node().getColor}">
                         <i data-bind="class: $data.node().getIcon()"></i>
                     </span>
                 </div>
