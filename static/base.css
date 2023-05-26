@@ -2293,6 +2293,24 @@ ul.nav.navbar-nav .dropdown-item:hover{
     padding: 0px 10px;
 }
 
+#inspectorNodeDescriptionWrapper{
+    position: relative;
+    border-radius: 3px; 
+    overflow: hidden;
+}
+
+#inspectorNodeDescriptionWrapper span{
+    background-color: #e9ecef;
+    width: 100%;
+    display: inline-block;
+    padding: 5px;
+}
+
+#inspectorNodeDescriptionWrapper div{
+    background-color: white;
+    padding: 5px;
+}
+
 #inspectorHeaderIconRow{
     padding-top: 3px;
     background: rgba(255, 255, 255, 0.171);

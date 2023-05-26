@@ -78,11 +78,55 @@
                     <!-- /ko -->
                     <i class="material-icons interactive me-3" data-bs-placement="left" data-bind="eagleTooltip: selectedNode().getGitHTML()">info</i>
                 </div>
-
             </div>
         </div>
 
-        <div class="accordion" id="inspectorAccordion">
+        <div id="inspectorContent">
+            <!-- name -->
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Name</span>
+                </div>
+                <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: selectedNode().name, readonly: selectedNode().isLocked()">
+            </div>
+
+            <!-- key -->
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The Key of the component within the graph'" data-bs-placement="left">Key</span>
+                </div>
+                <input type="select" class="form-control" id="nodePKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: selectedNode().name, readonly: selectedNode().isLocked()">
+            </div>
+
+            <!-- Category -->
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Key</span>
+                </div>
+                <input type="text" class="form-control" id="nodePKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: selectedNode().name, readonly: selectedNode().isLocked()">
+            </div>
+
+            <!-- description -->
+            <div id="inspectorNodeDescriptionWrapper" class="mb-1">
+                <!-- ko ifnot: selectedNode().isLocked() || selectedNode().getDescriptionReadonly() -->
+                    <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind="click: $root.editNodeDescription, clickBubble: false, eagleTooltip: 'Edit Description'">
+                        <i class="material-icons md-18">edit</i>
+                    </button>
+                <!-- /ko -->
+                <span>Description</span>    
+                <div data-bind="html: selectedNode().getDescriptionHTML()"></div>
+            </div>
+
+            <!-- node port multiplicity -->
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Port Multiplicity</span>
+                </div>
+                <input type="number" disabled class="form-control" id="nodePortMultiplicity" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $root.logicalGraph().findMultiplicity($root.selectedNode())">
+            </div>
+        </div>
+
+        <div class="accordion" id="inspectorAccordion" hidden>
             <!-- ko if: selectedNode().getCategory() !== "Description" && selectedNode().getCategory() !== "Comment"-->
             {% include 'node_inspector_description.html' %}
             <!-- /ko -->
