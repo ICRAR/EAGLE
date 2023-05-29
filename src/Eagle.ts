@@ -4339,6 +4339,23 @@ export class Eagle {
         })
     }
 
+    getEligibleNodeCategories = () : string[] => {
+        let eligibleCategories : Category[];
+
+        if (this.selectedNode().isData()){
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        } else if (this.selectedNode().isApplication()){
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Application, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        } else if (this.selectedNode().isConstruct()){
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Construct, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        } else {
+            console.warn("Not sure which other nodes are suitable for change, show user all");
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        }
+
+        return eligibleCategories;
+    }
+
     editNodeCategory = () : void => {
         let selectedIndex = 0;
         let eligibleCategories : Category[];

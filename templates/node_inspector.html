@@ -99,20 +99,19 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The Key of the component within the graph'" data-bs-placement="left">Key</span>
                 </div>
-                <input type="text" class="form-control" disabled id="nodePKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: selectedNode().getCategory()">
+                <input type="text" class="form-control" disabled id="nodePKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: selectedNode().getKey()">
             </div>
 
             <!-- Category -->
             <div class="input-group mb-1">
                 <div class="input-group-prepend">
-                    <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Key</span>
+                    <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Category</span>
                 </div>
-                <input type="text" class="form-control" id="nodePKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: selectedNode().name, readonly: selectedNode().isLocked()">
-                <!-- ko if: !$root.selectedNode().isLocked() -->
-                    <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind="click: $root.editNodeDescription, clickBubble: false, eagleTooltip: 'Edit Description'">
-                        <i class="material-icons md-18">edit</i>
-                    </button>
-                <!-- /ko -->
+                <select class="form-control" id="nodePKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: selectedNode().getCategory(),options:$root.getEligibleNodeCategories(), readonly: selectedNode().isLocked()">
+                </select>
+                    <!-- ko if: !$root.selectedNode().isLocked() -->
+                    <i class="material-icons interactive me-1" data-bs-placement="left" data-bind="click: editNodeCategory, eagleTooltip: 'Edit Node Category'">edit</i>
+                    <!-- /ko -->
             </div>
 
             <!-- description -->
