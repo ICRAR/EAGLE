@@ -2506,7 +2506,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNode().getKey(), edge.getSrcPort().getId(), edge.getDestNode().getKey(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge, edge.getSrcNode(), edge.getSrcPort(), edge.getDestNode(), edge.getDestPort(), false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -2551,7 +2551,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNode().getKey(), edge.getSrcPort().getId(), edge.getDestNode().getKey(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge, edge.getSrcNode(), edge.getSrcPort(), edge.getDestNode(), edge.getDestPort(), false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
