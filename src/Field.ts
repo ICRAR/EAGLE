@@ -268,22 +268,27 @@ export class Field {
         this.links(links);
     }
 
-    addLink = (field: Edge) : void => {
-        // TODO: check that not already present
+    addLink = (edge: Edge) : void => {
+        // check that not already present
+        for (let i = 0; i < this.links().length ; i++){
+            if (this.links()[i].getId() === edge.getId()){
+                console.warn("Field already contains link with same id", edge.getId());
+                return;
+            }
+        }
 
-
-        this.links.push(field);
+        this.links.push(edge);
     }
 
-    removeLinkById = (id: string) : void => {
+    removeLink = (edge: Edge) : void => {
         for (let i = 0; i < this.links().length ; i++){
-            if (this.links()[i].getId() === id){
+            if (this.links()[i].getId() === edge.getId()){
                 this.links.splice(i, 1);
                 return;
             }
         }
 
-        console.warn("Could not remove link from field, id not found:", id);
+        console.warn("Could not remove link from field, link not found:", edge.getId());
     }
 
     clear = () : void => {

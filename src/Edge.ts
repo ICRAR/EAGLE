@@ -490,12 +490,12 @@ export class Edge {
         // - destNode has a 'group_start' field set to true
         if (edge.closesLoop){
             if (!edge.srcNode.isData()){
-                const x = Errors.Show("Closes Loop Edge (" + edge.id + ") does not start from a Data component.", function(){Utils.showEdge(eagle, edge.id);});
+                const x = Errors.Show("'Closes Loop' Edge (" + edge.id + ") does not start from a Data component.", function(){Utils.showEdge(eagle, edge.id);});
                 Edge.isValidLog(edge, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
 
             if (!edge.destNode.isApplication()){
-                const x = Errors.Show("Closes Loop Edge (" + edge.id + ") does not end at an Application component.", function(){Utils.showEdge(eagle, edge.id);});
+                const x = Errors.Show("'Closes Loop' Edge (" + edge.id + ") does not end at an Application component.", function(){Utils.showEdge(eagle, edge.id);});
                 Edge.isValidLog(edge, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
 

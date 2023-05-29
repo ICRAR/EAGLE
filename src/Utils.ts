@@ -2154,7 +2154,8 @@ export class Utils {
                 "isEvent":field.getIsEvent(),
                 "value":field.getValue(),
                 "defaultValue": field.getDefaultValue(),
-                "readonly":field.isReadonly()
+                "readonly":field.isReadonly(),
+                "links":field.getLinks().join(',')
             });
         }
 

@@ -430,6 +430,10 @@ export class LogicalGraph {
 
     addEdgeComplete = (edge : Edge) => {
         this.edges.push(edge);
+
+        // TODO: do this here?
+        edge.getSrcPort().addLink(edge);
+        edge.getDestPort().addLink(edge);
     }
 
     getEdges = () : Edge[] => {
@@ -698,9 +702,14 @@ export class LogicalGraph {
         let found = false;
 
         for (let i = this.edges.length - 1; i >= 0 ; i--){
-            if (this.edges[i].getId() === id){
+            const edge : Edge = this.edges[i];
+            if (edge.getId() === id){
                 found = true;
                 this.edges.splice(i, 1);
+
+                // TODO: do this here?
+                edge.getSrcPort().removeLink(edge);
+                edge.getDestPort().removeLink(edge);
             }
         }
 
@@ -715,6 +724,10 @@ export class LogicalGraph {
             const edge : Edge = this.edges[i];
             if (edge.getSrcNode().getKey() === key || edge.getDestNode().getKey() === key){
                 this.edges.splice(i, 1);
+                
+                // TODO: do this here?
+                edge.getSrcPort().removeLink(edge);
+                edge.getDestPort().removeLink(edge);
             }
         }
     }
