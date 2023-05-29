@@ -4338,9 +4338,16 @@ export class Eagle {
             this.selectedNode().setDescription(userText);
         })
     }
+    getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
 
-    getEligibleNodeCategories = () : string[] => {
-        let eligibleCategories : Category[];
+        let eligibleCategories : Category[] = [];
+
+        for (const category in CategoryData.cData){
+            eligibleCategories.push(<Category>category);
+        }
+
+        // eligibleCategories.push(Category.PythonApp,Category.File,Category.Memory)
+        return eligibleCategories;
 
         if (this.selectedNode().isData()){
             eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
@@ -4354,6 +4361,58 @@ export class Eagle {
         }
 
         return eligibleCategories;
+    },this)
+
+    inspectorChangeNodeCategory = (test:any) : void => {
+        const newNodeCategory = $(test.target).val()  as Category
+        console.log($(test.target).val())
+        this.selectedNode().setCategory(newNodeCategory)
+
+        
+        // once the category is changed, some things about the node may no longer be valid
+        // for example, the node may contain ports, but no ports are allowed
+
+        // get category data
+        const categoryData = CategoryData.getCategoryData(newNodeCategory);
+
+        // delete parameters, if necessary
+        if (this.selectedNode().getComponentParameters().length > 0 && !categoryData.canHaveComponentParameters){
+            this.selectedNode().removeAllComponentParameters();
+        }
+
+        // delete application args, if necessary
+        if (this.selectedNode().getApplicationArguments().length > 0 && !categoryData.canHaveApplicationArguments){
+            this.selectedNode().removeAllApplicationArguments();
+        }
+
+        // delete extra input ports
+        if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
+            for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
+                this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
+            }
+        }
+
+        // delete extra output ports
+        if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
+            for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
+                this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
+            }
+        }
+
+        // delete input application, if necessary
+        if (this.selectedNode().hasInputApplication() && !categoryData.canHaveInputApplication){
+            this.selectedNode().setInputApplication(null);
+        }
+
+        // delete output application, if necessary
+        if (this.selectedNode().hasOutputApplication() && !categoryData.canHaveOutputApplication){
+            this.selectedNode().setOutputApplication(null);
+        }
+
+        this.flagActiveFileModified();
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Edit Node Category");
+        this.logicalGraph.valueHasMutated();
     }
 
     editNodeCategory = () : void => {
