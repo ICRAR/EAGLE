@@ -60,8 +60,6 @@ export class LogicalGraph {
         result.modelData = FileInfo.toJson(graph.fileInfo());
         result.modelData.numLGNodes = graph.getNodes().length;
 
-        result.reproData = ReproData.toJson(graph.reproData());
-
         // add nodeData
         result.nodeData = {};
         for (const node of graph.nodes){
@@ -70,7 +68,7 @@ export class LogicalGraph {
 
             result.nodeData[key] = value;
 
-            // TODO: add input and output applications
+            // add input and output applications
             if (node.hasInputApplication()){
                 const key: string = Node.getUniqueKey(node.getInputApplication());
                 const value: any = Node.toNodeDataJson(node.getInputApplication());
@@ -96,7 +94,7 @@ export class LogicalGraph {
 
             result.uxData[key] = value;
 
-            // TODO: add input and output applications
+            // add input and output applications
             if (node.hasInputApplication()){
                 const key: string = Node.getUniqueKey(node.getInputApplication());
                 const value: any = Node.toNodeUxJson(node.getInputApplication());
@@ -196,8 +194,9 @@ export class LogicalGraph {
                     newNode.setInputApplication(inputApplicationNode);
                 }
                 else {
-                    // TODO: Issue!
-                    console.error("Could not find inputApplication (", nodeData.inputApplicationKey, ") for node", nodeKey, "nodes are:", Object.keys(dataObject.nodeData));
+                    // report error
+                    const message = "Could not find inputApplication (" + nodeData.inputApplicationKey + ") for node " + nodeKey + " nodes are: " + Object.keys(dataObject.nodeData);
+                    errorsWarnings.errors.push(Errors.Message(message));
                 }
             }
 
@@ -220,8 +219,9 @@ export class LogicalGraph {
                     newNode.setOutputApplication(outputApplicationNode);
                 }
                 else {
-                    // TODO: Issue!
-                    console.error("Could not find outputApplication (", nodeData.outputApplicationKey, ") for node", nodeKey, "nodes are:", Object.keys(dataObject.nodeData));
+                    // report error
+                    const message = "Could not find outputApplication (" + nodeData.outputApplicationKey + ") for node " + nodeKey + " nodes are: " + Object.keys(dataObject.nodeData);
+                    errorsWarnings.errors.push(Errors.Message(message));
                 }
             }
 
