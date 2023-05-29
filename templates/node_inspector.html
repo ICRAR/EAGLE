@@ -108,7 +108,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Category</span>
                     </div>
-                    <select class="form-control" id="nodeInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategory(event)}}"></select>
+                    <select class="form-control" id="nodeInspectorCategorySelect" data-bind="value: $data.category, options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategory(event)}}, valueAllowUnset: true"></select>
                         <!-- ko if: !$data.isLocked() -->
                         <i class="material-icons interactive me-1" data-bs-placement="left" data-bind="click: $root.editNodeCategory, eagleTooltip: 'Edit Node Category'">edit</i>
                         <!-- /ko -->

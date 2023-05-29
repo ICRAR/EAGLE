@@ -141,10 +141,6 @@ export class Node {
         this.commitHash = ko.observable("");
         this.paletteDownloadUrl = ko.observable("");
         this.dataHash = ko.observable("");
-
-        this.category.subscribe(function(x){
-            console.trace()
-        })
     }
 
     getId = () : string => {
@@ -577,7 +573,7 @@ export class Node {
     }
 
     setCategory = (category: Category): void => {
-        console.log('setting category')
+        console.log('Node.setCategory()', category)
         this.category(category);
         this.color(Utils.getColorForNode(category));
     }

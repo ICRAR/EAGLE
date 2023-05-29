@@ -4338,34 +4338,32 @@ export class Eagle {
             this.selectedNode().setDescription(userText);
         })
     }
+
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
-
-        let eligibleCategories : Category[] = [];
-
-        for (const category in CategoryData.cData){
-            eligibleCategories.push(<Category>category);
+        // if selectedNode is not set, return the list of all categories, even though it won't be rendered (I guess)
+        if (this.selectedNode() === null){
+            return Utils.getCategoriesWithInputsAndOutputs(Category.Type.Unknown, 0, 0);
         }
 
-        // eligibleCategories.push(Category.PythonApp,Category.File,Category.Memory)
-        return eligibleCategories;
-
+        // if selectedNode is set, return a list of categories within the same category type
+        let categoryType: Category.Type = Category.Type.Unknown;
         if (this.selectedNode().isData()){
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            categoryType = Category.Type.Data;
         } else if (this.selectedNode().isApplication()){
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Application, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            categoryType = Category.Type.Application;
         } else if (this.selectedNode().isConstruct()){
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Construct, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            categoryType = Category.Type.Construct;
         } else {
             console.warn("Not sure which other nodes are suitable for change, show user all");
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            categoryType = Category.Type.Unknown;
         }
-
-        return eligibleCategories;
-    },this)
+        
+        return Utils.getCategoriesWithInputsAndOutputs(categoryType, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+    }, this)
 
     inspectorChangeNodeCategory = (test:any) : void => {
-        const newNodeCategory = $(test.target).val()  as Category
-        console.log($(test.target).val())
+        const newNodeCategory: Category = $(test.target).val() as Category
+        console.log("inspectorChangeNodeCategory()", $(test.target).val())
         this.selectedNode().setCategory(newNodeCategory)
 
         
@@ -4420,14 +4418,14 @@ export class Eagle {
         let eligibleCategories : Category[];
 
         if (this.selectedNode().isData()){
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(Category.Type.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         } else if (this.selectedNode().isApplication()){
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Application, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(Category.Type.Application, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         } else if (this.selectedNode().isConstruct()){
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Construct, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(Category.Type.Construct, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         } else {
             console.warn("Not sure which other nodes are suitable for change, show user all");
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(Category.Type.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
         }
 
         // set selectedIndex to the index of the current category within the eligibleCategories list
