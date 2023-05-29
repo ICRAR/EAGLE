@@ -145,7 +145,6 @@ export class LogicalGraph {
     static fromAppRefJson = (dataObject : Daliuge.AppRefObject, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
-        console.log("dataObject", dataObject);
 
         // copy modelData into fileInfo
         result.fileInfo(FileInfo.fromJson(dataObject.modelData, errorsWarnings));
@@ -561,6 +560,23 @@ export class LogicalGraph {
             for (const field of node.getFields()){
                 if (field.getId() === id){
                     return node;
+                }
+            }
+
+            // check embedded apps too!
+            if (node.hasInputApplication()){
+                for (const field of node.getInputApplication().getFields()){
+                    if (field.getId() === id){
+                        return node.getInputApplication();
+                    }
+                }
+            }
+
+            if (node.hasOutputApplication()){
+                for (const field of node.getOutputApplication().getFields()){
+                    if (field.getId() === id){
+                        return node.getOutputApplication();
+                    }
                 }
             }
         }

@@ -1839,13 +1839,13 @@ export class Node {
         }
 
         if (node.hasInputApplication()){
-            result.inputApplicationKey = Node.getUniqueKey(node);
+            result.inputApplicationKey = Node.getUniqueKey(node.getInputApplication());
         } else {
             result.inputApplicationKey = null;
         }
         
         if (node.hasOutputApplication()){
-            result.outputApplicationKey = Node.getUniqueKey(node);
+            result.outputApplicationKey = Node.getUniqueKey(node.getOutputApplication());
         } else {
             result.outputApplicationKey = null;
         }
