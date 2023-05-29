@@ -280,7 +280,11 @@ export class Field {
     }
 
     clone = () : Field => {
-        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
+        let options : string[] = []
+        this.options().forEach(function(option:string){
+            options.push(option)
+        })
+        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
         f.setIsEvent(this.isEvent());
         return f;
     }
