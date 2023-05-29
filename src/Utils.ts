@@ -1549,7 +1549,7 @@ export class Utils {
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(eagle, edge, edge.getSrcNode(), edge.getSrcPort(), edge.getDestNode(), edge.getDestPort(), false, false, errorsWarnings);
+            Edge.isValid(eagle, edge, false, false, errorsWarnings);
         }
 
         return errorsWarnings;

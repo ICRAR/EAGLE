@@ -1086,8 +1086,11 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                         Utils.showNotification("Automatically reversed edge direction", "The edge began at an input port and ended at an output port, so the direction was reversed.", "info");
                                     }
 
+                                    // create temporary edge
+                                    const edge = new Edge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, true, false);
+
                                     // check if link is valid
-                                    const linkValid : Eagle.LinkValid = Edge.isValid(eagle, null, realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, true, {errors:[], warnings:[]});
+                                    const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge, true, true, {errors:[], warnings:[]});
 
                                     // abort if edge is invalid
                                     if (Setting.findValue(Setting.ALLOW_INVALID_EDGES) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
@@ -3262,7 +3265,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
 
         // check if link has a warning or is invalid
-        const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge, edge.getSrcNode(), edge.getSrcPort(), edge.getDestNode(), edge.getDestPort(), edge.isLoopAware(), edge.isClosesLoop(), {errors:[], warnings:[]});
+        const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge, false, false, {errors:[], warnings:[]});
 
         if (linkValid === Eagle.LinkValid.Invalid){
             normalColor = LINK_COLORS.INVALID;
@@ -3835,7 +3838,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         destinationPort = port;
         destinationNode = graph.findNodeByKey(port.getNodeKey());
 
-        isDraggingPortValid = Edge.isValid(eagle, null, sourceNode, sourcePort, destinationNode, destinationPort, false, false, {errors:[], warnings:[]});
+        // create temporary edge and test for validity
+        const edge: Edge = new Edge(sourceNode, sourcePort, destinationNode, destinationPort, false, false, false);
+        isDraggingPortValid = Edge.isValid(eagle, edge, false, false, {errors:[], warnings:[]});
     }
 
     function mouseLeavePort(port : Field) : void {
