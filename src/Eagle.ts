@@ -1011,8 +1011,8 @@ export class Eagle {
 
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
-            const srcNode = keyMap.get(edge.getSrcNodeKey());
-            const destNode = keyMap.get(edge.getDestNodeKey());
+            const srcNode = keyMap.get(edge.getSrcNode().getKey());
+            const destNode = keyMap.get(edge.getDestNode().getKey());
 
             if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
                 errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
@@ -1020,7 +1020,7 @@ export class Eagle {
             }
 
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
-            this.addEdge(srcNode, portMap.get(edge.getSrcPortId()), destNode, portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
+            this.addEdge(srcNode, portMap.get(edge.getSrcPort().getId()), destNode, portMap.get(edge.getDestPort().getId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
         }
     }
 
@@ -1174,30 +1174,13 @@ export class Eagle {
                 return;
             }
 
-            const nodes : Node[] = [];
-            const edges : Edge[] = [];
             const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
+            const logicalGraph: LogicalGraph = LogicalGraph.fromAppRefJson(clipboard, new RepositoryFile(Repository.DUMMY, "", ""), errorsWarnings);
 
-            for (const n of clipboard.nodes){
-                const node = Node.fromOJSJson(n, null, false, (): number => {
-                    // TODO: add error to errorsWarnings
-                    console.error("Should not have to generate new key for node", n);
-                    return 0;
-                });
-
-                nodes.push(node);
-            }
-
-            for (const e of clipboard.edges){
-                const edge = Edge.fromOJSJson(e, null);
-
-                edges.push(edge);
-            }
-
-            this.insertGraph(nodes, edges, null, errorsWarnings);
+            this.insertGraph(logicalGraph.getNodes(), logicalGraph.getEdges(), null, errorsWarnings);
 
             // display notification to user
-            Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+            Utils.showNotification("Added to Graph from JSON", "Added " + logicalGraph.getNumNodes() + " nodes and " + logicalGraph.getNumEdges() + " edges.", "info");
             // TODO: show errors
 
             // ensure changes are reflected in display
@@ -2286,8 +2269,8 @@ export class Eagle {
         this.selectedEdge().toggleClosesLoop();
 
         // get nodes from edge
-        const sourceNode = this.logicalGraph().findNodeByKey(this.selectedEdge().getSrcNodeKey());
-        const destNode = this.logicalGraph().findNodeByKey(this.selectedEdge().getDestNodeKey());
+        const sourceNode = this.selectedEdge().getSrcNode();
+        const destNode = this.selectedEdge().getDestNode();
 
         sourceNode.setGroupEnd(this.selectedEdge().isClosesLoop());
         destNode.setGroupStart(this.selectedEdge().isClosesLoop());
@@ -2511,7 +2494,9 @@ export class Eagle {
         }
 
         // if input edge is null, then we are creating a new edge here, so initialise it with some default values
-        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", false, false, false);
+        const placeholderNode = this.logicalGraph().getNodes()[0];
+        const placeholderField = placeholderNode.getFields()[0];
+        const newEdge = new Edge(placeholderNode, placeholderField, placeholderNode, placeholderField, false, false, false);
 
         // display edge editing modal UI
         Utils.requestUserEditEdge(newEdge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
@@ -2521,16 +2506,16 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge, false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
 
-            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+            const srcNode: Node = edge.getSrcNode();
+            const srcPort: Field = edge.getSrcPort();
+            const destNode: Node = edge.getDestNode();
+            const destPort: Field = edge.getDestPort();
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
             this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
@@ -2566,16 +2551,16 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge, false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
 
-            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+            const srcNode: Node = edge.getSrcNode();
+            const srcPort: Field = edge.getSrcPort();
+            const destNode: Node = edge.getDestNode();
+            const destPort: Field = edge.getDestPort();
 
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(selectedEdge.getId());
@@ -2658,7 +2643,7 @@ export class Eagle {
     }
 
     // TODO: currently only works when copying from the LG, doesn't work when copying from a palette!
-    copySelectionToClipboard = (copyChildren: boolean) : void => {
+    copySelectionToClipboard = (copyChildren: boolean) : string => {
         console.log("copySelectionToClipboard()");
 
         const nodes: Node[] = [];
@@ -2684,48 +2669,47 @@ export class Eagle {
         if (copyChildren){
             for (const edge of this.logicalGraph().getEdges()){
                 for (const node of nodes){
-                    if (node.getKey() === edge.getSrcNodeKey() || node.getKey() === edge.getDestNodeKey()){
+                    if (node.getKey() === edge.getSrcNode().getKey() || node.getKey() === edge.getDestNode().getKey()){
                         this._addUniqueEdge(edges, edge);
                     }
                 }
             }
         }
 
-        // TODO: serialise nodes and edges
-        const serialisedNodes = [];
+        // build a logicalGraph
+        const logicalGraph = new LogicalGraph();
+        logicalGraph.fileInfo().schemaVersion = Daliuge.SchemaVersion.AppRef;
         for (const node of nodes){
-            serialisedNodes.push(Node.toOJSJson(node));
+            logicalGraph.addNodeComplete(node.clone());
         }
-        const serialisedEdges = [];
         for (const edge of edges){
-            /*
-            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
-            */
-            serialisedEdges.push(Edge.toOJSJson(edge));
+            logicalGraph.addEdgeComplete(edge.clone());
+        }
+        
+        const lgString: string = JSON.stringify(LogicalGraph.toAppRefJson(logicalGraph, false));
+
+        // check if clipboard object is available for use
+        if (window.isSecureContext && navigator.clipboard){
+            // write to clipboard
+            navigator.clipboard.writeText(lgString).then(
+                () => {
+                    // success
+                    Utils.showNotification("Copied to clipboard", "Copied " + logicalGraph.getNumNodes() + " nodes and " + logicalGraph.getNumEdges() + " edges.", "info");
+                },
+                () => {
+                    // error
+                    Utils.showNotification("Unable to copy to clipboard", "Your browser does not allow access to the clipboard for security reasons", "danger");
+                }
+            );
+        } else {
+            // we can't use the clipboard
+            this._unsecuredCopyToClipboard(JSON.stringify(lgString));
         }
 
-        const clipboard = {
-            nodes: serialisedNodes,
-            edges: serialisedEdges
-        };
-        
-        // write to clipboard
-        navigator.clipboard.writeText(JSON.stringify(clipboard)).then(
-            () => {
-                // success
-                Utils.showNotification("Copied to clipboard", "Copied " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
-            },
-            () => {
-                // error
-                Utils.showNotification("Unable to copy to clipboard", "Your browser does not allow access to the clipboard for security reasons", "danger");
-            }
-        );
+        return lgString;
     }
 
-    // NOTE: support func for copySelectionToKeyboard() above
+    // NOTE: support func for copySelectionToClipboard() above
     _addNodeAndChildren = (nodes: Node[], node: Node, output:Node[]) : void => {
         this._addUniqueNode(output, node);
 
@@ -2736,7 +2720,7 @@ export class Eagle {
         }
     }
 
-    // NOTE: support func for copySelectionToKeyboard() above
+    // NOTE: support func for copySelectionToClipboard() above
     // only add the new node to the nodes list if it is not already present
     _addUniqueNode = (nodes: Node[], newNode: Node): void => {
         for (const node of nodes){
@@ -2748,7 +2732,7 @@ export class Eagle {
         nodes.push(newNode);
     }
 
-    // NOTE: support func for copySelectionToKeyboard() above
+    // NOTE: support func for copySelectionToClipboard() above
     // only add the new edge to the edges list if it is not already present
     _addUniqueEdge = (edges: Edge[], newEdge: Edge): void => {
         for (const edge of edges){
@@ -2760,6 +2744,20 @@ export class Eagle {
         edges.push(newEdge);
     }
 
+    _unsecuredCopyToClipboard = (text: string) => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+        } catch (err) {
+            console.error('Unable to copy to clipboard', err);
+        }
+        document.body.removeChild(textArea);
+    }
+
     pasteFromClipboard = async () => {
         console.log("pasteFromClipboard()");
 
@@ -2769,41 +2767,25 @@ export class Eagle {
             return;
         }
 
-        // check if browser supports reading text from clipboard, if not, explain to user
-        if (typeof navigator.clipboard.readText === "undefined"){
+        let clipboard = null;
+
+        // check if clipboard object is available for use
+        if (window.isSecureContext && navigator.clipboard){
+            try {
+                clipboard = JSON.parse(await navigator.clipboard.readText());
+            } catch(e) {
+                Utils.showNotification("Unable to paste data", e.name + ": " + e.message, "danger");
+                return;
+            }
+        } else {
             Utils.showNotification("Unable to paste data", "Your browser does not allow access to the clipboard for security reasons. Workaround this issue using the 'Graph > New > Add to Graph from JSON' menu item and pasting your clipboard manually", "danger");
             return;
         }
 
-        let clipboard = null;
-
-        try {
-            clipboard = JSON.parse(await navigator.clipboard.readText());
-        } catch(e) {
-            Utils.showNotification("Unable to paste data", e.name + ": " + e.message, "danger");
-            return;
-        }
-
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const nodes : Node[] = [];
-        const edges : Edge[] = [];
+        const logicalGraph: LogicalGraph = LogicalGraph.fromAppRefJson(clipboard, new RepositoryFile(Repository.DUMMY, "", ""), errorsWarnings);
 
-        for (const n of clipboard.nodes){
-            const node = Node.fromOJSJson(n, errorsWarnings, false, (): number => {
-                console.error("Should not have to generate new key for node", n);
-                return 0;
-            });
-
-            nodes.push(node);
-        }
-
-        for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, errorsWarnings);
-
-            edges.push(edge);
-        }
-
-        this.insertGraph(nodes, edges, null, errorsWarnings);
+        this.insertGraph(logicalGraph.getNodes(), logicalGraph.getEdges(), null, errorsWarnings);
 
         // display notification to user
         if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
@@ -2997,7 +2979,7 @@ export class Eagle {
         // find child edges
         for (const edge of this.logicalGraph().getEdges()){
             for (const node of childNodes){
-                if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
+                if (edge.getSrcNode().getKey() === node.getKey() || edge.getDestNode().getKey() === node.getKey()){
                     // check if edge as already in the list
                     let found = false;
                     for (const e of childEdges){
@@ -3747,8 +3729,8 @@ export class Eagle {
         const edges : Edge[] = this.logicalGraph().getEdges();
 
         for (let i = edges.length - 1; i >= 0; i--){
-            if (edges[i].getSrcPortId() === id || edges[i].getDestPortId() === id){
-                console.log("Remove incident edge", edges[i].getSrcPortId(), "->", edges[i].getDestPortId());
+            if (edges[i].getSrcPort().getId() === id || edges[i].getDestPort().getId() === id){
+                console.log("Remove incident edge", edges[i].getSrcPort().getId(), "->", edges[i].getDestPort().getId());
                 edges.splice(i, 1);
             }
         }
@@ -4034,15 +4016,15 @@ export class Eagle {
         const nodes : string[] = [];
         for (const edge of this.logicalGraph().getEdges()){
             // add output nodes to the list
-            if (edge.getSrcNodeKey() === selectedNodeKey){
-                const destNode : Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            if (edge.getSrcNode().getKey() === selectedNodeKey){
+                const destNode : Node = this.logicalGraph().findNodeByKey(edge.getDestNode().getKey());
                 const s : string = "output:" + destNode.getName() + ":" + destNode.getKey();
                 nodes.push(s);
             }
 
             // add input nodes to the list
-            if (edge.getDestNodeKey() === selectedNodeKey){
-                const srcNode : Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            if (edge.getDestNode().getKey() === selectedNodeKey){
+                const srcNode : Node = this.logicalGraph().findNodeByKey(edge.getSrcNode().getKey());
                 const s : string = "input:" + srcNode.getName() + ":" + srcNode.getKey();
                 nodes.push(s);
             }
@@ -4258,7 +4240,7 @@ export class Eagle {
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
-            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), loopAware, closesLoop, false);
+            const edge : Edge = new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
             if (callback !== null) callback(edge);
             return;
@@ -4331,8 +4313,8 @@ export class Eagle {
         }
 
         // create TWO edges, one from src to data component, one from data component to dest
-        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputOutputPort.getId(), loopAware, closesLoop, false);
-        const secondEdge : Edge = new Edge(newNodeKey, newInputOutputPort.getId(), destNode.getKey(), destPort.getId(), loopAware, closesLoop, false);
+        const firstEdge : Edge = new Edge(srcNode, srcPort, newNode, newInputOutputPort, loopAware, closesLoop, false);
+        const secondEdge : Edge = new Edge(newNode, newInputOutputPort, destNode, destPort, loopAware, closesLoop, false);
 
         this.logicalGraph().addEdgeComplete(firstEdge);
         this.logicalGraph().addEdgeComplete(secondEdge);

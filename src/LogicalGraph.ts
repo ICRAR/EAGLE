@@ -60,8 +60,6 @@ export class LogicalGraph {
         result.modelData = FileInfo.toJson(graph.fileInfo());
         result.modelData.numLGNodes = graph.getNodes().length;
 
-        result.reproData = ReproData.toJson(graph.reproData());
-
         // add nodeData
         result.nodeData = {};
         for (const node of graph.nodes){
@@ -69,6 +67,20 @@ export class LogicalGraph {
             const value: any = Node.toNodeDataJson(node);
 
             result.nodeData[key] = value;
+
+            // add input and output applications
+            if (node.hasInputApplication()){
+                const key: string = Node.getUniqueKey(node.getInputApplication());
+                const value: any = Node.toNodeDataJson(node.getInputApplication());
+
+                result.nodeData[key] = value;
+            }
+            if (node.hasOutputApplication()){
+                const key: string = Node.getUniqueKey(node.getOutputApplication());
+                const value: any = Node.toNodeDataJson(node.getOutputApplication());
+
+                result.nodeData[key] = value;
+            }
         }
 
         // add reproData
@@ -81,6 +93,20 @@ export class LogicalGraph {
             const value: any = Node.toNodeUxJson(node);
 
             result.uxData[key] = value;
+
+            // add input and output applications
+            if (node.hasInputApplication()){
+                const key: string = Node.getUniqueKey(node.getInputApplication());
+                const value: any = Node.toNodeUxJson(node.getInputApplication());
+
+                result.uxData[key] = value;
+            }
+            if (node.hasOutputApplication()){
+                const key: string = Node.getUniqueKey(node.getOutputApplication());
+                const value: any = Node.toNodeUxJson(node.getOutputApplication());
+
+                result.uxData[key] = value;
+            }
         }
 
         // add linkData
@@ -88,18 +114,8 @@ export class LogicalGraph {
         for (let i = 0 ; i < graph.edges.length ; i++){
             const edge = graph.edges[i];
 
-            const srcNode = graph.findNodeByKey(edge.getSrcNodeKey());
-            const destNode = graph.findNodeByKey(edge.getDestNodeKey());
-
-            if (srcNode === null || destNode === null){
-                continue;
-            }
-
-            const srcPort = srcNode.findFieldById(edge.getSrcPortId());
-            const destPort = destNode.findFieldById(edge.getDestPortId());
-
-            const key: string = Edge.getUniqueKey(i, srcNode, destNode);
-            const value: any = Edge.toAppRefJson(edge, srcPort, destPort);
+            const key: string = Edge.getUniqueKey(i, edge.getSrcNode(), edge.getDestNode());
+            const value: any = Edge.toAppRefJson(edge, edge.getSrcPort(), edge.getDestPort());
 
             result.linkData[key] = value;
         }
@@ -127,7 +143,6 @@ export class LogicalGraph {
     static fromAppRefJson = (dataObject : Daliuge.AppRefObject, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph => {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
-        console.log("dataObject", dataObject);
 
         // copy modelData into fileInfo
         result.fileInfo(FileInfo.fromJson(dataObject.modelData, errorsWarnings));
@@ -160,11 +175,12 @@ export class LogicalGraph {
                 continue;
             }
 
-            if (nodeData.inputApplicationKey !== null){
-                const inputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(Object.values(dataObject.nodeData), nodeData.inputApplicationKey);
+            if (typeof nodeData.inputApplicationKey !== "undefined" && nodeData.inputApplicationKey !== null ){
+                const inputApplicationNodeData = dataObject.nodeData[nodeData.inputApplicationKey];
+                const inputApplicationUxData   = dataObject.uxData[nodeData.inputApplicationKey];
 
-                if (inputApplicationIndex !== -1){
-                    const inputApplicationNode = Node.fromOJSJson(dataObject.nodeData[inputApplicationIndex], errorsWarnings, false, (): number => {
+                if (typeof inputApplicationNodeData !== "undefined" && typeof inputApplicationUxData !== "undefined"){
+                    const inputApplicationNode = Node.fromAppRefJson(inputApplicationNodeData, inputApplicationUxData, errorsWarnings, false, (): number => {
                         const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
                         const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(Object.values(dataObject.nodeData));
                         const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
@@ -178,15 +194,18 @@ export class LogicalGraph {
                     newNode.setInputApplication(inputApplicationNode);
                 }
                 else {
-                    console.error("Could not find inputApplication (", nodeData.inputApplicationKey, ") for node", nodeKey);
+                    // report error
+                    const message = "Could not find inputApplication (" + nodeData.inputApplicationKey + ") for node " + nodeKey + " nodes are: " + Object.keys(dataObject.nodeData);
+                    errorsWarnings.errors.push(Errors.Message(message));
                 }
             }
 
-            if (nodeData.outputApplicationKey !== null){
-                const outputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(Object.values(dataObject.nodeData), nodeData.outputApplicationKey);
+            if (typeof nodeData.outputApplicationKey !== "undefined" && nodeData.outputApplicationKey !== null){
+                const outputApplicationNodeData = dataObject.nodeData[nodeData.outputApplicationKey];
+                const outputApplicationUxData   = dataObject.uxData[nodeData.outputApplicationKey];
 
-                if (outputApplicationIndex !== -1){
-                    const outputApplicationNode = Node.fromOJSJson(dataObject.nodeData[outputApplicationIndex], errorsWarnings, false, (): number => {
+                if (typeof outputApplicationNodeData !== "undefined" && typeof outputApplicationUxData !== "undefined"){
+                    const outputApplicationNode = Node.fromAppRefJson(outputApplicationNodeData, outputApplicationUxData, errorsWarnings, false, (): number => {
                         const resultKeys: number[] = Utils.getUsedKeys(result.nodes);
                         const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(Object.values(dataObject.nodeData));
                         const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
@@ -200,7 +219,9 @@ export class LogicalGraph {
                     newNode.setOutputApplication(outputApplicationNode);
                 }
                 else {
-                    console.error("Could not find outputApplication (", nodeData.outputApplicationKey, ") for node", nodeKey);
+                    // report error
+                    const message = "Could not find outputApplication (" + nodeData.outputApplicationKey + ") for node " + nodeKey + " nodes are: " + Object.keys(dataObject.nodeData);
+                    errorsWarnings.errors.push(Errors.Message(message));
                 }
             }
 
@@ -209,17 +230,20 @@ export class LogicalGraph {
 
         // add edges
         for (const [linkKey, linkData] of Object.entries(dataObject.linkData)){
-            const edge = Edge.fromAppRefJson(linkData, errorsWarnings);
+            const edge = Edge.fromAppRefJson(linkData, result, errorsWarnings);
 
             // find source node and destination node based on field ids
-            const srcNode = result.findNodeByFieldId(edge.getSrcPortId());
-            const destNode = result.findNodeByFieldId(edge.getDestPortId());
+            // we assume here that the edge's srcNode and destNode are not known, so we have to look them up
+            const srcNode = result.findNodeByFieldId(edge.getSrcPort().getId());
+            const destNode = result.findNodeByFieldId(edge.getDestPort().getId());
             if (srcNode !== null && destNode !== null){
-                edge.setSrcNodeKey(srcNode.getKey());
-                edge.setDestNodeKey(destNode.getKey());
+                edge.setSrcNode(srcNode);
+                edge.setDestNode(destNode);
             }
 
             result.edges.push(edge);
+            edge.getSrcPort().addLink(edge);
+            edge.getDestPort().addLink(edge);
         }
 
         return result;
@@ -252,11 +276,11 @@ export class LogicalGraph {
 
             const linkData : any = Edge.toOJSJson(edge);
 
-            let srcKey = edge.getSrcNodeKey();
-            let destKey = edge.getDestNodeKey();
+            let srcKey = edge.getSrcNode().getKey();
+            let destKey = edge.getDestNode().getKey();
 
-            const srcNode = graph.findNodeByKey(srcKey);
-            const destNode = graph.findNodeByKey(destKey);
+            const srcNode = edge.getSrcNode();
+            const destNode = edge.getDestNode();
             if (srcNode === null || destNode === null){
                 console.warn("Could not find edge src and/or dest node in graph", srcKey, srcNode, destKey, destNode);
                 continue;
@@ -338,13 +362,15 @@ export class LogicalGraph {
 
         // add edges
         for (const linkData of dataObject.linkDataArray){       
-            const newEdge = Edge.fromOJSJson(linkData, errorsWarnings);
+            const newEdge = Edge.fromOJSJson(linkData, result, errorsWarnings);
 
             if (newEdge === null){
                 continue;
             }
 
             result.edges.push(newEdge);
+            newEdge.getSrcPort().addLink(newEdge);
+            newEdge.getDestPort().addLink(newEdge);
         }
 
         // check for missing name
@@ -359,23 +385,23 @@ export class LogicalGraph {
         // add warnings to errorsWarnings
         for (const edge of result.edges){
             // get references to actual source and destination nodes (from the keys)
-            const sourceNode : Node = result.findNodeByKey(edge.getSrcNodeKey());
-            const destinationNode : Node = result.findNodeByKey(edge.getDestNodeKey());
+            const sourceNode : Node = edge.getSrcNode();
+            const destinationNode : Node = edge.getDestNode();
 
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
             if (sourceNode.getCategoryType() === Category.Type.Construct){
-                const srcKeyAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPortId());
-                const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNodeKey() + " to embedded application " + srcKeyAndPort.key;
+                const srcNodeAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPort().getId());
+                const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNode().getKey() + " to embedded application " + srcNodeAndPort.node.getKey();
                 errorsWarnings.warnings.push(Errors.Message(warning));
                 console.warn(warning);
-                edge.setSrcNodeKey(srcKeyAndPort.key);
+                edge.setSrcNode(srcNodeAndPort.node);
             }
             if (destinationNode.getCategoryType() === Category.Type.Construct){
-                const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPortId());
-                const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNodeKey() + " to embedded application " + destKeyAndPort.key;
+                const destNodeAndPort = destinationNode.findPortInApplicationsById(edge.getDestPort().getId());
+                const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNode().getKey() + " to embedded application " + destNodeAndPort.node.getKey();
                 errorsWarnings.warnings.push(Errors.Message(warning));
                 console.warn(warning);
-                edge.setDestNodeKey(destKeyAndPort.key);
+                edge.setDestNode(destNodeAndPort.node);
             }
         }
 
@@ -408,6 +434,10 @@ export class LogicalGraph {
 
     addEdgeComplete = (edge : Edge) => {
         this.edges.push(edge);
+
+        // TODO: do this here?
+        edge.getSrcPort().addLink(edge);
+        edge.getDestPort().addLink(edge);
     }
 
     getEdges = () : Edge[] => {
@@ -422,7 +452,7 @@ export class LogicalGraph {
         let result: number = 0;
 
         for (const edge of this.edges){
-            if ((edge.getSrcNodeKey() === node.getKey() ) || ( edge.getDestNodeKey() === node.getKey() )){
+            if ((edge.getSrcNode().getKey() === node.getKey() ) || ( edge.getDestNode().getKey() === node.getKey() )){
                 result += 1;
             }
         }
@@ -540,6 +570,23 @@ export class LogicalGraph {
                     return node;
                 }
             }
+
+            // check embedded apps too!
+            if (node.hasInputApplication()){
+                for (const field of node.getInputApplication().getFields()){
+                    if (field.getId() === id){
+                        return node.getInputApplication();
+                    }
+                }
+            }
+
+            if (node.hasOutputApplication()){
+                for (const field of node.getOutputApplication().getFields()){
+                    if (field.getId() === id){
+                        return node.getOutputApplication();
+                    }
+                }
+            }
         }
         return null;
     }
@@ -594,7 +641,7 @@ export class LogicalGraph {
             node.getFields().forEach(function(field:Field){
                 if(field.isInputPort() || field.isOutputPort()){
                     that.getEdges().forEach(function(edge:Edge){
-                        if(edge.getDestPortId() === field.getId() || edge.getSrcPortId() === field.getId()){
+                        if(edge.getDestPort().getId() === field.getId() || edge.getSrcPort().getId() === field.getId()){
                             that.removeEdgeById(edge.getId())
                         }
                     })
@@ -659,9 +706,14 @@ export class LogicalGraph {
         let found = false;
 
         for (let i = this.edges.length - 1; i >= 0 ; i--){
-            if (this.edges[i].getId() === id){
+            const edge : Edge = this.edges[i];
+            if (edge.getId() === id){
                 found = true;
                 this.edges.splice(i, 1);
+
+                // TODO: do this here?
+                edge.getSrcPort().removeLink(edge);
+                edge.getDestPort().removeLink(edge);
             }
         }
 
@@ -674,16 +726,20 @@ export class LogicalGraph {
     removeEdgesByKey = (key: number) : void => {
         for (let i = this.edges.length - 1 ; i >= 0; i--){
             const edge : Edge = this.edges[i];
-            if (edge.getSrcNodeKey() === key || edge.getDestNodeKey() === key){
+            if (edge.getSrcNode().getKey() === key || edge.getDestNode().getKey() === key){
                 this.edges.splice(i, 1);
+                
+                // TODO: do this here?
+                edge.getSrcPort().removeLink(edge);
+                edge.getDestPort().removeLink(edge);
             }
         }
     }
 
     portIsLinked = (nodeKey : number, portId : string) : boolean => {
         for (const edge of this.edges){
-            if (edge.getSrcNodeKey() === nodeKey && edge.getSrcPortId() === portId ||
-                edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
+            if (edge.getSrcNode().getKey() === nodeKey && edge.getSrcPort().getId() === portId ||
+                edge.getDestNode().getKey() === nodeKey && edge.getDestPort().getId() === portId){
                 return true;
             }
         }

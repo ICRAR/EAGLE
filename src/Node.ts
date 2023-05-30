@@ -38,7 +38,7 @@ import { Setting } from './Setting';
 import { Utils } from './Utils';
 
 export class Node {
-    private _id : string
+    private id : string
     private key : ko.Observable<number>;
     private name : ko.Observable<string>;
     private description : ko.Observable<string>;
@@ -104,7 +104,7 @@ export class Node {
     public static readonly CONSTRUCT_MARGIN_BOTTOM: number = 16;
 
     constructor(key : number, name : string, description : string, category : Category){
-        this._id = Utils.uuidv4();
+        this.id = Utils.uuidv4();
         this.key = ko.observable(key);
         this.name = ko.observable(name);
         this.description = ko.observable(description);
@@ -149,11 +149,11 @@ export class Node {
     }
 
     getId = () : string => {
-        return this._id;
+        return this.id;
     }
 
     setId = (id: string) : void => {
-        this._id = id;
+        this.id = id;
     }
 
     getKey = () : number => {
@@ -764,7 +764,7 @@ export class Node {
     }
 
     clear = () : void => {
-        this._id = "";
+        this.id = "";
         this.key(0);
         this.name("");
         this.description("");
@@ -876,17 +876,17 @@ export class Node {
         return null;
     }
 
-    findPortInApplicationsById = (portId : string) : {key: number, port: Field} => {
+    findPortInApplicationsById = (portId : string) : {node: Node, port: Field} => {
         // if node has an inputApplication, check those ports too
         if (this.hasInputApplication()){
             for (const inputPort of this.inputApplication().getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {key: this.inputApplication().getKey(), port: inputPort};
+                    return {node: this.inputApplication(), port: inputPort};
                 }
             }
             for (const outputPort of this.inputApplication().getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {key: this.inputApplication().getKey(), port: outputPort};
+                    return {node: this.inputApplication(), port: outputPort};
                 }
             }
         }
@@ -895,17 +895,17 @@ export class Node {
         if (this.hasOutputApplication()){
             for (const inputPort of this.outputApplication().getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {key: this.outputApplication().getKey(), port: inputPort};
+                    return {node: this.outputApplication(), port: inputPort};
                 }
             }
             for (const outputPort of this.outputApplication().getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {key: this.outputApplication().getKey(), port: outputPort};
+                    return {node: this.outputApplication(), port: outputPort};
                 }
             }
         }
 
-        return {key: null, port: null};
+        return {node: null, port: null};
     }
 
     findPortIndexById = (portId : string) : number => {
@@ -1133,7 +1133,7 @@ export class Node {
     clone = () : Node => {
         const result : Node = new Node(this.key(), this.name(), this.description(), this.category());
 
-        result._id = this._id;
+        result.id = this.id;
         result.x = this.x;
         result.y = this.y;
         result.width = this.width;
@@ -1839,13 +1839,13 @@ export class Node {
         }
 
         if (node.hasInputApplication()){
-            result.inputApplicationKey = node.getInputApplication().getName() + node.getInputApplication().getKey();
+            result.inputApplicationKey = Node.getUniqueKey(node.getInputApplication());
         } else {
             result.inputApplicationKey = null;
         }
         
         if (node.hasOutputApplication()){
-            result.outputApplicationKey = node.getOutputApplication().getName() + node.getOutputApplication().getKey();
+            result.outputApplicationKey = Node.getUniqueKey(node.getOutputApplication());
         } else {
             result.outputApplicationKey = null;
         }
@@ -2015,7 +2015,7 @@ export class Node {
         result.flipPorts = node.flipPorts();
         result.subject = node.subject();
         result.expanded = node.expanded();
-        result.id = node._id;
+        result.id = node.id;
 
         return result;
     }
@@ -2262,7 +2262,7 @@ export class Node {
         // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
         let isConnected: boolean = false;
         for (const edge of eagle.logicalGraph().getEdges()){
-            if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
+            if (edge.getSrcNode().getKey() === node.getKey() || edge.getDestNode().getKey() === node.getKey()){
                 isConnected = true;
                 break;
             }

@@ -33,10 +33,12 @@ import { FileInfo } from './FileInfo';
 import { GraphUpdater } from "./GraphUpdater";
 import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
+import { ReproData } from "./ReproData";
 import { Utils } from './Utils';
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
+    reproData : ko.Observable<ReproData>;
     private nodes : ko.ObservableArray<Node>;
     private searchExclude : ko.Observable<boolean>;
 
@@ -48,6 +50,8 @@ export class Palette {
         this.fileInfo().type = Eagle.FileType.Palette;
         this.nodes = ko.observableArray([]);
         this.searchExclude = ko.observable(false);
+
+        this.reproData = ko.observable(new ReproData());
     }
 
     static fromAppRefJson = (dataObject : Daliuge.AppRefObject, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette => {
@@ -99,7 +103,7 @@ export class Palette {
                 continue;
             }
 
-            if (nodeData.inputApplicationKey !== null){
+            if (nodeData.inputApplicationKey !== null && typeof nodeData.inputApplicationKey !== "undefined"){
                 const inputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.inputApplicationKey);
 
                 if (inputApplicationIndex !== -1){
@@ -108,10 +112,14 @@ export class Palette {
                     });
 
                     newNode.setInputApplication(inputApplicationNode);
+                } else {
+                    // report error
+                    const message = "Could not find inputApplication (" + nodeData.inputApplicationKey + ") for node " + i + " using inputApplicationKey: " + nodeData.inputApplicationKey;
+                    errorsWarnings.errors.push(Errors.Message(message));
                 }
             }
 
-            if (nodeData.outputApplicationKey !== null){
+            if (nodeData.outputApplicationKey !== null && typeof nodeData.outputApplicationKey !== "undefined"){
                 const outputApplicationIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.outputApplicationKey);
 
                 if (outputApplicationIndex !== -1){
@@ -120,6 +128,10 @@ export class Palette {
                     });
 
                     newNode.setOutputApplication(outputApplicationNode);
+                } else {
+                    // report error
+                    const message = "Could not find outputApplication (" + nodeData.outputApplicationKey + ") for node " + i + " using outputApplicationKey: " + nodeData.outputApplicationKey;
+                    errorsWarnings.errors.push(Errors.Message(message));
                 }
             }
 
@@ -149,14 +161,17 @@ export class Palette {
         result.modelData = FileInfo.toJson(palette.fileInfo());
         result.modelData.numLGNodes = palette.getNodes().length;
 
-        // add nodes
+        // add nodeData
         result.nodeDataArray = [];
         for (const node of palette.nodes()){
             result.nodeDataArray.push(Node.toOJSPaletteJson(node));
         }
 
-        // add links (none in a palette)
-        result.linkDataArray = [];
+        // add reproData
+        result.reproData = ReproData.toJson(palette.reproData());
+
+        // add linkData (none in a palette)
+        result.linkData = [];
 
         return result;
     }
@@ -169,8 +184,9 @@ export class Palette {
         // manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
         result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
-        result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
-        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
+        result += '"reproData": ' + JSON.stringify(json.reproData, null, 4) + ",\n";
+        result += '"nodeData": ' + JSON.stringify(json.nodeData, null, 4) + ",\n";
+        result += '"linkData": ' + JSON.stringify(json.linkData, null, 4) + "\n";
         result += "}\n";
 
         return result;

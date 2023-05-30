@@ -3,6 +3,7 @@ import { Eagle } from './Eagle';
 import { Edge } from './Edge';
 import { Field } from './Field';
 import { LogicalGraph } from './LogicalGraph';
+import { Node } from './Node';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
@@ -408,7 +409,12 @@ export class Modals {
             const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
             const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
 
-            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, loopAware, closesLoop, false);
+            const srcNode: Node = eagle.logicalGraph().findNodeByKey(srcNodeKey);
+            const srcPort: Field = srcNode.findFieldById(srcPortId);
+            const destNode: Node = eagle.logicalGraph().findNodeByKey(destNodeKey);
+            const destPort: Field = destNode.findFieldById(destPortId);
+
+            const newEdge = new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
 
             callback(true, newEdge);
         });
@@ -417,7 +423,8 @@ export class Modals {
             const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
             const srcNodeKey : number = parseInt($('#editEdgeModalSrcNodeKeySelect').val().toString(), 10);
-            edge.setSrcNodeKey(srcNodeKey);
+            const srcNode: Node = logicalGraph.findNodeByKey(srcNodeKey);
+            edge.setSrcNode(srcNode);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
         });
@@ -426,7 +433,8 @@ export class Modals {
             const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
             const destNodeKey : number = parseInt($('#editEdgeModalDestNodeKeySelect').val().toString(), 10);
-            edge.setDestNodeKey(destNodeKey);
+            const destNode: Node = logicalGraph.findNodeByKey(destNodeKey);
+            edge.setDestNode(destNode);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
         });
