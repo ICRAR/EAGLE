@@ -3317,7 +3317,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
     }
 
     function addEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field) : void {
-        console.log("addEdge()", Node.getUniqueKey(srcNode), "->", Node.getUniqueKey(destNode));
+        //console.log("addEdge()", Node.getUniqueKey(srcNode), "->", Node.getUniqueKey(destNode));
 
         // abort if srcPort connects to itself
         if (srcPort.getId() === destPort.getId()){
@@ -3330,7 +3330,6 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
         // check if temporary edge is valid
         const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge, true, true, {errors:[], warnings:[]});
-        console.log("linkValid", linkValid);
 
         let loopAware: boolean = false;
         const closesLoop: boolean = false;
