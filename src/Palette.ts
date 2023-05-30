@@ -57,7 +57,89 @@ export class Palette {
     static fromAppRefJson = (dataObject : Daliuge.AppRefObject, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette => {
         const result : Palette = new Palette();
 
-        // TODO: more
+        // copy modelData into fileInfo
+        result.fileInfo(FileInfo.fromJson(dataObject.modelData, errorsWarnings));
+
+        // copy reproducibility data
+        result.reproData(ReproData.fromJson(dataObject.reproData, errorsWarnings));
+
+        // add nodes
+        for (const [nodeKey, nodeData] of Object.entries(dataObject.nodeData)){
+            const extraUsedKeys: number[] = [];
+            const uxData = dataObject.uxData[nodeKey];
+
+            const newNode = Node.fromAppRefJson(nodeData, uxData, errorsWarnings, false, (): number => {
+                const resultKeys: number[] = Utils.getUsedKeys(result.nodes());
+                const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(Object.values(dataObject.nodeData));
+                const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
+
+                const newKey = Utils.findNewKey(combinedKeys);
+
+                extraUsedKeys.push(newKey);
+                return newKey;
+            });
+
+            if (newNode === null){
+                continue;
+            }
+
+            // if this node is embedded within another node, we don't add it to the main nodes array, instead it is placed within the node that embeds it (handled later)
+            if (newNode.getEmbedKey() !== null){
+                continue;
+            }
+
+            if (typeof nodeData.inputApplicationKey !== "undefined" && nodeData.inputApplicationKey !== null ){
+                const inputApplicationNodeData = dataObject.nodeData[nodeData.inputApplicationKey];
+                const inputApplicationUxData   = dataObject.uxData[nodeData.inputApplicationKey];
+
+                if (typeof inputApplicationNodeData !== "undefined" && typeof inputApplicationUxData !== "undefined"){
+                    const inputApplicationNode = Node.fromAppRefJson(inputApplicationNodeData, inputApplicationUxData, errorsWarnings, false, (): number => {
+                        const resultKeys: number[] = Utils.getUsedKeys(result.nodes());
+                        const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(Object.values(dataObject.nodeData));
+                        const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
+        
+                        const newKey = Utils.findNewKey(combinedKeys);
+        
+                        extraUsedKeys.push(newKey);
+                        return newKey;
+                    });
+
+                    newNode.setInputApplication(inputApplicationNode);
+                }
+                else {
+                    // report error
+                    const message = "Could not find inputApplication (" + nodeData.inputApplicationKey + ") for node " + nodeKey + " nodes are: " + Object.keys(dataObject.nodeData);
+                    errorsWarnings.errors.push(Errors.Message(message));
+                }
+            }
+
+            if (typeof nodeData.outputApplicationKey !== "undefined" && nodeData.outputApplicationKey !== null){
+                const outputApplicationNodeData = dataObject.nodeData[nodeData.outputApplicationKey];
+                const outputApplicationUxData   = dataObject.uxData[nodeData.outputApplicationKey];
+
+                if (typeof outputApplicationNodeData !== "undefined" && typeof outputApplicationUxData !== "undefined"){
+                    const outputApplicationNode = Node.fromAppRefJson(outputApplicationNodeData, outputApplicationUxData, errorsWarnings, false, (): number => {
+                        const resultKeys: number[] = Utils.getUsedKeys(result.nodes());
+                        const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(Object.values(dataObject.nodeData));
+                        const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
+        
+                        const newKey = Utils.findNewKey(combinedKeys);
+        
+                        extraUsedKeys.push(newKey);
+                        return newKey;
+                    });
+
+                    newNode.setOutputApplication(outputApplicationNode);
+                }
+                else {
+                    // report error
+                    const message = "Could not find outputApplication (" + nodeData.outputApplicationKey + ") for node " + nodeKey + " nodes are: " + Object.keys(dataObject.nodeData);
+                    errorsWarnings.errors.push(Errors.Message(message));
+                }
+            }
+
+            result.nodes.push(newNode);
+        }
 
         return result;
     }

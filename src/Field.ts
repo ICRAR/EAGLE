@@ -23,7 +23,7 @@ export class Field {
     private parameterType : ko.Observable<Daliuge.FieldType>;
     private usage : ko.Observable<Daliuge.FieldUsage>;
     private isEvent : ko.Observable<boolean>;
-    private nodeKey : ko.Observable<number>;
+    private node : ko.Observable<Node>;
     private links : ko.ObservableArray<Edge>;
 
     constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
@@ -42,7 +42,7 @@ export class Field {
         this.parameterType = ko.observable(parameterType);
         this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
-        this.nodeKey = ko.observable(0);
+        this.node = ko.observable(null);
         this.links = ko.observableArray([]);
     }
 
@@ -252,12 +252,12 @@ export class Field {
         this.isEvent(!this.isEvent());
     }
 
-    getNodeKey = () : number => {
-        return this.nodeKey();
+    getNode = () : Node => {
+        return this.node();
     }
 
-    setNodeKey = (key : number) : void => {
-        this.nodeKey(key);
+    setNode = (node: Node) : void => {
+        this.node(node);
     }
 
     getLinks = () : Edge[] => {
@@ -307,7 +307,7 @@ export class Field {
 
         this.id("");
         this.isEvent(false);
-        this.nodeKey(0);
+        this.node(null);
         this.links([]);
     }
 
@@ -330,7 +330,7 @@ export class Field {
         return tooltipText;
     }
 
-    copyWithKeyAndId = (src: Field, nodeKey: number, id: string) : void => {
+    copyWithNodeAndId = (src: Field, node: Node, id: string) : void => {
         this.displayText(src.displayText());
         this.value(src.value());
         this.defaultValue(src.defaultValue());
@@ -348,7 +348,7 @@ export class Field {
 
         // NOTE: these two are not copied from the src, but come from the function's parameters
         this.id(id);
-        this.nodeKey(nodeKey);
+        this.node(node);
     }
 
     isInputPort = () : boolean => {
@@ -395,7 +395,7 @@ export class Field {
         }
 
         const nameMatch = this.displayText().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
-        const nodeParentNameMatch = Eagle.getInstance().logicalGraph().findNodeByKey(this.nodeKey()).getName().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
+        const nodeParentNameMatch = this.node().getName().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
         const useAsMatch = this.usage().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
         const fieldTypeMatch = this.type().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
 
@@ -462,14 +462,6 @@ export class Field {
     }
 
     static toJson = (field : Field) : object => {
-        const linkKeys: string[] = [];
-
-        // build the linkKeys array first
-        for (let i = 0 ; i < field.links.length ; i++){
-            const link = field.links()[i];
-            linkKeys.push(Edge.getUniqueKey(i, link.getSrcNode(), link.getDestNode()));
-        }
-
         const result : any = {
             value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
@@ -483,7 +475,7 @@ export class Field {
             id: field.id(),
             parameterType: field.parameterType(),
             usage: field.usage(),
-            linkKeys: linkKeys
+            linkKeys: field.links().map(edge => Edge.getUniqueKey(edge)).join(',')
         }
 
         return result;

@@ -111,10 +111,8 @@ export class LogicalGraph {
 
         // add linkData
         result.linkData = {};
-        for (let i = 0 ; i < graph.edges.length ; i++){
-            const edge = graph.edges[i];
-
-            const key: string = Edge.getUniqueKey(i, edge.getSrcNode(), edge.getDestNode());
+        for (const edge of graph.edges){
+            const key: string = Edge.getUniqueKey(edge);
             const value: any = Edge.toAppRefJson(edge, edge.getSrcPort(), edge.getDestPort());
 
             result.linkData[key] = value;

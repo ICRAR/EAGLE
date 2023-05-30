@@ -165,7 +165,7 @@ export class Node {
 
         // go through all fields on this node, and make sure their nodeKeys are all updated, important for ports
         for (const field of this.fields()){
-            field.setNodeKey(key);
+            field.setNode(this);
         }
     }
 
@@ -1029,12 +1029,12 @@ export class Node {
 
     addField = (field : Field) : void => {
         this.fields.push(field);
-        field.setNodeKey(this.key());
+        field.setNode(this);
     }
 
     addFieldByIndex = (field : Field, i : number) : void => {
         this.fields.splice(i, 0, field);
-        field.setNodeKey(this.key());
+        field.setNode(this);
     }
 
     setGroupStart = (value: boolean) => {
@@ -1753,17 +1753,89 @@ export class Node {
     }
 
     static toOJSJson = (node: Node): object => {
-        const result: any = {};
+        const result : any = {};
+        const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
+        const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.category());
 
-        // TODO: more
+        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.categoryType = node.categoryType();
+
+        result.isGroup = node.isGroup();
+        result.color = categoryData.color;
+        result.drawOrderHint = node.drawOrderHint();
+
+        result.key = node.key();
+        result.name = node.name();
+        result.description = node.description();
+        result.x = node.x;
+        result.y = node.y;
+        result.width = node.width;
+        result.height = node.height;
+        result.collapsed = node.collapsed();
+        result.flipPorts = node.flipPorts();
+        result.subject = node.subject();
+        result.expanded = node.expanded();
+        result.repositoryUrl = node.repositoryUrl();
+        result.commitHash = node.commitHash();
+        result.paletteDownloadUrl = node.paletteDownloadUrl();
+        result.dataHash = node.dataHash();
+
+
+        if (node.parentKey() !== null){
+            result.group = node.parentKey();
+        }
+
+        if (node.embedKey() !== null){
+            result.embedKey = node.embedKey();
+        }
+
+        // add fields
+        result.fields = [];
+        for (const field of node.fields()){
+            result.fields.push(Field.toJson(field));
+        }
+
+        // add fields from inputApplication
+        result.inputAppFields = [];
+        if (node.hasInputApplication()){
+            for (const field of node.inputApplication().fields()){
+                result.inputAppFields.push(Field.toJson(field));
+            }
+        }
+
+        // add fields from outputApplication
+        result.outputAppFields = [];
+        if (node.hasOutputApplication()){
+            for (const field of node.outputApplication().fields()){
+                result.outputAppFields.push(Field.toJson(field));
+            }
+        }
+
+        // write application names and types
+        if (node.hasInputApplication()){
+            result.inputApplicationName = node.inputApplication().name();
+            result.inputApplicationType = node.inputApplication().category();
+            result.inputApplicationKey  = node.inputApplication().key();
+            result.inputApplicationDescription = node.inputApplication().description();
+        } else {
+            result.inputApplicationName = "";
+            result.inputApplicationType = Category.None;
+            result.inputApplicationKey  = null;
+            result.inputApplicationDescription = "";
+        }
+        if (node.hasOutputApplication()){
+            result.outputApplicationName = node.outputApplication().name();
+            result.outputApplicationType = node.outputApplication().category();
+            result.outputApplicationKey  = node.outputApplication().key();
+            result.outputApplicationDescription = node.outputApplication().description();
+        } else {
+            result.outputApplicationName = "";
+            result.outputApplicationType = Category.None;
+            result.outputApplicationKey  = null;
+            result.outputApplicationDescription = "";
+        }
 
         return result;
-    }
-
-    private static copyPorts(src: Field[], dest: {}[]):void{
-        for (const port of src){
-            dest.push(Field.toJson(port));
-        }
     }
 
     private static addPortToEmbeddedApplication(node: Node, port: Field, input: boolean, errorsWarnings: Errors.ErrorsWarnings, generateKeyFunc: () => number){
