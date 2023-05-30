@@ -1,12 +1,6 @@
 import { Selector } from 'testcafe';
 import page from './page-model';
 
-/*
-    run with:
-
-    testcafe chrome tests/edit-node-parameter.js
-*/
-
 const NEW_PALETTE_NAME = "new.palette";
 const DUMMY_VALUE = "02348562";
 
@@ -17,7 +11,7 @@ test('Edit node parameter', async t =>{
     await t
         // wait for the page to settle down
         .wait(3000)
-
+        
         // open settings modal
         .click('#settings')
 
@@ -49,16 +43,4 @@ test('Edit node parameter', async t =>{
 
         // check that a file node has been created
         .expect(Selector("#nodeNameValue").value).eql("HelloWorldApp")
-
-        // click the header for the parameters section
-        .click(Selector('#inspectorComponentParamsHeading'))
-
-        // edit first parameter in the node inspector
-        .typeText(Selector('#field1'), DUMMY_VALUE, {replace: true})
-
-        // check that first parameter was updated
-        .expect(Selector("#field1").value).eql(DUMMY_VALUE)
-
-        // end
-        .wait(3000);
 });
