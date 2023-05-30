@@ -80,7 +80,7 @@
                 <!-- Category -->
                 <div class="input-group mb-1">
                     <div class="input-group-prepend">
-                        <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Category</span>
+                        <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'NOTE: changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category'" data-bs-placement="left">Category</span>
                     </div>
                     <select class="form-control" id="nodeInspectorCategorySelect" data-bind="value: $data.category, options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategory(event)}}, valueAllowUnset: true, disabled: $data.isLocked()"></select>
                 </div>
@@ -98,7 +98,7 @@
                 <!-- node port multiplicity -->
                 <div class="input-group mb-1">
                     <div class="input-group-prepend">
-                        <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Port Multiplicity</span>
+                        <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'Port Multiplicity'" data-bs-placement="left">Port Multiplicity</span>
                     </div>
                     <input type="number" disabled class="form-control" id="nodePortMultiplicity" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $root.logicalGraph().findMultiplicity($data)">
                 </div>
