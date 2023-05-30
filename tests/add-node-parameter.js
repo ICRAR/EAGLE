@@ -1,4 +1,5 @@
 import { Selector, ClientFunction } from 'testcafe';
+import page from './page-model';
 
 /*
     run with:
@@ -41,22 +42,7 @@ test('Add node parameter with usage InputPort', async t =>{
     
     const numInputPortsBefore = await getNumInputPorts();
 
-    await t
-        // click the '+' button to add input port
-        .click('#nodeInspectorAddInputPort')
-
-        .wait(200)
-
-        // click the 'custom' option
-        .click('.nodeInspectorDropdownOption:nth-child(2)')
-
-        // add info to modal
-        .typeText(Selector('#editFieldModalDisplayTextInput'), FIELD_NAME)
-
-        // click OK on modal dialog
-        .click('#editFieldModalAffirmativeButton')
-
-        .wait(200);
+    await page.addField(FIELD_NAME,'', 'ApplicationArgument', 'InputPort')
 
     const numInputPortsAfter = await getNumInputPorts();
 

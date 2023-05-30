@@ -67,6 +67,7 @@ export class Eagle {
 
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
+    currentField :ko.Observable<Field>;
 
     static selectedRightClickObject : ko.Observable<any>;
     static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
@@ -132,6 +133,7 @@ export class Eagle {
 
         this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
+        this.currentField = ko.observable(null);
 
         Eagle.selectedRightClickObject = ko.observable();
         Eagle.selectedRightClickLocation = ko.observable(Eagle.FileType.Unknown);
@@ -3466,7 +3468,6 @@ export class Eagle {
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
-        $("#nodeInspectorAddInputPortDiv").show();
     }
 
     // Adds an output port to the selected node via HTML
@@ -3535,7 +3536,7 @@ export class Eagle {
 
     // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
     // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
-    nodeInspectorDropdownClick = (val:number, num:number, divID:string) : void => {
+    nodeInspectorDropdownClick = (val:number, divID:string) : void => {
         const selectSectionID : string = "fieldModalSelect";
         const modalID : string = "editFieldModal";
         const submitBtnID: string = "editFieldModalAffirmativeButton";
@@ -3558,9 +3559,11 @@ export class Eagle {
             // triggers the modal 'lightbox' to show
             $(".modal-backdrop").removeClass("forceHide");
         }else{
+            console.log('bop',this.selectedNode().getFields()[val].getDisplayText())
+            this.currentField(this.selectedNode().getFields()[val])
             $("#"+selectSectionID).val(val).trigger('change');
             $("#"+modalID).addClass("nodeSelected");
-            $("#"+modalID).removeClass("forceHide");
+            $("#"+modalID).removeClass("forceHide");   
             $(".modal-backdrop").removeClass("forceHide");
             $("#"+submitBtnID).click()
             this.hideDropDown(divID)
@@ -3878,7 +3881,7 @@ export class Eagle {
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
     editField = (node:Node, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, id: string) : void => {
-        console.log("editField", modalType, parameterType, usage, id);
+        // console.log("editField", modalType, parameterType, usage, id);
 
         // get field names list from the logical graph
         const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), parameterType);
@@ -3901,7 +3904,7 @@ export class Eagle {
 
             // show hide part of the UI appropriate for adding
             $("#addParameterWrapper").show();
-            $("#customParameterOptionsWrapper").hide();
+            // $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
             const field: Field = new Field(Utils.uuidv4(), "", "", "", "", false, Daliuge.DataType.Integer, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false);
@@ -3919,7 +3922,7 @@ export class Eagle {
                 if (choice === -1){
                     return;
                 }
-
+                console.log('choice: ', choice)
                 // hide the custom text input unless the first option in the select is chosen
                 if (choice === 0){
                     newField.setParameterType(parameterType);
@@ -3928,7 +3931,8 @@ export class Eagle {
                     node.addField(newField);
 
                 } else {
-                    const clone : Field = allFields[choice-1].clone();
+                    console.log('field: ',this.currentField().getDisplayText())
+                    const clone : Field = this.currentField().clone();
                     clone.setId(Utils.uuidv4());
                     clone.setParameterType(parameterType);
                     node.addField(clone);
@@ -3950,7 +3954,7 @@ export class Eagle {
             }
 
             $("#addParameterWrapper").hide();
-            $("#customParameterOptionsWrapper").show();
+            // $("#customParameterOptionsWrapper").show();
 
             Utils.requestUserEditField(this, Eagle.ModalType.Edit, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
