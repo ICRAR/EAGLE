@@ -327,24 +327,6 @@ export class Eagle {
         this.showDataNodes(!this.showDataNodes());
     }
 
-    inspectorToggleAll = () : void => {
-        if($('#inspectorAccordion .accordion-button:not(.collapsed)').length>0){
-            $('#inspectorAccordion .accordion-button:not(.collapsed)').click();
-            $("#inspectorCollapseStateIcon i").removeClass('openIcon')
-        }else{
-            $('#inspectorAccordion .accordion-button.collapsed').click();
-        }
-    }
-
-    inspectorCollapseState = () :void => {
-        if($('#inspectorAccordion .accordion-button:not(.collapsed)').length>0){
-            $("#inspectorCollapseStateIcon i").addClass('openIcon')
-        }else{
-            $("#inspectorCollapseStateIcon i").removeClass('openIcon')
-        }
-        
-    }
-
     toggleSnapToGrid = () : void => {
         this.snapToGrid(!this.snapToGrid());
 
