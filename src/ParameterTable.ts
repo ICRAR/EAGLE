@@ -1,9 +1,10 @@
 import * as ko from "knockout";
 
-import {Field} from './Field';
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
+import { Field } from './Field';
+import { Node } from "./Node";
 import { UiModeSystem } from "./UiModes";
+import { Utils } from './Utils';
 
 export class ParameterTable {
 
@@ -106,15 +107,15 @@ export class ParameterTable {
             }
             return eagle.selectedNode().isLocked()
         }else{
-            if(eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()) === null){
-                return false
+            if (field.getNode() === null){
+                return false;
             }
-            return eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()).isLocked()
+            return field.getNode().isLocked();
         }
     }
 
     fieldUsageChanged = (field: Field) : void => {
-        console.log("fieldUsageChanged", field.getUsage(), field.getNodeKey());
+        console.log("fieldUsageChanged", field.getDisplayText(), field.getUsage(), "on node", Node.getUniqueKey(field.getNode()));
         
         const eagle: Eagle = Eagle.getInstance();
         const edgesToRemove: string[] = [];

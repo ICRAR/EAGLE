@@ -165,7 +165,7 @@ export class Node {
 
         // go through all fields on this node, and make sure their nodeKeys are all updated, important for ports
         for (const field of this.fields()){
-            field.setNodeKey(key);
+            field.setNode(this);
         }
     }
 
@@ -1029,12 +1029,12 @@ export class Node {
 
     addField = (field : Field) : void => {
         this.fields.push(field);
-        field.setNodeKey(this.key());
+        field.setNode(this);
     }
 
     addFieldByIndex = (field : Field, i : number) : void => {
         this.fields.splice(i, 0, field);
-        field.setNodeKey(this.key());
+        field.setNode(this);
     }
 
     setGroupStart = (value: boolean) => {

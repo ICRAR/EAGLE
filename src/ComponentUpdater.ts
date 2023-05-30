@@ -65,7 +65,7 @@ export class ComponentUpdater {
             }
            
             // NOTE: we could just use a copy() function here if we had one
-            destField.copyWithKeyAndId(srcField, srcField.getNodeKey(), srcField.getId());
+            destField.copyWithNodeAndId(srcField, srcField.getNode(), srcField.getId());
         }
     }
 }

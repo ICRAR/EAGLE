@@ -2147,7 +2147,7 @@ export class Utils {
             tableData.push({
                 "id":field.getId(),
                 "displayText":field.getDisplayText(),
-                "nodeKey":field.getNodeKey(),
+                "node":Node.getUniqueKey(field.getNode()),
                 "type":field.getType(),
                 "parameterType":field.getParameterType(),
                 "usage":field.getUsage(),

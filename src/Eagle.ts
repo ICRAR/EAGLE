@@ -3958,8 +3958,8 @@ export class Eagle {
                     return;
                 }
 
-                // update field data (keep existing nodeKey and id)
-                field.copyWithKeyAndId(newField, field.getNodeKey(), field.getId());
+                // update field data (keep existing node and id)
+                field.copyWithNodeAndId(newField, field.getNode(), field.getId());
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");
