@@ -462,14 +462,6 @@ export class Field {
     }
 
     static toJson = (field : Field) : object => {
-        const linkKeys: string[] = [];
-
-        // build the linkKeys array first
-        for (let i = 0 ; i < field.links.length ; i++){
-            const link = field.links()[i];
-            linkKeys.push(Edge.getUniqueKey(i, link.getSrcNode(), link.getDestNode()));
-        }
-
         const result : any = {
             value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
@@ -483,7 +475,7 @@ export class Field {
             id: field.id(),
             parameterType: field.parameterType(),
             usage: field.usage(),
-            linkKeys: linkKeys
+            linkKeys: field.links().map(edge => Edge.getUniqueKey(edge)).join(',')
         }
 
         return result;

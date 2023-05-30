@@ -157,8 +157,8 @@ export class Edge {
         return result;
     }
 
-    static getUniqueKey = (index: number, srcNode: Node, destNode: Node): string => {
-        return (index + 1) + ":" + srcNode.getName() + srcNode.getKey() + ">>" + destNode.getName() + destNode.getKey();
+    static getUniqueKey = (edge: Edge): string => {
+        return edge.srcNode.getName() + edge.srcNode.getKey() + ":" + edge.srcPort.getDisplayText() + ">>" + edge.destNode.getName() + edge.destNode.getKey() + ":" + edge.destPort.getDisplayText();
     }
 
     static toAppRefJson = (edge : Edge, srcPort: Field, destPort: Field) : object => {

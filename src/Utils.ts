@@ -2087,9 +2087,11 @@ export class Utils {
         const eagle : Eagle = Eagle.getInstance();
 
         // add logical graph nodes to table
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (let i = 0 ; i < eagle.logicalGraph().getEdges().length; i++){
+            const edge = eagle.logicalGraph().getEdges()[i];
             tableData.push({
                 "_id":edge.getId(),
+                "uniqueKey":Edge.getUniqueKey(edge),
                 "sourceNodeKey":edge.getSrcNode().getKey(),
                 "sourcePortId":edge.getSrcPort().getId(),
                 "destNodeKey":edge.getDestNode().getKey(),
@@ -2155,7 +2157,7 @@ export class Utils {
                 "value":field.getValue(),
                 "defaultValue": field.getDefaultValue(),
                 "readonly":field.isReadonly(),
-                "links":field.getLinks().map(u => u.getId()).join(',')
+                "links":field.getLinks().map(edge => Edge.getUniqueKey(edge)).join(',')
             });
         }
 
