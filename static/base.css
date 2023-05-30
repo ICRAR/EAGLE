@@ -2325,6 +2325,12 @@ ul.nav.navbar-nav .dropdown-item:hover{
     background: rgba(255, 255, 255, 0.171);
 }
 
+#nodeInspectorHeading #nodeInspectorHeadingIcon{
+    position: absolute;
+    top: 3px;
+    right: 0px;
+}
+
 #inspectorAccordion .accordion-button::after {
     position: absolute;
     left: 1rem;
@@ -2417,6 +2423,17 @@ palette-component input.form-control.selected {
 
 #errorsModal ul.list-group .list-group-item span {
     max-width: 80%;
+}
+
+#nodeInspectorErrorsCard{
+    background: transparent;
+    border: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+#nodeInspectorErrorsCard .card-body{
+    padding:0px;
 }
 
 #nodeInspectorErrorsCard fix .alert {

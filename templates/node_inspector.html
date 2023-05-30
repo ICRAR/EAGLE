@@ -19,6 +19,7 @@
                         <i class="material-icons md-24" data-bind="class: $data.getIcon()"></i>
                     </div>
                     <span data-bind="text: $data.getName(), eagleTooltip: $root.getInspectorHeadingTooltip($data.getName(), $data.getCategory(),$data.description())"></span>
+                    <i class="material-icons interactive me-3" id="nodeInspectorHeadingIcon" data-bs-placement="left" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">code</i>
                 </div>
                 
                 
@@ -112,12 +113,7 @@
                     <span>Description</span>    
                     <div data-bind="html: $data.getDescriptionHTML()"></div>
                 </div>
-
-                <!-- git info -->
-                <div id="inspectorNodeGitInfoWrapper" class="mb-1 inspectorTextBoxWrapper">
-                    <span>Source Information</span>    
-                    <div data-bind="html: $data.getGitHTML()"></div>
-                </div>
+                
             </div>
 
             <!-- open parameter table  -->
