@@ -662,6 +662,11 @@ td:first-child input {
     border-color: #0059a5;
 }
 
+.rightWindow .btn-primary:hover, .leftWindow .btn-primary:hover {
+    background-color: #002f57;
+    border-color: #002f57;
+}
+
 .rightWindow .rightWindowHandle {
     position: absolute;
     width: 48px;
@@ -2295,22 +2300,24 @@ ul.nav.navbar-nav .dropdown-item:hover{
     position:relative;
 }
 
-#inspectorNodeDescriptionWrapper{
+.inspectorTextBoxWrapper{
     position: relative;
     border-radius: 3px; 
     overflow: hidden;
 }
 
-#inspectorNodeDescriptionWrapper span{
+.inspectorTextBoxWrapper span{
     background-color: #e9ecef;
     width: 100%;
     display: inline-block;
     padding: 5px;
 }
 
-#inspectorNodeDescriptionWrapper div{
+.inspectorTextBoxWrapper div{
     background-color: white;
     padding: 5px;
+    max-height: 500px;
+    overflow-y: auto;
 }
 
 #inspectorHeaderIconRow{
