@@ -2155,7 +2155,7 @@ export class Utils {
                 "value":field.getValue(),
                 "defaultValue": field.getDefaultValue(),
                 "readonly":field.isReadonly(),
-                "links":field.getLinks().join(',')
+                "links":field.getLinks().map(u => u.getId()).join(',')
             });
         }
 

@@ -242,6 +242,8 @@ export class LogicalGraph {
             }
 
             result.edges.push(edge);
+            edge.getSrcPort().addLink(edge);
+            edge.getDestPort().addLink(edge);
         }
 
         return result;
@@ -367,6 +369,8 @@ export class LogicalGraph {
             }
 
             result.edges.push(newEdge);
+            newEdge.getSrcPort().addLink(newEdge);
+            newEdge.getDestPort().addLink(newEdge);
         }
 
         // check for missing name

@@ -1086,22 +1086,8 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                         Utils.showNotification("Automatically reversed edge direction", "The edge began at an input port and ended at an output port, so the direction was reversed.", "info");
                                     }
 
-                                    // create temporary edge
-                                    const edge = new Edge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, true, false);
-
-                                    // check if link is valid
-                                    const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge, true, true, {errors:[], warnings:[]});
-
-                                    // abort if edge is invalid
-                                    if (Setting.findValue(Setting.ALLOW_INVALID_EDGES) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
-                                        if (linkValid === Eagle.LinkValid.Warning){
-                                            addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
-                                        } else {
-                                            addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, false, false);
-                                        }
-                                    } else {
-                                        console.warn("link not valid, result", linkValid);
-                                    }
+                                    // add edge
+                                    addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort);
                                 } else {
                                     // no destination, ask user to choose a new node
                                     const dataEligible = sourceNode.getCategoryType() !== Category.Type.Data;
@@ -1151,9 +1137,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
 
                                                     // create edge (in correct direction)
                                                     if (!sPortIsInput){
-                                                        addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false);
+                                                        addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort);
                                                     } else {    
-                                                        addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false);
+                                                        addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort);
                                                     }
                                                 },'');
                                             });
@@ -3330,9 +3316,35 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         }
     }
 
-    function addEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean) : void {
+    function addEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field) : void {
+        console.log("addEdge()", Node.getUniqueKey(srcNode), "->", Node.getUniqueKey(destNode));
+
+        // abort if srcPort connects to itself
         if (srcPort.getId() === destPort.getId()){
-            console.warn("Abort addLink() from port to itself!");
+            console.warn("Abort addEdge() from port to itself!");
+            return;
+        }
+
+        // create temporary edge
+        const edge = new Edge(srcNode, srcPort, destNode, destPort, false, false, false);
+
+        // check if temporary edge is valid
+        const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge, true, true, {errors:[], warnings:[]});
+        console.log("linkValid", linkValid);
+
+        let loopAware: boolean = false;
+        const closesLoop: boolean = false;
+
+        // abort if edge is invalid
+        if (Setting.findValue(Setting.ALLOW_INVALID_EDGES) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
+
+            // if link has a warning, try loopAware true
+            // NOTE: this hack was in the code before I touched it, I'm not sure why loopAware should be true for ANY warning, seems imprecise
+            if (linkValid === Eagle.LinkValid.Warning){
+                loopAware = true;
+            }
+        } else {
+            console.warn("link not valid, result", linkValid);
             return;
         }
 
