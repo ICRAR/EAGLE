@@ -228,18 +228,6 @@ export class Eagle {
         return false;
     }
 
-    static selectedNodeGraph = () : LogicalGraph => {
-        const eagle: Eagle = Eagle.getInstance();
-
-        for (const node of eagle.logicalGraph().getNodes()){
-            if (Node.match(node, eagle.selectedNode())){
-                return eagle.logicalGraph();
-            }
-        }
-        
-        return null;
-    }
-
     static selectedNodePalette = () : Palette => {
         const eagle : Eagle = Eagle.getInstance();
 
