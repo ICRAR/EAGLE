@@ -4332,64 +4332,73 @@ export class Eagle {
         return Utils.getCategoriesWithInputsAndOutputs(categoryType, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
     }, this)
 
+    inspectorChangeNodeCategoryRequest = (event:any) : void => {
+
+        if (Setting.findValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES)){
+
+            // request confirmation from user
+            Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", (confirmed : boolean) : void => {
+                if (!confirmed){
+                    //we need to reset the input select to the previous value
+                    $(event.target).val(this.selectedNode().getCategory())
+                    return;
+                }
+                this.inspectorChangeNodeCategory(event)
+            });
+        }else{
+            this.inspectorChangeNodeCategory(event)
+        }
+    }
+
     inspectorChangeNodeCategory = (event:any) : void => {
         const newNodeCategory: Category = $(event.target).val() as Category
 
-        // request confirmation from user
-        Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", (confirmed : boolean) : void => {
-            if (!confirmed){
-                //we need to reset the input select to the previous value
-                $(event.target).val(this.selectedNode().getCategory())
-                return;
+        this.selectedNode().setCategory(newNodeCategory)
+
+        // once the category is changed, some things about the node may no longer be valid
+        // for example, the node may contain ports, but no ports are allowed
+
+        // get category data
+        const categoryData = CategoryData.getCategoryData(newNodeCategory);
+
+        // delete parameters, if necessary
+        if (this.selectedNode().getComponentParameters().length > 0 && !categoryData.canHaveComponentParameters){
+            this.selectedNode().removeAllComponentParameters();
+        }
+
+        // delete application args, if necessary
+        if (this.selectedNode().getApplicationArguments().length > 0 && !categoryData.canHaveApplicationArguments){
+            this.selectedNode().removeAllApplicationArguments();
+        }
+
+        // delete extra input ports
+        if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
+            for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
+                this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
             }
-            
-            this.selectedNode().setCategory(newNodeCategory)
+        }
 
-            // once the category is changed, some things about the node may no longer be valid
-            // for example, the node may contain ports, but no ports are allowed
-
-            // get category data
-            const categoryData = CategoryData.getCategoryData(newNodeCategory);
-
-            // delete parameters, if necessary
-            if (this.selectedNode().getComponentParameters().length > 0 && !categoryData.canHaveComponentParameters){
-                this.selectedNode().removeAllComponentParameters();
+        // delete extra output ports
+        if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
+            for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
+                this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
             }
+        }
 
-            // delete application args, if necessary
-            if (this.selectedNode().getApplicationArguments().length > 0 && !categoryData.canHaveApplicationArguments){
-                this.selectedNode().removeAllApplicationArguments();
-            }
+        // delete input application, if necessary
+        if (this.selectedNode().hasInputApplication() && !categoryData.canHaveInputApplication){
+            this.selectedNode().setInputApplication(null);
+        }
 
-            // delete extra input ports
-            if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
-                for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
-                }
-            }
+        // delete output application, if necessary
+        if (this.selectedNode().hasOutputApplication() && !categoryData.canHaveOutputApplication){
+            this.selectedNode().setOutputApplication(null);
+        }
 
-            // delete extra output ports
-            if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
-                for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
-                }
-            }
-
-            // delete input application, if necessary
-            if (this.selectedNode().hasInputApplication() && !categoryData.canHaveInputApplication){
-                this.selectedNode().setInputApplication(null);
-            }
-
-            // delete output application, if necessary
-            if (this.selectedNode().hasOutputApplication() && !categoryData.canHaveOutputApplication){
-                this.selectedNode().setOutputApplication(null);
-            }
-
-            this.flagActiveFileModified();
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Edit Node Category");
-            this.logicalGraph.valueHasMutated();
-        });
+        this.flagActiveFileModified();
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Edit Node Category");
+        this.logicalGraph.valueHasMutated();
     }
     
     // NOTE: clones the node internally
