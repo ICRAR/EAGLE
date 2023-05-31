@@ -573,7 +573,6 @@ export class Node {
     }
 
     setCategory = (category: Category): void => {
-        console.log('Node.setCategory()', category)
         this.category(category);
         this.color(Utils.getColorForNode(category));
     }
