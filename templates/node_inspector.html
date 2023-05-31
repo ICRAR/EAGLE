@@ -42,17 +42,17 @@
                         <!-- /ko -->
                     </div>
                     <div class="col-6 text-right">
-                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
+                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                         <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
                             <i  class="material-icons md-20">content_copy</i>
                         </button>
                         <!-- /ko -->
-                        <!-- ko if: Eagle.allowPaletteEditing() -->
+                        <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                         <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
                             <i  class="material-icons md-20">library_add</i>
                         </button>
                         <!-- /ko -->
-                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
+                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                         <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection('',false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
                             <i class="material-icons md-20">delete</i>
                         </button>
@@ -130,9 +130,10 @@
             <!-- /ko -->
         </div>
 
-        <!-- ko if: Eagle.showInspectorErrorsWarnings() -->
+        <!-- ko if: Setting.showInspectorErrorsWarnings() -->
             <div class="card pt-2" id="nodeInspectorErrorsCard">
                 <div class="card-body">
+<<<<<<< HEAD
                     <!-- ko if: Eagle.showInspectorErrors() -->
                         <!-- ko for: selectedNode().getErrorsWarnings($root) -->
                             <!-- ko if: $data.level === ActionMessage.Level.Error -->
@@ -143,6 +144,16 @@
                     <!-- ko if: Eagle.showInspectorWarnings() -->
                         <!-- ko for: selectedNode().getErrorsWarnings($root) -->
                             <!-- ko if: $data.level === ActionMessage.Level.Warning -->
+=======
+                    <!-- ko with: selectedNode().getErrorsWarnings($root) -->
+                        <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) != Setting.ShowErrorsMode.None -->
+                            <!-- ko foreach: errors -->
+                                <fix params="data: $data, isError: true"></fix>
+                            <!-- /ko -->
+                        <!-- /ko -->
+                        <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings -->
+                            <!-- ko foreach: warnings -->
+>>>>>>> master
                                 <fix params="data: $data, isError: false"></fix>
                             <!-- /ko -->
                         <!-- /ko -->

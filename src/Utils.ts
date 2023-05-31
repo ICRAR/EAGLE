@@ -26,14 +26,13 @@ import * as Ajv from "ajv";
 import * as Showdown from "showdown";
 import * as ko from "knockout";
 
-import { ActionMessage } from "./ActionMessage";
+import { ActionMessage } from "./Action";
 import {Category} from './Category';
 import {CategoryData} from "./CategoryData";
 import { ComponentUpdater } from "./ComponentUpdater";
-import {Config} from './Config';
+import {Daliuge} from './Daliuge';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
-import { Errors } from "./Errors";
 import {Field} from './Field';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {LogicalGraph} from './LogicalGraph';
@@ -42,9 +41,9 @@ import {Palette} from './Palette';
 import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
-import {ParameterTable} from './ParameterTable';
 import {FileInfo} from "./FileInfo";
 import { RepositoryFile } from "./RepositoryFile";
+import { UiModeSystem } from "./UiModes";
 
 export class Utils {
     // Allowed file extenstions.
@@ -271,43 +270,43 @@ export class Utils {
 
     static dataTypePrefix(dataType: string): string {
         if (typeof dataType === 'undefined'){
-            return Eagle.DataType_Unknown;
+            return Daliuge.DataType.Unknown;
         }
 
         return dataType.split(".")[0];
     }
 
     static translateStringToDataType(dataType: string): string {
-        for (const dt of Eagle.DataTypes){
+        for (const dt of Utils.enumKeys(Daliuge.DataType)){
             if (dt.toLowerCase() === dataType.toLowerCase()){
                 return dt;
             }
         }
         
         console.warn("Unknown DataType", dataType);
-        return Eagle.DataType_Unknown;
+        return Daliuge.DataType.Unknown;
     }
 
-    static translateStringToParameterType(parameterType: string): Eagle.ParameterType {
-        for (const pt of Object.values(Eagle.ParameterType)){
+    static translateStringToParameterType(parameterType: string): Daliuge.FieldType {
+        for (const pt of Object.values(Daliuge.FieldType)){
             if (pt.toLowerCase() === parameterType.toLowerCase()){
                 return pt;
             }
         }
 
         console.warn("Unknown ParameterType", parameterType);
-        return Eagle.ParameterType.Unknown;
+        return Daliuge.FieldType.Unknown;
     }
 
-    static translateStringToParameterUsage(parameterUsage: string): Eagle.ParameterUsage {
-        for (const pu of Object.values(Eagle.ParameterUsage)){
+    static translateStringToParameterUsage(parameterUsage: string): Daliuge.FieldUsage {
+        for (const pu of Object.values(Daliuge.FieldUsage)){
             if (pu.toLowerCase() === parameterUsage.toLowerCase()){
                 return pu;
             }
         }
 
         console.warn("Unknown ParameterUsage", parameterUsage);
-        return Eagle.ParameterUsage.NoPort;
+        return Daliuge.FieldUsage.NoPort;
     }
     
     static httpGet(url : string, callback : (error : string, data : string) => void) : void {
@@ -323,7 +322,7 @@ export class Utils {
     }
 
     static httpGetJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
-        console.log("httpGetJSON() : ", url);
+        // console.log("httpGetJSON() : ", url);
         $.ajax({
             url : url,
             type : 'GET',
@@ -355,7 +354,7 @@ export class Utils {
     }
 
     static httpPostJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
-        console.log("httpPostJSON() : ", url);
+        // console.log("httpPostJSON() : ", url);
         $.ajax({
             url : url,
             type : 'POST',
@@ -375,7 +374,7 @@ export class Utils {
     }
 
     static httpPostJSONString(url : string, jsonString : string, callback : (error : string, data : string) => void) : void {
-        console.log("httpPostJSON() : ", url);
+        // console.log("httpPostJSONString() : ", url);
         $.ajax({
             url : url,
             type : 'POST',
@@ -395,7 +394,7 @@ export class Utils {
     }
 
     static httpPostForm(url : string, formData : FormData, callback : (error : string, data : string) => void) : void {
-        console.log("httpPostForm() : ", url);
+        // console.log("httpPostForm() : ", url);
 
         $.ajax({
             url : url,
@@ -410,24 +409,6 @@ export class Utils {
                 callback(error + " " + xhr.responseText, null);
             }
         });
-    }
-
-    /**
-     * Returns true if the node parameter is an (Arg01...Arg10)-argument.
-     */
-    static isParameterArgument(parameterName : string) : boolean {
-        // Regular expression for Arg01...Arg10 parameters.
-        const re : RegExp = /Arg\d\d$/;
-        return re.test(parameterName);
-    }
-
-    static showParameter(name : string, value: string) : boolean {
-        if (Utils.isParameterArgument(name)){
-            // return true if we find a '='
-            return value.indexOf('=') !== -1;
-        } else {
-            return true;
-        }
     }
 
     static fieldTextToFieldName(text : string) : string {
@@ -446,7 +427,7 @@ export class Utils {
     }
 
     static showUserMessage (title : string, message : string) : void {
-        console.log("showUserMessage()", title, message);
+        // console.log("showUserMessage()", title, message);
 
         $('#messageModalTitle').text(title);
         $('#messageModalMessage').html(message);
@@ -504,7 +485,7 @@ export class Utils {
     }
 
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, callback : (completed : boolean, userString : string) => void ) : void {
-        console.log("requestUserString()", title, message);
+        // console.log("requestUserString()", title, message);
 
         $('#inputModalTitle').text(title);
         $('#inputModalMessage').html(message);
@@ -522,7 +503,7 @@ export class Utils {
     }
 
     static requestUserText(title : string, message : string, defaultText: string, callback : (completed : boolean, userText : string) => void) : void {
-        console.log("requestUserText()", title, message);
+        // console.log("requestUserText()", title, message);
 
         $('#inputTextModalTitle').text(title);
         $('#inputTextModalMessage').html(message);
@@ -538,7 +519,7 @@ export class Utils {
     }
 
     static requestUserNumber(title : string, message : string, defaultNumber: number, callback : (completed : boolean, userNumber : number) => void ) : void {
-        console.log("requestUserNumber()", title, message);
+        // console.log("requestUserNumber()", title, message);
 
         $('#inputModalTitle').text(title);
         $('#inputModalMessage').html(message);
@@ -554,7 +535,7 @@ export class Utils {
     }
 
     static requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ) : void {
-        console.log("requestUserChoice()", title, message, choices, selectedChoiceIndex, allowCustomChoice, customChoiceText);
+        // console.log("requestUserChoice()", title, message, choices, selectedChoiceIndex, allowCustomChoice, customChoiceText);
 
         $('#choiceModalTitle').text(title);
         $('#choiceModalMessage').html(message);
@@ -599,7 +580,7 @@ export class Utils {
     }
 
     static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, callback : (confirmed : boolean) => void ) : void {
-        console.log("requestUserConfirm()", title, message, affirmativeAnswer, negativeAnswer);
+        // console.log("requestUserConfirm()", title, message, affirmativeAnswer, negativeAnswer);
 
         $('#confirmModalTitle').text(title);
         $('#confirmModalMessage').html(message);
@@ -612,7 +593,7 @@ export class Utils {
     }
 
     static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
-        console.log("requestUserGitCommit()");
+        // console.log("requestUserGitCommit()");
 
         $('#gitCommitModal').data('completed', false);
         $('#gitCommitModal').data('callback', callback);
@@ -642,188 +623,13 @@ export class Utils {
 
         Utils.updateGitCommitRepositoriesList(repositories, defaultRepository);
 
-        // pre-selected the currently selected index
-        //$('#gitCommitModalRepositorySelect').val(selectedChoiceIndex);
-
         $('#gitCommitModalFilePathInput').val(filePath);
         $('#gitCommitModalFileNameInput').val(fileName);
     }
 
-    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Eagle.ParameterType, parameterUsage: Eagle.ParameterUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
-        let dropDownKO;
-        let divID;
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
 
-        // determine which dropdown menu should be filled with appropriate items
-        switch(parameterType){
-            case Eagle.ParameterType.ApplicationArgument:
-                dropDownKO = $("#nodeInspectorApplicationParamDropDownKO")
-                divID = "nodeInspectorAddApplicationParamDiv";
-                break;
-            case Eagle.ParameterType.ComponentParameter:
-                dropDownKO = $("#nodeInspectorFieldDropDownKO");
-                divID = "nodeInspectorAddFieldDiv";
-                break;
-            case Eagle.ParameterType.ConstructParameter:
-                dropDownKO = $("#nodeInspectorConstructParameterDropDownKO");
-                divID = "nodeInspectorAddConstructParameterDiv";
-                break;
-            default:
-            console.error("Unknown parameter type");
-        }
-
-        // or if we are a port, then use different dropdowns
-        switch(parameterUsage){
-            case Eagle.ParameterUsage.InputPort:
-            dropDownKO = $("#nodeInspectorInputPortDropDownKO");
-            divID = "nodeInspectorAddInputPortDiv";
-            break;
-            case Eagle.ParameterUsage.OutputPort:
-            dropDownKO = $("#nodeInspectorOutputPortDropDownKO");
-            divID = "nodeInspectorAddOutputPortDiv";
-            break;
-        }
-
-        if (modalType === Eagle.ModalType.Add){
-            // remove existing options from the select tag
-            $('#fieldModalSelect').empty();
-            dropDownKO.empty();
-
-            // add empty choice
-            $('#fieldModalSelect').append($('<option>', {
-                value: -1,
-                text: ""
-            }));
-            dropDownKO.append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick(-1, "+choices.length+",'" + divID + "')}",
-                value: -1,
-                text: ""
-            }));
-
-            // add custom choice first
-            $('#fieldModalSelect').append($('<option>', {
-                value: 0,
-                text: "<Custom>"
-            }));
-            dropDownKO.append($('<a>', {
-                href: "#",
-                class: "nodeInspectorDropdownOption",
-                "data-bind":"click:function(){nodeInspectorDropdownClick("+0+", "+choices.length+",'" + divID + "')}",
-                value: 0,
-                text: "<Custom>"
-            }));
-
-            // add options to the modal select tag
-            for (let i = 0 ; i < choices.length ; i++){
-                $('#fieldModalSelect').append($('<option>', {
-                    value: i+1,
-                    text: choices[i]
-                }));
-                dropDownKO.append($('<a>', {
-                    href: "#",
-                    class: "nodeInspectorDropdownOption",
-                    "data-bind":"click:function(){nodeInspectorDropdownClick("+(i+1)+", "+choices.length+",'" + divID + "')}",
-                    value: i+1,
-                    text: choices[i]
-                }));
-            }
-
-            //applying knockout bindings for the new buttons generated above
-            ko.cleanNode(dropDownKO[0]);
-            ko.applyBindings(eagle, dropDownKO[0]);
-
-            // set the type/usage of the new field to match the details requested by the user
-            field.setParameterType(parameterType);
-            field.setUsage(parameterUsage);
-        }
-
-        // populate UI with current field data
-        $('#editFieldModalDisplayTextInput').val(field.getDisplayText());
-        $('#editFieldModalIdTextInput').val(field.getIdText());
-        $('#editFieldModalValueInputText').val(field.getValue());
-        $('#editFieldModalValueInputNumber').val(field.getValue());
-        $('#editFieldModalValueInputCheckbox').prop('checked', Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
-        $('#editFieldModalValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
-        $('#editFieldModalValueInputSelect').empty();
-        for (const option of field.getOptions()){
-            $('#editFieldModalValueInputSelect').append($('<option>', {
-                value: option,
-                text: option,
-                selected: field.getValue() === option
-            }));
-        }
-
-        $('#editFieldModalDefaultValueInputText').val(field.getDefaultValue());
-        $('#editFieldModalDefaultValueInputNumber').val(field.getDefaultValue());
-        $('#editFieldModalDefaultValueInputCheckbox').prop('checked', Field.stringAsType(field.getDefaultValue(), Eagle.DataType_Boolean));
-        $('#editFieldModalDefaultValueInputCheckbox').parent().find("span").text(Field.stringAsType(field.getValue(), Eagle.DataType_Boolean));
-        $('#editFieldModalDefaultValueInputSelect').empty();
-        for (const option of field.getOptions()){
-            $('#editFieldModalDefaultValueInputSelect').append($('<option>', {
-                value: option,
-                text: option,
-                selected: field.getDefaultValue() === option
-            }));
-        }
-
-        // set accessibility state checkbox
-        $('#editFieldModalAccessInputCheckbox').prop('checked', field.isReadonly());
-
-        // set accessibility state checkbox
-        $('#editFieldModalKeyParameterCheckbox').prop('checked', field.isKeyAttribute());
-
-        // set positional argument checkbox
-        $('#editFieldModalPositionalInputCheckbox').prop('checked', field.isPositionalArgument());
-
-        $('#editFieldModalDescriptionInput').val(field.getDescription());
-
-        $('#editFieldModalTypeInput').val(field.getType());
-
-
-        // delete all options, then iterate through the values in the Eagle.DataType enum, adding each as an option to the select
-        $('#editFieldModalTypeSelect').empty();
-        for (const dataType of eagle.types()){
-            const li = $('<li></li>');
-            const a = $('<a class="dropdown-item" href="#">' + dataType + '</a>');
-
-            a.attr("href", "javascript:eagle.editFieldDropdownClick('" + dataType + "','" + field.getType() + "');");
-
-            if (Utils.dataTypePrefix(field.getType()) === dataType){
-                a.addClass("active");
-            }
-
-            // add to the html
-            li.append(a);
-            $('#editFieldModalTypeSelect').append(li);
-        }
-
-        // delete all options, then iterate through the values in the Eagle.ParameterType enum, adding each as an option to the select
-        $('#editFieldModalParameterTypeSelect').empty();
-        for (const ft of [Eagle.ParameterType.ComponentParameter, Eagle.ParameterType.ApplicationArgument, Eagle.ParameterType.ConstructParameter]){
-            $('#editFieldModalParameterTypeSelect').append(
-                $('<option>', {
-                    value: ft,
-                    text: ft,
-                    selected: field.getParameterType() === ft
-                })
-            );
-        }
-
-        // delete all options, then iterate through the values in the Eagle.ParameterUsage enum, adding each as an option to the select
-        $('#editFieldModalParameterUsageSelect').empty();
-        for (const pu of Object.values(Eagle.ParameterUsage)){
-            $('#editFieldModalParameterUsageSelect').append(
-                $('<option>', {
-                    value: pu,
-                    text: pu,
-                    selected: field.getUsage() === pu
-                })
-            );
-        }
-
-
-        $('#editFieldModalPreciousInputCheckbox').prop('checked', field.isPrecious());
+        eagle.currentField(field)
 
         $('#editFieldModal').data('completed', false);
         $('#editFieldModal').data('callback', callback);
@@ -833,7 +639,6 @@ export class Utils {
     }
 
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void) : void {
-        console.log("requestUserAddCustomRepository()");
 
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
         $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
@@ -908,7 +713,7 @@ export class Utils {
     static showOpenParamsTableModal(mode:string) : void {
         const eagle: Eagle = Eagle.getInstance();
         eagle.tableModalType(mode)
-        $('#parameterTableModal').modal("toggle");
+        $('#parameterTableModal').modal("show");
     }
 
     static showShortcutsModal() : void {
@@ -931,10 +736,9 @@ export class Utils {
             return;
         }
 
-        // Add parameters in json data.
-        // TODO: make repository and branch settings, or at least config options
+        // add parameters in json data
         const jsonData = {
-            repository: Config.DEFAULT_PALETTE_REPOSITORY,
+            repository: Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY),
             branch: "master",
             token: token,
         };
@@ -1047,7 +851,7 @@ export class Utils {
             for (const port of srcNode.getOutputPorts()){
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
-                    text: port.getIdText(),
+                    text: port.getDisplayText(),
                     selected: edge.getSrcPortId() === port.getId()
                 }));
             }
@@ -1105,7 +909,7 @@ export class Utils {
             for (const port of destNode.getInputPorts()){
                 $('#editEdgeModalDestPortIdSelect').append($('<option>', {
                     value: port.getId(),
-                    text: port.getIdText(),
+                    text: port.getDisplayText(),
                     selected: edge.getDestPortId() === port.getId()
                 }));
             }
@@ -1126,14 +930,14 @@ export class Utils {
                 // add input port names into the list
                 for (const port of node.getInputPorts()) {
                     if (!port.getIsEvent()){
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // add output port names into the list
                 for (const port of node.getOutputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
             }
@@ -1144,14 +948,14 @@ export class Utils {
             // add input port names into the list
             for (const port of node.getInputPorts()) {
                 if (!port.getIsEvent()){
-                    Utils._addPortIfUnique(uniquePorts, port.clone());
+                    Utils._addFieldIfUnique(uniquePorts, port.clone());
                 }
             }
 
             // add output port names into the list
             for (const port of node.getOutputPorts()) {
                 if (!port.getIsEvent()) {
-                    Utils._addPortIfUnique(uniquePorts, port.clone());
+                    Utils._addFieldIfUnique(uniquePorts, port.clone());
                 }
             }
 
@@ -1160,14 +964,14 @@ export class Utils {
                 // input ports
                 for (const port of node.getInputApplication().getInputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
                 for (const port of node.getInputApplication().getOutputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
             }
@@ -1177,14 +981,14 @@ export class Utils {
                 // input ports
                 for (const port of node.getOutputApplication().getInputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
                 for (const port of node.getOutputApplication().getOutputPorts()) {
                     if (!port.getIsEvent()) {
-                        Utils._addPortIfUnique(uniquePorts, port.clone());
+                        Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
             }
@@ -1194,7 +998,7 @@ export class Utils {
     }
 
     static getDataComponentsWithPortTypeList(palettes: Palette[], ineligibleCategories: Category[]) : Node[] {
-        console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
+        // console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
 
         const result: Node[] = [];
 
@@ -1226,7 +1030,7 @@ export class Utils {
     }
 
     static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
-        console.log("getDataComponentsWithInputsAndOutputs");
+        // console.log("getDataComponentsWithInputsAndOutputs");
 
         const result: Node[] = [];
 
@@ -1337,19 +1141,6 @@ export class Utils {
         return result;
     }
 
-    private static _addPortIfUnique = (ports : Field[], port: Field) : void => {
-
-        // check if the new port matches an existing port (by name and type), if so, abort
-        for (const p of ports){
-            if (p.getIdText() === port.getIdText() && p.getType() === port.getType()){
-                return;
-            }
-        }
-
-        // otherwise add the port
-        ports.push(port);
-    }
-
     static addTypeIfUnique = (types: string[], newType: string) : void => {
         for (const t of types){
             if (t === newType){
@@ -1378,7 +1169,7 @@ export class Utils {
     /**
      * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, parameterType: Eagle.ParameterType) : Field[] => {
+    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, parameterType: Daliuge.FieldType) : Field[] => {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
@@ -1397,7 +1188,7 @@ export class Utils {
     private static _addFieldIfUnique = (fields : Field[], field: Field) : void => {
         // check if the new field matches an existing field (by name and type), if so, abort
         for (const f of fields){
-            if (f.getIdText() === field.getIdText() && f.getType() === field.getType()){
+            if (f.getDisplayText() === field.getDisplayText() && f.getType() === field.getType()){
                 return;
             }
         }
@@ -1457,35 +1248,21 @@ export class Utils {
     }
 
     static getRightWindowWidth() : number {
-        // try localStorage first
-        const local : string = localStorage.getItem(Setting.RIGHT_WINDOW_WIDTH_KEY);
-
-        // if found, return
-        if (local !== null){
-            return parseInt(local, 10);
-        } else {
-            return Config.defaultRightWindowWidth;
-        }
+        return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH_KEY)
     }
 
     static setRightWindowWidth(width : number) : void {
-        localStorage.setItem(Setting.RIGHT_WINDOW_WIDTH_KEY, width.toString());
+        Setting.find(Setting.RIGHT_WINDOW_WIDTH_KEY).setValue(width)
+        UiModeSystem.saveToLocalStorage()
     }
 
     static getLeftWindowWidth() : number {
-        // try localStorage first
-        const local : string = localStorage.getItem(Setting.LEFT_WINDOW_WIDTH_KEY);
-
-        // if found, return
-        if (local !== null){
-            return parseInt(local, 10);
-        } else {
-            return Config.defaultLeftWindowWidth;
-        }
+        return Setting.findValue(Setting.LEFT_WINDOW_WIDTH_KEY)
     }
 
     static setLeftWindowWidth(width : number) : void {
-        localStorage.setItem(Setting.LEFT_WINDOW_WIDTH_KEY, width.toString());
+        Setting.find(Setting.LEFT_WINDOW_WIDTH_KEY).setValue(width)
+        UiModeSystem.saveToLocalStorage()
     }
 
     static getLocalStorageKey(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
@@ -1540,18 +1317,18 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static determineSchemaVersion(data: any): Eagle.DALiuGESchemaVersion {
+    static determineSchemaVersion(data: any): Daliuge.SchemaVersion {
         // appref
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
-                if (data.modelData.schemaVersion === Eagle.DALiuGESchemaVersion.OJS){
-                    return Eagle.DALiuGESchemaVersion.OJS;
+                if (data.modelData.schemaVersion === Daliuge.SchemaVersion.OJS){
+                    return Daliuge.SchemaVersion.OJS;
                 }
                 return data.modelData.schemaVersion;
             }
         }
 
-        return Eagle.DALiuGESchemaVersion.Unknown;
+        return Daliuge.SchemaVersion.Unknown;
     }
 
     static portsMatch(port0: Field, port1: Field){
@@ -1620,21 +1397,21 @@ export class Utils {
         return errors;
     }
 
-    static validateJSON(json : object, version : Eagle.DALiuGESchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
-        console.log("validateJSON(): version:", version, " fileType:", fileType);
+    static validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
+        // console.log("validateJSON(): version:", version, " fileType:", fileType);
 
         const ajv = new Ajv();
         let valid : boolean;
 
         switch(version){
-            case Eagle.DALiuGESchemaVersion.OJS:
+            case Daliuge.SchemaVersion.OJS:
                 switch(fileType){
                     case Eagle.FileType.Graph:
                     case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
                         break;
                     default:
-                        console.log("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
                         valid = true;
                         break;
                 }
@@ -1656,27 +1433,11 @@ export class Utils {
         return /^[0-9]$/i.test(ch);
     }
 
-    static validateIdText(idText: string) : boolean {
-        // must start with a letter of underscore character
-        if (idText[0] !== "_" && !Utils.isAlpha(idText[0])){
-            return false;
-        }
-
-        // can only contain alpha-numeric and underscores
-        for (let i = 1 ; i < idText.length ; i++){
-            if (!Utils.isAlpha(idText[i]) && !Utils.isNumeric(idText[i]) && idText[i] !== "_"){
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     static validateField(type: string, value: string) : boolean {
         let valid: boolean = true;
 
         // make sure JSON fields are parse-able
-        if (type === Eagle.DataType_Json){
+        if (type === Daliuge.DataType.Json){
             try {
                 JSON.parse(value);
             } catch(e) {
@@ -1690,7 +1451,7 @@ export class Utils {
     static validateType(type: string) : boolean {
         const typePrefix = Utils.dataTypePrefix(type);
 
-        for (const dt of Eagle.DataTypes){
+        for (const dt of Utils.enumKeys(Daliuge.DataType)){
             if (dt === typePrefix){
                 return true;
             }
@@ -1804,10 +1565,11 @@ export class Utils {
 
     static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
         const displayShorcuts : {description:string, shortcut : string, function : any} []=[];
+        const eagle = (<any>window).eagle;
 
         for (const object of Eagle.shortcuts){
             // skip if shortcut should not be displayed
-            if (object.display === KeyboardShortcut.Display.Disabled){
+            if (!object.display(eagle)){
                 continue;
             }
 
@@ -1872,6 +1634,9 @@ export class Utils {
     }
 
     static asBool(value: string) : boolean {
+        if(value === undefined){
+            return false
+        }
         return value.toLowerCase() === "true";
     }
 
@@ -1969,19 +1734,19 @@ export class Utils {
         this._mergeEdges(eagle, field1.getId(), field0.getId());
     }
 
-    static _mergeUsage(usage0: Eagle.ParameterUsage, usage1: Eagle.ParameterUsage) : Eagle.ParameterUsage {
-        let result: Eagle.ParameterUsage = usage0;
+    static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
+        let result: Daliuge.FieldUsage = usage0;
 
         // decide if we need to merge an input port and output port
-        if (usage0 !== usage1 && (usage0 === Eagle.ParameterUsage.InputPort || usage0 === Eagle.ParameterUsage.OutputPort) && (usage1 === Eagle.ParameterUsage.InputPort || usage1 === Eagle.ParameterUsage.OutputPort)){
-            result = Eagle.ParameterUsage.InputOutput;
+        if (usage0 !== usage1 && (usage0 === Daliuge.FieldUsage.InputPort || usage0 === Daliuge.FieldUsage.OutputPort) && (usage1 === Daliuge.FieldUsage.InputPort || usage1 === Daliuge.FieldUsage.OutputPort)){
+            result = Daliuge.FieldUsage.InputOutput;
         }
 
         // if one field is a NoPort?
-        if (usage0 === Eagle.ParameterUsage.NoPort){
+        if (usage0 === Daliuge.FieldUsage.NoPort){
             result = usage1;
         }
-        if (usage1 === Eagle.ParameterUsage.NoPort){
+        if (usage1 === Daliuge.FieldUsage.NoPort){
             result = usage0;
         }
 
@@ -2008,7 +1773,7 @@ export class Utils {
     }
 
     static fixFieldValue(eagle: Eagle, node: Node, exampleField: Field, value: string){
-        let field : Field = node.getFieldByIdText(exampleField.getIdText());
+        let field : Field = node.getFieldByDisplayText(exampleField.getDisplayText());
 
         // if a field was not found, clone one from the example and add to node
         if (field === null){
@@ -2023,15 +1788,15 @@ export class Utils {
     static fixFieldDefaultValue(eagle: Eagle, field: Field){
         // depends on the type
         switch(field.getType()){
-            case Eagle.DataType_Boolean:
+            case Daliuge.DataType.Boolean:
             field.setDefaultValue("false");
             break;
-            case Eagle.DataType_Integer:
-            case Eagle.DataType_Float:
+            case Daliuge.DataType.Integer:
+            case Daliuge.DataType.Float:
             field.setDefaultValue("0");
             break;
-            case Eagle.DataType_Json:
-            case Eagle.DataType_Python:
+            case Daliuge.DataType.Json:
+            case Daliuge.DataType.Python:
             field.setDefaultValue("{}");
             break;
             default:
@@ -2042,18 +1807,18 @@ export class Utils {
     }
 
     static fixFieldType(eagle: Eagle, field: Field){
-        if (field.getType() === Eagle.DataType_Unknown){
-            field.setType(Eagle.DataType_Object);
+        if (field.getType() === Daliuge.DataType.Unknown){
+            field.setType(Daliuge.DataType.Object);
             return;
         }
 
         // fix for redundant 'Complex' type
         if (field.getType() === 'Complex'){
-            field.setType(Eagle.DataType_Object);
+            field.setType(Daliuge.DataType.Object);
             return;
         }
 
-        field.setType(Eagle.DataType_Object + "." + field.getType());
+        field.setType(Daliuge.DataType.Object + "." + field.getType());
     }
 
     static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){
@@ -2080,7 +1845,7 @@ export class Utils {
         }
     }
 
-    static fixFieldParameterType(eagle: Eagle, field: Field, newType: Eagle.ParameterType){
+    static fixFieldParameterType(eagle: Eagle, field: Field, newType: Daliuge.FieldType){
         field.setParameterType(newType);
     }
 
@@ -2242,7 +2007,6 @@ export class Utils {
         for (const field of eagle.logicalGraph().getNodes()[nodeIndex].getFields()){
             tableData.push({
                 "id":field.getId(),
-                "idText":field.getIdText(),
                 "displayText":field.getDisplayText(),
                 "nodeKey":field.getNodeKey(),
                 "type":field.getType(),
@@ -2280,7 +2044,7 @@ export class Utils {
     }
 
     static loadSchemas = () : void => {
-        Utils.httpGet(Config.DALIUGE_GRAPH_SCHEMA_URL, (error : string, data : string) => {
+        Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL, (error : string, data : string) => {
             if (error !== null){
                 console.error(error);
                 return;

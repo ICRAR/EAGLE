@@ -1,8 +1,10 @@
 import * as ko from "knockout";
 
-import { ActionMessage } from "./ActionMessage";
+import { ActionMessage } from "./Action";
 import { Eagle } from './Eagle';
+import { Daliuge } from "./Daliuge";
 import { Utils } from './Utils';
+
 
 export class FileInfo {
     private _name : ko.Observable<string>;
@@ -17,7 +19,7 @@ export class FileInfo {
     private _modified : ko.Observable<boolean>;
     private _eagleVersion : ko.Observable<string>;
     private _eagleCommitHash : ko.Observable<string>;
-    private _schemaVersion : ko.Observable<Eagle.DALiuGESchemaVersion>;
+    private _schemaVersion : ko.Observable<Daliuge.SchemaVersion>;
     private _readonly : ko.Observable<boolean>;
     private _builtIn : ko.Observable<boolean>;
 
@@ -45,7 +47,7 @@ export class FileInfo {
         this._modified = ko.observable(false);
         this._eagleVersion = ko.observable("");
         this._eagleCommitHash = ko.observable("");
-        this._schemaVersion = ko.observable(Eagle.DALiuGESchemaVersion.Unknown);
+        this._schemaVersion = ko.observable(Daliuge.SchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
 
@@ -149,11 +151,11 @@ export class FileInfo {
         this._eagleCommitHash(hash);
     }
 
-    get schemaVersion(): Eagle.DALiuGESchemaVersion{
+    get schemaVersion(): Daliuge.SchemaVersion{
         return this._schemaVersion();
     }
 
-    set schemaVersion(version: Eagle.DALiuGESchemaVersion){
+    set schemaVersion(version: Daliuge.SchemaVersion){
         this._schemaVersion(version);
     }
 
@@ -250,7 +252,7 @@ export class FileInfo {
         this._modified(false);
         this._eagleVersion("");
         this._eagleCommitHash("");
-        this._schemaVersion(Eagle.DALiuGESchemaVersion.Unknown);
+        this._schemaVersion(Daliuge.SchemaVersion.Unknown);
         this._readonly(true);
         this._builtIn(true);
 

@@ -20,21 +20,21 @@ export class Repositories {
     }
 
     refreshRepositoryList = () : void => {
-        console.log("refreshRepositoryList()");
+        // console.log("refreshRepositoryList()");
 
         GitHub.loadRepoList();
         GitLab.loadRepoList();
     };
 
     static selectFolder = (folder : RepositoryFolder) : void => {
-        console.log("selectFolder()", folder.name);
+        // console.log("selectFolder()", folder.name);
 
         // toggle expanded state
         folder.expanded(!folder.expanded());
     }
 
     static selectFile = (file : RepositoryFile) : void => {
-        console.log("selectFile() service:", file.repository.service, "repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
+        // console.log("selectFile() service:", file.repository.service, "repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
         const eagle: Eagle = Eagle.getInstance();
 
         // check if the current file has been modified
@@ -86,9 +86,6 @@ export class Repositories {
                 Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
                 return;
             }
-
-            // debug
-            console.log("User entered new repo name:", repositoryService, repositoryName, repositoryBranch);
 
             // add extension to userString to indicate repository service
             const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
@@ -170,7 +167,7 @@ export class Repositories {
     };
 
     static get = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
-        console.log("getRepository()", service, name, branch);
+        // console.log("getRepository()", service, name, branch);
 
         for (const repository of Repositories.repositories()){
             if (repository.service === service && repository.name === name && repository.branch === branch){

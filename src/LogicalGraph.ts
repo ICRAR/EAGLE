@@ -24,17 +24,18 @@
 
 import * as ko from "knockout";
 
-import { ActionMessage } from "./ActionMessage";
-import {Category} from './Category';
-import {Eagle} from './Eagle';
-import {Edge} from './Edge';
-import {Field} from './Field';
-import {FileInfo} from './FileInfo';
-import {GraphUpdater} from './GraphUpdater';
-import {Node} from './Node';
-import {RepositoryFile} from './RepositoryFile';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { ActionMessage } from "./Action";
+import { Category } from './Category';
+import { Daliuge } from "./Daliuge";
+import { Eagle } from './Eagle';
+import { Edge } from './Edge';
+import { Field } from './Field';
+import { FileInfo } from './FileInfo';
+import { GraphUpdater } from './GraphUpdater';
+import { Node } from './Node';
+import { RepositoryFile } from './RepositoryFile';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
@@ -52,7 +53,7 @@ export class LogicalGraph {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
-        result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.OJS;
+        result.modelData.schemaVersion = Daliuge.SchemaVersion.OJS;
         result.modelData.numLGNodes = graph.getNodes().length;
 
         // add nodes
@@ -638,10 +639,17 @@ export class LogicalGraph {
     }
 
     removeEdgeById = (id: string) : void => {
+        let found = false;
+
         for (let i = this.edges.length - 1; i >= 0 ; i--){
             if (this.edges[i].getId() === id){
+                found = true;
                 this.edges.splice(i, 1);
             }
+        }
+
+        if (!found){
+            console.warn("Could not removeEdgeById(), edge not found with id:", id);
         }
     }
 

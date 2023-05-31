@@ -20,6 +20,7 @@ require.config({
         "components":"./static/built/components",
         "main":"./static/built/main",
         "Config": "./static/built/Config",
+        "Daliuge": "./static/built/Daliuge",
         "GitHub": "./static/built/GitHub",
         "GitLab": "./static/built/GitLab",
         "Eagle": "./static/built/Eagle",
@@ -37,6 +38,7 @@ require.config({
         "Edge": "./static/built/Edge",
         "FileInfo": "./static/built/FileInfo",
         "Setting": "./static/built/Setting",
+        "UiModes": "./static/built/UiModes",
         "Tutorial": "./static/built/Tutorial",
         "tutorials/quickStart": "./static/built/tutorials/quickStart",
         "tutorials/graphBuilding": "./static/built/tutorials/graphBuilding",
@@ -54,7 +56,8 @@ require.config({
         "RightClick": "./static/built/RightClick",
         "Repositories": "./static/built/Repositories",
         "ParameterTable": "./static/built/ParameterTable",
-        "ActionMessage": "./static/built/ActionMessage"
+        "Action": "./static/built/Action",
+        "ActionList": "./static/built/ActionList"
     },
     shim: {
         "bootstrap": {

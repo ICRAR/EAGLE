@@ -5,7 +5,7 @@
             <div class="accordion-item" id="agl-1" data-bind="visible: translatorAlgorithmVisible('agl-1')">
                 <div class="accordion-header">
                     <h5>
-                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <input class="form-check-input translationDefault" data-bind="value:$root.isTranslationDefault('agl-1'),checked:$root.isTranslationDefault('agl-1')" type="checkbox">
                         <button id="headingTwo" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
                             <span>Algorithm 1 (metis)</span>
                         </button>
@@ -44,8 +44,8 @@
                         </div>
 
                         <p class="card-text"></p>
-                        <button id="alg1PGT" class="btn btn-primary btn_wide generatePgt" value="metis" data-bind="click: function(){eagle.translator().genPGT('metis', false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                        <button id="test1PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT('metis', true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
+                        <button id="alg1PGT" class="btn btn-primary btn_wide generatePgt" value="metis" data-bind="click: function(){eagle.translator().genPGT('metis', false, Daliuge.SchemaVersion.Unknown);}">Generate PGT</button>
+                        <button id="test1PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT('metis', true, Daliuge.SchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
                     </div>
                 </div>
             </div>
@@ -53,7 +53,7 @@
             <div class="accordion-item" id="agl-2" data-bind="visible: translatorAlgorithmVisible('agl-2')">
                 <div class="accordion-header">
                     <h5>
-                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <input class="form-check-input translationDefault"  data-bind="value:$root.isTranslationDefault('agl-1'),checked:$root.isTranslationDefault('agl-2')" type="checkbox">
                         <button id="headingThree" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
                             <span>Algorithm 2 (mysarkar)</span>
                         </button>
@@ -89,8 +89,8 @@
                         </div>
 
                         <p class="card-text"></p>
-                        <button id="alg2PGT" class="btn btn-primary btn_wide generatePgt" value="mysarkar" data-bind="click: function(){eagle.translator().genPGT('mysarkar', false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                        <button id="test2PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT('mysarkar', true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
+                        <button id="alg2PGT" class="btn btn-primary btn_wide generatePgt" value="mysarkar" data-bind="click: function(){eagle.translator().genPGT('mysarkar', false, Daliuge.SchemaVersion.Unknown);}">Generate PGT</button>
+                        <button id="test2PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT('mysarkar', true, Daliuge.SchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
                     </div>
                 </div>
             </div>
@@ -98,7 +98,7 @@
             <div class="accordion-item" id="agl-3" data-bind="visible: translatorAlgorithmVisible('agl-3')">
                 <div class="accordion-header">
                 <h5>
-                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <input class="form-check-input translationDefault"  data-bind="value:$root.isTranslationDefault('agl-1'),checked:$root.isTranslationDefault('agl-3')" type="checkbox">
                         <button id="headingFour" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
                             <span>Algorithm 3 (min_num_parts)</span>
                         </button>
@@ -152,8 +152,8 @@
                         </div>
 
                         <p class="card-text"></p>
-                        <button id="alg3PGT" class="btn btn-primary btn_wide generatePgt" value="min_num_parts" data-bind="click: function(){eagle.translator().genPGT('min_num_parts', false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                        <button id="test3PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT('min_num_parts', true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
+                        <button id="alg3PGT" class="btn btn-primary btn_wide generatePgt" value="min_num_parts" data-bind="click: function(){eagle.translator().genPGT('min_num_parts', false, Daliuge.SchemaVersion.Unknown);}">Generate PGT</button>
+                        <button id="test3PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT('min_num_parts', true, Daliuge.SchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
                     </div>
                 </div>
             </div>
@@ -161,7 +161,7 @@
             <div class="accordion-item" id="agl-4" data-bind="visible: translatorAlgorithmVisible('agl-4')">
                 <div class="accordion-header">
                     <h5>
-                        <input class="form-check-input translationDefault" value="false" type="checkbox">
+                        <input class="form-check-input translationDefault"  data-bind="value:$root.isTranslationDefault('agl-1'),checked:$root.isTranslationDefault('agl-4')" type="checkbox">
                         <button id="headingFive" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
                             <span>Algorithm 4 (pso)</span>
                         </button>
@@ -218,8 +218,8 @@
                         </div>
 
                         <p class="card-text"></p>
-                        <button id="alg4PGT" class="btn btn-primary  generatePgt" value="pso" data-bind="click: function(){eagle.translator().genPGT('pso', false, Eagle.DALiuGESchemaVersion.Unknown);}">Generate PGT</button>
-                        <button id="test4PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT('pso', true, Eagle.DALiuGESchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
+                        <button id="alg4PGT" class="btn btn-primary btn_wide generatePgt" value="pso" data-bind="click: function(){eagle.translator().genPGT('pso', false, Daliuge.SchemaVersion.Unknown);}">Generate PGT</button>
+                        <button id="test4PGT" class="btn btn-secondary btn_wide" data-bind="click: function(){eagle.translator().genPGT('pso', true, Daliuge.SchemaVersion.Unknown);}, eagleTooltip: 'Submit to translator in test mode. All apps will be replaced with placeholders. Useful for debugging.'">Test PGT</button>
                     </div>
                 </div>
             </div>

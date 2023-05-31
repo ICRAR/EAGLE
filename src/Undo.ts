@@ -24,15 +24,14 @@
 
 import * as ko from "knockout";
 
+import { ActionMessage } from "./Action";
 import {Config} from './Config';
 import {Eagle} from './Eagle';
-import {Errors} from './Errors';
 import {LogicalGraph} from './LogicalGraph';
 import {Repository} from './Repository';
 import {RepositoryFile} from './RepositoryFile';
 import {Setting} from './Setting';
 import {Utils} from './Utils';
-import { ActionMessage } from "./ActionMessage";
 
 
 class Snapshot {

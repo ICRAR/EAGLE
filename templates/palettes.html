@@ -1,14 +1,14 @@
 <div class="card">
     <div class="card-body">
         <span id="explorePalettesWrapper">
-            <button class="btn btn-primary btn-block btn_wide" id="explorePalettesButton" data-bind="click: showExplorePalettes, eagleTooltip: 'Retrieve information on all palettes in ' + Config.DEFAULT_PALETTE_REPOSITORY" data-bs-placement="bottom">Explore Palettes</button>
+            <button class="btn btn-primary btn-block btn_wide" id="explorePalettesButton" data-bind="click: showExplorePalettes, eagleTooltip: 'Retrieve information on all palettes in ' + Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY)" data-bs-placement="bottom">Explore Palettes</button>
         </span>
         <span id="paletteWindowdropdownWrapper" class="dropdown">
             <a class="dropdown-toggle material-icons" href="#" id="paletteWindowdropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 more_vert
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="paletteWindowdropdown">
-            <!-- ko if: Eagle.allowPaletteEditing() -->
+            <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                 <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                     <div class="dropDropDown">
                         <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette
@@ -44,7 +44,7 @@
                     <!-- ko if: $data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown -->
                     <a href="#" data-bind="click: function(){$root.reloadPalette($data, $index())}, clickBubble: false" data-html="true"><span>Reload Palette</span></a>
                     <!-- /ko -->
-                    <!-- ko if: Eagle.allowPaletteEditing() -->
+                    <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                         <a href="#" data-bind="click: $root.savePaletteToDisk" data-html="true"><span>Save Locally</span></a>
                         <a href="#" data-bind="click: $root.savePaletteToGit" data-html="true"><span>Save To Git</span></a>
                     <!-- /ko -->

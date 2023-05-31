@@ -24,7 +24,7 @@
 
 import * as ko from "knockout";
 
-import { ActionMessage } from "./ActionMessage";
+import { ActionMessage } from "./Action";
 import { Category } from './Category';
 import { CategoryData } from './CategoryData';
 import { Eagle } from './Eagle';

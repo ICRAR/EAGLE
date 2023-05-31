@@ -1,4 +1,4 @@
-import { ActionMessage } from './ActionMessage';
+import { ActionMessage } from './Action';
 import { Eagle } from './Eagle';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
@@ -69,9 +69,9 @@ export class ComponentUpdater {
             // try to find a field with the same name in the destination
             let destField = dest.findFieldById(srcField.getId());
 
-            // if dest field not found, try to find something that matches by idText AND fieldType
+            // if dest field not found, try to find something that matches by displayText AND fieldType
             if (destField === null){
-                destField = dest.findFieldByIdText(srcField.getIdText(), srcField.getParameterType());
+                destField = dest.findFieldByDisplayText(srcField.getDisplayText(), srcField.getParameterType());
             }
 
             // if dest field could not be found, then go ahead and add a NEW field to the dest node
