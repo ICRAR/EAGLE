@@ -2259,29 +2259,42 @@ export class Node {
         }
 
         // check that this category of node contains all the fields it requires
-        for (const requirement of Daliuge.requiredFields){
-            if (node.getCategory() === requirement.category){
+        for (const requirement of Daliuge.categoryFieldsRequired){
+            if (requirement.categories.includes(node.getCategory())){
                 for (const requiredField of requirement.fields){
-                    // check if the node already has this field
-                    const existingField = node.getFieldByDisplayText(requiredField.getDisplayText());
+                    Node._checkForField(eagle, node, requiredField, errorsWarnings);
+                }
+            }
+        }
 
-                    // if not, create one by cloning the required field
-                    // if so, check the attributes of the field match
-                    if (existingField === null){
-                        const message = "Node " + node.getKey() + " (" + node.getName() + ") has category " + node.getCategory() + " but has no '" + requiredField.getDisplayText() + "' field.";
-                        const newField = requiredField.clone();
-                        newField.setId(Utils.uuidv4());
-                        errorsWarnings.errors.push(Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeAddField(eagle, node, newField)}, "Add '" + newField.getDisplayText() + "' field to node"));
-                    } else {
-                        if (existingField.getParameterType() !== requiredField.getParameterType()){
-                            const message = "Node " + node.getKey() + " (" + node.getName() + ") has a '" + requiredField.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + requiredField.getParameterType();
-                            errorsWarnings.errors.push(Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldParameterType(eagle, existingField, requiredField.getParameterType())}, "Switch type of field to '" + requiredField.getParameterType()));
-                        }
-                    }
+        // check that this categoryType of node contains all the fields it requires
+        for (const requirement of Daliuge.categoryTypeFieldsRequired){
+            if (requirement.categoryTypes.includes(node.getCategoryType())){
+                for (const requiredField of requirement.fields){
+                    Node._checkForField(eagle, node, requiredField, errorsWarnings);
                 }
             }
         }
 
         return Utils.worstEdgeError(errorsWarnings);
+    }
+
+    private static _checkForField = (eagle: Eagle, node: Node, field: Field, errorsWarnings: Errors.ErrorsWarnings) : void => {
+        // check if the node already has this field
+        const existingField = node.getFieldByDisplayText(field.getDisplayText());
+
+        // if not, create one by cloning the required field
+        // if so, check the attributes of the field match
+        if (existingField === null){
+            const message = "Node " + node.getKey() + " (" + node.getName() + ":" + node.category() + ":" + node.categoryType() + ") does not have the required '" + field.getDisplayText() + "' field";
+            const newField = field.clone();
+            newField.setId(Utils.uuidv4());
+            errorsWarnings.errors.push(Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeAddField(eagle, node, newField)}, "Add '" + newField.getDisplayText() + "' field to node"));
+        } else {
+            if (existingField.getParameterType() !== field.getParameterType()){
+                const message = "Node " + node.getKey() + " (" + node.getName() + ") has a '" + field.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + field.getParameterType();
+                errorsWarnings.errors.push(Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldParameterType(eagle, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType()));
+            }
+        }
     }
 }
