@@ -190,7 +190,7 @@ export class Eagle {
             if(this.selectedObjects().length === 0){
                 this.tableModalType('keyParametersTableModal')
 
-                //changing shortcuts depending on if right window tabs are visible or not 
+                //changing right window shortcuts depending on if right window tabs are visible or not 
                 KeyboardShortcut.changeShortcutKey(this,'open_translation','3',KeyboardShortcut.Modifier.None)
                 KeyboardShortcut.changeShortcutKey(this,'open_inspector','4',KeyboardShortcut.Modifier.None)
             }else{
@@ -596,6 +596,7 @@ export class Eagle {
         }
 
         if(this.rightWindow().mode() !== Eagle.RightWindowMode.Inspector && this.rightWindow().mode() !== Eagle.RightWindowMode.Hierarchy){
+            //if we are adding or removing something from the selection and we are not on either the inspector or hierarchy tab already
             this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
         }
     }

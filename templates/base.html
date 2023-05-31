@@ -95,11 +95,11 @@
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Repository);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}">
                             Repositories
                         </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}">
-                            Hierarchy
-                        </button>
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="visible: selectedObjects().length > 0, click: function(){rightWindow().mode(Eagle.RightWindowMode.Inspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Inspector}">
                             Inspector
+                        </button>
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}">
+                            Hierarchy
                         </button>
                         <!-- ko ifnot: Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Minimal -->
                             <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}">
