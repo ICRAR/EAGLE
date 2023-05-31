@@ -1,6 +1,5 @@
 import {Tutorial, TutorialStep, TutorialSystem} from '../Tutorial';
 import {Eagle} from '../Eagle';
-import {InspectorState} from '../InspectorState';
 
 
 const newTut = TutorialSystem.newTutorial('Graph Building', 'An introduction to graph building.')

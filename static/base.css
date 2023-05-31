@@ -662,6 +662,11 @@ td:first-child input {
     border-color: #0059a5;
 }
 
+.rightWindow .btn-primary:hover, .leftWindow .btn-primary:hover {
+    background-color: #002f57;
+    border-color: #002f57;
+}
+
 .rightWindow .rightWindowHandle {
     position: absolute;
     width: 48px;
@@ -2261,6 +2266,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
     font-size: 1.25em;
     font-weight: bold;
     user-select: none;
+    margin-left:27px;
 }
 
 .modal-dialog {
@@ -2291,11 +2297,59 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 .headerBtns {
     padding: 0px 10px;
+    position:relative;
+}
+
+.inspectorTextBoxWrapper{
+    position: relative;
+    border-radius: 3px; 
+    overflow: hidden;
+}
+
+.inspectorTextBoxWrapper span{
+    background-color: #e9ecef;
+    width: 100%;
+    display: inline-block;
+    padding: 5px;
+}
+
+.inspectorTextBoxWrapper div{
+    background-color: white;
+    padding: 5px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+
+.inspectorNodeApplicationWrapper{
+    position: relative;
+    border-radius: 3px; 
+    overflow: hidden;
+}
+
+.inspectorNodeApplicationWrapper span{
+    background-color: #e9ecef;
+    width: 100%;
+    display: inline-block;
+    padding: 5px;
+}
+
+.inspectorNodeApplicationWrapper .inspectorApplicationBackground{
+    background-color: white;
+    padding: 5px;
+    max-height: 500px;
+    overflow: hidden;
 }
 
 #inspectorHeaderIconRow{
     padding-top: 3px;
     background: rgba(255, 255, 255, 0.171);
+}
+
+#nodeInspectorHeading #nodeInspectorHeadingIcon{
+    position: absolute;
+    top: 3px;
+    right: -1px;
 }
 
 #inspectorAccordion .accordion-button::after {
@@ -2306,7 +2360,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 #inspectorAccordion .accordion-button {
     padding: 5px 10px 5px 45px;
     z-index: 0;
-    
     color: rgb(66, 66, 66);
     background-color: rgba(0,0,0,.03);
 }
@@ -2315,7 +2368,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
     position: relative !important;
 }
 
-.headerBtns button {
+.headerBtns button,.inspectorTitleBtns button {
     background-color: transparent;
     padding:0px 4px;
     margin-left:-4px;
@@ -2323,15 +2376,27 @@ ul.nav.navbar-nav .dropdown-item:hover{
     box-shadow: none;
 }
 
-.headerBtns button:hover {
+.headerBtns button:hover,.inspectorTitleBtns button:hover {
     color:#001933;
     background-color: transparent;
 }
 
-.headerBtns button.btn:focus {
+.headerBtns button.btn:focus, .inspectorTitleBtns button:focus {
     box-shadow: none;
     background-color:transparent;
     border:none;
+}
+
+.inspectorTitleBtns.inspectorTitleBtnsRight{
+    position:absolute;
+    top: 3px;
+    right: 9px;
+}
+
+.inspectorTitleBtns.inspectorTitleBtnsLeft{
+    position:absolute;
+    top: 3px;
+    left: 9px;
 }
 
 #multiSelectionHeader .headerBtns button{
@@ -2379,6 +2444,17 @@ palette-component input.form-control.selected {
 
 #errorsModal ul.list-group .list-group-item span {
     max-width: 80%;
+}
+
+#nodeInspectorErrorsCard{
+    background: transparent;
+    border: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+#nodeInspectorErrorsCard .card-body{
+    padding:0px;
 }
 
 #nodeInspectorErrorsCard fix .alert {

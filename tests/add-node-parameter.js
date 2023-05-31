@@ -36,9 +36,6 @@ test('Add node parameter with usage InputPort', async t =>{
 
         .wait(1000)
 
-        // expand the node inspector
-        .click('#inspectorCollapseStateIcon');
-
     
     const numInputPortsBefore = await getNumInputPorts();
 

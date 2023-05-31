@@ -1060,13 +1060,10 @@ export class Utils {
         return result;
     }
 
-    static getCategoriesWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
+    static getCategoriesWithInputsAndOutputs(categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
         const result: Category[] = [];
 
-        // loop through all categories
-        for (const category in CategoryData.cData){
-            // get category data
-            const categoryData = CategoryData.getCategoryData(<Category>category);
+        for (const [categoryName, categoryData] of Object.entries(CategoryData.cData)){
 
             if (categoryData.categoryType !== categoryType){
                 continue;
@@ -1082,7 +1079,7 @@ export class Utils {
                 continue;
             }
 
-            result.push(<Category>category);
+            result.push(categoryName as Category);
         }
 
         return result;
