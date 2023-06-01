@@ -1320,8 +1320,16 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
             return createBezier(0,0,0,0,Eagle.Direction.Down,Eagle.Direction.Down, edge.isClosesLoop());
         }
 
-        const srcPortType : Daliuge.FieldUsage = srcNode.findFieldById(edge.getSrcPortId()).getUsage();
-        const destPortType : Daliuge.FieldUsage = destNode.findFieldById(edge.getDestPortId()).getUsage();
+        const srcPort : Field = srcNode.findFieldById(edge.getSrcPortId());
+        const destPort : Field = destNode.findFieldById(edge.getDestPortId());
+
+        if (srcPort === null || destPort === null){
+            console.warn("Can't find srcPort or can't find destPort for edge.");
+            return createBezier(0,0,0,0,Eagle.Direction.Down,Eagle.Direction.Down, edge.isClosesLoop());
+        }
+
+        const srcPortType : Daliuge.FieldUsage = srcPort.getUsage();
+        const destPortType : Daliuge.FieldUsage = destPort.getUsage();
         const srcPortIndex : number = srcNode.findPortIndexById(edge.getSrcPortId());
         const destPortIndex : number = destNode.findPortIndexById(edge.getDestPortId());
 
