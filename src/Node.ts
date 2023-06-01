@@ -2178,6 +2178,11 @@ export class Node {
 
         // check that fields have parameter types that are suitable for this node
         for (const field of node.getFields()){
+            // skip the 'drop class' component parameter, those are always suitable for every node
+            if (field.getDisplayText() === Daliuge.FieldName.DROP_CLASS && field.getParameterType() === Daliuge.FieldType.ComponentParameter){
+                continue;
+            }
+
             if (
                 (field.getParameterType() === Daliuge.FieldType.ComponentParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
                 (field.getParameterType() === Daliuge.FieldType.ApplicationArgument) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments ||
