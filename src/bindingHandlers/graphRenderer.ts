@@ -1323,8 +1323,15 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
         const srcPort : Field = srcNode.findFieldById(edge.getSrcPortId());
         const destPort : Field = destNode.findFieldById(edge.getDestPortId());
 
+        if (srcPort === null){
+            console.warn("Can't find srcPort (" + edge.getSrcPortId() + ") on srcNode (" + srcNode.getName() + ") for edge (" + edge.getId() + ").");
+        }
+
+        if (destPort === null){
+            console.warn("Can't find destPort (" + edge.getDestPortId() + ") on destNode (" + destNode.getName() + ") for edge (" + edge.getId() + ").");
+        }
+
         if (srcPort === null || destPort === null){
-            console.warn("Can't find srcPort or can't find destPort for edge.");
             return createBezier(0,0,0,0,Eagle.Direction.Down,Eagle.Direction.Down, edge.isClosesLoop());
         }
 
