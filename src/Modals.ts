@@ -344,6 +344,10 @@ export class Modals {
             eagle.showTableModal(false)
             eagle.checkGraph();
         });
+
+        $('#parameterTableModal').on('shown.bs.modal', function(){        
+            $('#parameterTableModal .componentSearchBar').focus()
+        });
     }
 
     static validateFieldModalValueInputText(data:Field, event:any){

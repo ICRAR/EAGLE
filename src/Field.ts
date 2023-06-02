@@ -363,14 +363,33 @@ export class Field {
         if (Eagle.tableSearchString() === ""){
             return true;
         }
+        let searchTermNo : number = 0
+        let searchTermTrueNo : number = 0
+        const that = this
+        Eagle.tableSearchString().toLocaleLowerCase().split(',').forEach(function(term){
+            term = term.trim()
+            searchTermNo ++
+            let result : boolean = false
 
-        const nameMatch = this.displayText().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
-        const nodeParentNameMatch = Eagle.getInstance().logicalGraph().findNodeByKey(this.nodeKey()).getName().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
-        const useAsMatch = this.usage().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
-        const typeMatch = this.parameterType().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
-        const fieldTypeMatch = this.type().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
+            if(that.displayText().toLowerCase().indexOf(term) >= 0){
+                result = true
+            }else if(Eagle.getInstance().logicalGraph().findNodeByKey(that.nodeKey()).getName().toLowerCase().indexOf(term) >= 0){
+                result = true
+            }else if(that.usage().toLowerCase().indexOf(term) >= 0){
+                result = true
+            }else if(that.parameterType().toLowerCase().indexOf(term) >= 0){   
+                result = true
+            }else if(that.type().toLowerCase().indexOf(term) >= 0){
+                result = true
+            }else{
+                result = false
+            }
+            if(result){
+                searchTermTrueNo ++
+            }
+        })
 
-        return nameMatch || nodeParentNameMatch || useAsMatch || fieldTypeMatch || typeMatch;
+        return searchTermNo === searchTermTrueNo
     }, this);
 
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
