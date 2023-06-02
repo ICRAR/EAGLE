@@ -367,9 +367,10 @@ export class Field {
         const nameMatch = this.displayText().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
         const nodeParentNameMatch = Eagle.getInstance().logicalGraph().findNodeByKey(this.nodeKey()).getName().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
         const useAsMatch = this.usage().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
+        const typeMatch = this.parameterType().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
         const fieldTypeMatch = this.type().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
 
-        return nameMatch || nodeParentNameMatch || useAsMatch || fieldTypeMatch;
+        return nameMatch || nodeParentNameMatch || useAsMatch || fieldTypeMatch || typeMatch;
     }, this);
 
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
