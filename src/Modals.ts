@@ -347,6 +347,7 @@ export class Modals {
 
         $('#parameterTableModal').on('shown.bs.modal', function(){        
             $('#parameterTableModal .componentSearchBar').focus()
+            $('#parameterTableModal .componentSearchBar').select()
         });
     }
 

@@ -363,9 +363,11 @@ export class Field {
         if (Eagle.tableSearchString() === ""){
             return true;
         }
+
         let searchTermNo : number = 0
         let searchTermTrueNo : number = 0
         const that = this
+        
         Eagle.tableSearchString().toLocaleLowerCase().split(',').forEach(function(term){
             term = term.trim()
             searchTermNo ++
