@@ -37,33 +37,6 @@ ko.components.register('repository', {
     template: { require: "text!static/components/repository.html" }
 });
 
-// custom component for a field
-ko.components.register('field', {
-    viewModel: function(params : {data : any, ro: boolean}){
-        const vm = params.data;
-        vm.ro = params.ro;
-        return vm;
-    },
-    template: { require: "text!static/components/field.html" }
-});
-
-ko.components.register('port', {
-    viewModel: function(params : {id : string, name : string, description: string, multiplicity : number, isEventPort : boolean, toggleEvent : boolean, input : boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage}){
-        return {
-            id: params.id,
-            name: params.name,
-            description: params.description,
-            multiplicity: params.multiplicity,
-            isEventPort: params.isEventPort,
-            toggleEvent: params.toggleEvent,
-            input: params.input,
-            parameterType: params.parameterType,
-            usage: params.usage
-        };
-    },
-    template: { require: "text!static/components/port.html" }
-});
-
 // custom component for the hierarchy
 ko.components.register('hierarchy', {
     viewModel: function(params : {data : any}){
