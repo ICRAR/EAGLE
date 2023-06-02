@@ -1,10 +1,6 @@
-FROM tiangolo/meinheld-gunicorn-flask:python3.8
+FROM icrar/eagle-base:latest
 COPY . .
-RUN apt-get update && apt-get install -y npm bash git curl libffi-dev &&\
-    npm install -g typescript &&\
-    pip install --upgrade pip &&\
-    pip install --no-cache-dir . &&\
-    pip uninstall -y pip &&\
+RUN pip install --no-cache-dir . &&\
     mv /app/docker/prestart.dep.sh /tmp/prestart.sh &&\
     mv /app/docker/gunicorn_conf.py /tmp/gunicorn_conf.py &&\
     mv static/VERSION /usr/local/lib/python3.8/site-packages/static/. &&\
