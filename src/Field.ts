@@ -364,33 +364,50 @@ export class Field {
             return true;
         }
 
+        const eagle = (<any>window).eagle;
         let searchTermNo : number = 0
         let searchTermTrueNo : number = 0
         const that = this
-        
+
         Eagle.tableSearchString().toLocaleLowerCase().split(',').forEach(function(term){
             term = term.trim()
             searchTermNo ++
             let result : boolean = false
 
+            //check if the display text matches
             if(that.displayText().toLowerCase().indexOf(term) >= 0){
                 result = true
-            }else if(Eagle.getInstance().logicalGraph().findNodeByKey(that.nodeKey()).getName().toLowerCase().indexOf(term) >= 0){
-                result = true
-            }else if(that.usage().toLowerCase().indexOf(term) >= 0){
-                result = true
-            }else if(that.parameterType().toLowerCase().indexOf(term) >= 0){   
-                result = true
-            }else if(that.type().toLowerCase().indexOf(term) >= 0){
-                result = true
-            }else{
-                result = false
             }
+
+            //check if the node name matches, but only if using the key parameter table modal
+            if(eagle.tableModalType() === 'keyParametersTableModal'){
+                if(Eagle.getInstance().logicalGraph().findNodeByKey(that.nodeKey()).getName().toLowerCase().indexOf(term) >= 0){
+                    result = true
+                }
+            }
+
+            //check if the usage matches
+            if(that.usage().toLowerCase().indexOf(term) >= 0){
+                result = true
+            }
+
+            //check if the parameter type matches
+            if(that.parameterType().toLowerCase().indexOf(term) >= 0){   
+                result = true
+            }
+
+            //check if the type matches
+            if(that.type().toLowerCase().indexOf(term) >= 0){
+                result = true
+            }
+
+            //count up the number of matches
             if(result){
                 searchTermTrueNo ++
             }
         })
 
+        //comparing the numebr of search terms requested with the number of matches, if any of the search terms did not find anything, we retun false
         return searchTermNo === searchTermTrueNo
     }, this);
 
