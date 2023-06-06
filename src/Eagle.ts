@@ -98,6 +98,7 @@ export class Eagle {
     showTableModal : ko.Observable<boolean>;
     currentFileInfo : ko.Observable<FileInfo>;
     currentFileInfoTitle : ko.Observable<string>;
+    hierarchyMode : ko.Observable<boolean>; //we need this to be able to keep the right window in the hierarchy tab if the user is actively using it, but otherwise always switch the right window to the inspector.
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
@@ -180,6 +181,7 @@ export class Eagle {
         this.showTableModal = ko.observable(false)
         this.currentFileInfo = ko.observable(null);
         this.currentFileInfoTitle = ko.observable("");
+        this.hierarchyMode = ko.observable(false)
 
         this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
@@ -560,8 +562,24 @@ export class Eagle {
             this.rightWindow().mode(rightWindowMode);
         } else {
             this.selectedObjects([selection]);
-            if(this.rightWindow().mode() !== Eagle.RightWindowMode.Inspector && this.rightWindow().mode() !== Eagle.RightWindowMode.Hierarchy){
+
+            //special case if we are selecting multiple things in a palette
+            if(selectedLocation === Eagle.FileType.Palette){
+                this.hierarchyMode(false)
+                this.rightWindow().mode(Eagle.RightWindowMode.Inspector) 
+                return
+            }
+            
+            //if the set selection request came from a hierarchy node, the we set the hierarchy mode to true
+            if(rightWindowMode === Eagle.RightWindowMode.Hierarchy){
+                this.hierarchyMode(true)
+            }
+            
+            //if we have not specifically asked for hierarchy mode, by either interacting with the hierarchy or selected the tab, then we always swap to the inspector.
+            if(!this.hierarchyMode()){
                 this.rightWindow().mode(Eagle.RightWindowMode.Inspector)
+            }else{
+                this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
             }
         }
     }
@@ -595,10 +613,17 @@ export class Eagle {
             this.selectedObjects.push(selection);
         }
 
-        if(this.rightWindow().mode() !== Eagle.RightWindowMode.Inspector && this.rightWindow().mode() !== Eagle.RightWindowMode.Hierarchy){
-            //if we are adding or removing something from the selection and we are not on either the inspector or hierarchy tab already
-            this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
+        //special case if we are selecting multiple things in a palette
+        if(selectedLocation === Eagle.FileType.Palette){
+            this.hierarchyMode(false)
+            this.rightWindow().mode(Eagle.RightWindowMode.Inspector) 
+            return
         }
+
+        if(rightWindowMode === Eagle.RightWindowMode.Hierarchy){
+            this.hierarchyMode(true)
+        }
+        this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
     }
 
     objectIsSelected = (object: Node | Edge): boolean => {
