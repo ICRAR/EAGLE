@@ -89,6 +89,8 @@ export class ParameterTable {
             typeClassColumnCells.each(function(i,cell){
                 if(activeCellFound){
                     $(cell).children().first().focus()
+                    $('.selectedTableParameter').removeClass('selectedTableParameter')
+                    $(cell).addClass('selectedTableParameter')
                     return false;
                 }
 
