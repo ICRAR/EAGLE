@@ -100,7 +100,7 @@ export class ParameterTable {
                 }
 
                 if($(cell).hasClass('selectedTableParameter')){
-                    activeCellFound = true
+                    activeCellFound = true 
                 }
             })
         }
