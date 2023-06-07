@@ -330,7 +330,7 @@ body {
     color: black;
 }
 
-#parameterTableModal .actionsTd {
+#parameterTableModal .column_Actions {
     overflow: hidden;
 }
 

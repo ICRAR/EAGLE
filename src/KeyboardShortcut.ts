@@ -5,7 +5,7 @@ import {Errors} from './Errors';
 import { Setting } from './Setting';
 import { ParameterTable } from './ParameterTable';
 
-let currentEvent:any  = null
+let currentEvent:any  = null // this is used for keybord shortcut functions that need the event object to function
 
 export class KeyboardShortcut {
     key: string;
@@ -83,7 +83,7 @@ export class KeyboardShortcut {
     }
 
     static processKey = (e:KeyboardEvent) => {
-        
+
         // skip all repeat events, just process the initial keyup or keydown
         if (e.repeat){
             return;
