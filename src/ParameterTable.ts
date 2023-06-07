@@ -103,9 +103,6 @@ export class ParameterTable {
                     activeCellFound = true
                 }
             })
-
-        }else{
-            console.log('non ', event.target.closest('.columnCell'))
         }
     }
 
