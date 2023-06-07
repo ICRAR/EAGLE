@@ -61,6 +61,16 @@ export class ParameterTable {
         return ParameterTable.selection();
     }
 
+    static tableEnterShortcut = (event:any) : void => {
+        console.log('running', event.target)
+        console.log('runningest', $('#parameterTableModal .componentSearchBar')[0])
+
+        //if the table parameter search bar is selected
+        if($('#parameterTableModal .componentSearchBar')[0] === event.target){
+            console.log('table search modal is selected')
+        }
+    }
+
     tableInspectorUpdateSelection = (value:string) : void => {
         // abort update if nothing is selected
         if (!ParameterTable.hasSelection()){

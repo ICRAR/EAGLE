@@ -3,6 +3,9 @@ import {Category} from './Category';
 import {Utils} from './Utils';
 import {Errors} from './Errors';
 import { Setting } from './Setting';
+import { ParameterTable } from './ParameterTable';
+
+let currentEvent:any  = null
 
 export class KeyboardShortcut {
     key: string;
@@ -67,6 +70,10 @@ export class KeyboardShortcut {
         return Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
     }
 
+    static showTableModal = (eagle: Eagle) : boolean => {
+        return eagle.showTableModal()
+    }
+
     static graphNotEmpty = (eagle: Eagle) : boolean => {
         if (eagle.logicalGraph() === null){
             return false;
@@ -76,11 +83,7 @@ export class KeyboardShortcut {
     }
 
     static processKey = (e:KeyboardEvent) => {
-        // check if a Textbox or Input field is focused, if so abort
-        if($("input,textarea").is(":focus")){
-            return;
-        }
-
+        
         // skip all repeat events, just process the initial keyup or keydown
         if (e.repeat){
             return;
@@ -95,7 +98,9 @@ export class KeyboardShortcut {
             if (e.type !== shortcut.eventType){
                 continue;
             }
+
             switch(shortcut.modifier){
+                
                 case KeyboardShortcut.Modifier.None:
                     if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey){
                         continue;
@@ -123,14 +128,21 @@ export class KeyboardShortcut {
                     }
                     break;
                 case KeyboardShortcut.Modifier.MetaShift:
-                if (!e.shiftKey || !e.metaKey || e.ctrlKey || e.altKey){
-                    continue;
-                }
-                break;
+                    if (!e.shiftKey || !e.metaKey || e.ctrlKey || e.altKey){
+                        continue;
+                    }
+                    break;
             }
             for (const key of shortcut.keys){
                 if (key.toLowerCase() === e.key.toLowerCase()){
+
+                    //we are filtering out all shortcuts that should nt run if an input or text field is selected
+                    if($("input,textarea").is(":focus") && shortcut.modifier != KeyboardShortcut.Modifier.Input){
+                        break
+                    }
+
                     if (shortcut.canRun(eagle)){
+                        currentEvent = e
                         shortcut.run(eagle);
                         if($('#shortcutsModal').hasClass('show')){
                             $('#shortcutsModal').modal('hide')
@@ -195,6 +207,7 @@ export class KeyboardShortcut {
             new KeyboardShortcut("select_all_in_graph", "Select all in graph", ["a"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.true, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.selectAllInGraph(); }),
             new KeyboardShortcut("select_none_in_graph", "Select none in graph", ["Escape"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, KeyboardShortcut.somethingIsSelected, (eagle): void => { eagle.selectNoneInGraph(); }),
             new KeyboardShortcut("fix_all", "Fix all errors in graph", ["f"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => { Errors.fixAll(); }),
+            new KeyboardShortcut("table_move_down", "Table move down one cell", ["Enter"], "keydown", KeyboardShortcut.Modifier.Input, KeyboardShortcut.false, KeyboardShortcut.showTableModal, (eagle): void => { ParameterTable.tableEnterShortcut(currentEvent);}),
         ];
     }
 }
@@ -206,6 +219,7 @@ export namespace KeyboardShortcut{
         Meta = "Meta",
         Shift = "Shift",
         None = "none",
-        MetaShift = "Meta + Shift"
+        MetaShift = "Meta + Shift",
+        Input = "Input" //special case for shortcuts in the table modal that allow the user to move from cell to cell
     }
 }
