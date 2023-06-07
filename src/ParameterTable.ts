@@ -88,7 +88,12 @@ export class ParameterTable {
             //then we mark the activeCellFound as true, so the next element in the loop will be set to focused and exit the loop with return false
             typeClassColumnCells.each(function(i,cell){
                 if(activeCellFound){
-                    $(cell).children().first().focus()
+                    if($(cell).children().first().hasClass('parameterTableTypeCustomSelect')){
+                        return
+                    }else{
+                        $(cell).children().first().focus()
+                    }
+
                     $('.selectedTableParameter').removeClass('selectedTableParameter')
                     $(cell).addClass('selectedTableParameter')
                     return false;
