@@ -65,7 +65,10 @@ export class ParameterTable {
 
         //if the table parameter search bar is selected
         if($('#parameterTableModal .componentSearchBar')[0] === event.target){
-            $('#parameterTableModal td.column_Value').first().children().first().focus()
+            const targetCell = $('#parameterTableModal td.column_Value').first().children().first()
+            targetCell.focus()
+            $('.selectedTableParameter').removeClass('selectedTableParameter')
+            targetCell.parent().addClass('selectedTableParameter')
         }else if (event.target.closest('.columnCell')){
 
         //if a cell in the table is currently selected, enter will select the next cell down
@@ -89,7 +92,7 @@ export class ParameterTable {
             typeClassColumnCells.each(function(i,cell){
                 if(activeCellFound){
                     if($(cell).children().first().hasClass('parameterTableTypeCustomSelect')){
-                        return
+                        return <void> null;
                     }else{
                         $(cell).children().first().focus()
                     }
