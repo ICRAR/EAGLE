@@ -61,6 +61,54 @@ export class ParameterTable {
         return ParameterTable.selection();
     }
 
+    static tableEnterShortcut = (event:any) : void => {
+
+        //if the table parameter search bar is selected
+        if($('#parameterTableModal .componentSearchBar')[0] === event.target){
+            const targetCell = $('#parameterTableModal td.column_Value').first().children().first()
+            targetCell.focus()
+            $('.selectedTableParameter').removeClass('selectedTableParameter')
+            targetCell.parent().addClass('selectedTableParameter')
+        }else if (event.target.closest('.columnCell')){
+
+        //if a cell in the table is currently selected, enter will select the next cell down
+
+            //we are getting the class name of the current column's cell eg. column_Description
+            const classes = $(event.target.closest('.columnCell')).attr('class').split(' ')
+            let cellTypeClass
+            for(const className of classes){
+                if(className.includes('column_')){
+                    cellTypeClass = className;
+                    break
+                }
+            }
+
+            //now we are getting all cells in this column
+            const typeClassColumnCells = $('.'+cellTypeClass)
+            let activeCellFound = false
+
+            //here we are looping through each of the cells to figure out which one is currently selected
+            //then we mark the activeCellFound as true, so the next element in the loop will be set to focused and exit the loop with return false
+            typeClassColumnCells.each(function(i,cell){
+                if(activeCellFound){
+                    if($(cell).children().first().hasClass('parameterTableTypeCustomSelect')){
+                        return <void> null;
+                    }else{
+                        $(cell).children().first().focus()
+                    }
+
+                    $('.selectedTableParameter').removeClass('selectedTableParameter')
+                    $(cell).addClass('selectedTableParameter')
+                    return false;
+                }
+
+                if($(cell).hasClass('selectedTableParameter')){
+                    activeCellFound = true 
+                }
+            })
+        }
+    }
+
     tableInspectorUpdateSelection = (value:string) : void => {
         // abort update if nothing is selected
         if (!ParameterTable.hasSelection()){
