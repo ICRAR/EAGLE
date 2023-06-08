@@ -59,7 +59,7 @@ export class KeyboardShortcut {
     }
 
     static false = (eagle: Eagle) : boolean => {
-        return true;
+        return false;
     }
 
     static allowPaletteEditing = (eagle: Eagle) : boolean => {
