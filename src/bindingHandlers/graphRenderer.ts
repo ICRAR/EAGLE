@@ -1113,9 +1113,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                         } else {
 
                                             // get list of strings from list of eligible components
-                                            const eligibleComponentNames : string[] = [];
+                                            const eligibleComponentNames : Node[] = [];
                                             for (const c of eligibleComponents){
-                                                eligibleComponentNames.push(c.getDisplayName());
+                                                eligibleComponentNames.push(c);
                                             }
 
                                             // NOTE: create local copy of the sourceNode, sourcePort, sourcePortIsInput, so that they are available in the callbacks below, not sure why this is required
@@ -1123,37 +1123,45 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                             const sPort = sourcePort;
                                             const sPortIsInput = sourcePortIsInput;
 
+                                            const x = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
+                                            const y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
+
+                                            Eagle.selectedRightClickPosition = {x:x, y:y};
+
+                                            RightClick.edgeDropCreateNode(eligibleComponentNames,null)
+
+
                                             // ask the user to select which component they want
-                                            Utils.requestUserChoice("Connect to '" + sourcePort.getType() + "' port", "Select a component to connect to the '" + sourcePort.getType() + "' port", eligibleComponentNames, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
-                                                if (!completed){
-                                                    return;
-                                                }
+                                            // Utils.requestUserChoice("Connect to '" + sourcePort.getType() + "' port", "Select a component to connect to the '" + sourcePort.getType() + "' port", eligibleComponentNames, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
+                                            //     if (!completed){
+                                            //         return;
+                                            //     }
 
-                                                const choice: Node = eligibleComponents[userChoiceIndex];
+                                            //     const choice: Node = eligibleComponents[userChoiceIndex];
 
-                                                // convert mouse position to graph coordinates
-                                                Eagle.nodeDropLocation.x = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
-                                                Eagle.nodeDropLocation.y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
+                                            //     // convert mouse position to graph coordinates
+                                            //     Eagle.nodeDropLocation.x = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
+                                            //     Eagle.nodeDropLocation.y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
 
-                                                eagle.addNodeToLogicalGraph(choice, (node: Node) => {
-                                                    // check that a node was actually added, user may not have had permission
-                                                    if (node === null){
-                                                        return;
-                                                    }
+                                            //     eagle.addNodeToLogicalGraph(choice, (node: Node) => {
+                                            //         // check that a node was actually added, user may not have had permission
+                                            //         if (node === null){
+                                            //             return;
+                                            //         }
 
-                                                    const realSourceNode = sNode;
-                                                    const realSourcePort = sPort;
-                                                    const realDestNode = node;
-                                                    const realDestPort = node.findPortByMatchingType(sPort.getType(), !sPortIsInput);
+                                            //         const realSourceNode = sNode;
+                                            //         const realSourcePort = sPort;
+                                            //         const realDestNode = node;
+                                            //         const realDestPort = node.findPortByMatchingType(sPort.getType(), !sPortIsInput);
 
-                                                    // create edge (in correct direction)
-                                                    if (!sPortIsInput){
-                                                        addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false);
-                                                    } else {    
-                                                        addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false);
-                                                    }
-                                                },'');
-                                            });
+                                            //         // create edge (in correct direction)
+                                            //         if (!sPortIsInput){
+                                            //             addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false);
+                                            //         } else {    
+                                            //             addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false);
+                                            //         }
+                                            //     },'');
+                                            // });
                                         }
                                     }
                                 }

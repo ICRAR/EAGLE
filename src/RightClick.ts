@@ -125,6 +125,29 @@ export class RightClick {
         return paletteList
     }
 
+    static createHtmlEdgeDragList = (compatibleNodesList:Node[]) : string => {
+        console.log(compatibleNodesList)
+        const eagle: Eagle = Eagle.getInstance();
+
+        let paletteList:string = ''
+        const palettes = compatibleNodesList
+
+        palettes.forEach(function(palette){
+            let htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu()' onmouseleave='RightClick.closeSubMenu()'>"+palette.fileInfo().name
+            htmlPalette = htmlPalette + '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
+            htmlPalette = htmlPalette + '<div class="contextMenuDropdown">'
+            palette.getNodes().forEach(function(node){
+                htmlPalette = htmlPalette+`<a onclick='eagle.addNodeToLogicalGraph("`+node.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
+            })
+            htmlPalette = htmlPalette+"</div>"
+            htmlPalette = htmlPalette+"</span>"
+            paletteList = paletteList+htmlPalette
+        })
+
+        return paletteList
+    }
+
+
     static getNodeDescriptionDropdown = () : string => {
         const eagle: Eagle = Eagle.getInstance();
 
@@ -259,7 +282,17 @@ export class RightClick {
         event.stopPropagation();
     }
 
+    static edgeDropCreateNode = (data:any, eventTarget:any) : void => {
+                    
+        RightClick.requestCustomContextMenu(data,eventTarget, 'edgeDropCreate')
+
+        // prevent bubbling events
+        event.stopPropagation();
+    }
+
     static requestCustomContextMenu = (data:any, targetElement:JQuery, passedObjectClass:string) : void => {
+
+        console.log(data, targetElement,passedObjectClass)
         //getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
 
@@ -285,16 +318,18 @@ export class RightClick {
         $('#customContextMenu').css('top',mouseY+'px')
         $('#customContextMenu').css('left',mouseX+'px')
 
-        //in change of calculating the right click location as the location where to place the node
-        const offset = $(targetElement).offset();
-        let x = mouseX - offset.left;
-        let y = mouseY - offset.top;
+        if(passedObjectClass != 'edgeDropCreate'){
+            //in change of calculating the right click location as the location where to place the node
+            const offset = $(targetElement).offset();
+            let x = mouseX - offset.left;
+            let y = mouseY - offset.top;
 
-        // transform display coords into real coords
-        x = (x - eagle.globalOffsetX)/eagle.globalScale;
-        y = (y - eagle.globalOffsetY)/eagle.globalScale;
+            // transform display coords into real coords
+            x = (x - eagle.globalOffsetX)/eagle.globalScale;
+            y = (y - eagle.globalOffsetY)/eagle.globalScale;
 
-        Eagle.selectedRightClickPosition = {x:x, y:y};
+            Eagle.selectedRightClickPosition = {x:x, y:y};
+        }
         
         var selectedObjectAmount = eagle.selectedObjects().length
         var rightClickObjectInSelection = false
@@ -342,7 +377,30 @@ export class RightClick {
                     var message = '<span>Lacking graph editing permissions</span>'
                     $('#customContextMenu').append(message)
                 }
-                
+            }else if(passedObjectClass === 'edgeDropCreate'){
+                if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                    var searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
+                        <i class="material-icons md-18 searchBarIcon">search</i>
+                        <a onclick="RightClick.clearSearchField()">
+                            <i class="material-icons md-18 searchBarIconClose">close</i>
+                        </a>
+                        <input id="rightClickSearchBar" autocomplete="off" type="text" placeholder="Search" oninput="RightClick.checkSearchField()" >
+                    </div>` 
+    
+                    $('#customContextMenu').append(searchbar)
+    
+                    $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
+                    var paletteList = RightClick.createHtmlEdgeDragList(data)
+    
+                    $('#rightClickPaletteList').append(paletteList)
+    
+                    Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
+                    $('#rightClickSearchBar').focus()
+                    RightClick.initiateQuickSelect()
+                }else{
+                    var message = '<span>Lacking graph editing permissions</span>'
+                    $('#customContextMenu').append(message)
+                }
             }else if(targetClass.includes('rightClick_paletteComponent')){
                 Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
     
