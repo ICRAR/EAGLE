@@ -5,7 +5,18 @@ import { Palette } from './Palette';
 import { TutorialSystem } from './Tutorial';
 import { Setting } from './Setting';
 
+
 export class RightClick {
+
+    static edgeDropSrcNode : Node
+    static edgeDropSrcPort : any
+    static edgeDropSrcIsInput : boolean
+
+    constructor(){
+        RightClick.edgeDropSrcNode = null;
+        RightClick.edgeDropSrcPort = null;
+        RightClick.edgeDropSrcIsInput = null;
+    }
 
     static rightClickReloadPalette = () : void => {
         const eagle: Eagle = Eagle.getInstance();
@@ -140,7 +151,7 @@ export class RightClick {
             palette.getNodes().forEach(function(node){
                 for(const filteredNode of compatibleNodesList){
                     if(node === filteredNode){
-                        htmlPalette = htmlPalette+`<a onclick='eagle.addNodeToLogicalGraph("`+node.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
+                        htmlPalette = htmlPalette+`<a onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
                         nodeFound = true
                         break
                     }else{
@@ -152,7 +163,7 @@ export class RightClick {
             htmlPalette = htmlPalette+"</span>"
 
             if(nodeFound){
-                paletteList = paletteList+htmlPalette
+                paletteList = paletteList+htmlPalette;
             }
         })
 

@@ -1119,9 +1119,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                             }
 
                                             // NOTE: create local copy of the sourceNode, sourcePort, sourcePortIsInput, so that they are available in the callbacks below, not sure why this is required
-                                            const sNode = sourceNode;
-                                            const sPort = sourcePort;
-                                            const sPortIsInput = sourcePortIsInput;
+                                            RightClick.edgeDropSrcNode = sourceNode;
+                                            RightClick.edgeDropSrcPort = sourcePort;
+                                            RightClick.edgeDropSrcIsInput = sourcePortIsInput;
 
                                             const x = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
                                             const y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);

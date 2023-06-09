@@ -54,6 +54,7 @@ import {Undo} from './Undo';
 import {Errors} from './Errors';
 import {ComponentUpdater} from './ComponentUpdater';
 import {ParameterTable} from './ParameterTable';
+import { RightClick } from "./RightClick";
 
 export class Eagle {
     static _instance : Eagle;
@@ -3054,6 +3055,24 @@ export class Eagle {
                 }
             }
         }
+    }
+
+    addNodeToLogicalGraphAndConnect = (newNode:Node) : void => {
+        console.log('boppin',newNode)
+
+        this.addNodeToLogicalGraph(newNode,(node: Node)=>{
+            const realSourceNode = RightClick.edgeDropSrcNode;
+            const realSourcePort = RightClick.edgeDropSrcPort;
+            const realDestNode = node;
+            const realDestPort = node.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
+
+            // create edge (in correct direction)
+            if (!RightClick.edgeDropSrcIsInput){
+                this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false,null);
+            } else {    
+                this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, null);
+            }
+        },'contextMenu')
     }
 
     addNodeToLogicalGraph = (node : any, callback: (node: Node) => void, mode:string) : void => {
