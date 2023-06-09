@@ -130,18 +130,30 @@ export class RightClick {
         const eagle: Eagle = Eagle.getInstance();
 
         let paletteList:string = ''
-        const palettes = compatibleNodesList
+        const palettes = eagle.palettes()
 
         palettes.forEach(function(palette){
+            let nodeFound = false
             let htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu()' onmouseleave='RightClick.closeSubMenu()'>"+palette.fileInfo().name
             htmlPalette = htmlPalette + '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
             htmlPalette = htmlPalette + '<div class="contextMenuDropdown">'
             palette.getNodes().forEach(function(node){
-                htmlPalette = htmlPalette+`<a onclick='eagle.addNodeToLogicalGraph("`+node.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
+                for(const filteredNode of compatibleNodesList){
+                    if(node === filteredNode){
+                        htmlPalette = htmlPalette+`<a onclick='eagle.addNodeToLogicalGraph("`+node.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
+                        nodeFound = true
+                        break
+                    }else{
+                        continue
+                    }
+                }
             })
             htmlPalette = htmlPalette+"</div>"
             htmlPalette = htmlPalette+"</span>"
-            paletteList = paletteList+htmlPalette
+
+            if(nodeFound){
+                paletteList = paletteList+htmlPalette
+            }
         })
 
         return paletteList
