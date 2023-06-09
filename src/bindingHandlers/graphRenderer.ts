@@ -1105,64 +1105,28 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     const eligibleComponents = Utils.getComponentsWithMatchingPort(eagle.palettes(), !sourcePortIsInput, sourcePort.getType(), dataEligible);
                                     console.log("Found", eligibleComponents.length, "eligible automatically suggested components that have a " + (sourcePortIsInput ? "output" : "input") + " port of type:", sourcePort.getType());
 
-                                    if (Setting.findValue(Setting.AUTO_SUGGEST_DESTINATION_NODES)){
+                                    // check we found at least one eligible component
+                                    if (eligibleComponents.length === 0){
+                                        Utils.showNotification("Not Found", "No eligible components found for connection to port of this type (" + sourcePort.getType() + ")", "info");
+                                    } else {
 
-                                        // check we found at least one eligible component
-                                        if (eligibleComponents.length === 0){
-                                            Utils.showNotification("Not Found", "No eligible components found for connection to port of this type (" + sourcePort.getType() + ")", "info");
-                                        } else {
-
-                                            // get list of strings from list of eligible components
-                                            const eligibleComponentNames : Node[] = [];
-                                            for (const c of eligibleComponents){
-                                                eligibleComponentNames.push(c);
-                                            }
-
-                                            // NOTE: create local copy of the sourceNode, sourcePort, sourcePortIsInput, so that they are available in the callbacks below, not sure why this is required
-                                            RightClick.edgeDropSrcNode = sourceNode;
-                                            RightClick.edgeDropSrcPort = sourcePort;
-                                            RightClick.edgeDropSrcIsInput = sourcePortIsInput;
-
-                                            const x = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
-                                            const y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
-
-                                            Eagle.selectedRightClickPosition = {x:x, y:y};
-
-                                            RightClick.edgeDropCreateNode(eligibleComponentNames,null)
-
-
-                                            // ask the user to select which component they want
-                                            // Utils.requestUserChoice("Connect to '" + sourcePort.getType() + "' port", "Select a component to connect to the '" + sourcePort.getType() + "' port", eligibleComponentNames, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
-                                            //     if (!completed){
-                                            //         return;
-                                            //     }
-
-                                            //     const choice: Node = eligibleComponents[userChoiceIndex];
-
-                                            //     // convert mouse position to graph coordinates
-                                            //     Eagle.nodeDropLocation.x = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
-                                            //     Eagle.nodeDropLocation.y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
-
-                                            //     eagle.addNodeToLogicalGraph(choice, (node: Node) => {
-                                            //         // check that a node was actually added, user may not have had permission
-                                            //         if (node === null){
-                                            //             return;
-                                            //         }
-
-                                            //         const realSourceNode = sNode;
-                                            //         const realSourcePort = sPort;
-                                            //         const realDestNode = node;
-                                            //         const realDestPort = node.findPortByMatchingType(sPort.getType(), !sPortIsInput);
-
-                                            //         // create edge (in correct direction)
-                                            //         if (!sPortIsInput){
-                                            //             addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false);
-                                            //         } else {    
-                                            //             addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false);
-                                            //         }
-                                            //     },'');
-                                            // });
+                                        // get list of strings from list of eligible components
+                                        const eligibleComponentNames : Node[] = [];
+                                        for (const c of eligibleComponents){
+                                            eligibleComponentNames.push(c);
                                         }
+
+                                        // NOTE: create copy in right click ts because we are using the right click menus to handle the node selection
+                                        RightClick.edgeDropSrcNode = sourceNode;
+                                        RightClick.edgeDropSrcPort = sourcePort;
+                                        RightClick.edgeDropSrcIsInput = sourcePortIsInput;
+
+                                        const x = DISPLAY_TO_REAL_POSITION_X(mousePosition.x);
+                                        const y = DISPLAY_TO_REAL_POSITION_Y(mousePosition.y);
+
+                                        Eagle.selectedRightClickPosition = {x:x, y:y};
+
+                                        RightClick.edgeDropCreateNode(eligibleComponentNames,null)
                                     }
                                 }
 

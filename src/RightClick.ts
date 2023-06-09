@@ -137,11 +137,22 @@ export class RightClick {
     }
 
     static createHtmlEdgeDragList = (compatibleNodesList:Node[]) : string => {
-        console.log(compatibleNodesList)
         const eagle: Eagle = Eagle.getInstance();
 
         let paletteList:string = ''
         const palettes = eagle.palettes()
+
+        if(!Setting.findValue(Setting.FILTER_NODE_SUGGESTIONS)){
+            let x : Node[] = []
+            palettes.forEach(function(palette){
+
+                palette.getNodes().forEach(function(node){
+                    x.push(node)
+                })
+            })
+
+            compatibleNodesList = x
+        }
 
         palettes.forEach(function(palette){
             let nodeFound = false
@@ -315,7 +326,6 @@ export class RightClick {
 
     static requestCustomContextMenu = (data:any, targetElement:JQuery, passedObjectClass:string) : void => {
 
-        console.log(data, targetElement,passedObjectClass)
         //getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
 

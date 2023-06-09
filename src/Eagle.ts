@@ -3058,8 +3058,6 @@ export class Eagle {
     }
 
     addNodeToLogicalGraphAndConnect = (newNode:Node) : void => {
-        console.log('boppin',newNode)
-
         this.addNodeToLogicalGraph(newNode,(node: Node)=>{
             const realSourceNode = RightClick.edgeDropSrcNode;
             const realSourcePort = RightClick.edgeDropSrcPort;
