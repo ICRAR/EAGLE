@@ -51,17 +51,19 @@ export class RightClick {
             $('#paletteNodesSearchResult').remove()
             $('#customContextMenu').append("<div id='paletteNodesSearchResult'></div>")
 
+            const dropDownOptions = $('rightClickPaletteList .contextMenuDropdownOption')
+            
             const palettes = eagle.palettes()
 
-            palettes.forEach(function(palette){
-                palette.getNodes().forEach(function(paletteNode){
-                    const paletteNodeName = paletteNode.getName().toLowerCase()
+            // palettes.forEach(function(palette){
+            //     palette.getNodes().forEach(function(paletteNode){
+            //         const paletteNodeName = paletteNode.getName().toLowerCase()
 
-                    if(paletteNodeName.includes(searchValue)){
-                        $('#paletteNodesSearchResult').append(`<a onclick='eagle.addNodeToLogicalGraph("`+paletteNode.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+paletteNode.getName()+'</a>')
-                    }
-                })
-            })
+            //         if(paletteNodeName.includes(searchValue)){
+            //             $('#paletteNodesSearchResult').append(`<a onclick='eagle.addNodeToLogicalGraph("`+paletteNode.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+paletteNode.getName()+'</a>')
+            //         }
+            //     })
+            // })
         } else{
             //if the search bar is empty
             $(event.target).parent().find('a').hide()
@@ -127,7 +129,6 @@ export class RightClick {
             let htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu()' onmouseleave='RightClick.closeSubMenu()'>"+palette.fileInfo().name
             htmlPalette = htmlPalette + '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
             htmlPalette = htmlPalette + '<div class="contextMenuDropdown">'
-
             
             let dataHtml = '<h5 class="rightClickDropdownDividerTitle">Data Nodes</h5>'
             let dataFound = false
@@ -138,13 +139,13 @@ export class RightClick {
 
             palette.getNodes().forEach(function(node){
                 if(node.isData()){
-                    dataHtml = dataHtml+`<a onclick='eagle.addNodeToLogicalGraph("`+node.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
+                    dataHtml = dataHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraph("`+node.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
                     dataFound = true
                 }else if (node.isApplication()){
-                    appHtml = appHtml+`<a onclick='eagle.addNodeToLogicalGraph("`+node.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
+                    appHtml = appHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraph("`+node.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
                     appFound = true
                 }else{
-                    otherHtml = otherHtml+`<a onclick='eagle.addNodeToLogicalGraph("`+node.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
+                    otherHtml = otherHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraph("`+node.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
                     otherFound = true
                 }
                 nodeFound = true
@@ -203,13 +204,13 @@ export class RightClick {
                 for(const filteredNode of compatibleNodesList){
                     if(node === filteredNode){
                         if(node.isData()){
-                            dataHtml = dataHtml+`<a onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
+                            dataHtml = dataHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
                             dataFound = true
                         }else if (node.isApplication()){
-                            appHtml = appHtml+`<a onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
+                            appHtml = appHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
                             appFound = true
                         }else{
-                            otherHtml = otherHtml+`<a onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
+                            otherHtml = otherHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode'>`+node.getName()+'</a>'
                             otherFound = true
                         }
                         nodeFound = true
