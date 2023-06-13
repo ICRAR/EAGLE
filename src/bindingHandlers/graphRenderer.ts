@@ -1102,7 +1102,9 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                 } else {
                                     // no destination, ask user to choose a new node
                                     const dataEligible = sourceNode.getCategoryType() !== Category.Type.Data;
-                                    const eligibleComponents = Utils.getComponentsWithMatchingPort(eagle.palettes(), !sourcePortIsInput, sourcePort.getType(), dataEligible);
+                                    //getting matches from both the graph and the palettes list
+                                    const eligibleComponents = Utils.getComponentsWithMatchingPort('palette graph', !sourcePortIsInput, sourcePort.getType(), dataEligible);
+                                    
                                     console.log("Found", eligibleComponents.length, "eligible automatically suggested components that have a " + (sourcePortIsInput ? "output" : "input") + " port of type:", sourcePort.getType());
 
                                     // check we found at least one eligible component
