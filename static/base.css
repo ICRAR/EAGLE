@@ -2505,6 +2505,7 @@ palette-component input.form-control.selected {
     display: none;
     max-height: 400px;
     overflow-y: auto;
+    min-width: 200px;
 }
 
 #customContextMenu a{
