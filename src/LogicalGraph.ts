@@ -553,6 +553,32 @@ export class LogicalGraph {
         return null;
     }
 
+    findNodeById = (id : string) : Node => {
+        for (let i = this.nodes.length - 1; i >= 0 ; i--){
+
+            // check if the node itself has a matching key
+            if (this.nodes[i].getId() === id){
+                return this.nodes[i];
+            }
+
+            // check if the node's inputApp has a matching key
+            if (this.nodes[i].hasInputApplication()){
+                if (this.nodes[i].getInputApplication().getId() === id){
+                    return this.nodes[i].getInputApplication();
+                }
+            }
+
+            // check if the node's outputApp has a matching key
+            if (this.nodes[i].hasOutputApplication()){
+                if (this.nodes[i].getOutputApplication().getId() === id){
+                    return this.nodes[i].getOutputApplication();
+                }
+            }
+        }
+        console.warn("findNodeByKey(): could not find node with key (", id, ")");
+        return null;
+    }
+
     findNodeGraphIdByNodeName = (name:string) :string =>{
         const eagle: Eagle = Eagle.getInstance();
         let graphNodeId:string

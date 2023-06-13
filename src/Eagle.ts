@@ -3085,12 +3085,19 @@ export class Eagle {
         }
 
         if(mode === 'contextMenu'){
+            let nodeFound = false 
+
             pos = Eagle.selectedRightClickPosition;
             this.palettes().forEach(function(palette){
                 if(palette.findNodeById(node)!==null){
                     node = palette.findNodeById(node)
+                    nodeFound = true
                 }
             })
+
+            if (!nodeFound){
+                node = this.logicalGraph().findNodeById(node)
+            }
             $('#customContextMenu').remove()
         }
 
