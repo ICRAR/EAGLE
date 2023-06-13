@@ -41,8 +41,7 @@ export class RightClick {
     }
 
     static checkSearchField = () : void => {
-        const eagle: Eagle = Eagle.getInstance();
-        const searchValue:string = $(event.target).val().toString()
+        const searchValue:string = $(event.target).val().toString().toLocaleLowerCase()
         $(".rightClickFocus").removeClass('rightClickFocus')
         if(searchValue !== ''){
             //if the search bar is not empty
@@ -51,19 +50,13 @@ export class RightClick {
             $('#paletteNodesSearchResult').remove()
             $('#customContextMenu').append("<div id='paletteNodesSearchResult'></div>")
 
-            const dropDownOptions = $('rightClickPaletteList .contextMenuDropdownOption')
-            
-            const palettes = eagle.palettes()
-
-            // palettes.forEach(function(palette){
-            //     palette.getNodes().forEach(function(paletteNode){
-            //         const paletteNodeName = paletteNode.getName().toLowerCase()
-
-            //         if(paletteNodeName.includes(searchValue)){
-            //             $('#paletteNodesSearchResult').append(`<a onclick='eagle.addNodeToLogicalGraph("`+paletteNode.getId()+`",null,"contextMenu")' class='contextMenuDropdownOption rightClickPaletteNode'>`+paletteNode.getName()+'</a>')
-            //         }
-            //     })
-            // })
+            const dropDownOptions = $('#rightClickPaletteList .contextMenuDropdownOption')
+            dropDownOptions.each(function(index,dropdownOption){
+                const dropdownNode = $(dropdownOption).text().toLocaleLowerCase();
+                if(dropdownNode.toLocaleLowerCase().includes(searchValue)){
+                    $('#paletteNodesSearchResult').append($(dropdownOption).clone())
+                }
+            })
         } else{
             //if the search bar is empty
             $(event.target).parent().find('a').hide()
