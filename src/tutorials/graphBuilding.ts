@@ -63,7 +63,7 @@ newTut.newTutStep("Graph Nodes", "Once added into your graph, the component is i
 newTut.newTutStep("Editing Components", "The inspector panel provides access to the complete set of specifications of a component. The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $("#rightWindowContainer")})        
 .setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector)})
 
-newTut.newTutStep("Click to expand", "<em>Click to expand the application arguments section and continue.</em>", function(){return $("#inspectorAppArgsHeading button")})
+newTut.newTutStep("Click to open", "<em>Click to expand the application arguments section and continue.</em>", function(){return $("#inspectorAppArgsHeading button")})
 .setBackPreFunction(function(){$("#inspectorAppArgsHeading button").click()})
 .setWaitType(TutorialStep.Wait.Element)
 .setType(TutorialStep.Type.Press)
