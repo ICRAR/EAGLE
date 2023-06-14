@@ -249,6 +249,7 @@ export class Setting {
     static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
 
     static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
+    static readonly CONFIRM_NODE_CATEGORY_CHANGES : string = "ConfirmNodeCategoryChanges";
     static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
     static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
     static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
@@ -260,7 +261,7 @@ export class Setting {
     static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
     static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters";
-    static readonly AUTO_SUGGEST_DESTINATION_NODES : string = "AutoSuggestDestinationNodes";
+    static readonly FILTER_NODE_SUGGESTIONS : string = "AutoSuggestDestinationNodes";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
     static readonly ALLOW_GRAPH_EDITING : string = "AllowGraphEditing";
@@ -335,6 +336,7 @@ const settings : SettingsGroup[] = [
         () => {return true;},
         [
             new Setting(true, "Confirm Discard Changes", Setting.CONFIRM_DISCARD_CHANGES, "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.",false, Setting.Type.Boolean, true, true,true,true,true),
+            new Setting(true, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.",false, Setting.Type.Boolean, true, true,true,true,true),
             new Setting(true, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORES, "Prompt user to confirm removing a repository from the list of known repositories.",false , Setting.Type.Boolean, true,true,true,true,true),
             new Setting( true, "Confirm Reload Palettes", Setting.CONFIRM_RELOAD_PALETTES, "Prompt user to confirm when loading a palette that is already loaded.",false , Setting.Type.Boolean,true,true,true,true,true),
             new Setting(true, "Confirm Delete", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
@@ -370,7 +372,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Allow Palette Editing", Setting.ALLOW_PALETTE_EDITING, "Allow the user to edit palettes.", false, Setting.Type.Boolean, false, false, false, true, true),
             new Setting(true, "Allow Readonly Palette Editing", Setting.ALLOW_READONLY_PALETTE_EDITING, "Allow the user to modify palettes that would otherwise be readonly.", false, Setting.Type.Boolean,false,false,false,false,true),
             new Setting(true, "Allow Edge Editing", Setting.ALLOW_EDGE_EDITING, "Allow the user to edit edge attributes.", false, Setting.Type.Boolean, false, false,false, false, true),
-            new Setting(true, "Auto-suggest destination nodes", Setting.AUTO_SUGGEST_DESTINATION_NODES, "If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.", false, Setting.Type.Boolean,true,true,true,true,true),
+            new Setting(true, "Filter Node Suggestions", Setting.FILTER_NODE_SUGGESTIONS, "Filter Node Options When Drawing Edges Into Empty Space", false, Setting.Type.Boolean,true,true,true,true,true),
             new Setting(false, "STUDENT_SETTINGS_MODE", Setting.STUDENT_SETTINGS_MODE, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
             new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, Setting.Type.Select, Setting.valueEditingPerms.KeyOnly,Setting.valueEditingPerms.Normal,Setting.valueEditingPerms.Normal,Setting.valueEditingPerms.ReadOnly,Setting.valueEditingPerms.ReadOnly, Object.values(Setting.valueEditingPerms)),
         ]

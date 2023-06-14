@@ -54,6 +54,7 @@ import {Undo} from './Undo';
 import {ComponentUpdater} from './ComponentUpdater';
 import {ParameterTable} from './ParameterTable';
 import { ActionMessage } from "./Action";
+import { RightClick } from "./RightClick";
 
 export class Eagle {
     static _instance : Eagle;
@@ -102,6 +103,7 @@ export class Eagle {
     showTableModal : ko.Observable<boolean>;
     currentFileInfo : ko.Observable<FileInfo>;
     currentFileInfoTitle : ko.Observable<string>;
+    hierarchyMode : ko.Observable<boolean>; //we need this to be able to keep the right window in the hierarchy tab if the user is actively using it, but otherwise always switch the right window to the inspector.
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
@@ -186,6 +188,7 @@ export class Eagle {
         this.showTableModal = ko.observable(false)
         this.currentFileInfo = ko.observable(null);
         this.currentFileInfoTitle = ko.observable("");
+        this.hierarchyMode = ko.observable(false)
 
         this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
@@ -196,7 +199,7 @@ export class Eagle {
             if(this.selectedObjects().length === 0){
                 this.tableModalType('keyParametersTableModal')
 
-                //changing shortcuts depending on if right window tabs are visible or not 
+                //changing right window shortcuts depending on if right window tabs are visible or not 
                 KeyboardShortcut.changeShortcutKey(this,'open_translation','3',KeyboardShortcut.Modifier.None)
                 KeyboardShortcut.changeShortcutKey(this,'open_inspector','4',KeyboardShortcut.Modifier.None)
             }else{
@@ -232,18 +235,6 @@ export class Eagle {
             }
         }
         return false;
-    }
-
-    static selectedNodeGraph = () : LogicalGraph => {
-        const eagle: Eagle = Eagle.getInstance();
-
-        for (const node of eagle.logicalGraph().getNodes()){
-            if (Node.match(node, eagle.selectedNode())){
-                return eagle.logicalGraph();
-            }
-        }
-        
-        return null;
     }
 
     static selectedNodePalette = () : Palette => {
@@ -331,24 +322,6 @@ export class Eagle {
         this.selectedObjects([]);
 
         this.showDataNodes(!this.showDataNodes());
-    }
-
-    inspectorToggleAll = () : void => {
-        if($('#inspectorAccordion .accordion-button:not(.collapsed)').length>0){
-            $('#inspectorAccordion .accordion-button:not(.collapsed)').click();
-            $("#inspectorCollapseStateIcon i").removeClass('openIcon')
-        }else{
-            $('#inspectorAccordion .accordion-button.collapsed').click();
-        }
-    }
-
-    inspectorCollapseState = () :void => {
-        if($('#inspectorAccordion .accordion-button:not(.collapsed)').length>0){
-            $("#inspectorCollapseStateIcon i").addClass('openIcon')
-        }else{
-            $("#inspectorCollapseStateIcon i").removeClass('openIcon')
-        }
-        
     }
 
     toggleSnapToGrid = () : void => {
@@ -596,8 +569,24 @@ export class Eagle {
             this.rightWindow().mode(rightWindowMode);
         } else {
             this.selectedObjects([selection]);
-            if(this.rightWindow().mode() !== Eagle.RightWindowMode.Inspector && this.rightWindow().mode() !== Eagle.RightWindowMode.Hierarchy){
+
+            //special case if we are selecting multiple things in a palette
+            if(selectedLocation === Eagle.FileType.Palette){
+                this.hierarchyMode(false)
+                this.rightWindow().mode(Eagle.RightWindowMode.Inspector) 
+                return
+            }
+            
+            //if the set selection request came from a hierarchy node, the we set the hierarchy mode to true
+            if(rightWindowMode === Eagle.RightWindowMode.Hierarchy){
+                this.hierarchyMode(true)
+            }
+            
+            //if we have not specifically asked for hierarchy mode, by either interacting with the hierarchy or selected the tab, then we always swap to the inspector.
+            if(!this.hierarchyMode()){
                 this.rightWindow().mode(Eagle.RightWindowMode.Inspector)
+            }else{
+                this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
             }
         }
     }
@@ -631,9 +620,17 @@ export class Eagle {
             this.selectedObjects.push(selection);
         }
 
-        if(this.rightWindow().mode() !== Eagle.RightWindowMode.Inspector && this.rightWindow().mode() !== Eagle.RightWindowMode.Hierarchy){
-            this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
+        //special case if we are selecting multiple things in a palette
+        if(selectedLocation === Eagle.FileType.Palette){
+            this.hierarchyMode(false)
+            this.rightWindow().mode(Eagle.RightWindowMode.Inspector) 
+            return
         }
+
+        if(rightWindowMode === Eagle.RightWindowMode.Hierarchy){
+            this.hierarchyMode(true)
+        }
+        this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
     }
 
     objectIsSelected = (object: Node | Edge): boolean => {
@@ -3116,6 +3113,27 @@ export class Eagle {
         }
     }
 
+    addNodeToLogicalGraphAndConnect = (newNode:Node) : void => {
+        this.addNodeToLogicalGraph(newNode,(node: Node)=>{
+            const realSourceNode = RightClick.edgeDropSrcNode;
+            const realSourcePort = RightClick.edgeDropSrcPort;
+            const realDestNode = node;
+            let realDestPort = node.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
+
+            // if no dest port was found, just use first input port on dest node
+            if (realDestPort === null){
+                realDestPort = node.findPortOfAnyType(realSourcePort.getType());
+            }
+
+            // create edge (in correct direction)
+            if (!RightClick.edgeDropSrcIsInput){
+                this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false,null);
+            } else {    
+                this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, null);
+            }
+        },'contextMenu')
+    }
+
     addNodeToLogicalGraph = (node : any, callback: (node: Node) => void, mode:string) : void => {
         let pos : {x:number, y:number};
         pos = {x:0,y:0}
@@ -3128,12 +3146,19 @@ export class Eagle {
         }
 
         if(mode === 'contextMenu'){
+            let nodeFound = false 
+
             pos = Eagle.selectedRightClickPosition;
             this.palettes().forEach(function(palette){
                 if(palette.findNodeById(node)!==null){
                     node = palette.findNodeById(node)
+                    nodeFound = true
                 }
             })
+
+            if (!nodeFound){
+                node = this.logicalGraph().findNodeById(node)
+            }
             $('#customContextMenu').remove()
         }
 
@@ -4287,6 +4312,28 @@ export class Eagle {
     }
 
     addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
+        // check that none of the supplied nodes and ports are null
+        if (srcNode === null){
+            console.warn("addEdge(): srcNode is null");
+            if (callback !== null) callback(null);
+            return;
+        }
+        if (srcPort === null){
+            console.warn("addEdge(): srcPort is null");
+            if (callback !== null) callback(null);
+            return;
+        }
+        if (destNode === null){
+            console.warn("addEdge(): destNode is null");
+            if (callback !== null) callback(null);
+            return;
+        }
+        if (destPort === null){
+            console.warn("addEdge(): destPort is null");
+            if (callback !== null) callback(null);
+            return;
+        }
+
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
             Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
@@ -4397,85 +4444,96 @@ export class Eagle {
         })
     }
 
-    editNodeCategory = () : void => {
-        let selectedIndex = 0;
-        let eligibleCategories : Category[];
+    getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
+        // if selectedNode is not set, return the list of all categories, even though it won't be rendered (I guess)
+        if (this.selectedNode() === null){
+            return Utils.getCategoriesWithInputsAndOutputs(Category.Type.Unknown, 0, 0);
+        }
 
+        // if selectedNode is set, return a list of categories within the same category type
+        let categoryType: Category.Type = Category.Type.Unknown;
         if (this.selectedNode().isData()){
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Data, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            categoryType = Category.Type.Data;
         } else if (this.selectedNode().isApplication()){
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Application, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            categoryType = Category.Type.Application;
         } else if (this.selectedNode().isConstruct()){
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Construct, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            categoryType = Category.Type.Construct;
         } else {
-            console.warn("Not sure which other nodes are suitable for change, show user all");
-            eligibleCategories = Utils.getCategoriesWithInputsAndOutputs(this.palettes(), Category.Type.Unknown, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+            categoryType = Category.Type.Unknown;
         }
+        
+        return Utils.getCategoriesWithInputsAndOutputs(categoryType, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+    }, this)
 
-        // set selectedIndex to the index of the current category within the eligibleCategories list
-        for (let i = 0 ; i < eligibleCategories.length ; i++){
-            if (eligibleCategories[i] === this.selectedNode().getCategory()){
-                selectedIndex = i;
-                break;
-            }
+    inspectorChangeNodeCategoryRequest = (event:any) : void => {
+
+        if (Setting.findValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES)){
+
+            // request confirmation from user
+            Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", (confirmed : boolean) : void => {
+                if (!confirmed){
+                    //we need to reset the input select to the previous value
+                    $(event.target).val(this.selectedNode().getCategory())
+                    return;
+                }
+                this.inspectorChangeNodeCategory(event)
+            });
+        }else{
+            this.inspectorChangeNodeCategory(event)
         }
-
-        // launch modal
-        Utils.requestUserChoice("Edit Node Category", "NOTE: changing a node's category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category", eligibleCategories, selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
-            if (!completed){
-                return;
-            }
-
-            // change the category of the node
-            this.selectedNode().setCategory(eligibleCategories[userChoiceIndex]);
-
-            // once the category is changed, some things about the node may no longer be valid
-            // for example, the node may contain ports, but no ports are allowed
-
-            // get category data
-            const categoryData = CategoryData.getCategoryData(eligibleCategories[userChoiceIndex]);
-
-            // delete parameters, if necessary
-            if (this.selectedNode().getComponentParameters().length > 0 && !categoryData.canHaveComponentParameters){
-                this.selectedNode().removeAllComponentParameters();
-            }
-
-            // delete application args, if necessary
-            if (this.selectedNode().getApplicationArguments().length > 0 && !categoryData.canHaveApplicationArguments){
-                this.selectedNode().removeAllApplicationArguments();
-            }
-
-            // delete extra input ports
-            if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
-                for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
-                }
-            }
-
-            // delete extra output ports
-            if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
-                for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
-                    this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
-                }
-            }
-
-            // delete input application, if necessary
-            if (this.selectedNode().hasInputApplication() && !categoryData.canHaveInputApplication){
-                this.selectedNode().setInputApplication(null);
-            }
-
-            // delete output application, if necessary
-            if (this.selectedNode().hasOutputApplication() && !categoryData.canHaveOutputApplication){
-                this.selectedNode().setOutputApplication(null);
-            }
-
-            this.flagActiveFileModified();
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Edit Node Category");
-            this.logicalGraph.valueHasMutated();
-        });
     }
 
+    inspectorChangeNodeCategory = (event:any) : void => {
+        const newNodeCategory: Category = $(event.target).val() as Category
+
+        this.selectedNode().setCategory(newNodeCategory)
+
+        // once the category is changed, some things about the node may no longer be valid
+        // for example, the node may contain ports, but no ports are allowed
+
+        // get category data
+        const categoryData = CategoryData.getCategoryData(newNodeCategory);
+
+        // delete parameters, if necessary
+        if (this.selectedNode().getComponentParameters().length > 0 && !categoryData.canHaveComponentParameters){
+            this.selectedNode().removeAllComponentParameters();
+        }
+
+        // delete application args, if necessary
+        if (this.selectedNode().getApplicationArguments().length > 0 && !categoryData.canHaveApplicationArguments){
+            this.selectedNode().removeAllApplicationArguments();
+        }
+
+        // delete extra input ports
+        if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
+            for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
+                this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
+            }
+        }
+
+        // delete extra output ports
+        if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
+            for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
+                this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
+            }
+        }
+
+        // delete input application, if necessary
+        if (this.selectedNode().hasInputApplication() && !categoryData.canHaveInputApplication){
+            this.selectedNode().setInputApplication(null);
+        }
+
+        // delete output application, if necessary
+        if (this.selectedNode().hasOutputApplication() && !categoryData.canHaveOutputApplication){
+            this.selectedNode().setOutputApplication(null);
+        }
+
+        this.flagActiveFileModified();
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Edit Node Category");
+        this.logicalGraph.valueHasMutated();
+    }
+    
     // NOTE: clones the node internally
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
         // copy node

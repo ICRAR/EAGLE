@@ -976,6 +976,21 @@ export class Node {
         return null;
     }
 
+    findPortOfAnyType = (input: boolean) : Field => {
+        if (input){
+            const inputPorts = this.getInputPorts();
+            if (inputPorts.length > 0){
+                return inputPorts[0];
+            }
+        } else {
+            const outputPorts = this.getOutputPorts();
+            if (outputPorts.length > 0){
+                return outputPorts[0];
+            }
+        }
+        return null;
+    }
+
     // TODO: this seems similar to findPortTypeById(), maybe we can just use this one!
     findPortIsInputById = (portId: string) : boolean => {
         // find the port within the node
@@ -2170,6 +2185,11 @@ export class Node {
 
         // check that fields have parameter types that are suitable for this node
         for (const field of node.getFields()){
+            // skip the 'drop class' component parameter, those are always suitable for every node
+            if (field.getDisplayText() === Daliuge.FieldName.DROP_CLASS && field.getParameterType() === Daliuge.FieldType.ComponentParameter){
+                continue;
+            }
+
             if (
                 (field.getParameterType() === Daliuge.FieldType.ComponentParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
                 (field.getParameterType() === Daliuge.FieldType.ApplicationArgument) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments ||
@@ -2251,29 +2271,42 @@ export class Node {
         }
 
         // check that this category of node contains all the fields it requires
-        for (const requirement of Daliuge.requiredFields){
-            if (node.getCategory() === requirement.category){
+        for (const requirement of Daliuge.categoryFieldsRequired){
+            if (requirement.categories.includes(node.getCategory())){
                 for (const requiredField of requirement.fields){
-                    // check if the node already has this field
-                    const existingField = node.getFieldByDisplayText(requiredField.getDisplayText());
+                    Node._checkForField(eagle, node, requiredField, errors);
+                }
+            }
+        }
 
-                    // if not, create one by cloning the required field
-                    // if so, check the attributes of the field match
-                    if (existingField === null){
-                        const message = "Node " + node.getKey() + " (" + node.getName() + ") has category " + node.getCategory() + " but has no '" + requiredField.getDisplayText() + "' field.";
-                        const newField = requiredField.clone();
-                        newField.setId(Utils.uuidv4());
-                        errors.push(ActionMessage.Fix(ActionMessage.Level.Error, message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeAddField(eagle, node, newField)}, "Add '" + newField.getDisplayText() + "' field to node"));
-                    } else {
-                        if (existingField.getParameterType() !== requiredField.getParameterType()){
-                            const message = "Node " + node.getKey() + " (" + node.getName() + ") has a '" + requiredField.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + requiredField.getParameterType();
-                            errors.push(ActionMessage.Fix(ActionMessage.Level.Error, message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldParameterType(eagle, existingField, requiredField.getParameterType())}, "Switch type of field to '" + requiredField.getParameterType()));
-                        }
-                    }
+        // check that this categoryType of node contains all the fields it requires
+        for (const requirement of Daliuge.categoryTypeFieldsRequired){
+            if (requirement.categoryTypes.includes(node.getCategoryType())){
+                for (const requiredField of requirement.fields){
+                    Node._checkForField(eagle, node, requiredField, errors);
                 }
             }
         }
 
         return Utils.worstEdgeError(errors);
+    }
+
+    private static _checkForField = (eagle: Eagle, node: Node, field: Field, errors: ActionMessage[]) : void => {
+        // check if the node already has this field
+        const existingField = node.getFieldByDisplayText(field.getDisplayText());
+
+        // if not, create one by cloning the required field
+        // if so, check the attributes of the field match
+        if (existingField === null){
+            const message = "Node " + node.getKey() + " (" + node.getName() + ") has category " + node.getCategory() + " but has no '" + field.getDisplayText() + "' field.";
+            const newField = field.clone();
+            newField.setId(Utils.uuidv4());
+            errors.push(ActionMessage.Fix(ActionMessage.Level.Error, message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeAddField(eagle, node, newField)}, "Add '" + newField.getDisplayText() + "' field to node"));
+        } else {
+            if (existingField.getParameterType() !== field.getParameterType()){
+                const message = "Node " + node.getKey() + " (" + node.getName() + ") has a '" + field.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + field.getParameterType();
+                errors.push(ActionMessage.Fix(ActionMessage.Level.Error, message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixFieldParameterType(eagle, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType()));
+            }
+        }
     }
 }

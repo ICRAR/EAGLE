@@ -364,12 +364,51 @@ export class Field {
             return true;
         }
 
-        const nameMatch = this.displayText().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
-        const nodeParentNameMatch = Eagle.getInstance().logicalGraph().findNodeByKey(this.nodeKey()).getName().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
-        const useAsMatch = this.usage().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
-        const fieldTypeMatch = this.type().toLowerCase().indexOf(Eagle.tableSearchString().toLowerCase()) >= 0
+        const eagle = (<any>window).eagle;
+        let searchTermNo : number = 0
+        let searchTermTrueNo : number = 0
+        const that = this
 
-        return nameMatch || nodeParentNameMatch || useAsMatch || fieldTypeMatch;
+        Eagle.tableSearchString().toLocaleLowerCase().split(',').forEach(function(term){
+            term = term.trim()
+            searchTermNo ++
+            let result : boolean = false
+
+            //check if the display text matches
+            if(that.displayText().toLowerCase().indexOf(term) >= 0){
+                result = true
+            }
+
+            //check if the node name matches, but only if using the key parameter table modal
+            if(eagle.tableModalType() === 'keyParametersTableModal'){
+                if(Eagle.getInstance().logicalGraph().findNodeByKey(that.nodeKey()).getName().toLowerCase().indexOf(term) >= 0){
+                    result = true
+                }
+            }
+
+            //check if the usage matches
+            if(that.usage().toLowerCase().indexOf(term) >= 0){
+                result = true
+            }
+
+            //check if the parameter type matches
+            if(that.parameterType().toLowerCase().indexOf(term) >= 0){   
+                result = true
+            }
+
+            //check if the type matches
+            if(that.type().toLowerCase().indexOf(term) >= 0){
+                result = true
+            }
+
+            //count up the number of matches
+            if(result){
+                searchTermTrueNo ++
+            }
+        })
+
+        //comparing the numebr of search terms requested with the number of matches, if any of the search terms did not find anything, we retun false
+        return searchTermNo === searchTermTrueNo
     }, this);
 
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {

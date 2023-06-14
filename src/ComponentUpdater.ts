@@ -80,7 +80,7 @@ export class ComponentUpdater {
                 //dest.addField(destField);
                 updates.push(ActionMessage.Fix(ActionMessage.Level.Info, dest.getName() + " (" + dest.getKey() + ") component is missing a '" + srcField.getDisplayText() + "' field", function(){Utils.showNode(eagle, dest.getKey())}, function(){Utils.fixNodeAddField(eagle, dest, newField)},  "Add '" + srcField.getDisplayText() + "' field to " + dest.getName() + " component"));
             }
-           
+
             if (destField !== null){
                 if (destField.getValue() !== srcField.getValue()){
                     updates.push(
@@ -93,10 +93,9 @@ export class ComponentUpdater {
                         )
                     );
                 }
-            }
 
-            // NOTE: we could just use a copy() function here if we had one
-            //destField.copyWithKeyAndId(srcField, srcField.getNodeKey(), srcField.getId());
+                // TODO: check other differences between the destField and srcField
+            }
         }
 
         return updates;
