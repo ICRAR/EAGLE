@@ -107,7 +107,7 @@ export class Repositories {
 
     removeCustomRepository = (repository : Repository) : void => {
         // if settings dictates that we don't confirm with user, remove immediately
-        if (!Setting.findValue(Setting.CONFIRM_REMOVE_REPOSITORES)){
+        if (!Setting.findValue(Setting.CONFIRM_REMOVE_REPOSITORIES)){
             this._removeCustomRepository(repository);
             return;
         }
