@@ -154,6 +154,10 @@ export class RightClick {
                 palette.getNodes().forEach(function(node){
                     x.push(node)
                 })
+
+                eagle.logicalGraph().getNodes().forEach(function(graphNode){
+                    x.push(graphNode)
+                })
             })
 
             compatibleNodesList = x
@@ -164,7 +168,7 @@ export class RightClick {
         })
 
         paletteList = paletteList + RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(),'addAndConnect',compatibleNodesList,'Graph')
-
+        console.log(paletteList)
         return paletteList
     }
 
@@ -245,7 +249,7 @@ export class RightClick {
         if(nodeFound){
             nodesHtml = nodesHtml+htmlPalette;
         }
-        
+
         return nodesHtml
     }
 
@@ -492,7 +496,7 @@ export class RightClick {
     
                     $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
                     var paletteList = RightClick.createHtmlEdgeDragList(data)
-    
+                    console.log(paletteList)
                     $('#rightClickPaletteList').append(paletteList)
     
                     Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
