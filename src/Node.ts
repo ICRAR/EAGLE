@@ -976,6 +976,21 @@ export class Node {
         return null;
     }
 
+    findPortOfAnyType = (input: boolean) : Field => {
+        if (input){
+            const inputPorts = this.getInputPorts();
+            if (inputPorts.length > 0){
+                return inputPorts[0];
+            }
+        } else {
+            const outputPorts = this.getOutputPorts();
+            if (outputPorts.length > 0){
+                return outputPorts[0];
+            }
+        }
+        return null;
+    }
+
     // TODO: this seems similar to findPortTypeById(), maybe we can just use this one!
     findPortIsInputById = (portId: string) : boolean => {
         // find the port within the node

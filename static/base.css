@@ -2505,6 +2505,7 @@ palette-component input.form-control.selected {
     display: none;
     max-height: 400px;
     overflow-y: auto;
+    min-width: 200px;
 }
 
 #customContextMenu a{
@@ -2549,6 +2550,34 @@ palette-component input.form-control.selected {
 
 .rightClickFocus,.rightClickFocusParent{
     background-color: #001d3b;
+}
+
+.rightClickDropdownDividerTitle{
+    position: relative;
+    font-size: 12px;
+    z-index: 1;
+    overflow: hidden;
+    text-align: center;
+    margin-top: 3px;
+}
+
+.rightClickDropdownDividerTitle:before, .rightClickDropdownDividerTitle:after{
+    position: absolute;
+    top: 51%;
+    overflow: hidden;
+    width: 50%;
+    height: 1px;
+    content: '\a0';
+    background-color: rgb(230, 230, 230);
+}
+
+.rightClickDropdownDividerTitle:before {
+    margin-left: -57%;
+    text-align: right;
+}
+
+.rightClickDropdownDividerTitle:after {
+    margin-left: 7%;
 }
 
 .componentSearchBar{

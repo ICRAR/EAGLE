@@ -54,6 +54,7 @@ import {Undo} from './Undo';
 import {Errors} from './Errors';
 import {ComponentUpdater} from './ComponentUpdater';
 import {ParameterTable} from './ParameterTable';
+import { RightClick } from "./RightClick";
 
 export class Eagle {
     static _instance : Eagle;
@@ -3056,6 +3057,27 @@ export class Eagle {
         }
     }
 
+    addNodeToLogicalGraphAndConnect = (newNode:Node) : void => {
+        this.addNodeToLogicalGraph(newNode,(node: Node)=>{
+            const realSourceNode = RightClick.edgeDropSrcNode;
+            const realSourcePort = RightClick.edgeDropSrcPort;
+            const realDestNode = node;
+            let realDestPort = node.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
+
+            // if no dest port was found, just use first input port on dest node
+            if (realDestPort === null){
+                realDestPort = node.findPortOfAnyType(realSourcePort.getType());
+            }
+
+            // create edge (in correct direction)
+            if (!RightClick.edgeDropSrcIsInput){
+                this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false,null);
+            } else {    
+                this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, null);
+            }
+        },'contextMenu')
+    }
+
     addNodeToLogicalGraph = (node : any, callback: (node: Node) => void, mode:string) : void => {
         let pos : {x:number, y:number};
         pos = {x:0,y:0}
@@ -3068,12 +3090,19 @@ export class Eagle {
         }
 
         if(mode === 'contextMenu'){
+            let nodeFound = false 
+
             pos = Eagle.selectedRightClickPosition;
             this.palettes().forEach(function(palette){
                 if(palette.findNodeById(node)!==null){
                     node = palette.findNodeById(node)
+                    nodeFound = true
                 }
             })
+
+            if (!nodeFound){
+                node = this.logicalGraph().findNodeById(node)
+            }
             $('#customContextMenu').remove()
         }
 
@@ -4225,6 +4254,28 @@ export class Eagle {
     }
 
     addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
+        // check that none of the supplied nodes and ports are null
+        if (srcNode === null){
+            console.warn("addEdge(): srcNode is null");
+            if (callback !== null) callback(null);
+            return;
+        }
+        if (srcPort === null){
+            console.warn("addEdge(): srcPort is null");
+            if (callback !== null) callback(null);
+            return;
+        }
+        if (destNode === null){
+            console.warn("addEdge(): destNode is null");
+            if (callback !== null) callback(null);
+            return;
+        }
+        if (destPort === null){
+            console.warn("addEdge(): destPort is null");
+            if (callback !== null) callback(null);
+            return;
+        }
+
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
             Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
@@ -4350,7 +4401,6 @@ export class Eagle {
         } else if (this.selectedNode().isConstruct()){
             categoryType = Category.Type.Construct;
         } else {
-            console.warn("Not sure which other nodes are suitable for change, show user all");
             categoryType = Category.Type.Unknown;
         }
         
