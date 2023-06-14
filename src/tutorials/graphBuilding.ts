@@ -72,10 +72,12 @@ newTut.newTutStep("Enter a Name", "In case of this hello world app we can change
 .setType(TutorialStep.Type.Input)
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(700)
-.setBackPreFunction(function(){$('#parameterTableModal').modal('show')})
 
 newTut.newTutStep("Key Attributes", "You can flag important parameters and attributes of a graph as 'Key Attributes'. These are then all available for editing in one location. <em>Click on the heart to flag this argument as key attribute.</em>", function(){return $('.column_KeyAttr button').first()})  
 .setType(TutorialStep.Type.Press)
+.setBackPreFunction(function(){$('#openNodeFieldsTable').click()})
+.setWaitType(TutorialStep.Wait.Delay)
+.setDelayAmount(700)
 
 newTut.newTutStep("Key Attributes", "You can view the key attributes of a graph by opening the key attributes table located here.", function(){return $("#openKeyParameterTable")})
 .setPreFunction(function(){$('#parameterTableModal').modal('hide')})
