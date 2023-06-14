@@ -3062,7 +3062,12 @@ export class Eagle {
             const realSourceNode = RightClick.edgeDropSrcNode;
             const realSourcePort = RightClick.edgeDropSrcPort;
             const realDestNode = node;
-            const realDestPort = node.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
+            let realDestPort = node.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
+
+            // if no dest port was found, just use first input port on dest node
+            if (realDestPort === null){
+                realDestPort = node.findPortOfAnyType(realSourcePort.getType());
+            }
 
             // create edge (in correct direction)
             if (!RightClick.edgeDropSrcIsInput){
@@ -4249,6 +4254,28 @@ export class Eagle {
     }
 
     addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
+        // check that none of the supplied nodes and ports are null
+        if (srcNode === null){
+            console.warn("addEdge(): srcNode is null");
+            if (callback !== null) callback(null);
+            return;
+        }
+        if (srcPort === null){
+            console.warn("addEdge(): srcPort is null");
+            if (callback !== null) callback(null);
+            return;
+        }
+        if (destNode === null){
+            console.warn("addEdge(): destNode is null");
+            if (callback !== null) callback(null);
+            return;
+        }
+        if (destPort === null){
+            console.warn("addEdge(): destPort is null");
+            if (callback !== null) callback(null);
+            return;
+        }
+
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
             Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
@@ -4374,7 +4401,6 @@ export class Eagle {
         } else if (this.selectedNode().isConstruct()){
             categoryType = Category.Type.Construct;
         } else {
-            console.warn("Not sure which other nodes are suitable for change, show user all");
             categoryType = Category.Type.Unknown;
         }
         
