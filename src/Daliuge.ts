@@ -36,7 +36,6 @@ export class Daliuge {
 
 export namespace Daliuge {
     export enum FieldName {
-        APPLICATION_CLASS = "appclass",
         DATA_VOLUME = "data_volume",
         DROP_CLASS = "dropclass",
         EXECUTION_TIME = "execution_time",
