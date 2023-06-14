@@ -223,24 +223,7 @@ export class Setting {
     }
 
     static showInspectorErrorsWarnings = () : boolean => {
-        const eagle = Eagle.getInstance();
-            
-        const errors = eagle.selectedNode().getErrorsWarnings(eagle);
-        const numWarnings: number = ActionMessage.getNumWarnings();
-        const numErrors: number   = ActionMessage.getNumErrors();
-        // TODO: I don't think this will work, numWarnings/numErrors wont be set by contents of errors
-
-        switch (Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS)){
-            case Setting.ShowErrorsMode.Warnings:
-                return numErrors + numWarnings > 0;
-                break;
-            case Setting.ShowErrorsMode.Errors:
-                return numErrors > 0;
-                break;
-            case Setting.ShowErrorsMode.None:
-            default:
-                return false;
-        }
+        return Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) != Setting.ShowErrorsMode.None;
     }
 
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";

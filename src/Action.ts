@@ -62,6 +62,10 @@ export class ActionMessage {
     }
 
     static hasWarnings = (errors: ActionMessage[]) : boolean => {
+        if (errors === null){
+            return false;
+        }
+
         for (const error of errors){
             if (error.level === ActionMessage.Level.Warning){
                 return true;
@@ -71,6 +75,10 @@ export class ActionMessage {
     }
 
     static hasErrors = (errors: ActionMessage[]) : boolean => {
+        if (errors === null){
+            return false;
+        }
+
         for (const error of errors){
             if (error.level === ActionMessage.Level.Error){
                 return true;
