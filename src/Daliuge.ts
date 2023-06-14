@@ -36,8 +36,8 @@ export class Daliuge {
 
 export namespace Daliuge {
     export enum FieldName {
-        APPLICATION_CLASS = "appclass",
         DATA_VOLUME = "data_volume",
+        DROP_CLASS = "dropclass",
         EXECUTION_TIME = "execution_time",
         GROUP_START = "group_start",
         GROUP_END = "group_end",
@@ -106,27 +106,49 @@ export namespace Daliuge {
     }
 
     // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
-    export const requiredFields = [
+    export const categoryTypeFieldsRequired = [
         {
-            category: Category.MKN,
+            categoryTypes: [
+                Category.Type.Application,
+                Category.Type.Data,
+                Category.Type.Construct
+            ],
+            fields: [
+                new Field("", FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false),
+            ]
+        }
+    ];
+
+    export const categoryFieldsRequired = [
+        {
+            categories: [
+                Category.MKN
+            ],
             fields: [
                 new Field("", FieldName.K, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false),
             ]
         },
         {
-            category: Category.Scatter,
+            categories: [
+                Category.Scatter
+            ],
             fields: [
                 new Field("", FieldName.NUM_OF_COPIES, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
             ]
         },
         {
-            category: Category.Gather,
+            categories: [
+                Category.Gather,
+                Category.GroupBy
+            ],
             fields: [
                 new Field("", FieldName.NUM_OF_INPUTS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
             ]
         },
         {
-            category: Category.Loop,
+            categories: [
+                Category.Loop
+            ],
             fields: [
                 new Field("", FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
             ]
