@@ -4401,7 +4401,6 @@ export class Eagle {
         } else if (this.selectedNode().isConstruct()){
             categoryType = Category.Type.Construct;
         } else {
-            console.warn("Not sure which other nodes are suitable for change, show user all");
             categoryType = Category.Type.Unknown;
         }
         

@@ -1105,7 +1105,7 @@ function render(graph: LogicalGraph, elementId : string, eagle : Eagle){
                                     //getting matches from both the graph and the palettes list
                                     const eligibleComponents = Utils.getComponentsWithMatchingPort('palette graph', !sourcePortIsInput, sourcePort.getType(), dataEligible);
                                     
-                                    console.log("Found", eligibleComponents.length, "eligible automatically suggested components that have a " + (sourcePortIsInput ? "output" : "input") + " port of type:", sourcePort.getType());
+                                    // console.log("Found", eligibleComponents.length, "eligible automatically suggested components that have a " + (sourcePortIsInput ? "output" : "input") + " port of type:", sourcePort.getType());
 
                                     // check we found at least one eligible component
                                     if (eligibleComponents.length === 0){
