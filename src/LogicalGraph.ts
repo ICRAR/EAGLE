@@ -115,6 +115,8 @@ export class LogicalGraph {
     }
 
     static fromOJSJson = (dataObject: any, file: RepositoryFile, errors: ActionMessage[]) : LogicalGraph => {
+        console.log("LG.fromOJSJson()", file.name);
+        
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 

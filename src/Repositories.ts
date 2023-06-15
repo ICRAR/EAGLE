@@ -34,7 +34,7 @@ export class Repositories {
     }
 
     static selectFile = (file : RepositoryFile) : void => {
-        // console.log("selectFile() service:", file.repository.service, "repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
+        console.log("selectFile() service:", file.repository.service, "repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
         const eagle: Eagle = Eagle.getInstance();
 
         // check if the current file has been modified

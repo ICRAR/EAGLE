@@ -217,7 +217,6 @@ export class GitHub {
      * Gets the specified remote file from the server
      */
     static openRemoteFile(file: RepositoryFile, callback: (error : string, data : string) => void ) : void {
-    //static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
         const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
