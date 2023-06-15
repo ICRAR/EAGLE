@@ -26,6 +26,7 @@ import * as Ajv from "ajv";
 import * as Showdown from "showdown";
 import * as ko from "knockout";
 
+import { ActionList } from "./ActionList";
 import { ActionMessage } from "./Action";
 import {Category} from './Category';
 import {CategoryData} from "./CategoryData";
@@ -452,7 +453,7 @@ export class Utils {
 
 
         const eagle: Eagle = Eagle.getInstance();
-        eagle.actionMessages(flatMessages);
+        eagle.actionList().messages(flatMessages);
 
         $('#errorsModalTitle').text(title);
 
@@ -1871,12 +1872,16 @@ export class Utils {
         eagle.selectedObjects.valueHasMutated();
         eagle.logicalGraph().fileInfo().modified = true;
 
-        // TODO: we only neet to re-check graph OR re-determine updates, we don't need to do both!
-        eagle.checkGraph();
-
-        ComponentUpdater.determineUpdates(eagle.palettes(), eagle.logicalGraph(), function(errors: ActionMessage[], updates: ActionMessage[]){
-            eagle.actionMessages(errors.concat(updates));
-        });
+        switch (eagle.actionList().mode()){
+            case ActionList.Mode.CheckGraph:
+                eagle.checkGraph();
+                break;
+            case ActionList.Mode.UpdateComponents:
+                ComponentUpdater.determineUpdates(eagle.palettes(), eagle.logicalGraph(), function(errors: ActionMessage[], updates: ActionMessage[]){
+                    this.messages(errors.concat(updates));
+                });
+                break;
+            }
 
         eagle.undo().pushSnapshot(eagle, "Fix");
     }
@@ -1893,22 +1898,6 @@ export class Utils {
         $('#errorsModal').modal("hide");
 
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findNodeByKey(nodeKey), Eagle.FileType.Graph);
-    }
-
-    // only update result if it is worse that current result
-    static worstEdgeError(errors: ActionMessage[]) : Eagle.LinkValid {
-        const hasWarnings: boolean = ActionMessage.hasWarnings(errors);
-        const hasErrors: boolean   = ActionMessage.hasErrors(errors);
-
-        if (!hasWarnings && !hasErrors){
-            return Eagle.LinkValid.Valid;
-        }
-
-        if (hasErrors){
-            return Eagle.LinkValid.Invalid;
-        }
-
-        return Eagle.LinkValid.Warning;
     }
 
     static printCategories = () : void => {

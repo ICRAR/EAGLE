@@ -24,16 +24,18 @@
 
 import * as ko from "knockout";
 
+import { ActionList } from "./ActionList";
 import { ActionMessage } from "./Action";
 import { Category } from './Category';
 import { CategoryData } from './CategoryData';
-import {Utils} from './Utils';
-import {GraphUpdater} from './GraphUpdater';
-import {Eagle} from './Eagle';
-import {Field} from './Field';
+import { Daliuge } from './Daliuge';
 
-import {Setting} from './Setting';
-import {Daliuge} from './Daliuge';
+import { Eagle } from './Eagle';
+import { Field } from './Field';
+import { GraphUpdater } from './GraphUpdater';
+
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class Node {
     private _id : string
@@ -1471,7 +1473,7 @@ export class Node {
 
         // debug
         //console.log("node", nodeData.text);
-        //console.log("inputAppName", nodeData.inputAppName, "inputApplicationName", nodeData.inputApplicationName, "inpuApplication", nodeData.inputApplication, "inputApplicationType", nodeData.inputApplicationType);
+        //console.log("inputAppName", nodeData.inputAppName, "inputApplicationName", nodeData.inputApplicationName, "inputApplication", nodeData.inputApplication, "inputApplicationType", nodeData.inputApplicationType);
         //console.log("outputAppName", nodeData.outputAppName, "outputApplicationName", nodeData.outputApplicationName, "outputApplication", nodeData.outputApplication, "outputApplicationType", nodeData.outputApplicationType);
 
         // these next six if statements are covering old versions of nodes, that
@@ -2288,7 +2290,7 @@ export class Node {
             }
         }
 
-        return Utils.worstEdgeError(errors);
+        return ActionList.worstError(errors);
     }
 
     private static _checkForField = (eagle: Eagle, node: Node, field: Field, errors: ActionMessage[]) : void => {

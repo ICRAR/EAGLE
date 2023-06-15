@@ -53,6 +53,7 @@ import {Hierarchy} from './Hierarchy';
 import {Undo} from './Undo';
 import {ComponentUpdater} from './ComponentUpdater';
 import {ParameterTable} from './ParameterTable';
+import { ActionList } from "./ActionList";
 import { ActionMessage } from "./Action";
 import { RightClick } from "./RightClick";
 
@@ -89,15 +90,8 @@ export class Eagle {
     rendererFrameCountTick : number;
 
     explorePalettes : ko.Observable<ExplorePalettes>;
-
-    //errorsMode : ko.Observable<Setting.ErrorsMode>;
-    //graphWarnings : ko.ObservableArray<ActionMessage>;
-    //graphErrors : ko.ObservableArray<ActionMessage>;
-    //loadingWarnings : ko.ObservableArray<ActionMessage>;
-    //loadingErrors : ko.ObservableArray<ActionMessage>;
     checkGraphMessages : ko.ObservableArray<ActionMessage>;
-    actionMessages : ko.ObservableArray<ActionMessage>;
-
+    actionList : ko.Observable<ActionList>;
 
     tableModalType : ko.Observable<string>;
     showTableModal : ko.Observable<boolean>;
@@ -175,14 +169,8 @@ export class Eagle {
         this.rendererFrameCountTick = 0;
 
         this.explorePalettes = ko.observable(new ExplorePalettes());
-
-        //this.errorsMode = ko.observable(Setting.ErrorsMode.Loading);
-        //this.graphWarnings = ko.observableArray([]);
-        //this.graphErrors = ko.observableArray([]);
-        //this.loadingWarnings = ko.observableArray([]);
-        //this.loadingErrors = ko.observableArray([]);
         this.checkGraphMessages = ko.observableArray([]);
-        this.actionMessages = ko.observableArray([]);
+        this.actionList = ko.observable(new ActionList());
 
         this.tableModalType = ko.observable('')
         this.showTableModal = ko.observable(false)
@@ -1685,13 +1673,13 @@ export class Eagle {
             filesComplete.push(false);
             const index = i;
             
-            this.openRemoteFile(files[i], function(errors: ActionMessage[], fileType: Eagle.FileType, object: LogicalGraph | Palette){
-                console.log("openRemoteFile callback", "errors:", errors.length, fileType, object);
+            this.openRemoteFile(files[i], function(errors: ActionMessage[], file: RepositoryFile, fileTypeLoaded: Eagle.FileType, object: LogicalGraph | Palette){
+                console.log("openRemoteFile callback", "errors:", errors.length, file.name, fileTypeLoaded, object);
 
                 filesComplete[index] = true;
 
                 // add files to array
-                switch(fileType){
+                switch(fileTypeLoaded){
                     case Eagle.FileType.Graph:
                         logicalGraphs.push({file: files[i], logicalGraph: <LogicalGraph>object, errors: errors});
                         break;
@@ -1714,7 +1702,7 @@ export class Eagle {
         }
     }
 
-    openRemoteFile = (file : RepositoryFile, callback: (errors: ActionMessage[], fileType: Eagle.FileType, object: LogicalGraph | Palette) => void) : void => {
+    openRemoteFile = (file : RepositoryFile, callback: (errors: ActionMessage[], file: RepositoryFile, fileTypeLoaded: Eagle.FileType, object: LogicalGraph | Palette) => void) : void => {
         console.log("openRemoteFile()", file);
 
         // flag file as being fetched
@@ -1746,7 +1734,7 @@ export class Eagle {
             if (error != null){
                 Utils.showUserMessage("Error", error);
                 console.error(error);
-                if (callback !== null) callback([ActionMessage.Error(error)], Eagle.FileType.Unknown, null);
+                if (callback !== null) callback([ActionMessage.Error(error)], file, file.type, null);
                 return;
             }
 
@@ -1762,7 +1750,7 @@ export class Eagle {
                 }
                 catch(err){
                     Utils.showUserMessage("Error parsing file JSON", err.message);
-                    if (callback !== null) callback([ActionMessage.Error(err)], Eagle.FileType.Markdown, null);
+                    if (callback !== null) callback([ActionMessage.Error(err)], file, file.type, null);
                     return;
                 }
 
@@ -1806,10 +1794,24 @@ export class Eagle {
             this.resetEditor();
 
             if (callback !== null){
-                callback(errors, fileTypeLoaded, logicalGraph !== null ? logicalGraph : palette);
+                callback(errors, file, fileTypeLoaded, logicalGraph !== null ? logicalGraph : palette);
             }
         });
     };
+
+    defaultLoad = (errors: ActionMessage[], file: RepositoryFile, fileTypeLoaded: Eagle.FileType, object: LogicalGraph | Palette) : void => {
+        if (fileTypeLoaded === Eagle.FileType.Palette){
+            this.remotePaletteLoaded(file, <Palette>object);
+        }
+
+        // handle graphs
+        if (fileTypeLoaded === Eagle.FileType.Graph){
+            this.remoteGraphLoaded(file, <LogicalGraph>object);
+        }
+
+        // handle errors
+        this.handleLoadingErrors([{file: file, errors: errors}]);
+    }
 
     insertRemoteFile = (file : RepositoryFile) : void => {
         // flag file as being fetched
@@ -1938,7 +1940,7 @@ export class Eagle {
         // show errors/warnings
         //this.handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
-        //this.leftWindow().shown(true);
+        this.leftWindow().shown(true);
     }
 
     updateLogicalGraphFileInfo = (file: RepositoryFile) : void => {
@@ -4260,7 +4262,7 @@ export class Eagle {
         graph_url += "&path=" + encodeURI(fileInfo.path);
         graph_url += "&filename=" + encodeURI(fileInfo.name);
 
-        // copy to cliboard
+        // copy to clipboard
         navigator.clipboard.writeText(graph_url);
 
         // notification
