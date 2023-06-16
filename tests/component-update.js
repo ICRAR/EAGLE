@@ -49,8 +49,8 @@ test('Update components', async t =>{
     // !!!!!!!!!!!!! Click the "component update" button
     await t
         .click(Selector('#checkForComponentUpdates'))
-        .click(Selector('#errorModalFixAll'))
-        .click(Selector('#errorModalOK'));
+        .click(Selector('#actionListModalFixAll'))
+        .click(Selector('#actionListModalOK'));
     await t.wait(3000);
 
     // !!!!!!!!!!!!! EXPORT JSON

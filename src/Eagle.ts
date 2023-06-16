@@ -56,6 +56,7 @@ import {ParameterTable} from './ParameterTable';
 import { ActionList } from "./ActionList";
 import { ActionMessage } from "./Action";
 import { RightClick } from "./RightClick";
+import { GraphChecker } from "./GraphChecker";
 
 export class Eagle {
     static _instance : Eagle;
@@ -90,8 +91,8 @@ export class Eagle {
     rendererFrameCountTick : number;
 
     explorePalettes : ko.Observable<ExplorePalettes>;
-    checkGraphMessages : ko.ObservableArray<ActionMessage>;
     actionList : ko.Observable<ActionList>;
+    graphChecker : ko.Observable<GraphChecker>;
 
     tableModalType : ko.Observable<string>;
     showTableModal : ko.Observable<boolean>;
@@ -169,8 +170,8 @@ export class Eagle {
         this.rendererFrameCountTick = 0;
 
         this.explorePalettes = ko.observable(new ExplorePalettes());
-        this.checkGraphMessages = ko.observableArray([]);
         this.actionList = ko.observable(new ActionList());
+        this.graphChecker = ko.observable(new GraphChecker());
 
         this.tableModalType = ko.observable('')
         this.showTableModal = ko.observable(false)
@@ -698,7 +699,7 @@ export class Eagle {
                 }
 
                 // check graph
-                this.checkGraph();
+                this.graphChecker().check();
                 this.undo().pushSnapshot(this, "Loaded " + fileFullPath);
             });
         });
@@ -735,7 +736,7 @@ export class Eagle {
 
                 // TODO: handle errors and warnings
 
-                this.checkGraph();
+                this.graphChecker().check();
                 this.undo().pushSnapshot(this, "Insert Logical Graph");
                 this.logicalGraph.valueHasMutated();
             });
@@ -762,7 +763,7 @@ export class Eagle {
         if (combinedErrorCount > 0){
             if (showErrors){
                 // add warnings/errors to the arrays
-                Utils.showActionMessagesModal("Loading File", combinedErrors);
+                Utils.showActionListModal("Loading File", combinedErrors);
             }
         } else {
             const messages: string[] = [];
@@ -849,12 +850,12 @@ export class Eagle {
 
         // flag graph as changed
         this.flagActiveFileModified();
-        this.checkGraph();
+        this.graphChecker().check();
         this.undo().pushSnapshot(this, "Create Subgraph from Selection");
         this.logicalGraph.valueHasMutated();
     }
 
-    checkErrorModalShowError = (data:any) :void =>{
+    checkGraphModalShowError = (data:any) :void =>{
         data.show()
         this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
     }
@@ -895,7 +896,7 @@ export class Eagle {
 
             // flag graph as changed
             this.flagActiveFileModified();
-            this.checkGraph();
+            this.graphChecker().check();
             this.undo().pushSnapshot(this, "Add Selection to Construct");
             this.logicalGraph.valueHasMutated();
         });
@@ -1132,7 +1133,7 @@ export class Eagle {
         this.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
-            this.checkGraph();
+            this.graphChecker().check();
             this.undo().pushSnapshot(this, "New Logical Graph");
             this.logicalGraph.valueHasMutated();
             Utils.showNotification("New Graph Created",name, "success");
@@ -1199,7 +1200,7 @@ export class Eagle {
             // TODO: show errors
 
             // ensure changes are reflected in display
-            this.checkGraph();
+            this.graphChecker().check();
             this.undo().pushSnapshot(this, "Added from JSON");
             this.logicalGraph.valueHasMutated();
         });
@@ -1885,7 +1886,7 @@ export class Eagle {
             // trigger re-render
             this.logicalGraph.valueHasMutated();
             this.undo().pushSnapshot(this, "Inserted " + file.name);
-            this.checkGraph();
+            this.graphChecker().check();
 
             // show errors/warnings
             this.handleLoadingErrors([{file: file, errors:errors}]);
@@ -1918,7 +1919,7 @@ export class Eagle {
         this.centerGraph();
 
         // check graph
-        this.checkGraph();
+        this.graphChecker().check();
         this.undo().pushSnapshot(this, "Loaded " + file.name);
 
         // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
@@ -2268,7 +2269,7 @@ export class Eagle {
         sourceNode.setGroupEnd(this.selectedEdge().isClosesLoop());
         destNode.setGroupStart(this.selectedEdge().isClosesLoop());
 
-        this.checkGraph();
+        this.graphChecker().check();
 
         const groupStartValue = destNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).getValue();
         const groupEndValue = sourceNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).getValue();
@@ -2331,8 +2332,17 @@ export class Eagle {
         Utils.hideSettingsModal();
     }
 
-    closeErrorsModal = () : void => {
-        Utils.closeErrorsModal();
+    openCheckGraphModal = (): void => {
+        if (this.graphChecker().issues().length > 0){
+            // show graph modal
+            this.smartToggleModal('checkGraphModal')
+        } else {
+            Utils.showNotification("Check Graph", "Graph OK", "success");
+        }
+    }
+
+    closeCheckGraphModal = () : void => {
+        Utils.closeCheckGraphModal();
     }
 
     smartToggleModal = (modal:string) : void => {
@@ -2496,8 +2506,10 @@ export class Eagle {
                 return;
             }
 
+            const eagle: Eagle = Eagle.getInstance();
+
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(eagle.logicalGraph(), edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -2510,7 +2522,7 @@ export class Eagle {
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
             this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
-                this.checkGraph();
+                this.graphChecker().check();
                 this.undo().pushSnapshot(this, "Add edge");
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
@@ -2520,6 +2532,7 @@ export class Eagle {
 
     editSelectedEdge = () : void => {
         const selectedEdge: Edge = this.selectedEdge();
+        const eagle: Eagle = Eagle.getInstance();
 
         if (selectedEdge === null){
             console.log("Unable to edit selected edge: No edge selected");
@@ -2542,7 +2555,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(eagle.logicalGraph(), edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -2556,7 +2569,7 @@ export class Eagle {
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(selectedEdge.getId());
             this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
-                this.checkGraph();
+                this.graphChecker().check();
                 this.undo().pushSnapshot(this, "Edit edge");
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
@@ -2603,7 +2616,7 @@ export class Eagle {
                     }
 
                     this.insertGraph(nodes, edges, null, errors);
-                    this.checkGraph();
+                    this.graphChecker().check();
                     this.undo().pushSnapshot(this, "Duplicate selection");
                     this.logicalGraph.valueHasMutated();
                 }
@@ -2776,14 +2789,14 @@ export class Eagle {
         this.insertGraph(nodes, edges, null, errors);
 
         // display notification to user
-        if (ActionMessage.hasErrors(errors) || ActionMessage.hasWarnings(errors)){
+        if (ActionList.hasErrors(errors) || ActionList.hasWarnings(errors)){
 
         } else {
             Utils.showNotification("Pasted from clipboard", "Pasted " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
         }
 
         // ensure changes are reflected in display
-        this.checkGraph();
+        this.graphChecker().check();
         this.undo().pushSnapshot(this, "Paste from Clipboard");
         this.logicalGraph.valueHasMutated();
     }
@@ -3054,7 +3067,7 @@ export class Eagle {
             // flag LG has changed
             this.logicalGraph().fileInfo().modified = true;
 
-            this.checkGraph();
+            this.graphChecker().check();
             this.undo().pushSnapshot(this, "Delete Selection");
         }
 
@@ -3218,7 +3231,7 @@ export class Eagle {
                 });
             }
 
-            this.checkGraph();
+            this.graphChecker().check();
             this.undo().pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
 
@@ -3677,7 +3690,7 @@ export class Eagle {
             }
 
             // refresh the display
-            this.checkGraph();
+            this.graphChecker().check();
             this.undo().pushSnapshot(this, "Change Node Parent");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
@@ -3725,7 +3738,7 @@ export class Eagle {
             selectedNode.setSubjectKey(newSubjectKey);
 
             // refresh the display
-            this.checkGraph();
+            this.graphChecker().check();
             this.undo().pushSnapshot(this, "Change Node Subject");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
@@ -3771,7 +3784,7 @@ export class Eagle {
             destinationPort.setType(newType);
 
             // flag changes
-            this.checkGraph();
+            this.graphChecker().check();
             this.undo().pushSnapshot(this, "Change Edge Data Type");
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
@@ -3799,7 +3812,7 @@ export class Eagle {
             }
         }
 
-        this.checkGraph();
+        this.graphChecker().check();
         this.undo().pushSnapshot(this, "Remove port from node");
         this.flagActiveFileModified();
         this.selectedObjects.valueHasMutated();
@@ -3999,7 +4012,7 @@ export class Eagle {
                     node.addField(clone);
                 }
 
-                this.checkGraph();
+                this.graphChecker().check();
                 this.undo().pushSnapshot(this, "Add field");
             });
 
@@ -4026,7 +4039,7 @@ export class Eagle {
                 // update field data (keep existing nodeKey and id)
                 field.copyWithKeyAndId(newField, field.getNodeKey(), field.getId());
 
-                this.checkGraph();
+                this.graphChecker().check();
                 this.undo().pushSnapshot(this, "Edit Field");
 
                 // if we summoned this editField modal from the params table, now that we are done, re-open the params table
@@ -4169,7 +4182,7 @@ export class Eagle {
 
             node.setInputApplication(inputApplication);
 
-            this.checkGraph();
+            this.graphChecker().check();
             this.undo().pushSnapshot(this, "Set Node Input Application");
         });
     }
@@ -4191,7 +4204,7 @@ export class Eagle {
 
             node.setOutputApplication(outputApplication);
 
-            this.checkGraph();
+            this.graphChecker().check();
             this.undo().pushSnapshot(this, "Set Node Output Application");
         });
     }
@@ -4267,28 +4280,6 @@ export class Eagle {
 
         // notification
         Utils.showNotification("Graph URL", "Copied to clipboard", "success");
-    }
-
-    checkGraph = (): void => {
-        const checkResult = Utils.checkGraph(this);
-
-        this.checkGraphMessages(checkResult);
-    };
-
-    showGraphErrors = (): void => {
-        if (this.checkGraphMessages().length > 0){
-
-            // switch to graph errors mode
-            //this.errorsMode(Setting.ErrorsMode.Graph);
-
-            // make sure to display the check graph messages when the modal is displayed
-            this.actionMessages(this.checkGraphMessages());
-
-            // show graph modal
-            this.smartToggleModal('errorsModal')
-        } else {
-            Utils.showNotification("Check Graph", "Graph OK", "success");
-        }
     }
 
     addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
@@ -4509,7 +4500,7 @@ export class Eagle {
         }
 
         this.flagActiveFileModified();
-        this.checkGraph();
+        this.graphChecker().check();
         this.undo().pushSnapshot(this, "Edit Node Category");
         this.logicalGraph.valueHasMutated();
     }
@@ -4588,7 +4579,7 @@ export class Eagle {
         ComponentUpdater.determineUpdates(this.palettes(), this.logicalGraph(), function(errors: ActionMessage[], updates: ActionMessage[]){
             console.log("callback", errors, updates);
 
-            Utils.showActionMessagesModal("Update Graph Components", [{source:"", messages:errors.concat(updates)}]);
+            Utils.showActionListModal("Update Graph Components", [{source:"", messages:errors.concat(updates)}]);
         });
     }
 }
@@ -4657,9 +4648,9 @@ $( document ).ready(function() {
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
-        $("#errorsModalAccordion").parent().parent().attr('style','')
+        $("#checkGraphModalAccordion").parent().parent().attr('style','')
 
-        //reset parameter table selecction
+        //reset parameter table selection
         ParameterTable.resetSelection()
     }); 
 

@@ -342,7 +342,7 @@ export class Modals {
 
         $('#parameterTableModal').on('hidden.bs.modal', function(){
             eagle.showTableModal(false)
-            eagle.checkGraph();
+            eagle.graphChecker().check();
         });
 
         $('#parameterTableModal').on('shown.bs.modal', function(){        

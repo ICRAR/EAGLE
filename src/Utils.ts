@@ -440,8 +440,8 @@ export class Utils {
         }
     }
 
-    static showActionMessagesModal(title: string, combinedMessages: {source: string, messages: ActionMessage[]}[]){
-        console.log("showActionMessagesModal() messages:", combinedMessages.length);
+    static showActionListModal(title: string, combinedMessages: {source: string, messages: ActionMessage[]}[]){
+        console.log("showActionListModal() messages:", combinedMessages.length);
         //console.trace();
 
         const flatMessages: ActionMessage[] = [];
@@ -455,12 +455,12 @@ export class Utils {
         const eagle: Eagle = Eagle.getInstance();
         eagle.actionList().messages(flatMessages);
 
-        $('#errorsModalTitle').text(title);
+        $('#actionListModalTitle').text(title);
 
         // hide whole errors or warnings sections if none are found
-        $('#errorsModalMessagesAccordionItem').toggle(flatMessages.length > 0);
+        $('#actionListModalMessagesAccordionItem').toggle(flatMessages.length > 0);
 
-        $('#errorsModal').modal("toggle");
+        $('#actionListModal').modal("toggle");
     }
 
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
@@ -725,8 +725,8 @@ export class Utils {
         $('#shortcutsModal').modal("hide");
     }
 
-    static closeErrorsModal() : void {
-        $('#errorsModal').modal("hide");
+    static closeCheckGraphModal() : void {
+        $('#checkGraphModal').modal("hide");
     }
 
     static showPalettesModal(eagle: Eagle) : void {
@@ -1387,25 +1387,7 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of palette.getNodes()){
-            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errors);
-        }
-
-        return errors;
-    }
-
-    static checkGraph(eagle: Eagle): ActionMessage[] {
-        const errors: ActionMessage[] = [];
-
-        const graph: LogicalGraph = eagle.logicalGraph();
-
-        // check all nodes are valid
-        for (const node of graph.getNodes()){
-            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errors);
-        }
-
-        // check all edges are valid
-        for (const edge of graph.getEdges()){
-            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errors);
+            Node.isValid(null, node, Eagle.selectedLocation(), false, false, errors);
         }
 
         return errors;
@@ -1579,7 +1561,7 @@ export class Utils {
 
     static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
         const displayShorcuts : {description:string, shortcut : string, function : any} []=[];
-        const eagle = (<any>window).eagle;
+        const eagle: Eagle = Eagle.getInstance();
 
         for (const object of Eagle.shortcuts){
             // skip if shortcut should not be displayed
@@ -1654,9 +1636,7 @@ export class Utils {
         return value.toLowerCase() === "true";
     }
 
-    static fixEdgeType(eagle: Eagle, edgeId: string, newType: string) : void {
-        const edge = eagle.logicalGraph().findEdgeById(edgeId);
-
+    static fixEdgeType(edge: Edge, newType: string) : void {
         if (edge === null){
             return;
         }
@@ -1664,19 +1644,20 @@ export class Utils {
         edge.setDataType(newType);
     }
 
-    static fixDeleteEdge(eagle: Eagle, edgeId: string): void {
-        eagle.logicalGraph().removeEdgeById(edgeId);
+    static fixDeleteEdge(logicalGraph: LogicalGraph, edgeId: string): void {
+        logicalGraph.removeEdgeById(edgeId);
     }
 
-    static fixPortType(eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
+    static fixPortType(sourcePort: Field, destinationPort: Field): void {
         destinationPort.setType(sourcePort.getType());
     }
 
-    static fixNodeAddField(eagle: Eagle, node: Node, field: Field){
+    static fixNodeAddField(node: Node, field: Field){
         node.addField(field);
     }
 
-    static fixNodeFieldIds(eagle: Eagle, nodeKey: number){
+    static fixNodeFieldIds(nodeKey: number){
+        const eagle: Eagle = Eagle.getInstance();
         const node: Node = eagle.logicalGraph().findNodeByKey(nodeKey);
 
         if (node === null){
@@ -1690,12 +1671,12 @@ export class Utils {
         }
     }
 
-    static fixNodeCategory(eagle: Eagle, node: Node, category: Category){
+    static fixNodeCategory(node: Node, category: Category){
         node.setCategory(category);
     }
 
     // NOTE: merges field1 into field0
-    static fixNodeMergeFieldsByIndex(eagle: Eagle, node: Node, field0Index: number, field1Index: number){
+    static fixNodeMergeFieldsByIndex(logicalGraph: LogicalGraph, node: Node, field0Index: number, field1Index: number){
         //console.log("fixNodeMergeFieldsByIndex()", node.getName(), field0Index, field1Index);
 
         // abort if one or more of the fields is not found
@@ -1718,11 +1699,11 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(eagle, field1.getId(), field0.getId());
+        this._mergeEdges(logicalGraph, field1.getId(), field0.getId());
     }
 
     // NOTE: merges field1 into field0
-    static fixNodeMergeFields(eagle: Eagle, node: Node, field0: Field, field1: Field){
+    static fixNodeMergeFields(logicalGraph: LogicalGraph, node: Node, field0: Field, field1: Field){
         //console.log("fixNodeMergeFieldsById()", node.getName(), field0.getDisplayText(), field1.getDisplayText());
 
         // abort if one or more of the fields is not found
@@ -1745,7 +1726,7 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(eagle, field1.getId(), field0.getId());
+        this._mergeEdges(logicalGraph, field1.getId(), field0.getId());
     }
 
     static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
@@ -1767,9 +1748,9 @@ export class Utils {
         return result;
     }
 
-    static _mergeEdges(eagle: Eagle, oldFieldId: string, newFieldId: string){
+    static _mergeEdges(logicalGraph: LogicalGraph, oldFieldId: string, newFieldId: string){
         // update all edges to use new field
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (const edge of logicalGraph.getEdges()){
             // update src port
             if (edge.getSrcPortId() === oldFieldId){
                 edge.setSrcPortId(newFieldId);
@@ -1782,11 +1763,11 @@ export class Utils {
         }
     }
 
-    static fixFieldId(eagle: Eagle, field: Field){
+    static fixFieldId(field: Field){
         field.setId(Utils.uuidv4());
     }
 
-    static fixFieldValue(eagle: Eagle, node: Node, exampleField: Field, value: string){
+    static fixFieldValue(node: Node, exampleField: Field, value: string){
         let field : Field = node.getFieldByDisplayText(exampleField.getDisplayText());
 
         // if a field was not found, clone one from the example and add to node
@@ -1799,7 +1780,7 @@ export class Utils {
         field.setValue(value);
     }
 
-    static fixFieldDefaultValue(eagle: Eagle, field: Field){
+    static fixFieldDefaultValue(field: Field){
         // depends on the type
         switch(field.getType()){
             case Daliuge.DataType.Boolean:
@@ -1820,7 +1801,7 @@ export class Utils {
         }
     }
 
-    static fixFieldType(eagle: Eagle, field: Field){
+    static fixFieldType(field: Field){
         if (field.getType() === Daliuge.DataType.Unknown){
             field.setType(Daliuge.DataType.Object);
             return;
@@ -1835,10 +1816,10 @@ export class Utils {
         field.setType(Daliuge.DataType.Object + "." + field.getType());
     }
 
-    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){
-        const edge = eagle.logicalGraph().findEdgeById(edgeId);
-        const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-        const destNode = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+    static fixMoveEdgeToEmbeddedApplication(logicalGraph: LogicalGraph, edgeId: string){
+        const edge = logicalGraph.findEdgeById(edgeId);
+        const srcNode = logicalGraph.findNodeByKey(edge.getSrcNodeKey());
+        const destNode = logicalGraph.findNodeByKey(edge.getDestNodeKey());
 
         // if the SOURCE node is a construct, find the port within the embedded apps, and modify the edge with a new source node
         if (srcNode.getCategoryType() === Category.Type.Construct){
@@ -1859,43 +1840,24 @@ export class Utils {
         }
     }
 
-    static fixFieldParameterType(eagle: Eagle, field: Field, newType: Daliuge.FieldType){
+    static fixFieldParameterType(field: Field, newType: Daliuge.FieldType){
         field.setParameterType(newType);
     }
 
-    static callFixFunc(eagle: Eagle, fixFunc: () => void){
-        fixFunc();
-        Utils.postFixFunc(eagle);
-    }
+    static showEdge(edgeId: string): void {
+        const eagle: Eagle = Eagle.getInstance();
 
-    static postFixFunc(eagle: Eagle){
-        eagle.selectedObjects.valueHasMutated();
-        eagle.logicalGraph().fileInfo().modified = true;
-
-        switch (eagle.actionList().mode()){
-            case ActionList.Mode.CheckGraph:
-                eagle.checkGraph();
-                break;
-            case ActionList.Mode.UpdateComponents:
-                ComponentUpdater.determineUpdates(eagle.palettes(), eagle.logicalGraph(), function(errors: ActionMessage[], updates: ActionMessage[]){
-                    this.messages(errors.concat(updates));
-                });
-                break;
-            }
-
-        eagle.undo().pushSnapshot(eagle, "Fix");
-    }
-
-    static showEdge(eagle: Eagle, edgeId: string): void {
         // close errors modal if visible
-        $('#errorsModal').modal("hide");
+        $('#checkGraphModal').modal("hide");
 
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
 
-    static showNode(eagle: Eagle, nodeKey: number): void {
+    static showNode(nodeKey: number): void {
+        const eagle: Eagle = Eagle.getInstance();
+
         // close errors modal if visible
-        $('#errorsModal').modal("hide");
+        $('#checkGraphModal').modal("hide");
 
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findNodeByKey(nodeKey), Eagle.FileType.Graph);
     }

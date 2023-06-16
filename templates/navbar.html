@@ -60,12 +60,12 @@
             </button>
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                 <ul class="nav navbar-nav ms-4">
-                    <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: ActionList.getNumWarnings() === 0 && ActionList.getNumErrors() === 0, eagleTooltip: 'Check Graph for Errors'">
+                    <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: openCheckGraphModal, visible: graphChecker().getNumWarnings() === 0 && graphChecker().getNumErrors() === 0, eagleTooltip: 'Check Graph for Errors'">
                         <i class="material-icons md-18">done_all</i>
                     </button>
-                    <button id="checkGraphWarnings" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: showGraphErrors, visible: ActionList.getNumWarnings() > 0 || ActionList.getNumErrors() > 0, css: {'btn-outline-warning': ActionList.getNumWarnings() > 0, 'btn-outline-danger': ActionList.getNumErrors() > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)">
-                        <span class="badge bg-warning" data-bind="text: ActionList.getNumWarnings(), visible: ActionList.getNumWarnings() > 0"></span>
-                        <span class="badge bg-danger" data-bind="text: ActionList.getNumErrors(), visible: ActionList.getNumErrors() > 0"></span>
+                    <button id="checkGraphWarnings" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: openCheckGraphModal, visible: graphChecker().getNumWarnings() > 0 || graphChecker().getNumErrors() > 0, css: {'btn-outline-warning': graphChecker().getNumWarnings() > 0, 'btn-outline-danger': graphChecker().getNumErrors() > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)">
+                        <span class="badge bg-warning" data-bind="text: graphChecker().getNumWarnings(), visible: graphChecker().getNumWarnings() > 0"></span>
+                        <span class="badge bg-danger" data-bind="text: graphChecker().getNumErrors(), visible: graphChecker().getNumErrors() > 0"></span>
                     </button>
                 </ul>
             <!-- /ko -->

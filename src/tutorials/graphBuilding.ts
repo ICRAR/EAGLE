@@ -115,15 +115,15 @@ newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the
 newTut.newTutStep("Graph Errors and warnings", "Notice that we have a few graph warnings detected. <em>Click here to view them</em>", function(){return $("#checkGraphWarnings")})
 .setType(TutorialStep.Type.Press)
 
-newTut.newTutStep("Graph Errors and warnings", "This modal may aid you in troubleshooting graphs. In this case these errors are all port type errors. Eagle can automatically fix errors such as these for you. To do this you can press 'F' in the graph or <em>click on 'Fix All'</em>", function(){return $("#errorModalFixAll")})
+newTut.newTutStep("Graph Errors and warnings", "This modal may aid you in troubleshooting graphs. In this case these errors are all port type errors. Eagle can automatically fix errors such as these for you. To do this you can press 'F' in the graph or <em>click on 'Fix All'</em>", function(){return $("#checkGraphModalFixAll")})
 .setType(TutorialStep.Type.Press)
 .setWaitType(TutorialStep.Wait.Modal)
-.setAlternateHighlightTargetFunc(function(){return $("#errorModalFixAll").parent().parent()})
-.setBackPreFunction(function(){$('#errorsModal').modal('show')})
+.setAlternateHighlightTargetFunc(function(){return $("#checkGraphModalFixAll").parent().parent()})
+.setBackPreFunction(function(eagle:Eagle){eagle.openCheckGraphModal()})
 
 newTut.newTutStep("Saving a Graph", "Options to save your graph are available in the graph menu <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(eagle:Eagle){eagle.closeErrorsModal()})
+.setPreFunction(function(eagle:Eagle){eagle.closeCheckGraphModal()})
 .setBackPreFunction(function(){$('.forceShow').removeClass('forceShow');$(".dropdown-toggle").removeClass("show");$(".dropdown-menu").removeClass("show")}) //allowing the graph navbar dropdown to hide
 
 newTut.newTutStep("Saving a Graph", "You are able to download the graph in the 'local storage' section, or save the graph into your github repository under 'git storage'", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-menu')})

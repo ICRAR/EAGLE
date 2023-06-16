@@ -125,7 +125,7 @@ export class Undo {
             Undo.printTable();
         }
 
-        eagle.checkGraph();
+        eagle.graphChecker().check();
     }
 
     nextSnapshot = (eagle: Eagle) : void => {
@@ -142,7 +142,7 @@ export class Undo {
             Undo.printTable();
         }
 
-        eagle.checkGraph();
+        eagle.graphChecker().check();
     }
 
     toString = () : string => {

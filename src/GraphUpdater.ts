@@ -22,17 +22,18 @@
 #
 */
 
+import { ActionMessage } from './Action';
 import {Category} from './Category';
 import {Eagle} from './Eagle';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
+import { GraphChecker } from './GraphChecker';
 import {LogicalGraph} from './LogicalGraph';
 import {Repositories} from './Repositories';
 import {Repository} from './Repository';
 import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
 import {Utils} from './Utils';
-import { ActionMessage } from './Action';
 
 export class GraphUpdater {
 
@@ -375,7 +376,7 @@ export class GraphUpdater {
                         row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
 
                         // check the graph once loaded
-                        const results: ActionMessage[] = Utils.checkGraph(eagle);
+                        const results: ActionMessage[] = GraphChecker.check(lg);
                         row.numCheckErrors = results.length;
                     }
 

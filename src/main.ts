@@ -173,7 +173,7 @@ $(function(){
             eagle.centerGraph();
 
             // check graph
-            eagle.checkGraph();
+            eagle.graphChecker().check();
 
             // HACK: we assume the urlAutoLoadFile is the graph file, may not be the case!
 
@@ -222,9 +222,9 @@ $(function(){
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
-        $("#errorsModalAccordion").parent().parent().attr('style','')
+        $("#checkGraphModalAccordion").parent().parent().attr('style','')
 
-        //reset parameter table selecction
+        //reset parameter table selection
         ParameterTable.resetSelection()
     });
 

@@ -78,7 +78,7 @@ export class ComponentUpdater {
             if (destField === null){
                 const newField = srcField.clone();
                 //dest.addField(destField);
-                updates.push(ActionMessage.Fix(ActionMessage.Level.Info, dest.getName() + " (" + dest.getKey() + ") component is missing a '" + srcField.getDisplayText() + "' field", function(){Utils.showNode(eagle, dest.getKey())}, function(){Utils.fixNodeAddField(eagle, dest, newField)},  "Add '" + srcField.getDisplayText() + "' field to " + dest.getName() + " component"));
+                updates.push(ActionMessage.Fix(ActionMessage.Level.Info, dest.getName() + " (" + dest.getKey() + ") component is missing a '" + srcField.getDisplayText() + "' field", function(){Utils.showNode(dest.getKey())}, function(){Utils.fixNodeAddField(dest, newField)},  "Add '" + srcField.getDisplayText() + "' field to " + dest.getName() + " component"));
             }
 
             if (destField !== null){
@@ -87,8 +87,8 @@ export class ComponentUpdater {
                         ActionMessage.Fix(
                             ActionMessage.Level.Info,
                             dest.getName() + " (" + dest.getKey() + ") component '" + srcField.getDisplayText() + "' field has different value",
-                            function(){Utils.showNode(eagle, dest.getKey())},
-                            function(){Utils.fixFieldValue(eagle, dest, srcField, srcField.getValue())}, 
+                            function(){Utils.showNode(dest.getKey())},
+                            function(){Utils.fixFieldValue(dest, srcField, srcField.getValue())}, 
                             "Update " + dest.getName() + " (" + dest.getKey() + ") field '" + srcField.getDisplayText() + "' from " + destField.getValue() + " to " + srcField.getValue()
                         )
                     );
