@@ -2239,10 +2239,12 @@ export class Node {
 
         // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
         let isConnected: boolean = false;
-        for (const edge of logicalGraph.getEdges()){
-            if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
-                isConnected = true;
-                break;
+        if (logicalGraph !== null){
+            for (const edge of logicalGraph.getEdges()){
+                if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
+                    isConnected = true;
+                    break;
+                }
             }
         }
 
