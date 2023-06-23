@@ -47,7 +47,7 @@ import { RepositoryFile } from "./RepositoryFile";
 import { UiModeSystem } from "./UiModes";
 
 export class Utils {
-    // Allowed file extenstions.
+    // Allowed file extensions
     static readonly FILE_EXTENSIONS : string[] = [
         "json",
         "diagram",
@@ -454,6 +454,7 @@ export class Utils {
 
         const eagle: Eagle = Eagle.getInstance();
         eagle.actionList().messages(flatMessages);
+        console.log("eagle actionList messages length", eagle.actionList().messages().length);
 
         $('#actionListModalTitle').text(title);
 
@@ -1560,7 +1561,7 @@ export class Utils {
     }
 
     static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
-        const displayShorcuts : {description:string, shortcut : string, function : any} []=[];
+        const displayShortcuts : {description:string, shortcut : string, function : any} []=[];
         const eagle: Eagle = Eagle.getInstance();
 
         for (const object of Eagle.shortcuts){
@@ -1570,10 +1571,10 @@ export class Utils {
             }
 
             const shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false);
-            displayShorcuts.push({description: object.name, shortcut: shortcut,function:object.run});
+            displayShortcuts.push({description: object.name, shortcut: shortcut,function:object.run});
         }
 
-        return displayShorcuts;
+        return displayShortcuts;
     }
 
     static getKeyboardShortcutTextByKey = (key: string, addBrackets: boolean) : string => {

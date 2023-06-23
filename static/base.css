@@ -277,7 +277,7 @@ body {
     overflow-y: auto;
 }
 
-#parameterTableModal .modal-dialog .typesInput, #edintFieldModal .modal-dialog .typesInput{
+#parameterTableModal .modal-dialog .typesInput, #editFieldModal .modal-dialog .typesInput{
     padding: 0px;
     height: 35px;
     width: 100%;

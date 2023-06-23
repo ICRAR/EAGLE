@@ -4069,7 +4069,7 @@ export class Eagle {
         setTimeout(function() {
             //handling selecting and highlighting the newly created node
             const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
-            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
+            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update process
             clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
 
             $("#parameterTableModal .modal-body").animate({
@@ -4578,8 +4578,10 @@ export class Eagle {
 
         ComponentUpdater.determineUpdates(this.palettes(), this.logicalGraph(), function(errors: ActionMessage[], updates: ActionMessage[]){
             console.log("callback", errors, updates);
+            const combined: ActionMessage[] = errors.concat(updates);
+            console.log("combined", combined);
 
-            Utils.showActionListModal("Update Graph Components", [{source:"", messages:errors.concat(updates)}]);
+            Utils.showActionListModal("Update Graph Components", [{source:"", messages:combined}]);
         });
     }
 }

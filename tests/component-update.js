@@ -49,7 +49,7 @@ test('Update components', async t =>{
     // !!!!!!!!!!!!! Click the "component update" button
     await t
         .click(Selector('#checkForComponentUpdates'))
-        .click(Selector('#actionListModalFixAll'))
+        .click(Selector('#actionListModalPerformAll'))
         .click(Selector('#actionListModalOK'));
     await t.wait(3000);
 

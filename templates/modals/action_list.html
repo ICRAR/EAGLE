@@ -63,11 +63,38 @@
                         </div>
                     </div>
 
+                    <div class="accordion-item" id="actionListModalInfoAccordionItem">
+                        <h2 class="accordion-header" id="actionListAccordionHeadingThree">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#actionListAccordionCollapseThree" aria-expanded="true" aria-controls="actionListAccordionCollapseThree"> Info&nbsp;<span id="actionListModalInfoCount" data-bind="text: '[' + actionList().getNumInfo() + ']'"></span></button>
+                        </h2>
+                        <div id="actionListAccordionCollapseThree" class="accordion-collapse collapse show" aria-labelledby="actionListAccordionHeadingThree">
+                            <div class="accordion-body" id="actionListModalInfoAccordionBody">
+                                <ul class="list-group">
+                                <!-- ko foreach: actionList().messages -->
+                                    <!-- ko if: $data.level === ActionMessage.Level.Info -->
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span data-bind="text: $data.message"></span>
+                                            <div>
+                                            <!-- ko if: $data.show !== null -->
+                                                <button class="btn btn-secondary btn-sm" data-bind="click: function($data){$root.actionListModalShowError($data)}, eagleTooltip: 'Show object to investigate info'">Show</button>
+                                            <!-- /ko -->
+                                            <!-- ko if: $data.fix !== null -->
+                                                <button class="btn btn-primary btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
+                                            <!-- /ko -->
+                                            </div>
+                                        </li>
+                                    <!-- /ko -->
+                                <!-- /ko -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
             <div class="modal-footer" style="justify-content: space-between;">
-                <button id="actionListModalFixAll" class="btn btn-primary" data-bind="click: ActionList.fixAll, eagleTooltip: actionList().getNumPerformableActions() + ' fix(es) available', enable: actionList().getNumPerformableActions() > 0">Fix All
-                    <span data-bind="text: Utils.getKeyboardShortcutTextByKey('fix_all', true)"></span>
+                <button id="actionListModalPerformAll" class="btn btn-primary" data-bind="click: actionList().performAll, eagleTooltip: actionList().getNumPerformableActions() + ' fix(es) available', enable: actionList().getNumPerformableActions() > 0">
+                    Perform All
                 </button>
                 <button id="actionListModalOK" type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
             </div>

@@ -11,7 +11,7 @@ export class ActionList {
     messages: ko.ObservableArray<ActionMessage>;
 
     constructor(){
-        //this.mode = ko.observable(ActionList.Mode.None)
+        this.mode = ko.observable(ActionList.Mode.None)
         this.messages = ko.observableArray([]);
     }
 
@@ -21,6 +21,8 @@ export class ActionList {
     }
 
     performAll = () : void => {
+        console.log("performAll()");
+
         const eagle: Eagle = Eagle.getInstance();
         const initialNumMessages = this.messages().length;
         let numMessages   = Infinity;
@@ -97,6 +99,18 @@ export class ActionList {
 
         for (const error of this.messages()){
             if (error.level === ActionMessage.Level.Error){
+                result += 1;
+            }
+        }
+
+        return result;
+    }, this);
+
+    getNumInfo : ko.PureComputed<number> = ko.pureComputed(() => {
+        let result: number = 0;
+
+        for (const error of this.messages()){
+            if (error.level === ActionMessage.Level.Info){
                 result += 1;
             }
         }
