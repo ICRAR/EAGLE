@@ -149,7 +149,10 @@ export class KeyboardShortcut {
                         }
                         e.preventDefault();
                     } else {
-                        Utils.showNotification("Warning", "Shortcut (" + shortcut.name + ") not available in current state.", "warning");
+                        //making exclusions for the warning, there arent my shortcuts we want to exclude, so this is fine
+                        if(shortcut.key != 'select_none_in_graph' && shortcut.key != 'table_move_down'){
+                            Utils.showNotification("Warning", "Shortcut (" + shortcut.name + ") not available in current state.", "warning");
+                        }
                     }
                 }
             }
