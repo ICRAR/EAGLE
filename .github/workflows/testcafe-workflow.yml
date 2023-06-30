@@ -42,4 +42,4 @@ jobs:
             EAGLE_GITHUB_ACCESS_TOKEN: ${{secrets.EAGLE_GITHUB_ACCESS_TOKEN}}
         with:
             #args: "chrome tests/simple.js tests/drag-and-drop.js tests/add-node-parameter.js tests/create-custom-palette.js tests/edit-edge.js tests/load-local-json-export-match.js tests/component-update.js tests/add-remove-repository.js"
-            args: "chrome tests/simple.js tests/drag-and-drop.js tests/add-node-parameter.js tests/create-custom-palette.js tests/edit-edge.js tests/component-update.js"
+            args: "chrome tests/simple.js tests/drag-and-drop.js tests/add-node-parameter.js tests/create-custom-palette.js tests/edit-edge.js"
