@@ -2307,9 +2307,7 @@ export class Node {
         // if so, check the attributes of the field match
         if (existingField === null){
             const message = "Node " + node.getKey() + " (" + node.getName() + ":" + node.category() + ":" + node.categoryType() + ") does not have the required '" + field.getDisplayText() + "' field";
-            const newField = field.clone();
-            newField.setId(Utils.uuidv4());
-            errorsWarnings.errors.push(Errors.Fix(message, function(){Utils.showNode(eagle, node.getKey());}, function(){Utils.fixNodeAddField(eagle, node, newField)}, "Add '" + newField.getDisplayText() + "' field to node"));
+            errorsWarnings.errors.push(Errors.Show(message, function(){Utils.showNode(eagle, node.getKey());}));
         } else {
             if (existingField.getParameterType() !== field.getParameterType()){
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") has a '" + field.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + field.getParameterType();
