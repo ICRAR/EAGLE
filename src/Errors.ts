@@ -11,7 +11,10 @@ export class Errors {
     static Show(message: string, show: () => void): Errors.Issue {
         return {message: message, show: show, fix: null, fixDescription:""};
     }
-    static Fix(message: string, show: () => void, fix: () => void, fixDescription: string): Errors.Issue {
+    static Fix(message: string, fix: () => void, fixDescription: string): Errors.Issue {
+        return {message: message, show: null, fix: fix, fixDescription: fixDescription};
+    }
+    static ShowFix(message: string, show: () => void, fix: () => void, fixDescription: string): Errors.Issue {
         return {message: message, show: show, fix: fix, fixDescription: fixDescription};
     }
 

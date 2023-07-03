@@ -1377,7 +1377,7 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of palette.getNodes()){
-            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errorsWarnings);
+            Node.isValid(eagle, node, Eagle.FileType.Palette, false, false, errorsWarnings);
         }
 
         return errorsWarnings;
@@ -1873,11 +1873,35 @@ export class Utils {
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
 
-    static showNode(eagle: Eagle, nodeKey: number): void {
+    static showNode(eagle: Eagle, location: Eagle.FileType, nodeId: string): void {
+        console.log("showNode()", location, nodeId);
+
         // close errors modal if visible
         $('#errorsModal').modal("hide");
 
-        eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findNodeByKey(nodeKey), Eagle.FileType.Graph);
+        // find node from nodeKey
+        let n: Node = null;
+        switch (location){
+            case Eagle.FileType.Graph:
+                n = eagle.logicalGraph().findNodeById(nodeId);
+                break;
+            case Eagle.FileType.Palette:
+                for (const palette of eagle.palettes()){
+                    n = palette.findNodeById(nodeId);
+                    if (n !== null){
+                        break;
+                    }
+                }
+                break;
+        }
+
+        // check that we found the node
+        if (n === null){
+            console.warn("Could not show node with id", nodeId);
+            return;
+        }
+        
+        eagle.setSelection(Eagle.RightWindowMode.Inspector, n, location);
     }
 
     // only update result if it is worse that current result
