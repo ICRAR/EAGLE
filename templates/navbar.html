@@ -15,10 +15,17 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-        <ul class="nav navbar-nav navbar-center">
-            <div class="btn-group" role="group" aria-label="Basic example">
-                <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
-                    <i class="material-icons md-18">info</i>
+        <ul id="navBarToolBar" class="nav navbar-nav navbar-center">
+            <div class="btn-group  ms-4 navbarGroupTest" role="group" aria-label="Basic example">
+                <span class="navBarToolBarTitle">Graph View</span>
+                <button id="toggleDataNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleShowDataNodes, eagleTooltip: 'Toggle Display of Data Nodes ' + Utils.getKeyboardShortcutTextByKey('toggle_show_data_nodes', true), css: { 'navbar-btn-active': showDataNodes() === false }">
+                    <i class="material-icons md-18">subtitles</i>
+                </button>
+                <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllGroups, eagleTooltip: 'Collapse/Expand All Groups'" >
+                    <i class="material-icons md-18">tab_unselected</i>
+                </button>
+                <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllNodes, eagleTooltip: 'Collapse/Expand All Nodes'" >
+                    <i class="material-icons md-18">vertical_align_center</i>
                 </button>
                 <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, , eagleTooltip: 'Center Graph ' + Utils.getKeyboardShortcutTextByKey('center_graph', true)" >
                     <i class="material-icons md-18">filter_center_focus</i>
@@ -29,35 +36,37 @@
                 <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomOut, eagleTooltip: 'Zoom Out ' + Utils.getKeyboardShortcutTextByKey('zoom_out', true)" >
                     <i class="material-icons md-18">zoom_out</i>
                 </button>
-                <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                <button id="toggleSnapToGrid" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleSnapToGrid, eagleTooltip: 'Toggle Snap-to-Grid ' + Utils.getKeyboardShortcutTextByKey('toggle_snap_to_grid', true), css: { 'navbar-btn-active': snapToGrid() }" >
-                    <i class="material-icons md-18">apps</i>
+            </div>
+
+            <div class="btn-group  ms-4 navbarGroupTest" role="group" aria-label="Basic example">
+                <span class="navBarToolBarTitle">Graph View</span>
+                <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
+                    <i class="material-icons md-18">info</i>
                 </button>
+                <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal', 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)">
+                    <i class="material-icons md-18">table_chart</i>
+                </button>
+            </div>
+            <div class="btn-group  ms-4 navbarGroupTest" role="group" aria-label="Basic example">
+                <span class="navBarToolBarTitle">Graph View</span>
+                <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
+                    <button id="toggleSnapToGrid" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleSnapToGrid, eagleTooltip: 'Toggle Snap-to-Grid ' + Utils.getKeyboardShortcutTextByKey('toggle_snap_to_grid', true), css: { 'navbar-btn-active': snapToGrid() }" >
+                        <i class="material-icons md-18">apps</i>
+                    </button>
                 <!-- /ko -->
                 <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: 'Add Graph Nodes to Palette ' + Utils.getKeyboardShortcutTextByKey('add_graph_nodes_to_palette', true)" >
-                    <i class="material-icons md-18">palette</i>
-                </button>
+                    <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: 'Add Graph Nodes to Palette ' + Utils.getKeyboardShortcutTextByKey('add_graph_nodes_to_palette', true)" >
+                        <i class="material-icons md-18">palette</i>
+                    </button>
                 <!-- /ko -->
-                <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllGroups, eagleTooltip: 'Collapse/Expand All Groups'" >
-                    <i class="material-icons md-18">tab_unselected</i>
-                </button>
-                <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllNodes, eagleTooltip: 'Collapse/Expand All Nodes'" >
-                    <i class="material-icons md-18">vertical_align_center</i>
-                </button>
                 <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >
                     <i class="material-icons md-18">content_copy</i>
-                </button>
-                <button id="toggleDataNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleShowDataNodes, eagleTooltip: 'Toggle Display of Data Nodes ' + Utils.getKeyboardShortcutTextByKey('toggle_show_data_nodes', true), css: { 'navbar-btn-active': showDataNodes() === false }">
-                    <i class="material-icons md-18">subtitles</i>
                 </button>
                 <button id="checkForComponentUpdates" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: checkForComponentUpdates, eagleTooltip: 'Check for component updates ' + Utils.getKeyboardShortcutTextByKey('check_for_component_updates', true)">
                     <i class="material-icons md-18">star</i>
                 </button>
             </div>
-            <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal', 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)">
-                <i class="material-icons md-18">table_chart</i>
-            </button>
+            
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                 <ul class="nav navbar-nav ms-4">
                     <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, visible: graphWarnings().length === 0 && graphErrors().length === 0, eagleTooltip: 'Check Graph for Errors'">
