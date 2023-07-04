@@ -71,7 +71,7 @@
                     <i class="material-icons md-18">star</i>
                 </button>
             </div>
-            <div data-bind="text:console.log($root.logicalGraph())"></div>
+            
             <!-- navbar category -->
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                 <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example" data-bind="css: {'navbarGroupWarning': graphWarnings().length > 0, 'navbarGroupError': graphErrors().length > 0,'navbarGroupSuccess':graphWarnings().length === 0 && graphErrors().length === 0}">
