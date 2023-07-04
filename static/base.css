@@ -66,7 +66,7 @@ body {
 }
 
 #navBarToolBar .navbarGroupSuccess{
-    border-color: green;
+    border-color: #00bb00;
     color: white;
 }
 
@@ -77,9 +77,8 @@ body {
     color: white;
 }
 
-#openKeyParameterTableTest{
-    font-size: 15px;
-}
+#checkGraphDone i{
+color: #00bb00;}
 
 #navBarToolBar .navbarGroup button:first-of-type{
     border-top-left-radius: 5px;

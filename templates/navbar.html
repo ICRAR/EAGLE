@@ -23,16 +23,25 @@
                 <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
                     <i class="material-icons md-18">info</i>
                 </button>
-                <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >
-                    <i class="material-icons md-18">content_copy</i>
-                </button>
                 <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal', 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)">
                     <i class="material-icons md-18">table_chart</i>
+                </button>
+                <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >
+                    <i class="material-icons md-18">content_copy</i>
                 </button>
             </div>
 
             <!-- navbar category -->
             <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example">
+                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, , eagleTooltip: 'Center Graph ' + Utils.getKeyboardShortcutTextByKey('center_graph', true)" >
+                    <i class="material-icons md-18">filter_center_focus</i>
+                </button>
+                <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomOut, eagleTooltip: 'Zoom Out ' + Utils.getKeyboardShortcutTextByKey('zoom_out', true)" >
+                    <i class="material-icons md-18">zoom_out</i>
+                </button>
+                <button id="zoomIn" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomIn, eagleTooltip: 'Zoom In '  + Utils.getKeyboardShortcutTextByKey('zoom_in', true)" >
+                    <i class="material-icons md-18">zoom_in</i>
+                </button>
                 <span class="navBarToolBarTitle">View</span>
                 <button id="toggleDataNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleShowDataNodes, eagleTooltip: 'Toggle Display of Data Nodes ' + Utils.getKeyboardShortcutTextByKey('toggle_show_data_nodes', true), css: { 'navbar-btn-active': showDataNodes() === false }">
                     <i class="material-icons md-18">subtitles</i>
@@ -43,20 +52,11 @@
                 <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllNodes, eagleTooltip: 'Collapse/Expand All Nodes'" >
                     <i class="material-icons md-18">vertical_align_center</i>
                 </button>
-                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, , eagleTooltip: 'Center Graph ' + Utils.getKeyboardShortcutTextByKey('center_graph', true)" >
-                    <i class="material-icons md-18">filter_center_focus</i>
-                </button>
-                <button id="zoomIn" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomIn, eagleTooltip: 'Zoom In '  + Utils.getKeyboardShortcutTextByKey('zoom_in', true)" >
-                    <i class="material-icons md-18">zoom_in</i>
-                </button>
-                <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomOut, eagleTooltip: 'Zoom Out ' + Utils.getKeyboardShortcutTextByKey('zoom_out', true)" >
-                    <i class="material-icons md-18">zoom_out</i>
-                </button>
             </div>
 
             <!-- navbar category -->
             <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example">
-                <span class="navBarToolBarTitle">Edit</span>
+                <span class="navBarToolBarTitle">Editing</span>
                 <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                     <button id="toggleSnapToGrid" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleSnapToGrid, eagleTooltip: 'Toggle Snap-to-Grid ' + Utils.getKeyboardShortcutTextByKey('toggle_snap_to_grid', true), css: { 'navbar-btn-active': snapToGrid() }" >
                         <i class="material-icons md-18">apps</i>
@@ -71,23 +71,23 @@
                     <i class="material-icons md-18">star</i>
                 </button>
             </div>
-            
+            <div data-bind="text:console.log($root.logicalGraph())"></div>
             <!-- navbar category -->
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-            <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example" data-bind="css: {'navbarGroupWarning': graphWarnings().length > 0, 'navbarGroupError': graphErrors().length > 0,'navbarGroupSuccess':graphWarnings().length === 0 && graphErrors().length === 0}">
-                <span class="navBarToolBarTitle">Errors</span>
-                <!-- ko if: graphWarnings().length === 0 && graphErrors().length === 0 -->
-                    <button id="checkGraphDone" class="btn navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, eagleTooltip: 'Check Graph for Errors'">
-                        <i class="material-icons md-18">done_all</i>
-                    </button>
-                <!-- /ko -->
-                <!-- ko if: graphWarnings().length > 0 || graphErrors().length > 0 -->
-                    <button id="checkGraphWarnings" class="btn navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)">
-                        <span class="badge bg-warning" data-bind="text: graphWarnings().length, visible: graphWarnings().length > 0"></span>
-                        <span class="badge bg-danger" data-bind="text: graphErrors().length, visible: graphErrors().length > 0"></span>
-                    </button>
-                <!-- /ko -->
-            </div>
+                <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example" data-bind="css: {'navbarGroupWarning': graphWarnings().length > 0, 'navbarGroupError': graphErrors().length > 0,'navbarGroupSuccess':graphWarnings().length === 0 && graphErrors().length === 0}">
+                    <span class="navBarToolBarTitle">Errors</span>
+                    <!-- ko if: graphWarnings().length === 0 && graphErrors().length === 0 -->
+                        <button id="checkGraphDone" class="btn navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, eagleTooltip: 'Check Graph for Errors'">
+                            <i class="material-icons md-18">done_all</i>
+                        </button>
+                    <!-- /ko -->
+                    <!-- ko if: graphWarnings().length > 0 || graphErrors().length > 0 -->
+                        <button id="checkGraphWarnings" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display:none;" data-bind="click: showGraphErrors, visible:$root.logicalGraph()!=null, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)">
+                            <span class="badge bg-warning" data-bind="text: graphWarnings().length, visible: graphWarnings().length > 0"></span>
+                            <span class="badge bg-danger" data-bind="text: graphErrors().length, visible: graphErrors().length > 0"></span>
+                        </button>
+                    <!-- /ko -->
+                </div>
             <!-- /ko -->
         </ul>
 
