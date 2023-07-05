@@ -78,16 +78,24 @@ export class ComponentUpdater {
             if (destField === null){
                 const newField = srcField.clone();
                 //dest.addField(destField);
-                updates.push(ActionMessage.Fix(ActionMessage.Level.Info, dest.getName() + " (" + dest.getKey() + ") component is missing a '" + srcField.getDisplayText() + "' field", function(){Utils.showNode(dest.getKey())}, function(){Utils.fixNodeAddField(dest, newField)},  "Add '" + srcField.getDisplayText() + "' field to " + dest.getName() + " component"));
+                updates.push(
+                    ActionMessage.ShowFix(
+                        ActionMessage.Level.Info,
+                        dest.getName() + " (" + dest.getKey() + ") component is missing a '" + srcField.getDisplayText() + "' field",
+                        function(){Utils.showNode(eagle, Eagle.FileType.Graph, dest.getId())},
+                        function(){Utils.fixNodeAddField(dest, newField)},
+                        "Add '" + srcField.getDisplayText() + "' field to " + dest.getName() + " component"
+                    )
+                );
             }
 
             if (destField !== null){
                 if (destField.getValue() !== srcField.getValue()){
                     updates.push(
-                        ActionMessage.Fix(
+                        ActionMessage.ShowFix(
                             ActionMessage.Level.Info,
                             dest.getName() + " (" + dest.getKey() + ") component '" + srcField.getDisplayText() + "' field has different value",
-                            function(){Utils.showNode(dest.getKey())},
+                            function(){Utils.showNode(eagle, Eagle.FileType.Graph, dest.getId())},
                             function(){Utils.fixFieldValue(dest, srcField, srcField.getValue())}, 
                             "Update " + dest.getName() + " (" + dest.getKey() + ") field '" + srcField.getDisplayText() + "' from " + destField.getValue() + " to " + srcField.getValue()
                         )

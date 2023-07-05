@@ -17,10 +17,11 @@ export class GraphChecker {
 
     static check(logicalGraph: LogicalGraph){
         const errors: ActionMessage[] = [];
+        const eagle: Eagle = Eagle.getInstance();
 
         // check all nodes are valid
         for (const node of logicalGraph.getNodes()){
-            Node.isValid(logicalGraph, node, Eagle.selectedLocation(), false, false, errors);
+            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errors);
         }
 
         // check all edges are valid

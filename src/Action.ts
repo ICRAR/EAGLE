@@ -22,7 +22,10 @@ export class ActionMessage {
     static Show(level: ActionMessage.Level, message: string, show: () => void): ActionMessage {
         return new ActionMessage(level, message, show, null, "");
     }
-    static Fix(level: ActionMessage.Level, message: string, show: () => void, fix: () => void, fixDescription: string): ActionMessage {
+    static Fix(level: ActionMessage.Level, message: string, fix: () => void, fixDescription: string): ActionMessage {
+        return new ActionMessage(level, message, null, fix, fixDescription);
+    }
+    static ShowFix(level: ActionMessage.Level, message: string, show: () => void, fix: () => void, fixDescription: string): ActionMessage {
         return new ActionMessage(level, message, show, fix, fixDescription);
     }
 

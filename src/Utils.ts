@@ -1388,7 +1388,7 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of palette.getNodes()){
-            Node.isValid(null, node, Eagle.selectedLocation(), false, false, errors);
+            Node.isValid(eagle, node, Eagle.FileType.Palette, false, false, errors);
         }
 
         return errors;
@@ -1677,7 +1677,7 @@ export class Utils {
     }
 
     // NOTE: merges field1 into field0
-    static fixNodeMergeFieldsByIndex(logicalGraph: LogicalGraph, node: Node, field0Index: number, field1Index: number){
+    static fixNodeMergeFieldsByIndex(eagle: Eagle, location: Eagle.FileType, node: Node, field0Index: number, field1Index: number){
         //console.log("fixNodeMergeFieldsByIndex()", node.getName(), field0Index, field1Index);
 
         // abort if one or more of the fields is not found
@@ -1700,11 +1700,13 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(logicalGraph, field1.getId(), field0.getId());
+        if (location === Eagle.FileType.Graph){
+            this._mergeEdges(eagle.logicalGraph(), field1.getId(), field0.getId());
+        }
     }
 
     // NOTE: merges field1 into field0
-    static fixNodeMergeFields(logicalGraph: LogicalGraph, node: Node, field0: Field, field1: Field){
+    static fixNodeMergeFields(eagle: Eagle, location: Eagle.FileType, node: Node, field0: Field, field1: Field){
         //console.log("fixNodeMergeFieldsById()", node.getName(), field0.getDisplayText(), field1.getDisplayText());
 
         // abort if one or more of the fields is not found
@@ -1727,7 +1729,9 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(logicalGraph, field1.getId(), field0.getId());
+        if (location === Eagle.FileType.Graph){
+            this._mergeEdges(eagle.logicalGraph(), field1.getId(), field0.getId());
+        }
     }
 
     static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
@@ -1854,13 +1858,35 @@ export class Utils {
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
 
-    static showNode(nodeKey: number): void {
-        const eagle: Eagle = Eagle.getInstance();
+    static showNode(eagle: Eagle, location: Eagle.FileType, nodeId: string): void {
+        console.log("showNode()", location, nodeId);
 
         // close errors modal if visible
         $('#checkGraphModal').modal("hide");
 
-        eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findNodeByKey(nodeKey), Eagle.FileType.Graph);
+        // find node from nodeKey
+        let n: Node = null;
+        switch (location){
+            case Eagle.FileType.Graph:
+                n = eagle.logicalGraph().findNodeById(nodeId);
+                break;
+            case Eagle.FileType.Palette:
+                for (const palette of eagle.palettes()){
+                    n = palette.findNodeById(nodeId);
+                    if (n !== null){
+                        break;
+                    }
+                }
+                break;
+        }
+
+        // check that we found the node
+        if (n === null){
+            console.warn("Could not show node with id", nodeId);
+            return;
+        }
+        
+        eagle.setSelection(Eagle.RightWindowMode.Inspector, n, location);
     }
 
     static printCategories = () : void => {
