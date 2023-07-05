@@ -24,7 +24,7 @@
                     <i class="material-icons md-18">info</i>
                 </button>
                 <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal', 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)">
-                    <i class="material-icons md-18">table_chart</i>
+                    <i class="md-18 icon-keyAttrTable"></i>
                 </button>
                 <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >
                     <i class="material-icons md-18">content_copy</i>
@@ -44,13 +44,13 @@
                 </button>
                 <span class="navBarToolBarTitle">View</span>
                 <button id="toggleDataNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleShowDataNodes, eagleTooltip: 'Toggle Display of Data Nodes ' + Utils.getKeyboardShortcutTextByKey('toggle_show_data_nodes', true), css: { 'navbar-btn-active': showDataNodes() === false }">
-                    <i class="material-icons md-18">subtitles</i>
+                    <i class="md-18 icon-hideDataNode"></i>
                 </button>
                 <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllGroups, eagleTooltip: 'Collapse/Expand All Groups'" >
                     <i class="material-icons md-18">tab_unselected</i>
                 </button>
                 <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllNodes, eagleTooltip: 'Collapse/Expand All Nodes'" >
-                    <i class="material-icons md-18">vertical_align_center</i>
+                    <i class="md-18 icon-collapseComponent"></i>
                 </button>
             </div>
 
@@ -59,19 +59,19 @@
                 <span class="navBarToolBarTitle">Editing</span>
                 <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                     <button id="toggleSnapToGrid" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleSnapToGrid, eagleTooltip: 'Toggle Snap-to-Grid ' + Utils.getKeyboardShortcutTextByKey('toggle_snap_to_grid', true), css: { 'navbar-btn-active': snapToGrid() }" >
-                        <i class="material-icons md-18">apps</i>
+                        <i class="md-18 icon-snapToGrid"></i>
                     </button>
                 <!-- /ko -->
                 <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                     <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: 'Add Graph Nodes to Palette ' + Utils.getKeyboardShortcutTextByKey('add_graph_nodes_to_palette', true)" >
-                        <i class="material-icons md-18">palette</i>
+                        <i class="md-18 icon-addToPalette"></i>
                     </button>
                 <!-- /ko -->
                 <button id="checkForComponentUpdates" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: checkForComponentUpdates, eagleTooltip: 'Check for component updates ' + Utils.getKeyboardShortcutTextByKey('check_for_component_updates', true)">
-                    <i class="material-icons md-18">star</i>
+                    <i class="md-18 icon-componentUpdate"></i>
                 </button>
             </div>
-            
+
             <!-- navbar category -->
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                 <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example" data-bind="css: {'navbarGroupWarning': graphWarnings().length > 0, 'navbarGroupError': graphErrors().length > 0,'navbarGroupSuccess':graphWarnings().length === 0 && graphErrors().length === 0}">
