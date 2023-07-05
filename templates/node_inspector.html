@@ -85,6 +85,21 @@
                     <select class="form-control" id="nodeInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategoryRequest(event)}}, valueAllowUnset: true, disabled: $data.isLocked()"></select>
                 </div>
 
+                <!-- comment node subject -->
+                <!-- ko if: $data.getCategory() === Category.Comment -->
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'Port Multiplicity'" data-bs-placement="left">Subject Node</span>
+                        </div>
+                        <input type="text" class="form-control" id="nodeSubjectValue" placeholder="" aria-label="Name" aria-describedby="node-subject" data-bind="value: $data.getSubjectKey()" readonly="">
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary btn-sm" id="nodeInspectorChangeSubject" type="button" data-bind="click: $root.changeNodeSubject, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('change_selected_node_subject', true)" data-bs-toggle="tooltip" data-html="true" data-bs-placement="right" data-bs-original-title="Change Node Subject [Shift + U]">
+                                <i class="material-icons md-18">edit</i>
+                            </button>
+                        </div>
+                    </div>
+                <!-- /ko -->
+
                 <!-- key -->
                 <!-- ko if: $root.displayNodeKeys() -->
                     <div class="input-group mb-1">

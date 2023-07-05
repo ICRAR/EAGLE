@@ -4393,16 +4393,7 @@ export class Eagle {
         }
 
         // if selectedNode is set, return a list of categories within the same category type
-        let categoryType: Category.Type = Category.Type.Unknown;
-        if (this.selectedNode().isData()){
-            categoryType = Category.Type.Data;
-        } else if (this.selectedNode().isApplication()){
-            categoryType = Category.Type.Application;
-        } else if (this.selectedNode().isConstruct()){
-            categoryType = Category.Type.Construct;
-        } else {
-            categoryType = Category.Type.Unknown;
-        }
+        let categoryType: Category.Type = this.selectedNode().getCategoryType()
         
         return Utils.getCategoriesWithInputsAndOutputs(categoryType, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
     }, this)
