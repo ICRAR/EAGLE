@@ -1062,7 +1062,6 @@ export class Utils {
 
     static getCategoriesWithInputsAndOutputs(categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
         const result: Category[] = [];
-
         for (const [categoryName, categoryData] of Object.entries(CategoryData.cData)){
 
             if (categoryData.categoryType !== categoryType){
@@ -1078,7 +1077,6 @@ export class Utils {
             if (numRequiredOutputs > categoryData.maxOutputs){
                 continue;
             }
-
             result.push(categoryName as Category);
         }
 
