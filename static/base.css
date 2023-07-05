@@ -39,12 +39,65 @@ body {
     margin-right: 0.6rem;
 }
 
-#openKeyParameterTable{
-    margin-left:20px;
-}
-
 .navbar #navDeployBtn{
     padding: 8px;
+}
+
+#navBarToolBar .navbarGroup{
+    border: 2px white solid;
+    border-top: none;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 0px 5px 5px 5px;
+    height: 100%;
+    position: relative;
+    min-width: 100px;
+    white-space: nowrap;
+}
+
+#navBarToolBar .navbarGroupWarning{
+    color: white;
+    border-color: #ffc107;
+}
+
+#navBarToolBar .navbarGroupError{
+    color: white;
+    border-color: red;
+}
+
+#navBarToolBar .navbarGroupSuccess{
+    border-color: #00bb00;
+    color: white;
+}
+
+#navBarToolBar .navbarGroup button{
+    border:none;
+    padding: 2px 10px;
+    height: 30px;
+    color: white;
+}
+
+#navBarToolBar .navbarGroup i{
+    font-size: 20px;
+}
+
+#checkGraphDone i{
+color: #00bb00;}
+
+#navBarToolBar .navbarGroup button:first-of-type{
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+#navBarToolBar .navbarGroup .navBarToolBarTitle{
+    color: white;
+    position: absolute;
+    bottom: -12px;
+    background-color: #002d5d;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0px 5px;
+    font-size: 13px;
 }
 
 .navbar #navDeployBtn a{
