@@ -221,8 +221,8 @@ export class KeyboardShortcut {
     static initiateQuickAction = () : void  =>{
         console.log('initiating quick action')
         $('#quickActionContainer').toggle()
-        $('#quickActionSearchbar').val('').focus()
-
+        $('#quickActionSearchbar').val('')
+        $('#quickActionSearchbar').focus()
     }
 
     static findQuickActionResults = () : any[]  =>{
