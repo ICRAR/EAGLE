@@ -69,6 +69,23 @@ body {
     top: -3px;
 }
 
+#quickActionContainer {
+    z-index: 100;
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    width: 50rem;
+    height:4rem;
+    background-color: #787f87;
+}
+
+#quickActionContainer input{
+    width: 100%;
+    height: 100%;
+}
+
 #navBarToolBar .navbarGroupSuccess{
     border-color: #00bb00;
     color: white;

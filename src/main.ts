@@ -81,6 +81,7 @@ $(function(){
     (<any>window).TutorialSystem = TutorialSystem;
     (<any>window).UiModeSystem = UiModeSystem;
     (<any>window).Utils = Utils;
+    (<any>window).KeyboardShortcut = KeyboardShortcut;
     (<any>window).Modals = Modals;
 
     ko.options.deferUpdates = true;
