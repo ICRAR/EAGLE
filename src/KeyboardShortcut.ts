@@ -214,20 +214,36 @@ export class KeyboardShortcut {
             new KeyboardShortcut("fix_all", "Fix all errors in graph", ["f"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => { Errors.fixAll(); }),
             new KeyboardShortcut("table_move_down", "Table move down one cell", ["Enter"], "keydown", KeyboardShortcut.Modifier.Input, KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.showTableModal, (eagle): void => { ParameterTable.tableEnterShortcut(currentEvent);}),
         
-            new KeyboardShortcut("Quick Action", "Search and quick launch actions", ["`"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => { KeyboardShortcut.initiateQuickAction();}),
+            new KeyboardShortcut("Quick Action", "Search and quick launch actions", ["`"], "keydown", KeyboardShortcut.Modifier.Input, KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => { KeyboardShortcut.initiateQuickAction();}),
         ];
     }
 
     static initiateQuickAction = () : void  =>{
         console.log('initiating quick action')
+        $('#quickActionContainer').toggle()
+        $('#quickActionSearchbar').val('').focus()
 
     }
 
-    static findQuickActionResults = () : void  =>{
+    static findQuickActionResults = () : any[]  =>{
+        let resultsList:any[] = []
+        KeyboardShortcut.getShortcuts().forEach(function(shortcut:KeyboardShortcut){
+            let result:any[] = []
+            let resultTitle:string = shortcut.name
+            let resultAction:any = shortcut.run
+            let resultShortcut:string = shortcut.modifier +" "+ shortcut.keys
+            result.push(resultTitle,resultAction,resultShortcut)
+            resultsList.push(result)
+        })
+
+
         console.log('gettingQuickActionResults')
-
+        return resultsList
     }
 
+    static executeQuickAction = (data:any) : void  =>{
+        console.log(data)
+    }
 
 }
 

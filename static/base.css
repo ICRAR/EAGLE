@@ -76,14 +76,49 @@ body {
     left: 50%;
     top: 50%;
     transform: translate(-50%,-50%);
+}
+
+#quickActionInput{
     width: 50rem;
     height:4rem;
-    background-color: #787f87;
+    border: 2px solid #414448;
+    border-radius: 5px;
+    overflow: hidden;
 }
 
 #quickActionContainer input{
     width: 100%;
     height: 100%;
+    background-color: #787f87;
+    color: white;
+    font-size: 2.5rem;
+    padding: 5px;
+    border: none;
+}
+
+#quickActionContainer input::placeholder{
+    color: rgb(204, 204, 204);
+}
+
+#quickActionResults{
+    width: 50rem;
+    margin-top: 5px;
+    background: #787f87;
+    border: 2px solid #414448;
+    border-radius: 5px;
+    max-height: 30rem;
+    overflow: auto;
+}
+
+#quickActionResults a{
+    display: block;
+    color: white;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+}
+
+#quickActionResults a:hover{
+    background-color: #002d5d;
 }
 
 #navBarToolBar .navbarGroupSuccess{
