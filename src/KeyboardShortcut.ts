@@ -242,7 +242,10 @@ export class KeyboardShortcut {
     }
 
     static executeQuickAction = (data:any) : void  =>{
+        const eagle = (<any>window).eagle;
+        this.initiateQuickAction()
         console.log(data)
+        data[1](eagle)
     }
 
 }
