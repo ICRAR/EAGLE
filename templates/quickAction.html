@@ -1,10 +1,10 @@
 <div id="quickActionContainer" style="display: none;">
     <div id="quickActionInput">
-        <input type="text" id="quickActionSearchbar" placeholder="Search...">
+        <input type="text" id="quickActionSearchbar" placeholder="Search..." data-bind="event:{change: $root.quickActionSearchTerm($data)},valueUpdate: 'keyup'">
     </div>
     <div id="quickActionResults">
         <div data-bind="foreach: KeyboardShortcut.findQuickActionResults()">
-            <a data-bind="click:function(){KeyboardShortcut.executeQuickAction($data)}"><span data-bind="text:$data[2]"></span><span data-bind="text:$data[0]"></span></a>
+            <a data-bind="click:function(){KeyboardShortcut.executeQuickAction($data)}"><span class="quickActionName" data-bind="text:$data[0]"></span><span class="quickActionShortcut" data-bind="text: KeyboardShortcut.getQuickActionShortcutHtml($data)"></span></a>
         </div>
     </div>
 </div>

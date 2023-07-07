@@ -83,6 +83,8 @@ export class Eagle {
     globalOffsetY : number;
     globalScale : number;
 
+    quickActionSearchTerm : ko.Observable<string>;
+
     rendererFrameDisplay : ko.Observable<string>;
     rendererFrameMax : number;
     rendererFrameCountRender : number;
@@ -164,6 +166,8 @@ export class Eagle {
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
+
+        this.quickActionSearchTerm = ko.observable('')
 
         this.rendererFrameDisplay = ko.observable("");
         this.rendererFrameMax = 0;

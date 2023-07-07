@@ -214,6 +214,8 @@ export class KeyboardShortcut {
             new KeyboardShortcut("fix_all", "Fix all errors in graph", ["f"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => { Errors.fixAll(); }),
             new KeyboardShortcut("table_move_down", "Table move down one cell", ["Enter"], "keydown", KeyboardShortcut.Modifier.Input, KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.showTableModal, (eagle): void => { ParameterTable.tableEnterShortcut(currentEvent);}),
         
+
+
             new KeyboardShortcut("Quick Action", "Search and quick launch actions", ["`"], "keydown", KeyboardShortcut.Modifier.Input, KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => { KeyboardShortcut.initiateQuickAction();}),
         ];
     }
@@ -226,14 +228,23 @@ export class KeyboardShortcut {
     }
 
     static findQuickActionResults = () : any[]  =>{
+        const searchTerm :string = $('#quickActionSearchbar').val().toString().toLocaleLowerCase()
+        console.log('checking',searchTerm)
         let resultsList:any[] = []
         KeyboardShortcut.getShortcuts().forEach(function(shortcut:KeyboardShortcut){
-            let result:any[] = []
-            let resultTitle:string = shortcut.name
-            let resultAction:any = shortcut.run
-            let resultShortcut:string = shortcut.modifier +" "+ shortcut.keys
-            result.push(resultTitle,resultAction,resultShortcut)
-            resultsList.push(result)
+            if(shortcut.name.toLocaleLowerCase().includes(searchTerm)){
+                let result:any[] = []
+                let resultTitle:string = shortcut.name
+                let resultAction:any = shortcut.run
+                let resultShortcut:string 
+                if(shortcut.modifier != 'none'){
+                    resultShortcut = shortcut.modifier +" "+ shortcut.keys
+                }else{
+                    resultShortcut = shortcut.keys.toString()
+                }
+                result.push(resultTitle,resultAction,resultShortcut)
+                resultsList.push(result)
+            }
         })
 
 
@@ -246,6 +257,10 @@ export class KeyboardShortcut {
         this.initiateQuickAction()
         console.log(data)
         data[1](eagle)
+    }
+
+    static getQuickActionShortcutHtml = (data:any) : string => {
+        return ' ['+data[2]+']'
     }
 
 }
