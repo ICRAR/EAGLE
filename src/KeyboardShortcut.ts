@@ -221,46 +221,56 @@ export class KeyboardShortcut {
     }
 
     static initiateQuickAction = () : void  =>{
-        console.log('initiating quick action')
         $('#quickActionContainer').toggle()
         $('#quickActionSearchbar').val('')
         $('#quickActionSearchbar').focus()
     }
 
     static findQuickActionResults = () : any[]  =>{
-        const searchTerm :string = $('#quickActionSearchbar').val().toString().toLocaleLowerCase()
-        console.log('checking',searchTerm)
+        const eagle = (<any>window).eagle;
+        const searchTerm :string = eagle.quickActionSearchTerm().toLocaleLowerCase()
         let resultsList:any[] = []
-        KeyboardShortcut.getShortcuts().forEach(function(shortcut:KeyboardShortcut){
-            if(shortcut.name.toLocaleLowerCase().includes(searchTerm)){
-                let result:any[] = []
-                let resultTitle:string = shortcut.name
-                let resultAction:any = shortcut.run
-                let resultShortcut:string 
-                if(shortcut.modifier != 'none'){
-                    resultShortcut = shortcut.modifier +" "+ shortcut.keys
-                }else{
-                    resultShortcut = shortcut.keys.toString()
+
+        if(searchTerm != ''){
+            KeyboardShortcut.getShortcuts().forEach(function(shortcut:KeyboardShortcut){
+                if(shortcut.name.toLocaleLowerCase().includes(searchTerm)){
+                    let result:any[] = []
+                    let resultTitle:string = shortcut.name
+                    let resultAction:any = shortcut.run
+                    let resultShortcut:string 
+                    if(shortcut.modifier != 'none'){
+                        resultShortcut = shortcut.modifier +" "+ shortcut.keys
+                    }else{
+                        resultShortcut = shortcut.keys.toString()
+                    }
+                    result.push(resultTitle,resultAction,resultShortcut)
+                    resultsList.push(result)
                 }
-                result.push(resultTitle,resultAction,resultShortcut)
-                resultsList.push(result)
-            }
-        })
+            })
+        }
 
+        if(resultsList.length === 0){
+            $('#quickActionResults').hide()
+        }else{
+            $('#quickActionResults').show()
+        }
 
-        console.log('gettingQuickActionResults')
         return resultsList
     }
 
     static executeQuickAction = (data:any) : void  =>{
         const eagle = (<any>window).eagle;
         this.initiateQuickAction()
-        console.log(data)
         data[1](eagle)
     }
 
     static getQuickActionShortcutHtml = (data:any) : string => {
         return ' ['+data[2]+']'
+    }
+
+    static updateQuickActionSearchTerm = (obj:any, event:any ): void => {
+        const eagle = (<any>window).eagle;
+        eagle.quickActionSearchTerm($(event.target).val())
     }
 
 }

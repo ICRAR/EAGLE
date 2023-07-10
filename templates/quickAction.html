@@ -1,6 +1,6 @@
 <div id="quickActionContainer" style="display: none;">
     <div id="quickActionInput">
-        <input type="text" id="quickActionSearchbar" placeholder="Search..." data-bind="event:{change: $root.quickActionSearchTerm($data)},valueUpdate: 'keyup'">
+        <input type="text" id="quickActionSearchbar" placeholder="Search..." data-bind="event:{keyup: KeyboardShortcut.updateQuickActionSearchTerm}">
     </div>
     <div id="quickActionResults">
         <div data-bind="foreach: KeyboardShortcut.findQuickActionResults()">
