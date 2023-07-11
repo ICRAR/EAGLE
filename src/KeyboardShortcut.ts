@@ -245,9 +245,20 @@ export class KeyboardShortcut {
                 let result:any[] = []
 
                 //checks if there is a match
-                if(shortcut.name.toLocaleLowerCase().includes(searchTerm)||shortcut.name.toLocaleLowerCase().replace(/\s/g,'').includes(searchTerm)){
+                let match = false
 
-                    //generating the result
+                if(shortcut.name.toLocaleLowerCase().includes(searchTerm)||shortcut.name.toLocaleLowerCase().replace(/\s/g,'').includes(searchTerm)){
+                    match = true
+                }
+                
+                shortcut.quickActionTags.forEach(function(tag){
+                    if(tag.toLocaleLowerCase().includes(searchTerm)||tag.toLocaleLowerCase().replace(/\s/g,'').includes(searchTerm)){
+                        match = true
+                    }
+                })
+
+                //generating the result
+                if(match){
                     let resultTitle:string = shortcut.name;
                     let resultAction:any = shortcut.run;
                     let resultShortcut:string;
@@ -262,14 +273,13 @@ export class KeyboardShortcut {
              
                     // adding priority to each search result, this affects the order in which the result appear
 
+                    const searchableArr = shortcut.name.split(' ');
+                    const searchTermArr = searchTerm.split(' ')
                     //checking for word match
                     if(!pushed){
-                        const searchableArr = shortcut.name.split(' ');
-                        const searchTermArr = searchTerm.split(' ')
                         for(const searchableWord of searchableArr){
                             for(const searchWord of searchTermArr){
                                 if(searchableWord.toLocaleLowerCase() === searchWord.toLocaleLowerCase()){
-                                    console.log('word matched!')
                                     wordMatch.push(result)
                                     pushed = true
                                 }
@@ -279,21 +289,27 @@ export class KeyboardShortcut {
                     
                     //pushing the rest, lowest priority
                     if(!pushed){
+                        for(const searchableWord of searchableArr){
+                            for(const searchWord of searchTermArr){
+                                if(searchableWord.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
+                                    startMatch.push(result)
+                                    pushed = true
+                                }
+                            }
+                        }
+                    }
+                    
+                    //pushing the rest, lowest priority
+                    if(!pushed){
                         anyMatch.push(result)
+                        pushed = true
                     }
                 }
             })
-            // wordMatch.forEach(function(word){
-            //     resultsList.push(word)
-            // })
-            // startMatch.forEach(function(word){
-            //     resultsList.push(word)
-            // })
-            // anyMatch.forEach(function(word){
-            //     resultsList.push(word)
-            // })
-            resultsList.push(...wordMatch,...startMatch,...anyMatch)
-            console.log(resultsList)
+            
+            //adding the contents of each of the priority arrays into the results array, in order of priority
+            //the ... means we are appending only the entries, not the array itself
+            resultsList.push(...wordMatch, ...startMatch, ...anyMatch)
 
         }
 
