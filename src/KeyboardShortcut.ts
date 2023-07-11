@@ -224,10 +224,15 @@ export class KeyboardShortcut {
 
     static initiateQuickAction = () : void  =>{
         //function to both start and close the quick action menu
-        $('#quickActionContainer').toggle()
-        $('#quickActionSearchbar').val('')
-        $('#quickActionSearchbar').focus()
-        $("#quickActionContainer").unbind('keydown.quickActions')
+        const eagle = (<any>window).eagle;
+        eagle.quickActionOpen(!eagle.quickActionOpen())
+        setTimeout(function(){
+            console.log($('#quickActionSearchbar'))
+            $('#quickActionContainer').toggle()
+            $('#quickActionSearchbar').val('')
+            $('#quickActionSearchbar').focus()
+            $("#quickActionContainer").unbind('keydown.quickActions')
+        },50)
 
     }
 

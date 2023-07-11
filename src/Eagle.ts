@@ -84,6 +84,7 @@ export class Eagle {
     globalScale : number;
 
     quickActionSearchTerm : ko.Observable<string>;
+    quickActionOpen : ko.Observable<boolean>;
 
     rendererFrameDisplay : ko.Observable<string>;
     rendererFrameMax : number;
@@ -168,6 +169,7 @@ export class Eagle {
         this.globalScale = 1.0;
 
         this.quickActionSearchTerm = ko.observable('')
+        this.quickActionOpen = ko.observable(false)
 
         this.rendererFrameDisplay = ko.observable("");
         this.rendererFrameMax = 0;
