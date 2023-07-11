@@ -166,7 +166,7 @@ export class KeyboardShortcut {
     static getShortcuts = () : KeyboardShortcut[] => {
         return [
             new KeyboardShortcut("new_graph", "New Graph", ["n"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['create','canvas'], KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.newLogicalGraph();}),
-            new KeyboardShortcut("new_palette", "New palette", ["n"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, ['create','palettes','pallette'],KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newPalette();}),
+            new KeyboardShortcut("new_palette", "New palette", ["n"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, ['create','palettes','pallette','test'],KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newPalette();}),
             new KeyboardShortcut("open_graph_from_repo", "Open graph from repo", ["g"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [''], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().mode(Eagle.RightWindowMode.Repository);eagle.rightWindow().shown(true);}),
             new KeyboardShortcut("open_graph_from_local_disk", "Open graph from local disk", ["g"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, [''],  KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.getGraphFileToLoad();}),
             new KeyboardShortcut("open_palette_from_repo", "Open palette from repo", ["p"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [''], KeyboardShortcut.allowPaletteEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.rightWindow().mode(Eagle.RightWindowMode.Repository);eagle.rightWindow().shown(true);}),
@@ -236,13 +236,23 @@ export class KeyboardShortcut {
         const searchTerm :string = eagle.quickActionSearchTerm().toLocaleLowerCase()
 
         let resultsList:any[] = []
+        let wordMatch:any[] = []
+        let startMatch:any[] = []
+        let anyMatch:any[] = []
+
         if(searchTerm != ''){
             KeyboardShortcut.getShortcuts().forEach(function(shortcut:KeyboardShortcut){
+                let result:any[] = []
+
+                //checks if there is a match
                 if(shortcut.name.toLocaleLowerCase().includes(searchTerm)||shortcut.name.toLocaleLowerCase().replace(/\s/g,'').includes(searchTerm)){
-                    let result:any[] = []
-                    let resultTitle:string = shortcut.name
-                    let resultAction:any = shortcut.run
-                    let resultShortcut:string 
+
+                    //generating the result
+                    let resultTitle:string = shortcut.name;
+                    let resultAction:any = shortcut.run;
+                    let resultShortcut:string;
+                    let pushed :boolean = false;
+
                     if(shortcut.modifier != 'none'){
                         resultShortcut = shortcut.modifier +" "+ shortcut.keys
                     }else{
@@ -250,19 +260,41 @@ export class KeyboardShortcut {
                     }
                     result.push(resultTitle,resultAction,resultShortcut)
              
-                    const arr = shortcut.name.split(' ');
-                    for(const word of arr){
-                        if(word.toLocaleLowerCase() === searchTerm.toLocaleLowerCase()){
-                            
+                    // adding priority to each search result, this affects the order in which the result appear
+
+                    //checking for word match
+                    if(!pushed){
+                        const searchableArr = shortcut.name.split(' ');
+                        const searchTermArr = searchTerm.split(' ')
+                        for(const searchableWord of searchableArr){
+                            for(const searchWord of searchTermArr){
+                                if(searchableWord.toLocaleLowerCase() === searchWord.toLocaleLowerCase()){
+                                    console.log('word matched!')
+                                    wordMatch.push(result)
+                                    pushed = true
+                                }
+                            }
                         }
                     }
-
-
-
-
-                    resultsList.push(result)
+                    
+                    //pushing the rest, lowest priority
+                    if(!pushed){
+                        anyMatch.push(result)
+                    }
                 }
             })
+            // wordMatch.forEach(function(word){
+            //     resultsList.push(word)
+            // })
+            // startMatch.forEach(function(word){
+            //     resultsList.push(word)
+            // })
+            // anyMatch.forEach(function(word){
+            //     resultsList.push(word)
+            // })
+            resultsList.push(...wordMatch,...startMatch,...anyMatch)
+            console.log(resultsList)
+
         }
 
         //when the search result list changes we reset the selected result
