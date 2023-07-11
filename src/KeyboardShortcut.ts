@@ -236,8 +236,11 @@ export class KeyboardShortcut {
         const searchTerm :string = eagle.quickActionSearchTerm().toLocaleLowerCase()
 
         let resultsList:any[] = []
+
         let wordMatch:any[] = []
+        let tagMatch:any[] = []
         let startMatch:any[] = []
+        let tagStartMatch:any[] = []
         let anyMatch:any[] = []
 
         if(searchTerm != ''){
@@ -247,22 +250,27 @@ export class KeyboardShortcut {
                 //checks if there is a match
                 let match = false
 
-                if(shortcut.name.toLocaleLowerCase().includes(searchTerm)||shortcut.name.toLocaleLowerCase().replace(/\s/g,'').includes(searchTerm)){
+                if(shortcut.name.toLocaleLowerCase().includes(searchTerm)){
                     match = true
                 }
                 
                 shortcut.quickActionTags.forEach(function(tag){
-                    if(tag.toLocaleLowerCase().includes(searchTerm)||tag.toLocaleLowerCase().replace(/\s/g,'').includes(searchTerm)){
+                    if(tag.toLocaleLowerCase().includes(searchTerm)){
                         match = true
                     }
                 })
+
+                //booleans used for prioritising search results
+                let wordMatched :boolean= false
+                let tagMatched :boolean= false
+                let startMatched :boolean= false
+                let tagStartMatched :boolean= false
 
                 //generating the result
                 if(match){
                     let resultTitle:string = shortcut.name;
                     let resultAction:any = shortcut.run;
                     let resultShortcut:string;
-                    let pushed :boolean = false;
 
                     if(shortcut.modifier != 'none'){
                         resultShortcut = shortcut.modifier +" "+ shortcut.keys
@@ -272,45 +280,57 @@ export class KeyboardShortcut {
                     result.push(resultTitle,resultAction,resultShortcut)
              
                     // adding priority to each search result, this affects the order in which the result appear
-
                     const searchableArr = shortcut.name.split(' ');
                     const searchTermArr = searchTerm.split(' ')
-                    //checking for word match
-                    if(!pushed){
+
+                    for(const searchWord of searchTermArr){
+                        if(wordMatched){
+                            break
+                        }
+
+                        //checking priority for function name matches                            
                         for(const searchableWord of searchableArr){
-                            for(const searchWord of searchTermArr){
-                                if(searchableWord.toLocaleLowerCase() === searchWord.toLocaleLowerCase()){
-                                    wordMatch.push(result)
-                                    pushed = true
+                            if(searchableWord.toLocaleLowerCase() === searchWord.toLocaleLowerCase()){
+                                wordMatched = true
+                                break
+                            }else if(searchableWord.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
+                                startMatched = true
+                                break
+                            }
+                        }
+
+                        //checking priority for function tags
+                        if(!wordMatched){
+                            for(const tag of shortcut.quickActionTags){
+                                if(searchWord.toLocaleLowerCase() === tag.toLocaleLowerCase()){
+                                    tagMatched = true
+                                    break
+                                }else if(tag.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
+                                    tagStartMatched = true
+                                    break
                                 }
                             }
                         }
                     }
-                    
-                    //pushing the rest, lowest priority
-                    if(!pushed){
-                        for(const searchableWord of searchableArr){
-                            for(const searchWord of searchTermArr){
-                                if(searchableWord.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
-                                    startMatch.push(result)
-                                    pushed = true
-                                }
-                            }
-                        }
-                    }
-                    
-                    //pushing the rest, lowest priority
-                    if(!pushed){
+
+                    //pushing the results in order of priority
+                    if(wordMatched){
+                        wordMatch.push(result)
+                    }else if(tagMatched){
+                        tagMatch.push(result)
+                    }else if(startMatched){
+                        startMatch.push(result)
+                    }else if(tagStartMatched){
+                        tagStartMatch.push(result)
+                    }else{
                         anyMatch.push(result)
-                        pushed = true
                     }
                 }
             })
             
             //adding the contents of each of the priority arrays into the results array, in order of priority
             //the ... means we are appending only the entries, not the array itself
-            resultsList.push(...wordMatch, ...startMatch, ...anyMatch)
-
+            resultsList.push(...wordMatch, ...tagMatch, ...startMatch,...tagStartMatch, ...anyMatch)
         }
 
         //when the search result list changes we reset the selected result
