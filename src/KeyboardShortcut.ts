@@ -221,9 +221,12 @@ export class KeyboardShortcut {
     }
 
     static initiateQuickAction = () : void  =>{
+        //function to both start and close the quick action menu
         $('#quickActionContainer').toggle()
         $('#quickActionSearchbar').val('')
         $('#quickActionSearchbar').focus()
+        $("#quickActionContainer").unbind('keydown.quickActions')
+
     }
 
     static findQuickActionResults = () : any[]  =>{
@@ -249,10 +252,15 @@ export class KeyboardShortcut {
             })
         }
 
+        //when the search result list changes we reset the selected result
+        $('#quickActionsFocus').removeClass('quickActionsFocus')
+
+        //hide the result div if there is nothing to show
         if(resultsList.length === 0){
             $('#quickActionResults').hide()
         }else{
             $('#quickActionResults').show()
+            this.initiateQuickActionQuickSelect()
         }
 
         return resultsList
@@ -271,6 +279,58 @@ export class KeyboardShortcut {
     static updateQuickActionSearchTerm = (obj:any, event:any ): void => {
         const eagle = (<any>window).eagle;
         eagle.quickActionSearchTerm($(event.target).val())
+    }
+    
+    static initiateQuickActionQuickSelect = () : void => {
+        //unbinding then rebinding the event in case there was already one attached
+        const that = this
+        $("#quickActionContainer").unbind('keydown.quickActions')
+        $("#quickActionContainer").bind('keydown.quickActions',function(e){
+            const current = $(".quickActionsFocus")
+            switch(e.which) {
+                
+                case 38: // up
+                e.preventDefault()
+                if($('#quickActionSearchbar').val()!==''){   
+                    if($(".quickActionsFocus").length === 0){
+                        $('#quickActionResults a:last').addClass('quickActionsFocus')
+                    }else{
+                        $(".quickActionsFocus").removeClass('quickActionsFocus')
+                        current.prev().addClass('quickActionsFocus')
+                    }
+                }
+                break;
+        
+                case 40: // down
+                e.preventDefault()
+                if($('#quickActionSearchbar').val()!==''){   
+                    if($(".quickActionsFocus").length === 0){
+                        $('#quickActionResults a:first').addClass('quickActionsFocus')
+                    }else{
+                        $(".quickActionsFocus").removeClass('quickActionsFocus')
+                        current.next().addClass('quickActionsFocus')
+                    }
+                }
+                break;
+
+                case 13: //enter
+                if(current.length != 0){
+                    e.preventDefault()
+                    current.click()
+                }else if( $('#quickActionResults a').length != 0){
+                    e.preventDefault()
+                    $('#quickActionResults a:first').click()
+                }
+                break;
+
+                case 27: //escape
+                that.initiateQuickAction()
+                
+                break;
+        
+                default: return; // exit this handler for other keys
+            }
+        })
     }
 
 }

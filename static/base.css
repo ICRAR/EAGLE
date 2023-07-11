@@ -115,6 +115,11 @@ body {
     color: white;
     font-size: 1.2rem;
     padding: 5px 10px;
+    text-decoration: none;
+}
+
+#quickActionResults a.quickActionsFocus{
+    background-color: #002349;
 }
 
 #quickActionResults a:hover{
