@@ -39,6 +39,7 @@ import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
 import {Hierarchy} from './Hierarchy';
 import {RightClick} from './RightClick';
+import {QuickActions} from './QuickActions';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {LogicalGraph} from './LogicalGraph';
 import {Modals} from './Modals';
@@ -82,6 +83,7 @@ $(function(){
     (<any>window).UiModeSystem = UiModeSystem;
     (<any>window).Utils = Utils;
     (<any>window).KeyboardShortcut = KeyboardShortcut;
+    (<any>window).QuickActions = QuickActions;
     (<any>window).Modals = Modals;
 
     ko.options.deferUpdates = true;
