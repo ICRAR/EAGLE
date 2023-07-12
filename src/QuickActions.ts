@@ -16,7 +16,7 @@ export class QuickActions {
             $('#quickActionContainer').toggle()
             $('#quickActionSearchbar').val('')
             $('#quickActionSearchbar').focus()
-            $("#quickActionContainer").unbind('keydown.quickActions')
+            $(document).unbind('keydown.quickActions')
         },50)
 
     }
@@ -154,10 +154,12 @@ export class QuickActions {
     }
     
     static initiateQuickActionQuickSelect = () : void => {
+
+
         //unbinding then rebinding the event in case there was already one attached
         const that = this
-        $("#quickActionContainer").unbind('keydown.quickActions')
-        $("#quickActionContainer").bind('keydown.quickActions',function(e){
+        $(document).unbind('keydown.quickActions')
+        $(document).bind('keydown.quickActions',function(e){
             const current = $(".quickActionsFocus")
             switch(e.which) {
                 
@@ -200,8 +202,16 @@ export class QuickActions {
                 
                 break;
         
-                default: return; // exit this handler for other keys
+                default: //all other keypresses should be typing in this mode, so we should be focused on the input
+                $('#quickActionSearchbar').focus()
+                break;
             }
+        })
+        
+        $('body').bind('click.quickActionDismiss',function(event){
+            console.log('boppin')
+            QuickActions.initiateQuickAction()
+            $('body').unbind('click.quickActionDismiss')
         })
     }
 

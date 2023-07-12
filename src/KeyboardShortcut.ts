@@ -97,6 +97,11 @@ export class KeyboardShortcut {
         // get reference to eagle
         const eagle = (<any>window).eagle;
 
+        if(eagle.quickActionOpen()){
+            return;
+        }
+
+
         // loop through all the keyboard shortcuts here
         for (const shortcut of Eagle.shortcuts){
             // check that the event is of the correct type
