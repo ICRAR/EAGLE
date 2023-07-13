@@ -13,12 +13,18 @@ export class QuickActions {
         const eagle = (<any>window).eagle;
         eagle.quickActionOpen(!eagle.quickActionOpen())
         setTimeout(function(){
-            $('#quickActionContainer').toggle()
-            $('#quickActionSearchbar').val('')
-            $('#quickActionSearchbar').focus()
-            $(document).unbind('keydown.quickActions')
-        },50)
 
+            if(eagle.quickActionOpen()){
+                $('#quickActionContainer').show()
+                $('#quickActionSearchbar').focus()
+                QuickActions.initiateQuickActionQuickSelect()
+            }else{
+                $('#quickActionContainer').hide()
+                $('body').unbind('keydown.quickActions')
+                $(window).unbind('click.quickActionDismiss')
+            }
+            $('#quickActionSearchbar').val('')
+        },50)
     }
 
     static findQuickActionResults = () : any[]  =>{
@@ -132,7 +138,6 @@ export class QuickActions {
             $('#quickActionResults').hide()
         }else{
             $('#quickActionResults').show()
-            this.initiateQuickActionQuickSelect()
         }
 
         return resultsList
@@ -154,12 +159,10 @@ export class QuickActions {
     }
     
     static initiateQuickActionQuickSelect = () : void => {
-
-
         //unbinding then rebinding the event in case there was already one attached
         const that = this
-        $(document).unbind('keydown.quickActions')
-        $(document).bind('keydown.quickActions',function(e){
+        $('body').unbind('keydown.quickActions')
+        $('body').bind('keydown.quickActions',function(e){
             const current = $(".quickActionsFocus")
             switch(e.which) {
                 
@@ -199,19 +202,17 @@ export class QuickActions {
 
                 case 27: //escape
                 that.initiateQuickAction()
-                
                 break;
-        
+
                 default: //all other keypresses should be typing in this mode, so we should be focused on the input
                 $('#quickActionSearchbar').focus()
                 break;
             }
         })
         
-        $('body').bind('click.quickActionDismiss',function(event){
+        $(window).bind('click.quickActionDismiss',function(event){
             console.log('boppin')
             QuickActions.initiateQuickAction()
-            $('body').unbind('click.quickActionDismiss')
         })
     }
 

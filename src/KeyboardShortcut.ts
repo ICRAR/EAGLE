@@ -97,9 +97,6 @@ export class KeyboardShortcut {
         // get reference to eagle
         const eagle = (<any>window).eagle;
 
-        if(eagle.quickActionOpen()){
-            return;
-        }
 
 
         // loop through all the keyboard shortcuts here
@@ -147,8 +144,12 @@ export class KeyboardShortcut {
                 if (key.toLowerCase() === e.key.toLowerCase()){
 
                     //we are filtering out all shortcuts that should nt run if an input or text field is selected
-                    if($("input,textarea").is(":focus") && shortcut.modifier != KeyboardShortcut.Modifier.Input){
+                    //we are also filtering out the shortcuts that should run when the quick action system is being used
+                    if($("input,textarea").is(":focus") && shortcut.modifier != KeyboardShortcut.Modifier.Input && shortcut.modifier != KeyboardShortcut.Modifier.quickAction){
                         break
+                    }
+                    if(eagle.quickActionOpen() && shortcut.modifier != KeyboardShortcut.Modifier.quickAction){
+                        return;
                     }
 
                     if (shortcut.canRun(eagle)){
@@ -171,7 +172,7 @@ export class KeyboardShortcut {
 
     static getShortcuts = () : KeyboardShortcut[] => {
         return [
-            new KeyboardShortcut("Quick Action", "Search and quick launch actions", ["`"], "keydown", KeyboardShortcut.Modifier.Input, KeyboardShortcut.true, [''], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => { QuickActions.initiateQuickAction();}),
+            new KeyboardShortcut("Quick Action", "Search and quick launch actions", ["`"], "keydown", KeyboardShortcut.Modifier.quickAction, KeyboardShortcut.true, [''], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => { QuickActions.initiateQuickAction();}),
             new KeyboardShortcut("new_graph", "New Graph", ["n"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['create','canvas'], KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.newLogicalGraph();}),
             new KeyboardShortcut("new_palette", "New palette", ["n"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, ['create','palettes','pallette'],KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newPalette();}),
             new KeyboardShortcut("open_graph_from_repo", "Open graph from repo", ["g"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['git','repository','github','gitlab','load','canvas'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().mode(Eagle.RightWindowMode.Repository);eagle.rightWindow().shown(true);}),
@@ -234,6 +235,7 @@ export namespace KeyboardShortcut{
         Shift = "Shift",
         None = "none",
         MetaShift = "Meta + Shift",
-        Input = "Input" //special case for shortcuts in the table modal that allow the user to move from cell to cell
+        Input = "Input", //special case for shortcuts in the table modal that allow the user to move from cell to cell
+        quickAction = "quickAction"
     }
 }
