@@ -75,7 +75,7 @@ body {
 }
 
 #quickActionContainer {
-    z-index: 100;
+    z-index: 101;
     display: block;
     position: absolute;
     left: 50%;
@@ -129,6 +129,13 @@ body {
 
 #quickActionResults a:hover{
     background-color: #002349;
+}
+
+#quickActionBackground{
+    position: absolute;
+    inset: 0px 0px 0px 0px;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.288);
 }
 
 #navBarToolBar .navbarGroupSuccess{

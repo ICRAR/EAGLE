@@ -16,12 +16,14 @@ export class QuickActions {
 
             if(eagle.quickActionOpen()){
                 $('#quickActionContainer').show()
+                $('#quickActionBackground').show()
                 $('#quickActionSearchbar').focus()
                 QuickActions.initiateQuickActionQuickSelect()
             }else{
                 $('#quickActionContainer').hide()
+                $('#quickActionBackground').hide()
                 $('body').unbind('keydown.quickActions')
-                $(window).unbind('click.quickActionDismiss')
+                $('#quickActionBackground').unbind('click.quickActionDismiss')
             }
             $('#quickActionSearchbar').val('')
         },50)
@@ -210,7 +212,7 @@ export class QuickActions {
             }
         })
         
-        $(window).bind('click.quickActionDismiss',function(event){
+        $('#quickActionBackground').bind('click.quickActionDismiss',function(event){
             console.log('boppin')
             QuickActions.initiateQuickAction()
         })
