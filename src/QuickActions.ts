@@ -15,7 +15,6 @@ export class QuickActions {
         $('#quickActionSearchbar').val('')
 
         setTimeout(function(){
-
             if(eagle.quickActionOpen()){
                 $('#quickActionContainer').show()
                 $('#quickActionBackground').show()
@@ -45,85 +44,39 @@ export class QuickActions {
         if(searchTerm != ''){
 
             KeyboardShortcut.getShortcuts().forEach(function(shortcut:KeyboardShortcut){
-                let result:any[] = []
-
-                //checks if there is a match
-                let match = false
-
-                if(shortcut.name.toLocaleLowerCase().includes(searchTerm)){
-                    match = true
-                }
-                
-                shortcut.quickActionTags.forEach(function(tag){
-                    if(tag.toLocaleLowerCase().includes(searchTerm)){
-                        match = true
-                    }
-                })
-
-                //booleans used for prioritising search results
-                let wordMatched :boolean= false
-                let tagMatched :boolean= false
-                let startMatched :boolean= false
-                let tagStartMatched :boolean= false
-
-                //generating the result
-                if(match){
-                    let resultTitle:string = shortcut.name;
-                    let resultAction:any = shortcut.run;
-                    let resultShortcut:string;
-
-                    if(shortcut.modifier != 'none'){
-                        resultShortcut = shortcut.modifier +" "+ shortcut.keys
-                    }else{
-                        resultShortcut = shortcut.keys.toString()
-                    }
-                    result.push(resultTitle,resultAction,resultShortcut)
-             
-                    // adding priority to each search result, this affects the order in which the result appear
-                    const searchableArr = shortcut.name.split(' ');
-                    const searchTermArr = searchTerm.split(' ')
-
-                    for(const searchWord of searchTermArr){
-                        if(wordMatched){
-                            break
-                        }
-
-                        //checking priority for function name matches                            
-                        for(const searchableWord of searchableArr){
-                            if(searchableWord.toLocaleLowerCase() === searchWord.toLocaleLowerCase()){
-                                wordMatched = true
-                                break
-                            }else if(searchableWord.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
-                                startMatched = true
-                                break
-                            }
-                        }
-
-                        //checking priority for function tags
-                        if(!wordMatched){
-                            for(const tag of shortcut.quickActionTags){
-                                if(searchWord.toLocaleLowerCase() === tag.toLocaleLowerCase()){
-                                    tagMatched = true
-                                    break
-                                }else if(tag.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
-                                    tagStartMatched = true
-                                    break
-                                }
-                            }
-                        }
-                    }
-
+               
+                const result = QuickActions.matchAndSortFunction(shortcut,searchTerm)
+                if(result.match){
                     //pushing the results in order of priority
-                    if(wordMatched){
-                        wordMatch.push(result)
-                    }else if(tagMatched){
-                        tagMatch.push(result)
-                    }else if(startMatched){
-                        startMatch.push(result)
-                    }else if(tagStartMatched){
-                        tagStartMatch.push(result)
+                    if(result.priority === 'wordMatch'){
+                        wordMatch.push(result.funcObject)
+                    }else if(result.priority === 'tagMatch'){
+                        tagMatch.push(result.funcObject)
+                    }else if(result.priority === 'startMatch'){
+                        startMatch.push(result.funcObject)
+                    }else if(result.priority === 'tagStartMatch'){
+                        tagStartMatch.push(result.funcObject)
                     }else{
-                        anyMatch.push(result)
+                        // anyMatch.push(result.funcObject)
+                    }
+                }
+            })
+
+            KeyboardShortcut.getQuickActions().forEach(function(shortcut:KeyboardShortcut){
+               
+                const result = QuickActions.matchAndSortFunction(shortcut,searchTerm)
+                if(result.match){
+                    //pushing the results in order of priority
+                    if(result.priority === 'wordMatch'){
+                        wordMatch.push(result.funcObject)
+                    }else if(result.priority === 'tagMatch'){
+                        tagMatch.push(result.funcObject)
+                    }else if(result.priority === 'startMatch'){
+                        startMatch.push(result.funcObject)
+                    }else if(result.priority === 'tagStartMatch'){
+                        tagStartMatch.push(result.funcObject)
+                    }else{
+                        // anyMatch.push(result.funcObject)
                     }
                 }
             })
@@ -146,6 +99,93 @@ export class QuickActions {
         return resultsList
     }
 
+    static matchAndSortFunction = (func:KeyboardShortcut,searchTerm:string) : any =>{
+        let result:any = []
+        let funcElement :any[] = []
+        let bestMatch : string = ''
+        //checks if there is a match
+        let match = false
+
+        if(func.name.toLocaleLowerCase().includes(searchTerm)){
+            match = true
+        }
+        
+        func.quickActionTags.forEach(function(tag){
+            if(tag.toLocaleLowerCase().includes(searchTerm)){
+                match = true
+            }
+        })
+
+        //booleans used for prioritising search results
+        let wordMatched :boolean= false
+        let tagMatched :boolean= false
+        let startMatched :boolean= false
+        let tagStartMatched :boolean= false
+
+        //generating the result
+        if(match){
+            let resultTitle:string = func.name;
+            let resultAction:any = func.run;
+            let resultShortcut:string;
+
+            if(func.modifier != 'none'){
+                resultShortcut = func.modifier +" "+ func.keys
+            }else{
+                resultShortcut = func.keys.toString()
+            }
+            funcElement.push(resultTitle,resultAction,resultShortcut)
+     
+            // adding priority to each search result, this affects the order in which the result appear
+            const searchableArr = func.name.split(' ');
+            const searchTermArr = searchTerm.split(' ')
+
+            for(const searchWord of searchTermArr){
+                if(wordMatched){
+                    break
+                }
+
+                //checking priority for function name matches                            
+                for(const searchableWord of searchableArr){
+                    if(searchableWord.toLocaleLowerCase() === searchWord.toLocaleLowerCase()){
+                        wordMatched = true
+                        break
+                    }else if(searchableWord.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
+                        startMatched = true
+                        break
+                    }
+                }
+
+                //checking priority for function tags
+                if(!wordMatched){
+                    for(const tag of func.quickActionTags){
+                        if(searchWord.toLocaleLowerCase() === tag.toLocaleLowerCase()){
+                            tagMatched = true
+                            break
+                        }else if(tag.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
+                            tagStartMatched = true
+                            break
+                        }
+                    }
+                }
+            }
+            if(wordMatched){
+                bestMatch = 'wordMatch'
+            }else if(tagMatched){
+                bestMatch = 'tagMatch'
+            }else if(startMatched){
+                bestMatch = 'startMatch'
+            }else if(tagStartMatched){
+                bestMatch = 'tagStartMatch'
+            }else{
+                bestMatch = 'anyMatch'
+            }
+            result = {match:match, funcObject:funcElement,priority:bestMatch}
+        }else{
+            result = {match:match, funcObject:funcElement,priority:bestMatch}
+        }
+        return result
+    }
+
     static executeQuickAction = (data:any) : void  =>{
         const eagle = (<any>window).eagle;
         this.initiateQuickAction()
@@ -153,7 +193,11 @@ export class QuickActions {
     }
 
     static getQuickActionShortcutHtml = (data:any) : string => {
-        return ' ['+data[2]+']'
+        if(data[2] != ''){
+            return ' ['+data[2]+']'
+        }else{
+            return ''
+        }
     }
 
     static updateQuickActionSearchTerm = (obj:any, event:any ): void => {
