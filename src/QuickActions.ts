@@ -12,6 +12,8 @@ export class QuickActions {
         //function to both start and close the quick action menu
         const eagle = (<any>window).eagle;
         eagle.quickActionOpen(!eagle.quickActionOpen())
+        $('#quickActionSearchbar').val('')
+
         setTimeout(function(){
 
             if(eagle.quickActionOpen()){
@@ -25,7 +27,6 @@ export class QuickActions {
                 $('body').unbind('keydown.quickActions')
                 $('#quickActionBackground').unbind('click.quickActionDismiss')
             }
-            $('#quickActionSearchbar').val('')
         },50)
     }
 
