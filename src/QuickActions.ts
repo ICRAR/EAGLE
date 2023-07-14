@@ -6,8 +6,17 @@ import { Setting } from './Setting';
 import { ParameterTable } from './ParameterTable';
 import {KeyboardShortcut} from './KeyboardShortcut';
 
+let wordMatch:any[] = []
+let tagMatch:any[] = []
+let startMatch:any[] = []
+let tagStartMatch:any[] = []
+let anyMatch:any[] = []
+
 export class QuickActions {
     
+    
+
+
     static initiateQuickAction = () : void  =>{
         //function to both start and close the quick action menu
         const eagle = (<any>window).eagle;
@@ -35,11 +44,11 @@ export class QuickActions {
 
         let resultsList:any[] = []
 
-        let wordMatch:any[] = []
-        let tagMatch:any[] = []
-        let startMatch:any[] = []
-        let tagStartMatch:any[] = []
-        let anyMatch:any[] = []
+        wordMatch = []
+        tagMatch = []
+        startMatch = []
+        tagStartMatch = []
+        anyMatch = []
 
         if(searchTerm != ''){
 
@@ -48,17 +57,7 @@ export class QuickActions {
                 const result = QuickActions.matchAndSortFunction(shortcut,searchTerm)
                 if(result.match){
                     //pushing the results in order of priority
-                    if(result.priority === 'wordMatch'){
-                        wordMatch.push(result.funcObject)
-                    }else if(result.priority === 'tagMatch'){
-                        tagMatch.push(result.funcObject)
-                    }else if(result.priority === 'startMatch'){
-                        startMatch.push(result.funcObject)
-                    }else if(result.priority === 'tagStartMatch'){
-                        tagStartMatch.push(result.funcObject)
-                    }else{
-                        // anyMatch.push(result.funcObject)
-                    }
+                    QuickActions.pushResultUsingPriority(result)
                 }
             })
 
@@ -67,22 +66,12 @@ export class QuickActions {
                 const result = QuickActions.matchAndSortFunction(shortcut,searchTerm)
                 if(result.match){
                     //pushing the results in order of priority
-                    if(result.priority === 'wordMatch'){
-                        wordMatch.push(result.funcObject)
-                    }else if(result.priority === 'tagMatch'){
-                        tagMatch.push(result.funcObject)
-                    }else if(result.priority === 'startMatch'){
-                        startMatch.push(result.funcObject)
-                    }else if(result.priority === 'tagStartMatch'){
-                        tagStartMatch.push(result.funcObject)
-                    }else{
-                        // anyMatch.push(result.funcObject)
-                    }
+                    QuickActions.pushResultUsingPriority(result)
                 }
             })
-            
+
             //adding the contents of each of the priority arrays into the results array, in order of priority
-            //the ... means we are appending only the entries, not the array itself
+            //the ... means we are appending only the array's entries not the array itself
             resultsList.push(...wordMatch, ...tagMatch, ...startMatch,...tagStartMatch, ...anyMatch)
         }
 
@@ -98,6 +87,21 @@ export class QuickActions {
 
         return resultsList
     }
+
+    static pushResultUsingPriority = (result:any) : void =>{
+        if(result.priority === 'wordMatch'){
+            wordMatch.push(result.funcObject)
+        }else if(result.priority === 'tagMatch'){
+            tagMatch.push(result.funcObject)
+        }else if(result.priority === 'startMatch'){
+            startMatch.push(result.funcObject)
+        }else if(result.priority === 'tagStartMatch'){
+            tagStartMatch.push(result.funcObject)
+        }else{
+            // anyMatch.push(result.funcObject)
+        }
+    }
+
 
     static matchAndSortFunction = (func:KeyboardShortcut,searchTerm:string) : any =>{
         let result:any = []
