@@ -229,7 +229,15 @@ export class KeyboardShortcut {
     static getQuickActions = () : KeyboardShortcut[] => {
         return [
             new KeyboardShortcut("collapse_all_nodes", "Collapse All Nodes", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['hide','show'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.toggleCollapseAllNodes();}),
-       ];
+            
+            //docs
+            new KeyboardShortcut("docs_load_a_palette", "Loading a Palette", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#loading-a-palette');}),
+            new KeyboardShortcut("docs_creating_a_graph", "Creating a Graph", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#creating-a-new-graph');}),
+            new KeyboardShortcut("docs_saving_graph_to_github", "Saving a Graph To Github", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#saving-a-graph-to-github');}),
+            new KeyboardShortcut("docs_ui_modes", "UI Modes", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','settings'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/settings.html#ui-modes');}),
+            new KeyboardShortcut("docs_settings", "Settings", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','settings'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/settings.html#');}),
+            
+        ];
     }
 }
 

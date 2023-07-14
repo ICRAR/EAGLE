@@ -52,8 +52,8 @@ export class QuickActions {
 
         if(searchTerm != ''){
 
+            //processing the keyboard shortcuts array
             KeyboardShortcut.getShortcuts().forEach(function(shortcut:KeyboardShortcut){
-               
                 const result = QuickActions.matchAndSortFunction(shortcut,searchTerm)
                 if(result.match){
                     //pushing the results in order of priority
@@ -61,8 +61,8 @@ export class QuickActions {
                 }
             })
 
+            //processing the quick start array
             KeyboardShortcut.getQuickActions().forEach(function(shortcut:KeyboardShortcut){
-               
                 const result = QuickActions.matchAndSortFunction(shortcut,searchTerm)
                 if(result.match){
                     //pushing the results in order of priority
@@ -131,6 +131,7 @@ export class QuickActions {
             let resultTitle:string = func.name;
             let resultAction:any = func.run;
             let resultShortcut:string;
+            let resultIcon:string;
 
             if(func.modifier != 'none'){
                 resultShortcut = func.modifier +" "+ func.keys
@@ -265,6 +266,17 @@ export class QuickActions {
             console.log('boppin')
             QuickActions.initiateQuickAction()
         })
+    }
+
+    static quickOpenDocsLink = (link:string) :void => {
+        var win = window.open(link, '_blank');
+        if (win) {
+            //Browser has allowed it to be opened
+            win.focus();
+        } else {
+            //Browser has blocked it
+            alert('Please allow popups for this website');
+        }
     }
 
 }
