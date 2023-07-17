@@ -138,6 +138,11 @@ body {
     background-color: rgba(0, 0, 0, 0.288);
 }
 
+#quickActionResults a i{
+    margin-right: 5px;
+    font-size: 1.1rem;
+}
+
 #navBarToolBar .navbarGroupSuccess{
     border-color: #00bb00;
     color: white;

@@ -138,7 +138,13 @@ export class QuickActions {
             }else{
                 resultShortcut = func.keys.toString()
             }
-            funcElement.push(resultTitle,resultAction,resultShortcut)
+
+            if(func.key.startsWith('docs_')){
+                resultIcon = 'icon-book'
+            }else{
+                resultIcon = 'icon-build'
+            }
+            funcElement.push(resultTitle,resultAction,resultShortcut,resultIcon)
      
             // adding priority to each search result, this affects the order in which the result appear
             const searchableArr = func.name.split(' ');
