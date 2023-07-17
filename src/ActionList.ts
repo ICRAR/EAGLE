@@ -62,7 +62,11 @@ export class ActionList {
                     this.messages(errors.concat(updates));
                 });
                 break;
-            }
+            case ActionList.Mode.Loading:
+                // close the actionList modal
+                $('#actionListModal').modal("toggle");
+                break;
+        }
 
         eagle.undo().pushSnapshot(eagle, "Performed Action(s)");
     }

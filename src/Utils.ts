@@ -440,7 +440,7 @@ export class Utils {
         }
     }
 
-    static showActionListModal(title: string, combinedMessages: {source: string, messages: ActionMessage[]}[]){
+    static showActionListModal(title: string, mode: ActionList.Mode, combinedMessages: {source: string, messages: ActionMessage[]}[]){
         console.log("showActionListModal() messages:", combinedMessages.length);
         //console.trace();
 
@@ -453,6 +453,7 @@ export class Utils {
 
 
         const eagle: Eagle = Eagle.getInstance();
+        eagle.actionList().mode(mode);
         eagle.actionList().messages(flatMessages);
         console.log("eagle actionList messages length", eagle.actionList().messages().length);
 

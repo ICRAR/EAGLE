@@ -763,7 +763,7 @@ export class Eagle {
         if (combinedErrorCount > 0){
             if (showErrors){
                 // add warnings/errors to the arrays
-                Utils.showActionListModal("Loading File", combinedErrors);
+                Utils.showActionListModal("Loading File(s)", ActionList.Mode.Loading, combinedErrors);
             }
         } else {
             const messages: string[] = [];
@@ -4581,7 +4581,7 @@ export class Eagle {
             const combined: ActionMessage[] = errors.concat(updates);
             console.log("combined", combined);
 
-            Utils.showActionListModal("Update Graph Components", [{source:"", messages:combined}]);
+            Utils.showActionListModal("Update Graph Components", ActionList.Mode.UpdateComponents, [{source:"", messages:combined}]);
         });
     }
 }
