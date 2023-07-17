@@ -5,6 +5,7 @@ import {Errors} from './Errors';
 import { Setting } from './Setting';
 import { ParameterTable } from './ParameterTable';
 import { QuickActions } from './QuickActions';
+import { TutorialSystem } from './Tutorial';
 
 let currentEvent:any  = null // this is used for keybord shortcut functions that need the event object to function
 
@@ -229,6 +230,8 @@ export class KeyboardShortcut {
     static getQuickActions = () : KeyboardShortcut[] => {
         return [
             new KeyboardShortcut("collapse_all_nodes", "Collapse All Nodes", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['hide','show'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.toggleCollapseAllNodes();}),
+            new KeyboardShortcut("quickIntroTut", "Start UI Quick Intro Tutorial", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['ui','interface'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {TutorialSystem.initiateTutorial('Quick Start');}),
+            new KeyboardShortcut("graphBuildingTut", "Start Graph Building Tutorial", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {TutorialSystem.initiateTutorial('Graph Building');}),
             
             //docs
             new KeyboardShortcut("docs_load_a_palette", "Loading a Palette", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#loading-a-palette');}),
@@ -246,10 +249,15 @@ export class KeyboardShortcut {
             new KeyboardShortcut("docs_dockerComponents", "Creating Docker Components", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/components.html#creating-components-for-docker-images');}),
             new KeyboardShortcut("docs_notesOnDockerImages", "Notes On Docker Images", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/components.html#important-notes-on-docker-images');}),
             new KeyboardShortcut("docs_linkingComponentsWithEdges", "Linking Components With Edges", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/components.html#linking-components-with-edges');}),
-            new KeyboardShortcut("docs_", "", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('');}),
-            new KeyboardShortcut("docs_", "", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('');}),
-            
-
+            new KeyboardShortcut("docs_environmentVariables", "Environment Variables", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/components.html#environment-variables');}),
+            new KeyboardShortcut("docs_palettes", "Palettes", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/palettes.html');}),
+            new KeyboardShortcut("docs_creatingPalettesAutomaticallyFromSourceCode", "Creating Palettes Automatically From Source Code", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/palettes.html#creating-palettes-automatically-from-source-code');}),
+            new KeyboardShortcut("docs_creatingPalettesWithinEagle", "Creating Palettes From Within Eagle", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/palettes.html#creating-palettes-automatically-from-source-code');}),
+            new KeyboardShortcut("docs_templatesAndGraphs", "Templates And Graphs", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/graphs.html');}),
+            new KeyboardShortcut("docs_logicalGraphTemplate", "Logical Graph Template", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/graphs.html#logical-graph-template');}),
+            new KeyboardShortcut("docs_logicalGraph", "Logical Graph", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/graphs.html#logical-graph');}),
+            new KeyboardShortcut("docs_physicalGraphTemplate", "Physical Graph Template", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/graphs.html#physical-graph-template');}),
+            new KeyboardShortcut("docs_physicalGraph", "Physical Graph", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help','components'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/graphs.html#physical-graph');}),
         ];
     }
 }

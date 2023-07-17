@@ -18,10 +18,10 @@ export class QuickActions {
 
 
     static initiateQuickAction = () : void  =>{
+        $('#quickActionSearchbar').val('')
         //function to both start and close the quick action menu
         const eagle = (<any>window).eagle;
         eagle.quickActionOpen(!eagle.quickActionOpen())
-        $('#quickActionSearchbar').val('')
 
         setTimeout(function(){
             if(eagle.quickActionOpen()){
