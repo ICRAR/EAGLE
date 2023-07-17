@@ -40,47 +40,66 @@ export class GraphChecker {
         this.issues(errors);
     }
 
-    fix = (eagle: Eagle, fixFunc: () => void): void => {
-        fixFunc();
+    static fix = (index: number): void => {
+        console.log("GraphChecker.fix()", index);
+
+        const eagle: Eagle = Eagle.getInstance();
+        const graphChecker: GraphChecker = eagle.graphChecker();
+
+        const issue = graphChecker.issues()[index];
+        if (issue.fix !== null){
+            // perform the action
+            issue.fix();
+
+            // and remove it from the list
+            graphChecker.issues.splice(index, 1);
+        }
+
         this.postFixFunc(eagle);
     }
 
     // TODO: should we pass eagle as an argument here?
-    fixAll = () : void => {
+    static fixAll = () : void => {
         const eagle: Eagle = Eagle.getInstance();
-        const initialNumMessages = this.issues().length;
-        let numMessages   = Infinity;
+        const graphChecker: GraphChecker = eagle.graphChecker();
+        const initialNumIssues = graphChecker.issues().length;
+        let numIssues = Infinity;
         let numIterations = 0;
 
         // iterate through the messages list multiple times, until the length of the list is unchanged
-        while (numMessages !== this.issues().length){
+        while (numIssues !== graphChecker.issues().length){
             // check that we haven't iterated through the list too many times
             if (numIterations > 10){
-                console.warn("Too many iterations in performAll()");
+                console.warn("Too many iterations in fixAll()");
                 break;
             }
             numIterations = numIterations+1;
 
-            numMessages = this.issues().length;
+            numIssues = graphChecker.issues().length;
 
-            for (const message of this.issues()){
-                if (message.fix !== null){
-                    message.fix();
+            for (let i = numIssues - 1 ; i >= 0 ; i--){
+                const issue = graphChecker.issues()[i];
+                if (issue.fix !== null){
+                    // perform the action
+                    issue.fix();
+
+                    // and remove it from the list
+                    graphChecker.issues.splice(i, 1);
                 }
             }
         }
 
         // show notification
-        Utils.showNotification("Fixed All Issues: ", initialNumMessages + " issue(s), " + numMessages + " remain. ", "info");
+        Utils.showNotification("Fixed All Issues: ", initialNumIssues + " issue(s), " + numIssues + " remain. ", "info");
 
         this.postFixFunc(eagle);
     }
 
-    postFixFunc = (eagle: Eagle) => {
+    static postFixFunc = (eagle: Eagle) => {
         eagle.selectedObjects.valueHasMutated();
         eagle.logicalGraph().fileInfo().modified = true;
 
-        this.check();
+        eagle.graphChecker().check();
 
         eagle.undo().pushSnapshot(eagle, "Fix");
     }

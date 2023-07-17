@@ -37,6 +37,7 @@ import {Daliuge} from './Daliuge';
 import {Eagle} from './Eagle';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
+import { GraphChecker } from "./GraphChecker";
 import {Hierarchy} from './Hierarchy';
 import {RightClick} from './RightClick';
 import {KeyboardShortcut} from './KeyboardShortcut';
@@ -73,6 +74,7 @@ $(function(){
     (<any>window).Config = Config;
     (<any>window).Daliuge = Daliuge;
     (<any>window).Eagle = Eagle;
+    (<any>window).GraphChecker = GraphChecker;
     (<any>window).Hierarchy = Hierarchy;
     (<any>window).ParameterTable = ParameterTable;
     (<any>window).Repositories = Repositories;

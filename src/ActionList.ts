@@ -15,21 +15,35 @@ export class ActionList {
         this.messages = ko.observableArray([]);
     }
 
-    perform = (eagle: Eagle, fixFunc: () => void): void => {
-        fixFunc();
+    static perform = (index: number): void => {
+        console.log("ActionList.perform()", index);
+
+        const eagle: Eagle = Eagle.getInstance();
+        const actionList: ActionList = eagle.actionList();
+
+        const message = actionList.messages()[index];
+        if (message.fix !== null){
+            // perform the action
+            message.fix();
+
+            // and remove it from the list
+            actionList.messages.splice(index, 1);
+        }
+
         this.postPerformFunc(eagle);
     }
 
-    performAll = () : void => {
+    static performAll = () : void => {
         console.log("performAll()");
 
         const eagle: Eagle = Eagle.getInstance();
-        const initialNumMessages = this.messages().length;
+        const actionList: ActionList = eagle.actionList();
+        const initialNumMessages = actionList.messages().length;
         let numMessages   = Infinity;
         let numIterations = 0;
 
         // iterate through the messages list multiple times, until the length of the list is unchanged
-        while (numMessages !== this.messages().length){
+        while (numMessages !== actionList.messages().length){
             // check that we haven't iterated through the list too many times
             if (numIterations > 10){
                 console.warn("Too many iterations in performAll()");
@@ -37,11 +51,16 @@ export class ActionList {
             }
             numIterations = numIterations+1;
 
-            numMessages = this.messages().length;
+            numMessages = actionList.messages().length;
 
-            for (const message of this.messages()){
+            for (let i = numMessages - 1 ; i >= 0 ; i--){
+                const message = actionList.messages()[i];
                 if (message.fix !== null){
+                    // perform the action
                     message.fix();
+
+                    // and remove it from the list
+                    actionList.messages.splice(i, 1);
                 }
             }
         }
@@ -52,7 +71,7 @@ export class ActionList {
         this.postPerformFunc(eagle);
     }
 
-    postPerformFunc = (eagle: Eagle) => {
+    static postPerformFunc = (eagle: Eagle) => {
         eagle.selectedObjects.valueHasMutated();
         eagle.logicalGraph().fileInfo().modified = true;
 
@@ -63,8 +82,6 @@ export class ActionList {
                 });
                 break;
             case ActionList.Mode.Loading:
-                // close the actionList modal
-                $('#actionListModal').modal("toggle");
                 break;
         }
 

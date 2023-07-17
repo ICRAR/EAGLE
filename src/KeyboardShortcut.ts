@@ -1,9 +1,9 @@
-import {Eagle} from './Eagle';
-import {Category} from './Category';
-import {Utils} from './Utils';
-import { Setting } from './Setting';
-import { ActionList } from './ActionList';
+import { Category } from './Category';
+import { Eagle } from './Eagle';
+import { GraphChecker } from './GraphChecker';
 import { ParameterTable } from './ParameterTable';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 let currentEvent:any  = null // this is used for keyboard shortcut functions that need the event object to function
 
@@ -209,7 +209,7 @@ export class KeyboardShortcut {
             new KeyboardShortcut("paste_to_graph", "Paste to graph", ["v"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => { eagle.pasteFromClipboard(); }),
             new KeyboardShortcut("select_all_in_graph", "Select all in graph", ["a"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.true, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.selectAllInGraph(); }),
             new KeyboardShortcut("select_none_in_graph", "Select none in graph", ["Escape"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, KeyboardShortcut.somethingIsSelected, (eagle): void => { eagle.selectNoneInGraph(); }),
-            new KeyboardShortcut("fix_all", "Fix all errors in graph", ["f"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => { eagle.graphChecker().fixAll(); }),
+            new KeyboardShortcut("fix_all", "Fix all errors in graph", ["f"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => { GraphChecker.fixAll(); }),
             new KeyboardShortcut("table_move_down", "Table move down one cell", ["Enter"], "keydown", KeyboardShortcut.Modifier.Input, KeyboardShortcut.false, KeyboardShortcut.showTableModal, (eagle): void => { ParameterTable.tableEnterShortcut(currentEvent);}),
         ];
     }
