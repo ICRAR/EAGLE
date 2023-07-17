@@ -50,8 +50,6 @@ export class Palette {
     }
 
     static fromOJSJson = (dataObject: any, file : RepositoryFile, errors: ActionMessage[]) : Palette => {
-        console.log("Palette.fromOJSJson()", file.name);
-
         const result : Palette = new Palette();
 
         // copy modelData into fileInfo

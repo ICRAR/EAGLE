@@ -744,11 +744,6 @@ export class Eagle {
     }
 
     handleLoadingErrors = (loads: {file: RepositoryFile, errors: ActionMessage[]}[]) : void => {
-        console.log("handleLoadingErrors()", loads.length);
-        for (const load of loads){
-            console.log(" - ", load.file.name, "errors:", load.errors.length);
-        }
-
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
         // combine all the data in loads
@@ -1666,28 +1661,18 @@ export class Eagle {
             console.log(" - ", file.name);
         }
 
-        const palettes: {file: RepositoryFile, palette: Palette, errors: ActionMessage[]}[] = [];
-        const logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph, errors: ActionMessage[]}[] = [];
         const filesComplete: boolean[] = [];
+        const completedFiles: {file: RepositoryFile, fileType: Eagle.FileType, object: LogicalGraph | Palette, errors: ActionMessage[]}[] = [];
 
         for (let i = 0 ; i < files.length ; i++){
             filesComplete.push(false);
+            completedFiles.push(null);
             const index = i;
             
             this.openRemoteFile(files[i], function(errors: ActionMessage[], file: RepositoryFile, fileTypeLoaded: Eagle.FileType, object: LogicalGraph | Palette){
-                console.log("openRemoteFile callback", "errors:", errors.length, file.name, fileTypeLoaded, object);
-
+                // mark file complete, add files to array
                 filesComplete[index] = true;
-
-                // add files to array
-                switch(fileTypeLoaded){
-                    case Eagle.FileType.Graph:
-                        logicalGraphs.push({file: files[i], logicalGraph: <LogicalGraph>object, errors: errors});
-                        break;
-                    case Eagle.FileType.Palette:
-                        palettes.push({file: files[i], palette: <Palette>object, errors: errors});
-                        break;
-                }
+                completedFiles[index] = {file: files[index], fileType: fileTypeLoaded, object: object, errors: errors};
 
                 // check if all requests are now complete, then we can call the callback
                 let allComplete = true;
@@ -1696,7 +1681,23 @@ export class Eagle {
                         allComplete = false;
                     }
                 }
+
                 if (allComplete){
+                    const palettes: {file: RepositoryFile, palette: Palette, errors: ActionMessage[]}[] = [];
+                    const logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph, errors: ActionMessage[]}[] = [];
+
+                    // add to the two arrays
+                    for (const completedFile of completedFiles){
+                        switch(completedFile.fileType){
+                            case Eagle.FileType.Graph:
+                                logicalGraphs.push({file: completedFile.file, logicalGraph: <LogicalGraph>completedFile.object, errors: completedFile.errors});
+                                break;
+                            case Eagle.FileType.Palette:
+                                palettes.push({file: completedFile.file, palette: <Palette>completedFile.object, errors: completedFile.errors});
+                                break;
+                        }
+                    }
+
                     callback(palettes, logicalGraphs);
                 }
             });
@@ -1704,8 +1705,6 @@ export class Eagle {
     }
 
     openRemoteFile = (file : RepositoryFile, callback: (errors: ActionMessage[], file: RepositoryFile, fileTypeLoaded: Eagle.FileType, object: LogicalGraph | Palette) => void) : void => {
-        console.log("openRemoteFile()", file);
-
         // flag file as being fetched
         file.isFetching(true);
 
@@ -1894,8 +1893,6 @@ export class Eagle {
     };
 
     public remotePaletteLoaded = (file : RepositoryFile, palette: Palette) : void => {
-        console.log("remotePaletteLoaded()", file.name);
-
         // check palette is not already loaded
         const alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
 

@@ -141,7 +141,6 @@ $(function(){
 
     // load the default palette
     eagle.loadFiles(autoLoadFiles, (palettes: {file: RepositoryFile, palette: Palette, errors: ActionMessage[]}[], logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph, errors: ActionMessage[]}[]):void => {
-        console.log("loadFiles callback", "palettes:", palettes, "logicalGraphs:", logicalGraphs);
         const loads : {file: RepositoryFile, errors: ActionMessage[]}[] = [];
 
         // handle palettes
