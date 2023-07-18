@@ -245,6 +245,7 @@ export class KeyboardShortcut {
             new KeyboardShortcut("graphInfo", "Show Graph Info", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());}),
             new KeyboardShortcut("copyGraphUrl", "Copy Graph Url", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.copyGraphUrl();}),
             new KeyboardShortcut("toggleCollapseAllGroups", "Toggle Collapse All Groups", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['expand','hide','show'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.toggleCollapseAllGroups();}),
+            new KeyboardShortcut("addSelectedNodeToPalette", "Add Selected Nodes To Palette", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.addSelectedNodesToPalette('normal');}),
             
             //docs
             new KeyboardShortcut("docs_load_a_palette", "Loading a Palette", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#loading-a-palette');}),
