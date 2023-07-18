@@ -1,6 +1,11 @@
+html {
+    height:100%
+}
+
 body {
     /* prevent window from ever scrolling the whole page */
     overflow: hidden; 
+    height:100%
     /* zoom: 75%; */
 }
 
@@ -67,6 +72,75 @@ body {
 
 #checkGraphWarnings span{
     top: -3px;
+}
+
+#quickActionContainer {
+    z-index: 101;
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 25rem;
+    transform: translateX(-50%);
+}
+
+#quickActionInput{
+    width: 50rem;
+    height:4rem;
+    border: 2px solid #002349;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#quickActionContainer input{
+    width: 100%;
+    height: 100%;
+    background-color: #003f84;
+    color: white;
+    font-size: 2.5rem;
+    padding: 5px;
+    border: none;
+}
+
+#quickActionContainer input::placeholder{
+    color: rgb(204, 204, 204);
+}
+
+#quickActionResults{
+    width: 50rem;
+    margin-top: 5px;
+    background: #003f84;
+    border: 2px solid #002349;
+    border-radius: 5px;
+    max-height: 30rem;
+    overflow: auto;
+}
+
+#quickActionResults a{
+    display: block;
+    color: white;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    text-decoration: none;
+}
+
+#quickActionResults a.quickActionsFocus{
+    background-color: #002349;
+}
+
+#quickActionResults a:hover{
+    background-color: #002349;
+}
+
+#quickActionBackground{
+    position: absolute;
+    inset: 0px 0px 0px 0px;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.288);
+}
+
+#quickActionResults a i{
+    margin-right: 5px;
+    font-size: 1.1rem;
 }
 
 #navBarToolBar .navbarGroupSuccess{

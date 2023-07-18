@@ -1587,7 +1587,7 @@ export class Utils {
             if (shortcut.key === key){
                 const ks = [];
                 for (const k of shortcut.keys){
-                    if (shortcut.modifier === KeyboardShortcut.Modifier.None){
+                    if (shortcut.modifier === KeyboardShortcut.Modifier.None||shortcut.modifier === KeyboardShortcut.Modifier.Input||shortcut.modifier === KeyboardShortcut.Modifier.quickAction){
                         //some processing of the return
                         //if the return should have brackets they are added here
                         //the first letter of the string returned is also capitalised
