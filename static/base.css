@@ -2449,7 +2449,9 @@ ul.nav.navbar-nav .dropdown-item:hover{
 .inspectorTextBoxWrapper div{
     background-color: white;
     padding: 5px;
-    max-height: 500px;
+    resize: vertical;
+    min-height: 150px;
+    height: 14em;
     overflow-y: auto;
 }
 
@@ -2573,6 +2575,8 @@ palette-component input.form-control.selected {
 .tooltip-inner{
     transition: 0s visibility;
     visibility: visible;
+    max-height: 300px;
+    overflow: hidden;
 }
 
 #errorsModal ul.list-group .list-group-item span {
