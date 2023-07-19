@@ -1286,6 +1286,23 @@ select.form-control{
     height:40vh;
 }
 
+#inputTextModal .modal-body .container{
+    height:100%;
+}
+
+#inputTextModal .inputModalTextAreaWrapper{
+    height:calc(100% - 40px);
+}
+
+#inputTextModal .inputModalTextAreaWrapper div{
+    height:100%;
+}
+
+#inputTextModal #inputTextModalInput{
+    height: 100%;
+}
+
+
 #inputTextModalInput {
     font-family: monospace;
 }
