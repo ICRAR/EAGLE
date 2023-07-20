@@ -379,6 +379,7 @@ color: #00bb00;}
     padding:0px 3px;
     /* overflow: hidden; */
     border-right: 1px solid rgb(14 2 76 / 16%);
+    position: relative;
 }
 
 #parameterTableModal .modal-dialog td i,#editFieldModal .modal-body .dropdown-item i{
@@ -481,6 +482,13 @@ td:first-child input {
 
 #parameterTableModal .modal-dialog td button:disabled{
     color: rgb(113 113 113);
+}
+
+#parameterTableModal .modal-dialog td button.parameterTableDescriptionBtn {
+    position: absolute;
+    right: 8px;
+    top: 5px;
+    background-color: white;
 }
 
 .componentTableVisibilityBtn{
