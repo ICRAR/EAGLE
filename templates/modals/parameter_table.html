@@ -192,7 +192,7 @@
                                         <!-- /ko -->
                                         
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
-                                            <td class='columnCell column_Description' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'description' }, eagleTooltip:description">
+                                            <td class='columnCell column_Description' onmouseenter="ParameterTable.showEditDescription()" onmouseleave="ParameterTable.hideEditDescription()" data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'description' }, eagleTooltip:description">
                                                 <input class="tableParameter" type="string" data-bind="value: description, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $root.parameterTable().getNodeLockedState($data), $data, $index())}}">
                                                 <button class="parameterTableDescriptionBtn icon-pencil"></button>
                                             </td>
