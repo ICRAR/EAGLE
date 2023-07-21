@@ -224,6 +224,10 @@ export class ParameterTable {
             $(event.target).find('.parameterTableDescriptionBtn ').hide()
     }
 
+    static requestEditDescriptionInModal = (currentField:Field) => {
+        console.log(currentField)
+    }
+
     static initiateResizableColumns = (upId:string) : void => {
         //need this oen initially to set the mousedown handler
             let upcol: HTMLElement = $('#'+upId)[0]
