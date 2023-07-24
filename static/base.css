@@ -504,6 +504,18 @@ td:first-child input {
     padding-top: 3px;
 }
 
+#rightWindowContainer .inspectorDescriptionDragHnadle{
+    position: absolute;
+    bottom: -9px;
+    right: -8px;
+    transform: rotate(-45deg);
+    pointer-events: none;
+}
+
+.rightWindow #inspectorNodeDescriptionWrapper ::-webkit-scrollbar-track, #parameterTableModal ::-webkit-scrollbar-track{
+    background: white;
+}
+
 #parameter_table_isKeyAttribute .dropdown-menu{
     
     border:solid 1px #000c1a;
