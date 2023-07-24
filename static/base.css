@@ -379,6 +379,7 @@ color: #00bb00;}
     padding:0px 3px;
     /* overflow: hidden; */
     border-right: 1px solid rgb(14 2 76 / 16%);
+    position: relative;
 }
 
 #parameterTableModal .modal-dialog td i,#editFieldModal .modal-body .dropdown-item i{
@@ -476,11 +477,24 @@ td:first-child input {
     color: #002e5f;
     display: inline-block;
     padding: 0px;
-    height:20px
+    height:20px;
+    width:20px;
+    border-radius: 10px;
 }
 
 #parameterTableModal .modal-dialog td button:disabled{
     color: rgb(113 113 113);
+}
+
+#parameterTableModal .modal-dialog td button.parameterTableDescriptionBtn {
+    position: absolute;
+    right: 4px;
+    top: 2px;
+    background-color: #002e5f;
+    color: white;
+    display: none;
+    padding: 1% 0px 0px 0px;
+    font-size: 12px;
 }
 
 .componentTableVisibilityBtn{
@@ -488,6 +502,18 @@ td:first-child input {
     text-decoration: none;
     font-size: 19px!important;
     padding-top: 3px;
+}
+
+#rightWindowContainer .inspectorDescriptionDragHnadle{
+    position: absolute;
+    bottom: -9px;
+    right: -8px;
+    transform: rotate(-45deg);
+    pointer-events: none;
+}
+
+.rightWindow #inspectorNodeDescriptionWrapper ::-webkit-scrollbar-track, #parameterTableModal ::-webkit-scrollbar-track{
+    background: white;
 }
 
 #parameter_table_isKeyAttribute .dropdown-menu{
@@ -1285,6 +1311,23 @@ select.form-control{
 #inputTextModal .modal-content{
     height:40vh;
 }
+
+#inputTextModal .modal-body .container{
+    height:100%;
+}
+
+#inputTextModal .inputModalTextAreaWrapper{
+    height:calc(100% - 40px);
+}
+
+#inputTextModal .inputModalTextAreaWrapper div{
+    height:100%;
+}
+
+#inputTextModal #inputTextModalInput{
+    height: 100%;
+}
+
 
 #inputTextModalInput {
     font-family: monospace;
@@ -2449,7 +2492,9 @@ ul.nav.navbar-nav .dropdown-item:hover{
 .inspectorTextBoxWrapper div{
     background-color: white;
     padding: 5px;
-    max-height: 500px;
+    resize: vertical;
+    min-height: 150px;
+    height: 14em;
     overflow-y: auto;
 }
 
@@ -2573,6 +2618,8 @@ palette-component input.form-control.selected {
 .tooltip-inner{
     transition: 0s visibility;
     visibility: visible;
+    max-height: 300px;
+    overflow: hidden;
 }
 
 #errorsModal ul.list-group .list-group-item span {
