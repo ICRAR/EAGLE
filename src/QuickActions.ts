@@ -13,9 +13,6 @@ let tagStartMatch:any[] = []
 let anyMatch:any[] = []
 
 export class QuickActions {
-    
-    
-
 
     static initiateQuickAction = () : void  =>{
         //function to both start and close the quick action menu

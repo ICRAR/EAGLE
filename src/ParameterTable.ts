@@ -225,7 +225,18 @@ export class ParameterTable {
     }
 
     static requestEditDescriptionInModal = (currentField:Field) => {
-        console.log(currentField)
+        const eagle: Eagle = Eagle.getInstance();
+        const tableType = eagle.tableModalType()
+        eagle.openParamsTableModal('','')
+        Utils.requestUserText("Edit Field Description", "Please edit the description for: "+eagle.logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey())+' - '+currentField.getDisplayText(), currentField.getDescription(), (completed, userText) => {
+            if (!completed){
+                return;
+            }
+
+            currentField.setDescription(userText);
+            eagle.openParamsTableModal(tableType,'')
+
+        })
     }
 
     static initiateResizableColumns = (upId:string) : void => {

@@ -493,6 +493,8 @@ td:first-child input {
     background-color: #002e5f;
     color: white;
     display: none;
+    padding: 1% 0px 0px 0px;
+    font-size: 12px;
 }
 
 .componentTableVisibilityBtn{
