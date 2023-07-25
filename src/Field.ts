@@ -215,7 +215,7 @@ export class Field {
 
     isDatatypeEditable = () : boolean => {
         if(!Setting.findValue(Setting.DISABLE_SAFEGUARDS)){
-            return this.displayText() === 'datatype'
+            return this.displayText() === 'dataType'
         }else{
             return false
         }
