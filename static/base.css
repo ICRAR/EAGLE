@@ -429,6 +429,11 @@ color: #00bb00;}
     padding-left:2px;
 }
 
+#parameterTableModal .modal-dialog .disabledCell{
+    pointer-events: none;
+    opacity: 60%;
+}
+
 .parameterTableTypeCustomSelect a {
     color: #000;
     border: 1px solid black;
@@ -615,7 +620,7 @@ td:first-child input {
 
 #parameterTableModal .searchBarContainer{
     position: absolute;
-    right: 20px;
+    right: 10px;
     width:300px;
 }
 
@@ -2458,7 +2463,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
 }
 
 .modal-header{
-    padding: 10px 15px;
+    padding: 10px 5px;
 }
 
 #nodeInspectorMenus{

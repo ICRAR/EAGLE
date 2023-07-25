@@ -261,6 +261,7 @@ export class Setting {
     static readonly DISPLAY_NODE_KEYS : string = "DisplayNodeKeys"
     static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
     static readonly STUDENT_SETTINGS_MODE : string = "StudentSettingsMode"
+    static readonly DISABLE_SAFEGUARDS : string = "DisableSafeguards"
     static readonly VALUE_EDITING_PERMS : string = "ValueEditingPerms"
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
@@ -367,6 +368,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Allow Edge Editing", Setting.ALLOW_EDGE_EDITING, "Allow the user to edit edge attributes.", false, Setting.Type.Boolean, false, false,false, false, true),
             new Setting(true, "Filter Node Suggestions", Setting.FILTER_NODE_SUGGESTIONS, "Filter Node Options When Drawing Edges Into Empty Space", false, Setting.Type.Boolean,true,true,true,true,true),
             new Setting(false, "STUDENT_SETTINGS_MODE", Setting.STUDENT_SETTINGS_MODE, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
+            new Setting(true, "Disable Safeguards", Setting.DISABLE_SAFEGUARDS, "Enables editing anything.", false, Setting.Type.Boolean, false, false, false, false, true),
             new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, Setting.Type.Select, Setting.valueEditingPerms.KeyOnly,Setting.valueEditingPerms.Normal,Setting.valueEditingPerms.Normal,Setting.valueEditingPerms.ReadOnly,Setting.valueEditingPerms.ReadOnly, Object.values(Setting.valueEditingPerms)),
         ]
     ),

@@ -3,6 +3,7 @@ import * as ko from "knockout";
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import {Daliuge} from './Daliuge';
+import {Setting} from './Setting';
 
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
@@ -210,6 +211,14 @@ export class Field {
             this.defaultValue(this.options()[0])
         }
         this.options.valueHasMutated()
+    }
+
+    isDatatypeEditable = () : boolean => {
+        if(!Setting.findValue(Setting.DISABLE_SAFEGUARDS)){
+            return this.displayText() === 'datatype'
+        }else{
+            return false
+        }
     }
 
     isPositionalArgument = () : boolean => {

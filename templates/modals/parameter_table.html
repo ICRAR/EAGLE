@@ -200,13 +200,13 @@
                                         
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
                                             <td class='columnCell column_Type'>
-                                                <!-- ko ifnot: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
+                                                <!-- ko if: !Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
                                                     <select data-bind="options: $root.types(), value: type, disabled: $root.parameterTable().getNodeLockedState($data)">
                                                         <!-- options are added dynamically -->
                                                     </select>
                                                 <!-- /ko --> 
-                                                <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
-                                                    <div class="input-group">
+                                                <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)  -->
+                                                    <div class="input-group" data-bind="css:{disabledCell: $data.isDatatypeEditable()}">
                                                         <input  class="typesInput form-control" type="text" autocomplete="off" data-bind="value:type, attr:{id:'typeInputFor_'+$data.getId()}">
                                                         <button class="btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false" data-bind="attr:{id:'typeButtonFor_'+$data.getId()}" type="button">
                                                             <span class="material-icons-outlined">
@@ -288,7 +288,7 @@
                                         <!-- /ko -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().parameterType() -->
                                             <td class='columnCell column_ParamType'>
-                                                <select class="tableFieldParamTypeSelect" data-bind="options: Object.values(Daliuge.FieldType), value: parameterType, disabled: $root.parameterTable().getNodeLockedState($data)">
+                                                <select class="tableFieldParamTypeSelect" data-bind="options: Object.values(Daliuge.FieldType), value: parameterType, disabled: $root.parameterTable().getNodeLockedState($data) || $data.isDatatypeEditable()">
                                                     <!-- options are added dynamically -->
                                                 </select>
                                             </td>
@@ -296,7 +296,7 @@
                                         
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
                                             <td class='columnCell column_Usage'>
-                                                <select class="tbaleFieldUseAs" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data), event: {change: $root.parameterTable().fieldUsageChanged}">
+                                                <select class="tbaleFieldUseAs" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data)|| $data.isDatatypeEditable(), event: {change: $root.parameterTable().fieldUsageChanged}">
                                                     <!-- options are added dynamically -->
                                                 </select>
                                             </td>
