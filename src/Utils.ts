@@ -1661,7 +1661,12 @@ export class Utils {
     }
 
     static fixNodeAddField(eagle: Eagle, node: Node, field: Field){
-        node.addField(field);
+        // clone field and generate id for clone
+        const clone = field.clone();
+        clone.setId(Utils.uuidv4());
+
+        // add clone to node
+        node.addField(clone);
     }
 
     static fixNodeFieldIds(eagle: Eagle, nodeKey: number){

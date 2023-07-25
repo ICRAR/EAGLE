@@ -218,7 +218,7 @@ export class Field {
 
         if(!Setting.findValue(Setting.DISABLE_SAFEGUARDS)){
             if(!eagle.parameterTable().getNodeLockedState(this)){
-                return this.displayText() === 'dataType'
+                return this.displayText() === Daliuge.FieldName.DATA_TYPE
             }else{
                 return true
             }
@@ -295,10 +295,9 @@ export class Field {
     }
 
     clone = () : Field => {
-        let options : string[] = []
-        this.options().forEach(function(option:string){
-            options.push(option)
-        })
+        // clone the options array
+        const options : string[] = [...this.options()];
+        
         const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
         f.setIsEvent(this.isEvent());
         return f;

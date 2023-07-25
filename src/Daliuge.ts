@@ -36,6 +36,7 @@ export class Daliuge {
 
 export namespace Daliuge {
     export enum FieldName {
+        DATA_TYPE = "dataType",
         DATA_VOLUME = "data_volume",
         DROP_CLASS = "dropclass",
         EXECUTION_TIME = "execution_time",
@@ -108,6 +109,7 @@ export namespace Daliuge {
     // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
     export const categoryTypeFieldsRequired = [
         {
+            addField: false,
             categoryTypes: [
                 Category.Type.Application,
                 Category.Type.Data,
@@ -115,6 +117,15 @@ export namespace Daliuge {
             ],
             fields: [
                 new Field("", FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false),
+            ]
+        },
+        {
+            addField: true,
+            categoryTypes: [
+                Category.Type.Data,
+            ],
+            fields: [
+                new Field("", FieldName.DATA_TYPE, "", "", "", true, DataType.Select, false, [DataType.Boolean, DataType.Float, DataType.Integer, DataType.String, DataType.Object], false, FieldType.ComponentParameter, FieldUsage.NoPort, false),
             ]
         }
     ];

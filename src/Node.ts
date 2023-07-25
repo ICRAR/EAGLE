@@ -2282,7 +2282,7 @@ export class Node {
         for (const requirement of Daliuge.categoryFieldsRequired){
             if (requirement.categories.includes(node.getCategory())){
                 for (const requiredField of requirement.fields){
-                    Node._checkForField(eagle, selectedLocation, node, requiredField, errorsWarnings);
+                    Node._checkForField(eagle, selectedLocation, node, requiredField, false, errorsWarnings);
                 }
             }
         }
@@ -2291,7 +2291,7 @@ export class Node {
         for (const requirement of Daliuge.categoryTypeFieldsRequired){
             if (requirement.categoryTypes.includes(node.getCategoryType())){
                 for (const requiredField of requirement.fields){
-                    Node._checkForField(eagle, selectedLocation, node, requiredField, errorsWarnings);
+                    Node._checkForField(eagle, selectedLocation, node, requiredField, requirement.addField, errorsWarnings);
                 }
             }
         }
@@ -2299,7 +2299,7 @@ export class Node {
         return Utils.worstEdgeError(errorsWarnings);
     }
 
-    private static _checkForField = (eagle: Eagle, location: Eagle.FileType, node: Node, field: Field, errorsWarnings: Errors.ErrorsWarnings) : void => {
+    private static _checkForField = (eagle: Eagle, location: Eagle.FileType, node: Node, field: Field, add: boolean, errorsWarnings: Errors.ErrorsWarnings) : void => {
         // check if the node already has this field
         const existingField = node.getFieldByDisplayText(field.getDisplayText());
 
@@ -2307,7 +2307,13 @@ export class Node {
         // if so, check the attributes of the field match
         if (existingField === null){
             const message = "Node " + node.getKey() + " (" + node.getName() + ":" + node.category() + ":" + node.categoryType() + ") does not have the required '" + field.getDisplayText() + "' field";
-            errorsWarnings.errors.push(Errors.Show(message, function(){Utils.showNode(eagle, location, node.getId());}));
+            if (add){
+                // error and offer fix
+                errorsWarnings.errors.push(Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node.getId());}, function(){Utils.fixNodeAddField(eagle, node, field)}, "Add " + field.getDisplayText() + " field to component"));
+            } else {
+                // just error no fix
+                errorsWarnings.errors.push(Errors.Show(message, function(){Utils.showNode(eagle, location, node.getId());}));
+            }
         } else {
             if (existingField.getParameterType() !== field.getParameterType()){
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") has a '" + field.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + field.getParameterType();
