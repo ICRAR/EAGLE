@@ -124,7 +124,7 @@
                                             <!-- /ko -->
                                         <!-- /ko -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
-                                            <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText',disabledCell : $data.isDatatypeEditable() },eagleTooltip:description"><input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
+                                            <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText'},eagleTooltip:description"><input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: $data.isFieldEditable(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
                                         <!-- /ko -->
 
                                         <!-- value fields -->
@@ -206,7 +206,7 @@
                                                     </select>
                                                 <!-- /ko --> 
                                                 <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)  -->
-                                                    <div class="input-group" data-bind="css:{disabledCell: $data.isDatatypeEditable()}">
+                                                    <div class="input-group" data-bind="css:{disabledCell: $data.isFieldEditable()}">
                                                         <input  class="typesInput form-control" type="text" autocomplete="off" data-bind="value:type, attr:{id:'typeInputFor_'+$data.getId()}">
                                                         <button class="btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false" data-bind="attr:{id:'typeButtonFor_'+$data.getId()}" type="button">
                                                             <span class="material-icons-outlined">
@@ -247,7 +247,7 @@
                                                             <i class="material-icons-outlined">lock_open</i>
                                                         </button>
                                                     <!-- /ko -->
-                                                    <!-- ko ifnot: $data.isDatatypeEditable()-->
+                                                    <!-- ko ifnot: $data.isFieldEditable()-->
                                                         <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
                                                             <!-- ko if: $data.isPrecious() -->
                                                                 <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Parameter is precious<br/>Click to toggle'" data-bs-placement="left">
@@ -290,7 +290,7 @@
                                         <!-- /ko -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().parameterType() -->
                                             <td class='columnCell column_ParamType'>
-                                                <select class="tableFieldParamTypeSelect" data-bind="options: Object.values(Daliuge.FieldType), value: parameterType, disabled: $root.parameterTable().getNodeLockedState($data) || $data.isDatatypeEditable()">
+                                                <select class="tableFieldParamTypeSelect" data-bind="options: Object.values(Daliuge.FieldType), value: parameterType, disabled: $root.parameterTable().getNodeLockedState($data) || $data.isFieldEditable()">
                                                     <!-- options are added dynamically -->
                                                 </select>
                                             </td>
@@ -298,7 +298,7 @@
                                         
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
                                             <td class='columnCell column_Usage'>
-                                                <select class="tbaleFieldUseAs" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data)|| $data.isDatatypeEditable(), event: {change: $root.parameterTable().fieldUsageChanged}">
+                                                <select class="tbaleFieldUseAs" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data)|| $data.isFieldEditable(), event: {change: $root.parameterTable().fieldUsageChanged}">
                                                     <!-- options are added dynamically -->
                                                 </select>
                                             </td>
@@ -307,7 +307,7 @@
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
                                             <td class="columnCell column_Actions">
                                                 <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
-                                                <!-- ko if: !$root.parameterTable().getNodeLockedState($data) && !$data.isDatatypeEditable()-->
+                                                <!-- ko if: !$root.parameterTable().getNodeLockedState($data) && !$data.isFieldEditable()-->
                                                     <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', $data.parameterType(), $data.usage(), $data.getId());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
                                                     <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
                                                     <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>

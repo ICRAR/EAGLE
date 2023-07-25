@@ -213,9 +213,15 @@ export class Field {
         this.options.valueHasMutated()
     }
 
-    isDatatypeEditable = () : boolean => {
+    isFieldEditable = () : boolean => {
+        const eagle : Eagle = Eagle.getInstance();
+
         if(!Setting.findValue(Setting.DISABLE_SAFEGUARDS)){
-            return this.displayText() === 'dataType'
+            if(!eagle.parameterTable().getNodeLockedState(this)){
+                return this.displayText() === 'dataType'
+            }else{
+                return true
+            }
         }else{
             return false
         }
