@@ -570,7 +570,7 @@ export class Utils {
         $('#choiceModal').modal("toggle");
     }
 
-    static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, callback : (confirmed : boolean) => void ) : void {
+    static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string,confirmSetting:string, callback : (confirmed : boolean) => void ) : void {
         // console.log("requestUserConfirm()", title, message, affirmativeAnswer, negativeAnswer);
 
         $('#confirmModalTitle').text(title);

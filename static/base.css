@@ -1290,6 +1290,25 @@ select.form-control{
     height: 20vh;
 }
 
+#confirmModalDontShowAgain{
+    position: absolute;
+    bottom: 0px;
+    right: 40px;
+}
+
+#confirmModalDontShowAgain p{
+    position: relative;
+}
+
+#confirmModalDontShowAgain button{
+    border: none;
+    padding: 0px;
+    background: none;
+    top: 55%;
+    transform: translateY(-50%);
+    position: absolute;
+}
+
 #aboutModal .modal-content{
     width: 60vw;
     height: 60vh;
