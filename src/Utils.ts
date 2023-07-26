@@ -577,7 +577,17 @@ export class Utils {
         $('#confirmModalMessage').html(message);
         $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
         $('#confirmModalNegativeAnswer').text(negativeAnswer);
-
+        
+        $('#confirmModalDontShowAgain button').off()
+        if(confirmSetting === ''){
+            $('#confirmModalDontShowAgain').hide()
+        }else{
+            $('#confirmModalDontShowAgain').show()
+            $('#confirmModalDontShowAgain button').on('click',function(){
+                Setting.toggleByName(confirmSetting)  
+            })
+        }
+        
         $('#confirmModal').data('callback', callback);
 
         $('#confirmModal').modal("toggle");

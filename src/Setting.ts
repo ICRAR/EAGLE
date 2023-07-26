@@ -140,6 +140,10 @@ export class Setting {
         this.value(!this.value());
     }
 
+    static toggleByName = (settingName:string) : void => {
+        Setting.find(settingName).toggle()
+    }
+
     copy = () : void => {
         navigator.clipboard.writeText(this.value().toString()).then(function() {
             Utils.showNotification("Success", "Copying to clipboard was successful!", "success");
