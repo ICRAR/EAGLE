@@ -583,8 +583,15 @@ export class Utils {
             $('#confirmModalDontShowAgain').hide()
         }else{
             $('#confirmModalDontShowAgain').show()
+            $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
             $('#confirmModalDontShowAgain button').on('click',function(){
-                Setting.toggleByName(confirmSetting)  
+                Setting.toggleByName(confirmSetting)
+                if($('#confirmModalDontShowAgain button').text() === 'check_box_outline_blank'){
+                    $('#confirmModalDontShowAgain button').text('check_box')
+                }else{
+                    $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
+                }
+                console.log($('#confirmModalDontShowAgain button').text())
             })
         }
         
