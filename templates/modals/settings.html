@@ -56,7 +56,7 @@
                                             <!-- /ko --> 
                                             <!-- ko if: $data.getType() === Setting.Type.Button -->
                                                 <div class="settingSm col-6">
-                                                    <div class="input-group mb-1 checkSettingLabel" data-bind="click: $data.value()">
+                                                    <div class="input-group mb-1 checkSettingLabel" data-bind="click: function(){eval($data.buttonFunc)}">
                                                         <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName()}, eagleTooltip:$data.getDescription()" data-bs-placement="left" readonly>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-secondary btn-sm" type="button" data-bind="attr:{id:'setting'+$data.getKey()+'Function'}">

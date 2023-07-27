@@ -1982,6 +1982,10 @@ export class Eagle {
         return parentText
     }
 
+    resetActionConfirmations = () : void => {
+        console.log('bop')
+    }
+
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
     savePaletteToDisk = (palette : Palette) : void => {
         console.log("savePaletteToDisk()", palette.fileInfo().name, palette.fileInfo().type);

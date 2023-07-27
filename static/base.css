@@ -1056,7 +1056,7 @@ td:first-child input {
 
 }
 
-#settingsModal .btn-secondary{
+#settingsModal .modal-body .btn-secondary{
     height:100%;
     width: 40px;
 }
