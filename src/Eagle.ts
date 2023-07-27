@@ -1983,7 +1983,12 @@ export class Eagle {
     }
 
     resetActionConfirmations = () : void => {
-        console.log('bop')
+        Setting.setValue(Setting.CONFIRM_DELETE_OBJECTS,true)
+        Setting.setValue(Setting.CONFIRM_DISCARD_CHANGES,true)
+        Setting.setValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES,true)
+        Setting.setValue(Setting.CONFIRM_RELOAD_PALETTES,true)
+        Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORES,true)
+        Utils.showNotification("Success", "Confirmation message pop ups re-enabled", "success");
     }
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
