@@ -312,6 +312,7 @@ export class ColumnVisibilities {
     private uiModeName : string;
     private keyAttribute:ko.Observable<boolean>
     private displayText:ko.Observable<boolean>
+    private fieldId:ko.Observable<boolean>
     private value:ko.Observable<boolean>
     private readOnly:ko.Observable<boolean>
     private defaultValue:ko.Observable<boolean>
@@ -322,11 +323,12 @@ export class ColumnVisibilities {
     private flags:ko.Observable<boolean>
     private actions:ko.Observable<boolean>
 
-    constructor(uiModeName:string, keyAttribute:boolean, displayText:boolean,value:boolean,readOnly:boolean,defaultValue:boolean,description:boolean,type:boolean,parameterType:boolean,usage:boolean,flags:boolean,actions:boolean){
+    constructor(uiModeName:string, keyAttribute:boolean, displayText:boolean,fieldId:boolean,value:boolean,readOnly:boolean,defaultValue:boolean,description:boolean,type:boolean,parameterType:boolean,usage:boolean,flags:boolean,actions:boolean){
 
         this.uiModeName = uiModeName;
         this.keyAttribute = ko.observable(keyAttribute);
         this.displayText = ko.observable(displayText);
+        this.fieldId = ko.observable(fieldId);
         this.value = ko.observable(value);
         this.readOnly = ko.observable(readOnly);
         this.defaultValue = ko.observable(defaultValue);
@@ -373,6 +375,10 @@ export class ColumnVisibilities {
         this.displayText(value);
     }
 
+    private setFieldId = (value:boolean) : void => {
+        this.fieldId(value);
+    }
+
     private setValue = (value:boolean) : void => {
         this.value(value);
     }
@@ -417,6 +423,11 @@ export class ColumnVisibilities {
 
     private toggleDisplayText = () : void => {
             this.displayText(!this.displayText());
+            this.saveToLocalStorage()
+    }
+
+    private toggleFieldId = () : void => {
+            this.fieldId(!this.fieldId());
             this.saveToLocalStorage()
     }
 
@@ -472,6 +483,7 @@ export class ColumnVisibilities {
                 name : columnVis.getModeName(),
                 keyAttribute : columnVis.keyAttribute(),
                 displayText : columnVis.displayText(),
+                fieldId : columnVis.fieldId(),
                 value : columnVis.value(),
                 readOnly : columnVis.readOnly(),
                 defaultValue : columnVis.defaultValue(),
@@ -498,6 +510,7 @@ export class ColumnVisibilities {
                 const columnVisActual:ColumnVisibilities = that.getModeByName(columnvisibility.name)
                 columnVisActual.setKeyAttribute(columnvisibility.keyAttribute)
                 columnVisActual.setDisplayText(columnvisibility.displayText)
+                columnVisActual.setFieldId(columnvisibility.fieldId)
                 columnVisActual.setValue(columnvisibility.value)
                 columnVisActual.setReadOnly(columnvisibility.readOnly)
                 columnVisActual.setDefaultValue(columnvisibility.defaultValue)
@@ -515,9 +528,9 @@ export class ColumnVisibilities {
 
 // name, keyAttribute,displayText,value,readOnly,defaultValue,description,type,parameterType,usage,flags,actions
 const columnVisibilities : ColumnVisibilities[] = [
-    new ColumnVisibilities( "Student", false, true,true,true,false,false,false,false,false,false,false),
-    new ColumnVisibilities("Minimal", true, true,true,true,false,false,false,false,false,true,false),
-    new ColumnVisibilities("Graph", true, true,true,true,true,false,true,true,true,true,true),
-    new ColumnVisibilities("Component", true, true,true,true,true,true,true,true,true,true,true),
-    new ColumnVisibilities("Expert", true, true,true,true,true,true,true,true,true,true,true),
+    new ColumnVisibilities( "Student", false, true,false,true,true,false,false,false,false,false,false,false),
+    new ColumnVisibilities("Minimal", true, true,false,true,true,false,false,false,false,false,true,false),
+    new ColumnVisibilities("Graph", true, true,false,true,true,true,false,true,true,true,true,true),
+    new ColumnVisibilities("Component", true, true,false,true,true,true,true,true,true,true,true,true),
+    new ColumnVisibilities("Expert", true, true,false,true,true,true,true,true,true,true,true,true),
 ]
