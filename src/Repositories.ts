@@ -113,7 +113,7 @@ export class Repositories {
         }
 
         // otherwise, check with user
-        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel",Setting.CONFIRM_REMOVE_REPOSITORES, (confirmed : boolean) =>{
+        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel",Setting.CONFIRM_REMOVE_REPOSITORIES, (confirmed : boolean) =>{
             if (!confirmed){
                 console.log("User aborted removeCustomRepository()");
                 return;
