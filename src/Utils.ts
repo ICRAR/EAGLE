@@ -1866,6 +1866,9 @@ export class Utils {
         // close errors modal if visible
         $('#checkGraphModal').modal("hide");
 
+        // close action list modal if visible
+        $('#actionListModal').modal("hide");
+
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
 
@@ -1874,6 +1877,9 @@ export class Utils {
 
         // close errors modal if visible
         $('#checkGraphModal').modal("hide");
+
+        // close action list modal if visible
+        $('#actionListModal').modal("hide");
 
         // find node from nodeKey
         let n: Node = null;
