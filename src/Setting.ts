@@ -49,8 +49,9 @@ export class Setting {
     private expertDefaultValue : any;
     private oldValue : any;
     private options : string[];
+    private buttonFunc : string;
 
-    constructor(display: boolean, name : string, key:string, description : string,perpetual:boolean, type : Setting.Type, studentDefaultValue : any, minimalDefaultValue : any,graphDefaultValue : any,componentDefaultValue : any,expertDefaultValue : any, options?: string[]){
+    constructor(display: boolean, name : string, key:string, description : string,perpetual:boolean, type : Setting.Type, studentDefaultValue : any, minimalDefaultValue : any,graphDefaultValue : any,componentDefaultValue : any,expertDefaultValue : any, options?: string[], buttonFunc?: string){
         this.display = display;
         this.name = name;
         this.key = key;
@@ -63,6 +64,7 @@ export class Setting {
         this.componentDefaultValue = componentDefaultValue;
         this.expertDefaultValue = expertDefaultValue;
         this.options = options;
+        this.buttonFunc = buttonFunc;
 
         this.oldValue = "";
         this.value = ko.observable(graphDefaultValue);
@@ -140,6 +142,10 @@ export class Setting {
 
         // update the value
         this.value(!this.value());
+    }
+
+    static toggleByName = (settingName:string) : void => {
+        Setting.find(settingName).toggle()
     }
 
     copy = () : void => {
@@ -231,6 +237,7 @@ export class Setting {
     static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
     static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
 
+    static readonly ACTION_CONFIRMATIONS : string = "ActionConfirmations";
     static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
     static readonly CONFIRM_NODE_CATEGORY_CHANGES : string = "ConfirmNodeCategoryChanges";
     static readonly CONFIRM_REMOVE_REPOSITORIES : string = "ConfirmRemoveRepositories";
@@ -285,6 +292,7 @@ export namespace Setting {
         Number,
         Boolean,
         Password,
+        Button,
         Select
     }
 
@@ -318,11 +326,12 @@ const settings : SettingsGroup[] = [
         "User Options",
         () => {return true;},
         [
-            new Setting(true, "Confirm Discard Changes", Setting.CONFIRM_DISCARD_CHANGES, "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.",false, Setting.Type.Boolean, true, true,true,true,true),
-            new Setting(true, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.",false, Setting.Type.Boolean, true, true,true,true,true),
-            new Setting(true, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORIES, "Prompt user to confirm removing a repository from the list of known repositories.",false , Setting.Type.Boolean, true,true,true,true,true),
-            new Setting( true, "Confirm Reload Palettes", Setting.CONFIRM_RELOAD_PALETTES, "Prompt user to confirm when loading a palette that is already loaded.",false , Setting.Type.Boolean,true,true,true,true,true),
-            new Setting(true, "Confirm Delete", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
+            new Setting(true, "Reset Action Confirmations", Setting.ACTION_CONFIRMATIONS, "Enable all action confirmation prompts",false, Setting.Type.Button, '', '','','','',[],'$root.resetActionConfirmations()'),
+            new Setting(false, "Confirm Discard Changes", Setting.CONFIRM_DISCARD_CHANGES, "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.",false, Setting.Type.Boolean, true, true,true,true,true),
+            new Setting(false, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.",false, Setting.Type.Boolean, true, true,true,true,true),
+            new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORIES, "Prompt user to confirm removing a repository from the list of known repositories.",false , Setting.Type.Boolean, true,true,true,true,true),
+            new Setting(false, "Confirm Reload Palettes", Setting.CONFIRM_RELOAD_PALETTES, "Prompt user to confirm when loading a palette that is already loaded.",false , Setting.Type.Boolean,true,true,true,true,true),
+            new Setting(false, "Confirm Delete", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
             new Setting(true, "Open Default Palette on Startup", Setting.OPEN_DEFAULT_PALETTE, "Open a default palette on startup. The palette contains an example of all known node categories", false, Setting.Type.Boolean, false,false,true,true,true),
             new Setting(true, "Disable JSON Validation", Setting.DISABLE_JSON_VALIDATION, "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", false, Setting.Type.Boolean, false,false,false,false,false),
             new Setting(true, "Overwrite Existing Translator Tab", Setting.OVERWRITE_TRANSLATION_TAB, "When translating a graph, overwrite an existing translator tab", false, Setting.Type.Boolean, true,true,true,true,true),
@@ -335,13 +344,13 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Show non key parameters", Setting.SHOW_NON_KEY_PARAMETERS, "Show additional parameters that are not marked as key parameters for the current graph",false, Setting.Type.Boolean, false,true,true,true,true),
             new Setting(true, "Display Node Keys", Setting.DISPLAY_NODE_KEYS, "Display Node Keys", false, Setting.Type.Boolean,false,false,false,true,true),
             new Setting(false, "Show Developer Tab", Setting.SHOW_DEVELOPER_TAB, "Reveals the developer tab in the settings menu", false, Setting.Type.Boolean, false,false,false,false,true),
-            new Setting(true, "Translator Mode", Setting.USER_TRANSLATOR_MODE, "Configue the translator mode", false, Setting.Type.Select, Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Expert, Object.values(Setting.TranslatorMode)),
+            new Setting(true, "Translator Mode", Setting.USER_TRANSLATOR_MODE, "Configure the translator mode", false, Setting.Type.Select, Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Expert, Object.values(Setting.TranslatorMode)),
             new Setting(true, "Graph Zoom Divisor", Setting.GRAPH_ZOOM_DIVISOR, "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", false, Setting.Type.Number,1000,1000,1000,1000,1000),
             new Setting(false, "Snap To Grid", Setting.SNAP_TO_GRID, "Align positions of nodes in graph to a grid", false, Setting.Type.Boolean,false,false,false,false,false),
             new Setting(true, "Snap To Grid Size", Setting.SNAP_TO_GRID_SIZE, "Size of grid used when aligning positions of nodes in graph (pixels)", false, Setting.Type.Number, 50, 50, 50, 50, 50),
             new Setting(true, "Show edge/node errors/warnings in inspector", Setting.SHOW_INSPECTOR_WARNINGS, "Show the errors/warnings found for the selected node/edge in the inspector", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
-            new Setting(false, "Right Window Witdth", Setting.RIGHT_WINDOW_WIDTH_KEY, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
-            new Setting(false, "Left Window Witdth", Setting.LEFT_WINDOW_WIDTH_KEY, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
+            new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_WIDTH_KEY, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
+            new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH_KEY, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
         ]
     ),
     new SettingsGroup(

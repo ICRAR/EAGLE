@@ -1056,8 +1056,16 @@ td:first-child input {
 
 }
 
-#settingsModal .btn-secondary{
+#settingsModal .modal-body .btn-secondary{
     height:100%;
+    width: 40px;
+}
+
+#settingsModal .btn-secondary i {
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
 }
 
 #settingsModal form{
@@ -1288,6 +1296,25 @@ select.form-control{
 
 #confirmModal .modal-content{
     height: 20vh;
+}
+
+#confirmModalDontShowAgain{
+    position: absolute;
+    bottom: 0px;
+    right: 40px;
+}
+
+#confirmModalDontShowAgain p{
+    position: relative;
+}
+
+#confirmModalDontShowAgain button{
+    border: none;
+    padding: 0px;
+    background: none;
+    top: 55%;
+    transform: translateY(-50%);
+    position: absolute;
 }
 
 #aboutModal .modal-content{

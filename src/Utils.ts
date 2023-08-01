@@ -577,14 +577,31 @@ export class Utils {
         $('#choiceModal').modal("toggle");
     }
 
-    static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, callback : (confirmed : boolean) => void ) : void {
+    static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string,confirmSetting:string, callback : (confirmed : boolean) => void ) : void {
         // console.log("requestUserConfirm()", title, message, affirmativeAnswer, negativeAnswer);
 
         $('#confirmModalTitle').text(title);
         $('#confirmModalMessage').html(message);
         $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
         $('#confirmModalNegativeAnswer').text(negativeAnswer);
-
+        
+        $('#confirmModalDontShowAgain button').off()
+        if(confirmSetting === ''){
+            $('#confirmModalDontShowAgain').hide()
+        }else{
+            $('#confirmModalDontShowAgain').show()
+            $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
+            $('#confirmModalDontShowAgain button').on('click',function(){
+                Setting.toggleByName(confirmSetting)
+                if($('#confirmModalDontShowAgain button').text() === 'check_box_outline_blank'){
+                    $('#confirmModalDontShowAgain button').text('check_box')
+                }else{
+                    $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
+                }
+                console.log($('#confirmModalDontShowAgain button').text())
+            })
+        }
+        
         $('#confirmModal').data('callback', callback);
 
         $('#confirmModal').modal("toggle");

@@ -1904,7 +1904,7 @@ export class Eagle {
 
         // if dictated by settings, reload the palette immediately
         if (alreadyLoadedPalette !== null && Setting.findValue(Setting.CONFIRM_RELOAD_PALETTES)){
-            Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", (confirmed : boolean) : void => {
+            Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No",Setting.CONFIRM_RELOAD_PALETTES, (confirmed : boolean) : void => {
                 if (confirmed){
                     this._reloadPalette(file, palette, alreadyLoadedPalette);
                 }
@@ -1984,7 +1984,7 @@ export class Eagle {
 
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
                 if (p.fileInfo().modified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
-                    Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", (confirmed : boolean) : void => {
+                    Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel",'', (confirmed : boolean) : void => {
                         if (confirmed){
                             this.palettes.splice(i, 1);
                         }
@@ -2014,6 +2014,15 @@ export class Eagle {
         const parentText = parentNode.getName() + ' | Key: ' + parentKey;
 
         return parentText
+    }
+
+    resetActionConfirmations = () : void => {
+        Setting.setValue(Setting.CONFIRM_DELETE_OBJECTS,true)
+        Setting.setValue(Setting.CONFIRM_DISCARD_CHANGES,true)
+        Setting.setValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES,true)
+        Setting.setValue(Setting.CONFIRM_RELOAD_PALETTES,true)
+        Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORES,true)
+        Utils.showNotification("Success", "Confirmation message pop ups re-enabled", "success");
     }
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
@@ -3017,7 +3026,7 @@ export class Eagle {
         }
 
         // request confirmation from user
-        Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", (confirmed : boolean) : void => {
+        Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No",Setting.CONFIRM_DELETE_OBJECTS, (confirmed : boolean) : void => {
             if (!confirmed){
                 console.log("User aborted deleteSelection()");
                 return;
@@ -4435,7 +4444,7 @@ export class Eagle {
         if (Setting.findValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES)){
 
             // request confirmation from user
-            Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", (confirmed : boolean) : void => {
+            Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No",Setting.CONFIRM_NODE_CATEGORY_CHANGES, (confirmed : boolean) : void => {
                 if (!confirmed){
                     //we need to reset the input select to the previous value
                     $(event.target).val(this.selectedNode().getCategory())
