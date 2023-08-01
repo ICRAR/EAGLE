@@ -49,7 +49,7 @@
                                             <span data-bind="text: $data.message"></span>
                                             <div>
                                             <!-- ko if: $data.show !== null -->
-                                                <button class="btn btn-secondary btn-sm" data-bind="click: function($data){$root.checkGraphModalShowError($data)}, eagleTooltip: 'Show object to investigate warning'">Show</button>
+                                                <button class="btn btn-secondary btn-sm" data-bind="click: function($data){$root.showError($data)}, eagleTooltip: 'Show object to investigate warning'">Show</button>
                                             <!-- /ko -->
                                             <!-- ko if: $data.fix !== null -->
                                                 <button class="btn btn-primary btn-sm" data-bind="click: function(){GraphChecker.fix($index());}, eagleTooltip: $data.fixDescription">Fix</button>

@@ -856,8 +856,10 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    checkGraphModalShowError = (data:any) :void =>{
-        data.show()
+    showError = (data:ActionMessage) :void =>{
+        // hide modal?
+
+        data.show();
         this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
     }
 
@@ -2021,7 +2023,7 @@ export class Eagle {
         Setting.setValue(Setting.CONFIRM_DISCARD_CHANGES,true)
         Setting.setValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES,true)
         Setting.setValue(Setting.CONFIRM_RELOAD_PALETTES,true)
-        Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORES,true)
+        Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORIES,true)
         Utils.showNotification("Success", "Confirmation message pop ups re-enabled", "success");
     }
 
