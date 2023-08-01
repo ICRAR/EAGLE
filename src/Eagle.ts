@@ -85,6 +85,9 @@ export class Eagle {
     globalOffsetY : number;
     globalScale : number;
 
+    quickActionSearchTerm : ko.Observable<string>;
+    quickActionOpen : ko.Observable<boolean>;
+
     rendererFrameDisplay : ko.Observable<string>;
     rendererFrameMax : number;
     rendererFrameCountRender : number;
@@ -163,6 +166,9 @@ export class Eagle {
         this.globalOffsetX = 0;
         this.globalOffsetY = 0;
         this.globalScale = 1.0;
+
+        this.quickActionSearchTerm = ko.observable('')
+        this.quickActionOpen = ko.observable(false)
 
         this.rendererFrameDisplay = ko.observable("");
         this.rendererFrameMax = 0;
@@ -2912,12 +2918,12 @@ export class Eagle {
     }
 
     // TODO: requestMode param here is spelt incorrectly, should be an enum? 
-    deleteSelection = (requstMode:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
+    deleteSelection = (requestMode:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
         let mode: string; // TODO: should be an enum?
         let data: any = []; // TODO: declare type
 
         // if no objects selected, warn user
-        if (requstMode === ''){
+        if (requestMode === ''){
             data = this.selectedObjects()
             mode = 'normal'
         }else{
@@ -4419,16 +4425,7 @@ export class Eagle {
         }
 
         // if selectedNode is set, return a list of categories within the same category type
-        let categoryType: Category.Type = Category.Type.Unknown;
-        if (this.selectedNode().isData()){
-            categoryType = Category.Type.Data;
-        } else if (this.selectedNode().isApplication()){
-            categoryType = Category.Type.Application;
-        } else if (this.selectedNode().isConstruct()){
-            categoryType = Category.Type.Construct;
-        } else {
-            categoryType = Category.Type.Unknown;
-        }
+        const categoryType: Category.Type = this.selectedNode().getCategoryType()
         
         return Utils.getCategoriesWithInputsAndOutputs(categoryType, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
     }, this)

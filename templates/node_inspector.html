@@ -1,167 +1,184 @@
-<div id="nodeInspector" class="container px-0">
-    <!-- ko if: selectedNode() == null -->
-    <div class="row">
-        <div class="col">
-            <h5 class="card-header" id="nodeInspectorHeading">
-                <span style="color:black;">No or multiple nodes selected</span>
-            </h5>
-        </div>
-    </div>
-    <!-- /ko -->
 
-    <!-- ko if: selectedNode() != null -->
-        <!-- ko using : selectedNode() -->
-
-        <div class="row card-header mb-1" id="nodeInspectorHeading" data-bind="style: {backgroundColor: $data.color}">
-            <div class="col-12 headerBtns">
-                <div class="inspectorTitleBtns inspectorTitleBtnsLeft">
-                    <i class="material-icons md-24" data-bind="class: $data.getIcon()"></i>
-                </div>
-                <span data-bind="text: $data.getName(), eagleTooltip: $root.getInspectorHeadingTooltip($data.getName(), $data.getCategory(),$data.description())"></span>
-                <i class="material-icons interactive me-3" id="nodeInspectorHeadingIcon" data-bs-placement="left" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">info</i>
-            </div>
-            
-            
-            <div class="col-12 headerBtns" id="inspectorHeaderIconRow">
-                <div class="row">
-                    <div class="col-6">
-                        <!-- ko if: $data.isLocked() -->
-                        <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: Utils.getReadOnlyText">
-                            <i class="material-icons md-20">lock</i>
-                        </button>
-                        <!-- /ko -->
-                        <!-- ko ifnot: $data.isLocked() -->
-                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'readwrite'">
-                            <i class="material-icons md-20">lock_open</i>
-                        </button>
-                        <!-- /ko -->
-                        <!-- ko if: Eagle.selectedLocation() === Eagle.FileType.Graph -->
-                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node in Graph'">
-                            <i class="material-icons md-20">account_tree</i>
-                        </button>
-                        <!-- /ko -->
-                        <!-- ko if: Eagle.selectedNodePalette() && Eagle.selectedLocation() === Eagle.FileType.Palette -->
-                        <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node in ' + Eagle.selectedNodePalette().fileInfo().name + ' Palette'">
-                            <i class="material-icons md-20">palette</i>
-                        </button>
-                        <!-- /ko -->
-                    </div>
-                    <div class="col-6 text-right">
-                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                        <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
-                            <i  class="material-icons md-20">content_copy</i>
-                        </button>
-                        <!-- /ko -->
-                        <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                        <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
-                            <i  class="material-icons md-20">library_add</i>
-                        </button>
-                        <!-- /ko -->
-                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                        <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection('',false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
-                            <i class="material-icons md-20">delete</i>
-                        </button>
-                        <!-- /ko -->
-                    </div>
-                </div>
+    <div id="nodeInspector" class="container px-0">
+        <!-- ko if: selectedNode() == null -->
+        <div class="row">
+            <div class="col">
+                <h5 class="card-header" id="nodeInspectorHeading">
+                    <span style="color:black;">No or multiple nodes selected</span>
+                </h5>
             </div>
         </div>
+        <!-- /ko -->
 
-        <div id="inspectorContent">
-            <!-- name -->
-            <div class="input-group mb-1">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Name</span>
+        <!-- ko if: selectedNode() != null -->
+            <!-- ko using : selectedNode() -->
+
+            <div class="row card-header mb-1" id="nodeInspectorHeading" data-bind="style: {backgroundColor: $data.color}">
+                <div class="col-12 headerBtns">
+                    <div class="inspectorTitleBtns inspectorTitleBtnsLeft">
+                        <i class="material-icons md-24" data-bind="class: $data.getIcon()"></i>
+                    </div>
+                    <span data-bind="text: $data.getName(), eagleTooltip: $root.getInspectorHeadingTooltip($data.getName(), $data.getCategory(),$data.description())"></span>
+                    <i class="material-icons interactive me-3" id="nodeInspectorHeadingIcon" data-bs-placement="left" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">info</i>
                 </div>
-                <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $data.name, readonly: $data.isLocked()">
+                
+                
+                <div class="col-12 headerBtns" id="inspectorHeaderIconRow">
+                    <div class="row">
+                        <div class="col-6">
+                            <!-- ko if: $data.isLocked() -->
+                            <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: Utils.getReadOnlyText">
+                                <i class="material-icons md-20">lock</i>
+                            </button>
+                            <!-- /ko -->
+                            <!-- ko ifnot: $data.isLocked() -->
+                            <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'readwrite'">
+                                <i class="material-icons md-20">lock_open</i>
+                            </button>
+                            <!-- /ko -->
+                            <!-- ko if: Eagle.selectedLocation() === Eagle.FileType.Graph -->
+                            <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node in Graph'">
+                                <i class="material-icons md-20">account_tree</i>
+                            </button>
+                            <!-- /ko -->
+                            <!-- ko if: Eagle.selectedNodePalette() && Eagle.selectedLocation() === Eagle.FileType.Palette -->
+                            <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'Node in ' + Eagle.selectedNodePalette().fileInfo().name + ' Palette'">
+                                <i class="material-icons md-20">palette</i>
+                            </button>
+                            <!-- /ko -->
+                        </div>
+                        <div class="col-6 text-right">
+                            <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                            <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
+                                <i  class="material-icons md-20">content_copy</i>
+                            </button>
+                            <!-- /ko -->
+                            <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                            <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
+                                <i  class="material-icons md-20">library_add</i>
+                            </button>
+                            <!-- /ko -->
+                            <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                            <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection('',false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
+                                <i class="material-icons md-20">delete</i>
+                            </button>
+                            <!-- /ko -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Category -->
-            <div class="input-group mb-1">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'NOTE: changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category'" data-bs-placement="left">Category</span>
-                </div>
-                <select class="form-control" id="nodeInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategoryRequest(event)}}, valueAllowUnset: true, disabled: $data.isLocked()"></select>
-            </div>
-
-            <!-- key -->
-            <!-- ko if: $root.displayNodeKeys() -->
+            <div id="inspectorContent">
+                <!-- name -->
                 <div class="input-group mb-1">
                     <div class="input-group-prepend">
-                        <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The Key of the component within the graph'" data-bs-placement="left">Key</span>
+                        <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The name of this component'" data-bs-placement="left">Name</span>
                     </div>
-                    <input type="text" class="form-control" disabled id="nodeInspectorKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $data.getKey()">
+                    <input type="text" class="form-control" id="nodeNameValue" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $data.name, readonly: $data.isLocked()">
                 </div>
-            <!-- /ko -->
 
-            <!-- node port multiplicity -->
-            <div class="input-group mb-1">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'Port Multiplicity'" data-bs-placement="left">Port Multiplicity</span>
+                <!-- Category -->
+                <div class="input-group mb-1">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'NOTE: changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category'" data-bs-placement="left">Category</span>
+                    </div>
+                    <select class="form-control" id="nodeInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategoryRequest(event)}}, valueAllowUnset: true, disabled: $data.isLocked()"></select>
                 </div>
-                <input type="number" disabled class="form-control" id="nodePortMultiplicity" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $root.logicalGraph().findMultiplicity($data)">
-            </div>
 
-            <!-- description -->
-            <div id="inspectorNodeDescriptionWrapper" class="mb-1 inspectorTextBoxWrapper">
-                <!-- ko ifnot: $data.isLocked() || $data.getDescriptionReadonly() -->
-                    <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind="click: $root.editNodeDescription, clickBubble: false, eagleTooltip: 'Edit Description'">
-                        <i class="material-icons md-18">edit</i>
-                    </button>
+                <!-- comment node subject -->
+                <!-- ko if: $data.getCategory() === Category.Comment -->
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'Port Multiplicity'" data-bs-placement="left">Subject Node</span>
+                        </div>
+                        <input type="text" class="form-control" id="nodeSubjectValue" placeholder="" aria-label="Name" aria-describedby="node-subject" data-bind="value: $data.getSubjectKey()" readonly="">
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary btn-sm" id="nodeInspectorChangeSubject" type="button" data-bind="click: $root.changeNodeSubject, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('change_selected_node_subject', true)" data-bs-toggle="tooltip" data-html="true" data-bs-placement="right" data-bs-original-title="Change Node Subject [Shift + U]">
+                                <i class="material-icons md-18">edit</i>
+                            </button>
+                        </div>
+                    </div>
                 <!-- /ko -->
-                <span>Description</span>    
-                <div data-bind="html: $data.getDescriptionHTML()"></div>
+
+                <!-- key -->
+                <!-- ko if: $root.displayNodeKeys() -->
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The Key of the component within the graph'" data-bs-placement="left">Key</span>
+                        </div>
+                        <input type="text" class="form-control" disabled id="nodeInspectorKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $data.getKey()">
+                    </div>
+                <!-- /ko -->
+
+                <!-- node port multiplicity -->
+                <div class="input-group mb-1">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'Port Multiplicity'" data-bs-placement="left">Port Multiplicity</span>
+                    </div>
+                    <input type="number" disabled class="form-control" id="nodePortMultiplicity" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $root.logicalGraph().findMultiplicity($data)">
+                </div>
+
+                <!-- description -->
+                <div id="inspectorNodeDescriptionWrapper" class="mb-1 inspectorTextBoxWrapper">
+                    <!-- ko ifnot: $data.isLocked() || $data.getDescriptionReadonly() -->
+                        <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind="click: $root.editNodeDescription, clickBubble: false, eagleTooltip: 'Edit Description'">
+                            <i class="material-icons md-18">edit</i>
+                        </button>
+                    <!-- /ko -->
+                    <span>Description</span>    
+                    <i class="material-icons inspectorDescriptionDragHnadle">drag_handle</i>
+                    <div data-bind="html: $data.getDescriptionHTML()"></div>
+                </div>
+                
+                <!-- input application -->
+                <!-- ko if: $data.canHaveInputApplication() -->
+                    <div class="mb-1 inspectorNodeApplicationWrapper">
+                        <span>Input Application</span>    
+                        <div class="inspectorApplicationBackground">
+                            <inspector-component params="node: $root.selectedNode().inputApplication, selectCallback: function(){$root.setNodeInputApplication($root.selectedNode().key())}, inspectCallback: $root.selectInputApplicationNode, selectId:'nodeInspectorAddInputApplication', changeId:'nodeInspectorChangeInputApplication', inspectId:'nodeInspectorInspectInputApplication'"></inspector-component>
+                        </div>
+                    </div>
+                <!-- /ko -->
+
+                <!-- output application -->
+                <!-- ko if: $data.canHaveOutputApplication() -->
+                    <div class="mb-1 inspectorNodeApplicationWrapper">
+                        <span>Output Application</span>    
+                        <div class="inspectorApplicationBackground">
+                            <inspector-component params="node: $root.selectedNode().outputApplication, selectCallback: function(){$root.setNodeOutputApplication($root.selectedNode().key())}, inspectCallback: $root.selectOutputApplicationNode, selectId:'nodeInspectorAddOutputApplication', changeId:'nodeInspectorChangeOutputApplication', inspectId:'nodeInspectorInspectOutputApplication'"></inspector-component>
+                        </div>
+                    </div>
+                <!-- /ko -->
+
+
+                <!-- open parameter table  -->
+                <button id='openNodeFieldsTable' class="btn btn-primary btn_wide" data-bind=" click: function(data, event){$root.openParamsTableModal('inspectorTableModal','normal')}, clickBubble: false, eagleTooltip: `Fine tune this node's parameters, arguments and ports ` + Utils.getKeyboardShortcutTextByKey('open_component_parameter_table_modal', true)" data-bs-toggle="tooltip" data-html="true" data-bs-placement="right" data-bs-original-title="Open Component Parameters in Table [T]">
+                    Open Fields Table
+                </button>
+
             </div>
-            
-            <!-- input application -->
-            <!-- ko if: $data.canHaveInputApplication() -->
-                <div class="mb-1 inspectorNodeApplicationWrapper">
-                    <span>Input Application</span>    
-                    <div class="inspectorApplicationBackground">
-                        <inspector-component params="node: $root.selectedNode().inputApplication, selectCallback: function(){$root.setNodeInputApplication($root.selectedNode().key())}, inspectCallback: $root.selectInputApplicationNode, selectId:'nodeInspectorAddInputApplication', changeId:'nodeInspectorChangeInputApplication', inspectId:'nodeInspectorInspectInputApplication'"></inspector-component>
+
+            <!-- ko if: Setting.showInspectorErrorsWarnings() -->
+                <div class="card pt-2" id="nodeInspectorErrorsCard">
+                    <div class="card-body">
+                        <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) != Setting.ShowErrorsMode.None -->
+                            <!-- ko foreach: $data.getErrorsWarnings($root) -->
+                                <!-- ko if: $data.level === ActionMessage.Level.Error -->
+                                    <fix params="data: $data, isError: true"></fix>
+                                <!-- /ko -->
+                            <!-- /ko -->
+                        <!-- /ko -->
+                        <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings -->
+                            <!-- ko foreach: $data.getErrorsWarnings($root) -->
+                                <!-- ko if: $data.level === ActionMessage.Level.Warning -->
+                                    <fix params="data: $data, isError: false"></fix>
+                                <!-- /ko -->
+                            <!-- /ko -->
+                        <!-- /ko -->
                     </div>
                 </div>
             <!-- /ko -->
-
-            <!-- output application -->
-            <!-- ko if: $data.canHaveOutputApplication() -->
-                <div class="mb-1 inspectorNodeApplicationWrapper">
-                    <span>Output Application</span>    
-                    <div class="inspectorApplicationBackground">
-                        <inspector-component params="node: $root.selectedNode().outputApplication, selectCallback: function(){$root.setNodeOutputApplication($root.selectedNode().key())}, inspectCallback: $root.selectOutputApplicationNode, selectId:'nodeInspectorAddOutputApplication', changeId:'nodeInspectorChangeOutputApplication', inspectId:'nodeInspectorInspectOutputApplication'"></inspector-component>
-                    </div>
-                </div>
-            <!-- /ko -->
-
-
-        </div>
-
-        <!-- open parameter table  -->
-        <button id='openNodeFieldsTable' class="btn btn-primary btn_wide" data-bind=" click: function(data, event){$root.openParamsTableModal('inspectorTableModal','normal')}, clickBubble: false, eagleTooltip: `Fine tune this node's parameters, arguments and ports ` + Utils.getKeyboardShortcutTextByKey('open_component_parameter_table_modal', true)" data-bs-toggle="tooltip" data-html="true" data-bs-placement="right" data-bs-original-title="Open Component Parameters in Table [T]">
-            Open Fields Table
-        </button>
-
-        <!-- ko if: Setting.showInspectorErrorsWarnings() -->
-            <div class="card pt-2" id="nodeInspectorErrorsCard">
-                <div class="card-body">
-                    <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) != Setting.ShowErrorsMode.None -->
-                        <!-- ko foreach: $data.getErrorsWarnings($root) -->
-                            <!-- ko if: $data.level === ActionMessage.Level.Error -->
-                            <fix params="data: $data, isError: true"></fix>
-                            <!-- /ko -->
-                        <!-- /ko -->
-                    <!-- /ko -->
-                    <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings -->
-                        <!-- ko foreach: $data.getErrorsWarnings($root) -->
-                            <!-- ko if: $data.level === ActionMessage.Level.Warning -->
-                            <fix params="data: $data, isError: false"></fix>
-                            <!-- /ko -->
-                        <!-- /ko -->
-                    <!-- /ko -->
-                </div>
-            </div>
         <!-- /ko -->
-    <!-- /ko -->
 
-    <!-- /ko -->
-</div>
+        <!-- /ko -->
+    </div>

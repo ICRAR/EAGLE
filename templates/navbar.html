@@ -15,59 +15,79 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-        <ul class="nav navbar-nav navbar-center">
-            <div class="btn-group" role="group" aria-label="Basic example">
+        <ul id="navBarToolBar" class="nav navbar-nav navbar-center">
+
+            <!-- navbar category -->
+            <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example">
+                <span class="navBarToolBarTitle">Graph</span>
                 <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
                     <i class="material-icons md-18">info</i>
                 </button>
-                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, , eagleTooltip: 'Center Graph ' + Utils.getKeyboardShortcutTextByKey('center_graph', true)" >
-                    <i class="material-icons md-18">filter_center_focus</i>
-                </button>
-                <button id="zoomIn" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomIn, eagleTooltip: 'Zoom In '  + Utils.getKeyboardShortcutTextByKey('zoom_in', true)" >
-                    <i class="material-icons md-18">zoom_in</i>
-                </button>
-                <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomOut, eagleTooltip: 'Zoom Out ' + Utils.getKeyboardShortcutTextByKey('zoom_out', true)" >
-                    <i class="material-icons md-18">zoom_out</i>
-                </button>
-                <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                <button id="toggleSnapToGrid" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleSnapToGrid, eagleTooltip: 'Toggle Snap-to-Grid ' + Utils.getKeyboardShortcutTextByKey('toggle_snap_to_grid', true), css: { 'navbar-btn-active': snapToGrid() }" >
-                    <i class="material-icons md-18">apps</i>
-                </button>
-                <!-- /ko -->
-                <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: 'Add Graph Nodes to Palette ' + Utils.getKeyboardShortcutTextByKey('add_graph_nodes_to_palette', true)" >
-                    <i class="material-icons md-18">palette</i>
-                </button>
-                <!-- /ko -->
-                <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllGroups, eagleTooltip: 'Collapse/Expand All Groups'" >
-                    <i class="material-icons md-18">tab_unselected</i>
-                </button>
-                <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllNodes, eagleTooltip: 'Collapse/Expand All Nodes'" >
-                    <i class="material-icons md-18">vertical_align_center</i>
+                <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal', 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)">
+                    <i class="md-18 icon-keyAttrTable"></i>
                 </button>
                 <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >
                     <i class="material-icons md-18">content_copy</i>
                 </button>
-                <button id="toggleDataNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleShowDataNodes, eagleTooltip: 'Toggle Display of Data Nodes ' + Utils.getKeyboardShortcutTextByKey('toggle_show_data_nodes', true), css: { 'navbar-btn-active': showDataNodes() === false }">
-                    <i class="material-icons md-18">subtitles</i>
+            </div>
+
+            <!-- navbar category -->
+            <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example">
+                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, , eagleTooltip: 'Center Graph ' + Utils.getKeyboardShortcutTextByKey('center_graph', true)" >
+                    <i class="material-icons md-18">filter_center_focus</i>
                 </button>
-                <button id="checkForComponentUpdates" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: checkForComponentUpdates, eagleTooltip: 'Check for component updates ' + Utils.getKeyboardShortcutTextByKey('check_for_component_updates', true)">
-                    <i class="material-icons md-18">star</i>
+                <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomOut, eagleTooltip: 'Zoom Out ' + Utils.getKeyboardShortcutTextByKey('zoom_out', true)" >
+                    <i class="material-icons md-18">zoom_out</i>
+                </button>
+                <button id="zoomIn" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomIn, eagleTooltip: 'Zoom In '  + Utils.getKeyboardShortcutTextByKey('zoom_in', true)" >
+                    <i class="material-icons md-18">zoom_in</i>
+                </button>
+                <span class="navBarToolBarTitle">View</span>
+                <button id="toggleDataNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleShowDataNodes, eagleTooltip: 'Toggle Display of Data Nodes ' + Utils.getKeyboardShortcutTextByKey('toggle_show_data_nodes', true), css: { 'navbar-btn-active': showDataNodes() === false }">
+                    <i class="md-18 icon-hideDataNode"></i>
+                </button>
+                <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllGroups, eagleTooltip: 'Collapse/Expand All Groups'" >
+                    <i class="material-icons md-18">tab_unselected</i>
+                </button>
+                <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllNodes, eagleTooltip: 'Collapse/Expand All Nodes'" >
+                    <i class="md-18 icon-collapseComponent"></i>
                 </button>
             </div>
-            <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal', 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)">
-                <i class="material-icons md-18">table_chart</i>
-            </button>
+
+            <!-- navbar category -->
+            <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example">
+                <span class="navBarToolBarTitle">Editing</span>
+                <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
+                    <button id="toggleSnapToGrid" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleSnapToGrid, eagleTooltip: 'Toggle Snap-to-Grid ' + Utils.getKeyboardShortcutTextByKey('toggle_snap_to_grid', true), css: { 'navbar-btn-active': snapToGrid() }" >
+                        <i class="md-18 icon-snapToGrid"></i>
+                    </button>
+                <!-- /ko -->
+                <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                    <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: 'Add Graph Nodes to Palette ' + Utils.getKeyboardShortcutTextByKey('add_graph_nodes_to_palette', true)" >
+                        <i class="md-18 icon-addToPalette"></i>
+                    </button>
+                <!-- /ko -->
+                <button id="checkForComponentUpdates" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: checkForComponentUpdates, eagleTooltip: 'Check for component updates ' + Utils.getKeyboardShortcutTextByKey('check_for_component_updates', true)">
+                    <i class="md-18 icon-componentUpdate"></i>
+                </button>
+            </div>
+
+            <!-- navbar category -->
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                <ul class="nav navbar-nav ms-4">
-                    <button id="checkGraphDone" class="btn btn-outline-success navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: openCheckGraphModal, visible: graphChecker().getNumWarnings() === 0 && graphChecker().getNumErrors() === 0, eagleTooltip: 'Check Graph for Errors'">
-                        <i class="material-icons md-18">done_all</i>
-                    </button>
-                    <button id="checkGraphWarnings" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display: none;" data-bind="click: openCheckGraphModal, visible: graphChecker().getNumWarnings() > 0 || graphChecker().getNumErrors() > 0, css: {'btn-outline-warning': graphChecker().getNumWarnings() > 0, 'btn-outline-danger': graphChecker().getNumErrors() > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)">
-                        <span class="badge bg-warning" data-bind="text: graphChecker().getNumWarnings(), visible: graphChecker().getNumWarnings() > 0"></span>
-                        <span class="badge bg-danger" data-bind="text: graphChecker().getNumErrors(), visible: graphChecker().getNumErrors() > 0"></span>
-                    </button>
-                </ul>
+                <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example" data-bind="css: {'navbarGroupWarning': graphChecker().getNumWarnings() > 0, 'navbarGroupError': graphChecker().getNumErrors() > 0,'navbarGroupSuccess': graphChecker().getNumWarnings() === 0 && graphChecker().getNumErrors() === 0}">
+                    <span class="navBarToolBarTitle">Errors</span>
+                    <!-- ko if: graphChecker().getNumWarnings() === 0 && graphChecker().getNumErrors() === 0 -->
+                        <button id="checkGraphDone" class="btn navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: openCheckGraphModal, eagleTooltip: 'Check Graph for Errors'">
+                            <i class="material-icons md-18">done_all</i>
+                        </button>
+                    <!-- /ko -->
+                    <!-- ko if: graphChecker().getNumWarnings() > 0 || graphChecker().getNumErrors() > 0 -->
+                        <button id="checkGraphWarnings" class="btn navbar-btn" type="button" data-bs-placement="bottom" style="display:none;" data-bind="click: openCheckGraphModal, visible:$root.logicalGraph()!=null, css: {'btn-outline-warning': graphChecker().getNumWarnings() > 0, 'btn-outline-danger': graphChecker().getNumErrors() > 0}, eagleTooltip: 'Check Graph for Errors ' + Utils.getKeyboardShortcutTextByKey('check_graph', true)">
+                            <span class="badge bg-warning" data-bind="text: graphChecker().getNumWarnings(), visible: graphChecker().getNumWarnings() > 0"></span>
+                            <span class="badge bg-danger" data-bind="text: graphChecker().getNumErrors(), visible: graphChecker().getNumErrors() > 0"></span>
+                        </button>
+                    <!-- /ko -->
+                </div>
             <!-- /ko -->
         </ul>
 
@@ -88,7 +108,6 @@
                                 </a>
                                 <a class="dropdown-item" id="createNewGraphFromJson" href="#" data-bind="click: newLogicalGraphFromJson">Create New Graph from JSON</a>
                                 <a class="dropdown-item" id="addToGraphFromJson" href="#" data-bind="click: addToGraphFromJson">Add to Graph from JSON</a>
-                                <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: displayLogicalGraphAsJson">Export Graph to JSON</a>
                                 <a class="dropdown-item" id="addEdgeToLogicalGraph" href="#" data-bind="click: addEdgeToLogicalGraph">Add Edge to Graph
                                     <span data-bind="text: Utils.getKeyboardShortcutTextByKey('add_edge', true)"></span>
                                 </a>
@@ -103,28 +122,30 @@
                         <div class="dropdown-divider"></div>
                         <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                             <div class="dropDropDown">
-                                <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Graph)}">Save Graph</a>
-                                <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Graph)}">Save Graph As</a>
+                                <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Graph)}">Save</a>
+                                <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Graph)}">Save As</a>
                                 <a class="dropdown-item" id="gitLoadGraphFromRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}">Load From Repository</a>
                             </div>
                         </span>
                         <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                             <div class="dropDropDown">
-                                <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load Graph
+                                <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save</a>
+                                <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load
                                     <span data-bind="text: Utils.getKeyboardShortcutTextByKey('open_graph_from_local_disk', true)"></span>
                                 </a>
-                                <a class="dropdown-item" id="insertGraph" href="#" data-bind="click: getGraphFileToInsert">Insert Graph
+                                <a class="dropdown-item" id="insertGraph" href="#" data-bind="click: getGraphFileToInsert">Insert
                                     <span data-bind="text: Utils.getKeyboardShortcutTextByKey('insert_graph_from_local_disk', true)"></span>
                                 </a>
-                                <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save Graph</a>
                             </div>
                         </span>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: displayLogicalGraphAsJson">Display As Json</a>
                     <!-- /ko -->
                     <!-- ko ifnot: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                        <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load Local Graph
+                        <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save</a>
+                        <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load
                             <span data-bind="text: Utils.getKeyboardShortcutTextByKey('open_graph_from_local_disk', true)"></span>
                         </a>
-                        <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save Graph Locally</a>
                     <!-- /ko -->
                 </div>
             </li>
@@ -137,36 +158,36 @@
                 <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                     <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
-                            <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette
+                            <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create
                                 <span data-bind="text: Utils.getKeyboardShortcutTextByKey('new_palette', true)"></span>
                             </a>
-                            <a class="dropdown-item" id="createNewPaletteFromJson" href="#" data-bind="click: newPaletteFromJson">Create New Palette From Json</a>
+                            <a class="dropdown-item" id="createNewPaletteFromJson" href="#" data-bind="click: newPaletteFromJson">Create From Json</a>
                         </div>
                     </span>
                     <div class="dropdown-divider"></div>
                     <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
-                            <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Palette)}">Save Palette</a>
-                            <a class="dropdown-item" id="commitToGitAsPalette" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Palette)}">Save Palette As</a>
+                            <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Palette)}">Save</a>
+                            <a class="dropdown-item" id="commitToGitAsPalette" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Palette)}">Save As</a>
                             <a class="dropdown-item" id="loadPaletteFromGitRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}">Load From Repository</a>
                         </div>
                     </span>
                     <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
-                            <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Palette
+                            <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save</a>
+                            <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load
                                 <span data-bind="text: Utils.getKeyboardShortcutTextByKey('open_palette_from_local_disk', true)"></span>
                             </a>
-                            <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save Palette</a>
                         </div>
                     </span>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="saveToPalette" href="#" data-bind="click: addGraphNodesToPalette">Save Node To Palette</a>
+                    <a class="dropdown-item" id="saveToPalette" href="#" data-bind="click: addGraphNodesToPalette">Add Graph Nodes</a>
                 <!-- /ko -->
-                <!-- ko ifnot: !Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                    <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Local Palette
+                <!-- ko ifnot: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                    <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load
                         <span data-bind="text: Utils.getKeyboardShortcutTextByKey('open_palette_from_local_disk', true)"></span>
                     </a>
-                    <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save Palette</a>
+                    <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save</a>
                 <!-- /ko -->
                 </div>
             </li>

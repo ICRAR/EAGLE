@@ -1,6 +1,11 @@
+html {
+    height:100%
+}
+
 body {
     /* prevent window from ever scrolling the whole page */
     overflow: hidden; 
+    height:100%
     /* zoom: 75%; */
 }
 
@@ -39,12 +44,139 @@ body {
     margin-right: 0.6rem;
 }
 
-#openKeyParameterTable{
-    margin-left:20px;
-}
-
 .navbar #navDeployBtn{
     padding: 8px;
+}
+
+#navBarToolBar .navbarGroup{
+    border: 2px white solid;
+    border-top: none;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 0px 0px 2px 0px;
+    height: 100%;
+    position: relative;
+    min-width: 100px;
+    white-space: nowrap;
+}
+
+#navBarToolBar .navbarGroupWarning{
+    color: white;
+    border-color: #ffc107;
+}
+
+#navBarToolBar .navbarGroupError{
+    color: white;
+    border-color: red;
+}
+
+#checkGraphWarnings span{
+    top: -3px;
+}
+
+#quickActionContainer {
+    z-index: 101;
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 25rem;
+    transform: translateX(-50%);
+}
+
+#quickActionInput{
+    width: 50rem;
+    height:4rem;
+    border: 2px solid #002349;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#quickActionContainer input{
+    width: 100%;
+    height: 100%;
+    background-color: #003f84;
+    color: white;
+    font-size: 2.5rem;
+    padding: 5px;
+    border: none;
+}
+
+#quickActionContainer input::placeholder{
+    color: rgb(204, 204, 204);
+}
+
+#quickActionResults{
+    width: 50rem;
+    margin-top: 5px;
+    background: #003f84;
+    border: 2px solid #002349;
+    border-radius: 5px;
+    max-height: 30rem;
+    overflow: auto;
+}
+
+#quickActionResults a{
+    display: block;
+    color: white;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    text-decoration: none;
+}
+
+#quickActionResults a.quickActionsFocus{
+    background-color: #002349;
+}
+
+#quickActionResults a:hover{
+    background-color: #002349;
+}
+
+#quickActionBackground{
+    position: absolute;
+    inset: 0px 0px 0px 0px;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.288);
+}
+
+#quickActionResults a i{
+    margin-right: 5px;
+    font-size: 1.1rem;
+}
+
+#navBarToolBar .navbarGroupSuccess{
+    border-color: #00bb00;
+    color: white;
+}
+
+#navBarToolBar .navbarGroup button{
+    border:none;
+    padding: 0px 10px;
+    margin-top: -3px;
+    height: 30px;
+    color: white;
+}
+
+#navBarToolBar .navbarGroup i{
+    font-size: 20px;
+}
+
+#checkGraphDone i{
+color: #00bb00;}
+
+#navBarToolBar .navbarGroup button:first-of-type{
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+#navBarToolBar .navbarGroup .navBarToolBarTitle{
+    color: white;
+    position: absolute;
+    bottom: -12px;
+    background-color: #002d5d;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0px 5px;
+    font-size: 13px;
 }
 
 .navbar #navDeployBtn a{
@@ -247,6 +379,7 @@ body {
     padding:0px 3px;
     /* overflow: hidden; */
     border-right: 1px solid rgb(14 2 76 / 16%);
+    position: relative;
 }
 
 #parameterTableModal .modal-dialog td i,#editFieldModal .modal-body .dropdown-item i{
@@ -344,11 +477,24 @@ td:first-child input {
     color: #002e5f;
     display: inline-block;
     padding: 0px;
-    height:20px
+    height:20px;
+    width:20px;
+    border-radius: 10px;
 }
 
 #parameterTableModal .modal-dialog td button:disabled{
     color: rgb(113 113 113);
+}
+
+#parameterTableModal .modal-dialog td button.parameterTableDescriptionBtn {
+    position: absolute;
+    right: 4px;
+    top: 2px;
+    background-color: #002e5f;
+    color: white;
+    display: none;
+    padding: 1% 0px 0px 0px;
+    font-size: 12px;
 }
 
 .componentTableVisibilityBtn{
@@ -356,6 +502,18 @@ td:first-child input {
     text-decoration: none;
     font-size: 19px!important;
     padding-top: 3px;
+}
+
+#rightWindowContainer .inspectorDescriptionDragHnadle{
+    position: absolute;
+    bottom: -9px;
+    right: -8px;
+    transform: rotate(-45deg);
+    pointer-events: none;
+}
+
+.rightWindow #inspectorNodeDescriptionWrapper ::-webkit-scrollbar-track, #parameterTableModal ::-webkit-scrollbar-track{
+    background: white;
 }
 
 #parameter_table_isKeyAttribute .dropdown-menu{
@@ -1153,6 +1311,23 @@ select.form-control{
 #inputTextModal .modal-content{
     height:40vh;
 }
+
+#inputTextModal .modal-body .container{
+    height:100%;
+}
+
+#inputTextModal .inputModalTextAreaWrapper{
+    height:calc(100% - 40px);
+}
+
+#inputTextModal .inputModalTextAreaWrapper div{
+    height:100%;
+}
+
+#inputTextModal #inputTextModalInput{
+    height: 100%;
+}
+
 
 #inputTextModalInput {
     font-family: monospace;
@@ -2317,7 +2492,9 @@ ul.nav.navbar-nav .dropdown-item:hover{
 .inspectorTextBoxWrapper div{
     background-color: white;
     padding: 5px;
-    max-height: 500px;
+    resize: vertical;
+    min-height: 150px;
+    height: 14em;
     overflow-y: auto;
 }
 
@@ -2441,6 +2618,8 @@ palette-component input.form-control.selected {
 .tooltip-inner{
     transition: 0s visibility;
     visibility: visible;
+    max-height: 300px;
+    overflow: hidden;
 }
 
 #checkGraphModal ul.list-group .list-group-item span, #actionListModal ul.list-group .list-group-item span {

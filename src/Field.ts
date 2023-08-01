@@ -280,7 +280,7 @@ export class Field {
     }
 
     clone = () : Field => {
-        let options : string[] = []
+        const options : string[] = []
         this.options().forEach(function(option:string){
             options.push(option)
         })
@@ -407,7 +407,7 @@ export class Field {
             }
         })
 
-        //comparing the numebr of search terms requested with the number of matches, if any of the search terms did not find anything, we retun false
+        //comparing the number of search terms requested with the number of matches, if any of the search terms did not find anything, we return false
         return searchTermNo === searchTermTrueNo
     }, this);
 

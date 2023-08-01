@@ -193,24 +193,6 @@ export class ParameterTable {
         }
     }
 
-    /*
-    getFieldUseAsForTable = (nodeKey:number,fieldType:Eagle.FieldType) : any => {
-        const eagle: Eagle = Eagle.getInstance();
-
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(eagle.selectedNode() === null){
-                return false
-            }
-            return eagle.selectedNode().fillFieldTypeCell(fieldType)
-        }else{
-            if(eagle.logicalGraph().findNodeByKeyQuiet(nodeKey) === null){
-                return false
-            }
-            return eagle.logicalGraph().findNodeByKeyQuiet(nodeKey).fillFieldTypeCell(fieldType)
-        }   
-    }
-    */
-
     static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void => {
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);
@@ -232,6 +214,29 @@ export class ParameterTable {
         // little helper function that sets up resizable columns. this is called by ko on the headers when they are created
         ParameterTable.initiateResizableColumns(headerId)
         return true
+    }
+
+    static showEditDescription = () => {
+            $(event.target).find('.parameterTableDescriptionBtn ').show()
+    }
+
+    static hideEditDescription = () => {
+            $(event.target).find('.parameterTableDescriptionBtn ').hide()
+    }
+
+    static requestEditDescriptionInModal = (currentField:Field) => {
+        const eagle: Eagle = Eagle.getInstance();
+        const tableType = eagle.tableModalType()
+        eagle.openParamsTableModal('','')
+        Utils.requestUserText("Edit Field Description", "Please edit the description for: "+eagle.logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey())+' - '+currentField.getDisplayText(), currentField.getDescription(), (completed, userText) => {
+            if (!completed){
+                return;
+            }
+
+            currentField.setDescription(userText);
+            eagle.openParamsTableModal(tableType,'')
+
+        })
     }
 
     static initiateResizableColumns = (upId:string) : void => {
@@ -510,9 +515,9 @@ export class ColumnVisibilities {
 
 // name, keyAttribute,displayText,value,readOnly,defaultValue,description,type,parameterType,usage,flags,actions
 const columnVisibilities : ColumnVisibilities[] = [
-    new ColumnVisibilities( "Student", false, true,true,true,false,true,false,false,false,false,false),
-    new ColumnVisibilities("Minimal", true, true,true,true,false,true,false,false,false,true,false),
-    new ColumnVisibilities("Graph", true, true,true,true,true,true,true,true,true,true,true),
+    new ColumnVisibilities( "Student", false, true,true,true,false,false,false,false,false,false,false),
+    new ColumnVisibilities("Minimal", true, true,true,true,false,false,false,false,false,true,false),
+    new ColumnVisibilities("Graph", true, true,true,true,true,false,true,true,true,true,true),
     new ColumnVisibilities("Component", true, true,true,true,true,true,true,true,true,true,true),
     new ColumnVisibilities("Expert", true, true,true,true,true,true,true,true,true,true,true),
 ]

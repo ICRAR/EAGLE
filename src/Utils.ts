@@ -1069,7 +1069,6 @@ export class Utils {
 
     static getCategoriesWithInputsAndOutputs(categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
         const result: Category[] = [];
-
         for (const [categoryName, categoryData] of Object.entries(CategoryData.cData)){
 
             if (categoryData.categoryType !== categoryType){
@@ -1085,7 +1084,6 @@ export class Utils {
             if (numRequiredOutputs > categoryData.maxOutputs){
                 continue;
             }
-
             result.push(categoryName as Category);
         }
 
@@ -1578,7 +1576,7 @@ export class Utils {
             if (shortcut.key === key){
                 const ks = [];
                 for (const k of shortcut.keys){
-                    if (shortcut.modifier === KeyboardShortcut.Modifier.None){
+                    if (shortcut.modifier === KeyboardShortcut.Modifier.None||shortcut.modifier === KeyboardShortcut.Modifier.Input||shortcut.modifier === KeyboardShortcut.Modifier.quickAction){
                         //some processing of the return
                         //if the return should have brackets they are added here
                         //the first letter of the string returned is also capitalised
