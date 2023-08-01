@@ -503,6 +503,7 @@ td:first-child input {
     height: 34px;
     width: 34px;
     padding: 3px;
+    cursor: pointer;
 }
 
 #parameterTableVisibilityContainer .dropdown-toggle::after{
