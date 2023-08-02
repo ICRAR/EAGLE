@@ -305,7 +305,7 @@
                                         
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
                                             <td class='columnCell column_Usage'>
-                                                <select class="tbaleFieldUseAs" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: $root.parameterTable().getNodeLockedState($data), event: {change: $root.parameterTable().fieldUsageChanged}">
+                                                <select class="tbaleFieldUseAs" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: $root.parameterTable().getParamsTableEditState() , event: {change: $root.parameterTable().fieldUsageChanged}">
                                                     <!-- options are added dynamically -->
                                                 </select>
                                             </td>

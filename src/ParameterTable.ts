@@ -4,6 +4,7 @@ import {Field} from './Field';
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import { UiModeSystem } from "./UiModes";
+import {Setting} from "./Setting";
 
 export class ParameterTable {
 
@@ -158,6 +159,18 @@ export class ParameterTable {
                 return false
             }
             return eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()).isLocked()
+        }
+    }
+
+    getParamsTableEditState = () : boolean => {
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            return !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
+        }else{
+            if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)||Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
+                return false
+            }else{
+                return true
+            }
         }
     }
 
