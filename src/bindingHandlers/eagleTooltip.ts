@@ -37,8 +37,44 @@ ko.bindingHandlers.eagleTooltip = {
         jQueryElement.tooltip({
             html : true,
             boundary: document.body,
-            trigger : 'hover',
-            delay: { "show": 800, "hide": 100 }
+            trigger : 'manual',
         });
+
+        
+        //manual tooltip open system to allow for hovering on the tooltips
+        let stillHovering = false
+        jQueryElement.on('mouseenter', function () {
+            stillHovering=true
+
+            //in manual trigger mode the delay attribute of the bootstrap tooltip no longer works, we need to do this ourselves
+            setTimeout(function(){
+                if(stillHovering){
+                    jQueryElement.tooltip('show');
+
+                    //leave listener on the tooltip itself, we attach this when the tooltip is shown
+                    $('.tooltip').on('mouseleave', function () {
+                        jQueryElement.tooltip('hide');
+                        stillHovering = false
+                    });
+                    
+                    //enter listener on the tooltip itself, we attach this when the tooltip is shown
+                    $('.tooltip').on('mouseenter', function () {
+                        stillHovering = true
+                    });
+                }
+            },800)
+        });
+
+        jQueryElement.on('mouseleave', function(){
+            stillHovering = false
+
+            //we need to give the user a little bit of time to move from the element to to tooltip
+            setTimeout(function(){
+                if(!stillHovering){
+                    jQueryElement.tooltip('hide');
+                    stillHovering = false
+                }
+            },100)
+        })
     }
 };
