@@ -11,7 +11,7 @@
                         <h5 class="modal-title" id="parameterTableModalTitle">Fields Table: <span data-bind="html: selectedNode().getName()"></span></h5>
                         <!-- ko if: selectedNode() != null -->
                             <!-- ko if: selectedNode().isLocked() -->
-                                <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: Utils.getReadOnlyText">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: Utils.getReadOnlyText()">
                                     <i class="material-icons md-20">lock</i>
                                 </button>
                             <!-- /ko -->
@@ -235,12 +235,12 @@
                                             <td class='columnCell column_Flags'>    
                                                 <!-- ko if: $root.parameterTable().getNodeLockedState($data) -->
                                                         <!-- ko if: $data.isReadonly() -->
-                                                        <button type="button" disabled data-bind="click: function(){$data.toggleReadOnly();},  eagleTooltip:Utils.getReadOnlyText" data-bs-placement="left">
+                                                        <button type="button" disabled data-bind="click: function(){$data.toggleReadOnly();},  eagleTooltip:Utils.getReadOnlyText()" data-bs-placement="left">
                                                             <i class="material-icons">lock</i>
                                                         </button>
                                                     <!-- /ko -->
                                                     <!-- ko ifnot: $data.isReadonly() -->
-                                                        <button type="button" disabled data-bind="click: function(){$data.toggleReadOnly();},  eagleTooltip:Utils.getReadOnlyText" data-bs-placement="left">
+                                                        <button type="button" disabled data-bind="click: function(){$data.toggleReadOnly();},  eagleTooltip:Utils.getReadOnlyText()" data-bs-placement="left">
                                                             <i class="material-icons-outlined">lock_open</i>
                                                         </button>
                                                     <!-- /ko -->
