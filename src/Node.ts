@@ -711,9 +711,9 @@ export class Node {
         // check if name and category are the same (or similar except for capitalisation and whitespace)
         // if so, only use the name, the category is redundant
         if (this.getName().split(" ").join("").toLowerCase() === this.getCategory().toLowerCase()){
-            return "<p><h5>" + this.getName() + "</h5></p><p>" + Utils.markdown2html(this.getDescription()) +  "</p>";
+            return "###"+ this.getName() + "\n" + this.getDescription();
         } else {
-            return "<p><h5>" + this.getCategory() + " : " + this.getName() + "</h5></p><p>" + Utils.markdown2html(this.getDescription()) +  "</p>";
+            return "###" + this.getCategory() + " : " + this.getName() + "\n" + Utils.markdown2html(this.getDescription());
         }
     }, this);
 

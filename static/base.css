@@ -499,7 +499,7 @@ td:first-child input {
 
 #parameterTableVisibilityContainer{
     position:absolute;
-    right: 330px;
+    right: 320px;
     height: 34px;
     width: 34px;
     padding: 3px;
@@ -2642,14 +2642,42 @@ palette-component input.form-control.selected {
     background-color: lightgrey;
 }
 
+.tooltip-inner h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
+.tooltip-inner h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
+.tooltip-inner h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
+.tooltip-inner h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
 .tooltip-inner h5 {
     font-size: 1rem;
     font-weight: 600;
     margin: 0px;
 }
 
+.tooltip-inner strong{
+    font-weight: 600;
+}
+
 .tooltip-inner p {
-    font-size: .85rem;
+    font-size: 1rem;
     font-weight: 300;
     margin-bottom: 10px;
 }
@@ -2657,8 +2685,10 @@ palette-component input.form-control.selected {
 .tooltip-inner{
     transition: 0s visibility;
     visibility: visible;
-    max-height: 300px;
+    max-height: 400px;
+    max-width:300px;
     overflow: auto;
+    text-align: left;
 }
 
 #errorsModal ul.list-group .list-group-item span {

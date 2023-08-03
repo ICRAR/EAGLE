@@ -1,5 +1,7 @@
 import * as ko from "knockout";
 import * as bootstrap from 'bootstrap';
+import {Utils} from '../Utils';
+
 
 ko.bindingHandlers.eagleTooltip = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
@@ -32,7 +34,7 @@ ko.bindingHandlers.eagleTooltip = {
     update: function (element, valueAccessor) {
         const jQueryElement = $(element);
 
-        jQueryElement.attr("data-bs-original-title", ko.unwrap(valueAccessor()));
+        jQueryElement.attr("data-bs-original-title", Utils.markdown2html(ko.unwrap(valueAccessor())));
 
         jQueryElement.tooltip({
             html : true,
