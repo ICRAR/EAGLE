@@ -2658,7 +2658,7 @@ palette-component input.form-control.selected {
     transition: 0s visibility;
     visibility: visible;
     max-height: 300px;
-    overflow: hidden;
+    overflow: auto;
 }
 
 #errorsModal ul.list-group .list-group-item span {

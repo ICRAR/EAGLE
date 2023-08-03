@@ -4725,6 +4725,6 @@ $( document ).ready(function() {
 
     $(".hierarchy").on("click", function(){
         (<any>window).eagle.selectedObjects([]);
-    })         
+    })   
 
 });
