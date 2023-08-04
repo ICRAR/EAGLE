@@ -89,4 +89,66 @@ export class GraphRenderer {
         //return "M234,159.5C280,159.5,280,41.5,330,41.5";
         return GraphRenderer.createBezier(srcX, srcY, destX, destY, Eagle.Direction.Right, Eagle.Direction.Right);
     }
+
+    static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
+        const mouseEvent: MouseEvent = <MouseEvent>event.originalEvent;
+
+        if (eagle.isDragging()){
+            if (eagle.draggingNode() !== null){
+                // move node
+                eagle.draggingNode().changePosition(mouseEvent.movementX, mouseEvent.movementY);
+                GraphRenderer.moveChildNodes(eagle.draggingNode(), mouseEvent.movementX, mouseEvent.movementY);
+
+            } else {
+                // move background
+                eagle.globalOffsetX(eagle.globalOffsetX() + mouseEvent.movementX);
+                eagle.globalOffsetY(eagle.globalOffsetY() + mouseEvent.movementY);
+            }
+        }
+    }
+
+    static mouseWheel = (eagle: Eagle, event: JQueryEventObject) : void => {
+        const wheelEvent: WheelEvent = <WheelEvent>event.originalEvent;
+
+        console.log("mouseWheel wheelEvent", wheelEvent, wheelEvent.deltaY);
+
+        eagle.globalScale(eagle.globalScale() + wheelEvent.deltaY/1000);
+        console.log("globalScale", eagle.globalScale());
+
+    }
+
+    static startDrag = (node: Node) : void => {
+        const eagle = Eagle.getInstance();
+
+        //console.log("startDrag", node ? node.getName() : node)
+        eagle.isDragging(true);
+        eagle.draggingNode(node);
+
+        eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+    }
+
+    static endDrag = (node: Node) : void => {
+        const eagle = Eagle.getInstance();
+
+        //console.log("endDrag", node ? node.getName() : node)
+        eagle.isDragging(false);
+        eagle.draggingNode(null);
+    }
+
+    static moveChildNodes = (node: Node, deltax : number, deltay : number) : void => {
+        const eagle = Eagle.getInstance();
+
+        // get id of parent nodeIndex
+        const parentKey : number = node.getKey();
+
+        // loop through all nodes, if they belong to the parent's group, move them too
+        for (let i = 0 ; i < eagle.logicalGraph().getNodes().length ; i++){
+            const node = eagle.logicalGraph().getNodes()[i];
+
+            if (node.getParentKey() === parentKey){
+                node.changePosition(deltax, deltay);
+                GraphRenderer.moveChildNodes(node, deltax, deltay);
+            }
+        }
+    }
 }

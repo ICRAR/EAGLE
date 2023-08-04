@@ -4272,62 +4272,6 @@ export class Eagle {
         }
     }
 
-    mouseMove = (that: Eagle, event: JQueryEventObject) : void => {
-        const mouseEvent: MouseEvent = <MouseEvent>event.originalEvent;
-
-        if (this.isDragging()){
-            if (this.draggingNode() !== null){
-                // move node
-                this.draggingNode().changePosition(mouseEvent.movementX, mouseEvent.movementY);
-                this.moveChildNodes(this.draggingNode(), mouseEvent.movementX, mouseEvent.movementY);
-
-            } else {
-                // move background
-                this.globalOffsetX(this.globalOffsetX() + mouseEvent.movementX);
-                this.globalOffsetY(this.globalOffsetY() + mouseEvent.movementY);
-            }
-        }
-    }
-
-    mouseWheel = (that: Eagle, event: JQueryEventObject) : void => {
-        const wheelEvent: WheelEvent = <WheelEvent>event.originalEvent;
-
-        console.log("mouseWheel wheelEvent", wheelEvent, wheelEvent.deltaY);
-
-        this.globalScale(this.globalScale() + wheelEvent.deltaY/1000);
-        console.log("globalScale", this.globalScale());
-
-    }
-
-    startDrag = (node: Node) : void => {
-        //console.log("startDrag", node ? node.getName() : node)
-        this.isDragging(true);
-        this.draggingNode(node);
-
-        this.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
-    }
-
-    endDrag = (node: Node) : void => {
-        //console.log("endDrag", node ? node.getName() : node)
-        this.isDragging(false);
-        this.draggingNode(null);
-    }
-
-    private moveChildNodes = (node: Node, deltax : number, deltay : number) : void => {
-        // get id of parent nodeIndex
-        const parentKey : number = node.getKey();
-
-        // loop through all nodes, if they belong to the parent's group, move them too
-        for (let i = 0 ; i < this.logicalGraph().getNodes().length ; i++){
-            const node = this.logicalGraph().getNodes()[i];
-
-            if (node.getParentKey() === parentKey){
-                node.changePosition(deltax, deltay);
-                this.moveChildNodes(node, deltax, deltay);
-            }
-        }
-    }
-
     addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
         // check that none of the supplied nodes and ports are null
         if (srcNode === null){
