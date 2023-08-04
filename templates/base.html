@@ -55,7 +55,7 @@
 
         <div class="container-fluid" id="graphArea" data-bind="event: { dragover: SideWindow.sideWindowAdjust}">
 
-            <!-- ko ifnot: Eagle.hidePaletteTab() -->
+            <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
             <div class="leftWindow" data-bind="style: { width: leftWindow().width(), left: leftWindow().shown() ? 0 : -leftWindow().width()}">
                 <div class="leftWindowHandle" data-bind="click: leftWindow().toggleShown, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_left_window', true)">
                     <span style="display: none" data-bind="visible: leftWindow().shown()">
@@ -103,17 +103,17 @@
 
             <div class="rightWindow" data-bind="style: { width: rightWindow().width(), right: rightWindow().shown() ? 0 : -rightWindow().width()}">
                <div class="btn-group" id="rightWindowTabs" role="group" aria-label="RightWindowModeSelect">
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Repository);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Repository);rightWindow().shown(true);$root.hierarchyMode(false);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}">
                             Repositories
                         </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}">
-                            Hierarchy
-                        </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="visible: selectedObjects().length > 0, click: function(){rightWindow().mode(Eagle.RightWindowMode.Inspector);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Inspector}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeNode" type="button" data-bind="visible: selectedObjects().length > 0, click: function(){rightWindow().mode(Eagle.RightWindowMode.Inspector);rightWindow().shown(true);$root.hierarchyMode(false);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Inspector}">
                             Inspector
                         </button>
-                        <!-- ko ifnot: Eagle.translatorUiMode(Setting.TranslatorMode.Minimal)-->
-                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.Hierarchy);rightWindow().shown(true);$root.hierarchyMode(true);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}">
+                            Hierarchy
+                        </button>
+                        <!-- ko ifnot: Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Minimal -->
+                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);rightWindow().shown(true);$root.hierarchyMode(false);}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}">
                                 Translation
                             </button>
                         <!-- /ko -->
@@ -141,17 +141,17 @@
                                         <h5>Selection Summary</h5>
                                     </div>
                                     <div class="col-4 text-right headerBtns">
-                                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
+                                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="duplicateSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: function(){duplicateSelection(normal)}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
                                             <i  class="material-icons md-24">content_copy</i>
                                         </button>
                                         <!-- /ko -->
-                                        <!-- ko if: Eagle.allowPaletteEditing() -->
+                                        <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
                                             <i  class="material-icons md-24">library_add</i>
                                         </button>
                                         <!-- /ko -->
-                                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Eagle.allowPaletteEditing() -->
+                                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="deleteSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection('',false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
                                             <i class="material-icons md-24">delete</i>
                                         </button>
@@ -179,7 +179,7 @@
                         </div>
                     </div>
                     <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
-                        <!-- ko ifnot: Eagle.translatorUiMode(Setting.TranslatorMode.Minimal)-->
+                        <!-- ko ifnot: Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Minimal-->
                             {% include 'translation_menu.html' %}
                         <!-- /ko -->
                     </div>
@@ -193,7 +193,8 @@
             </div>
         </div>
 
-        {% include 'modals.html' %}
+        {% include 'modals.html' %} 
+        {% include 'quickAction.html' %}
 
         <span id="performance" data-bind="text: rendererFrameDisplay, visible: $root.showPerformanceDisplay"></span>
         <div id="htmlElementLog" style="display: none;"></div>

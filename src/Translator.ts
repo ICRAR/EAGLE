@@ -24,10 +24,11 @@
 
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {LogicalGraph} from './LogicalGraph';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Daliuge } from "./Daliuge";
+import { Eagle } from './Eagle';
+import { LogicalGraph } from './LogicalGraph';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class Translator {
     numberOfIslands : ko.Observable<number>;
@@ -114,7 +115,7 @@ export class Translator {
      * @param testingMode
      * @param format
      */
-     genPGT = (algorithmName : string, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
+     genPGT = (algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
         const eagle: Eagle = Eagle.getInstance();
 
         if (eagle.logicalGraph().getNumNodes() === 0) {
@@ -131,7 +132,7 @@ export class Translator {
         console.log("Eagle.getPGT() : ", "algorithm name:", algorithmName, "translator URL", translatorURL);
 
         // set the schema version
-        format = Eagle.DALiuGESchemaVersion.OJS;
+        format = Daliuge.SchemaVersion.OJS;
 
         /*
         if (format === Eagle.DALiuGESchemaVersion.Unknown){
@@ -153,11 +154,11 @@ export class Translator {
         this._genPGT(eagle, translatorURL, algorithmName, testingMode, format);
     }
 
-    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
+    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
         // get json for logical graph
         let jsonString: string;
         switch (format){
-            case Eagle.DALiuGESchemaVersion.OJS:
+            case Daliuge.SchemaVersion.OJS:
                 jsonString = LogicalGraph.toOJSJsonString(eagle.logicalGraph(), true);
                 break;
             default:

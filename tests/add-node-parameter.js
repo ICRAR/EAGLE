@@ -1,4 +1,5 @@
 import { Selector, ClientFunction } from 'testcafe';
+import page from './page-model';
 
 /*
     run with:
@@ -25,7 +26,7 @@ test('Add node parameter with usage InputPort', async t =>{
         .click('#settingUserInterfaceModeValue')
 
         // click the 'expert' option
-        .click(Selector('#settingUserInterfaceModeValue').find('option').withText('expert'))
+        .click(Selector('#settingUserInterfaceModeValue').find('option').withText('Expert'))
 
         // close settings modal
         .click('#settingsModalAffirmativeButton')
@@ -35,29 +36,10 @@ test('Add node parameter with usage InputPort', async t =>{
 
         .wait(1000)
 
-        // expand the node inspector
-        .click('#inspectorCollapseStateIcon');
-
     
     const numInputPortsBefore = await getNumInputPorts();
 
-    await t
-        // click the '+' button to add input port
-        .click('#nodeInspectorAddInputPort')
-
-        .wait(200)
-
-        // click the 'custom' option
-        .click('.nodeInspectorDropdownOption:nth-child(2)')
-
-        // add info to modal
-        .typeText(Selector('#editFieldModalIdTextInput'), FIELD_NAME)
-        .typeText(Selector('#editFieldModalDisplayTextInput'), FIELD_NAME)
-
-        // click OK on modal dialog
-        .click('#editFieldModalAffirmativeButton')
-
-        .wait(200);
+    await page.addField(FIELD_NAME,'', 'ApplicationArgument', 'InputPort')
 
     const numInputPortsAfter = await getNumInputPorts();
 

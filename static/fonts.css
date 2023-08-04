@@ -1,45 +1,4 @@
-@font-face {
-  font-family: 'Material Icons';
-  font-style: normal;
-  font-weight: 400;
-  src: url(fonts/MaterialIcons-Regular.eot); /* For IE6-8 */
-  src: local('Material Icons'),
-    local('MaterialIcons-Regular'),
-    url(fonts/MaterialIcons-Regular.woff2) format('woff2'),
-    url(fonts/MaterialIcons-Regular.woff) format('woff'),
-    url(fonts/MaterialIcons-Regular.ttf) format('truetype');
-}
-
-.material-icons {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;  /* Preferred icon size */
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
-
-  /* Support for all WebKit browsers. */
-  -webkit-font-smoothing: antialiased;
-  /* Support for Safari and Chrome. */
-  text-rendering: optimizeLegibility;
-
-  /* Support for Firefox. */
-  -moz-osx-font-smoothing: grayscale;
-
-  /* Support for IE. */
-  font-feature-settings: 'liga';
-}
-
-/* Rules for sizing the icon. */
-.material-icons.md-18 { font-size: 18px; }
-.material-icons.md-24 { font-size: 24px; }
-.material-icons.md-36 { font-size: 36px; }
-.material-icons.md-48 { font-size: 48px; }
+@import 'fonts/material-icons/iconfont/material-icons.css';
 
 @font-face {
   font-family: 'Comic Neue';
@@ -50,11 +9,11 @@
 
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?ply1bf');
-  src:  url('fonts/icomoon.eot?ply1bf#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?ply1bf') format('truetype'),
-    url('fonts/icomoon.woff?ply1bf') format('woff'),
-    url('fonts/icomoon.svg?ply1bf#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?x3fcbt');
+  src:  url('fonts/icomoon.eot?x3fcbt#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?x3fcbt') format('truetype'),
+    url('fonts/icomoon.woff?x3fcbt') format('woff'),
+    url('fonts/icomoon.svg?x3fcbt#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -75,131 +34,173 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-bash:before {
+.icon-addToPalette:before {
   content: "\e900";
 }
-.icon-build:before {
+.icon-bash:before {
   content: "\e901";
 }
-.icon-call_split:before {
+.icon-branch:before {
   content: "\e902";
 }
-.icon-comment:before {
+.icon-build:before {
   content: "\e903";
 }
-.icon-description:before {
+.icon-call_split:before {
   content: "\e904";
 }
-.icon-docker:before {
+.icon-collapseComponent:before {
   content: "\e905";
 }
-.icon-dynamic_library:before {
+.icon-comment:before {
   content: "\e906";
 }
-.icon-force_node:before {
+.icon-componentUpdate:before {
   content: "\e907";
 }
-.icon-group:before {
+.icon-copyUrlToGroup:before {
   content: "\e908";
 }
-.icon-hard-drive:before {
+.icon-description:before {
   content: "\e909";
 }
-.icon-loop:before {
+.icon-docker:before {
   content: "\e90a";
 }
-.icon-many-to-many:before {
+.icon-dynamic_library:before {
   content: "\e90b";
 }
-.icon-memory:before {
+.icon-dynamic_library_member_function:before {
   content: "\e90c";
 }
-.icon-merge_type:before {
+.icon-dynamic_library_object:before {
   content: "\e90d";
 }
-.icon-mpi:before {
+.icon-force_node:before {
   content: "\e90e";
 }
-.icon-ngas:before {
+.icon-gather:before {
   content: "\e90f";
 }
-.icon-none:before {
+.icon-group:before {
   content: "\e910";
 }
-.icon-plasma:before {
+.icon-hard-drive:before {
   content: "\e911";
 }
-.icon-plasmaflight:before {
+.icon-hideDataNode:before {
   content: "\e912";
 }
-.icon-play_arrow:before {
+.icon-keyAttrTable:before {
   content: "\e913";
 }
-.icon-python:before {
+.icon-loop:before {
   content: "\e914";
 }
-.icon-question_mark:before {
+.icon-many-to-many:before {
   content: "\e915";
 }
-.icon-s3_bucket:before {
+.icon-memory:before {
   content: "\e916";
 }
-.icon-share:before {
+.icon-merge_type:before {
   content: "\e917";
 }
-.icon-shared_memory:before {
+.icon-mpi:before {
   content: "\e918";
 }
-.icon-singularity:before {
+.icon-ngas:before {
   content: "\e919";
 }
-.icon-stop:before {
+.icon-none:before {
   content: "\e91a";
 }
-.icon-subgraph:before {
+.icon-plasma:before {
   content: "\e91b";
 }
-.icon-tune:before {
+.icon-plasmaflight:before {
   content: "\e91c";
 }
-.icon-pencil:before {
+.icon-play_arrow:before {
   content: "\e91d";
 }
-.icon-eyedropper:before {
+.icon-python:before {
   content: "\e91e";
 }
-.icon-image:before {
+.icon-python_member_function:before {
   content: "\e91f";
 }
-.icon-images:before {
+.icon-python_object:before {
   content: "\e920";
 }
-.icon-camera:before {
+.icon-question_mark:before {
   content: "\e921";
 }
-.icon-book:before {
+.icon-s3_bucket:before {
   content: "\e922";
 }
-.icon-books:before {
+.icon-scatter:before {
   content: "\e923";
 }
-.icon-folder:before {
-  content: "\e92f";
+.icon-share:before {
+  content: "\e924";
 }
-.icon-folder-open:before {
-  content: "\e930";
+.icon-shared_memory:before {
+  content: "\e925";
 }
-.icon-folder-plus:before {
-  content: "\e931";
+.icon-singularity:before {
+  content: "\e926";
 }
-.icon-folder-minus:before {
-  content: "\e932";
+.icon-snapToGrid:before {
+  content: "\e927";
 }
-.icon-folder-download:before {
+.icon-stop:before {
+  content: "\e928";
+}
+.icon-sub_graph:before {
+  content: "\e929";
+}
+.icon-tune:before {
+  content: "\e92a";
+}
+.icon-pencil:before {
   content: "\e933";
 }
-.icon-folder-upload:before {
+.icon-eyedropper:before {
   content: "\e934";
+}
+.icon-image:before {
+  content: "\e935";
+}
+.icon-images:before {
+  content: "\e936";
+}
+.icon-camera:before {
+  content: "\e937";
+}
+.icon-book:before {
+  content: "\e938";
+}
+.icon-books:before {
+  content: "\e939";
+}
+.icon-folder:before {
+  content: "\e93a";
+}
+.icon-folder-open:before {
+  content: "\e93b";
+}
+.icon-folder-plus:before {
+  content: "\e93c";
+}
+.icon-folder-minus:before {
+  content: "\e93d";
+}
+.icon-folder-download:before {
+  content: "\e93e";
+}
+.icon-folder-upload:before {
+  content: "\e93f";
 }
 .icon-bell:before {
   content: "\e951";
@@ -212,6 +213,9 @@
 }
 .icon-loop2:before {
   content: "\ea2e";
+}
+.icon-paragraph-justify:before {
+  content: "\ea7a";
 }
 .icon-mail4:before {
   content: "\ea86";

@@ -28,9 +28,11 @@ import "jqueryMigrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
+import {UiMode, UiModeSystem, SettingData} from './UiModes';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Config} from './Config';
+import {Daliuge} from './Daliuge';
 import {Eagle} from './Eagle';
 import {Errors} from './Errors';
 import {GitHub} from './GitHub';
@@ -38,6 +40,7 @@ import {GitLab} from './GitLab';
 import { GraphRenderer } from "./GraphRenderer";
 import {Hierarchy} from './Hierarchy';
 import {RightClick} from './RightClick';
+import {QuickActions} from './QuickActions';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {LogicalGraph} from './LogicalGraph';
 import {Modals} from './Modals';
@@ -65,19 +68,25 @@ $(function(){
 
     // add eagle to the window object, slightly hacky, but useful for debugging
     (<any>window).eagle = eagle;
-    (<any>window).Eagle = Eagle;
-    (<any>window).Utils = Utils;
-    (<any>window).Config = Config;
+
     (<any>window).Category = Category;
+    (<any>window).Config = Config;
+    (<any>window).Daliuge = Daliuge;
+    (<any>window).Eagle = Eagle;
     (<any>window).Errors = Errors;
     (<any>window).Hierarchy = Hierarchy;
+    (<any>window).ParameterTable = ParameterTable;
+    (<any>window).Repositories = Repositories;
     (<any>window).RightClick = RightClick;
     (<any>window).Setting = Setting;
-    (<any>window).Repositories = Repositories;
-    (<any>window).ParameterTable = ParameterTable;
     (<any>window).SideWindow = SideWindow;
     (<any>window).TutorialSystem = TutorialSystem;
     (<any>window).GraphRenderer = GraphRenderer;
+    (<any>window).UiModeSystem = UiModeSystem;
+    (<any>window).Utils = Utils;
+    (<any>window).KeyboardShortcut = KeyboardShortcut;
+    (<any>window).QuickActions = QuickActions;
+    (<any>window).Modals = Modals;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
@@ -98,10 +107,10 @@ $(function(){
     const user_interface_mode = (<any>window).mode;
     if (typeof user_interface_mode !== 'undefined' && user_interface_mode !== ""){
         // make sure that the specified user interface mode is a known mode
-        if (Object.values(Setting.UIMode).includes(user_interface_mode)){
-            Setting.find(Setting.USER_INTERFACE_MODE).setValue(user_interface_mode);
+        if (UiModeSystem.getFullUiModeNamesList().includes(user_interface_mode)){
+            UiModeSystem.setActiveUiModeByName(user_interface_mode)
         } else {
-            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", Object.values(Setting.UIMode).join(','));
+            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", UiModeSystem.getFullUiModeNamesList().join(','));
         }
 
         // hide the ?mode=x part of the url
@@ -109,7 +118,7 @@ $(function(){
     }
 
     // Get the list of git repos
-    if (Eagle.isInUIMode(Setting.UIMode.Minimal)){
+    if (UiModeSystem.getActiveUiMode().getName()==='Student'){
         GitHub.loadStudentRepoList();
     } else {
         GitHub.loadRepoList();
@@ -119,8 +128,8 @@ $(function(){
     // load the default palette
     if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
         eagle.loadPalettes([
-            {name:"Builtin Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
-            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true}
+            {name:"Builtin Components", filename:Daliuge.PALETTE_URL, readonly:true},
+            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true}
         ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
             const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 

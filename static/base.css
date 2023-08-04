@@ -1,6 +1,11 @@
+html {
+    height:100%
+}
+
 body {
     /* prevent window from ever scrolling the whole page */
     overflow: hidden; 
+    height:100%
     /* zoom: 75%; */
 }
 
@@ -39,12 +44,139 @@ body {
     margin-right: 0.6rem;
 }
 
-#openKeyParameterTable{
-    margin-left:20px;
-}
-
 .navbar #navDeployBtn{
     padding: 8px;
+}
+
+#navBarToolBar .navbarGroup{
+    border: 2px white solid;
+    border-top: none;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 0px 0px 2px 0px;
+    height: 100%;
+    position: relative;
+    min-width: 100px;
+    white-space: nowrap;
+}
+
+#navBarToolBar .navbarGroupWarning{
+    color: white;
+    border-color: #ffc107;
+}
+
+#navBarToolBar .navbarGroupError{
+    color: white;
+    border-color: red;
+}
+
+#checkGraphWarnings span{
+    top: -3px;
+}
+
+#quickActionContainer {
+    z-index: 101;
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 25rem;
+    transform: translateX(-50%);
+}
+
+#quickActionInput{
+    width: 50rem;
+    height:4rem;
+    border: 2px solid #002349;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#quickActionContainer input{
+    width: 100%;
+    height: 100%;
+    background-color: #003f84;
+    color: white;
+    font-size: 2.5rem;
+    padding: 5px;
+    border: none;
+}
+
+#quickActionContainer input::placeholder{
+    color: rgb(204, 204, 204);
+}
+
+#quickActionResults{
+    width: 50rem;
+    margin-top: 5px;
+    background: #003f84;
+    border: 2px solid #002349;
+    border-radius: 5px;
+    max-height: 30rem;
+    overflow: auto;
+}
+
+#quickActionResults a{
+    display: block;
+    color: white;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    text-decoration: none;
+}
+
+#quickActionResults a.quickActionsFocus{
+    background-color: #002349;
+}
+
+#quickActionResults a:hover{
+    background-color: #002349;
+}
+
+#quickActionBackground{
+    position: absolute;
+    inset: 0px 0px 0px 0px;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.288);
+}
+
+#quickActionResults a i{
+    margin-right: 5px;
+    font-size: 1.1rem;
+}
+
+#navBarToolBar .navbarGroupSuccess{
+    border-color: #00bb00;
+    color: white;
+}
+
+#navBarToolBar .navbarGroup button{
+    border:none;
+    padding: 0px 10px;
+    margin-top: -3px;
+    height: 30px;
+    color: white;
+}
+
+#navBarToolBar .navbarGroup i{
+    font-size: 20px;
+}
+
+#checkGraphDone i{
+color: #00bb00;}
+
+#navBarToolBar .navbarGroup button:first-of-type{
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+#navBarToolBar .navbarGroup .navBarToolBarTitle{
+    color: white;
+    position: absolute;
+    bottom: -12px;
+    background-color: #002d5d;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0px 5px;
+    font-size: 13px;
 }
 
 .navbar #navDeployBtn a{
@@ -207,12 +339,20 @@ body {
 }
 
 #parameterTableModal .modal-dialog{
-    max-width: 70vw;
+    max-width: 1230px;
 }
 
-#parameterTableModal .modal-dialog input{
+#parameterTableModal .modal-dialog input, #editFieldModal .modal-dialog .dropdown input{
     border: none;
     width:100%;
+}
+
+#editFieldModal .defaultSelectCustom{
+    background: transparent;
+}
+
+#editFieldModal select{
+    margin: 0px;
 }
 
 #parameterTableModal .modal-dialog input:read-only{
@@ -237,33 +377,197 @@ body {
 
 #parameterTableModal .modal-dialog td{
     padding:0px 3px;
-    overflow: hidden;
+    /* overflow: hidden; */
     border-right: 1px solid rgb(14 2 76 / 16%);
+    position: relative;
 }
 
-#parameterTableModal .modal-dialog td i{
+#parameterTableModal .modal-dialog td i,#editFieldModal .modal-body .dropdown-item i{
     margin-left: 50%;
     transform: translate(-50%, 2px);
+}
+
+#parameterTableModal .typeSelectDelete,#editFieldModal .typeSelectDelete{
+    position: absolute;
+    right:5px
+}
+
+#parameterTableModal .dropdown-item,#editFieldModal .dropdown-item{
+    padding:1px 5px;
+}
+
+#parameterTableModal .dropdown-item.add,#editFieldModal .dropdown-item.add{
+    background-color: rgb(235 236 241);
+    cursor: pointer;
+}
+
+#parameterTableModal .dropdown-menu,#editFieldModal .dropdown-menu{
+    padding: 0px;
+    border:1px solid black;
+    overflow: hidden;
+    min-width: 9rem;
+    max-height:200px;
+    overflow-y: auto;
+}
+
+#parameterTableModal .modal-dialog .typesInput, #edintFieldModal .modal-dialog .typesInput{
+    padding: 0px;
+    height: 35px;
+    width: 100%;
+    outline: none;
+    color: black;
+    height: fit-content;
+    border-right: solid 1px #bbbbbb;
+}
+
+#parameterTableModal .modal-dialog .input-group{
+    border:black solid 1px;
+    border-radius: 2px;
+    flex-wrap: unset;
+    height: fit-content;
+    background-color: white;
+    padding-left:2px;
+}
+
+.parameterTableTypeCustomSelect a {
+    color: #000;
+    border: 1px solid black;
+    border-radius: 2px;
+    font-size: 14px;
+    text-decoration: none;
+    width: 100%;
+    display: block;
+    padding: 0px 3px;
+    background-color:white;
+    height:23px;
+}
+
+#editFieldModal .parameterTableTypeCustomSelect a {    
+    border: 1px solid #ced4da;
+    height: 38px;
+    padding: 6px 15px;
+    font-size: 16px;
+}
+
+#editFieldModal .dropdown {
+    width:100%;
+}
+
+.parameterTableTypeCustomSelect a::after {
+    right: 5px;
+    top: 45%;
+    position: absolute;
+}
+
+.parameterTableTypeCustomSelect .dropdown-item input:read-only {
+    color: black;
+}
+
+#parameterTableModal .column_Actions {
+    overflow: hidden;
 }
 
 td:first-child input {
     font-weight: 700;
 }
 
-#parameterTableModal .modal-dialog td button{
+#parameterTableModal .modal-dialog td button,#editFieldModal .dropdown-menu button{
     border: none;
     background-color: transparent;
     color: #002e5f;
     display: inline-block;
     padding: 0px;
+    height:20px;
+    width:20px;
+    border-radius: 10px;
 }
 
 #parameterTableModal .modal-dialog td button:disabled{
     color: rgb(113 113 113);
 }
 
+#parameterTableModal .modal-dialog td button.parameterTableDescriptionBtn {
+    position: absolute;
+    right: 4px;
+    top: 2px;
+    background-color: #002e5f;
+    color: white;
+    display: none;
+    padding: 1% 0px 0px 0px;
+    font-size: 12px;
+}
+
+#parameterTableVisibilityContainer{
+    position:absolute;
+    right: 320px;
+    height: 34px;
+    width: 34px;
+    padding: 3px;
+    cursor: pointer;
+}
+
+#parameterTableVisibilityContainer .dropdown-toggle::after{
+    display: none;
+}
+
+.componentTableVisibilityBtn{
+    color: white;
+    text-decoration: none;
+    font-size: 24px!important;
+    padding-top: 3px;
+}
+
+#rightWindowContainer .inspectorDescriptionDragHnadle{
+    position: absolute;
+    bottom: -9px;
+    right: -8px;
+    transform: rotate(-45deg);
+    pointer-events: none;
+}
+
+.rightWindow #inspectorNodeDescriptionWrapper ::-webkit-scrollbar-track, #parameterTableModal ::-webkit-scrollbar-track{
+    background: white;
+}
+
+#parameterTableVisibilityContainer .dropdown-menu{
+    border:solid 1px #000c1a;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 100;
+    background-color: #0059a5;
+}
+
+#parameterTableVisibilityContainer .dropdown-menu-right{
+    right: 0;
+    left: auto !important;
+}
+
+#parameterTableVisibilityContainer .dropdown-item{
+    position: relative;
+}
+
+#parameterTableVisibilityContainer .dropdown-item span{
+    color: white;
+}
+
+#parameterTableVisibilityContainer .dropdown-item input{
+    right: 0px;
+    top: 7px;
+    position:absolute;
+    pointer-events:none;
+}
+
+#parameterTableVisibilityContainer .dropdown-item:hover{
+    background-color: #001d3b;
+    color: white;
+}
+
+#parameter_table_flags{
+    width: 101px;
+}
+
 #parameter_table_actions{
-    width: 123px;
+    width: 101px;
 }
 
 #parameter_table_usage{
@@ -324,6 +628,7 @@ td:first-child input {
 #parameterTableModal .searchBarContainer{
     position: absolute;
     right: 20px;
+    width:300px;
 }
 
 #parameterTableModal .modal-header button{
@@ -528,6 +833,11 @@ td:first-child input {
     border-color: #0059a5;
 }
 
+.rightWindow .btn-primary:hover, .leftWindow .btn-primary:hover {
+    background-color: #002f57;
+    border-color: #002f57;
+}
+
 .rightWindow .rightWindowHandle {
     position: absolute;
     width: 48px;
@@ -702,9 +1012,27 @@ td:first-child input {
     background-color:#002349;
 }
 
+#settingsModal #uiModeDiv {
+    display: flex;
+}
+
+#settingsModal #uiModeDiv span,#settingsModal #uiModeDiv select{
+    display: inline-block;
+}
+
+#settingsModal #uiModeDiv select{
+    padding: 0px;
+    height: 27px;
+    margin-left: 5px;
+}
+
 .settingsModalCategoryWrapper{
     display: none;
     width: 100%;
+}
+
+.settingStudentWrapper{
+    padding: 20px;
 }
 
 .settingsModalButton{
@@ -740,8 +1068,16 @@ td:first-child input {
 
 }
 
-#settingsModal .btn-secondary{
+#settingsModal .modal-body .btn-secondary{
     height:100%;
+    width: 40px;
+}
+
+#settingsModal .btn-secondary i {
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
 }
 
 #settingsModal form{
@@ -929,7 +1265,7 @@ select.form-control{
     position: absolute;
     top: 0;
     width: 100%;
-    z-index: 111;
+    z-index: 112;
     border: none;
 }
 
@@ -974,6 +1310,25 @@ select.form-control{
     height: 20vh;
 }
 
+#confirmModalDontShowAgain{
+    position: absolute;
+    bottom: 0px;
+    right: 40px;
+}
+
+#confirmModalDontShowAgain p{
+    position: relative;
+}
+
+#confirmModalDontShowAgain button{
+    border: none;
+    padding: 0px;
+    background: none;
+    top: 55%;
+    transform: translateY(-50%);
+    position: absolute;
+}
+
 #aboutModal .modal-content{
     width: 60vw;
     height: 60vh;
@@ -995,6 +1350,23 @@ select.form-control{
 #inputTextModal .modal-content{
     height:40vh;
 }
+
+#inputTextModal .modal-body .container{
+    height:100%;
+}
+
+#inputTextModal .inputModalTextAreaWrapper{
+    height:calc(100% - 40px);
+}
+
+#inputTextModal .inputModalTextAreaWrapper div{
+    height:100%;
+}
+
+#inputTextModal #inputTextModalInput{
+    height: 100%;
+}
+
 
 #inputTextModalInput {
     font-family: monospace;
@@ -1511,6 +1883,7 @@ select.form-control{
 .navbar-btn i.material-icons.md-18 {
     position: relative;
     top: 3px;
+    font-size: 20px;
 }
 
 .navbar-center .navbar-btn.navbar-btn-active{
@@ -1594,18 +1967,6 @@ select.form-control{
     position: relative;
 }
 
-#nodeInspectorAddField, #nodeInspectorAddApplicationParam{
-    padding:0px;
-}
-
-#nodeInspectorAddInputPort{
-    padding:0px;
-}
-
-#nodeInspectorAddOutputPort{
-    padding:0px;
-}
-
 .forceHide{
     display: none !important;
 }
@@ -1685,6 +2046,7 @@ div.rightWindow h5.card-header {
 .rightWindow button i.material-icons.md-18 {
     position: relative;
     top: 2px;
+    font-size: 18px;
 }
 
 ul.nav.navbar-nav .btn-outline-secondary {
@@ -2119,6 +2481,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
     font-size: 1.25em;
     font-weight: bold;
     user-select: none;
+    margin-left:27px;
 }
 
 .modal-dialog {
@@ -2149,11 +2512,61 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 .headerBtns {
     padding: 0px 10px;
+    position:relative;
+}
+
+.inspectorTextBoxWrapper{
+    position: relative;
+    border-radius: 3px; 
+    overflow: hidden;
+}
+
+.inspectorTextBoxWrapper span{
+    background-color: #e9ecef;
+    width: 100%;
+    display: inline-block;
+    padding: 5px;
+}
+
+.inspectorTextBoxWrapper div{
+    background-color: white;
+    padding: 5px;
+    resize: vertical;
+    min-height: 150px;
+    height: 14em;
+    overflow-y: auto;
+}
+
+
+.inspectorNodeApplicationWrapper{
+    position: relative;
+    border-radius: 3px; 
+    overflow: hidden;
+}
+
+.inspectorNodeApplicationWrapper span{
+    background-color: #e9ecef;
+    width: 100%;
+    display: inline-block;
+    padding: 5px;
+}
+
+.inspectorNodeApplicationWrapper .inspectorApplicationBackground{
+    background-color: white;
+    padding: 5px;
+    max-height: 500px;
+    overflow: hidden;
 }
 
 #inspectorHeaderIconRow{
     padding-top: 3px;
     background: rgba(255, 255, 255, 0.171);
+}
+
+#nodeInspectorHeading #nodeInspectorHeadingIcon{
+    position: absolute;
+    top: 3px;
+    right: -1px;
 }
 
 #inspectorAccordion .accordion-button::after {
@@ -2164,7 +2577,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 #inspectorAccordion .accordion-button {
     padding: 5px 10px 5px 45px;
     z-index: 0;
-    
     color: rgb(66, 66, 66);
     background-color: rgba(0,0,0,.03);
 }
@@ -2173,7 +2585,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
     position: relative !important;
 }
 
-.headerBtns button {
+.headerBtns button,.inspectorTitleBtns button {
     background-color: transparent;
     padding:0px 4px;
     margin-left:-4px;
@@ -2181,15 +2593,27 @@ ul.nav.navbar-nav .dropdown-item:hover{
     box-shadow: none;
 }
 
-.headerBtns button:hover {
+.headerBtns button:hover,.inspectorTitleBtns button:hover {
     color:#001933;
     background-color: transparent;
 }
 
-.headerBtns button.btn:focus {
+.headerBtns button.btn:focus, .inspectorTitleBtns button:focus {
     box-shadow: none;
     background-color:transparent;
     border:none;
+}
+
+.inspectorTitleBtns.inspectorTitleBtnsRight{
+    position:absolute;
+    top: 3px;
+    right: 9px;
+}
+
+.inspectorTitleBtns.inspectorTitleBtnsLeft{
+    position:absolute;
+    top: 3px;
+    left: 9px;
 }
 
 #multiSelectionHeader .headerBtns button{
@@ -2218,14 +2642,42 @@ palette-component input.form-control.selected {
     background-color: lightgrey;
 }
 
+.tooltip-inner h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
+.tooltip-inner h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
+.tooltip-inner h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
+.tooltip-inner h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
 .tooltip-inner h5 {
     font-size: 1rem;
     font-weight: 600;
     margin: 0px;
 }
 
+.tooltip-inner strong{
+    font-weight: 600;
+}
+
 .tooltip-inner p {
-    font-size: .85rem;
+    font-size: 1rem;
     font-weight: 300;
     margin-bottom: 10px;
 }
@@ -2233,14 +2685,33 @@ palette-component input.form-control.selected {
 .tooltip-inner{
     transition: 0s visibility;
     visibility: visible;
+    max-height: 400px;
+    max-width:300px;
+    overflow: auto;
+    text-align: left;
 }
 
 #errorsModal ul.list-group .list-group-item span {
     max-width: 80%;
 }
 
+#nodeInspectorErrorsCard{
+    background: transparent;
+    border: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+#nodeInspectorErrorsCard .card-body{
+    padding:0px;
+}
+
 #nodeInspectorErrorsCard fix .alert {
     overflow: hidden;
+}
+
+.alert{
+    z-index: 2000!important;
 }
 
 #customContextMenu{
@@ -2282,6 +2753,7 @@ palette-component input.form-control.selected {
     display: none;
     max-height: 400px;
     overflow-y: auto;
+    min-width: 200px;
 }
 
 #customContextMenu a{
@@ -2326,6 +2798,34 @@ palette-component input.form-control.selected {
 
 .rightClickFocus,.rightClickFocusParent{
     background-color: #001d3b;
+}
+
+.rightClickDropdownDividerTitle{
+    position: relative;
+    font-size: 12px;
+    z-index: 1;
+    overflow: hidden;
+    text-align: center;
+    margin-top: 3px;
+}
+
+.rightClickDropdownDividerTitle:before, .rightClickDropdownDividerTitle:after{
+    position: absolute;
+    top: 51%;
+    overflow: hidden;
+    width: 50%;
+    height: 1px;
+    content: '\a0';
+    background-color: rgb(230, 230, 230);
+}
+
+.rightClickDropdownDividerTitle:before {
+    margin-left: -57%;
+    text-align: right;
+}
+
+.rightClickDropdownDividerTitle:after {
+    margin-left: 7%;
 }
 
 .componentSearchBar{

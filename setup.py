@@ -73,6 +73,7 @@ def package_files(directory):
 
 
 static_files = package_files("static")
+templates = package_files("templates")
 
 
 install_requires = [
@@ -101,6 +102,7 @@ setup(
     package_data={
         "EAGLE": ["README", "*.txt"],
         "static": static_files,
+        "templates": templates,
     },
     #    dependency_links=['http://github.com/ICRAR/daliuge/tarball/master#egg=daliuge-1.0'],
     install_requires=install_requires,

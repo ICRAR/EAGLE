@@ -24,19 +24,18 @@
 
 import * as ko from "knockout";
 
-import {GraphRenderer} from './GraphRenderer';
-
-import {Category} from './Category';
-import {Eagle} from './Eagle';
-import {Edge} from './Edge';
-import {Errors} from './Errors';
-import {Field} from './Field';
-import {FileInfo} from './FileInfo';
-import {GraphUpdater} from './GraphUpdater';
-import {Node} from './Node';
-import {RepositoryFile} from './RepositoryFile';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Category } from './Category';
+import { Daliuge } from "./Daliuge";
+import { Eagle } from './Eagle';
+import { Edge } from './Edge';
+import { Errors } from './Errors';
+import { Field } from './Field';
+import { FileInfo } from './FileInfo';
+import { GraphUpdater } from './GraphUpdater';
+import { Node } from './Node';
+import { RepositoryFile } from './RepositoryFile';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
@@ -54,7 +53,7 @@ export class LogicalGraph {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
-        result.modelData.schemaVersion = Eagle.DALiuGESchemaVersion.OJS;
+        result.modelData.schemaVersion = Daliuge.SchemaVersion.OJS;
         result.modelData.numLGNodes = graph.getNodes().length;
 
         // add nodes
@@ -554,6 +553,32 @@ export class LogicalGraph {
         return null;
     }
 
+    findNodeById = (id : string) : Node => {
+        for (let i = this.nodes.length - 1; i >= 0 ; i--){
+
+            // check if the node itself has a matching key
+            if (this.nodes[i].getId() === id){
+                return this.nodes[i];
+            }
+
+            // check if the node's inputApp has a matching key
+            if (this.nodes[i].hasInputApplication()){
+                if (this.nodes[i].getInputApplication().getId() === id){
+                    return this.nodes[i].getInputApplication();
+                }
+            }
+
+            // check if the node's outputApp has a matching key
+            if (this.nodes[i].hasOutputApplication()){
+                if (this.nodes[i].getOutputApplication().getId() === id){
+                    return this.nodes[i].getOutputApplication();
+                }
+            }
+        }
+        console.warn("findNodeByKey(): could not find node with key (", id, ")");
+        return null;
+    }
+
     findNodeGraphIdByNodeName = (name:string) :string =>{
         const eagle: Eagle = Eagle.getInstance();
         let graphNodeId:string
@@ -640,10 +665,17 @@ export class LogicalGraph {
     }
 
     removeEdgeById = (id: string) : void => {
+        let found = false;
+
         for (let i = this.edges.length - 1; i >= 0 ; i--){
             if (this.edges[i].getId() === id){
+                found = true;
                 this.edges.splice(i, 1);
             }
+        }
+
+        if (!found){
+            console.warn("Could not removeEdgeById(), edge not found with id:", id);
         }
     }
 

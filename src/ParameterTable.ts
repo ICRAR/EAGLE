@@ -3,6 +3,8 @@ import * as ko from "knockout";
 import {Field} from './Field';
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
+import { UiModeSystem } from "./UiModes";
+import {Setting} from "./Setting";
 
 export class ParameterTable {
 
@@ -12,10 +14,10 @@ export class ParameterTable {
     static selectionName : ko.Observable<string>; // name of selected parameter in field
     static selectionReadonly : ko.Observable<boolean> // check if selection is readonly
 
+    static activeColumnVisibility : ColumnVisibilities;
+
     static tableHeaderX : any;
     static tableHeaderW : any;
-
-    static parameterTableVisibility : Array<{parameterName:string, keyVisibility:boolean, inspectorVisibility:boolean}> = []
 
     constructor(){
         ParameterTable.selectionParent = ko.observable(null);
@@ -24,47 +26,25 @@ export class ParameterTable {
         ParameterTable.selectionName = ko.observable('');
         ParameterTable.selectionReadonly = ko.observable(false);
 
-        ParameterTable.parameterTableVisibility.push({parameterName:"keyAttribute", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"nodeName", keyVisibility: true, inspectorVisibility: false});
-        ParameterTable.parameterTableVisibility.push({parameterName:"nodeKey", keyVisibility: true, inspectorVisibility: false});
-        ParameterTable.parameterTableVisibility.push({parameterName:"displayText", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"idText", keyVisibility: false, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"value", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"readOnly", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"defaultValue", keyVisibility: false, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"description", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"type", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"parameterType", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"usage", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"precious", keyVisibility: false, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"positional", keyVisibility: false, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"actions", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"actionEdit", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"actionValue", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"actionDefault", keyVisibility: true, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"actionDuplicate", keyVisibility: false, inspectorVisibility: true});
-        ParameterTable.parameterTableVisibility.push({parameterName:"actionDelete", keyVisibility: false, inspectorVisibility: true});
     }
 
-    getParameterTableVisibility = (columnName: string) : boolean => {
-        const eagle: Eagle = Eagle.getInstance();
-        const tableModalType = eagle.tableModalType()
-        let returnValue : boolean
-        if(tableModalType === "keyParametersTableModal"){
-            ParameterTable.parameterTableVisibility.forEach(function(element){
-                if(columnName === element.parameterName){
-                    returnValue = element.keyVisibility
-                }
-            })
-        }else if (tableModalType === "inspectorTableModal"){
-            ParameterTable.parameterTableVisibility.forEach(function(element){
-                if(columnName === element.parameterName){
-                    returnValue = element.inspectorVisibility
-                }
-            })
-        }
-        return returnValue
-    }
+    static setActiveColumnVisibility = () :void => {
+        const uiModeName = UiModeSystem.activeUiMode.getName()
+
+        columnVisibilities.forEach(function(columnVisibility){
+            if(columnVisibility.getModeName() === uiModeName){
+                ParameterTable.activeColumnVisibility = columnVisibility
+            }
+        })
+    } 
+
+    static getActiveColumnVisibility = () : ColumnVisibilities => {
+       return ParameterTable.activeColumnVisibility
+    } 
+
+    static getColumnVisibilities = () : ColumnVisibilities[] => {
+       return columnVisibilities
+    } 
 
     formatTableInspectorSelection = () : string => {
         if (ParameterTable.selection() === null){
@@ -82,6 +62,54 @@ export class ParameterTable {
         return ParameterTable.selection();
     }
 
+    static tableEnterShortcut = (event:any) : void => {
+
+        //if the table parameter search bar is selected
+        if($('#parameterTableModal .componentSearchBar')[0] === event.target){
+            const targetCell = $('#parameterTableModal td.column_Value').first().children().first()
+            targetCell.focus()
+            $('.selectedTableParameter').removeClass('selectedTableParameter')
+            targetCell.parent().addClass('selectedTableParameter')
+        }else if (event.target.closest('.columnCell')){
+
+        //if a cell in the table is currently selected, enter will select the next cell down
+
+            //we are getting the class name of the current column's cell eg. column_Description
+            const classes = $(event.target.closest('.columnCell')).attr('class').split(' ')
+            let cellTypeClass
+            for(const className of classes){
+                if(className.includes('column_')){
+                    cellTypeClass = className;
+                    break
+                }
+            }
+
+            //now we are getting all cells in this column
+            const typeClassColumnCells = $('.'+cellTypeClass)
+            let activeCellFound = false
+
+            //here we are looping through each of the cells to figure out which one is currently selected
+            //then we mark the activeCellFound as true, so the next element in the loop will be set to focused and exit the loop with return false
+            typeClassColumnCells.each(function(i,cell){
+                if(activeCellFound){
+                    if($(cell).children().first().hasClass('parameterTableTypeCustomSelect')){
+                        return <void> null;
+                    }else{
+                        $(cell).children().first().focus()
+                    }
+
+                    $('.selectedTableParameter').removeClass('selectedTableParameter')
+                    $(cell).addClass('selectedTableParameter')
+                    return false;
+                }
+
+                if($(cell).hasClass('selectedTableParameter')){
+                    activeCellFound = true 
+                }
+            })
+        }
+    }
+
     tableInspectorUpdateSelection = (value:string) : void => {
         // abort update if nothing is selected
         if (!ParameterTable.hasSelection()){
@@ -92,8 +120,6 @@ export class ParameterTable {
         const selectedForm = ParameterTable.selectionParent()
         if(selected === 'displayText'){
             selectedForm.setDisplayText(value)
-        } else if(selected === 'idText'){
-            selectedForm.setIdText(value)
         } else if(selected === 'value'){
             selectedForm.setValue(value)
         } else if(selected === 'defaultValue'){
@@ -136,6 +162,18 @@ export class ParameterTable {
         }
     }
 
+    getParamsTableEditState = () : boolean => {
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+            return !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
+        }else{
+            if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)||Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
+                return false
+            }else{
+                return true
+            }
+        }
+    }
+
     fieldUsageChanged = (field: Field) : void => {
         console.log("fieldUsageChanged", field.getUsage(), field.getNodeKey());
         
@@ -168,38 +206,12 @@ export class ParameterTable {
         }
     }
 
-    /*
-    getFieldUseAsForTable = (nodeKey:number,fieldType:Eagle.FieldType) : any => {
-        const eagle: Eagle = Eagle.getInstance();
-
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(eagle.selectedNode() === null){
-                return false
-            }
-            return eagle.selectedNode().fillFieldTypeCell(fieldType)
-        }else{
-            if(eagle.logicalGraph().findNodeByKeyQuiet(nodeKey) === null){
-                return false
-            }
-            return eagle.logicalGraph().findNodeByKeyQuiet(nodeKey).fillFieldTypeCell(fieldType)
-        }   
-    }
-    */
-
     static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void => {
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);
         ParameterTable.selectionParentIndex(selectionIndex);
         ParameterTable.selection(selection);
         ParameterTable.selectionReadonly(readOnlyState);
-
-        //this is for the funcionality that empty idtexts will copy the display text removing spaces and caps while you type. This functionality gets removed when the display text looses focus signifying the changes are complete
-        if(selectionParent.getIdText()===''){
-            $(event.target).addClass('newEmpty')
-        }
-        if($(event.target).hasClass('newEmpty')){
-            selectionParent.setIdText(selection.toLowerCase().split(' ').join('_'))
-        }
     }
 
     static resetSelection = ():void => {
@@ -215,6 +227,29 @@ export class ParameterTable {
         // little helper function that sets up resizable columns. this is called by ko on the headers when they are created
         ParameterTable.initiateResizableColumns(headerId)
         return true
+    }
+
+    static showEditDescription = () => {
+            $(event.target).find('.parameterTableDescriptionBtn ').show()
+    }
+
+    static hideEditDescription = () => {
+            $(event.target).find('.parameterTableDescriptionBtn ').hide()
+    }
+
+    static requestEditDescriptionInModal = (currentField:Field) => {
+        const eagle: Eagle = Eagle.getInstance();
+        const tableType = eagle.tableModalType()
+        eagle.openParamsTableModal('','')
+        Utils.requestUserText("Edit Field Description", "Please edit the description for: "+eagle.logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey())+' - '+currentField.getDisplayText(), currentField.getDescription(), (completed, userText) => {
+            if (!completed){
+                return;
+            }
+
+            currentField.setDescription(userText);
+            eagle.openParamsTableModal(tableType,'')
+
+        })
     }
 
     static initiateResizableColumns = (upId:string) : void => {
@@ -284,3 +319,231 @@ export class ParameterTable {
             upresizer.on('mousedown', mouseDownHandler);
     }
 }
+
+export class ColumnVisibilities {
+
+    private uiModeName : string;
+    private keyAttribute:ko.Observable<boolean>
+    private displayText:ko.Observable<boolean>
+    private fieldId:ko.Observable<boolean>
+    private value:ko.Observable<boolean>
+    private readOnly:ko.Observable<boolean>
+    private defaultValue:ko.Observable<boolean>
+    private description:ko.Observable<boolean>
+    private type:ko.Observable<boolean>
+    private parameterType:ko.Observable<boolean>
+    private usage:ko.Observable<boolean>
+    private flags:ko.Observable<boolean>
+    private actions:ko.Observable<boolean>
+
+    constructor(uiModeName:string, keyAttribute:boolean, displayText:boolean,fieldId:boolean,value:boolean,readOnly:boolean,defaultValue:boolean,description:boolean,type:boolean,parameterType:boolean,usage:boolean,flags:boolean,actions:boolean){
+
+        this.uiModeName = uiModeName;
+        this.keyAttribute = ko.observable(keyAttribute);
+        this.displayText = ko.observable(displayText);
+        this.fieldId = ko.observable(fieldId);
+        this.value = ko.observable(value);
+        this.readOnly = ko.observable(readOnly);
+        this.defaultValue = ko.observable(defaultValue);
+        this.description = ko.observable(description);
+        this.type = ko.observable(type);
+        this.parameterType = ko.observable(parameterType);
+        this.usage = ko.observable(usage);
+        this.flags = ko.observable(flags);
+        this.actions = ko.observable(actions);
+
+    }
+
+    getVisibilities = () : ColumnVisibilities => {
+        return this;
+    }
+
+    getModeName = () : string => {
+        return this.uiModeName;
+    }
+
+    getModeByName = (name:string) : ColumnVisibilities => {
+        let columnVisibilityResult:ColumnVisibilities = null
+        columnVisibilities.forEach(function(columnVisibility){
+            if(columnVisibility.getModeName() === name){
+                columnVisibilityResult = columnVisibility
+            }
+        })
+        return columnVisibilityResult
+    }
+
+    setModeName = (newUiModeName:string) : void => {
+        this.uiModeName = newUiModeName;
+    }
+
+    getKeyAttribute = () : boolean => {
+        return this.keyAttribute()
+    }
+
+    private setKeyAttribute = (value:boolean) : void => {
+        this.keyAttribute(value);
+    }
+
+    private setDisplayText = (value:boolean) : void => {
+        this.displayText(value);
+    }
+
+    private setFieldId = (value:boolean) : void => {
+        this.fieldId(value);
+    }
+
+    private setValue = (value:boolean) : void => {
+        this.value(value);
+    }
+
+    private setReadOnly = (value:boolean) : void => {
+        this.readOnly(value);
+    }
+
+    private setDefaultValue = (value:boolean) : void => {
+        this.defaultValue(value);
+    }
+
+    private setDescription = (value:boolean) : void => {
+        this.description(value);
+    }
+
+    private setType = (value:boolean) : void => {
+        this.type(value);
+    }
+
+    private setParameterType = (value:boolean) : void => {
+        this.parameterType(value);
+    }
+
+    private setUsage = (value:boolean) : void => {
+        this.usage(value);
+    }
+
+    private setFlags = (value:boolean) : void => {
+        this.flags(value);
+    }
+
+    private setActions = (value:boolean) : void => {
+        this.actions(value);
+    }
+
+    //these toggle functions are used in the knockout for the ui elements
+    private toggleKeyAttribute = () : void => {
+            this.keyAttribute(!this.keyAttribute());
+            this.saveToLocalStorage()
+    }
+
+    private toggleDisplayText = () : void => {
+            this.displayText(!this.displayText());
+            this.saveToLocalStorage()
+    }
+
+    private toggleFieldId = () : void => {
+            this.fieldId(!this.fieldId());
+            this.saveToLocalStorage()
+    }
+
+    private toggleValue = () : void => {
+            this.value(!this.value());
+            this.saveToLocalStorage()
+    }
+
+    private toggleReadOnly = () : void => {
+        this.readOnly(!this.readOnly());
+        this.saveToLocalStorage()
+    }
+
+    private toggleDefaultValue = () : void => {
+        this.defaultValue(!this.defaultValue());
+        this.saveToLocalStorage()
+    }
+
+    private toggleDescription = () : void => {
+        this.description(!this.description());
+        this.saveToLocalStorage()
+    }
+
+    private toggleType = () : void => {
+        this.type(!this.type());
+        this.saveToLocalStorage()
+    }
+
+    private toggleParameterType = () : void => {
+        this.parameterType(!this.parameterType());
+        this.saveToLocalStorage()
+    }
+
+    private toggleUsage = () : void => {
+        this.usage(!this.usage());
+        this.saveToLocalStorage()
+    }
+
+    private toggleFlags = () : void => {
+        this.flags(!this.flags());
+        this.saveToLocalStorage()
+    }
+
+    private toggleActions = () : void => {
+        this.actions(!this.actions());
+        this.saveToLocalStorage()
+    }
+
+    private saveToLocalStorage = () : void => {
+        const columnVisibilitiesObjArray : any[] = []
+        columnVisibilities.forEach(function(columnVis:ColumnVisibilities){
+            const columnVisibilitiesObj = {
+                name : columnVis.getModeName(),
+                keyAttribute : columnVis.keyAttribute(),
+                displayText : columnVis.displayText(),
+                fieldId : columnVis.fieldId(),
+                value : columnVis.value(),
+                readOnly : columnVis.readOnly(),
+                defaultValue : columnVis.defaultValue(),
+                description : columnVis.description(),
+                type : columnVis.type(),
+                parameterType : columnVis.parameterType(),
+                usage : columnVis.usage(),
+                flags : columnVis.flags(),
+                actions : columnVis.actions(),
+                
+            }
+            columnVisibilitiesObjArray.push(columnVisibilitiesObj)
+        })
+        localStorage.setItem('ColumnVisibilities', JSON.stringify(columnVisibilitiesObjArray));
+    }
+
+     loadFromLocalStorage = () : void => {
+        const columnVisibilitiesObjArray : any[] = JSON.parse(localStorage.getItem('ColumnVisibilities'))
+        const that = ParameterTable.getActiveColumnVisibility()
+        if(columnVisibilitiesObjArray === null){
+            return
+        }else{
+            columnVisibilitiesObjArray.forEach(function(columnvisibility){
+                const columnVisActual:ColumnVisibilities = that.getModeByName(columnvisibility.name)
+                columnVisActual.setKeyAttribute(columnvisibility.keyAttribute)
+                columnVisActual.setDisplayText(columnvisibility.displayText)
+                columnVisActual.setFieldId(columnvisibility.fieldId)
+                columnVisActual.setValue(columnvisibility.value)
+                columnVisActual.setReadOnly(columnvisibility.readOnly)
+                columnVisActual.setDefaultValue(columnvisibility.defaultValue)
+                columnVisActual.setDescription(columnvisibility.description)
+                columnVisActual.setType(columnvisibility.type)
+                columnVisActual.setParameterType(columnvisibility.parameterType)
+                columnVisActual.setUsage(columnvisibility.usage)
+                columnVisActual.setFlags(columnvisibility.flags)
+                columnVisActual.setActions(columnvisibility.actions)
+            })
+        }
+    }
+}
+
+
+// name, keyAttribute,displayText,value,readOnly,defaultValue,description,type,parameterType,usage,flags,actions
+const columnVisibilities : ColumnVisibilities[] = [
+    new ColumnVisibilities( "Student", false, true,false,true,true,false,false,false,false,false,false,false),
+    new ColumnVisibilities("Minimal", true, true,false,true,true,false,false,false,false,false,true,false),
+    new ColumnVisibilities("Graph", true, true,false,true,true,true,false,true,true,true,true,true),
+    new ColumnVisibilities("Component", true, true,false,true,true,true,true,true,true,true,true,true),
+    new ColumnVisibilities("Expert", true, true,false,true,true,true,true,true,true,true,true,true),
+]

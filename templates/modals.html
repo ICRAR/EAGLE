@@ -58,19 +58,19 @@
                     <div class="row">
                         <p id="inputTextModalMessage">Message</p>
                     </div>
-                    <div class="row">
+                    <div class="row inputModalTextAreaWrapper">
                         <div class="col">
                             <div class="input-group mb-3">
                                 <textarea class="form-control" id="inputTextModalInput" rows="10"></textarea>
                             </div>
-                            <button id="copyInputTextModalInput" class="btn btn-secondary" type="button" data-bs-placement="bottom" data-bind="click: Utils.copyInputTextModalInput, eagleTooltip: 'Copy Text'">
-                                <i class="material-icons md-18">content_copy</i>
-                            </button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
+                <button id="copyInputTextModalInput" class="btn btn-secondary" type="button" data-bs-placement="bottom" data-bind="click: Utils.copyInputTextModalInput, eagleTooltip: 'Copy Text'">
+                    <i class="material-icons md-18">content_copy</i>
+                </button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
@@ -129,6 +129,9 @@
                 <div class="container">
                     <div class="row">
                         <p id="confirmModalMessage">Message</p>
+                    </div>
+                    <div class="row" id="confirmModalDontShowAgain">
+                        <p>Don't ask me again <button class="material-icons">check_box_outline_blank</button></p>
                     </div>
                 </div>
             </div>

@@ -53,9 +53,9 @@ export class ComponentUpdater {
             // try to find a field with the same name in the destination
             let destField = dest.findFieldById(srcField.getId());
 
-            // if dest field not found, try to find something that matches by idText AND fieldType
+            // if dest field not found, try to find something that matches by displayText AND fieldType
             if (destField === null){
-                destField = dest.findFieldByIdText(srcField.getIdText(), srcField.getParameterType());
+                destField = dest.findFieldByDisplayText(srcField.getDisplayText(), srcField.getParameterType());
             }
 
             // if dest field could not be found, then go ahead and add a NEW field to the dest node
@@ -64,8 +64,8 @@ export class ComponentUpdater {
                 dest.addField(destField);
             }
            
-            // NOTE: we could just use a copy() function here if we had one
-            destField.copyWithKeyAndId(srcField, srcField.getNodeKey(), srcField.getId());
+            // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
+            destField.copyWithKeyAndId(srcField, destField.getNodeKey(), destField.getId());
         }
     }
 }

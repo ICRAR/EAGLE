@@ -196,7 +196,7 @@ export class GraphUpdater {
         }
 
         if (category === "Data"){
-            return Category.File;
+            return Category.Data;
         }
 
         return <Category>category;
