@@ -1,94 +1,10 @@
 <div class="node" data-bind="style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY(), width: $data.width, height: $data.height}, event: {mousedown: function(){$root.startDrag($data);}, mouseup: function(){$root.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false">
-    <!-- ko if: $data.isData() -->
-    <div class="icon" data-bind="style: {backgroundImage: 'url(\'' + $data.getDataIcon() + '\')', left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY(), width: $data.width, height: $data.height}">
-    </div>
-    <!-- /ko -->
 
-    <!-- ko ifnot: $data.isData() -->
     <div class="rect" data-bind="css: {selected: $root.objectIsSelected($data)}">
 
-        <!-- ko ifnot: $data.getCategory() === Category.Description || $data.getCategory() === Category.Comment -->
         <div class="header" data-bind="style: {backgroundColor: $data.color}">
             <div class="header-name" data-bind="html: $data.name"></div>
         </div>
-        <!-- /ko -->
 
-        <div class="body">
-            <div class="contents">
-                <!-- ko if: $data.getCategory() === Category.Description || $data.getCategory() === Category.Comment -->
-                <div class="text" data-bind="text: $data.getCustomData()">
-                </div>
-                <!-- /ko -->
-
-                <!-- ko if: $data.canHaveInputs() -->
-                <div class="input-ports">
-                    <!-- ko foreach: $data.inputPorts -->
-                        {% include 'input_port.html' %}
-                    <!-- /ko -->
-                </div>
-                <!-- /ko -->
-
-                <!-- ko if: $data.canHaveOutputs() -->
-                <div class="output-ports">
-                    <!-- ko foreach: $data.outputPorts -->
-                        {% include 'output_port.html' %}
-                    <!-- /ko -->
-                </div>
-                <!-- /ko -->
-
-                <!-- ko if: $data.hasInputApplication() -->
-                <div class="input-app">
-                    <div class="app-name" data-bind="style: {backgroundColor: $data.getInputAppColor()}, html: $data.getInputAppText()"></div>
-
-                    <div class="contents">
-                        <!-- ko if: $data.inputApplication().canHaveInputs() -->
-                        <div class="input-ports">
-                            <!-- ko foreach: $data.inputApplication().inputPorts -->
-                                {% include 'input_port.html' %}
-                            <!-- /ko -->
-                        </div>
-                        <!-- /ko -->
-
-                        <!-- ko if: $data.inputApplication().canHaveOutputs() -->
-                        <div class="output-ports">
-                            <!-- ko foreach: $data.inputApplication().outputPorts -->
-                                {% include 'output_port.html' %}
-                            <!-- /ko -->
-                        </div>
-                        <!-- /ko -->
-                    </div>
-
-                </div>
-                <!-- /ko -->
-                <div class="interior">
-
-                </div>
-                <!-- ko if: $data.hasOutputApplication() -->
-                <div class="output-app">
-                    <div class="app-name" data-bind="style: {backgroundColor: $data.getOutputAppColor()}, html: $data.getOutputAppText()"></div>
-
-                    <div class="contents">
-                        <!-- ko if: $data.outputApplication().canHaveInputs() -->
-                        <div class="input-ports">
-                            <!-- ko foreach: $data.outputApplication().inputPorts -->
-                                {% include 'input_port.html' %}
-                            <!-- /ko -->
-                        </div>
-                        <!-- /ko -->
-
-                        <!-- ko if: $data.outputApplication().canHaveOutputs() -->
-                        <div class="output-ports">
-                            <!-- ko foreach: $data.outputApplication().outputPorts -->
-                                {% include 'output_port.html' %}
-                            <!-- /ko -->
-                        </div>
-                        <!-- /ko -->
-                    </div>
-
-                </div>
-                <!-- /ko -->
-            </div>
-        </div>
     </div>
-    <!-- /ko -->
 </div>

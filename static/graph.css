@@ -2,11 +2,6 @@
     position: absolute;
 }
 
-.node .icon {
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
 .node .rect {
     background-color: lightgrey;
     border-radius: 8px;
@@ -29,82 +24,8 @@
     flex-grow: 1;
 }
 
-.node .body {
-    flex-grow: 100;
-}
-
-.node .body .contents, .node .input-app .contents, .node .output-app .contents {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    height: 100%;
-}
-
 .node .header .header-name, .node .body .contents .app-name {
     color: white;
     padding: 4px;
     user-select: none;
-}
-
-.node .body .contents .app-name {
-    border-bottom: 2px solid black;
-}
-
-.node .input-app, .node .output-app, .node .exit-app, .node .interior {
-    overflow: hidden;
-}
-
-.node .input-app {
-    border-right: 2px solid black;
-    flex-grow: 0;
-}
-
-.node .output-app {
-    border-left: 2px solid black;
-    flex-grow: 0;
-}
-
-.node .exit-app {
-    border-left: 2px solid black;
-    flex-grow: 0;
-}
-
-.node .interior {
-    flex-grow: 100;
-}
-
-.node .input-app span, .node .output-app span, .node .exit-app span, .node .interior span {
-    margin: 4px;
-}
-
-.node .input-ports, .node .output-ports {
-    width: 50%;
-}
-
-.port {
-    display: flex;
-    flex-direction: row;
-}
-
-.input-ports .port .port-name {
-    padding-left: 8px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    flex-grow: 1;
-    text-align: left;
-}
-
-.output-ports .port .port-name {
-    padding-right: 8px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    flex-grow: 1;
-    text-align: right;
-}
-
-.port-shape {
-    flex-grow: 0;
-    flex-basis: 16px;
-    height: 32px;
-    background-color: black;
 }
