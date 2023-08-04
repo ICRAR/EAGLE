@@ -14,7 +14,6 @@ require.config({
         "showdown": "./static/externals/showdown.min",
         "bindingHandlers/readonly":"./static/built/bindingHandlers/readonly",
         "bindingHandlers/disabled":"./static/built/bindingHandlers/disabled",
-        "bindingHandlers/graphRenderer":"./static/built/bindingHandlers/graphRenderer",
         "bindingHandlers/eagleTooltip":"./static/built/bindingHandlers/eagleTooltip",
         "bindingHandlers/eagleRightClick":"./static/built/bindingHandlers/eagleRightClick",
         "components":"./static/built/components",
