@@ -77,7 +77,7 @@ export class GraphRenderer {
         // get offset and scale
         const offsetX = eagle.globalOffsetX();
         const offsetY = eagle.globalOffsetY();
-        //const scale   = eagle.globalScale();
+        // const scale   = eagle.globalScale();
         const scale = 1;
 
         // find positions of the nodes

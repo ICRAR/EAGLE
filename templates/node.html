@@ -1,10 +1,13 @@
-<div class="node" data-bind="style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY(), width: $data.width, height: $data.height}, event: {mousedown: function(){GraphRenderer.startDrag($data);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false">
-
-    <div class="rect" data-bind="css: {selected: $root.objectIsSelected($data)}">
-
-        <div class="header" data-bind="style: {backgroundColor: $data.color}">
+<div class="node" data-bind="style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY()}, event: {mousedown: function(){GraphRenderer.startDrag($data);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false,css: {selected: $root.objectIsSelected($data)}">
+    <div class="container">
+        <div class="header">
             <div class="header-name" data-bind="html: $data.name"></div>
         </div>
-
+    
+        <div class="body">
+            <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
+    
+        </div>
     </div>
+   
 </div>
