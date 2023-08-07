@@ -53,6 +53,7 @@ import {RepositoryFile} from './RepositoryFile';
 import {ParameterTable} from "./ParameterTable";
 import {SideWindow} from "./SideWindow";
 import {TutorialSystem} from "./Tutorial";
+import {Colors} from "./Colors";
 
 import * as quickStart from './tutorials/quickStart'
 import * as graphBuilding from './tutorials/graphBuilding'
@@ -87,6 +88,7 @@ $(function(){
     (<any>window).KeyboardShortcut = KeyboardShortcut;
     (<any>window).QuickActions = QuickActions;
     (<any>window).Modals = Modals;
+    (<any>window).Colors = Colors;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);

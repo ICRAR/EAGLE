@@ -56,7 +56,8 @@ require.config({
         "Hierarchy": "./static/built/Hierarchy",
         "RightClick": "./static/built/RightClick",
         "Repositories": "./static/built/Repositories",
-        "ParameterTable": "./static/built/ParameterTable"
+        "ParameterTable": "./static/built/ParameterTable",
+        "Colors": "./static/built/Colors"
     },
     shim: {
         "bootstrap": {
