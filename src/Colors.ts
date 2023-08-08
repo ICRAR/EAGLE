@@ -2,6 +2,9 @@ const colors: { name: string; color: string; }[] = [
     {
         name: 'body',
         color: '#2e3192'
+    },{
+        name: 'graphText',
+        color: 'black'
     }
 ]
 

@@ -2686,7 +2686,7 @@ palette-component input.form-control.selected {
     transition: 0s visibility;
     visibility: visible;
     max-height: 400px;
-    max-width:300px;
+    max-width: 300px;
     overflow: auto;
     text-align: left;
 }

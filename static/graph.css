@@ -56,7 +56,6 @@
 }
 
 .node .header .header-name, .node .body .contents .app-name {
-    color: #2e3192;
     padding: 4px;
     user-select: none;
 }
