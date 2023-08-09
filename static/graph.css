@@ -48,6 +48,18 @@
     transform: translateY(-50%);
 }
 
+.node .body .outputPort{
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    right: -6px;
+    border-radius: 50%;
+    background-color: red;
+
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 .node.selected .body {
     border: 4px solid red;
     background-color: #b4d4ff;

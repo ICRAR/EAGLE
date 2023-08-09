@@ -4,7 +4,6 @@ import {Utils} from '../Utils';
 import {Field} from '../Field';
 import {Node} from '../Node';
 
-console.log('boppin?')
 ko.bindingHandlers.graphRendererPortPosition = {
     init: function(field:Field, allBindings, viewModel, bindingContext : ko.BindingContext) {
         console.log('init',field)
