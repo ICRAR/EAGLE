@@ -8,10 +8,10 @@
             <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
             <!-- ko foreach: $data.getInputPorts() -->
                 <div data-bind="text:console.log('vop',$data)"></div>
-                <div class="inputPort" data-bind="style:{'background-color':Colors.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>
+                <div class="inputPort port" data-bind="style:{'background-color':Colors.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>
             <!-- /ko -->
             <!-- ko foreach: $data.getOutputPorts() -->
-                <div class="outputPort" data-bind="style:{'background-color':Colors.getColor('nodeOutputPort')},graphRendererPortPosition:$data"></div>
+                <div class="outputPort port" data-bind="style:{'background-color':Colors.getColor('nodeOutputPort')},graphRendererPortPosition:$data"></div>
             <!-- /ko -->
         </div>
     </div>

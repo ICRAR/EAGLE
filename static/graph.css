@@ -37,22 +37,17 @@
 }
 
 .node .body .inputPort{
-    width: 15px;
-    height: 15px;
-    position: absolute;
     left: -6px;
-    border-radius: 50%;
-    background-color: red;
-
-    top: 50%;
-    transform: translateY(-50%);
 }
 
 .node .body .outputPort{
+    right: -6px;
+}
+
+.node .body .port{
     width: 15px;
     height: 15px;
     position: absolute;
-    right: -6px;
     border-radius: 50%;
     background-color: red;
 
