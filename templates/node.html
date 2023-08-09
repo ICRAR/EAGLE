@@ -6,7 +6,9 @@
     
         <div class="body" data-bind="style:{'border-color':Colors.getColor('body')}">
             <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
-    
+            <!-- ko foreach: $data.getInputPorts() -->
+                <div class="inputPort"></div>
+            <!-- /ko -->
         </div>
     </div>
    
