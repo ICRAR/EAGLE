@@ -42,7 +42,7 @@
     position: absolute;
     left: -6px;
     border-radius: 50%;
-    background-color: #fbb040;
+    background-color: red;
 
     top: 50%;
     transform: translateY(-50%);

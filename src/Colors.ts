@@ -5,20 +5,27 @@ const colors: { name: string; color: string; }[] = [
     },{
         name: 'graphText',
         color: 'black'
+    },{
+        name: 'nodeInputPort',
+        color: '#2bb673'
+    },{
+        name: 'nodeOutputPort',
+        color: '#fbb040'
     }
 ]
 
 export class Colors {
 
     static getColor = (name:string) : string => {
-        
+        let result = 'red'
         for (var color of colors) {
             if(color.name === name){
-                return color.color
+                result = color.color
             }else{
                 continue
             }
         }
+        return result
     }
 
 }
