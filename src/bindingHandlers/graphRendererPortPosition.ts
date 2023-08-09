@@ -5,10 +5,10 @@ import {Field} from '../Field';
 import {Node} from '../Node';
 
 ko.bindingHandlers.graphRendererPortPosition = {
-    init: function(field:Field, allBindings, viewModel, bindingContext : ko.BindingContext) {
-        console.log('init',field)
+    init: function(element:any, field, allBindings) {
+        console.log('init',field())
     },
-    update: function (field:Field) {
-    console.log('update',field)
+    update: function (element:any, field) {
+    console.log('update',field())
     }
 };

@@ -7,7 +7,6 @@
         <div class="body" data-bind="style:{'border-color':Colors.getColor('body')}">
             <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
             <!-- ko foreach: $data.getInputPorts() -->
-                <div data-bind="text:console.log('vop',$data)"></div>
                 <div class="inputPort port" data-bind="style:{'background-color':Colors.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>
             <!-- /ko -->
             <!-- ko foreach: $data.getOutputPorts() -->
