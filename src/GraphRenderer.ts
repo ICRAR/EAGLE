@@ -31,6 +31,18 @@ import * as ko from "knockout";
 ko.bindingHandlers.graphRendererPortPosition = {
     init: function(element:any, field, allBindings) {
         console.log('init',field())
+        const eagle : Eagle = Eagle.getInstance();
+        let numPorts = 0
+        const parentNode = eagle.logicalGraph().findNodeByKey(field().getNodeKey())
+        if(field().isInputPort()){
+            numPorts = parentNode.getInputPorts().length
+
+        }
+
+
+        //find hypotenuse fctn: Math.sqrt(a**2+b**2)
+        //find angle between nodes Math.asin(opposite / hypotenuse) * 180/Math.PI
+
     },
     update: function (element:any, field) {
     console.log('update',field())
