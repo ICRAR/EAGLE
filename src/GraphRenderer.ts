@@ -26,6 +26,17 @@ import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
 import {Edge} from './Edge';
+import * as ko from "knockout";
+
+ko.bindingHandlers.graphRendererPortPosition = {
+    init: function(element:any, field, allBindings) {
+        console.log('init',field())
+    },
+    update: function (element:any, field) {
+    console.log('update',field())
+    }
+};
+
 
 export class GraphRenderer {
 
