@@ -33,6 +33,7 @@ import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Setting} from './Setting';
 import {Daliuge} from './Daliuge';
+import { GraphRenderer } from "./GraphRenderer";
 
 export class Node {
     private _id : ko.Observable<string>;
@@ -412,6 +413,21 @@ export class Node {
         }
 
         return result;
+    }
+
+    getPorts = () : Field[] => {
+        const results: Field[] = this.getInputPorts()
+        this.getOutputPorts().forEach(function(outputPort){
+            for (const result of results){
+                if(result.getId() === outputPort.getId()){
+                    continue
+                }else{
+                    results.push(outputPort)
+                }
+            }
+        })
+
+        return results;
     }
 
     getInputApplicationInputPorts = () : Field[] => {
@@ -1981,127 +1997,6 @@ export class Node {
 
         return result;
     }
-
-    /*
-    // display/visualisation data
-    static toV3NodeJson = (node : Node, index : number) : object => {
-        const result : any = {};
-
-        result.categoryType = node.categoryType();
-        result.componentKey = index.toString();
-
-        result.color = node.color();
-        result.drawOrderHint = node.drawOrderHint();
-
-        result.x = node.x();
-        result.y = node.y();
-        result.width = node.width();
-        result.height = node.height();
-        result.collapsed = node.collapsed();
-        result.flipPorts = node.flipPorts();
-
-        result.expanded = node.expanded();
-
-        result.repositoryUrl = node.repositoryUrl();
-        result.commitHash = node.commitHash();
-        result.paletteDownloadUrl = node.paletteDownloadUrl();
-        result.dataHash = node.dataHash();
-
-        return result;
-    }
-
-    static fromV3NodeJson = (nodeData : any, key: string, errorsWarnings: Errors.ErrorsWarnings) : Node => {
-        const result = new Node(parseInt(key, 10), "", "", Category.Unknown);
-
-        result.categoryType(nodeData.categoryType);
-        result.color(nodeData.color);
-        result.drawOrderHint(nodeData.drawOrderHint);
-
-        result.x(nodeData.x);
-        result.y(nodeData.y);
-        result.width(nodeData.width);
-        result.height(nodeData.height);
-        result.collapsed(nodeData.collapsed);
-        result.flipPorts(nodeData.flipPorts);
-
-        result.expanded(nodeData.expanded);
-
-        result.repositoryUrl(nodeData.repositoryUrl);
-        result.commitHash(nodeData.commitHash);
-        result.paletteDownloadUrl(nodeData.paletteDownloadUrl);
-        result.dataHash(nodeData.dataHash);
-
-        return result;
-    }
-    */
-
-    // graph data
-    // "name" and "description" are considered part of the structure of the graph, it would be hard to add them to the display part (parameters would have to be treated the same way)
-    /*
-    static toV3ComponentJson = (node : Node) : object => {
-        const result : any = {};
-        const useNewCategories : boolean = Setting.findValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
-
-        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
-
-        result.name = node.name();
-        result.description = node.description();
-
-        result.streaming = node.streaming();
-        result.precious = node.precious();
-        result.subject = node.subject(); // TODO: not sure if this should be here or in Node JSON
-
-
-        result.parentKey = node.parentKey();
-        result.embedKey = node.embedKey();
-
-        result.inputApplicationKey = -1;
-        result.outputApplicationKey = -1;
-
-        // add input ports
-        result.inputPorts = {};
-        for (const inputPort of node.getInputPorts()){
-            result.inputPorts[inputPort.getId()] = Port.toV3Json(inputPort);
-        }
-
-        // add output ports
-        result.outputPorts = {};
-        for (const outputPort of node.getOutputPorts()){
-            result.outputPorts[outputPort.getId()] = Port.toV3Json(outputPort);
-        }
-
-        // add component parameters
-        result.componentParameters = {};
-        for (let i = 0 ; i < node.fields().length ; i++){
-            const field = node.fields()[i];
-            result.componentParameters[i] = Field.toV3Json(field);
-        }
-
-        // add Application Arguments
-        result.applicationParameters = {};
-        for (let i = 0 ; i < node.applicationArgs().length ; i++){
-            const field = node.applicationArgs()[i];
-            result.applicationParameters[i] = Field.toV3Json(field);
-        }
-
-        return result;
-    }
-    */
-
-    /*
-    static fromV3ComponentJson = (nodeData: any, node: Node, errors: Eagle.ErrorsWarnings): void => {
-        node.category(nodeData.category);
-        node.name(nodeData.name);
-        node.description(nodeData.description);
-
-        node.streaming(nodeData.streaming);
-        node.precious(nodeData.precious);
-        node.subject(nodeData.subject);
-
-        node.parentKey(nodeData.parentKey);
-        node.embedKey(nodeData.embedKey);
-    }
-    */
 
     static createEmbeddedApplicationNode = (key: number, name : string, category: Category, description: string, embedKey: number) : Node => {
         console.assert(CategoryData.getCategoryData(category).categoryType === Category.Type.Application);

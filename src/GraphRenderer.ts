@@ -26,11 +26,31 @@ import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
 import {Node} from './Node';
 import {Edge} from './Edge';
+import {Field} from './Field';
 import * as ko from "knockout";
+
+ko.bindingHandlers.nodeRenderHandler = {
+    init: function(element:any, node, allBindings) {
+        // node().calculatePortAngle()
+
+    },
+    update: function (element:any, node) {
+        const eagle : Eagle = Eagle.getInstance();
+        const selectedNodePos = node().getPosition()
+        let fields:Field[]
+
+        fields = node().getPorts()
+        console.log('op',fields)
+        fields.forEach(function(field){
+            const adjacentNodePos = eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()).getPosition()
+            //not correct, need to check if the node appears in on an edge, if so then check the port on the other side
+            GraphRenderer.calculateConnectionAngle(selectedNodePos,adjacentNodePos)
+        })
+    },
+};
 
 ko.bindingHandlers.graphRendererPortPosition = {
     init: function(element:any, field, allBindings) {
-        console.log('init',field())
         const eagle : Eagle = Eagle.getInstance();
         let numPorts = 0
         const parentNode = eagle.logicalGraph().findNodeByKey(field().getNodeKey())
@@ -45,10 +65,9 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
     },
     update: function (element:any, field) {
-    console.log('update',field())
+        // console.log('-----',field().getName())
     }
 };
-
 
 export class GraphRenderer {
 
@@ -72,6 +91,12 @@ export class GraphRenderer {
                     return 0;
             }
         }
+    }
+
+    
+    static calculateConnectionAngle(selectedNodePos:any, linkedNodePos:any) : void {
+        console.log(selectedNodePos,linkedNodePos)
+        
     }
 
     static createBezier(x1: number, y1: number, x2: number, y2: number, startDirection: Eagle.Direction, endDirection: Eagle.Direction) : string {
