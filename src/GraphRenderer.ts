@@ -35,19 +35,27 @@ ko.bindingHandlers.nodeRenderHandler = {
 
     },
     update: function (element:any, node) {
+        //the update function is called initially and then whenever a change to a utilised observable occurs
         const eagle : Eagle = Eagle.getInstance();
         const selectedNodePos = node().getPosition()
         const fields:Field[] =node().getPorts()
         const edges = eagle.logicalGraph().getEdges()
         let srcNode :Node;
 
+        let connectedFields : Field[];
+        let disconnectedFields : Field[];
+
         fields.forEach(function(field){
             //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
             for(const edge of edges){
                 if(field.getId()===edge.getDestPortId()){
                     srcNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
+                    connectedFields.push(field)
                 }else if(field.getId()===edge.getSrcPortId()){
                     srcNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
+                    connectedFields.push(field)
+                }else{
+                    disconnectedFields.push(field)
                 }
             }
 
@@ -73,6 +81,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
     },
     update: function (element:any, field) {
+        //the update function is called initially and then whenever a change to a utilised observable occurs
+
         // console.log('-----',field().getName())
     }
 };
