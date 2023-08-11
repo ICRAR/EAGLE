@@ -37,13 +37,21 @@ ko.bindingHandlers.nodeRenderHandler = {
     update: function (element:any, node) {
         const eagle : Eagle = Eagle.getInstance();
         const selectedNodePos = node().getPosition()
-        let fields:Field[]
+        const fields:Field[] =node().getPorts()
+        const edges = eagle.logicalGraph().getEdges()
+        let srcNode :Node;
 
-        fields = node().getPorts()
-        console.log('op',fields)
         fields.forEach(function(field){
-            const adjacentNodePos = eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()).getPosition()
-            //not correct, need to check if the node appears in on an edge, if so then check the port on the other side
+            //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
+            for(const edge of edges){
+                if(field.getId()===edge.getDestPortId()){
+                    srcNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
+                }else if(field.getId()===edge.getSrcPortId()){
+                    srcNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
+                }
+            }
+
+            const adjacentNodePos = srcNode.getPosition()
             GraphRenderer.calculateConnectionAngle(selectedNodePos,adjacentNodePos)
         })
     },
