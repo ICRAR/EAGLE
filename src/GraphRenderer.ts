@@ -31,49 +31,9 @@ import * as ko from "knockout";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, node, allBindings) {
-        // node().calculatePortAngle()
 
     },
     update: function (element:any, node) {
-        
-        // const eagle : Eagle = Eagle.getInstance();
-
-        // const currentNodePos = node().getPosition()
-        // const fields:Field[] =node().getPorts()
-        // const edges = eagle.logicalGraph().getEdges()
-        // let adjacentNode :Node;
-        // let connectedFields : Field[]=[];
-        // let disconnectedFields : Field[]=[];
-
-        // fields.forEach(function(field){
-
-        //     //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
-        //     for(const edge of edges){
-        //         if(field.getId()===edge.getDestPortId()){
-        //             adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
-        //             connectedFields.push(field)
-        //         }else if(field.getId()===edge.getSrcPortId()){
-        //             adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
-        //             connectedFields.push(field)
-        //         }else{
-        //             disconnectedFields.push(field)
-        //         }
-        //     }
-
-
-        // })
-
-        // connectedFields.forEach(function(field){
-        //     let edgeAngle
-
-        //     const adjacentNodePos = adjacentNode.getPosition()
-        //     edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
-
-        //     console.log(field.getDisplayText(),edgeAngle)
-
-        //     GraphRenderer.calculatePortPos(edgeAngle,80,element)
-        // })
-
 
     },
 };
@@ -88,16 +48,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         }
 
-
-        //find hypotenuse fctn: d
-        //find angle between nodes Math.asin(opposite / hypotenuse) * 180/Math.PI
-
     },
     update: function (element:any, field) {
         //the update function is called initially and then whenever a change to a utilised observable occurs
-
-        // console.log('-----',field().getName())
-        //the update function is called initially and then whenever a change to a utilised observable occurs
+        
         const eagle : Eagle = Eagle.getInstance();
         const node = eagle.logicalGraph().findNodeByKeyQuiet(field().getNodeKey())
 
@@ -124,7 +78,11 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
             GraphRenderer.calculatePortPos(edgeAngle,40,element)
         }else{
-            GraphRenderer.calculatePortPos(0,40,element)
+            if(field().isInputPort()){
+                GraphRenderer.calculatePortPos(3.14159,40,element)
+            }else{
+                GraphRenderer.calculatePortPos(0,40,element)
+            }
         }
 
 
@@ -198,6 +156,7 @@ export class GraphRenderer {
         const scale = 1;
 
         // find positions of the nodes
+        //need to offset using the port calculation
         const srcX = (srcNode.getPosition().x  + offsetX) * scale;
         const srcY = (srcNode.getPosition().y + offsetY) * scale;
         const destX = (destNode.getPosition().x + offsetX) * scale;
