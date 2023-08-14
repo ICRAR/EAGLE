@@ -41,9 +41,8 @@ ko.bindingHandlers.nodeRenderHandler = {
         const fields:Field[] =node().getPorts()
         const edges = eagle.logicalGraph().getEdges()
         let srcNode :Node;
-
-        let connectedFields : Field[];
-        let disconnectedFields : Field[];
+        let connectedFields : Field[]=[];
+        let disconnectedFields : Field[]=[];
 
         fields.forEach(function(field){
             //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
