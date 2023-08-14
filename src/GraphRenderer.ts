@@ -198,10 +198,10 @@ export class GraphRenderer {
         const scale = 1;
 
         // find positions of the nodes
-        const srcX = (srcNode.getPosition().x + srcNode.getDisplayWidth() + offsetX) * scale;
+        const srcX = (srcNode.getPosition().x  + offsetX) * scale;
         const srcY = (srcNode.getPosition().y + offsetY) * scale;
         const destX = (destNode.getPosition().x + offsetX) * scale;
-        const destY = (destNode.getPosition().y + destNode.getDisplayHeight() + offsetY) * scale;
+        const destY = (destNode.getPosition().y  + offsetY) * scale;
 
         //return "M234,159.5C280,159.5,280,41.5,330,41.5";
         return GraphRenderer.createBezier(srcX, srcY, destX, destY, Eagle.Direction.Right, Eagle.Direction.Right);
