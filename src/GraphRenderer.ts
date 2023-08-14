@@ -37,10 +37,10 @@ ko.bindingHandlers.nodeRenderHandler = {
     update: function (element:any, node) {
         //the update function is called initially and then whenever a change to a utilised observable occurs
         const eagle : Eagle = Eagle.getInstance();
-        const selectedNodePos = node().getPosition()
+        const currentNodePos = node().getPosition()
         const fields:Field[] =node().getPorts()
         const edges = eagle.logicalGraph().getEdges()
-        let srcNode :Node;
+        let adjacentNode :Node;
         let connectedFields : Field[]=[];
         let disconnectedFields : Field[]=[];
 
@@ -48,18 +48,18 @@ ko.bindingHandlers.nodeRenderHandler = {
             //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
             for(const edge of edges){
                 if(field.getId()===edge.getDestPortId()){
-                    srcNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
+                    adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
                     connectedFields.push(field)
                 }else if(field.getId()===edge.getSrcPortId()){
-                    srcNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
+                    adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
                     connectedFields.push(field)
                 }else{
                     disconnectedFields.push(field)
                 }
             }
 
-            const adjacentNodePos = srcNode.getPosition()
-            GraphRenderer.calculateConnectionAngle(selectedNodePos,adjacentNodePos)
+            const adjacentNodePos = adjacentNode.getPosition()
+            GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
         })
     },
 };
@@ -75,7 +75,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
 
 
-        //find hypotenuse fctn: Math.sqrt(a**2+b**2)
+        //find hypotenuse fctn: d
         //find angle between nodes Math.asin(opposite / hypotenuse) * 180/Math.PI
 
     },
@@ -111,8 +111,16 @@ export class GraphRenderer {
     }
 
     
-    static calculateConnectionAngle(selectedNodePos:any, linkedNodePos:any) : void {
-        console.log(selectedNodePos,linkedNodePos)
+    static calculateConnectionAngle(currentNodePos:any, linkedNodePos:any) : void {
+        const xDistance = Math.abs(currentNodePos.x-linkedNodePos.x)
+        const yDistance = Math.abs(currentNodePos.y-linkedNodePos.y)
+        const hypotenuse = Math.sqrt(xDistance**2+yDistance**2)
+        let angle 
+        if(currentNodePos.y<linkedNodePos.y){
+            angle = Math.asin(yDistance / hypotenuse) * 180/Math.PI
+        }else{
+            angle = Math.asin(xDistance / hypotenuse) * 180/Math.PI
+        }
         
     }
 
@@ -175,10 +183,10 @@ export class GraphRenderer {
     static mouseWheel = (eagle: Eagle, event: JQueryEventObject) : void => {
         const wheelEvent: WheelEvent = <WheelEvent>event.originalEvent;
 
-        console.log("mouseWheel wheelEvent", wheelEvent, wheelEvent.deltaY);
+        // console.log("mouseWheel wheelEvent", wheelEvent, wheelEvent.deltaY);
 
         eagle.globalScale(eagle.globalScale() + wheelEvent.deltaY/1000);
-        console.log("globalScale", eagle.globalScale());
+        // console.log("globalScale", eagle.globalScale());
 
     }
 
