@@ -35,32 +35,46 @@ ko.bindingHandlers.nodeRenderHandler = {
 
     },
     update: function (element:any, node) {
-        //the update function is called initially and then whenever a change to a utilised observable occurs
-        const eagle : Eagle = Eagle.getInstance();
-        const currentNodePos = node().getPosition()
-        const fields:Field[] =node().getPorts()
-        const edges = eagle.logicalGraph().getEdges()
-        let adjacentNode :Node;
-        let connectedFields : Field[]=[];
-        let disconnectedFields : Field[]=[];
+        
+        // const eagle : Eagle = Eagle.getInstance();
 
-        fields.forEach(function(field){
-            //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
-            for(const edge of edges){
-                if(field.getId()===edge.getDestPortId()){
-                    adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
-                    connectedFields.push(field)
-                }else if(field.getId()===edge.getSrcPortId()){
-                    adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
-                    connectedFields.push(field)
-                }else{
-                    disconnectedFields.push(field)
-                }
-            }
+        // const currentNodePos = node().getPosition()
+        // const fields:Field[] =node().getPorts()
+        // const edges = eagle.logicalGraph().getEdges()
+        // let adjacentNode :Node;
+        // let connectedFields : Field[]=[];
+        // let disconnectedFields : Field[]=[];
 
-            const adjacentNodePos = adjacentNode.getPosition()
-            GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
-        })
+        // fields.forEach(function(field){
+
+        //     //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
+        //     for(const edge of edges){
+        //         if(field.getId()===edge.getDestPortId()){
+        //             adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
+        //             connectedFields.push(field)
+        //         }else if(field.getId()===edge.getSrcPortId()){
+        //             adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
+        //             connectedFields.push(field)
+        //         }else{
+        //             disconnectedFields.push(field)
+        //         }
+        //     }
+
+
+        // })
+
+        // connectedFields.forEach(function(field){
+        //     let edgeAngle
+
+        //     const adjacentNodePos = adjacentNode.getPosition()
+        //     edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
+
+        //     console.log(field.getDisplayText(),edgeAngle)
+
+        //     GraphRenderer.calculatePortPos(edgeAngle,80,element)
+        // })
+
+
     },
 };
 
@@ -83,6 +97,37 @@ ko.bindingHandlers.graphRendererPortPosition = {
         //the update function is called initially and then whenever a change to a utilised observable occurs
 
         // console.log('-----',field().getName())
+        //the update function is called initially and then whenever a change to a utilised observable occurs
+        const eagle : Eagle = Eagle.getInstance();
+        const node = eagle.logicalGraph().findNodeByKeyQuiet(field().getNodeKey())
+
+        const currentNodePos = node.getPosition()
+        const edges = eagle.logicalGraph().getEdges()
+        let adjacentNode :Node;
+        let connectedField:boolean=false;
+
+
+        //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
+        for(const edge of edges){
+            if(field().getId()===edge.getDestPortId()){
+                adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
+                connectedField=true
+            }else if(field().getId()===edge.getSrcPortId()){
+                adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
+                connectedField=true
+            }
+        }
+
+        if(connectedField){
+            const adjacentNodePos = adjacentNode.getPosition()
+            const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
+
+            GraphRenderer.calculatePortPos(edgeAngle,40,element)
+        }else{
+            GraphRenderer.calculatePortPos(0,40,element)
+        }
+
+
     }
 };
 
@@ -109,19 +154,18 @@ export class GraphRenderer {
             }
         }
     }
-
     
-    static calculateConnectionAngle(currentNodePos:any, linkedNodePos:any) : void {
-        const xDistance = Math.abs(currentNodePos.x-linkedNodePos.x)
-        const yDistance = Math.abs(currentNodePos.y-linkedNodePos.y)
-        const hypotenuse = Math.sqrt(xDistance**2+yDistance**2)
-        let angle 
-        if(currentNodePos.y<linkedNodePos.y){
-            angle = Math.asin(yDistance / hypotenuse) * 180/Math.PI
-        }else{
-            angle = Math.asin(xDistance / hypotenuse) * 180/Math.PI
-        }
-        
+    static calculateConnectionAngle(currentNodePos:any, linkedNodePos:any) : number {
+        const xDistance = linkedNodePos.x-currentNodePos.x
+        const yDistance = currentNodePos.y-linkedNodePos.y
+        const angle = Math.atan2(yDistance, xDistance)
+        return angle
+    }
+    
+    static calculatePortPos(angle:any, radius:any, element:any) : void {
+        const newX = radius+(radius*Math.cos(angle))
+        const newY = radius-(radius*Math.sin(angle))
+        $(element).css({'top':newY+'px','left':newX+'px'})
     }
 
     static createBezier(x1: number, y1: number, x2: number, y2: number, startDirection: Eagle.Direction, endDirection: Eagle.Direction) : string {
