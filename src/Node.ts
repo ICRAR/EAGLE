@@ -510,6 +510,16 @@ export class Node {
         return null;
     }
 
+    getFieldById = (id : string) : Field | null => {
+        for (const field of this.fields()){
+            if (field.getId() === id){
+                return field;
+            }
+        }
+
+        return null;
+    }
+
     hasFieldWithDisplayText = (displayText : string) : boolean => {
         for (const field of this.fields()){
             if (field.getDisplayText() === displayText){

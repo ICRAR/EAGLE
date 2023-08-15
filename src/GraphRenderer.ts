@@ -40,14 +40,7 @@ ko.bindingHandlers.nodeRenderHandler = {
 
 ko.bindingHandlers.graphRendererPortPosition = {
     init: function(element:any, field, allBindings) {
-        const eagle : Eagle = Eagle.getInstance();
-        let numPorts = 0
-        const parentNode = eagle.logicalGraph().findNodeByKey(field().getNodeKey())
-        if(field().isInputPort()){
-            numPorts = parentNode.getInputPorts().length
-
-        }
-
+       
     },
     update: function (element:any, field) {
         //the update function is called initially and then whenever a change to a utilised observable occurs
@@ -59,6 +52,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         const edges = eagle.logicalGraph().getEdges()
         let adjacentNode :Node;
         let connectedField:boolean=false;
+        let PortPosition
 
         //clearing the saved port angles array
         node.resetPortAngles()
@@ -79,15 +73,16 @@ ko.bindingHandlers.graphRendererPortPosition = {
             const adjacentNodePos = adjacentNode.getPosition()
             const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
             node.addPortAngle(edgeAngle)
-            GraphRenderer.calculatePortPos(edgeAngle,30,element)
+            PortPosition=GraphRenderer.calculatePortPos(edgeAngle,30)
         }else{
             if(field().isInputPort()){
-                GraphRenderer.calculatePortPos(3.14159,30,element)
+                PortPosition=GraphRenderer.calculatePortPos(3.14159,30)
             }else{
-                GraphRenderer.calculatePortPos(0,30,element)
+                PortPosition=GraphRenderer.calculatePortPos(0,30)
             }
         }
 
+        $(element).css({'top':PortPosition[1]+'px','left':PortPosition[0]+'px'})
 
     }
 };
@@ -123,10 +118,11 @@ export class GraphRenderer {
         return angle
     }
     
-    static calculatePortPos(angle:any, radius:any, element:any) : void {
+    static calculatePortPos(angle:any, radius:any) : any {
         const newX = radius+(radius*Math.cos(angle))
         const newY = radius-(radius*Math.sin(angle))
-        $(element).css({'top':newY+'px','left':newX+'px'})
+        const result = [newX,newY]
+        return result
     }
 
     static createBezier(x1: number, y1: number, x2: number, y2: number, startDirection: Eagle.Direction, endDirection: Eagle.Direction) : string {
@@ -144,6 +140,9 @@ export class GraphRenderer {
         let srcNode : Node  = lg.findNodeByKey(edge.getSrcNodeKey());
         let destNode : Node = lg.findNodeByKey(edge.getDestNodeKey());
 
+        let srcPort :Field = srcNode.getFieldById(edge.getSrcPortId())
+        let destPort :Field = destNode.getFieldById(edge.getDestPortId())
+
         // if the src or dest nodes are embedded nodes, use the position of the construct instead
         if (srcNode.isEmbedded()){
             srcNode = lg.findNodeByKey(srcNode.getEmbedKey());
@@ -155,15 +154,22 @@ export class GraphRenderer {
         // get offset and scale
         const offsetX = eagle.globalOffsetX();
         const offsetY = eagle.globalOffsetY();
-        // const scale   = eagle.globalScale();
-        const scale = 1;
+
+        const currentNodePos = srcNode.getPosition()
+        const adjacentNodePos = destNode.getPosition()
+
+        const srcEdgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
+        const srcPortPos = GraphRenderer.calculatePortPos(srcEdgeAngle,30)
+
+        const destEdgeAngle = GraphRenderer.calculateConnectionAngle(adjacentNodePos,currentNodePos)
+        const destPortPos = GraphRenderer.calculatePortPos(destEdgeAngle,30)
 
         // find positions of the nodes
         //need to offset using the port calculation
-        const srcX = (srcNode.getPosition().x  + offsetX) * scale;
-        const srcY = (srcNode.getPosition().y + offsetY) * scale;
-        const destX = (destNode.getPosition().x + offsetX) * scale;
-        const destY = (destNode.getPosition().y  + offsetY) * scale;
+        const srcX = (srcNode.getPosition().x+srcPortPos[0]-30  + offsetX);
+        const srcY = (srcNode.getPosition().y+srcPortPos[1]-30 + offsetY);
+        const destX = (destNode.getPosition().x+destPortPos[0]-30 + offsetX);
+        const destY = (destNode.getPosition().y+destPortPos[1]-30  + offsetY);
 
         //return "M234,159.5C280,159.5,280,41.5,330,41.5";
         return GraphRenderer.createBezier(srcX, srcY, destX, destY, Eagle.Direction.Right, Eagle.Direction.Right);
