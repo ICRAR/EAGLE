@@ -68,7 +68,7 @@
     overflow: hidden;
     text-align: center;
     flex-grow: 1;    
-    top: -35px;
+    top: -37px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -76,4 +76,5 @@
 .node .header .header-name, .node .body .contents .app-name {
     padding: 4px;
     user-select: none;
+    line-height: 14px;
 }

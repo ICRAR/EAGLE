@@ -195,12 +195,8 @@ export class GraphRenderer {
     static mouseWheel = (eagle: Eagle, event: JQueryEventObject) : void => {
         const wheelEvent: WheelEvent = <WheelEvent>event.originalEvent;
 
-        // console.log("mouseWheel wheelEvent", wheelEvent, wheelEvent.deltaY);
-
         eagle.globalScale(eagle.globalScale() - wheelEvent.deltaY/1000);
         $('#logicalGraphD3Div').css('transform','scale('+eagle.globalScale()+')')
-        // console.log("globalScale", eagle.globalScale());
-
     }
 
     static startDrag = (node: Node) : void => {
