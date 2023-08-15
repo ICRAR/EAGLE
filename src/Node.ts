@@ -77,6 +77,8 @@ export class Node {
     private paletteDownloadUrl : ko.Observable<string>;
     private dataHash : ko.Observable<string>;
 
+    private portAngles : number[]
+
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 72;
     public static readonly MINIMUM_WIDTH : number = 200;
@@ -114,6 +116,8 @@ export class Node {
         this.name = ko.observable(name);
         this.description = ko.observable(description);
         
+        this.portAngles = []
+
         // display position
         this.realX = 0;
         this.realY = 0;
@@ -146,6 +150,7 @@ export class Node {
         this.commitHash = ko.observable("");
         this.paletteDownloadUrl = ko.observable("");
         this.dataHash = ko.observable("");
+
     }
 
     getId = () : string => {
@@ -222,6 +227,18 @@ export class Node {
 
     getRealPosition = () : {x:number, y:number} => {
         return {x: this.realX, y: this.realY};
+    }
+
+    getPortAngles = () : number[] => {
+        return this.portAngles
+    }
+
+    addPortAngle = (angle:number) : void => {
+        this.portAngles.push(angle)
+    }
+
+    resetPortAngles = () :void => {
+        this.portAngles = []
     }
 
     setPosition = (x: number, y: number, allowSnap: boolean = true) : void => {

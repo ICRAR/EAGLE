@@ -60,6 +60,9 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let adjacentNode :Node;
         let connectedField:boolean=false;
 
+        //clearing the saved port angles array
+        node.resetPortAngles()
+
 
         //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
         for(const edge of edges){
@@ -75,13 +78,13 @@ ko.bindingHandlers.graphRendererPortPosition = {
         if(connectedField){
             const adjacentNodePos = adjacentNode.getPosition()
             const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
-
-            GraphRenderer.calculatePortPos(edgeAngle,40,element)
+            node.addPortAngle(edgeAngle)
+            GraphRenderer.calculatePortPos(edgeAngle,30,element)
         }else{
             if(field().isInputPort()){
-                GraphRenderer.calculatePortPos(3.14159,40,element)
+                GraphRenderer.calculatePortPos(3.14159,30,element)
             }else{
-                GraphRenderer.calculatePortPos(0,40,element)
+                GraphRenderer.calculatePortPos(0,30,element)
             }
         }
 
