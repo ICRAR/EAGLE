@@ -31,7 +31,7 @@ import * as ko from "knockout";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, node, allBindings) {
-
+        $(element).css({'height':GraphRenderer.normalNodeRadius+'px','width':GraphRenderer.normalNodeRadius+'px'})
     },
     update: function (element:any, node) {
 
@@ -73,12 +73,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
             const adjacentNodePos = adjacentNode.getPosition()
             const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
             node.addPortAngle(edgeAngle)
-            PortPosition=GraphRenderer.calculatePortPos(edgeAngle,30)
+            PortPosition=GraphRenderer.calculatePortPos(edgeAngle,GraphRenderer.normalNodeRadius/2)
         }else{
             if(field().isInputPort()){
-                PortPosition=GraphRenderer.calculatePortPos(3.14159,30)
+                PortPosition=GraphRenderer.calculatePortPos(3.14159,GraphRenderer.normalNodeRadius/2)
             }else{
-                PortPosition=GraphRenderer.calculatePortPos(0,30)
+                PortPosition=GraphRenderer.calculatePortPos(0,GraphRenderer.normalNodeRadius/2)
             }
         }
 
@@ -88,6 +88,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
 };
 
 export class GraphRenderer {
+    static normalNodeRadius = 50
 
     static directionOffset(x: boolean, direction: Eagle.Direction){
         if (x){
@@ -122,6 +123,20 @@ export class GraphRenderer {
         const newX = radius+(radius*Math.cos(angle))
         const newY = radius-(radius*Math.sin(angle))
         const result = [newX,newY]
+        return result
+    }
+    
+    static getCurveDirection(angle:any) : any {
+        let result 
+        if(angle > Math.PI/4 && angle < 3*Math.PI/4){
+            result = Eagle.Direction.Up
+        }else if(angle < -Math.PI/4 && angle > -3*Math.PI/4){
+            result = Eagle.Direction.Down
+        }else if(angle > -Math.PI/4 && angle < Math.PI/4){
+            result = Eagle.Direction.Right
+        }else{
+            result = Eagle.Direction.Left
+        }
         return result
     }
 
@@ -159,20 +174,22 @@ export class GraphRenderer {
         const adjacentNodePos = destNode.getPosition()
 
         const srcEdgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
-        const srcPortPos = GraphRenderer.calculatePortPos(srcEdgeAngle,30)
+        const srcPortPos = GraphRenderer.calculatePortPos(srcEdgeAngle,GraphRenderer.normalNodeRadius/2)
 
         const destEdgeAngle = GraphRenderer.calculateConnectionAngle(adjacentNodePos,currentNodePos)
-        const destPortPos = GraphRenderer.calculatePortPos(destEdgeAngle,30)
+        const destPortPos = GraphRenderer.calculatePortPos(destEdgeAngle,GraphRenderer.normalNodeRadius/2)
+        const bezierDirection = GraphRenderer.getCurveDirection(srcEdgeAngle)
 
         // find positions of the nodes
         //need to offset using the port calculation
-        const srcX = (srcNode.getPosition().x+srcPortPos[0]-30  + offsetX);
-        const srcY = (srcNode.getPosition().y+srcPortPos[1]-30 + offsetY);
-        const destX = (destNode.getPosition().x+destPortPos[0]-30 + offsetX);
-        const destY = (destNode.getPosition().y+destPortPos[1]-30  + offsetY);
+        const srcX = (srcNode.getPosition().x+srcPortPos[0]-GraphRenderer.normalNodeRadius/2  + offsetX);
+        const srcY = (srcNode.getPosition().y+srcPortPos[1]-GraphRenderer.normalNodeRadius/2 + offsetY);
+        // const srcDirection
+        const destX = (destNode.getPosition().x+destPortPos[0]-GraphRenderer.normalNodeRadius/2 + offsetX);
+        const destY = (destNode.getPosition().y+destPortPos[1]-GraphRenderer.normalNodeRadius/2  + offsetY);
 
         //return "M234,159.5C280,159.5,280,41.5,330,41.5";
-        return GraphRenderer.createBezier(srcX, srcY, destX, destY, Eagle.Direction.Right, Eagle.Direction.Right);
+        return GraphRenderer.createBezier(srcX, srcY, destX, destY, bezierDirection, bezierDirection);
     }
 
     static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
