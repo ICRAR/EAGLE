@@ -30,7 +30,7 @@
 }
 
 .node .body span::before{
-    font-size: .4em; /* em is like using % for font sizes. it is a % relative to the font-size of the parent, in this case the span itself */
+    font-size: .35em; /* em is like using % for font sizes. it is a % relative to the font-size of the parent, in this case the span itself */
     top: 50%;
     left: 50%;
     position: absolute;
