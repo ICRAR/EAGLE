@@ -16,6 +16,9 @@ export class Field {
     private positional : ko.Observable<boolean>;
     private keyAttribute : ko.Observable<boolean>;
 
+    private x : number;
+    private y : number;
+
     // port-specific attributes
     private id : ko.Observable<string>;
     private parameterType : ko.Observable<Daliuge.FieldType>;
@@ -89,6 +92,15 @@ export class Field {
     getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
         return this.description() == "" ? "No description available" + " (" + this.type() + ", default value:'" + this.defaultValue() + "')" : this.description() + " (" + this.type() + ", default value:'" + this.defaultValue() + "')";
     }, this);
+
+    getPosition = () : {x:number, y:number} => {
+        return {x: this.x, y: this.y};
+    }
+
+    setPosition = (x: number, y: number) : void => {
+        this.x = x;
+        this.y = y;
+    }
 
     isReadonly = () : boolean => {
         return this.readonly();

@@ -71,6 +71,7 @@
     top: -37px;
     left: 50%;
     transform: translateX(-50%);
+    width: 150px;
 }
 
 .node .header .header-name, .node .body .contents .app-name {

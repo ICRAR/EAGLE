@@ -2143,23 +2143,4 @@ export class Utils {
         Utils.httpGet(fileName, callback);
     }
 
-    static edgeDirectionAngle(angle: number): number {
-        const PiOver2: number = Math.PI / 2;
-        const PiOver4: number = Math.PI / 4;
-
-        // find the nearest compass angle
-        const nearestCompassAngle = PiOver2 * Math.round(angle / PiOver2);
-
-        // find the difference between the given angle and the nearest compass angle
-        const diffAngle = Math.abs(angle - nearestCompassAngle);
-
-        // the maximum difference will be PI/4, so get the turn the difference into a ratio between 0 and 1.
-        const diffRatio = diffAngle / PiOver4;
-
-        // now interpolate between the original angle, and the nearest compass angle, using the ratio calculated above
-        // this "weights" the interpolation towards the compass directions 
-        const interpolatedAngle = (diffRatio * angle) + ((1-diffRatio) * nearestCompassAngle);
-
-        return interpolatedAngle;
-    }
 }
