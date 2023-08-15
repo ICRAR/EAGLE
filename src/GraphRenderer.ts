@@ -197,7 +197,8 @@ export class GraphRenderer {
 
         // console.log("mouseWheel wheelEvent", wheelEvent, wheelEvent.deltaY);
 
-        eagle.globalScale(eagle.globalScale() + wheelEvent.deltaY/1000);
+        eagle.globalScale(eagle.globalScale() - wheelEvent.deltaY/1000);
+        $('#logicalGraphD3Div').css('transform','scale('+eagle.globalScale()+')')
         // console.log("globalScale", eagle.globalScale());
 
     }
