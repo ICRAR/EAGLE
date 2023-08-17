@@ -245,17 +245,22 @@ export class GraphRenderer {
         $('#logicalGraphD3Div').css('transform','scale('+eagle.globalScale()+')')
     }
 
-    static startDrag = (node: Node) : void => {
+    static startDrag = (node: Node, event: MouseEvent) : void => {
         const eagle = Eagle.getInstance();
 
         //console.log("startDrag", node ? node.getName() : node)
         eagle.isDragging(true);
         eagle.draggingNode(node);
 
-        eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+        // check if shift key is down
+        if (event.shiftKey){
+            eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+        } else {
+            eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+        }
     }
 
-    static endDrag = (node: Node) : void => {
+    static endDrag = (node: Node, event: MouseEvent) : void => {
         const eagle = Eagle.getInstance();
 
         //console.log("endDrag", node ? node.getName() : node)

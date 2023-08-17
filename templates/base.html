@@ -131,9 +131,6 @@
                     </div>
                     <div id="nodeInspectorKOWrapper" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Inspector">
                         <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() === null && selectedObjects().length > 1">
-<<<<<<< HEAD
-                            Select a single node or edge
-=======
                             <div id="inspectorSelectionSummary">
                                 <div class="row" id="multiSelectionHeader">
                                     <div class="col-8">
@@ -168,7 +165,6 @@
                                     <!-- /ko -->
                                 <!-- /ko -->
                             </div>
->>>>>>> master
                         </div>
                         <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() !== null">
                             {% include 'node_inspector.html' %}
