@@ -5,6 +5,16 @@
     transform: translate(-50%,-50%);
 }
 
+.node .basic_node {
+    width: 100%;
+    height: 100%;
+}
+
+.node .branch_node {
+    width: 100%;
+    height: 100%;
+}
+
 .node .container{
     position: relative;
     height: 100%;

@@ -1,0 +1,18 @@
+<div class="basic_node">
+    <div class="container">
+        <div class="header">
+            <div class="header-name" data-bind="html: $data.name,style:{'color':Colors.getColor('graphText')}"></div>
+        </div>
+    
+        <div class="body" data-bind="style:{'border-color':Colors.getColor('body')}">
+            <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
+            <!-- ko foreach: $data.getInputPorts() -->
+                <div class="inputPort port" data-bind="style:{'background-color':Colors.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>
+            <!-- /ko -->
+            <!-- ko foreach: $data.getOutputPorts() -->
+                <div class="outputPort port" data-bind="style:{'background-color':Colors.getColor('nodeOutputPort')},graphRendererPortPosition:$data"></div>
+            <!-- /ko -->
+        </div>
+    </div>
+   
+</div>

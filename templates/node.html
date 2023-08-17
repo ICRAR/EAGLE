@@ -1,18 +1,10 @@
 <div class="node" data-bind="nodeRenderHandler:$data, style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY()}, event: {mousedown: function(){GraphRenderer.startDrag($data);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false,css: {selected: $root.objectIsSelected($data)}">
-    <div class="container">
-        <div class="header">
-            <div class="header-name" data-bind="html: $data.name,style:{'color':Colors.getColor('graphText')}"></div>
-        </div>
-    
-        <div class="body" data-bind="style:{'border-color':Colors.getColor('body')}">
-            <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
-            <!-- ko foreach: $data.getInputPorts() -->
-                <div class="inputPort port" data-bind="style:{'background-color':Colors.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>
-            <!-- /ko -->
-            <!-- ko foreach: $data.getOutputPorts() -->
-                <div class="outputPort port" data-bind="style:{'background-color':Colors.getColor('nodeOutputPort')},graphRendererPortPosition:$data"></div>
-            <!-- /ko -->
-        </div>
-    </div>
-   
+    <!-- ko if:!$data.isConstruct() && !$data.isBranch() -->
+        <div data-bind="text:console.log($data.getName(),'not construct, not branch')"></div>
+        {% include 'basic_node.html' %}
+    <!-- /ko -->
+    <!-- ko if:$data.isBranch() -->
+        <div data-bind="text:console.log($data.getName(),'is branch')"></div>
+        {% include 'branch_node.html' %}
+    <!-- /ko -->
 </div>
