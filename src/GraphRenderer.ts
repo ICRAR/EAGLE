@@ -248,12 +248,12 @@ export class GraphRenderer {
     static startDrag = (node: Node, event: MouseEvent) : void => {
         const eagle = Eagle.getInstance();
 
-        //console.log("startDrag", node ? node.getName() : node)
+        //console.log("startDrag", node ? node.getName() : node, event);
         eagle.isDragging(true);
         eagle.draggingNode(node);
 
-        // check if shift key is down
-        if (event.shiftKey){
+        // check if shift key is down, if so, add selected node to current selection
+        if (node !== null && event.shiftKey){
             eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
         } else {
             eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
