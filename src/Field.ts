@@ -491,26 +491,6 @@ export class Field {
         return result;
     }
 
-    static toV3Json = (field : Field) : object => {
-        const result : any =  {
-            name:field.displayText(),
-            value:Field.stringAsType(field.value(), field.type()),
-            defaultValue:field.defaultValue(),
-            description:field.description(),
-            readonly:field.readonly(),
-            type:field.isEvent() ? "Event" : field.type(),
-            precious:field.precious(),
-            options:field.options(),
-            positional: field.positional(),
-            keyAttribute:field.keyAttribute(),
-            id: field.id(),
-            parameterType: field.parameterType(),
-            usage: field.usage()
-        };
-
-        return result;
-    }
-
     static toOJSJsonPort = (field : Field) : object => {
         return {
             Id:field.id(),

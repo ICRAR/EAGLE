@@ -55,7 +55,6 @@ export class Utils {
     ];
 
     static ojsGraphSchema : object = {};
-    static v3GraphSchema : object = {};
     static appRefGraphSchema : object = {};
 
     /**
@@ -2113,7 +2112,6 @@ export class Utils {
             Utils.ojsGraphSchema = JSON.parse(data);
 
             // NOTE: we don't have a schema for the V3 or appRef versions
-            Utils.v3GraphSchema = JSON.parse(data);
             Utils.appRefGraphSchema = JSON.parse(data);
         });
     }
