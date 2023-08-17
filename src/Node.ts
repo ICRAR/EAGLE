@@ -60,7 +60,6 @@ export class Node {
     private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
 
     private peek : boolean;                        // true if we are temporarily showing the ports based on the users mouse position
-    private flipPorts : ko.Observable<boolean>;
 
     private inputApplication : ko.Observable<Node>;
     private outputApplication : ko.Observable<Node>;
@@ -129,7 +128,6 @@ export class Node {
         this.embedKey = ko.observable(null);
         this.collapsed = ko.observable(true);
         this.peek = false;
-        this.flipPorts = ko.observable(false);
 
         this.inputApplication = ko.observable(null);
         this.outputApplication = ko.observable(null);
@@ -384,18 +382,6 @@ export class Node {
 
     setPeek = (value : boolean) : void => {
         this.peek = value;
-    }
-
-    isFlipPorts = () : boolean => {
-        return this.flipPorts();
-    }
-
-    setFlipPorts = (value : boolean) : void => {
-        this.flipPorts(value);
-    }
-
-    toggleFlipPorts = () : void => {
-        this.flipPorts(!this.flipPorts());
     }
 
     isLocked : ko.PureComputed<boolean> = ko.pureComputed(() => {
@@ -825,7 +811,6 @@ export class Node {
         this.parentKey(null);
         this.embedKey(null);
         this.collapsed(true);
-        this.flipPorts(false);
 
         this.inputApplication(null);
         this.outputApplication(null);
@@ -1214,7 +1199,6 @@ export class Node {
         result.keepExpanded(this.expanded());
 
         result.peek = this.peek;
-        result.flipPorts(this.flipPorts());
 
         // copy input,output and exit applications
         if (this.inputApplication() === null){
@@ -1461,11 +1445,6 @@ export class Node {
         if (!CategoryData.getCategoryData(node.getCategory()).isResizable){
             node.width(Node.DEFAULT_WIDTH);
             node.height(Node.DEFAULT_HEIGHT);
-        }
-
-        // flipPorts
-        if (typeof nodeData.flipPorts !== 'undefined'){
-            node.flipPorts(nodeData.flipPorts);
         }
 
         // expanded
@@ -1959,7 +1938,6 @@ export class Node {
         result.width = node.width();
         result.height = node.height();
         result.collapsed = node.collapsed();
-        result.flipPorts = node.flipPorts();
         result.subject = node.subject();
         result.expanded = node.expanded();
         result.repositoryUrl = node.repositoryUrl();
