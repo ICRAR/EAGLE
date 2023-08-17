@@ -124,6 +124,7 @@ export namespace Daliuge {
             ],
             fields: [
                 new Field("", FieldName.EXECUTION_TIME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.ConstraintParameter, FieldUsage.NoPort, false),
+                new Field("", FieldName.NUM_OF_CPUS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstraintParameter, FieldUsage.NoPort, false),
             ]
         },
         {
