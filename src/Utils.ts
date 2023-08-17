@@ -45,7 +45,7 @@ import {FileInfo} from "./FileInfo";
 import { UiModeSystem } from "./UiModes";
 
 export class Utils {
-    // Allowed file extenstions.
+    // Allowed file extensions
     static readonly FILE_EXTENSIONS : string[] = [
         "json",
         "diagram",
@@ -229,7 +229,7 @@ export class Utils {
     static verifyFileExtension(filename : string) : boolean {
         const fileExtension = Utils.getFileExtension(filename);
 
-        // Check if the extenstion is in the list of allowed extensions.
+        // Check if the extension is in the list of allowed extensions
         if ($.inArray(fileExtension, Utils.FILE_EXTENSIONS) != -1) {
             return true;
         } else {
@@ -1583,7 +1583,7 @@ export class Utils {
     }
 
     static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
-        const displayShorcuts : {description:string, shortcut : string, function : any} []=[];
+        const displayShortcuts : {description:string, shortcut : string, function : any} []=[];
         const eagle = (<any>window).eagle;
 
         for (const object of Eagle.shortcuts){
@@ -1593,10 +1593,10 @@ export class Utils {
             }
 
             const shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false);
-            displayShorcuts.push({description: object.name, shortcut: shortcut,function:object.run});
+            displayShortcuts.push({description: object.name, shortcut: shortcut,function:object.run});
         }
 
-        return displayShorcuts;
+        return displayShortcuts;
     }
 
     static getKeyboardShortcutTextByKey = (key: string, addBrackets: boolean) : string => {
@@ -1864,7 +1864,12 @@ export class Utils {
         }
     }
 
-    static fixFieldParameterType(eagle: Eagle, field: Field, newType: Daliuge.FieldType){
+    static fixFieldParameterType(eagle: Eagle, node: Node, field: Field, newType: Daliuge.FieldType){
+        if (newType === Daliuge.FieldType.Unknown){
+            node.removeFieldById(field.getId());
+            return;
+        }
+
         field.setParameterType(newType);
     }
 

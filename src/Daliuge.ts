@@ -79,10 +79,11 @@ export namespace Daliuge {
     }
 
     export enum FieldType {
-        Unknown = "Unknown",
-        ComponentParameter = "ComponentParameter",
         ApplicationArgument = "ApplicationArgument",
-        ConstructParameter = "ConstructParameter"
+        ComponentParameter = "ComponentParameter",
+        ConstraintParameter = "ConstraintParameter",
+        ConstructParameter = "ConstructParameter",
+        Unknown = "Unknown"
     }
 
     export enum FieldUsage {
@@ -115,6 +116,22 @@ export namespace Daliuge {
             ],
             fields: [
                 new Field("", FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false),
+            ]
+        },
+        {
+            categoryTypes: [
+                Category.Type.Application
+            ],
+            fields: [
+                new Field("", FieldName.EXECUTION_TIME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.ConstraintParameter, FieldUsage.NoPort, false),
+            ]
+        },
+        {
+            categoryTypes: [
+                Category.Type.Data
+            ],
+            fields: [
+                new Field("", FieldName.DATA_VOLUME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.ConstraintParameter, FieldUsage.NoPort, false),
             ]
         }
     ];
