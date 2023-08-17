@@ -40,7 +40,7 @@ export enum Category {
 
     Unknown = "Unknown",
     None = "None",
-    UnknownApplication = "UnknownApplication", // when we know the component is an application, but know wlmost nothing else about it
+    UnknownApplication = "UnknownApplication", // when we know the component is an application, but know almost nothing else about it
 
     Component = "Component" // legacy only
 }
