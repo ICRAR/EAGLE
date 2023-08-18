@@ -1405,7 +1405,7 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of graph.getNodes()){
-            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errorsWarnings);
+            Node.isValid(eagle, node, Eagle.FileType.Graph, false, false, errorsWarnings);
         }
 
         // check all edges are valid
