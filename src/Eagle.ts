@@ -4408,7 +4408,7 @@ export class Eagle {
         }
 
         // if selectedNode is set, return a list of categories within the same category type
-        let categoryType: Category.Type = this.selectedNode().getCategoryType()
+        const categoryType: Category.Type = this.selectedNode().getCategoryType();
         
         return Utils.getCategoriesWithInputsAndOutputs(categoryType, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
     }, this)
@@ -4485,7 +4485,7 @@ export class Eagle {
     // NOTE: clones the node internally
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
         // copy node
-        let newNode : Node = node.clone();
+        const newNode : Node = node.clone();
 
         // set appropriate key for node (one that is not already in use)
         newNode.setId(Utils.uuidv4());
@@ -4493,61 +4493,30 @@ export class Eagle {
         newNode.setPosition(x, y);
         newNode.setEmbedKey(null);
 
-        // convert start of end nodes to data components
-        if (newNode.getCategory() === Category.Start) {
-            // Store the node's location.
-            const nodePosition = newNode.getPosition();
+        this.logicalGraph().addNodeComplete(newNode);
 
-            // build a list of ineligible types
-            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), [Category.Memory, Category.SharedMemory]);
+        // set new ids for any ports in this node
+        Utils.giveNodePortsNewIds(newNode);
 
-            // ask the user which data type should be added
-            this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
-                if (node === null) {
-                    return;
-                }
+        // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
+        if (newNode.hasInputApplication()){
+            newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            newNode.getInputApplication().setEmbedKey(newNode.getKey());
 
-                // Add a data component to the graph.
-                newNode = this.logicalGraph().addDataComponentToGraph(node, nodePosition);
-
-                // copy name from the original node
-                newNode.setName(node.getName());
-
-                // Remove the redundant input port
-                newNode.removeAllInputPorts();
-
-                // flag that the logical graph has been modified
-                this.logicalGraph().fileInfo().modified = true;
-                this.logicalGraph().fileInfo.valueHasMutated();
-
-                if (callback !== null) callback(newNode);
-            });
-        } else {
-            this.logicalGraph().addNodeComplete(newNode);
-
-            // set new ids for any ports in this node
-            Utils.giveNodePortsNewIds(newNode);
-
-            // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
-            if (newNode.hasInputApplication()){
-                newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
-                newNode.getInputApplication().setEmbedKey(newNode.getKey());
-
-                Utils.giveNodePortsNewIds(newNode.getInputApplication());
-            }
-            if (newNode.hasOutputApplication()){
-                newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
-                newNode.getOutputApplication().setEmbedKey(newNode.getKey());
-
-                Utils.giveNodePortsNewIds(newNode.getOutputApplication());
-            }
-
-            // flag that the logical graph has been modified
-            this.logicalGraph().fileInfo().modified = true;
-            this.logicalGraph().fileInfo.valueHasMutated();
-
-            if (callback !== null) callback(newNode);
+            Utils.giveNodePortsNewIds(newNode.getInputApplication());
         }
+        if (newNode.hasOutputApplication()){
+            newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            newNode.getOutputApplication().setEmbedKey(newNode.getKey());
+
+            Utils.giveNodePortsNewIds(newNode.getOutputApplication());
+        }
+
+        // flag that the logical graph has been modified
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo.valueHasMutated();
+
+        if (callback !== null) callback(newNode);
     }
 
     checkForComponentUpdates = () : void => {

@@ -1,6 +1,4 @@
 export enum Category {
-    Start = "Start",
-    End = "End",
     Comment = "Comment",
     Description = "Description",
     Scatter = "Scatter",
