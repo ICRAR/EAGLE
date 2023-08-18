@@ -1291,7 +1291,7 @@ export class Eagle {
                 return;
             }
             if (userString === ""){
-            Utils.showNotification("Input Error", "Enter A Valid Name", "warning");
+            Utils.showNotification("Invalid graph name", "Please enter a name for the new graph", "danger");
                 return;
             }
 
@@ -3230,6 +3230,12 @@ export class Eagle {
                 userString = userCustomChoice;
             } else {
                 userString = paletteNames[userChoiceIndex];
+            }
+
+            // if the userString is empty, then abort, we should not allow empty palette names
+            if (userString === ""){
+                Utils.showNotification("Invalid palette name", "Please enter a name for the new palette", "danger");
+                return;
             }
 
             // Adding file extension to the title if it does not have it.
