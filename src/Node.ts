@@ -1376,7 +1376,7 @@ export class Node {
         }
 
         // translate categories if required
-        let category: Category = GraphUpdater.translateOldCategory(nodeData.category);
+        let category: Category = nodeData.category;
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
@@ -1825,9 +1825,8 @@ export class Node {
 
     static toOJSPaletteJson = (node : Node) : object => {
         const result : any = {};
-        const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
 
-        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.category = node.category();
         result.categoryType = node.categoryType();
 
         result.key = node.key();
@@ -1898,9 +1897,8 @@ export class Node {
 
     static toOJSGraphJson = (node : Node) : object => {
         const result : any = {};
-        const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
 
-        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.category = node.category();
         result.categoryType = node.categoryType();
 
         result.isGroup = node.isGroup();
