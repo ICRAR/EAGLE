@@ -75,7 +75,7 @@
             </div>
             <!-- /ko -->
 
-            <div id="logicalGraphParent" class="rightClick_logicalGraph" data-bind="event: { dragover:SideWindow.nodeDragOver, drop: nodeDropLogicalGraph, mousemove: GraphRenderer.mouseMove, mousedown: function(){GraphRenderer.startDrag(null);}, mouseup: function(){GraphRenderer.endDrag(null);}, wheel: GraphRenderer.mouseWheel }, eagleRightClick: $data">
+            <div id="logicalGraphParent" class="rightClick_logicalGraph" data-bind="event: { dragover:SideWindow.nodeDragOver, drop: nodeDropLogicalGraph, mousemove: GraphRenderer.mouseMove, mousedown: function(object, event){GraphRenderer.startDrag(null, event);}, mouseup: function(){GraphRenderer.endDrag(null);}, wheel: GraphRenderer.mouseWheel }, eagleRightClick: $data">
                 <div id="logicalGraphD3Div">
                     <!-- ko if: $root.logicalGraph() !== null -->
                     <!-- ko foreach: $root.logicalGraph().getNodes() -->
@@ -131,9 +131,6 @@
                     </div>
                     <div id="nodeInspectorKOWrapper" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Inspector">
                         <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() === null && selectedObjects().length > 1">
-<<<<<<< HEAD
-                            Select a single node or edge
-=======
                             <div id="inspectorSelectionSummary">
                                 <div class="row" id="multiSelectionHeader">
                                     <div class="col-8">
@@ -168,7 +165,6 @@
                                     <!-- /ko -->
                                 <!-- /ko -->
                             </div>
->>>>>>> master
                         </div>
                         <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() !== null">
                             {% include 'node_inspector.html' %}

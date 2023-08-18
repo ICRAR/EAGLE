@@ -161,10 +161,10 @@ export class GraphRenderer {
         return interpolatedAngle;
     }
 
-    static createBezier(x1: number, y1: number, x2: number, y2: number, startDirection: number, endDirection:number) : string {
+    static createBezier(x1: number, y1: number, x2: number, y2: number, startDirection: number, endDirection:number,radiusOffset:number) : string {
         // find control points
-        const startOffset = GraphRenderer.calculatePortPos(endDirection,30)
-        const endOffset = GraphRenderer.calculatePortPos(endDirection,30)
+        const startOffset = GraphRenderer.calculatePortPos(endDirection,radiusOffset)
+        const endOffset = GraphRenderer.calculatePortPos(endDirection,radiusOffset)
         console.log('port offsets',startOffset)
 
         const c1x = x1 + startOffset[0];
@@ -216,9 +216,13 @@ export class GraphRenderer {
         // const srcDirection
         const destX = (destNode.getPosition().x+adjacentNodePos.x-GraphRenderer.normalNodeRadius/2 + offsetX);
         const destY = (destNode.getPosition().y+adjacentNodePos.y-GraphRenderer.normalNodeRadius/2  + offsetY);
-
+    
+        //calculating a percentage of the distance between nodes to use as affset for the bezier curve points
+        const radiusOffset = Math.sqrt((srcX-destX)**2+(srcY-destY)**2)*.2
+        
         //return "M234,159.5C280,159.5,280,41.5,330,41.5";
-        return GraphRenderer.createBezier(srcX, srcY, destX, destY, edgeSrcAngle, edgeDestAngle);
+        return GraphRenderer.createBezier(srcX, srcY, destX, destY, edgeSrcAngle, edgeDestAngle,radiusOffset);
+
     }
 
     static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
@@ -245,17 +249,22 @@ export class GraphRenderer {
         $('#logicalGraphD3Div').css('transform','scale('+eagle.globalScale()+')')
     }
 
-    static startDrag = (node: Node) : void => {
+    static startDrag = (node: Node, event: MouseEvent) : void => {
         const eagle = Eagle.getInstance();
 
-        //console.log("startDrag", node ? node.getName() : node)
+        //console.log("startDrag", node ? node.getName() : node, event);
         eagle.isDragging(true);
         eagle.draggingNode(node);
 
-        eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+        // check if shift key is down, if so, add selected node to current selection
+        if (node !== null && event.shiftKey){
+            eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+        } else {
+            eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+        }
     }
 
-    static endDrag = (node: Node) : void => {
+    static endDrag = (node: Node, event: MouseEvent) : void => {
         const eagle = Eagle.getInstance();
 
         //console.log("endDrag", node ? node.getName() : node)
