@@ -28,18 +28,26 @@ import {Node} from './Node';
 import {Edge} from './Edge';
 import {Field} from './Field';
 import * as ko from "knockout";
+import { Category } from './Category';
 
 ko.bindingHandlers.nodeRenderHandler = {
-    init: function(element:any, node, allBindings) {
-        const elementClasses = $(element).find('.nodeContent').attr('class')
-        console.log('classes ',elementClasses)
-        if(elementClasses.includes('basic_node')){
-            console.log('basic node')
-            $(element).css({'height':GraphRenderer.normalNodeRadius+'px','width':GraphRenderer.normalNodeRadius+'px'})
-        }else if(elementClasses.includes('branch_node')){
-            console.log('branch node')
-            $(element).css({'height':GraphRenderer.branchNodeRadius+'px','width':GraphRenderer.branchNodeRadius+'px'})
-            $(element).find('.innerRing').css({'height':GraphRenderer.branchNodeRadius-5+'px','width':GraphRenderer.branchNodeRadius-5+'px'})
+    init: function(element:any, valueAccessor, allBindings) {
+        const node :Node = ko.unwrap(valueAccessor())
+        console.log('classes ',element,node)
+        
+        switch(node.getCategory()){
+            case Category.Branch: 
+                console.log('branch node')
+                $(element).css({'height':GraphRenderer.branchNodeRadius+'px','width':GraphRenderer.branchNodeRadius+'px'})
+                $(element).find('.innerRing').css({'height':GraphRenderer.branchNodeRadius-5+'px','width':GraphRenderer.branchNodeRadius-5+'px'})
+                break
+            
+            default : 
+                $(element).css({'height':GraphRenderer.normalNodeRadius+'px','width':GraphRenderer.normalNodeRadius+'px'})
+        }
+        
+        if(node.isBranch()){
+            
         }
     },
     update: function (element:any, node) {
@@ -55,7 +63,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         //the update function is called initially and then whenever a change to a utilised observable occurs
         
         const eagle : Eagle = Eagle.getInstance();
-        const node = eagle.logicalGraph().findNodeByKeyQuiet(field().getNodeKey())
+        const node : Node = eagle.logicalGraph().findNodeByKeyQuiet(field().getNodeKey())
 
         const currentNodePos = node.getPosition()
         const edges = eagle.logicalGraph().getEdges()
@@ -262,7 +270,7 @@ export class GraphRenderer {
     static startDrag = (node: Node, event: MouseEvent) : void => {
         const eagle = Eagle.getInstance();
 
-        console.log("startDrag", node ? node.getName() : node, event);
+        // console.log("startDrag", node ? node.getName() : node, event);
         eagle.isDragging(true);
         eagle.draggingNode(node);
 
