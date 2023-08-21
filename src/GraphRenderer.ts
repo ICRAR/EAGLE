@@ -31,7 +31,16 @@ import * as ko from "knockout";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, node, allBindings) {
-        $(element).css({'height':GraphRenderer.normalNodeRadius+'px','width':GraphRenderer.normalNodeRadius+'px'})
+        const elementClasses = $(element).find('.nodeContent').attr('class')
+        console.log('classes ',elementClasses)
+        if(elementClasses.includes('basic_node')){
+            console.log('basic node')
+            $(element).css({'height':GraphRenderer.normalNodeRadius+'px','width':GraphRenderer.normalNodeRadius+'px'})
+        }else if(elementClasses.includes('branch_node')){
+            console.log('branch node')
+            $(element).css({'height':GraphRenderer.branchNodeRadius+'px','width':GraphRenderer.branchNodeRadius+'px'})
+            $(element).find('.innerRing').css({'height':GraphRenderer.branchNodeRadius-5+'px','width':GraphRenderer.branchNodeRadius-5+'px'})
+        }
     },
     update: function (element:any, node) {
 
@@ -90,6 +99,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
 export class GraphRenderer {
     static normalNodeRadius = 50
+    static branchNodeRadius = 90
 
     static directionOffset(x: boolean, direction: Eagle.Direction){
         if (x){

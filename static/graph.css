@@ -32,11 +32,20 @@
     height: 100%;
 }
 
+.node .innerRing {
+    background-color: white;
+    border-radius: 50%;
+    border: 1.5px solid red;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
 .node .body span{
     width: 100%;
     height: 100%;
     font-size: 80px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
-    position: relative;
 }
 
 .node .body span::before{
