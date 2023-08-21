@@ -1,4 +1,4 @@
-<div class="nodeContent branch_node" data-bind="nodeRenderHandler:$data, style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY()}, event: {mousedown: function(){GraphRenderer.startDrag($data);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false,css: {selected: $root.objectIsSelected($data)}">
+<div class="nodeContent branch_node">
     <div class="container">
         <div class="header">
             <div class="header-name" data-bind="html: $data.name,style:{'color':Colors.getColor('graphText')}"></div>

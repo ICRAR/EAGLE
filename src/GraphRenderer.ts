@@ -175,7 +175,7 @@ export class GraphRenderer {
         // find control points
         const startOffset = GraphRenderer.calculatePortPos(endDirection,radiusOffset)
         const endOffset = GraphRenderer.calculatePortPos(endDirection,radiusOffset)
-        console.log('port offsets',startOffset)
+        // console.log('port offsets',startOffset)
 
         const c1x = x1 + startOffset[0];
         const c1y = y1 + startOffset[1];
@@ -217,7 +217,7 @@ export class GraphRenderer {
 
         const edgeSrcAngle = GraphRenderer.edgeDirectionAngle(srcEdgeAngle)
         const edgeDestAngle = GraphRenderer.edgeDirectionAngle(destEdgeAngle)
-        console.log(srcNode.getName(),'->',destNode.getName(),srcEdgeAngle,destEdgeAngle,'|',edgeSrcAngle,edgeDestAngle)
+        // console.log(srcNode.getName(),'->',destNode.getName(),srcEdgeAngle,destEdgeAngle,'|',edgeSrcAngle,edgeDestAngle)
 
         // find positions of the nodes
         //need to offset using the port calculation
@@ -262,7 +262,7 @@ export class GraphRenderer {
     static startDrag = (node: Node, event: MouseEvent) : void => {
         const eagle = Eagle.getInstance();
 
-        //console.log("startDrag", node ? node.getName() : node, event);
+        console.log("startDrag", node ? node.getName() : node, event);
         eagle.isDragging(true);
         eagle.draggingNode(node);
 

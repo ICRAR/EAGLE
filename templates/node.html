@@ -1,4 +1,4 @@
-<div class="node" data-bind="nodeRenderHandler:$data, style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY()}, event: {mousedown: function(){GraphRenderer.startDrag($data);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false,css: {selected: $root.objectIsSelected($data)}">
+<div class="node" data-bind="nodeRenderHandler:$data, style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY()}, event: {mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false,css: {selected: $root.objectIsSelected($data)}">
     <!-- ko if:!$data.isConstruct() && !$data.isBranch() -->
         <div data-bind="text:console.log($data.getName(),'not construct, not branch')"></div>
         {% include 'basic_node.html' %}
