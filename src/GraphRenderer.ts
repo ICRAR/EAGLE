@@ -31,7 +31,7 @@ import * as ko from "knockout";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, node, allBindings) {
-        $(element).css({'height':GraphRenderer.normalNodeRadius+'px','width':GraphRenderer.normalNodeRadius+'px'})
+        $(element).css({'height':GraphRenderer.normalNodeRadius*2+'px','width':GraphRenderer.normalNodeRadius*2+'px'})
     },
     update: function (element:any, node) {
 
@@ -73,23 +73,23 @@ ko.bindingHandlers.graphRendererPortPosition = {
             const adjacentNodePos = adjacentNode.getPosition()
             const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
             node.addPortAngle(edgeAngle)
-            PortPosition=GraphRenderer.calculatePortPos(edgeAngle,GraphRenderer.normalNodeRadius/2)
+            PortPosition=GraphRenderer.calculatePortPos(edgeAngle,GraphRenderer.normalNodeRadius, GraphRenderer.normalNodeRadius)
         }else{
             if(field().isInputPort()){
-                PortPosition=GraphRenderer.calculatePortPos(3.14159,GraphRenderer.normalNodeRadius/2)
+                PortPosition=GraphRenderer.calculatePortPos(Math.PI, GraphRenderer.normalNodeRadius, GraphRenderer.normalNodeRadius)
             }else{
-                PortPosition=GraphRenderer.calculatePortPos(0,GraphRenderer.normalNodeRadius/2)
+                PortPosition=GraphRenderer.calculatePortPos(0, GraphRenderer.normalNodeRadius, GraphRenderer.normalNodeRadius)
             }
         }
-        field().setPosition(PortPosition[0],PortPosition[1])
+        field().setPosition(PortPosition.x, PortPosition.y)
 
-        $(element).css({'top':PortPosition[1]+'px','left':PortPosition[0]+'px'})
+        $(element).css({'top':PortPosition.y+'px','left':PortPosition.x+'px'})
 
     }
 };
 
 export class GraphRenderer {
-    static normalNodeRadius = 50
+    static normalNodeRadius = 25
 
     static directionOffset(x: boolean, direction: Eagle.Direction){
         if (x){
@@ -120,11 +120,11 @@ export class GraphRenderer {
         return angle
     }
     
-    static calculatePortPos(angle:any, radius:any) : any {
-        const newX = radius+(radius*Math.cos(angle))
-        const newY = radius-(radius*Math.sin(angle))
-        const result = [newX,newY]
-        return result
+    static calculatePortPos(angle:number, nodeRadius:number, portRadius:number) : {x:number, y:number} {
+        const newX = nodeRadius+(portRadius*Math.cos(angle))
+        const newY = nodeRadius-(portRadius*Math.sin(angle))
+
+        return {x: newX, y: newY};
     }
     
     static getCurveDirection(angle:any) : any {
@@ -161,27 +161,56 @@ export class GraphRenderer {
         return interpolatedAngle;
     }
 
-    static createBezier(x1: number, y1: number, x2: number, y2: number, startDirection: number, endDirection:number,radiusOffset:number) : string {
-        // find control points
-        const startOffset = GraphRenderer.calculatePortPos(endDirection,radiusOffset)
-        const endOffset = GraphRenderer.calculatePortPos(endDirection,radiusOffset)
-        console.log('port offsets',startOffset)
+    static createBezier(srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}) : string {
+        //console.log("createBezier", srcNodePosition, destNodePosition);
 
-        const c1x = x1 + startOffset[0];
-        const c1y = y1 + startOffset[1];
-        const c2x = x2 - endOffset[0];
-        const c2y = y2 - endOffset[1];
+        // determine if the edge falls below a certain length threshold
+        const edgeLength = Math.sqrt((destNodePosition.x - srcNodePosition.x)**2 + (destNodePosition.y - srcNodePosition.y)**2);
+        const isShortEdge: boolean = edgeLength < GraphRenderer.normalNodeRadius * 3;
+
+        // calculate the length from the src and dest nodes at which the control points will be placed
+        const lengthToControlPoints = edgeLength * 0.6;
+
+        // calculate the angle for the src and dest ports
+        const srcPortAngle: number = GraphRenderer.calculateConnectionAngle(srcNodePosition, destNodePosition);
+        const destPortAngle: number = srcPortAngle + Math.PI;
+
+        // calculate the offset for the src and dest ports, based on the angles
+        const srcPortOffset = GraphRenderer.calculatePortPos(srcPortAngle, GraphRenderer.normalNodeRadius, GraphRenderer.normalNodeRadius);
+        const destPortOffset = GraphRenderer.calculatePortPos(destPortAngle, GraphRenderer.normalNodeRadius, GraphRenderer.normalNodeRadius);
+
+        // calculate the coordinates of the start and end of the edge
+        const x1 = srcNodePosition.x + srcPortOffset.x;
+        const y1 = srcNodePosition.y + srcPortOffset.y;
+        const x2 = destNodePosition.x + destPortOffset.x;
+        const y2 = destNodePosition.y + destPortOffset.y;
+
+        // if edge is short, use simplified rendering
+        if (isShortEdge){
+            return "M " + x1 + " " + y1 + " L " + x2 + " " + y2;
+        }
+
+        // otherwise, calculate an angle for the src and dest control points
+        const srcCPAngle = GraphRenderer.edgeDirectionAngle(srcPortAngle);
+        const destCPAngle = GraphRenderer.edgeDirectionAngle(destPortAngle);
+
+        // calculate the offset for the src and dest control points, based on the angles
+        const srcCPOffset = GraphRenderer.calculatePortPos(srcCPAngle, GraphRenderer.normalNodeRadius, lengthToControlPoints);
+        const destCPOffset = GraphRenderer.calculatePortPos(destCPAngle, GraphRenderer.normalNodeRadius, lengthToControlPoints);
+
+        // calculate the coordinates of the two control points
+        const c1x = srcNodePosition.x + srcCPOffset.x;
+        const c1y = srcNodePosition.y + srcCPOffset.y;
+        const c2x = destNodePosition.x + destCPOffset.x;
+        const c2y = destNodePosition.y + destCPOffset.y;
 
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
     }
 
     static getPath(edge: Edge, eagle: Eagle) : string {
-        const lg : LogicalGraph = eagle.logicalGraph();
-        let srcNode : Node  = lg.findNodeByKey(edge.getSrcNodeKey());
-        let destNode : Node = lg.findNodeByKey(edge.getDestNodeKey());
-
-        let srcPort :Field = srcNode.getFieldById(edge.getSrcPortId())
-        let destPort :Field = destNode.getFieldById(edge.getDestPortId())
+        const lg: LogicalGraph = eagle.logicalGraph();
+        let srcNode: Node = lg.findNodeByKey(edge.getSrcNodeKey());
+        let destNode: Node = lg.findNodeByKey(edge.getDestNodeKey());
 
         // if the src or dest nodes are embedded nodes, use the position of the construct instead
         if (srcNode.isEmbedded()){
@@ -192,37 +221,16 @@ export class GraphRenderer {
         }
 
         // get offset and scale
-        const offsetX = eagle.globalOffsetX();
-        const offsetY = eagle.globalOffsetY();
+        const offsetX: number = eagle.globalOffsetX();
+        const offsetY: number = eagle.globalOffsetY();
 
-        const currentNodePos = srcPort.getPosition()
-        const adjacentNodePos = destPort.getPosition()
+        // we subtract node radius from all these numbers to account for the transform translate(-50%, -50%) css on the nodes
+        const srcX = srcNode.getPosition().x + offsetX - GraphRenderer.normalNodeRadius;
+        const srcY = srcNode.getPosition().y + offsetY - GraphRenderer.normalNodeRadius;
+        const destX = destNode.getPosition().x + offsetX - GraphRenderer.normalNodeRadius;
+        const destY = destNode.getPosition().y + offsetY - GraphRenderer.normalNodeRadius;
 
-        const srcEdgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
-        const srcPortPos = GraphRenderer.calculatePortPos(srcEdgeAngle,GraphRenderer.normalNodeRadius/2)
-
-        const destEdgeAngle = GraphRenderer.calculateConnectionAngle(adjacentNodePos,currentNodePos)
-        const destPortPos = GraphRenderer.calculatePortPos(destEdgeAngle,GraphRenderer.normalNodeRadius/2)
-        const bezierDirection = GraphRenderer.getCurveDirection(srcEdgeAngle)
-
-        const edgeSrcAngle = GraphRenderer.edgeDirectionAngle(srcEdgeAngle)
-        const edgeDestAngle = GraphRenderer.edgeDirectionAngle(destEdgeAngle)
-        console.log(srcNode.getName(),'->',destNode.getName(),srcEdgeAngle,destEdgeAngle,'|',edgeSrcAngle,edgeDestAngle)
-
-        // find positions of the nodes
-        //need to offset using the port calculation
-        const srcX = (srcNode.getPosition().x+currentNodePos.x-GraphRenderer.normalNodeRadius/2  + offsetX);
-        const srcY = (srcNode.getPosition().y+currentNodePos.y-GraphRenderer.normalNodeRadius/2 + offsetY);
-        // const srcDirection
-        const destX = (destNode.getPosition().x+adjacentNodePos.x-GraphRenderer.normalNodeRadius/2 + offsetX);
-        const destY = (destNode.getPosition().y+adjacentNodePos.y-GraphRenderer.normalNodeRadius/2  + offsetY);
-    
-        //calculating a percentage of the distance between nodes to use as affset for the bezier curve points
-        const radiusOffset = Math.sqrt((srcX-destX)**2+(srcY-destY)**2)*.2
-        
-        //return "M234,159.5C280,159.5,280,41.5,330,41.5";
-        return GraphRenderer.createBezier(srcX, srcY, destX, destY, edgeSrcAngle, edgeDestAngle,radiusOffset);
-
+        return GraphRenderer.createBezier({x:srcX, y:srcY}, {x:destX, y:destY});
     }
 
     static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
