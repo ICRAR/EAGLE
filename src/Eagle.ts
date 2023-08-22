@@ -1730,7 +1730,7 @@ export class Eagle {
             // determine file extension
             const fileExtension = Utils.getFileExtension(file.name);
             let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
-            let dataObject = null;
+            let dataObject: any = null;
 
             if (fileExtension !== "md"){
                 // attempt to parse the JSON
@@ -1751,30 +1751,18 @@ export class Eagle {
             switch (fileTypeLoaded){
                 case Eagle.FileType.Graph:
                     // attempt to determine schema version from FileInfo
-                    const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
+                    const eagleVersion: string = Utils.determineEagleVersion(dataObject);
 
-                    const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-
-                    // use the correct parsing function based on schema version
-                    switch (schemaVersion){
-                        case Daliuge.SchemaVersion.OJS:
-                        case Daliuge.SchemaVersion.Unknown:
-                            this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
-                            break;
+                    // warn user if file newer than EAGLE
+                    if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
+                        Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", "", (confirmed : boolean) : void => {
+                            if (confirmed){
+                                this._loadGraph(dataObject, file);
+                            }
+                        });
+                    } else {
+                        this._loadGraph(dataObject, file);
                     }
-
-                    // show errors/warnings
-                    this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
-
-                    // center graph
-                    this.centerGraph();
-
-                    // check graph
-                    this.checkGraph();
-                    this.undo().pushSnapshot(this, "Loaded " + file.name);
-
-                    // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
-                    this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
                     break;
 
                 case Eagle.FileType.Palette:
@@ -1792,6 +1780,26 @@ export class Eagle {
         this.resetEditor()
         });
     };
+
+    _loadGraph = (dataObject: any, file: RepositoryFile) : void => {
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+
+        // load graph
+        this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
+
+        // show errors/warnings
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+
+        // center graph
+        this.centerGraph();
+
+        // check graph
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Loaded " + file.name);
+
+        // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
+        this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+    }
 
     insertRemoteFile = (file : RepositoryFile) : void => {
         // flag file as being fetched
