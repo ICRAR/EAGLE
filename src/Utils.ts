@@ -1336,13 +1336,39 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
+    static determineEagleVersion(data: any): string {
+        if (typeof data.modelData !== 'undefined'){
+            if (typeof data.modelData.eagleVersion !== 'undefined'){
+                return data.modelData.eagleVersion;
+            }
+        }
+
+        return "v-1.-1.-1";
+    }
+
+    // return true iff version0 is newer than version1
+    static newerEagleVersion(version0: string, version1: string){
+        //console.log("version0", version0, "version1", version1);
+
+        if (version0 === "Unknown" || version1 === "Unknown"){
+            return false;
+        }
+
+        const v0 = version0.split('v')[1].split('.').map(Number);
+        const v1 = version1.split('v')[1].split('.').map(Number);
+
+        //console.log("v0", v0, "v1", v1);
+
+        return (
+            v0[0] > v1[0] ||
+            ((v0[0] === v1[0]) && (v0[1] > v1[1])) ||
+            ((v0[0] === v1[0]) && (v0[1] === v1[1]) && (v0[2] > v1[2]))
+        )
+    }
+
     static determineSchemaVersion(data: any): Daliuge.SchemaVersion {
-        // appref
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
-                if (data.modelData.schemaVersion === Daliuge.SchemaVersion.OJS){
-                    return Daliuge.SchemaVersion.OJS;
-                }
                 return data.modelData.schemaVersion;
             }
         }
