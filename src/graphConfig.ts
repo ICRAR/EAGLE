@@ -3,6 +3,9 @@ const colors: { name: string; color: string; }[] = [
         name: 'body',
         color: '#2e3192'
     },{
+        name: 'branchBody',
+        color: '#d4d4d4'
+    },{
         name: 'graphText',
         color: 'black'
     },{

@@ -40,14 +40,13 @@ ko.bindingHandlers.nodeRenderHandler = {
             case Category.Branch: 
                 console.log('branch node')
                 node.setNodeRadius(GraphConfig.getBranchRadius())
-                $(element).css({'height':node.getNodeRadius()+'px','width':node.getNodeRadius()*2+'px'})
-                $(element).find('.innerRing').css({'height':node.getNodeRadius()-5+'px','width':node.getNodeRadius()-5+'px'})
+                $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
+                $(element).find('.innerRing').css({'height':node.getNodeRadius()*2-25+'px','width':node.getNodeRadius()*2-25+'px'})
+                $(element).find('.branchPortRing').css({'height':node.getNodeRadius()*2-13+'px','width':node.getNodeRadius()*2-13+'px'})
                 break
             
             default : 
                 node.setNodeRadius(GraphConfig.getNormalRadius())
-                console.log('blob',node.getNodeRadius())
-
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
         }
         
@@ -79,7 +78,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         //clearing the saved port angles array
         node.resetPortAngles()
 
-
         //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
         for(const edge of edges){
             if(field().getId()===edge.getDestPortId()){
@@ -91,17 +89,24 @@ ko.bindingHandlers.graphRendererPortPosition = {
             }
         }
 
-        console.log(GraphConfig.getNormalRadius())
+        //for branch nodes the ports are inset from the outer radius a little bit in their design
+        let nodeRadius = 0
+        if(node.isBranch()){
+            nodeRadius = node.getNodeRadius()-7
+        }else{
+            nodeRadius = node.getNodeRadius()
+        }
+
         if(connectedField){
             const adjacentNodePos = adjacentNode.getPosition()
             const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
             node.addPortAngle(edgeAngle)
-            PortPosition=GraphRenderer.calculatePortPos(edgeAngle,GraphRenderer.normalNodeRadius, GraphRenderer.normalNodeRadius)
+            PortPosition=GraphRenderer.calculatePortPos(edgeAngle,nodeRadius, nodeRadius)
         }else{
             if(field().isInputPort()){
-                PortPosition=GraphRenderer.calculatePortPos(Math.PI, GraphRenderer.normalNodeRadius, GraphRenderer.normalNodeRadius)
+                PortPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
             }else{
-                PortPosition=GraphRenderer.calculatePortPos(0, GraphRenderer.normalNodeRadius, GraphRenderer.normalNodeRadius)
+                PortPosition=GraphRenderer.calculatePortPos(0, nodeRadius, nodeRadius)
             }
         }
         field().setPosition(PortPosition.x, PortPosition.y)
@@ -184,12 +189,12 @@ export class GraphRenderer {
         return interpolatedAngle;
     }
 
-    static createBezier(srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}) : string {
+    static createBezier(srcNodeRadius:number,destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}) : string {
         //console.log("createBezier", srcNodePosition, destNodePosition);
 
         // determine if the edge falls below a certain length threshold
         const edgeLength = Math.sqrt((destNodePosition.x - srcNodePosition.x)**2 + (destNodePosition.y - srcNodePosition.y)**2);
-        const isShortEdge: boolean = edgeLength < GraphRenderer.normalNodeRadius * 3;
+        const isShortEdge: boolean = edgeLength < srcNodeRadius * 3;
 
         // calculate the length from the src and dest nodes at which the control points will be placed
         const lengthToControlPoints = edgeLength * 0.6;
@@ -199,8 +204,8 @@ export class GraphRenderer {
         const destPortAngle: number = srcPortAngle + Math.PI;
 
         // calculate the offset for the src and dest ports, based on the angles
-        const srcPortOffset = GraphRenderer.calculatePortPos(srcPortAngle, GraphRenderer.normalNodeRadius, GraphRenderer.normalNodeRadius);
-        const destPortOffset = GraphRenderer.calculatePortPos(destPortAngle, GraphRenderer.normalNodeRadius, GraphRenderer.normalNodeRadius);
+        const srcPortOffset = GraphRenderer.calculatePortPos(srcPortAngle, srcNodeRadius, srcNodeRadius);
+        const destPortOffset = GraphRenderer.calculatePortPos(destPortAngle, destNodeRadius, destNodeRadius);
 
         // calculate the coordinates of the start and end of the edge
         const x1 = srcNodePosition.x + srcPortOffset.x;
@@ -218,8 +223,8 @@ export class GraphRenderer {
         const destCPAngle = GraphRenderer.edgeDirectionAngle(destPortAngle);
 
         // calculate the offset for the src and dest control points, based on the angles
-        const srcCPOffset = GraphRenderer.calculatePortPos(srcCPAngle, GraphRenderer.normalNodeRadius, lengthToControlPoints);
-        const destCPOffset = GraphRenderer.calculatePortPos(destCPAngle, GraphRenderer.normalNodeRadius, lengthToControlPoints);
+        const srcCPOffset = GraphRenderer.calculatePortPos(srcCPAngle, srcNodeRadius, lengthToControlPoints);
+        const destCPOffset = GraphRenderer.calculatePortPos(destCPAngle, destNodeRadius, lengthToControlPoints);
 
         // calculate the coordinates of the two control points
         const c1x = srcNodePosition.x + srcCPOffset.x;
@@ -235,6 +240,9 @@ export class GraphRenderer {
         let srcNode: Node = lg.findNodeByKey(edge.getSrcNodeKey());
         let destNode: Node = lg.findNodeByKey(edge.getDestNodeKey());
 
+        const srcNodeRadius = srcNode.getNodeRadius()
+        const destNodeRadius = destNode.getNodeRadius()
+
         // if the src or dest nodes are embedded nodes, use the position of the construct instead
         if (srcNode.isEmbedded()){
             srcNode = lg.findNodeByKey(srcNode.getEmbedKey());
@@ -248,12 +256,13 @@ export class GraphRenderer {
         const offsetY: number = eagle.globalOffsetY();
 
         // we subtract node radius from all these numbers to account for the transform translate(-50%, -50%) css on the nodes
-        const srcX = srcNode.getPosition().x + offsetX - GraphRenderer.normalNodeRadius;
-        const srcY = srcNode.getPosition().y + offsetY - GraphRenderer.normalNodeRadius;
-        const destX = destNode.getPosition().x + offsetX - GraphRenderer.normalNodeRadius;
-        const destY = destNode.getPosition().y + offsetY - GraphRenderer.normalNodeRadius;
+        const srcX = srcNode.getPosition().x + offsetX - srcNodeRadius;
+        const srcY = srcNode.getPosition().y + offsetY - srcNodeRadius;
+        const destX = destNode.getPosition().x + offsetX - destNodeRadius;
+        const destY = destNode.getPosition().y + offsetY - destNodeRadius;
 
-        return GraphRenderer.createBezier({x:srcX, y:srcY}, {x:destX, y:destY});
+
+        return GraphRenderer.createBezier(srcNodeRadius,destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY});
     }
 
     static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
