@@ -53,7 +53,7 @@ import {RepositoryFile} from './RepositoryFile';
 import {ParameterTable} from "./ParameterTable";
 import {SideWindow} from "./SideWindow";
 import {TutorialSystem} from "./Tutorial";
-import {Colors} from "./Colors";
+import {Colors} from "./graphConfig";
 
 import * as quickStart from './tutorials/quickStart'
 import * as graphBuilding from './tutorials/graphBuilding'

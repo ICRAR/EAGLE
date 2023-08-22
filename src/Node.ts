@@ -77,6 +77,7 @@ export class Node {
     private dataHash : ko.Observable<string>;
 
     private portAngles : number[]
+    private nodeRadius : ko.Observable<number>;
 
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 72;
@@ -116,6 +117,7 @@ export class Node {
         this.description = ko.observable(description);
         
         this.portAngles = []
+        this.nodeRadius = ko.observable(0);
 
         // display position
         this.realX = 0;
@@ -237,6 +239,14 @@ export class Node {
 
     resetPortAngles = () :void => {
         this.portAngles = []
+    }
+
+    getNodeRadius = () : number => {
+        return this.nodeRadius()
+    }
+
+    setNodeRadius = (radius:number) : void => {
+        this.nodeRadius(radius)
     }
 
     setPosition = (x: number, y: number, allowSnap: boolean = true) : void => {

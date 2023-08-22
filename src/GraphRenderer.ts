@@ -29,6 +29,7 @@ import {Edge} from './Edge';
 import {Field} from './Field';
 import * as ko from "knockout";
 import { Category } from './Category';
+import { GraphConfig } from './graphConfig';
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
@@ -38,12 +39,14 @@ ko.bindingHandlers.nodeRenderHandler = {
         switch(node.getCategory()){
             case Category.Branch: 
                 console.log('branch node')
-                $(element).css({'height':GraphRenderer.branchNodeRadius+'px','width':GraphRenderer.branchNodeRadius+'px'})
-                $(element).find('.innerRing').css({'height':GraphRenderer.branchNodeRadius-5+'px','width':GraphRenderer.branchNodeRadius-5+'px'})
+                node.setNodeRadius(GraphConfig.getBranchRadius())
+                $(element).css({'height':node.getNodeRadius()+'px','width':node.getNodeRadius()+'px'})
+                $(element).find('.innerRing').css({'height':node.getNodeRadius()-5+'px','width':node.getNodeRadius()-5+'px'})
                 break
             
             default : 
-                $(element).css({'height':GraphRenderer.normalNodeRadius+'px','width':GraphRenderer.normalNodeRadius+'px'})
+                node.setNodeRadius(GraphConfig.getNormalRadius())
+                $(element).css({'height':node.getNodeRadius()+'px','width':node.getNodeRadius()+'px'})
         }
         
         if(node.isBranch()){
@@ -86,16 +89,17 @@ ko.bindingHandlers.graphRendererPortPosition = {
             }
         }
 
+        console.log(GraphConfig.getNormalRadius())
         if(connectedField){
             const adjacentNodePos = adjacentNode.getPosition()
             const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
             node.addPortAngle(edgeAngle)
-            PortPosition=GraphRenderer.calculatePortPos(edgeAngle,GraphRenderer.normalNodeRadius/2)
+            PortPosition=GraphRenderer.calculatePortPos(edgeAngle,GraphConfig.getNormalRadius()/2)
         }else{
             if(field().isInputPort()){
-                PortPosition=GraphRenderer.calculatePortPos(3.14159,GraphRenderer.normalNodeRadius/2)
+                PortPosition=GraphRenderer.calculatePortPos(3.14159,GraphConfig.getNormalRadius()/2)
             }else{
-                PortPosition=GraphRenderer.calculatePortPos(0,GraphRenderer.normalNodeRadius/2)
+                PortPosition=GraphRenderer.calculatePortPos(0,GraphConfig.getNormalRadius()/2)
             }
         }
         field().setPosition(PortPosition[0],PortPosition[1])
@@ -106,8 +110,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
 };
 
 export class GraphRenderer {
-    static normalNodeRadius = 50
-    static branchNodeRadius = 90
 
     static directionOffset(x: boolean, direction: Eagle.Direction){
         if (x){
@@ -217,10 +219,10 @@ export class GraphRenderer {
         const adjacentNodePos = destPort.getPosition()
 
         const srcEdgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
-        const srcPortPos = GraphRenderer.calculatePortPos(srcEdgeAngle,GraphRenderer.normalNodeRadius/2)
+        const srcPortPos = GraphRenderer.calculatePortPos(srcEdgeAngle,GraphConfig.getNormalRadius()/2)
 
         const destEdgeAngle = GraphRenderer.calculateConnectionAngle(adjacentNodePos,currentNodePos)
-        const destPortPos = GraphRenderer.calculatePortPos(destEdgeAngle,GraphRenderer.normalNodeRadius/2)
+        const destPortPos = GraphRenderer.calculatePortPos(destEdgeAngle,GraphConfig.getNormalRadius()/2)
         const bezierDirection = GraphRenderer.getCurveDirection(srcEdgeAngle)
 
         const edgeSrcAngle = GraphRenderer.edgeDirectionAngle(srcEdgeAngle)
@@ -229,11 +231,12 @@ export class GraphRenderer {
 
         // find positions of the nodes
         //need to offset using the port calculation
-        const srcX = (srcNode.getPosition().x+currentNodePos.x-GraphRenderer.normalNodeRadius/2  + offsetX);
-        const srcY = (srcNode.getPosition().y+currentNodePos.y-GraphRenderer.normalNodeRadius/2 + offsetY);
+        const srcX = (srcNode.getPosition().x+currentNodePos.x-GraphConfig.getNormalRadius()/2  + offsetX);
+        const srcY = (srcNode.getPosition().y+currentNodePos.y-GraphConfig.getNormalRadius()/2 + offsetY);
         // const srcDirection
-        const destX = (destNode.getPosition().x+adjacentNodePos.x-GraphRenderer.normalNodeRadius/2 + offsetX);
-        const destY = (destNode.getPosition().y+adjacentNodePos.y-GraphRenderer.normalNodeRadius/2  + offsetY);
+        const destX = (destNode.getPosition().x+adjacentNodePos.x-GraphConfig.getNormalRadius()/2 + offsetX);
+        const destY = (destNode.getPosition().y+adjacentNodePos.y-GraphConfig.getNormalRadius()/2  + offsetY);
+        console.log('srcx',srcX,srcY,destX,destY)
     
         //calculating a percentage of the distance between nodes to use as affset for the bezier curve points
         const radiusOffset = Math.sqrt((srcX-destX)**2+(srcY-destY)**2)*.2
