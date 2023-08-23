@@ -3,6 +3,7 @@
     --selectedBg : red;
     --nodeBorder : red;
     --nodeBg:red;
+    --graphText:red;
 }
 
 .node {
@@ -111,8 +112,13 @@
     background-color:  var(--selectedBg);
 }
 
+.node .header-name {
+    color:var(--graphText)
+}
+
 .node.selected .header-name {
     font-weight: 500;
+    color:var(--graphText)
 }
 
 .node .header {
