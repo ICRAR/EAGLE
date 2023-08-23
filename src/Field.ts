@@ -281,9 +281,10 @@ export class Field {
 
     clone = () : Field => {
         const options : string[] = []
-        this.options().forEach(function(option:string){
-            options.push(option)
-        })
+        for (let i = 0 ; i < this.options().length ; i++){
+            options.push(this.options()[i]);
+        }
+
         const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
         f.setIsEvent(this.isEvent());
         return f;

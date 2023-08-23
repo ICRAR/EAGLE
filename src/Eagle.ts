@@ -1306,7 +1306,7 @@ export class Eagle {
                 return;
             }
             if (userString === ""){
-            Utils.showNotification("Input Error", "Enter A Valid Name", "warning");
+            Utils.showNotification("Invalid graph name", "Please enter a name for the new graph", "danger");
                 return;
             }
 
@@ -1748,65 +1748,72 @@ export class Eagle {
 
             // determine file extension
             const fileExtension = Utils.getFileExtension(file.name);
-            let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
-            let dataObject = null;
 
-            if (fileExtension !== "md"){
-                // attempt to parse the JSON
-                try {
-                    dataObject = JSON.parse(data);
-                }
-                catch(err){
-                    Utils.showUserMessage("Error parsing file JSON", err.message);
-                    if (callback !== null) callback([ActionMessage.Error(err)], file, file.type, null);
-                    return;
-                }
-
-                fileTypeLoaded = Utils.determineFileType(dataObject);
-                // console.log("fileTypeLoaded", fileTypeLoaded);
-            } else {
-                fileTypeLoaded = Eagle.FileType.Markdown;
-            }        
-
-            const errors: ActionMessage[] = [];
-            let logicalGraph: LogicalGraph = null;
-            let palette: Palette = null;
-
-            switch (fileTypeLoaded){
-                case Eagle.FileType.Graph:
-                    // attempt to determine schema version from FileInfo
-                    const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
-                                    
-                    // use the correct parsing function based on schema version
-                    switch (schemaVersion){
-                        case Daliuge.SchemaVersion.OJS:
-                        case Daliuge.SchemaVersion.Unknown:
-                            logicalGraph = LogicalGraph.fromOJSJson(dataObject, file, errors);
-                            break;
-                    }
-
-                    break;
-
-                case Eagle.FileType.Palette:
-                    palette = Palette.fromOJSJson(dataObject, file, errors);
-                    break;
-
-                case Eagle.FileType.Markdown:
-                    Utils.showUserMessage(file.name, Utils.markdown2html(data));
-                    break;
-
-                default:
-                    // Show error message
-                    Utils.showUserMessage("Error", "The file type is neither graph nor palette!");
+            if (fileExtension === "md"){
+                this._load(Eagle.FileType.Markdown, null, data, file, callback);
+                return;
             }
-            this.resetEditor();
 
-            if (callback !== null){
-                callback(errors, file, fileTypeLoaded, logicalGraph !== null ? logicalGraph : palette);
+            // attempt to parse the JSON
+            let dataObject: any = null;
+            try {
+                dataObject = JSON.parse(data);
+            }
+            catch (err){
+                Utils.showUserMessage("Error parsing file JSON", err.message);
+                if (callback !== null) callback([ActionMessage.Error(err)], file, file.type, null);
+                return;
+            }
+
+            const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
+            // console.log("fileTypeLoaded", fileTypeLoaded);
+
+            // attempt to determine schema version from FileInfo
+            const eagleVersion: string = Utils.determineEagleVersion(dataObject);
+
+            // warn user if file newer than EAGLE
+            if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
+                Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", "", (confirmed : boolean) : void => {
+                    if (confirmed){
+                        this._load(fileTypeLoaded, dataObject, data, file, callback);
+                    }
+                });
+            } else {
+                this._load(fileTypeLoaded, dataObject, data, file, callback);
             }
         });
     };
 
+    _load = (fileTypeLoaded: Eagle.FileType, dataObject: any, data: string, file: RepositoryFile, callback: (errors: ActionMessage[], file: RepositoryFile, fileTypeLoaded: Eagle.FileType, object: LogicalGraph | Palette) => void): void => {
+        const errors: ActionMessage[] = [];
+        let logicalGraph: LogicalGraph = null;
+        let palette: Palette = null;
+
+        switch (fileTypeLoaded){
+            case Eagle.FileType.Graph:
+                logicalGraph = LogicalGraph.fromOJSJson(dataObject, file, errors);
+                break;
+
+            case Eagle.FileType.Palette:
+                palette = Palette.fromOJSJson(dataObject, file, errors);
+                break;
+
+            case Eagle.FileType.Markdown:
+                Utils.showUserMessage(file.name, Utils.markdown2html(data));
+                break;
+
+            default:
+                // Show error message
+                Utils.showUserMessage("Error", "The file type is unknown!");
+        }
+        this.resetEditor();
+
+        if (callback !== null){
+            callback(errors, file, fileTypeLoaded, logicalGraph !== null ? logicalGraph : palette);
+        }
+    }
+
+    /*
     defaultLoad = (errors: ActionMessage[], file: RepositoryFile, fileTypeLoaded: Eagle.FileType, object: LogicalGraph | Palette) : void => {
         if (fileTypeLoaded === Eagle.FileType.Palette){
             this.remotePaletteLoaded(file, <Palette>object);
@@ -1820,6 +1827,7 @@ export class Eagle {
         // handle errors
         this.handleLoadingErrors([{file: file, errors: errors}]);
     }
+    */
 
     insertRemoteFile = (file : RepositoryFile) : void => {
         // flag file as being fetched
@@ -3280,6 +3288,12 @@ export class Eagle {
                 userString = paletteNames[userChoiceIndex];
             }
 
+            // if the userString is empty, then abort, we should not allow empty palette names
+            if (userString === ""){
+                Utils.showNotification("Invalid palette name", "Please enter a name for the new palette", "danger");
+                return;
+            }
+
             // Adding file extension to the title if it does not have it.
             if (!Utils.verifyFileExtension(userString)) {
                 userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
@@ -4436,7 +4450,7 @@ export class Eagle {
         }
 
         // if selectedNode is set, return a list of categories within the same category type
-        const categoryType: Category.Type = this.selectedNode().getCategoryType()
+        const categoryType: Category.Type = this.selectedNode().getCategoryType();
         
         return Utils.getCategoriesWithInputsAndOutputs(categoryType, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
     }, this)
@@ -4513,7 +4527,7 @@ export class Eagle {
     // NOTE: clones the node internally
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
         // copy node
-        let newNode : Node = node.clone();
+        const newNode : Node = node.clone();
 
         // set appropriate key for node (one that is not already in use)
         newNode.setId(Utils.uuidv4());
@@ -4521,61 +4535,30 @@ export class Eagle {
         newNode.setPosition(x, y);
         newNode.setEmbedKey(null);
 
-        // convert start of end nodes to data components
-        if (newNode.getCategory() === Category.Start) {
-            // Store the node's location.
-            const nodePosition = newNode.getPosition();
+        this.logicalGraph().addNodeComplete(newNode);
 
-            // build a list of ineligible types
-            const eligibleComponents = Utils.getDataComponentsWithPortTypeList(this.palettes(), [Category.Memory, Category.SharedMemory]);
+        // set new ids for any ports in this node
+        Utils.giveNodePortsNewIds(newNode);
 
-            // ask the user which data type should be added
-            this.logicalGraph().addDataComponentDialog(eligibleComponents, (node: Node) : void => {
-                if (node === null) {
-                    return;
-                }
+        // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
+        if (newNode.hasInputApplication()){
+            newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            newNode.getInputApplication().setEmbedKey(newNode.getKey());
 
-                // Add a data component to the graph.
-                newNode = this.logicalGraph().addDataComponentToGraph(node, nodePosition);
-
-                // copy name from the original node
-                newNode.setName(node.getName());
-
-                // Remove the redundant input port
-                newNode.removeAllInputPorts();
-
-                // flag that the logical graph has been modified
-                this.logicalGraph().fileInfo().modified = true;
-                this.logicalGraph().fileInfo.valueHasMutated();
-
-                if (callback !== null) callback(newNode);
-            });
-        } else {
-            this.logicalGraph().addNodeComplete(newNode);
-
-            // set new ids for any ports in this node
-            Utils.giveNodePortsNewIds(newNode);
-
-            // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
-            if (newNode.hasInputApplication()){
-                newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
-                newNode.getInputApplication().setEmbedKey(newNode.getKey());
-
-                Utils.giveNodePortsNewIds(newNode.getInputApplication());
-            }
-            if (newNode.hasOutputApplication()){
-                newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
-                newNode.getOutputApplication().setEmbedKey(newNode.getKey());
-
-                Utils.giveNodePortsNewIds(newNode.getOutputApplication());
-            }
-
-            // flag that the logical graph has been modified
-            this.logicalGraph().fileInfo().modified = true;
-            this.logicalGraph().fileInfo.valueHasMutated();
-
-            if (callback !== null) callback(newNode);
+            Utils.giveNodePortsNewIds(newNode.getInputApplication());
         }
+        if (newNode.hasOutputApplication()){
+            newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            newNode.getOutputApplication().setEmbedKey(newNode.getKey());
+
+            Utils.giveNodePortsNewIds(newNode.getOutputApplication());
+        }
+
+        // flag that the logical graph has been modified
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo.valueHasMutated();
+
+        if (callback !== null) callback(newNode);
     }
 
     checkForComponentUpdates = () : void => {
@@ -4740,6 +4723,6 @@ $( document ).ready(function() {
 
     $(".hierarchy").on("click", function(){
         (<any>window).eagle.selectedObjects([]);
-    })         
+    })   
 
 });

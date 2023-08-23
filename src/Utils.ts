@@ -231,7 +231,7 @@ export class Utils {
     static verifyFileExtension(filename : string) : boolean {
         const fileExtension = Utils.getFileExtension(filename);
 
-        // Check if the extenstion is in the list of allowed extensions.
+        // Check if the extension is in the list of allowed extensions
         if ($.inArray(fileExtension, Utils.FILE_EXTENSIONS) != -1) {
             return true;
         } else {
@@ -1343,13 +1343,39 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
+    static determineEagleVersion(data: any): string {
+        if (typeof data.modelData !== 'undefined'){
+            if (typeof data.modelData.eagleVersion !== 'undefined'){
+                return data.modelData.eagleVersion;
+            }
+        }
+
+        return "v-1.-1.-1";
+    }
+
+    // return true iff version0 is newer than version1
+    static newerEagleVersion(version0: string, version1: string){
+        //console.log("version0", version0, "version1", version1);
+
+        if (version0 === "Unknown" || version1 === "Unknown"){
+            return false;
+        }
+
+        const v0 = version0.split('v')[1].split('.').map(Number);
+        const v1 = version1.split('v')[1].split('.').map(Number);
+
+        //console.log("v0", v0, "v1", v1);
+
+        return (
+            v0[0] > v1[0] ||
+            ((v0[0] === v1[0]) && (v0[1] > v1[1])) ||
+            ((v0[0] === v1[0]) && (v0[1] === v1[1]) && (v0[2] > v1[2]))
+        )
+    }
+
     static determineSchemaVersion(data: any): Daliuge.SchemaVersion {
-        // appref
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
-                if (data.modelData.schemaVersion === Daliuge.SchemaVersion.OJS){
-                    return Daliuge.SchemaVersion.OJS;
-                }
                 return data.modelData.schemaVersion;
             }
         }
@@ -1400,6 +1426,24 @@ export class Utils {
         // check all nodes are valid
         for (const node of palette.getNodes()){
             Node.isValid(eagle, node, Eagle.FileType.Palette, false, false, errors);
+        }
+
+        return errors;
+    }
+
+    static checkGraph(eagle: Eagle): ActionMessage[] {
+        const errors: ActionMessage[] = [];
+
+        const graph: LogicalGraph = eagle.logicalGraph();
+
+        // check all nodes are valid
+        for (const node of graph.getNodes()){
+            Node.isValid(eagle, node, Eagle.FileType.Graph, false, false, errors);
+        }
+
+        // check all edges are valid
+        for (const edge of graph.getEdges()){
+            Edge.isValid(graph, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errors);
         }
 
         return errors;
@@ -1856,7 +1900,12 @@ export class Utils {
         }
     }
 
-    static fixFieldParameterType(field: Field, newType: Daliuge.FieldType){
+    static fixFieldParameterType(eagle: Eagle, node: Node, field: Field, newType: Daliuge.FieldType){
+        if (newType === Daliuge.FieldType.Unknown){
+            node.removeFieldById(field.getId());
+            return;
+        }
+
         field.setParameterType(newType);
     }
 
@@ -2028,6 +2077,22 @@ export class Utils {
         }
 
         console.table(tableData);
+    }
+
+    static getRmodeTooltip = () : string => {
+        let html = '**General**: Sets the standard for provenance tracking throughout graph translation and execution. Used to determine scientifically (high-level) changes to workflow behaviour. Signature files are stored alongside logfiles. Refer to the documentation for further explanation.<br>'
+        html = html+'**Documentation link** <a href="https://daliuge.readthedocs.io/en/latest/architecture/reproducibility/reproducibility.html" target="_blank">daliuge.readthedocs</a><br>'
+        html = html+'**NOTHING**: No provenance data is tracked at any stage.<br>'
+        html = html+'**ALL**: Data for all subsequent levels is generated and stored together.<br>'
+        html = html+'**RERUN**: Stores general about all logical graph components<br>'
+        html = html+'**REPEAT**: Stores specific information about logical and physical graph components<br>'
+        html = html+'**RECOMPUTE**: Stores maximum information about logical and physical graph components and at runtime.<br>'
+        html = html+'**REPRODUCE**: Stores information about terminal data drops at logical, physical and runtime layers.<br>'
+        html = html+'**REPLICATE SCI**: Essentially RERUN + REPRODUCE<br>'
+        html = html+'**REPLICATE COMP**: Essentially RECOMPUTE + REPRODUCE<br>'
+        html = html+'**REPLICATE TOTALLY**: Essentially REPEAT + REPRODUCE<br>'
+
+        return html
     }
 
     static copyInputTextModalInput = (): void => {

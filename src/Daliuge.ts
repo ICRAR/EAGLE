@@ -62,7 +62,11 @@ export namespace Daliuge {
         // docker
         IMAGE = "image",
         TAG = "tag",
-        DIGEST = "digest"
+        DIGEST = "digest",
+
+        // branch
+        YES = "yes",
+        NO = "no"
     }
 
     export enum DataType {
@@ -79,10 +83,11 @@ export namespace Daliuge {
     }
 
     export enum FieldType {
-        Unknown = "Unknown",
-        ComponentParameter = "ComponentParameter",
         ApplicationArgument = "ApplicationArgument",
-        ConstructParameter = "ConstructParameter"
+        ComponentParameter = "ComponentParameter",
+        ConstraintParameter = "ConstraintParameter",
+        ConstructParameter = "ConstructParameter",
+        Unknown = "Unknown"
     }
 
     export enum FieldUsage {
@@ -117,6 +122,25 @@ export namespace Daliuge {
         Replicate_Totally = 8
     }
 
+    // These are the canonical example definition of each field
+    export const groupStartField = new Field("", FieldName.GROUP_START, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
+    export const groupEndField = new Field("", FieldName.GROUP_END, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
+
+    export const branchYesField = new Field("", FieldName.YES, "", "", "The affirmative output from a branch node", false, DataType.Object, false, [], false, FieldType.ComponentParameter, FieldUsage.OutputPort, false);
+    export const branchNoField  = new Field("", FieldName.NO,  "", "", "he negative output from a branch node", false, DataType.Object, false, [], false, FieldType.ComponentParameter, FieldUsage.OutputPort, false);
+
+    export const dropClassField = new Field("", FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
+
+    export const executionTimeField = new Field("", FieldName.EXECUTION_TIME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.ConstraintParameter, FieldUsage.NoPort, false);
+    export const numCpusField = new Field("", FieldName.NUM_OF_CPUS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstraintParameter, FieldUsage.NoPort, false);
+    export const dataVolumeField = new Field("", FieldName.DATA_VOLUME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.ConstraintParameter, FieldUsage.NoPort, false);
+
+    export const kField = new Field("", FieldName.K, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false);
+    export const numCopiesField = new Field("", FieldName.NUM_OF_COPIES, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false);
+    export const numInputsField = new Field("", FieldName.NUM_OF_INPUTS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false);
+    export const numIterationsField = new Field("", FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false);
+
+    // This list defines the fields required for ALL nodes belonging to a given Category.Type
     // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
     export const categoryTypeFieldsRequired = [
         {
@@ -126,18 +150,37 @@ export namespace Daliuge {
                 Category.Type.Construct
             ],
             fields: [
-                new Field("", FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false),
+                Daliuge.dropClassField
+            ]
+        },
+        {
+            categoryTypes: [
+                Category.Type.Application
+            ],
+            fields: [
+                Daliuge.executionTimeField,
+                Daliuge.numCpusField
+            ]
+        },
+        {
+            categoryTypes: [
+                Category.Type.Data
+            ],
+            fields: [
+                Daliuge.dataVolumeField
             ]
         }
     ];
 
+    // This list defines the fields required for ALL nodes belonging to a given Category
+    // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
     export const categoryFieldsRequired = [
         {
             categories: [
                 Category.MKN
             ],
             fields: [
-                new Field("", FieldName.K, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false),
+                Daliuge.kField
             ]
         },
         {
@@ -145,7 +188,7 @@ export namespace Daliuge {
                 Category.Scatter
             ],
             fields: [
-                new Field("", FieldName.NUM_OF_COPIES, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
+                Daliuge.numCopiesField
             ]
         },
         {
@@ -154,7 +197,7 @@ export namespace Daliuge {
                 Category.GroupBy
             ],
             fields: [
-                new Field("", FieldName.NUM_OF_INPUTS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
+                Daliuge.numInputsField
             ]
         },
         {
@@ -162,11 +205,18 @@ export namespace Daliuge {
                 Category.Loop
             ],
             fields: [
-                new Field("", FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false)
+                Daliuge.numIterationsField
+            ]
+        },
+        {
+            categories: [
+                Category.Branch
+            ],
+            fields: [
+                Daliuge.branchYesField,
+                Daliuge.branchNoField,
+                Daliuge.dropClassField
             ]
         }
     ];
-
-    export const groupStartField = new Field("", FieldName.GROUP_START, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
-    export const groupEndField = new Field("", FieldName.GROUP_END, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
 }

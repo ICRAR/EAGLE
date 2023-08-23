@@ -405,7 +405,7 @@ color: #00bb00;}
     padding: 0px;
     border:1px solid black;
     overflow: hidden;
-    min-width: 8rem;
+    min-width: 9rem;
     max-height:200px;
     overflow-y: auto;
 }
@@ -497,10 +497,23 @@ td:first-child input {
     font-size: 12px;
 }
 
+#parameterTableVisibilityContainer{
+    position:absolute;
+    right: 320px;
+    height: 34px;
+    width: 34px;
+    padding: 3px;
+    cursor: pointer;
+}
+
+#parameterTableVisibilityContainer .dropdown-toggle::after{
+    display: none;
+}
+
 .componentTableVisibilityBtn{
     color: white;
     text-decoration: none;
-    font-size: 19px!important;
+    font-size: 24px!important;
     padding-top: 3px;
 }
 
@@ -516,36 +529,35 @@ td:first-child input {
     background: white;
 }
 
-#parameter_table_isKeyAttribute .dropdown-menu{
-    
+#parameterTableVisibilityContainer .dropdown-menu{
     border:solid 1px #000c1a;
     border-radius: 6px;
-     position: absolute;
-     z-index: 100;
-     background-color: #0059a5;
+    position: absolute;
+    z-index: 100;
+    background-color: #0059a5;
 }
 
-#parameter_table_isKeyAttribute .dropdown-menu-right{
+#parameterTableVisibilityContainer .dropdown-menu-right{
     right: 0;
     left: auto !important;
 }
 
-#parameter_table_isKeyAttribute .dropdown-item{
+#parameterTableVisibilityContainer .dropdown-item{
     position: relative;
 }
 
-#parameter_table_isKeyAttribute .dropdown-item span{
+#parameterTableVisibilityContainer .dropdown-item span{
     color: white;
 }
 
-#parameter_table_isKeyAttribute .dropdown-item input{
-    right: 7px;
-    top: 11px;
+#parameterTableVisibilityContainer .dropdown-item input{
+    right: 0px;
+    top: 7px;
     position:absolute;
     pointer-events:none;
 }
 
-#parameter_table_isKeyAttribute .dropdown-item:hover{
+#parameterTableVisibilityContainer .dropdown-item:hover{
     background-color: #001d3b;
     color: white;
 }
@@ -1253,7 +1265,7 @@ select.form-control{
     position: absolute;
     top: 0;
     width: 100%;
-    z-index: 111;
+    z-index: 112;
     border: none;
 }
 
@@ -2630,14 +2642,42 @@ palette-component input.form-control.selected {
     background-color: lightgrey;
 }
 
+.tooltip-inner h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
+.tooltip-inner h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
+.tooltip-inner h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
+.tooltip-inner h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0px;
+}
+
 .tooltip-inner h5 {
     font-size: 1rem;
     font-weight: 600;
     margin: 0px;
 }
 
+.tooltip-inner strong{
+    font-weight: 600;
+}
+
 .tooltip-inner p {
-    font-size: .85rem;
+    font-size: 1rem;
     font-weight: 300;
     margin-bottom: 10px;
 }
@@ -2645,8 +2685,10 @@ palette-component input.form-control.selected {
 .tooltip-inner{
     transition: 0s visibility;
     visibility: visible;
-    max-height: 300px;
-    overflow: hidden;
+    max-height: 400px;
+    max-width:300px;
+    overflow: auto;
+    text-align: left;
 }
 
 #checkGraphModal ul.list-group .list-group-item span, #actionListModal ul.list-group .list-group-item span {

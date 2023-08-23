@@ -32,7 +32,6 @@ import { Daliuge } from './Daliuge';
 
 import { Eagle } from './Eagle';
 import { Field } from './Field';
-import { GraphUpdater } from './GraphUpdater';
 
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -683,6 +682,10 @@ export class Node {
         return CategoryData.getCategoryData(this.category()).canHaveConstructParameters;
     }
 
+    canHaveConstraintParameters = () : boolean => {
+        return true;
+    }
+
     canHaveType = (parameterType: Daliuge.FieldType) : boolean => {
         if (parameterType === Daliuge.FieldType.ComponentParameter){
             return this.canHaveComponentParameters()
@@ -713,9 +716,9 @@ export class Node {
         // check if name and category are the same (or similar except for capitalisation and whitespace)
         // if so, only use the name, the category is redundant
         if (this.getName().split(" ").join("").toLowerCase() === this.getCategory().toLowerCase()){
-            return "<p><h5>" + this.getName() + "</h5></p><p>" + Utils.markdown2html(this.getDescription()) +  "</p>";
+            return "###"+ this.getName() + "\n" + this.getDescription();
         } else {
-            return "<p><h5>" + this.getCategory() + " : " + this.getName() + "</h5></p><p>" + Utils.markdown2html(this.getDescription()) +  "</p>";
+            return "###" + this.getCategory() + " : " + this.getName() + "\n" + Utils.markdown2html(this.getDescription());
         }
     }, this);
 
@@ -1366,7 +1369,7 @@ export class Node {
         }
 
         // translate categories if required
-        let category: Category = GraphUpdater.translateOldCategory(nodeData.category);
+        let category: Category = nodeData.category;
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
@@ -1815,9 +1818,8 @@ export class Node {
 
     static toOJSPaletteJson = (node : Node) : object => {
         const result : any = {};
-        const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
 
-        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.category = node.category();
         result.categoryType = node.categoryType();
 
         result.key = node.key();
@@ -1888,9 +1890,8 @@ export class Node {
 
     static toOJSGraphJson = (node : Node) : object => {
         const result : any = {};
-        const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
 
-        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.category = node.category();
         result.categoryType = node.categoryType();
 
         result.isGroup = node.isGroup();
@@ -2200,18 +2201,22 @@ export class Node {
             ){
                 // determine a suitable type
                 let suitableType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
-                if (CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters){
+                const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
+
+                if (categoryData.canHaveComponentParameters){
                     suitableType = Daliuge.FieldType.ComponentParameter;
                 } else {
-                    if (CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments){
+                    if (categoryData.canHaveApplicationArguments){
                         suitableType = Daliuge.FieldType.ApplicationArgument;
                     } else {
-                        suitableType = Daliuge.FieldType.ConstructParameter;
+                        if (categoryData.canHaveConstructParameters){
+                            suitableType = Daliuge.FieldType.ConstructParameter;
+                        }
                     }
                 }
 
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
-                const issue: ActionMessage = ActionMessage.ShowFix(ActionMessage.Level.Warning, message, function(){Utils.showNode(eagle, selectedLocation, node.getId());}, function(){Utils.fixFieldParameterType(field, suitableType)}, "Switch to suitable type");
+                const issue: ActionMessage = ActionMessage.ShowFix(ActionMessage.Level.Warning, message, function(){Utils.showNode(eagle, selectedLocation, node.getId());}, function(){Utils.fixFieldParameterType(eagle, node, field, suitableType)}, "Switch to suitable type, or remove if no suitable type");
                 errors.push(issue);
             }
         }
@@ -2310,7 +2315,7 @@ export class Node {
         } else {
             if (existingField.getParameterType() !== field.getParameterType()){
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") has a '" + field.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + field.getParameterType();
-                errorsWarnings.push(ActionMessage.ShowFix(ActionMessage.Level.Error, message, function(){Utils.showNode(eagle, location, node.getId());}, function(){Utils.fixFieldParameterType(existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType()));
+                errorsWarnings.push(ActionMessage.ShowFix(ActionMessage.Level.Error, message, function(){Utils.showNode(eagle, location, node.getId());}, function(){Utils.fixFieldParameterType(eagle, node, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType()));
             }
         }
     }
