@@ -36,7 +36,7 @@ ko.bindingHandlers.nodeRenderHandler = {
         const node :Node = ko.unwrap(valueAccessor())
         console.log('classes ',element,node)
 
-        //overwriting css variables using colours from graphConfig.ts. I am using this for complex styling to avoid excessive css data binds in the node html files
+        //overwriting css variables using colours from graphConfig.ts. I am using this for simple styling to avoid excessive css data binds in the node html files
         $("#logicalGraphParent").get(0).style.setProperty("--selectedBg", GraphConfig.getColor('selectBackground'));
         $("#logicalGraphParent").get(0).style.setProperty("--nodeBorder", GraphConfig.getColor('bodyBorder'));
         $("#logicalGraphParent").get(0).style.setProperty("--nodeBg", GraphConfig.getColor('nodeBg'));
