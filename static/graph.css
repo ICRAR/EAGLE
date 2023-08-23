@@ -26,8 +26,6 @@
     background-color: white;
     border-radius: 50%;
     border: 1.5px solid red;
-    display: flex;
-    flex-direction: column;
     width: 100%;
     height: 100%;
 }
@@ -36,8 +34,6 @@
     background-color: white;
     border-radius: 50%;
     border: 1.5px solid red;
-    display: flex;
-    flex-direction: column;
     width: 100%;
     height: 100%;
     position: absolute;
@@ -47,8 +43,6 @@
 }
 
 .node .branchPortRing {
-    display: flex;
-    flex-direction: column;
     width: 100%;
     height: 100%;
     position: absolute;
@@ -66,7 +60,11 @@
 .node .body span{
     width: 100%;
     height: 100%;
-    font-size: 80px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
+    font-size: 75px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
+}
+
+.node .branch_node .body span{
+    font-size: 100px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
 }
 
 .node .body span::before{
@@ -107,7 +105,6 @@
     position: absolute;
     overflow: hidden;
     text-align: center;
-    flex-grow: 1;    
     top: -37px;
     left: 50%;
     transform: translateX(-50%);

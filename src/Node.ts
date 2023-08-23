@@ -250,8 +250,8 @@ export class Node {
     }
 
     setPosition = (x: number, y: number, allowSnap: boolean = true) : void => {
-        this.realX = x;
-        this.realY = y;
+        this.realX = Math.round(x);
+        this.realY = Math.round(y);
 
         if (Eagle.getInstance().snapToGrid() && allowSnap){
             this.x(Utils.snapToGrid(this.realX, this.getDisplayWidth()));
@@ -260,22 +260,24 @@ export class Node {
             this.x(this.realX);
             this.y(this.realY);
         }
+        console.log(x,y)
     }
 
     changePosition = (dx : number, dy : number, allowSnap: boolean = true) : {dx:number, dy:number} => {
-        this.realX += dx;
-        this.realY += dy;
+        this.realX += Math.round(dx);
+        this.realY += Math.round(dy);
 
-        const beforePos = {x:this.x, y:this.y};
+        const beforePos = {x:Math.round(this.x()), y:Math.round(this.y())};
 
         if (Eagle.getInstance().snapToGrid() && allowSnap){
             this.x(Utils.snapToGrid(this.realX, this.getDisplayWidth()));
             this.y(Utils.snapToGrid(this.realY, this.getDisplayHeight()));
 
-            return {dx:this.x() - beforePos.x(), dy:this.y() - beforePos.y()};
+            return {dx:this.x() - beforePos.x, dy:this.y() - beforePos.y};
         } else {
             this.x(this.realX);
             this.y(this.realY);
+            console.log('pos',this.x(),this.y())
             
             return {dx:dx, dy:dy};
         }
