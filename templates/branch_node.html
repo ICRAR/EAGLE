@@ -1,0 +1,20 @@
+<div class="nodeContent branch_node">
+    <div class="container">
+        <div class="header">
+            <div class="header-name" data-bind="html: $data.name"></div>
+        </div>
+    
+        <div class="body">
+            <div class="innerRing"></div>
+            <div class="outerRing" data-bind="style:{'background-color':GraphConfig.getColor('branchBody')}"></div>
+                <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
+                <!-- ko foreach: $data.getInputPorts() -->
+                    <div class="inputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>
+                <!-- /ko -->
+                <!-- ko foreach: $data.getOutputPorts() -->
+                    <div class="outputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:$data"></div>
+                <!-- /ko -->
+        </div> 
+    </div>
+   
+</div>

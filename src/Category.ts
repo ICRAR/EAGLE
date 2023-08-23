@@ -82,7 +82,7 @@ export namespace Category {
 
     export enum Color {
         Application = "#0059a5",
-        Control = "rgb(88 167 94)",
+        Control = "rgb(46 161 55)",
         Data = "#2c2c2c",
         Description = "rgb(157 43 96)",
         Error = "#FF66CC",

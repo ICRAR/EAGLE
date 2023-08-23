@@ -77,6 +77,7 @@ export class Node {
     private dataHash : ko.Observable<string>;
 
     private portAngles : number[]
+    private nodeRadius : ko.Observable<number>;
 
     public static readonly DEFAULT_WIDTH : number = 200;
     public static readonly DEFAULT_HEIGHT : number = 72;
@@ -116,6 +117,7 @@ export class Node {
         this.description = ko.observable(description);
         
         this.portAngles = []
+        this.nodeRadius = ko.observable(0);
 
         // display position
         this.realX = 0;
@@ -239,9 +241,17 @@ export class Node {
         this.portAngles = []
     }
 
+    getNodeRadius = () : number => {
+        return this.nodeRadius()
+    }
+
+    setNodeRadius = (radius:number) : void => {
+        this.nodeRadius(radius)
+    }
+
     setPosition = (x: number, y: number, allowSnap: boolean = true) : void => {
-        this.realX = x;
-        this.realY = y;
+        this.realX = Math.round(x);
+        this.realY = Math.round(y);
 
         if (Eagle.getInstance().snapToGrid() && allowSnap){
             this.x(Utils.snapToGrid(this.realX, this.getDisplayWidth()));
@@ -253,16 +263,16 @@ export class Node {
     }
 
     changePosition = (dx : number, dy : number, allowSnap: boolean = true) : {dx:number, dy:number} => {
-        this.realX += dx;
-        this.realY += dy;
+        this.realX += Math.round(dx);
+        this.realY += Math.round(dy);
 
-        const beforePos = {x:this.x, y:this.y};
+        const beforePos = {x:Math.round(this.x()), y:Math.round(this.y())};
 
         if (Eagle.getInstance().snapToGrid() && allowSnap){
             this.x(Utils.snapToGrid(this.realX, this.getDisplayWidth()));
             this.y(Utils.snapToGrid(this.realY, this.getDisplayHeight()));
 
-            return {dx:this.x() - beforePos.x(), dy:this.y() - beforePos.y()};
+            return {dx:this.x() - beforePos.x, dy:this.y() - beforePos.y};
         } else {
             this.x(this.realX);
             this.y(this.realY);

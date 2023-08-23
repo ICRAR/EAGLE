@@ -1,8 +1,26 @@
+#logicalGraphParent{
+    /* declaring custom variables used in css set via ts later from the graph config variables */
+    --selectedBg : red;
+    --nodeBorder : red;
+    --nodeBg:red;
+    --graphText:red;
+}
+
 .node {
     position: absolute;
     height: 60px;
     width: 60px;
     transform: translate(-50%,-50%);
+}
+
+.node .basic_node {
+    width: 100%;
+    height: 100%;
+}
+
+.node .branch_node {
+    width: 100%;
+    height: 100%;
 }
 
 .node .container{
@@ -13,11 +31,30 @@
 }
 
 .node .body {
-    background-color: white;
+    background-color: var(--nodeBg);
     border-radius: 50%;
-    border: 1.5px solid red;
-    display: flex;
-    flex-direction: column;
+    border: 1.5px solid var(--nodeBorder);
+    width: 100%;
+    height: 100%;
+}
+
+.node .innerRing {
+    background-color: var(--nodeBg);
+    border-radius: 50%;
+    border: 1.5px solid var(--nodeBorder);
+    position: absolute;
+    z-index: 2;
+}
+
+.node .outerRing {
+    border-radius: 50%;
+    border: 1.5px solid var(--nodeBorder);
+    position: absolute;
+}
+
+.node .branch_node .body {
+    border-radius: 50%;
+    border: none !important;
     width: 100%;
     height: 100%;
 }
@@ -25,8 +62,11 @@
 .node .body span{
     width: 100%;
     height: 100%;
-    font-size: 80px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
-    position: relative;
+    font-size: 75px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
+}
+
+.node .branch_node .body span{
+    font-size: 100px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
 }
 
 .node .body span::before{
@@ -35,6 +75,7 @@
     left: 50%;
     position: absolute;
     transform: translate(-50%,-50%);
+    z-index: 5;
 }
 
 .node .body .inputPort{
@@ -55,19 +96,35 @@
 }
 
 .node.selected .body {
-    border: 3px solid red;
-    background-color: #b4d4ff;
+    outline: solid 2px var(--nodeBorder);
+    outline-offset: 0px;
+    box-shadow: 0px 0px 0 1px var(--nodeBorder);
+    background-color: var(--selectedBg);
+}
+
+.node.selected .branch_node .outerRing {
+    outline: solid 2px var(--nodeBorder);
+    outline-offset: 0px;
+    box-shadow: 0px 0px 0 1px var(--nodeBorder);
+}
+
+.node.selected .branch_node .innerRing {
+    background-color:  var(--selectedBg);
+}
+
+.node .header-name {
+    color:var(--graphText)
 }
 
 .node.selected .header-name {
     font-weight: 500;
+    color:var(--graphText)
 }
 
 .node .header {
     position: absolute;
     overflow: hidden;
     text-align: center;
-    flex-grow: 1;    
     top: -37px;
     left: 50%;
     transform: translateX(-50%);

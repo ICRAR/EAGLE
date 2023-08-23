@@ -491,8 +491,8 @@ export class Eagle {
         const displayCenterY : number = $('#logicalGraphParent').height() / this.globalScale() / 2;
 
         // translate display to center the graph centroid
-        this.globalOffsetX(displayCenterX - centroidX);
-        this.globalOffsetY(displayCenterY - centroidY);
+        this.globalOffsetX(Math.round(displayCenterX - centroidX));
+        this.globalOffsetY(Math.round(displayCenterY - centroidY));
 
         // trigger render
         this.logicalGraph.valueHasMutated();

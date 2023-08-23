@@ -57,7 +57,7 @@ require.config({
         "RightClick": "./static/built/RightClick",
         "Repositories": "./static/built/Repositories",
         "ParameterTable": "./static/built/ParameterTable",
-        "Colors": "./static/built/Colors"
+        "graphConfig": "./static/built/graphConfig"
     },
     shim: {
         "bootstrap": {
