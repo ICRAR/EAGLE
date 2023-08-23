@@ -5,8 +5,8 @@
         </div>
     
         <div class="body">
-            <div class="innerRing" data-bind="style:{'border-color':GraphConfig.getColor('body')}"></div>
-            <div class="outerRing" data-bind="style:{'border-color':GraphConfig.getColor('body'),'background-color':GraphConfig.getColor('branchBody')}"></div>
+            <div class="innerRing"></div>
+            <div class="outerRing" data-bind="style:{'background-color':GraphConfig.getColor('branchBody')}"></div>
                 <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
                 <!-- ko foreach: $data.getInputPorts() -->
                     <div class="inputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>

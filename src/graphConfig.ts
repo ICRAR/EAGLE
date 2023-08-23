@@ -1,6 +1,6 @@
 const colors: { name: string; color: string; }[] = [
     {
-        name: 'body',
+        name: 'bodyBorder',
         color: '#2e3192'
     },{
         name: 'branchBody',
@@ -9,11 +9,17 @@ const colors: { name: string; color: string; }[] = [
         name: 'graphText',
         color: 'black'
     },{
+        name: 'nodeBg',
+        color: 'white'
+    },{
         name: 'nodeInputPort',
         color: '#2bb673'
     },{
         name: 'nodeOutputPort',
         color: '#fbb040'
+    },{
+        name: 'selectBackground',
+        color: '#b4d4ff'
     }
 ]
 

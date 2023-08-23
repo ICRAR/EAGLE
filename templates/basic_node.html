@@ -4,7 +4,7 @@
             <div class="header-name" data-bind="html: $data.name,style:{'color':GraphConfig.getColor('graphText')}"></div>
         </div>
     
-        <div class="body" data-bind="style:{'border-color':GraphConfig.getColor('body')}">
+        <div class="body">
             <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
             <!-- ko foreach: $data.getInputPorts() -->
                 <div class="inputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>

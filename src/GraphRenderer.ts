@@ -35,7 +35,12 @@ ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
         const node :Node = ko.unwrap(valueAccessor())
         console.log('classes ',element,node)
-        
+
+        //overwriting css variables using colours from graphConfig.ts. I am using this for complex styling to avoid excessive css data binds in the node html files
+        $("#logicalGraphParent").get(0).style.setProperty("--selectedBg", GraphConfig.getColor('selectBackground'));
+        $("#logicalGraphParent").get(0).style.setProperty("--nodeBorder", GraphConfig.getColor('bodyBorder'));
+        $("#logicalGraphParent").get(0).style.setProperty("--nodeBg", GraphConfig.getColor('nodeBg'));
+
         switch(node.getCategory()){
             case Category.Branch: 
                 console.log('branch node')
@@ -192,7 +197,7 @@ export class GraphRenderer {
         const isShortEdge: boolean = edgeLength < srcNodeRadius * 3;
 
         // calculate the length from the src and dest nodes at which the control points will be placed
-        const lengthToControlPoints = edgeLength * 0.6;
+        const lengthToControlPoints = edgeLength * 0.4;
 
         // calculate the angle for the src and dest ports
         const srcPortAngle: number = GraphRenderer.calculateConnectionAngle(srcNodePosition, destNodePosition);
