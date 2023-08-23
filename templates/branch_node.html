@@ -4,19 +4,16 @@
             <div class="header-name" data-bind="html: $data.name,style:{'color':GraphConfig.getColor('graphText')}"></div>
         </div>
     
-        <div class="body" data-bind="style:{'border-color':GraphConfig.getColor('body'),'background-color':GraphConfig.getColor('branchBody')}">
+        <div class="body">
             <div class="innerRing" data-bind="style:{'border-color':GraphConfig.getColor('body')}"></div>
-            <div class="branchPortRing">
-                <div class="innerContainer">
-                    <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
-                    <!-- ko foreach: $data.getInputPorts() -->
-                        <div class="inputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>
-                    <!-- /ko -->
-                    <!-- ko foreach: $data.getOutputPorts() -->
-                        <div class="outputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:$data"></div>
-                    <!-- /ko -->
-                </div>
-            </div>
+            <div class="outerRing" data-bind="style:{'border-color':GraphConfig.getColor('body'),'background-color':GraphConfig.getColor('branchBody')}"></div>
+                <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
+                <!-- ko foreach: $data.getInputPorts() -->
+                    <div class="inputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>
+                <!-- /ko -->
+                <!-- ko foreach: $data.getOutputPorts() -->
+                    <div class="outputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:$data"></div>
+                <!-- /ko -->
         </div> 
     </div>
    

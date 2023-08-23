@@ -41,8 +41,8 @@ ko.bindingHandlers.nodeRenderHandler = {
                 console.log('branch node')
                 node.setNodeRadius(GraphConfig.getBranchRadius())
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
-                $(element).find('.innerRing').css({'height':node.getNodeRadius()*2-25+'px','width':node.getNodeRadius()*2-25+'px'})
-                $(element).find('.branchPortRing').css({'height':node.getNodeRadius()*2-13+'px','width':node.getNodeRadius()*2-13+'px'})
+                $(element).find('.innerRing').css({'top':6+'px','left':6+'px','right':6+'px','bottom':6+'px'})
+                $(element).find('.outerRing').css({'top':-7+'px','left':-7+'px','right':-7+'px','bottom':-7+'px'})
                 break
             
             default : 
@@ -90,12 +90,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
 
         //for branch nodes the ports are inset from the outer radius a little bit in their design
-        let nodeRadius = 0
-        if(node.isBranch()){
-            nodeRadius = node.getNodeRadius()-7
-        }else{
-            nodeRadius = node.getNodeRadius()
-        }
+        let nodeRadius = node.getNodeRadius()
 
         if(connectedField){
             const adjacentNodePos = adjacentNode.getPosition()

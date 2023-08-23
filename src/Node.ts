@@ -260,7 +260,6 @@ export class Node {
             this.x(this.realX);
             this.y(this.realY);
         }
-        console.log(x,y)
     }
 
     changePosition = (dx : number, dy : number, allowSnap: boolean = true) : {dx:number, dy:number} => {
@@ -277,7 +276,6 @@ export class Node {
         } else {
             this.x(this.realX);
             this.y(this.realY);
-            console.log('pos',this.x(),this.y())
             
             return {dx:dx, dy:dy};
         }

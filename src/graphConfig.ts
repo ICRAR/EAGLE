@@ -18,7 +18,7 @@ const colors: { name: string; color: string; }[] = [
 ]
 
 const normalNodeRadius = 25
-const branchNodeRadius = 50
+const branchNodeRadius = 44
 
 export class GraphConfig {
 
