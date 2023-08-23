@@ -88,7 +88,19 @@
 }
 
 .node.selected .body {
-    border: 3px solid red;
+    outline: solid 2px rgb(46, 49, 146);
+    outline-offset: 0px;
+    box-shadow: 0px 0px 0 1px rgb(46, 49, 146);
+    background-color: #b4d4ff;
+}
+
+.node.selected .branch_node .outerRing {
+    outline: solid 2px rgb(46, 49, 146);
+    outline-offset: 0px;
+    box-shadow: 0px 0px 0 1px rgb(46, 49, 146);
+}
+
+.node.selected .branch_node .innerRing {
     background-color: #b4d4ff;
 }
 
