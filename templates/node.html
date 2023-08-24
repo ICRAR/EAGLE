@@ -5,4 +5,7 @@
     <!-- ko if:$data.isBranch() -->
         {% include 'branch_node.html' %}
     <!-- /ko -->
+    <!-- ko if:$data.isConstruct() -->
+        {% include 'construct_node.html' %}
+        <!-- /ko -->
 </div>

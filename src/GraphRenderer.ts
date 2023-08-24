@@ -50,6 +50,13 @@ ko.bindingHandlers.nodeRenderHandler = {
                 $(element).find('.innerRing').css({'top':6+'px','left':6+'px','right':6+'px','bottom':6+'px'})
                 $(element).find('.outerRing').css({'top':-7+'px','left':-7+'px','right':-7+'px','bottom':-7+'px'})
                 break
+
+            case Category.Scatter || Category.Gather || Category.MKN || Category.GroupBy || Category.Loop || Category.SubGraph : 
+                node.setNodeRadius(GraphConfig.getConstructRadius())
+                $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
+
+                break
+            
             
             default : 
                 node.setNodeRadius(GraphConfig.getNormalRadius())

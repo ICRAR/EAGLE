@@ -25,6 +25,7 @@ const colors: { name: string; color: string; }[] = [
 
 const normalNodeRadius = 25
 const branchNodeRadius = 44
+const constructNodeRadius = 100
 
 export class GraphConfig {
 
@@ -46,6 +47,10 @@ export class GraphConfig {
 
     static getBranchRadius = () : number => {
         return branchNodeRadius
+    }
+
+    static getConstructRadius = () : number => {
+        return constructNodeRadius
     }
 
 }
