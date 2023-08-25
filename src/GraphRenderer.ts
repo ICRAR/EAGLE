@@ -101,7 +101,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         if(dataType === 'inputPort'){
             node = data
             field = node.getInputPorts()[0]
-            console.log('bop:', node.getName() , field )
         }else if(dataType === 'outputPort'){
             node = data
             field = node.getOutputPorts()[0]
