@@ -6,11 +6,17 @@
     
         <div class="body">
             <span data-bind="class: $data.getIcon()"></span>
-            <!-- ko foreach: $data.getInputPorts() -->
-                <div class="inputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>
+            <!-- ko with: $data.getInputApplication() -->
+            
+
+                <div class="constructInputApp" data-bind="graphRendererPortPosition:{data:$data,type:'inputPort'}">
+                    {% include 'basic_node.html' %}
+                </div>
             <!-- /ko -->
-            <!-- ko foreach: $data.getOutputPorts() -->
-                <div class="outputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:$data"></div>
+            <!-- ko with: $data.getOutputApplication() -->
+                <div class="constructOutputApp" data-bind="graphRendererPortPosition:{data:$data,type:'outputPort'}">
+                    {% include 'basic_node.html' %}
+                </div>
             <!-- /ko -->
         </div> 
     </div>

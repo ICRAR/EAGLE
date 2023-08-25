@@ -88,11 +88,27 @@ ko.bindingHandlers.graphRendererPortPosition = {
     init: function(element:any, field, allBindings) {
        
     },
-    update: function (element:any, field) {
+    update: function (element:any, valueAccessor) {
         //the update function is called initially and then whenever a change to a utilised observable occurs
-        
         const eagle : Eagle = Eagle.getInstance();
-        const node : Node = eagle.logicalGraph().findNodeByKeyQuiet(field().getNodeKey())
+        
+        const data = ko.utils.unwrapObservable(valueAccessor()).data
+        const dataType = ko.utils.unwrapObservable(valueAccessor()).type
+
+        let node : Node 
+        let field : Field
+
+        if(dataType === 'inputPort'){
+            node = data
+            field = node.getInputPorts()[0]
+            console.log('bop:', node.getName() , field )
+        }else if(dataType === 'outputPort'){
+            node = data
+            field = node.getOutputPorts()[0]
+        }else if (dataType === 'port'){
+            node = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey())
+            field = data
+        }
 
         const currentNodePos = node.getPosition()
         const edges = eagle.logicalGraph().getEdges()
@@ -105,10 +121,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
         for(const edge of edges){
-            if(field().getId()===edge.getDestPortId()){
+            if(field.getId()===edge.getDestPortId()){
                 adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
                 connectedField=true
-            }else if(field().getId()===edge.getSrcPortId()){
+            }else if(field.getId()===edge.getSrcPortId()){
                 adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
                 connectedField=true
             }
@@ -123,13 +139,13 @@ ko.bindingHandlers.graphRendererPortPosition = {
             node.addPortAngle(edgeAngle)
             PortPosition=GraphRenderer.calculatePortPos(edgeAngle,nodeRadius, nodeRadius)
         }else{
-            if(field().isInputPort()){
+            if(field.isInputPort()){
                 PortPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
             }else{
                 PortPosition=GraphRenderer.calculatePortPos(0, nodeRadius, nodeRadius)
             }
         }
-        field().setPosition(PortPosition.x, PortPosition.y)
+        field.setPosition(PortPosition.x, PortPosition.y)
 
         $(element).css({'top':PortPosition.y+'px','left':PortPosition.x+'px'})
 
