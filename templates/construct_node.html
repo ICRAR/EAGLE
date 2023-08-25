@@ -7,14 +7,12 @@
         <div class="body">
             <span data-bind="class: $data.getIcon()"></span>
             <!-- ko with: $data.getInputApplication() -->
-            
-
-                <div class="constructInputApp" data-bind="graphRendererPortPosition:{data:$data,type:'inputPort'}">
+                <div class="constructInputApp" data-bind="graphRendererPortPosition:{data:$data,type:'inputPort'},nodeRenderHandler:$data">
                     {% include 'basic_node.html' %}
                 </div>
             <!-- /ko -->
             <!-- ko with: $data.getOutputApplication() -->
-                <div class="constructOutputApp" data-bind="graphRendererPortPosition:{data:$data,type:'outputPort'}">
+                <div class="constructOutputApp" data-bind="graphRendererPortPosition:{data:$data,type:'outputPort'}, nodeRenderHandler:$data,">
                     {% include 'basic_node.html' %}
                 </div>
             <!-- /ko -->
