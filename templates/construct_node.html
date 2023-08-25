@@ -5,7 +5,7 @@
         </div>
     
         <div class="body">
-            <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
+            <span data-bind="class: $data.getIcon()"></span>
             <!-- ko foreach: $data.getInputPorts() -->
                 <div class="inputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>
             <!-- /ko -->

@@ -3,8 +3,14 @@ const colors: { name: string; color: string; }[] = [
         name: 'bodyBorder',
         color: '#2e3192'
     },{
-        name: 'branchBody',
+        name: 'branchBg',
         color: '#d4d4d4'
+    },{
+        name: 'constructBg',
+        color: '#d4d4d4'
+    },{
+        name: 'constructIcon',
+        color: '#c1c1c1'
     },{
         name: 'graphText',
         color: 'black'
@@ -25,7 +31,7 @@ const colors: { name: string; color: string; }[] = [
 
 const normalNodeRadius = 25
 const branchNodeRadius = 44
-const constructNodeRadius = 100
+const constructNodeRadius = 300
 
 export class GraphConfig {
 

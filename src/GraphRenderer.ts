@@ -41,6 +41,11 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--nodeBorder", GraphConfig.getColor('bodyBorder'));
         $("#logicalGraphParent").get(0).style.setProperty("--nodeBg", GraphConfig.getColor('nodeBg'));
         $("#logicalGraphParent").get(0).style.setProperty("--graphText", GraphConfig.getColor('graphText'));
+        $("#logicalGraphParent").get(0).style.setProperty("--branchBg", GraphConfig.getColor('branchBg'));
+        $("#logicalGraphParent").get(0).style.setProperty("--constructBg", GraphConfig.getColor('constructBg'));
+        $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", GraphConfig.getColor('constructIcon'));
+        
+        console.log(node.getCategory())
 
         switch(node.getCategory()){
             case Category.Branch: 
@@ -51,7 +56,13 @@ ko.bindingHandlers.nodeRenderHandler = {
                 $(element).find('.outerRing').css({'top':-7+'px','left':-7+'px','right':-7+'px','bottom':-7+'px'})
                 break
 
-            case Category.Scatter || Category.Gather || Category.MKN || Category.GroupBy || Category.Loop || Category.SubGraph : 
+            case Category.Scatter:
+            case Category.Gather:
+            case Category.MKN: 
+            case Category.GroupBy:
+            case Category.Loop:
+            case Category.SubGraph:
+                console.log('construct')
                 node.setNodeRadius(GraphConfig.getConstructRadius())
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
 
@@ -59,6 +70,7 @@ ko.bindingHandlers.nodeRenderHandler = {
             
             
             default : 
+                console.log('node')
                 node.setNodeRadius(GraphConfig.getNormalRadius())
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
         }
