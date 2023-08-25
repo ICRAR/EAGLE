@@ -106,10 +106,7 @@
     outline: solid 2px var(--nodeBorder);
     outline-offset: 0px;
     box-shadow: 0px 0px 0 1px var(--nodeBorder);
-}
-
-.node.selected .branch_node .innerRing {
-    background-color:  var(--selectedBg);
+    background-color:  var(--selectedBg) !important;
 }
 
 .node .header-name {
