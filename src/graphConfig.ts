@@ -10,7 +10,7 @@ const colors: { name: string; color: string; }[] = [
         color: '#d4d4d4'
     },{
         name: 'constructIcon',
-        color: '#c1c1c1'
+        color: '#0000002e'
     },{
         name: 'graphText',
         color: 'black'
