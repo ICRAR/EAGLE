@@ -144,7 +144,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 PortPosition=GraphRenderer.calculatePortPos(0, nodeRadius, nodeRadius)
             }
         }
-        field.setPosition(PortPosition.x, PortPosition.y)
+
+        if (dataType === 'port'){
+            field.setPosition(PortPosition.x, PortPosition.y)
+        }else{
+            node.setPosition(PortPosition.x, PortPosition.y)
+        }
 
         $(element).css({'top':PortPosition.y+'px','left':PortPosition.x+'px'})
 
