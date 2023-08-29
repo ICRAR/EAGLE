@@ -4,6 +4,9 @@
     --nodeBorder : red;
     --nodeBg:red;
     --graphText:red;
+    --branchBg:red;
+    --constructBg:red;
+    --constructIcon:red;
 }
 
 .node {
@@ -13,12 +16,7 @@
     transform: translate(-50%,-50%);
 }
 
-.node .basic_node {
-    width: 100%;
-    height: 100%;
-}
-
-.node .branch_node {
+.node .nodeContent {
     width: 100%;
     height: 100%;
 }
@@ -50,6 +48,13 @@
     border-radius: 50%;
     border: 1.5px solid var(--nodeBorder);
     position: absolute;
+    background-color: var(--branchBg);
+}
+
+.node .body span, .node .construct_node .basic_node span{
+    width: 100%;
+    height: 100%;
+    font-size: 75px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
 }
 
 .node .branch_node .body {
@@ -59,10 +64,13 @@
     height: 100%;
 }
 
-.node .body span{
-    width: 100%;
-    height: 100%;
-    font-size: 75px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
+.node .construct_node .body {
+    background-color: var(--constructBg);
+}
+
+.node .construct_node span {
+    font-size: 500px;
+    color: var(--constructIcon);
 }
 
 .node .branch_node .body span{
@@ -106,10 +114,7 @@
     outline: solid 2px var(--nodeBorder);
     outline-offset: 0px;
     box-shadow: 0px 0px 0 1px var(--nodeBorder);
-}
-
-.node.selected .branch_node .innerRing {
-    background-color:  var(--selectedBg);
+    background-color:  var(--selectedBg) !important;
 }
 
 .node .header-name {

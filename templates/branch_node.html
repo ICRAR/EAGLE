@@ -6,13 +6,13 @@
     
         <div class="body">
             <div class="innerRing"></div>
-            <div class="outerRing" data-bind="style:{'background-color':GraphConfig.getColor('branchBody')}"></div>
+            <div class="outerRing"></div>
                 <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
                 <!-- ko foreach: $data.getInputPorts() -->
-                    <div class="inputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:$data"></div>
+                    <div class="inputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:{data:$data,type:'port'}"></div>
                 <!-- /ko -->
                 <!-- ko foreach: $data.getOutputPorts() -->
-                    <div class="outputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:$data"></div>
+                    <div class="outputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:{data:$data,type:'port'}"></div>
                 <!-- /ko -->
         </div> 
     </div>

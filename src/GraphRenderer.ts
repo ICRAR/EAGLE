@@ -41,6 +41,11 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--nodeBorder", GraphConfig.getColor('bodyBorder'));
         $("#logicalGraphParent").get(0).style.setProperty("--nodeBg", GraphConfig.getColor('nodeBg'));
         $("#logicalGraphParent").get(0).style.setProperty("--graphText", GraphConfig.getColor('graphText'));
+        $("#logicalGraphParent").get(0).style.setProperty("--branchBg", GraphConfig.getColor('branchBg'));
+        $("#logicalGraphParent").get(0).style.setProperty("--constructBg", GraphConfig.getColor('constructBg'));
+        $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", GraphConfig.getColor('constructIcon'));
+        
+        console.log(node.getCategory())
 
         switch(node.getCategory()){
             case Category.Branch: 
@@ -50,8 +55,22 @@ ko.bindingHandlers.nodeRenderHandler = {
                 $(element).find('.innerRing').css({'top':6+'px','left':6+'px','right':6+'px','bottom':6+'px'})
                 $(element).find('.outerRing').css({'top':-7+'px','left':-7+'px','right':-7+'px','bottom':-7+'px'})
                 break
+
+            case Category.Scatter:
+            case Category.Gather:
+            case Category.MKN: 
+            case Category.GroupBy:
+            case Category.Loop:
+            case Category.SubGraph:
+                console.log('construct')
+                node.setNodeRadius(GraphConfig.getConstructRadius())
+                $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
+
+                break
+            
             
             default : 
+                console.log('node')
                 node.setNodeRadius(GraphConfig.getNormalRadius())
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
         }
@@ -69,11 +88,26 @@ ko.bindingHandlers.graphRendererPortPosition = {
     init: function(element:any, field, allBindings) {
        
     },
-    update: function (element:any, field) {
+    update: function (element:any, valueAccessor) {
         //the update function is called initially and then whenever a change to a utilised observable occurs
-        
         const eagle : Eagle = Eagle.getInstance();
-        const node : Node = eagle.logicalGraph().findNodeByKeyQuiet(field().getNodeKey())
+        
+        const data = ko.utils.unwrapObservable(valueAccessor()).data
+        const dataType = ko.utils.unwrapObservable(valueAccessor()).type
+
+        let node : Node 
+        let field : Field
+
+        if(dataType === 'inputPort'){
+            node = data
+            field = node.getInputPorts()[0]
+        }else if(dataType === 'outputPort'){
+            node = data
+            field = node.getOutputPorts()[0]
+        }else if (dataType === 'port'){
+            node = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey())
+            field = data
+        }
 
         const currentNodePos = node.getPosition()
         const edges = eagle.logicalGraph().getEdges()
@@ -86,10 +120,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
         for(const edge of edges){
-            if(field().getId()===edge.getDestPortId()){
+            if(field.getId()===edge.getDestPortId()){
                 adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
                 connectedField=true
-            }else if(field().getId()===edge.getSrcPortId()){
+            }else if(field.getId()===edge.getSrcPortId()){
                 adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
                 connectedField=true
             }
@@ -104,13 +138,18 @@ ko.bindingHandlers.graphRendererPortPosition = {
             node.addPortAngle(edgeAngle)
             PortPosition=GraphRenderer.calculatePortPos(edgeAngle,nodeRadius, nodeRadius)
         }else{
-            if(field().isInputPort()){
+            if(field.isInputPort()){
                 PortPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
             }else{
                 PortPosition=GraphRenderer.calculatePortPos(0, nodeRadius, nodeRadius)
             }
         }
-        field().setPosition(PortPosition.x, PortPosition.y)
+
+        if (dataType === 'port'){
+            field.setPosition(PortPosition.x, PortPosition.y)
+        }else{
+            node.setPosition(PortPosition.x, PortPosition.y)
+        }
 
         $(element).css({'top':PortPosition.y+'px','left':PortPosition.x+'px'})
 
@@ -241,9 +280,7 @@ export class GraphRenderer {
         let srcNode: Node = lg.findNodeByKey(edge.getSrcNodeKey());
         let destNode: Node = lg.findNodeByKey(edge.getDestNodeKey());
 
-        const srcNodeRadius = srcNode.getNodeRadius()
-        const destNodeRadius = destNode.getNodeRadius()
-
+        console.log('path', srcNode.getName(),destNode.getName())
         // if the src or dest nodes are embedded nodes, use the position of the construct instead
         if (srcNode.isEmbedded()){
             srcNode = lg.findNodeByKey(srcNode.getEmbedKey());
@@ -251,6 +288,10 @@ export class GraphRenderer {
         if (destNode.isEmbedded()){
             destNode = lg.findNodeByKey(destNode.getEmbedKey());
         }
+        console.log('final path', srcNode.getName(),destNode.getName())
+
+        const srcNodeRadius = srcNode.getNodeRadius()
+        const destNodeRadius = destNode.getNodeRadius()
 
         // get offset and scale
         const offsetX: number = eagle.globalOffsetX();

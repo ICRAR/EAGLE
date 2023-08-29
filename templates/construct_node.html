@@ -1,0 +1,22 @@
+<div class="nodeContent construct_node">
+    <div class="container">
+        <div class="header">
+            <div class="header-name" data-bind="html: $data.name"></div>
+        </div>
+    
+        <div class="body">
+            <span data-bind="class: $data.getIcon()"></span>
+            <!-- ko with: $data.getInputApplication() -->
+                <div class="constructInputApp" data-bind="graphRendererPortPosition:{data:$data,type:'inputPort'},nodeRenderHandler:$data">
+                    {% include 'basic_node.html' %}
+                </div>
+            <!-- /ko -->
+            <!-- ko with: $data.getOutputApplication() -->
+                <div class="constructOutputApp" data-bind="graphRendererPortPosition:{data:$data,type:'outputPort'}, nodeRenderHandler:$data,">
+                    {% include 'basic_node.html' %}
+                </div>
+            <!-- /ko -->
+        </div> 
+    </div>
+   
+</div>
