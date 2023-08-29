@@ -529,6 +529,12 @@ td:first-child input {
     background: white;
 }
 
+.inspectorApplicationBackground .prepend-icon span i{
+    font-size: 18px;
+    position: relative;
+    top: 2px;
+}
+
 #parameterTableVisibilityContainer .dropdown-menu{
     border:solid 1px #000c1a;
     border-radius: 6px;
