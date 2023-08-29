@@ -360,8 +360,8 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Snap To Grid", Setting.SNAP_TO_GRID, "Align positions of nodes in graph to a grid", false, Setting.Type.Boolean,false,false,false,false,false),
             new Setting(true, "Snap To Grid Size", Setting.SNAP_TO_GRID_SIZE, "Size of grid used when aligning positions of nodes in graph (pixels)", false, Setting.Type.Number, 50, 50, 50, 50, 50),
             new Setting(true, "Show edge/node errors/warnings in inspector", Setting.SHOW_INSPECTOR_WARNINGS, "Show the errors/warnings found for the selected node/edge in the inspector", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
-            new Setting(false, "Right Window Witdth", Setting.RIGHT_WINDOW_WIDTH_KEY, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
-            new Setting(false, "Left Window Witdth", Setting.LEFT_WINDOW_WIDTH_KEY, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
+            new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_WIDTH_KEY, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
+            new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH_KEY, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
         ]
     ),
     new SettingsGroup(
@@ -397,8 +397,7 @@ const settings : SettingsGroup[] = [
         () => {return false;},
         [
             new Setting(true, "Enable Performance Display", Setting.ENABLE_PERFORMANCE_DISPLAY, "Display the frame time of the graph renderer", false, Setting.Type.Boolean, false,false,false, false, false),
-            new Setting(true,"Show File Loading Warnings", Setting.SHOW_FILE_LOADING_ERRORS, "Display list of issues with files encountered during loading.", false, Setting.Type.Boolean, false,false, false, false, false),
-            new Setting(true, "Translate with New Categories", Setting.TRANSLATE_WITH_NEW_CATEGORIES,"Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.", false, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "Show File Loading Warnings", Setting.SHOW_FILE_LOADING_ERRORS, "Display list of issues with files encountered during loading.", false, Setting.Type.Boolean, false,false, false, false, false),
             new Setting(true, "Open Translator In Current Tab", Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, "When translating a graph, display the output of the translator in the current tab", false, Setting.Type.Boolean, false,false,false, false, false),
             new Setting(true, "Create Applications for Construct Ports", Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, "When loading old graph files with ports on construct nodes, move the port to an embedded application",false, Setting.Type.Boolean, true,true,true, true, true),
             new Setting(true, "Skip 'closes loop' edges in JSON output", Setting.SKIP_CLOSE_LOOP_EDGES, "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", false, Setting.Type.Boolean, true, true, true,true,true),

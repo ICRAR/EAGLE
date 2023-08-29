@@ -45,7 +45,7 @@ import {FileInfo} from "./FileInfo";
 import { UiModeSystem } from "./UiModes";
 
 export class Utils {
-    // Allowed file extenstions.
+    // Allowed file extensions
     static readonly FILE_EXTENSIONS : string[] = [
         "json",
         "diagram",
@@ -229,7 +229,7 @@ export class Utils {
     static verifyFileExtension(filename : string) : boolean {
         const fileExtension = Utils.getFileExtension(filename);
 
-        // Check if the extenstion is in the list of allowed extensions.
+        // Check if the extension is in the list of allowed extensions
         if ($.inArray(fileExtension, Utils.FILE_EXTENSIONS) != -1) {
             return true;
         } else {
@@ -1336,13 +1336,39 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
+    static determineEagleVersion(data: any): string {
+        if (typeof data.modelData !== 'undefined'){
+            if (typeof data.modelData.eagleVersion !== 'undefined'){
+                return data.modelData.eagleVersion;
+            }
+        }
+
+        return "v-1.-1.-1";
+    }
+
+    // return true iff version0 is newer than version1
+    static newerEagleVersion(version0: string, version1: string){
+        //console.log("version0", version0, "version1", version1);
+
+        if (version0 === "Unknown" || version1 === "Unknown"){
+            return false;
+        }
+
+        const v0 = version0.split('v')[1].split('.').map(Number);
+        const v1 = version1.split('v')[1].split('.').map(Number);
+
+        //console.log("v0", v0, "v1", v1);
+
+        return (
+            v0[0] > v1[0] ||
+            ((v0[0] === v1[0]) && (v0[1] > v1[1])) ||
+            ((v0[0] === v1[0]) && (v0[1] === v1[1]) && (v0[2] > v1[2]))
+        )
+    }
+
     static determineSchemaVersion(data: any): Daliuge.SchemaVersion {
-        // appref
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
-                if (data.modelData.schemaVersion === Daliuge.SchemaVersion.OJS){
-                    return Daliuge.SchemaVersion.OJS;
-                }
                 return data.modelData.schemaVersion;
             }
         }
@@ -1405,7 +1431,7 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of graph.getNodes()){
-            Node.isValid(eagle, node, Eagle.selectedLocation(), false, false, errorsWarnings);
+            Node.isValid(eagle, node, Eagle.FileType.Graph, false, false, errorsWarnings);
         }
 
         // check all edges are valid
@@ -1583,7 +1609,7 @@ export class Utils {
     }
 
     static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
-        const displayShorcuts : {description:string, shortcut : string, function : any} []=[];
+        const displayShortcuts : {description:string, shortcut : string, function : any} []=[];
         const eagle = (<any>window).eagle;
 
         for (const object of Eagle.shortcuts){
@@ -1593,10 +1619,10 @@ export class Utils {
             }
 
             const shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false);
-            displayShorcuts.push({description: object.name, shortcut: shortcut,function:object.run});
+            displayShortcuts.push({description: object.name, shortcut: shortcut,function:object.run});
         }
 
-        return displayShorcuts;
+        return displayShortcuts;
     }
 
     static getKeyboardShortcutTextByKey = (key: string, addBrackets: boolean) : string => {
@@ -1864,7 +1890,12 @@ export class Utils {
         }
     }
 
-    static fixFieldParameterType(eagle: Eagle, field: Field, newType: Daliuge.FieldType){
+    static fixFieldParameterType(eagle: Eagle, node: Node, field: Field, newType: Daliuge.FieldType){
+        if (newType === Daliuge.FieldType.Unknown){
+            node.removeFieldById(field.getId());
+            return;
+        }
+
         field.setParameterType(newType);
     }
 

@@ -292,10 +292,11 @@ export class Field {
     }
 
     clone = () : Field => {
-        let options : string[] = []
-        this.options().forEach(function(option:string){
-            options.push(option)
-        })
+        const options : string[] = []
+        for (let i = 0 ; i < this.options().length ; i++){
+            options.push(this.options()[i]);
+        }
+
         const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
         f.setIsEvent(this.isEvent());
         return f;
@@ -419,7 +420,7 @@ export class Field {
             }
         })
 
-        //comparing the numebr of search terms requested with the number of matches, if any of the search terms did not find anything, we retun false
+        //comparing the number of search terms requested with the number of matches, if any of the search terms did not find anything, we return false
         return searchTermNo === searchTermTrueNo
     }, this);
 

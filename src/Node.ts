@@ -724,6 +724,10 @@ export class Node {
         return CategoryData.getCategoryData(this.category()).canHaveConstructParameters;
     }
 
+    canHaveConstraintParameters = () : boolean => {
+        return true;
+    }
+
     canHaveType = (parameterType: Daliuge.FieldType) : boolean => {
         if (parameterType === Daliuge.FieldType.ComponentParameter){
             return this.canHaveComponentParameters()
@@ -1414,7 +1418,7 @@ export class Node {
         }
 
         // translate categories if required
-        let category: Category = GraphUpdater.translateOldCategory(nodeData.category);
+        let category: Category = nodeData.category;
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
@@ -1858,9 +1862,8 @@ export class Node {
 
     static toOJSPaletteJson = (node : Node) : object => {
         const result : any = {};
-        const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
 
-        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.category = node.category();
         result.categoryType = node.categoryType();
 
         result.key = node.key();
@@ -1931,9 +1934,8 @@ export class Node {
 
     static toOJSGraphJson = (node : Node) : object => {
         const result : any = {};
-        const useNewCategories : boolean = Setting.findValue(Setting.TRANSLATE_WITH_NEW_CATEGORIES);
 
-        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
+        result.category = node.category();
         result.categoryType = node.categoryType();
 
         result.isGroup = node.isGroup();
@@ -2194,18 +2196,22 @@ export class Node {
             ){
                 // determine a suitable type
                 let suitableType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
-                if (CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters){
+                const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
+
+                if (categoryData.canHaveComponentParameters){
                     suitableType = Daliuge.FieldType.ComponentParameter;
                 } else {
-                    if (CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments){
+                    if (categoryData.canHaveApplicationArguments){
                         suitableType = Daliuge.FieldType.ApplicationArgument;
                     } else {
-                        suitableType = Daliuge.FieldType.ConstructParameter;
+                        if (categoryData.canHaveConstructParameters){
+                            suitableType = Daliuge.FieldType.ConstructParameter;
+                        }
                     }
                 }
 
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
-                const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, selectedLocation, node.getId());}, function(){Utils.fixFieldParameterType(eagle, field, suitableType)}, "Switch to suitable type");
+                const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, selectedLocation, node.getId());}, function(){Utils.fixFieldParameterType(eagle, node, field, suitableType)}, "Switch to suitable type, or remove if no suitable type");
                 errorsWarnings.warnings.push(issue);
             }
         }
@@ -2300,7 +2306,7 @@ export class Node {
         } else {
             if (existingField.getParameterType() !== field.getParameterType()){
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") has a '" + field.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + field.getParameterType();
-                errorsWarnings.errors.push(Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node.getId());}, function(){Utils.fixFieldParameterType(eagle, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType()));
+                errorsWarnings.errors.push(Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node.getId());}, function(){Utils.fixFieldParameterType(eagle, node, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType()));
             }
         }
     }
