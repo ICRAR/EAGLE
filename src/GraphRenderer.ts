@@ -280,9 +280,7 @@ export class GraphRenderer {
         let srcNode: Node = lg.findNodeByKey(edge.getSrcNodeKey());
         let destNode: Node = lg.findNodeByKey(edge.getDestNodeKey());
 
-        const srcNodeRadius = srcNode.getNodeRadius()
-        const destNodeRadius = destNode.getNodeRadius()
-
+        console.log('path', srcNode.getName(),destNode.getName())
         // if the src or dest nodes are embedded nodes, use the position of the construct instead
         if (srcNode.isEmbedded()){
             srcNode = lg.findNodeByKey(srcNode.getEmbedKey());
@@ -290,6 +288,10 @@ export class GraphRenderer {
         if (destNode.isEmbedded()){
             destNode = lg.findNodeByKey(destNode.getEmbedKey());
         }
+        console.log('final path', srcNode.getName(),destNode.getName())
+
+        const srcNodeRadius = srcNode.getNodeRadius()
+        const destNodeRadius = destNode.getNodeRadius()
 
         // get offset and scale
         const offsetX: number = eagle.globalOffsetX();
