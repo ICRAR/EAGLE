@@ -15,6 +15,10 @@
     pointer-events: none;
 }
 
+#logicalGraphD3Div svg path{
+    pointer-events: all;
+}
+
 .node:has(>.basic_node){
     z-index: 3;
 }
