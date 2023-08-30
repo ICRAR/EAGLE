@@ -46,6 +46,8 @@ export class GraphChecker {
         const eagle: Eagle = Eagle.getInstance();
         const graphChecker: GraphChecker = eagle.graphChecker();
 
+        console.log("graphChecker.issues().length", graphChecker.issues().length);
+
         const issue = graphChecker.issues()[index];
         if (issue.fix !== null){
             // perform the action
@@ -56,6 +58,10 @@ export class GraphChecker {
         }
 
         this.postFixFunc(eagle);
+    }
+
+    static fixNode = (index: number): void => {
+        console.log("GraphChecker.fixNode()", index);
     }
 
     // TODO: should we pass eagle as an argument here?
