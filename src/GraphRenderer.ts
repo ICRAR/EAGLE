@@ -97,7 +97,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         let node : Node 
         let field : Field
-
+        let adjacentNode :Node;
+        let connectedField:boolean=false;
+        let PortPosition
+console.log(data, dataType)
         if(dataType === 'inputPort'){
             node = data
             field = node.getInputPorts()[0]
@@ -107,25 +110,29 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }else if (dataType === 'port'){
             node = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey())
             field = data
-        }
+        }else if (dataType  === 'comment'){
+            node = data
+            adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(data.getSubjectKey())
+            console.log('boppin' , data, adjacentNode)
+            
+        } 
 
         const currentNodePos = node.getPosition()
         const edges = eagle.logicalGraph().getEdges()
-        let adjacentNode :Node;
-        let connectedField:boolean=false;
-        let PortPosition
 
         //clearing the saved port angles array
         node.resetPortAngles()
 
         //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
-        for(const edge of edges){
-            if(field.getId()===edge.getDestPortId()){
-                adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
-                connectedField=true
-            }else if(field.getId()===edge.getSrcPortId()){
-                adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
-                connectedField=true
+        if(dataType != 'comment'){
+            for(const edge of edges){
+                if(field.getId()===edge.getDestPortId()){
+                    adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
+                    connectedField=true
+                }else if(field.getId()===edge.getSrcPortId()){
+                    adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
+                    connectedField=true
+                }
             }
         }
 
@@ -133,6 +140,11 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let nodeRadius = node.getNodeRadius()
 
         if(connectedField){
+            const adjacentNodePos = adjacentNode.getPosition()
+            const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
+            node.addPortAngle(edgeAngle)
+            PortPosition=GraphRenderer.calculatePortPos(edgeAngle,nodeRadius, nodeRadius)
+        }else if(dataType === 'comment'){
             const adjacentNodePos = adjacentNode.getPosition()
             const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
             node.addPortAngle(edgeAngle)

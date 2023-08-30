@@ -58,6 +58,10 @@
     height: 100%;
 }
 
+.node .comment_node .body {
+    border: none;
+}
+
 .node .innerRing {
     background-color: var(--nodeBg);
     border-radius: 50%;

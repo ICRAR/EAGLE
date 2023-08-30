@@ -660,6 +660,14 @@ export class Node {
         return this.category() === Category.Scatter;
     }
 
+    isComment = () : boolean => {
+        return this.category() === Category.Comment;
+    }
+
+    isDescription = () : boolean => {
+        return this.category() === Category.Description;
+    }
+
     isGather = () : boolean => {
         return this.category() === Category.Gather;
     }
