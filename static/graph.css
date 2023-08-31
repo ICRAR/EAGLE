@@ -15,6 +15,12 @@
     pointer-events: none;
 }
 
+#logicalGraphD3Div svg path {
+    stroke-width:2;
+    fill:transparent; 
+    stroke:black;
+}
+
 #logicalGraphD3Div svg path{
     pointer-events: all;
 }

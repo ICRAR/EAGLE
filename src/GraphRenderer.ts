@@ -100,7 +100,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let adjacentNode :Node;
         let connectedField:boolean=false;
         let PortPosition
-        console.log(dataType)
         if(dataType === 'inputPort'){
             node = data
             field = node.getInputPorts()[0]
@@ -113,7 +112,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }else if (dataType  === 'comment'){
             node = data
             adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(data.getSubjectKey())    
-            console.log('bop', node, adjacentNode)        
         } 
 
         const currentNodePos = node.getPosition()
@@ -163,10 +161,9 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
 
         $(element).css({'top':PortPosition.y+'px','left':PortPosition.x+'px'})
-        console.log('boppers', node, adjacentNode)        
 
-        if(connectedField||dataType === 'comment'){
-            GraphRenderer.getPath(node,adjacentNode,eagle)
+        if(dataType === 'comment'){
+            GraphRenderer.addPath(GraphRenderer.getPath(node,adjacentNode,eagle))
         }
     }
 };
@@ -288,6 +285,11 @@ export class GraphRenderer {
         const c2y = destNodePosition.y + destCPOffset.y;
 
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
+    }
+
+    static addPath(path:string) : void {
+        console.log(path)
+        $('#logicalGraphD3Div svg').append('<path d= '+path+'}></path>')
     }
 
     static getPath(srcNode:Node,destNode:Node, eagle: Eagle) : string {
