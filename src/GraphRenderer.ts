@@ -100,7 +100,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let adjacentNode :Node;
         let connectedField:boolean=false;
         let PortPosition
-console.log(data, dataType)
+
         if(dataType === 'inputPort'){
             node = data
             field = node.getInputPorts()[0]
@@ -112,9 +112,7 @@ console.log(data, dataType)
             field = data
         }else if (dataType  === 'comment'){
             node = data
-            adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(data.getSubjectKey())
-            console.log('boppin' , data, adjacentNode)
-            
+            adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(data.getSubjectKey())            
         } 
 
         const currentNodePos = node.getPosition()
@@ -159,12 +157,11 @@ console.log(data, dataType)
 
         if (dataType === 'port'){
             field.setPosition(PortPosition.x, PortPosition.y)
-        }else{
+        }else if(dataType != 'comment'){
             node.setPosition(PortPosition.x, PortPosition.y)
         }
 
         $(element).css({'top':PortPosition.y+'px','left':PortPosition.x+'px'})
-
     }
 };
 
@@ -292,7 +289,7 @@ export class GraphRenderer {
         let srcNode: Node = lg.findNodeByKey(edge.getSrcNodeKey());
         let destNode: Node = lg.findNodeByKey(edge.getDestNodeKey());
 
-        console.log('path', srcNode.getName(),destNode.getName())
+        // console.log('path', srcNode.getName(),destNode.getName())
         // if the src or dest nodes are embedded nodes, use the position of the construct instead
         if (srcNode.isEmbedded()){
             srcNode = lg.findNodeByKey(srcNode.getEmbedKey());
@@ -300,7 +297,7 @@ export class GraphRenderer {
         if (destNode.isEmbedded()){
             destNode = lg.findNodeByKey(destNode.getEmbedKey());
         }
-        console.log('final path', srcNode.getName(),destNode.getName())
+        // console.log('final path', srcNode.getName(),destNode.getName())
 
         const srcNodeRadius = srcNode.getNodeRadius()
         const destNodeRadius = destNode.getNodeRadius()
