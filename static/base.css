@@ -2066,6 +2066,7 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     padding-left:10px;
     background: rgb(0,64,133);
     background: linear-gradient(90deg, rgba(0,64,133,1) 0%, rgba(0,52,107,1) 20%, rgba(0,35,73,1) 100%);
+    display:none;
 }
 
 .navbar a{
@@ -2358,7 +2359,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 #graphNameWrapper{
     top: 56px;
-    display: block;
+    display: none;
     width: 100%;
     height:26px;
     background-color: #002349;
