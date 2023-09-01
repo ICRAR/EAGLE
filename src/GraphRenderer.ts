@@ -33,6 +33,7 @@ import { GraphConfig } from './graphConfig';
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
+        //initiating all the eagle ui when the graph is ready
         $('#logicalGraphD3Div').show(200)
         $('.leftWindow').show(200)
         $('.rightWindow').show(200)
