@@ -26,6 +26,12 @@ const colors: { name: string; color: string; }[] = [
     },{
         name: 'selectBackground',
         color: '#b4d4ff'
+    },{
+        name: 'edgeColor',
+        color: '#58595b'
+    },{
+        name: 'commentEdgeColor',
+        color: '#7c7e81'
     }
 ]
 

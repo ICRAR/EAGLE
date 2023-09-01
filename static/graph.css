@@ -7,6 +7,8 @@
     --branchBg:red;
     --constructBg:red;
     --constructIcon:red;
+    --edgeColor:red;
+    --commentEdgeColor:red;
 }
 
 #logicalGraphD3Div svg{
@@ -16,13 +18,15 @@
 }
 
 #logicalGraphD3Div svg path {
-    stroke-width:2;
+    stroke-width:4;
     fill:transparent; 
-    stroke:black;
+    stroke:var(--edgeColor);
+    pointer-events: all;
 }
 
-#logicalGraphD3Div svg path{
-    pointer-events: all;
+#logicalGraphD3Div svg path.commentEdge{
+    stroke:var(--commentEdgeColor);
+    stroke-width: 2;
 }
 
 .node:has(>.basic_node){
