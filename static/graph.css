@@ -33,6 +33,10 @@
     z-index: 3;
 }
 
+.node:has(>.comment_node){
+    z-index: 3;
+}
+
 .node:has(>.construct_node) {
     z-index: 1;
 }

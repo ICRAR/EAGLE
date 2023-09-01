@@ -1,5 +1,5 @@
 <div class="node" data-bind="nodeRenderHandler:$data, style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY()}, event: {mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false,css: {selected: $root.objectIsSelected($data)}">
-    <!-- ko if:!$data.isConstruct() && !$data.isBranch() && !$data.isComment() && !$data.isDescription() -->
+    <!-- ko if:!$data.isConstruct() && !$data.isBranch() && !$data.isComment() -->
         {% include 'basic_node.html' %}
     <!-- /ko -->
     <!-- ko if:$data.isBranch() -->
@@ -10,8 +10,5 @@
     <!-- /ko -->
     <!-- ko if:$data.isComment() -->
         {% include 'comment_node.html' %}
-    <!-- /ko -->
-    <!-- ko if:$data.isDescription() -->
-    {% include 'description_node.html' %}
     <!-- /ko -->
 </div>

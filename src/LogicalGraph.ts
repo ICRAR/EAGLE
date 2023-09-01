@@ -236,6 +236,16 @@ export class LogicalGraph {
         return this.edges.length;
     }
 
+    getCommentNodes = () : Node[] => {
+        let commentNodes:Node[] = []
+        this.getNodes().forEach(function(node){
+            if(node.isComment()){
+                commentNodes.push(node)
+            }
+        })
+        return commentNodes;
+    }
+
     countEdgesIncidentOnNode = (node : Node) : number => {
         let result: number = 0;
 

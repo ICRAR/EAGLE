@@ -34,7 +34,6 @@ import { GraphConfig } from './graphConfig';
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
         const node :Node = ko.unwrap(valueAccessor())
-        console.log('classes ',element,node)
 
         //overwriting css variables using colours from graphConfig.ts. I am using this for simple styling to avoid excessive css data binds in the node html files
         $("#logicalGraphParent").get(0).style.setProperty("--selectedBg", GraphConfig.getColor('selectBackground'));
@@ -45,11 +44,9 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--constructBg", GraphConfig.getColor('constructBg'));
         $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", GraphConfig.getColor('constructIcon'));
         
-        console.log(node.getCategory())
 
         switch(node.getCategory()){
             case Category.Branch: 
-                console.log('branch node')
                 node.setNodeRadius(GraphConfig.getBranchRadius())
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
                 $(element).find('.innerRing').css({'top':6+'px','left':6+'px','right':6+'px','bottom':6+'px'})
@@ -62,7 +59,6 @@ ko.bindingHandlers.nodeRenderHandler = {
             case Category.GroupBy:
             case Category.Loop:
             case Category.SubGraph:
-                console.log('construct')
                 node.setNodeRadius(GraphConfig.getConstructRadius())
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
 
@@ -70,7 +66,6 @@ ko.bindingHandlers.nodeRenderHandler = {
             
             
             default : 
-                console.log('node')
                 node.setNodeRadius(GraphConfig.getNormalRadius())
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
         }
@@ -162,9 +157,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         $(element).css({'top':PortPosition.y+'px','left':PortPosition.x+'px'})
 
-        if(dataType === 'comment'){
-            GraphRenderer.addPath(GraphRenderer.getPath(node,adjacentNode,eagle))
-        }
     }
 };
 
@@ -287,15 +279,9 @@ export class GraphRenderer {
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
     }
 
-    static addPath(path:string) : void {
-        console.log(path)
-        $('#logicalGraphD3Div svg').append('<path d= '+path+'}></path>')
-    }
-
     static getPath(srcNode:Node,destNode:Node, eagle: Eagle) : string {
         const lg: LogicalGraph = eagle.logicalGraph();
-        console.log(srcNode,destNode)
-        // console.log('path', srcNode.getName(),destNode.getName())
+
         // if the src or dest nodes are embedded nodes, use the position of the construct instead
         if (srcNode.isEmbedded()){
             srcNode = lg.findNodeByKey(srcNode.getEmbedKey());
@@ -303,7 +289,6 @@ export class GraphRenderer {
         if (destNode.isEmbedded()){
             destNode = lg.findNodeByKey(destNode.getEmbedKey());
         }
-        // console.log('final path', srcNode.getName(),destNode.getName())
 
         const srcNodeRadius = srcNode.getNodeRadius()
         const destNodeRadius = destNode.getNodeRadius()
@@ -317,7 +302,6 @@ export class GraphRenderer {
         const srcY = srcNode.getPosition().y + offsetY - srcNodeRadius;
         const destX = destNode.getPosition().x + offsetX - destNodeRadius;
         const destY = destNode.getPosition().y + offsetY - destNodeRadius;
-
 
         return GraphRenderer.createBezier(srcNodeRadius,destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY});
     }
