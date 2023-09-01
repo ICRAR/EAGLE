@@ -24,8 +24,17 @@ const colors: { name: string; color: string; }[] = [
         name: 'nodeOutputPort',
         color: '#fbb040'
     },{
+        name: 'nodeUtilPort',
+        color: '#6fa7f1'
+    },{
         name: 'selectBackground',
         color: '#b4d4ff'
+    },{
+        name: 'edgeColor',
+        color: '#58595b'
+    },{
+        name: 'commentEdgeColor',
+        color: '#7c7e81'
     }
 ]
 

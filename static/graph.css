@@ -7,6 +7,8 @@
     --branchBg:red;
     --constructBg:red;
     --constructIcon:red;
+    --edgeColor:red;
+    --commentEdgeColor:red;
 }
 
 #logicalGraphD3Div svg{
@@ -15,8 +17,16 @@
     pointer-events: none;
 }
 
-#logicalGraphD3Div svg path{
+#logicalGraphD3Div svg path {
+    stroke-width:4;
+    fill:transparent; 
+    stroke:var(--edgeColor);
     pointer-events: all;
+}
+
+#logicalGraphD3Div svg path.commentEdge{
+    stroke:var(--commentEdgeColor);
+    stroke-width: 2;
 }
 
 .node:has(>.basic_node){
@@ -24,6 +34,10 @@
 }
 
 .node:has(>.branch_node){
+    z-index: 3;
+}
+
+.node:has(>.comment_node){
     z-index: 3;
 }
 
@@ -56,6 +70,10 @@
     border: 1.5px solid var(--nodeBorder);
     width: 100%;
     height: 100%;
+}
+
+.node .comment_node .body {
+    border: none;
 }
 
 .node .innerRing {
@@ -106,14 +124,6 @@
     position: absolute;
     transform: translate(-50%,-50%);
     z-index: 5;
-}
-
-.node .body .inputPort{
-    left: -6px;
-}
-
-.node .body .outputPort{
-    right: -6px;
 }
 
 .node .body .port{

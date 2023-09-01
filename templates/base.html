@@ -83,7 +83,10 @@
                     <!-- /ko -->
                     <svg>
                         <!-- ko foreach: $root.logicalGraph().getEdges() -->
-                        <path data-bind="attr:{d: GraphRenderer.getPath($data, $root)}" stroke-width="2" fill="transparent" stroke="black" class=""></path>
+                        <path data-bind="attr:{d: GraphRenderer.getPath($root.logicalGraph().findNodeByKey($data.getSrcNodeKey()),$root.logicalGraph().findNodeByKey($data.getDestNodeKey()), $root)}"></path>
+                        <!-- /ko -->
+                        <!-- ko foreach: $root.logicalGraph().getCommentNodes() -->
+                        <path class="commentEdge" data-bind="attr:{d: GraphRenderer.getPath($data,$root.logicalGraph().findNodeByKey($data.getSubjectKey()), $root)}"></path>
                         <!-- /ko -->
                     </svg>
                     <!-- /ko -->

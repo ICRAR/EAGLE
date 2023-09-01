@@ -34,7 +34,6 @@ import { GraphConfig } from './graphConfig';
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
         const node :Node = ko.unwrap(valueAccessor())
-        console.log('classes ',element,node)
 
         //overwriting css variables using colours from graphConfig.ts. I am using this for simple styling to avoid excessive css data binds in the node html files
         $("#logicalGraphParent").get(0).style.setProperty("--selectedBg", GraphConfig.getColor('selectBackground'));
@@ -44,12 +43,12 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--branchBg", GraphConfig.getColor('branchBg'));
         $("#logicalGraphParent").get(0).style.setProperty("--constructBg", GraphConfig.getColor('constructBg'));
         $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", GraphConfig.getColor('constructIcon'));
+        $("#logicalGraphParent").get(0).style.setProperty("--edgeColor", GraphConfig.getColor('edgeColor'));
+        $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", GraphConfig.getColor('commentEdgeColor'));
         
-        console.log(node.getCategory())
 
         switch(node.getCategory()){
             case Category.Branch: 
-                console.log('branch node')
                 node.setNodeRadius(GraphConfig.getBranchRadius())
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
                 $(element).find('.innerRing').css({'top':6+'px','left':6+'px','right':6+'px','bottom':6+'px'})
@@ -62,7 +61,6 @@ ko.bindingHandlers.nodeRenderHandler = {
             case Category.GroupBy:
             case Category.Loop:
             case Category.SubGraph:
-                console.log('construct')
                 node.setNodeRadius(GraphConfig.getConstructRadius())
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
 
@@ -70,7 +68,6 @@ ko.bindingHandlers.nodeRenderHandler = {
             
             
             default : 
-                console.log('node')
                 node.setNodeRadius(GraphConfig.getNormalRadius())
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
         }
@@ -97,7 +94,9 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         let node : Node 
         let field : Field
-
+        let adjacentNode :Node;
+        let connectedField:boolean=false;
+        let PortPosition
         if(dataType === 'inputPort'){
             node = data
             field = node.getInputPorts()[0]
@@ -107,25 +106,27 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }else if (dataType === 'port'){
             node = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey())
             field = data
-        }
+        }else if (dataType  === 'comment'){
+            node = data
+            adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(data.getSubjectKey())    
+        } 
 
         const currentNodePos = node.getPosition()
         const edges = eagle.logicalGraph().getEdges()
-        let adjacentNode :Node;
-        let connectedField:boolean=false;
-        let PortPosition
 
         //clearing the saved port angles array
         node.resetPortAngles()
 
         //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
-        for(const edge of edges){
-            if(field.getId()===edge.getDestPortId()){
-                adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
-                connectedField=true
-            }else if(field.getId()===edge.getSrcPortId()){
-                adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
-                connectedField=true
+        if(dataType != 'comment'){
+            for(const edge of edges){
+                if(field.getId()===edge.getDestPortId()){
+                    adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey())
+                    connectedField=true
+                }else if(field.getId()===edge.getSrcPortId()){
+                    adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey())
+                    connectedField=true
+                }
             }
         }
 
@@ -133,6 +134,11 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let nodeRadius = node.getNodeRadius()
 
         if(connectedField){
+            const adjacentNodePos = adjacentNode.getPosition()
+            const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
+            node.addPortAngle(edgeAngle)
+            PortPosition=GraphRenderer.calculatePortPos(edgeAngle,nodeRadius, nodeRadius)
+        }else if(dataType === 'comment'){
             const adjacentNodePos = adjacentNode.getPosition()
             const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
             node.addPortAngle(edgeAngle)
@@ -147,7 +153,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         if (dataType === 'port'){
             field.setPosition(PortPosition.x, PortPosition.y)
-        }else{
+        }else if(dataType != 'comment'){
             node.setPosition(PortPosition.x, PortPosition.y)
         }
 
@@ -275,12 +281,9 @@ export class GraphRenderer {
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
     }
 
-    static getPath(edge: Edge, eagle: Eagle) : string {
+    static getPath(srcNode:Node,destNode:Node, eagle: Eagle) : string {
         const lg: LogicalGraph = eagle.logicalGraph();
-        let srcNode: Node = lg.findNodeByKey(edge.getSrcNodeKey());
-        let destNode: Node = lg.findNodeByKey(edge.getDestNodeKey());
 
-        console.log('path', srcNode.getName(),destNode.getName())
         // if the src or dest nodes are embedded nodes, use the position of the construct instead
         if (srcNode.isEmbedded()){
             srcNode = lg.findNodeByKey(srcNode.getEmbedKey());
@@ -288,7 +291,6 @@ export class GraphRenderer {
         if (destNode.isEmbedded()){
             destNode = lg.findNodeByKey(destNode.getEmbedKey());
         }
-        console.log('final path', srcNode.getName(),destNode.getName())
 
         const srcNodeRadius = srcNode.getNodeRadius()
         const destNodeRadius = destNode.getNodeRadius()
@@ -302,7 +304,6 @@ export class GraphRenderer {
         const srcY = srcNode.getPosition().y + offsetY - srcNodeRadius;
         const destX = destNode.getPosition().x + offsetX - destNodeRadius;
         const destY = destNode.getPosition().y + offsetY - destNodeRadius;
-
 
         return GraphRenderer.createBezier(srcNodeRadius,destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY});
     }
