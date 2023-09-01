@@ -33,6 +33,8 @@ import { GraphConfig } from './graphConfig';
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
+        $('#logicalGraphD3Div').show()
+
         const node :Node = ko.unwrap(valueAccessor())
 
         //overwriting css variables using colours from graphConfig.ts. I am using this for simple styling to avoid excessive css data binds in the node html files

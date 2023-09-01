@@ -11,6 +11,10 @@
     --commentEdgeColor:red;
 }
 
+#logicalGraphD3Div {
+    display: none;
+}
+
 #logicalGraphD3Div svg{
     position:absolute;   
     z-index: 2;
