@@ -33,7 +33,9 @@ import { GraphConfig } from './graphConfig';
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
-        $('#logicalGraphD3Div').show()
+        $('#logicalGraphD3Div').show(200)
+        $('.leftWindow').show(200)
+        $('.rightWindow').show(200)
 
         const node :Node = ko.unwrap(valueAccessor())
 
