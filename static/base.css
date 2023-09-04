@@ -195,7 +195,7 @@ color: #00bb00;}
 
 .rightWindow {
     background-color: rgba(214, 219, 239, 0.95);
-    z-index: 1;
+    z-index: 10;
     position:absolute;
     top: 0px;
     right: -300px;
