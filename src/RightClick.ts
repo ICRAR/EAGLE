@@ -409,13 +409,6 @@ export class RightClick {
             Eagle.selectedRightClickObject(data)
         }
 
-
-        let targetClass = ''
-
-        if(passedObjectClass === ''){
-            targetClass = $(targetElement).attr('class')
-        }
-
         //setting up the menu div
         $('#customContextMenu').remove()
         $(document).find('body').append('<div id="customContextMenu" onmouseleave="RightClick.closeCustomContextMenu(false)"></div>')
@@ -449,7 +442,7 @@ export class RightClick {
 
         if(rightClickObjectInSelection){
             // if we right clicked an object that is part of a multi selection
-            if(passedObjectClass === 'rightClick_graphNode' || passedObjectClass === 'rightClick_graphEdge' || passedObjectClass === 'rightClick_hierarchyNode' || targetClass.includes('rightClick_paletteComponent')){
+            if(passedObjectClass === 'rightClick_graphNode' || passedObjectClass === 'rightClick_graphEdge' || passedObjectClass === 'rightClick_hierarchyNode' || passedObjectClass === 'rightClick_paletteComponent'){
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("",false,false)>Delete</a>')
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("normal")>Duplicate</a>')
                 $('#customContextMenu').append('<a onclick=eagle.copySelectionToClipboard()>Copy</a>')
@@ -457,7 +450,7 @@ export class RightClick {
         }else{
             //if we right clicked an individual object
             //append function options depending on the right click object
-            if(targetClass.includes('rightClick_logicalGraph')){
+            if(passedObjectClass === 'rightClick_logicalGraph'){
                 if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
                     var searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
                         <i class="material-icons md-18 searchBarIcon">search</i>
@@ -504,7 +497,7 @@ export class RightClick {
                     var message = '<span>Lacking graph editing permissions</span>'
                     $('#customContextMenu').append(message)
                 }
-            }else if(targetClass.includes('rightClick_paletteComponent')){
+            }else if(passedObjectClass === 'rightClick_paletteComponent'){
                 Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
     
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
@@ -513,7 +506,7 @@ export class RightClick {
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to another palette</a>')
                 }
-            }else if(targetClass.includes('rightClick_hierarchyNode')){
+            }else if(passedObjectClass === 'rightClick_hierarchyNode'){
                 Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
 
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
@@ -541,7 +534,7 @@ export class RightClick {
             }else if(passedObjectClass === 'rightClick_graphEdge'){
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
     
-            }else if(targetClass.includes('rightClick_paletteHeader')){
+            }else if(passedObjectClass === 'rightClick_paletteHeader'){
                 
                 if(!data.fileInfo().builtIn){
                     $('#customContextMenu').append('<a onclick="RightClick.rightClickDeletePalette()"><span>Remove Palette</span></a>')

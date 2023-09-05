@@ -11,10 +11,10 @@ ko.bindingHandlers.eagleRightClick = {
         jQueryElement.on('contextmenu', function(e){
             e.preventDefault();
             e.stopPropagation();
-            const data = ko.unwrap(valueAccessor());
-        console.log('fired',data )
+            const data = ko.unwrap(valueAccessor()).data;
+            const type = ko.unwrap(valueAccessor()).type;
             
-            RightClick.requestCustomContextMenu(data,jQueryElement,'')
+            RightClick.requestCustomContextMenu(data,jQueryElement,type)
         })
     },
     update: function (element, valueAccessor) {
