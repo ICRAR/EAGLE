@@ -61,6 +61,10 @@ export class Edge {
         return this._id;
     }
 
+    setId = (id: string) : void => {
+        this._id = id;
+    }
+
     getSrcNodeKey = () : number => {
         return this.srcNodeKey;
     }
