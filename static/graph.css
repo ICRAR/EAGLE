@@ -117,6 +117,10 @@
     color: var(--constructIcon);
 }
 
+.node .construct_node .constructInputApp{
+    position: absolute;
+}
+
 .node .branch_node .body span{
     font-size: 100px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
 }

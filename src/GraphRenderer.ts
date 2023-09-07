@@ -90,7 +90,7 @@ ko.bindingHandlers.nodeRenderHandler = {
 };
 
 ko.bindingHandlers.graphRendererPortPosition = {
-    init: function(element:any, field, allBindings) {
+    init: function(element:any, valueAccessor, allBindings) {
        
     },
     update: function (element:any, valueAccessor) {
@@ -105,10 +105,15 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let adjacentNode :Node;
         let connectedField:boolean=false;
         let PortPosition
-        if(dataType === 'inputPort'){
-            node = data
-            field = node.getInputPorts()[0]
-        }else if(dataType === 'outputPort'){
+        if(dataType === 'inputApp'){
+            node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
+            for(const port of data.getFields()){
+                if (port.isInputPort()){
+                    field = port
+                }
+            }
+            console.log(data.getName(),node.getName(),field.getDisplayText())
+        }else if(dataType === 'outputApp'){
             node = data
             field = node.getOutputPorts()[0]
         }else if (dataType === 'port'){
@@ -117,7 +122,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }else if (dataType  === 'comment'){
             node = data
             adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(data.getSubjectKey())    
-        } 
+        }
 
         const currentNodePos = node.getPosition()
         const edges = eagle.logicalGraph().getEdges()
@@ -161,8 +166,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         if (dataType === 'port'){
             field.setPosition(PortPosition.x, PortPosition.y)
-        }else if(dataType != 'comment'){
-            node.setPosition(PortPosition.x, PortPosition.y)
         }
 
         $(element).css({'top':PortPosition.y+'px','left':PortPosition.x+'px'})
