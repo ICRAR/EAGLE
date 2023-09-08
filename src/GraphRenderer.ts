@@ -59,8 +59,6 @@ ko.bindingHandlers.nodeRenderHandler = {
             case Category.Branch: 
                 node.setNodeRadius(GraphConfig.getBranchRadius())
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
-                $(element).find('.innerRing').css({'top':6+'px','left':6+'px','right':6+'px','bottom':6+'px'})
-                $(element).find('.outerRing').css({'top':-7+'px','left':-7+'px','right':-7+'px','bottom':-7+'px'})
                 break
 
             case Category.Scatter:
@@ -336,10 +334,10 @@ export class GraphRenderer {
         }
     }
 
-    static mouseWheel = (eagle: Eagle, event: JQueryEventObject) : void => {
+    static scrollZoom = (eagle: Eagle, event: JQueryEventObject) : void => {
         const wheelEvent: WheelEvent = <WheelEvent>event.originalEvent;
 
-        eagle.globalScale(eagle.globalScale() - wheelEvent.deltaY/1000);
+        eagle.globalScale(Math.abs(eagle.globalScale() - eagle.globalScale()/wheelEvent.deltaY*20));
         $('#logicalGraphD3Div').css('transform','scale('+eagle.globalScale()+')')
     }
 

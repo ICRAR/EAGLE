@@ -85,6 +85,7 @@
     border-radius: 50%;
     border: 1.5px solid var(--nodeBorder);
     position: absolute;
+    inset: 6px 6px 6px 6px;
     z-index: 2;
 }
 
@@ -93,6 +94,7 @@
     border: 1.5px solid var(--nodeBorder);
     position: absolute;
     background-color: var(--branchBg);
+    inset: -7px -7px -7px -7px;
 }
 
 .node .body span, .node .construct_node .basic_node span{
