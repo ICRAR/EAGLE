@@ -486,6 +486,9 @@ export class Eagle {
         // reset scale
         this.globalScale(1.0);
 
+        $('#logicalGraphD3Div').css('transform','scale('+1+')')
+        $('#logicalGraphD3Div').css('transform','translate(0px,0px)')
+
         //determine center of the display area
         const displayCenterX : number = $('#logicalGraphParent').width() / this.globalScale() / 2;
         const displayCenterY : number = $('#logicalGraphParent').height() / this.globalScale() / 2;
