@@ -105,8 +105,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let PortPosition
         let portOnEmbeddedApp = false //used to identify when we are calculating the port position for a port on an embedded application
 
-        if(dataType === 'inputApp'){
-            // console.log(data.getName(), 'is input app')
+        if(dataType === 'inputApp' || dataType === 'outputApp'){
             node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
             for(const port of data.getFields()){
                 if (port.isInputPort()){
@@ -114,14 +113,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 }
             }
             console.log(data.getName(),node.getName(),field.getDisplayText())
-        }else if(dataType === 'outputApp'){
-            // console.log(data.getName(), 'is output app')
-            node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
-            for(const port of data.getFields()){
-                if (port.isOutputPort()){
-                    field = port
-                }
-            }
         }else if (dataType === 'port'){
             node = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey())
             if (node.isEmbedded()){
