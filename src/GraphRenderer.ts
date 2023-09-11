@@ -104,6 +104,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let connectedField:boolean=false;
         let PortPosition
         if(dataType === 'inputApp'){
+            console.log(data.getName(), 'is input app')
             node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
             for(const port of data.getFields()){
                 if (port.isInputPort()){
@@ -112,8 +113,13 @@ ko.bindingHandlers.graphRendererPortPosition = {
             }
             console.log(data.getName(),node.getName(),field.getDisplayText())
         }else if(dataType === 'outputApp'){
-            node = data
-            field = node.getOutputPorts()[0]
+            console.log(data.getName(), 'is output app')
+            node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
+            for(const port of data.getFields()){
+                if (port.isOutputPort()){
+                    field = port
+                }
+            }
         }else if (dataType === 'port'){
             node = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey())
             field = data
@@ -155,7 +161,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
             node.addPortAngle(edgeAngle)
             PortPosition=GraphRenderer.calculatePortPos(edgeAngle,nodeRadius, nodeRadius)
         }else{
-            if(field.isInputPort()){
+            if(field.isInputPort() || field.isOutputPort()){
                 PortPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
             }else{
                 PortPosition=GraphRenderer.calculatePortPos(0, nodeRadius, nodeRadius)

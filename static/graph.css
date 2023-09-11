@@ -119,7 +119,7 @@
     color: var(--constructIcon);
 }
 
-.node .construct_node .constructInputApp{
+.node .construct_node .constructInputApp, .node .construct_node .constructOutputApp{
     position: absolute;
     transform: translate(-50%, -50%);
 }
