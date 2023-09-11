@@ -149,15 +149,16 @@
 .node.selected .body {
     outline: solid 2px var(--nodeBorder);
     outline-offset: 0px;
-    box-shadow: 0px 0px 0 1px var(--nodeBorder);
     background-color: var(--selectedBg);
+    box-shadow: 0 8px 6px -6px black;
 }
 
 .node.selected .branch_node .outerRing {
     outline: solid 2px var(--nodeBorder);
     outline-offset: 0px;
-    box-shadow: 0px 0px 0 1px var(--nodeBorder);
+    /* box-shadow: 0px 0px 0 1px var(--nodeBorder); fixes small css bug, may be needed again*/
     background-color:  var(--selectedBg) !important;
+    box-shadow: 0 8px 6px -6px black;
 }
 
 .node .header-name {
