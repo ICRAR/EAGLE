@@ -103,8 +103,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let adjacentNode :Node;
         let connectedField:boolean=false;
         let PortPosition
+        let portOnEmbeddedApp = false //used to identify when we are calculating the port position for a port on an embedded application
+
         if(dataType === 'inputApp'){
-            console.log(data.getName(), 'is input app')
+            // console.log(data.getName(), 'is input app')
             node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
             for(const port of data.getFields()){
                 if (port.isInputPort()){
@@ -113,7 +115,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
             }
             console.log(data.getName(),node.getName(),field.getDisplayText())
         }else if(dataType === 'outputApp'){
-            console.log(data.getName(), 'is output app')
+            // console.log(data.getName(), 'is output app')
             node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
             for(const port of data.getFields()){
                 if (port.isOutputPort()){
@@ -122,6 +124,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
             }
         }else if (dataType === 'port'){
             node = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey())
+            if (node.isEmbedded()){
+                node = eagle.logicalGraph().findNodeByKeyQuiet(node.getEmbedKey())
+                portOnEmbeddedApp = true
+            }
             field = data
         }else if (dataType  === 'comment'){
             node = data
@@ -149,6 +155,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         //for branch nodes the ports are inset from the outer radius a little bit in their design
         let nodeRadius = node.getNodeRadius()
+        if(portOnEmbeddedApp){
+            // if we are working with ports of an embedded app, we need to use the parent construct to calculate the angle, but we want to use the radius of the embedded app to place the port
+            nodeRadius = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey()).getNodeRadius() 
+        }
 
         if(connectedField){
             const adjacentNodePos = adjacentNode.getPosition()
