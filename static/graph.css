@@ -121,6 +121,7 @@
 
 .node .construct_node .constructInputApp{
     position: absolute;
+    transform: translate(-50%, -50%);
 }
 
 .node .branch_node .body span{
