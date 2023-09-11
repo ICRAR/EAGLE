@@ -105,7 +105,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let PortPosition
         let portOnEmbeddedApp = false //used to identify when we are calculating the port position for a port on an embedded application
 
-        if(dataType === 'inputApp' || dataType === 'outputApp'){
+        if(dataType === 'inputApp'){
+            // console.log(data.getName(), 'is input app')
             node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
             for(const port of data.getFields()){
                 if (port.isInputPort()){
@@ -113,6 +114,14 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 }
             }
             console.log(data.getName(),node.getName(),field.getDisplayText())
+        }else if(dataType === 'outputApp'){
+            // console.log(data.getName(), 'is output app')
+            node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
+            for(const port of data.getFields()){
+                if (port.isOutputPort()){
+                    field = port
+                }
+            }
         }else if (dataType === 'port'){
             node = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey())
             if (node.isEmbedded()){
@@ -131,7 +140,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         //clearing the saved port angles array
         node.resetPortAngles()
 
-        //checking the edge node array to see if the port in hand is connected to another, if so we grab the adjacent node
+        //checking if we are dealing with a connected port, if so we grab the adjacent node
         if(dataType != 'comment'){
             for(const edge of edges){
                 if(field.getId()===edge.getDestPortId()){
