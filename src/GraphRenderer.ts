@@ -165,6 +165,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
             const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
             node.addPortAngle(edgeAngle)
             PortPosition=GraphRenderer.calculatePortPos(edgeAngle,nodeRadius, nodeRadius)
+            console.log(node.getName(), '->' , adjacentNode.getName())
         }else if(dataType === 'comment'){
             const adjacentNodePos = adjacentNode.getPosition()
             const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
@@ -180,6 +181,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         if (dataType === 'port'){
             field.setPosition(PortPosition.x, PortPosition.y)
+        }else if (dataType === 'inputApp' || dataType === 'outputApp'){
+            //we are saving the embedded application's position data here using the offset we calculated
+            let newPos = {x: node.getPosition().x-nodeRadius+PortPosition.x, y:node.getPosition().y-nodeRadius+PortPosition.y}
+            data.setPosition(newPos.x,newPos.y)
         }
 
         $(element).css({'top':PortPosition.y+'px','left':PortPosition.x+'px'})
