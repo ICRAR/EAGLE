@@ -165,7 +165,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
             const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
             node.addPortAngle(edgeAngle)
             PortPosition=GraphRenderer.calculatePortPos(edgeAngle,nodeRadius, nodeRadius)
-            console.log(node.getName(), '->' , adjacentNode.getName())
         }else if(dataType === 'comment'){
             const adjacentNodePos = adjacentNode.getPosition()
             const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos,adjacentNodePos)
