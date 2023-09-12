@@ -314,14 +314,6 @@ export class GraphRenderer {
     static getPath(srcNode:Node,destNode:Node, eagle: Eagle) : string {
         const lg: LogicalGraph = eagle.logicalGraph();
 
-        // if the src or dest nodes are embedded nodes, use the position of the construct instead
-        if (srcNode.isEmbedded()){
-            srcNode = lg.findNodeByKey(srcNode.getEmbedKey());
-        }
-        if (destNode.isEmbedded()){
-            destNode = lg.findNodeByKey(destNode.getEmbedKey());
-        }
-
         const srcNodeRadius = srcNode.getNodeRadius()
         const destNodeRadius = destNode.getNodeRadius()
 
