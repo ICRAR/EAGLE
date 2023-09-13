@@ -1,4 +1,4 @@
-<div class="node" data-bind=" nodeRenderHandler:$data, style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY()},css: {selected: $root.objectIsSelected($data)}">
+<div class="node" data-bind=" nodeRenderHandler:$data, style: {left: $data.x() + $root.globalOffsetX(), top: $data.y() + $root.globalOffsetY()}">
     <!-- ko if:!$data.isConstruct() && !$data.isBranch() && !$data.isComment() -->
         {% include 'basic_node.html' %}
     <!-- /ko -->
