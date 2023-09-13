@@ -33,27 +33,30 @@
     stroke-width: 2;
 }
 
-.node:has(>.basic_node){
+.branch_node .container,.branch_node .header{
     z-index: 3;
 }
 
-.node:has(>.branch_node){
+.comment_node .container,.comment_node .header{
     z-index: 3;
 }
 
-.node:has(>.comment_node){
-    z-index: 3;
-}
-
-.node:has(>.construct_node) {
+.construct_node .container ,.construct_node .header {
     z-index: 1;
+}
+
+.basic_node .container,.basic_node .header{
+    z-index: 3;
+}
+
+.constructOutputApp,.constructInputApp{
+    z-index: 3;
 }
 
 .node {
     position: absolute;
     height: 60px;
     width: 60px;
-    transform: translate(-50%,-50%);
 }
 
 .node .nodeContent {
@@ -66,9 +69,11 @@
     height: 100%;
     width: 100%;
     padding:0px;
+    transform: translate(-50%,-50%);
 }
 
 .node .body {
+    position: relative;
     background-color: var(--nodeBg);
     border-radius: 50%;
     border: 1.5px solid var(--nodeBorder);
