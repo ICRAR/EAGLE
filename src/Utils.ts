@@ -1902,6 +1902,10 @@ export class Utils {
         field.setType(Daliuge.DataType.Object + "." + field.getType());
     }
 
+    static fixFieldKey(eagle: Eagle, node: Node, field: Field){
+        field.setNodeKey(node.getKey());
+    }
+
     static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){
         const edge = eagle.logicalGraph().findEdgeById(edgeId);
         const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());

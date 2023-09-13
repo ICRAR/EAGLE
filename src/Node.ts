@@ -2175,6 +2175,14 @@ export class Node {
             }
         }
 
+        // check that all fields "key" attribute is the same as the key of the node they belong to
+        for (const field of node.getFields()){
+            if (field.getNodeKey() !== node.getKey()) {
+                const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose key (" + field.getNodeKey() + ") doesn't match the node (" + node.getKey() + ")", function(){Utils.showNode(eagle, selectedLocation, node.getId())}, function(){Utils.fixFieldKey(eagle, node, field)}, "Set field node key correctly");
+                errorsWarnings.errors.push(issue);
+            }
+        }
+
         // check that multiple fields don't share the same name
         // NOTE: this code checks many pairs of fields twice
         for (let i = 0 ; i < node.getFields().length ; i++){
