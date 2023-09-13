@@ -315,10 +315,10 @@ export class GraphRenderer {
         const offsetY: number = eagle.globalOffsetY();
 
         // we subtract node radius from all these numbers to account for the transform translate(-50%, -50%) css on the nodes
-        const srcX = srcNode.getPosition().x + offsetX ;
-        const srcY = srcNode.getPosition().y + offsetY ;
-        const destX = destNode.getPosition().x + offsetX ;
-        const destY = destNode.getPosition().y + offsetY ;
+        const srcX = srcNode.getPosition().x + offsetX -srcNodeRadius;
+        const srcY = srcNode.getPosition().y + offsetY -srcNodeRadius;
+        const destX = destNode.getPosition().x + offsetX -destNodeRadius;
+        const destY = destNode.getPosition().y + offsetY -destNodeRadius;
 
         return GraphRenderer.createBezier(srcNodeRadius,destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY});
     }
