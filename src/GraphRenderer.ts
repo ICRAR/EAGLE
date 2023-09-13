@@ -33,12 +33,6 @@ import { GraphConfig } from './graphConfig';
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
-        //initiating all the eagle ui when the graph is ready
-        $('#logicalGraphD3Div').show(200)
-        $('.leftWindow').show(200)
-        $('.rightWindow').show(200)
-        $('#graphNameWrapper').show(200)
-        $('nav.navbar').show(200).css('display', 'flex');
 
         
         const node :Node = ko.unwrap(valueAccessor())
@@ -321,10 +315,10 @@ export class GraphRenderer {
         const offsetY: number = eagle.globalOffsetY();
 
         // we subtract node radius from all these numbers to account for the transform translate(-50%, -50%) css on the nodes
-        const srcX = srcNode.getPosition().x + offsetX - srcNodeRadius;
-        const srcY = srcNode.getPosition().y + offsetY - srcNodeRadius;
-        const destX = destNode.getPosition().x + offsetX - destNodeRadius;
-        const destY = destNode.getPosition().y + offsetY - destNodeRadius;
+        const srcX = srcNode.getPosition().x + offsetX ;
+        const srcY = srcNode.getPosition().y + offsetY ;
+        const destX = destNode.getPosition().x + offsetX ;
+        const destY = destNode.getPosition().y + offsetY ;
 
         return GraphRenderer.createBezier(srcNodeRadius,destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY});
     }
