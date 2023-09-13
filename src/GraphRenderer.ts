@@ -131,7 +131,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
             field = data
         }else if (dataType  === 'comment'){
             node = data
-            adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(data.getSubjectKey())    
+            adjacentNode = eagle.logicalGraph().findNodeByKeyQuiet(data.getSubjectKey())
+
+            if (adjacentNode === null){
+                console.warn("Could not find adjacentNode for comment with subjectKey", data.getSubjectKey());
+                return;
+            }
         }
 
         const currentNodePos = node.getPosition()
@@ -312,6 +317,11 @@ export class GraphRenderer {
 
     static getPath(srcNode:Node,destNode:Node, eagle: Eagle) : string {
         const lg: LogicalGraph = eagle.logicalGraph();
+
+        if (srcNode === null || destNode === null){
+            console.warn("Cannot getPath between null nodes. srcNode:", srcNode, "destNode:", destNode);
+            return "";
+        }
 
         const srcNodeRadius = srcNode.getNodeRadius()
         const destNodeRadius = destNode.getNodeRadius()
