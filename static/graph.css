@@ -155,16 +155,18 @@
     border-radius: 50%;
     background-color: red;
     transform: translate(-50%,-50%);
+    top: 50%;
+    left: 100%;
 }
 
-.node.selected .body {
+.node .container.selected .body {
     outline: solid 2px var(--nodeBorder);
     outline-offset: 0px;
     background-color: var(--selectedBg);
     /* box-shadow: 0 8px 6px -6px black; */
 }
 
-.node.selected .branch_node .outerRing {
+.node .branch_node .container.selected .outerRing {
     outline: solid 2px var(--nodeBorder);
     outline-offset: 0px;
     /* box-shadow: 0px 0px 0 1px var(--nodeBorder); fixes small css bug, may be needed again*/
@@ -176,7 +178,7 @@
     color:var(--graphText)
 }
 
-.node.selected .header-name {
+.node .container.selected .header-name {
     font-weight: 500;
     color:var(--graphText)
 }
