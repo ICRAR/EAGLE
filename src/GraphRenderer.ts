@@ -178,6 +178,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
             //we are saving the embedded application's position data here using the offset we calculated
             let newPos = {x: node.getPosition().x-nodeRadius+PortPosition.x, y:node.getPosition().y-nodeRadius+PortPosition.y}
             data.setPosition(newPos.x,newPos.y)
+            PortPosition = {x:PortPosition.x-nodeRadius,y:PortPosition.y-nodeRadius}
         }
 
         $(element).css({'top':PortPosition.y+'px','left':PortPosition.x+'px'})

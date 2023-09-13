@@ -72,6 +72,10 @@
     transform: translate(-50%,-50%);
 }
 
+.node .construct_node .basic_node .container{
+    transform: none;
+}
+
 .node .body {
     position: relative;
     background-color: var(--nodeBg);
