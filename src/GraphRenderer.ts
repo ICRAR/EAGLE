@@ -107,7 +107,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
                     field = port
                 }
             }
-            console.log(data.getName(),node.getName(),field.getDisplayText())
+            // console.log(data.getName(),node.getName(),field.getDisplayText())
         }else if(dataType === 'outputApp'){
             // console.log(data.getName(), 'is output app')
             node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
@@ -360,13 +360,15 @@ export class GraphRenderer {
 
     static startDrag = (node: Node, event: MouseEvent) : void => {
         const eagle = Eagle.getInstance();
-
-        //only non-embedded nodes can be dragged
-        if(!node.isEmbedded()){
-            eagle.isDragging(true);
-            eagle.draggingNode(node);
+        if(node != null){
+           //only non-embedded nodes can be dragged
+            if(!node.isEmbedded()){
+                eagle.isDragging(true);
+                eagle.draggingNode(node);
+            }
+ 
         }
-
+        
         // check if shift key is down, if so, add selected node to current selection
         if (node !== null && event.shiftKey){
             eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
