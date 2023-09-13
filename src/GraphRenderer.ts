@@ -340,13 +340,13 @@ export class GraphRenderer {
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null){
                 // move node
-                eagle.draggingNode().changePosition(mouseEvent.movementX, mouseEvent.movementY);
-                GraphRenderer.moveChildNodes(eagle.draggingNode(), mouseEvent.movementX, mouseEvent.movementY);
+                eagle.draggingNode().changePosition(mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
+                GraphRenderer.moveChildNodes(eagle.draggingNode(), mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
 
             } else {
                 // move background
-                eagle.globalOffsetX(eagle.globalOffsetX() + mouseEvent.movementX);
-                eagle.globalOffsetY(eagle.globalOffsetY() + mouseEvent.movementY);
+                eagle.globalOffsetX(eagle.globalOffsetX() + mouseEvent.movementX/eagle.globalScale());
+                eagle.globalOffsetY(eagle.globalOffsetY() + mouseEvent.movementY/eagle.globalScale());
             }
         }
     }
