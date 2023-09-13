@@ -582,12 +582,20 @@ export class Field {
         // handle legacy fieldType
         if (typeof data.fieldType !== 'undefined'){
             switch (data.fieldType){
+                case "ApplicationArgument":
+                    parameterType = Daliuge.FieldType.ApplicationArgument;
+                    usage = Daliuge.FieldUsage.NoPort;
+                    break;
                 case "ComponentParameter":
                     parameterType = Daliuge.FieldType.ComponentParameter;
                     usage = Daliuge.FieldUsage.NoPort;
                     break;
-                case "ApplicationArgument":
-                    parameterType = Daliuge.FieldType.ApplicationArgument;
+                case "ConstraintParameter":
+                    parameterType = Daliuge.FieldType.ConstraintParameter;
+                    usage = Daliuge.FieldUsage.NoPort;
+                    break;
+                case "ConstructParameter":
+                    parameterType = Daliuge.FieldType.ConstructParameter;
                     usage = Daliuge.FieldUsage.NoPort;
                     break;
                 case "InputPort":
@@ -597,10 +605,6 @@ export class Field {
                 case "OutputPort":
                     parameterType = Daliuge.FieldType.ApplicationArgument;
                     usage = Daliuge.FieldUsage.OutputPort;
-                    break;
-                case "ConstructParameter":
-                    parameterType = Daliuge.FieldType.ConstructParameter;
-                    usage = Daliuge.FieldUsage.NoPort;
                     break;
                 default:
                     console.warn("Unhandled fieldType", data.fieldType);
