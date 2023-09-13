@@ -360,13 +360,10 @@ export class GraphRenderer {
 
     static startDrag = (node: Node, event: MouseEvent) : void => {
         const eagle = Eagle.getInstance();
-        if(node != null){
+        if(node === null || !node.isEmbedded()){
            //only non-embedded nodes can be dragged
-            if(!node.isEmbedded()){
-                eagle.isDragging(true);
-                eagle.draggingNode(node);
-            }
- 
+            eagle.isDragging(true);
+            eagle.draggingNode(node);
         }
         
         // check if shift key is down, if so, add selected node to current selection
