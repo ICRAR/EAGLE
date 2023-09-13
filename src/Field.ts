@@ -339,7 +339,7 @@ export class Field {
     }
 
     isOutputPort = () : boolean => {
-        return this.usage() === Daliuge.FieldUsage.OutputPort || this.usage() === Daliuge.FieldUsage.OutputPort;
+        return this.usage() === Daliuge.FieldUsage.OutputPort || this.usage() === Daliuge.FieldUsage.InputOutput;
     }
 
     fitsComponentSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
