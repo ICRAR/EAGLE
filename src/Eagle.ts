@@ -4516,21 +4516,29 @@ export class Eagle {
 
         this.logicalGraph().addNodeComplete(newNode);
 
-        // set new ids for any ports in this node
-        Utils.giveNodePortsNewIds(newNode);
+        // set new ids for any fields in this node
+        for (const field of newNode.getFields()){
+            field.setId(Utils.uuidv4());
+        }
 
         // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
         if (newNode.hasInputApplication()){
             newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
             newNode.getInputApplication().setEmbedKey(newNode.getKey());
 
-            Utils.giveNodePortsNewIds(newNode.getInputApplication());
+            // set new ids for any fields in this node
+            for (const field of newNode.getInputApplication().getFields()){
+                field.setId(Utils.uuidv4());
+            }
         }
         if (newNode.hasOutputApplication()){
             newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
             newNode.getOutputApplication().setEmbedKey(newNode.getKey());
 
-            Utils.giveNodePortsNewIds(newNode.getOutputApplication());
+            // set new ids for any fields in this node
+            for (const field of newNode.getOutputApplication().getFields()){
+                field.setId(Utils.uuidv4());
+            }
         }
 
         // flag that the logical graph has been modified
