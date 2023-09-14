@@ -214,6 +214,11 @@ ko.bindingHandlers.graphRendererPortPosition = {
             }
         }
 
+        //a little 1px reduction is needed to center ports for some reason
+        if(!node.isBranch()){
+            portPosition = {x:portPosition.x-1,y:portPosition.y-1}
+        }
+
         if (dataType === 'inputPort'){
             field.setInputPosition(portPosition.x, portPosition.y);
         } else if (dataType === 'outputPort'){
@@ -226,8 +231,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
 
         //applying the offset to the element
-        //a little 1px reduction is needed to center them for some reason
-        $(element).css({'top':portPosition.y-1+'px','left':portPosition.x-1+'px'})
+        $(element).css({'top':portPosition.y+'px','left':portPosition.x+'px'})
     }
 };
 
