@@ -230,7 +230,20 @@ ko.bindingHandlers.graphRendererPortPosition = {
 };
 
 export class GraphRenderer {
-    static normalNodeRadius = 25
+
+    //port drag handler globals
+    draggingPort : boolean
+    sourceNode : Node
+    sourcePort : Field
+    sourcePortIsInput :boolean
+    
+    constructor(){
+        this.draggingPort = false;
+        this.sourceNode = null;
+        this.sourcePort = null;
+        this.sourcePortIsInput = false;
+
+    }
 
     static averageAngles(angles: number[]) : number {
         let x: number = 0;
