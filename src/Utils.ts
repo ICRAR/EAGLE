@@ -1312,16 +1312,6 @@ export class Utils {
         return result;
     }
 
-    static giveNodePortsNewIds(node: Node) : void {
-        // set new ids for any ports in this node
-        for (const port of node.getInputPorts()){
-            port.setId(Utils.uuidv4());
-        }
-        for (const port of node.getOutputPorts()){
-            port.setId(Utils.uuidv4());
-        }
-    }
-
     static determineFileType(data: any): Eagle.FileType {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.fileType !== 'undefined'){
@@ -1437,6 +1427,52 @@ export class Utils {
         // check all edges are valid
         for (const edge of graph.getEdges()){
             Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
+        }
+
+        // check that all node, edge, field ids are unique
+        {
+            const ids : string[] = [];
+
+            // loop over graph nodes
+            for (const node of graph.getNodes()){
+                if (ids.includes(node.getId())){
+                    const issue: Errors.Issue = Errors.ShowFix(
+                        "Node (" + node.getName() + ") does not have a unique id",
+                        function(){Utils.showNode(eagle, Eagle.FileType.Graph, node.getId())},
+                        function(){Utils.newId(node)},
+                        "Assign node a new id"
+                    );
+                    errorsWarnings.errors.push(issue);
+                }
+                ids.push(node.getId());
+
+                for (const field of node.getFields()){
+                    if (ids.includes(field.getId())){
+                        const issue: Errors.Issue = Errors.ShowFix(
+                            "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
+                            function(){Utils.showNode(eagle, Eagle.FileType.Graph, node.getId())},
+                            function(){Utils.newId(field)},
+                            "Assign field a new id"
+                        );
+                        errorsWarnings.errors.push(issue);
+                    }
+                    ids.push(field.getId());
+                }
+            }
+
+            // loop over graph edges
+            for (const edge of graph.getEdges()){
+                if (ids.includes(edge.getId())){
+                    const issue: Errors.Issue = Errors.ShowFix(
+                        "Edge (" + edge.getId() + ") does not have a unique id",
+                        function(){Utils.showEdge(eagle, edge.getId())},
+                        function(){Utils.newId(edge)},
+                        "Assign edge a new id"
+                    );
+                    errorsWarnings.errors.push(issue);
+                }
+                ids.push(edge.getId());
+            }
         }
 
         return errorsWarnings;
@@ -1866,6 +1902,10 @@ export class Utils {
         field.setType(Daliuge.DataType.Object + "." + field.getType());
     }
 
+    static fixFieldKey(eagle: Eagle, node: Node, field: Field){
+        field.setNodeKey(node.getKey());
+    }
+
     static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){
         const edge = eagle.logicalGraph().findEdgeById(edgeId);
         const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
@@ -1912,6 +1952,10 @@ export class Utils {
         eagle.undo().pushSnapshot(eagle, "Fix");
     }
 
+    static newId(object: Node | Edge | Field): void {
+        object.setId(Utils.uuidv4());
+    }
+    
     static showEdge(eagle: Eagle, edgeId: string): void {
         // close errors modal if visible
         $('#errorsModal').modal("hide");

@@ -315,6 +315,7 @@ export class Field {
 
         const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
         f.setIsEvent(this.isEvent());
+        f.setNodeKey(this.nodeKey());
         return f;
     }
 
