@@ -27,10 +27,12 @@ import * as ko from "knockout";
 import { Category } from './Category';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
+import { Edge } from "./Edge";
 import { Field } from './Field';
 import { GraphConfig } from './graphConfig';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
+import { Edge } from "./Edge";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
@@ -319,7 +321,7 @@ export class GraphRenderer {
         return interpolatedAngle;
     }
 
-    static createBezier(srcNodeRadius:number,destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}) : string {
+    static createBezier(srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field) : string {
         //console.log("createBezier", srcNodePosition, destNodePosition);
 
         // determine if the edge falls below a certain length threshold
@@ -334,8 +336,18 @@ export class GraphRenderer {
         const destPortAngle: number = srcPortAngle + Math.PI;
 
         // calculate the offset for the src and dest ports, based on the angles
-        const srcPortOffset = GraphRenderer.calculatePortPos(srcPortAngle, srcNodeRadius, srcNodeRadius);
-        const destPortOffset = GraphRenderer.calculatePortPos(destPortAngle, destNodeRadius, destNodeRadius);
+        let srcPortOffset;
+        let destPortOffset;
+        if (srcField){
+            srcPortOffset = srcField.getPosition();
+        } else {
+            srcPortOffset = GraphRenderer.calculatePortPos(srcPortAngle, srcNodeRadius, srcNodeRadius);
+        }
+        if (destField){
+            destPortOffset = destField.getPosition();
+        } else {
+            destPortOffset = GraphRenderer.calculatePortPos(destPortAngle, destNodeRadius, destNodeRadius);
+        }
 
         // calculate the coordinates of the start and end of the edge
         const x1 = srcNodePosition.x + srcPortOffset.x;
@@ -365,9 +377,30 @@ export class GraphRenderer {
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
     }
 
-    static getPath(srcNode:Node,destNode:Node, eagle: Eagle) : string {
+    static getPath(edge: Edge) : string {
+        const eagle: Eagle = Eagle.getInstance();
         const lg: LogicalGraph = eagle.logicalGraph();
 
+        const srcNode: Node = lg.findNodeByKeyQuiet(edge.getSrcNodeKey());
+        const destNode: Node = lg.findNodeByKeyQuiet(edge.getDestNodeKey());
+
+        const srcField: Field = srcNode.findFieldById(edge.getSrcPortId());
+        const destField: Field = destNode.findFieldById(edge.getDestPortId());
+
+        return this._getPath(srcNode, destNode, srcField, destField, eagle);
+    }
+
+    static getPathComment(commentNode: Node) : string {
+        const eagle: Eagle = Eagle.getInstance();
+        const lg: LogicalGraph = eagle.logicalGraph();
+
+        const srcNode: Node = commentNode;
+        const destNode: Node = lg.findNodeByKeyQuiet(commentNode.getSubjectKey());
+
+        return this._getPath(srcNode, destNode, null, null, eagle);
+    }
+
+    static _getPath(srcNode: Node, destNode: Node, srcField: Field, destField: Field, eagle: Eagle) : string {
         if (srcNode === null || destNode === null){
             console.warn("Cannot getPath between null nodes. srcNode:", srcNode, "destNode:", destNode);
             return "";
@@ -386,7 +419,7 @@ export class GraphRenderer {
         const destX = destNode.getPosition().x + offsetX -destNodeRadius;
         const destY = destNode.getPosition().y + offsetY -destNodeRadius;
 
-        return GraphRenderer.createBezier(srcNodeRadius,destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY});
+        return GraphRenderer.createBezier(srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
     }
 
     static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
