@@ -32,7 +32,6 @@ import { Field } from './Field';
 import { GraphConfig } from './graphConfig';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
-import { Edge } from "./Edge";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
