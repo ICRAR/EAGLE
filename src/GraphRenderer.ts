@@ -73,10 +73,6 @@ ko.bindingHandlers.nodeRenderHandler = {
                 node.setNodeRadius(GraphConfig.getNormalRadius())
                 $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
         }
-        
-        if(node.isBranch()){
-            
-        }
     },
     update: function (element:any, node) {
 
@@ -122,10 +118,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
             case 'inputPort':
             case 'outputPort':
                 node = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey())
-                if (node.isEmbedded()){
-                    node = eagle.logicalGraph().findNodeByKeyQuiet(node.getEmbedKey())
-                    portOnEmbeddedApp = true
-                }
                 field = data
                 break;
             case 'comment':
