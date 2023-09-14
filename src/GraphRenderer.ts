@@ -32,7 +32,6 @@ import { Field } from './Field';
 import { GraphConfig } from './graphConfig';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
-import { Edge } from "./Edge";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
@@ -223,8 +222,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
             }
         }
 
-        if (dataType === 'inputPort' || dataType === 'outputPort'){
-            field.setPosition(portPosition.x, portPosition.y)
+        if (dataType === 'inputPort'){
+            field.setInputPosition(portPosition.x, portPosition.y);
+        } else if (dataType === 'outputPort'){
+            field.setOutputPosition(portPosition.x, portPosition.y);
         }else if (dataType === 'inputApp' || dataType === 'outputApp'){
             //we are saving the embedded application's position data here using the offset we calculated
             const newPos = {x: node.getPosition().x-nodeRadius+portPosition.x, y:node.getPosition().y-nodeRadius+portPosition.y}
@@ -339,12 +340,12 @@ export class GraphRenderer {
         let srcPortOffset;
         let destPortOffset;
         if (srcField){
-            srcPortOffset = srcField.getPosition();
+            srcPortOffset = srcField.getOutputPosition();
         } else {
             srcPortOffset = GraphRenderer.calculatePortPos(srcPortAngle, srcNodeRadius, srcNodeRadius);
         }
         if (destField){
-            destPortOffset = destField.getPosition();
+            destPortOffset = destField.getInputPosition();
         } else {
             destPortOffset = GraphRenderer.calculatePortPos(destPortAngle, destNodeRadius, destNodeRadius);
         }
