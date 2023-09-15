@@ -56,6 +56,7 @@ import {Errors} from './Errors';
 import {ComponentUpdater} from './ComponentUpdater';
 import {ParameterTable} from './ParameterTable';
 import { RightClick } from "./RightClick";
+import { GraphRenderer } from "./GraphRenderer";
 
 export class Eagle {
     static _instance : Eagle;
@@ -454,6 +455,17 @@ export class Eagle {
         console.error("Not implemented!");
     }
 
+    resizeConstructs = () : void => {
+        // debug - resize a few times, to avoid the need to resize from leaves upwards
+        for (let i = 0 ; i < 10 ; i++){
+            for (const node of this.logicalGraph().getNodes()){
+                if (node.isGroup()){
+                    GraphRenderer.resizeConstruct(node);
+                }
+            }
+        }
+    }
+
     centerGraph = () : void => {
         // if there are no nodes in the logical graph, abort
         if (this.logicalGraph().getNumNodes() === 0){
@@ -710,6 +722,8 @@ export class Eagle {
 
                 // center graph
                 this.centerGraph();
+
+                this.resizeConstructs();
 
                 // update the activeFileInfo with details of the repository the file was loaded from
                 if (fileFullPath !== ""){
@@ -1799,6 +1813,8 @@ export class Eagle {
 
         // center graph
         this.centerGraph();
+
+        this.resizeConstructs();
 
         // check graph
         this.checkGraph();

@@ -49,49 +49,20 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--edgeColor", GraphConfig.getColor('edgeColor'));
         $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", GraphConfig.getColor('commentEdgeColor'));
         
-
-        switch(node.getCategory()){
-            case Category.Branch: 
-                node.setRadius(GraphConfig.BRANCH_NODE_RADIUS)
-                $(element).css({'height':node.getRadius()*2+'px','width':node.getRadius()*2+'px'})
-                break
-
-            case Category.Scatter:
-            case Category.Gather:
-            case Category.MKN:
-            case Category.GroupBy:
-            case Category.Loop:
-            case Category.SubGraph:
-                node.setRadius(GraphConfig.CONSTRUCT_NODE_RADIUS)
-                $(element).css({'height':node.getRadius()*2+'px','width':node.getRadius()*2+'px'})
-
-                break
-            
-            
-            default : 
-                node.setRadius(GraphConfig.NORMAL_NODE_RADIUS)
-                $(element).css({'height':node.getRadius()*2+'px','width':node.getRadius()*2+'px'})
-        }
+        // transition for grow/shrink
+        $(element).css({'transition': 'width .2s ease-out, height .2s ease-out'});
     },
     update: function (element:any, valueAccessor, allBindings, viewModel, bindingContext) {
         const node: Node = ko.unwrap(valueAccessor());
 
-        switch(node.getCategory()){
-            case Category.Scatter:
-            case Category.Gather:
-            case Category.MKN:
-            case Category.GroupBy:
-            case Category.Loop:
-            case Category.SubGraph:
-                $(element).css({'height':node.getRadius()*2+'px','width':node.getRadius()*2+'px'});
-                break;
-        }
+        // set size
+        $(element).css({'height':node.getRadius()*2+'px','width':node.getRadius()*2+'px'});
     },
 };
 
 ko.bindingHandlers.graphRendererPortPosition = {
     init: function(element:any, valueAccessor, allBindings) {
-       
+
     },
     update: function (element:any, valueAccessor) {
         //the update function is called initially and then whenever a change to a utilised observable occurs
@@ -446,8 +417,11 @@ export class GraphRenderer {
     static scrollZoom = (eagle: Eagle, event: JQueryEventObject) : void => {
         const wheelEvent: WheelEvent = <WheelEvent>event.originalEvent;
 
-        eagle.globalScale(Math.abs(eagle.globalScale() - eagle.globalScale()/wheelEvent.deltaY*20));
-        $('#logicalGraphD3Div').css('transform','scale('+eagle.globalScale()+')')
+        if (wheelEvent.deltaY < 0){
+            eagle.zoomIn();
+        } else {
+            eagle.zoomOut();
+        }
     }
 
     static startDrag = (node: Node, event: MouseEvent) : void => {
@@ -578,15 +552,19 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         let maxDistance = 0;
         let numChildren = 0;
-        
+
         // loop through all children
         for (const node of eagle.logicalGraph().getNodes()){
             if (node.getParentKey() === construct.getKey()){
                 const dx = construct.getPosition().x - node.getPosition().x;
                 const dy = construct.getPosition().y - node.getPosition().y;
                 const distance = Math.sqrt(dx*dx + dy*dy);
+                //console.log("distance to", node.getName(), distance);
 
-                maxDistance = Math.max(maxDistance, distance + node.getRadius() + GraphConfig.CONSTRUCT_MARGIN);
+                const paddedDistance = distance + node.getRadius() + GraphConfig.CONSTRUCT_MARGIN;
+                //console.log("paddedDistance to", node.getName(), paddedDistance, "(", node.getRadius(), ")");
+
+                maxDistance = Math.max(maxDistance, paddedDistance);
                 numChildren = numChildren + 1;
             }
         }

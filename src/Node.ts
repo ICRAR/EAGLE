@@ -1383,11 +1383,15 @@ export class Node {
         if (typeof nodeData.height !== 'undefined'){
             height = nodeData.height;
         }
-        node.radius(Math.max(width, height));
 
-        // if node is not a group or comment/description, make its width/height the default values
-        if (!CategoryData.getCategoryData(node.getCategory()).isResizable){
-            node.radius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
+        if (node.isGroup()){
+            node.radius(Math.max(width, height));
+        } else {
+            if (node.isBranch()){
+                node.radius(GraphConfig.BRANCH_NODE_RADIUS);
+            } else {
+                node.radius(GraphConfig.NORMAL_NODE_RADIUS);
+            }
         }
 
         // expanded
@@ -1948,6 +1952,7 @@ export class Node {
 
         const node = new Node(key, name, description, category);
         node.setEmbedKey(embedKey);
+        node.setRadius(GraphConfig.NORMAL_NODE_RADIUS);
         return node;
     }
 

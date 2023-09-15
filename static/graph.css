@@ -43,6 +43,7 @@
 
 .construct_node .container ,.construct_node .header {
     z-index: 1;
+    max-width: none;
 }
 
 .basic_node .container,.basic_node .header{
