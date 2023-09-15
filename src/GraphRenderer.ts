@@ -81,7 +81,13 @@ ko.bindingHandlers.nodeRenderHandler = {
 
 ko.bindingHandlers.graphRendererPortPosition = {
     init: function(element:any, valueAccessor, allBindings) {
-       
+        const eagle : Eagle = Eagle.getInstance();
+        
+        const data = ko.utils.unwrapObservable(valueAccessor()).data;
+        const dataType: string = ko.utils.unwrapObservable(valueAccessor()).type;
+
+        
+
     },
     update: function (element:any, valueAccessor) {
         //the update function is called initially and then whenever a change to a utilised observable occurs
@@ -497,5 +503,23 @@ export class GraphRenderer {
                 GraphRenderer.moveChildNodes(node, deltax, deltay);
             }
         }
+    }
+
+    static portDragHandler = (event:any, port:Field) : void => {
+        console.log('bop',event)
+        event.stopPropagation(); 
+    } 
+
+    static portDragStart = (port:Field) : void => {
+        console.log('start')
+        event.stopPropagation(); 
+    }
+
+    static portDragging = (port:Field) : void => {
+        console.log('drag')
+    }
+
+    static portDragEnd = (port:Field) : void => {
+        console.log('end')
     }
 }
