@@ -24,16 +24,17 @@
 
 import * as ko from "knockout";
 
-import {Utils} from './Utils';
-import {GraphUpdater} from './GraphUpdater';
-import {Eagle} from './Eagle';
-import {Field} from './Field';
-import {Errors} from './Errors';
-import {Category} from './Category';
-import {CategoryData} from './CategoryData';
-import {Setting} from './Setting';
-import {Daliuge} from './Daliuge';
+import { Category } from './Category';
+import { CategoryData } from './CategoryData';
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+import { Errors } from './Errors';
+import { Field } from './Field';
 import { GraphRenderer } from "./GraphRenderer";
+import { GraphUpdater } from './GraphUpdater';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
+import { GraphConfig } from "./graphConfig";
 
 export class Node {
     private _id : ko.Observable<string>;
@@ -42,8 +43,7 @@ export class Node {
     private description : ko.Observable<string>;
     private x : ko.Observable<number>;
     private y : ko.Observable<number>;
-    private width : ko.Observable<number>;
-    private height : ko.Observable<number>;
+    private radius : ko.Observable<number>;
 
     private realX : number; // underlying position (pre snap-to-grid)
     private realY : number;
@@ -77,30 +77,11 @@ export class Node {
     private dataHash : ko.Observable<string>;
 
     private portAngles : number[]
-    private nodeRadius : ko.Observable<number>;
 
-    public static readonly DEFAULT_WIDTH : number = 200;
-    public static readonly DEFAULT_HEIGHT : number = 72;
-    public static readonly MINIMUM_WIDTH : number = 200;
-    public static readonly MINIMUM_HEIGHT : number = 72;
     public static readonly DEFAULT_COLOR : string = "ffffff";
-
-    public static readonly GROUP_DEFAULT_WIDTH : number = 400;
-    public static readonly GROUP_DEFAULT_HEIGHT : number = 200;
-    public static readonly GROUP_COLLAPSED_WIDTH : number = 128;
-    public static readonly GROUP_COLLAPSED_HEIGHT : number = 128;
-    public static readonly DATA_COMPONENT_WIDTH : number = 48;
-    public static readonly DATA_COMPONENT_HEIGHT : number = 48;
 
     public static readonly NO_APP_STRING : string = "-no app-";
     public static readonly NO_APP_NAME_STRING : string = "-no name-";
-
-    // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
-    // this is the default margin that should be left on each side
-    public static readonly CONSTRUCT_MARGIN_LEFT: number = 24;
-    public static readonly CONSTRUCT_MARGIN_RIGHT: number = 24;
-    public static readonly CONSTRUCT_MARGIN_TOP: number = 72;
-    public static readonly CONSTRUCT_MARGIN_BOTTOM: number = 16;
 
     constructor(key : number, name : string, description : string, category : Category){
         this._id = ko.observable(Utils.uuidv4());
@@ -109,15 +90,11 @@ export class Node {
         this.description = ko.observable(description);
         this.x = ko.observable(0);
         this.y = ko.observable(0);
-        this.width = ko.observable(Node.DEFAULT_WIDTH);
-        this.height = ko.observable(Node.DEFAULT_HEIGHT);
-    
+        this.radius = ko.observable(0);
+        
         this.key = ko.observable(key);
         this.name = ko.observable(name);
         this.description = ko.observable(description);
-        
-        this.portAngles = []
-        this.nodeRadius = ko.observable(0);
 
         // display position
         this.realX = 0;
@@ -151,6 +128,7 @@ export class Node {
         this.paletteDownloadUrl = ko.observable("");
         this.dataHash = ko.observable("");
 
+        this.portAngles = []
     }
 
     getId = () : string => {
@@ -241,21 +219,13 @@ export class Node {
         this.portAngles = []
     }
 
-    getNodeRadius = () : number => {
-        return this.nodeRadius()
-    }
-
-    setNodeRadius = (radius:number) : void => {
-        this.nodeRadius(radius)
-    }
-
     setPosition = (x: number, y: number, allowSnap: boolean = true) : void => {
         this.realX = Math.round(x);
         this.realY = Math.round(y);
 
         if (Eagle.getInstance().snapToGrid() && allowSnap){
-            this.x(Utils.snapToGrid(this.realX, this.getDisplayWidth()));
-            this.y(Utils.snapToGrid(this.realY, this.getDisplayHeight()));
+            this.x(Utils.snapToGrid(this.realX, this.getDisplayRadius()));
+            this.y(Utils.snapToGrid(this.realY, this.getDisplayRadius()));
         } else {
             this.x(this.realX);
             this.y(this.realY);
@@ -269,8 +239,8 @@ export class Node {
         const beforePos = {x:Math.round(this.x()), y:Math.round(this.y())};
 
         if (Eagle.getInstance().snapToGrid() && allowSnap){
-            this.x(Utils.snapToGrid(this.realX, this.getDisplayWidth()));
-            this.y(Utils.snapToGrid(this.realY, this.getDisplayHeight()));
+            this.x(Utils.snapToGrid(this.realX, this.getDisplayRadius()));
+            this.y(Utils.snapToGrid(this.realY, this.getDisplayRadius()));
 
             return {dx:this.x() - beforePos.x, dy:this.y() - beforePos.y};
         } else {
@@ -286,20 +256,12 @@ export class Node {
         this.realY = this.y();
     }
 
-    getWidth = () : number => {
-        return this.width();
+    getRadius = () : number => {
+        return this.radius();
     }
 
-    setWidth = (width : number) : void => {
-        this.width(width);
-    }
-
-    getHeight = () : number => {
-        return this.height();
-    }
-
-    setHeight = (height : number) : void => {
-        this.height(height);
+    setRadius = (radius : number) : void => {
+        this.radius(radius);
     }
 
     getColor = () : string => {
@@ -825,8 +787,7 @@ export class Node {
         this.description("");
         this.x(0);
         this.y(0);
-        this.width(Node.DEFAULT_WIDTH);
-        this.height(Node.DEFAULT_HEIGHT);
+        this.radius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
         this.color(Node.DEFAULT_COLOR);
         this.drawOrderHint(0);
 
@@ -853,59 +814,22 @@ export class Node {
         this.dataHash("");
     }
 
-    getDisplayWidth = () : number => {
+    getDisplayRadius = () : number => {
         if (this.isGroup() && this.isCollapsed()){
-            return Node.GROUP_COLLAPSED_WIDTH;
+            return GraphConfig.MINIMUM_CONSTRUCT_RADIUS;
         }
 
         if (!this.isGroup() && !this.isCollapsed()){
-            return this.width();
+            return this.radius();
         }
 
+        /*
         if (this.isData() && !this.isCollapsed() && !this.isPeek()){
             return Node.DATA_COMPONENT_WIDTH;
         }
+        */
 
-        return this.width();
-    }
-
-    getDisplayHeight = () : number => {
-        if (this.isResizable()){
-            if (this.isCollapsed()){
-                return Node.GROUP_COLLAPSED_HEIGHT;
-            } else {
-                return this.height();
-            }
-        }
-
-        if (!this.isGroup() && this.isCollapsed() && !this.isPeek()){
-            return 32;
-        }
-
-        if (this.isData() && this.isCollapsed() && !this.isPeek()){
-            return Node.DATA_COMPONENT_HEIGHT;
-        }
-
-        if (this.getCategory() === Category.Service){
-            // NOTE: Service nodes can't have input ports, or input application output ports!
-            return (2 * 30) +
-                (this.getInputApplicationInputPorts().length * 24) +
-                (this.getInputApplicationOutputPorts().length * 24) +
-                8;
-        }
-
-        const leftHeight = (
-            this.getInputPorts().length +
-            this.getInputApplicationInputPorts().length +
-            this.getInputApplicationOutputPorts().length +
-            2) * 24;
-        const rightHeight = (
-            this.getOutputPorts().length +
-            this.getOutputApplicationInputPorts().length +
-            this.getOutputApplicationOutputPorts().length +
-            2) * 24;
-
-        return Math.max(leftHeight, rightHeight);
+        return this.radius();
     }
 
     getGitHTML : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -1207,8 +1131,7 @@ export class Node {
         result._id(this._id());
         result.x(this.x());
         result.y(this.y());
-        result.width(this.width());
-        result.height(this.height());
+        result.radius(this.radius());
         result.categoryType(this.categoryType());
         result.color(this.color());
         result.drawOrderHint(this.drawOrderHint());
@@ -1448,8 +1371,8 @@ export class Node {
         }
 
         // get size (if exists)
-        let width = Node.DEFAULT_WIDTH;
-        let height = Node.DEFAULT_HEIGHT;
+        let width = GraphConfig.NORMAL_NODE_RADIUS;
+        let height = GraphConfig.NORMAL_NODE_RADIUS;
         if (typeof nodeData.desiredSize !== 'undefined'){
             width = nodeData.desiredSize.width;
             height = nodeData.desiredSize.height;
@@ -1460,13 +1383,11 @@ export class Node {
         if (typeof nodeData.height !== 'undefined'){
             height = nodeData.height;
         }
-        node.width(width);
-        node.height(height);
+        node.radius(Math.max(width, height));
 
         // if node is not a group or comment/description, make its width/height the default values
         if (!CategoryData.getCategoryData(node.getCategory()).isResizable){
-            node.width(Node.DEFAULT_WIDTH);
-            node.height(Node.DEFAULT_HEIGHT);
+            node.radius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
         }
 
         // expanded
@@ -1955,8 +1876,7 @@ export class Node {
         result.description = node.description();
         result.x = node.x();
         result.y = node.y();
-        result.width = node.width();
-        result.height = node.height();
+        result.radius = node.radius();
         result.collapsed = node.collapsed();
         result.subject = node.subject();
         result.expanded = node.expanded();

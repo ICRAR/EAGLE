@@ -31,6 +31,7 @@ import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
+import { GraphConfig } from "./graphConfig";
 import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
@@ -237,12 +238,14 @@ export class LogicalGraph {
     }
 
     getCommentNodes = () : Node[] => {
-        let commentNodes:Node[] = []
-        this.getNodes().forEach(function(node){
-            if(node.isComment()){
-                commentNodes.push(node)
+        const commentNodes: Node[] = [];
+
+        for (const node of this.getNodes()){
+            if (node.isComment()){
+                commentNodes.push(node);
             }
-        })
+        }
+
         return commentNodes;
     }
 
@@ -559,32 +562,31 @@ export class LogicalGraph {
                 if (n.getPosition().y < minY){
                     minY = n.getPosition().y;
                 }
-                if (n.getPosition().x + n.getWidth() > maxX){
-                    maxX = n.getPosition().x + n.getWidth();
+                if (n.getPosition().x + n.getRadius() > maxX){
+                    maxX = n.getPosition().x + n.getRadius();
                 }
-                if (n.getPosition().y + n.getHeight() > maxY){
-                    maxY = n.getPosition().y + n.getHeight();
+                if (n.getPosition().y + n.getRadius() > maxY){
+                    maxY = n.getPosition().y + n.getRadius();
                 }
             }
         }
 
         // if no children were found, set to default size
         if (numChildren === 0){
-            node.setWidth(Node.DEFAULT_WIDTH);
-            node.setHeight(Node.DEFAULT_HEIGHT);
+            node.setRadius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
             return;
         }
 
         // add some padding
-        minX -= Node.CONSTRUCT_MARGIN_LEFT;
-        minY -= Node.CONSTRUCT_MARGIN_TOP;
-        maxX += Node.CONSTRUCT_MARGIN_RIGHT;
-        maxY += Node.CONSTRUCT_MARGIN_BOTTOM;
+        minX -= GraphConfig.CONSTRUCT_MARGIN;
+        minY -= GraphConfig.CONSTRUCT_MARGIN;
+        maxX += GraphConfig.CONSTRUCT_MARGIN;
+        maxY += GraphConfig.CONSTRUCT_MARGIN;
 
         // set the size of the node
         node.setPosition(minX, minY);
-        node.setWidth(maxX - minX);
-        node.setHeight(maxY - minY);
+        const maxDimension = Math.max(maxX - minX, maxY - minY);
+        node.setRadius(maxDimension);
     }
 
     findMultiplicity = (node : Node) : number => {
@@ -616,7 +618,7 @@ export class LogicalGraph {
         return result;
     }
 
-    checkForNodeAt = (x: number, y: number, width: number, height: number, ignoreKey: number, groupsOnly: boolean = false) : Node => {
+    checkForNodeAt = (x: number, y: number, radius: number, ignoreKey: number, groupsOnly: boolean = false) : Node => {
         const overlaps : Node[] = [];
 
         // find all the overlapping nodes
@@ -631,7 +633,7 @@ export class LogicalGraph {
                 continue;
             }
 
-            if (Utils.nodesOverlap(x, y, width, height, node.getPosition().x, node.getPosition().y, node.getWidth(), node.getHeight())){
+            if (Utils.nodesOverlap(x, y, radius, node.getPosition().x, node.getPosition().y, node.getRadius())){
                 overlaps.push(node);
             }
         }
@@ -705,21 +707,21 @@ export class LogicalGraph {
                 minY = node.getPosition().y;
             }
 
-            if (node.getPosition().x + node.getWidth() > maxX){
-                maxX = node.getPosition().x + node.getWidth();
+            if (node.getPosition().x + node.getRadius() > maxX){
+                maxX = node.getPosition().x + node.getRadius();
             }
 
-            if (node.getPosition().y + node.getHeight() > maxY){
-                maxY = node.getPosition().y + node.getHeight();
+            if (node.getPosition().y + node.getRadius() > maxY){
+                maxY = node.getPosition().y + node.getRadius();
             }
         }
 
         // move all nodes so that the top left corner of the graph starts at the origin 0,0
         for (const node of nodes){
             const pos = node.getPosition();
-            node.setPosition(pos.x - minX + Node.CONSTRUCT_MARGIN_LEFT, pos.y - minY + Node.CONSTRUCT_MARGIN_TOP);
+            node.setPosition(pos.x - minX + GraphConfig.CONSTRUCT_MARGIN, pos.y - minY + GraphConfig.CONSTRUCT_MARGIN);
         }
 
-        return {x: maxX - minX + Node.CONSTRUCT_MARGIN_LEFT + Node.CONSTRUCT_MARGIN_RIGHT, y: maxY - minY + Node.CONSTRUCT_MARGIN_TOP + Node.CONSTRUCT_MARGIN_BOTTOM};
+        return {x: maxX - minX + GraphConfig.CONSTRUCT_MARGIN + GraphConfig.CONSTRUCT_MARGIN, y: maxY - minY + GraphConfig.CONSTRUCT_MARGIN + GraphConfig.CONSTRUCT_MARGIN};
     }
 }

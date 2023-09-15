@@ -36,6 +36,7 @@ import {Translator} from './Translator';
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Daliuge} from './Daliuge';
+import { GraphConfig } from "./graphConfig";
 
 import {UiMode, UiModeSystem, SettingData} from './UiModes';
 import {LogicalGraph} from './LogicalGraph';
@@ -471,11 +472,11 @@ export class Eagle {
             if (node.getPosition().y < minY){
                 minY = node.getPosition().y;
             }
-            if (node.getPosition().x + node.getWidth() > maxX){
-                maxX = node.getPosition().x + node.getWidth();
+            if (node.getPosition().x + node.getRadius() > maxX){
+                maxX = node.getPosition().x + node.getRadius();
             }
-            if (node.getPosition().y + node.getHeight() > maxY){
-                maxY = node.getPosition().y + node.getHeight();
+            if (node.getPosition().y + node.getRadius() > maxY){
+                maxY = node.getPosition().y + node.getRadius();
             }
         }
 
@@ -922,8 +923,7 @@ export class Eagle {
 
             // set attributes of parentNode
             parentNode.setPosition(parentNodePosition.x, parentNodePosition.y);
-            parentNode.setWidth(bbSize.x);
-            parentNode.setHeight(bbSize.y);
+            parentNode.setRadius(Math.max(bbSize.x, bbSize.y));
             parentNode.setCollapsed(true);
         } else {
             parentNodePosition = {x: DUPLICATE_OFFSET, y: DUPLICATE_OFFSET};
@@ -3138,8 +3138,7 @@ export class Eagle {
 
         // if node is a construct, set width and height a little larger
         if (CategoryData.getCategoryData(node.getCategory()).canContainComponents){
-            node.setWidth(Node.GROUP_DEFAULT_WIDTH);
-            node.setHeight(Node.GROUP_DEFAULT_HEIGHT);
+            node.setRadius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
         }
 
         //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
@@ -3160,7 +3159,7 @@ export class Eagle {
             newNode.setCollapsed(false);
 
             // set parent (if the node was dropped on something)
-            const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getWidth(), newNode.getHeight(), newNode.getKey(), true);
+            const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), newNode.getKey(), true);
 
             // if a parent was found, update
             if (parent !== null && newNode.getParentKey() !== parent.getKey() && newNode.getKey() !== parent.getKey()){
@@ -3539,7 +3538,7 @@ export class Eagle {
             //handling selecting and highlighting the newly created row
             const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
 
-            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update processes
+            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
             clickTarget.focus() // used to focus the field allowing the user to immediately start typing
 
             //scroll to new row
@@ -4056,7 +4055,7 @@ export class Eagle {
         setTimeout(function() {
             //handling selecting and highlighting the newly created node
             const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
-            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and obsrevable update process
+            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update process
             clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
 
             $("#parameterTableModal .modal-body").animate({
@@ -4262,7 +4261,7 @@ export class Eagle {
         graph_url += "&path=" + encodeURI(fileInfo.path);
         graph_url += "&filename=" + encodeURI(fileInfo.name);
 
-        // copy to cliboard
+        // copy to clipboard
         navigator.clipboard.writeText(graph_url);
 
         // notification
