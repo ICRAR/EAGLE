@@ -235,7 +235,9 @@ ko.bindingHandlers.graphRendererPortPosition = {
             portPosition = {x:portPosition.x-nodeRadius,y:portPosition.y-nodeRadius}
         }
 
-        $(element).css({'top':portPosition.y+'px','left':portPosition.x+'px'})
+        //applying the offset to the element
+        //a little 1px reduction is needed to center them for some reason
+        $(element).css({'top':portPosition.y-1+'px','left':portPosition.x-1+'px'})
     }
 };
 
