@@ -244,16 +244,16 @@ ko.bindingHandlers.graphRendererPortPosition = {
 export class GraphRenderer {
 
     //port drag handler globals
-    draggingPort : boolean
-    sourceNode : Node
-    sourcePort : Field
-    sourcePortIsInput :boolean
+    static draggingPort : boolean
+    static sourceNode : Node
+    static sourcePort : Field
+    static sourcePortIsInput :boolean
     
     constructor(){
-        this.draggingPort = false;
-        this.sourceNode = null;
-        this.sourcePort = null;
-        this.sourcePortIsInput = false;
+        GraphRenderer.draggingPort = false;
+        GraphRenderer.sourceNode = null;
+        GraphRenderer.sourcePort = null;
+        GraphRenderer.sourcePortIsInput = false;
 
     }
 
@@ -455,6 +455,11 @@ export class GraphRenderer {
                 eagle.globalOffsetY(eagle.globalOffsetY() + mouseEvent.movementY/eagle.globalScale());
             }
         }
+
+        if(GraphRenderer.draggingPort){
+            GraphRenderer.portDragging()
+        }
+        
     }
 
     static scrollZoom = (eagle: Eagle, event: JQueryEventObject) : void => {
@@ -512,14 +517,27 @@ export class GraphRenderer {
 
     static portDragStart = (port:Field) : void => {
         console.log('start')
-        event.stopPropagation(); 
+        event.stopPropagation();
+        
+        GraphRenderer.draggingPort = true
+
+        //setting up the port event listeners
+        $('#logicalGraphParent').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
+        $('.node .body').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
+        console.log('hehe')
     }
 
-    static portDragging = (port:Field) : void => {
+    static portDragging = () : void => {
         console.log('drag')
     }
 
-    static portDragEnd = (port:Field) : void => {
+    static portDragEnd = () : void => {
         console.log('end')
+
+        GraphRenderer.draggingPort = false
+
+        // cleanign up the port drag event listeners
+        $('#logicalGraphParent').off('mouseup.portDrag')
+        $('.node .body').off('mouseup.portDrag')
     }
 }
