@@ -548,12 +548,32 @@ export class GraphRenderer {
 
     // resize a construct so that it contains its children
     // NOTE: does not move the construct
-    static resizeConstruct = (construct: Node): void => {
+    static resizeConstruct = (construct: Node, allowMovement: boolean = false): void => {
         const eagle = Eagle.getInstance();
         let maxDistance = 0;
         let numChildren = 0;
 
-        // loop through all children
+        // loop through all children - compute centroid
+        if (allowMovement){
+            let sumX = 0;
+            let sumY = 0;
+
+            for (const node of eagle.logicalGraph().getNodes()){
+                if (node.getParentKey() === construct.getKey()){
+                    sumX += node.getPosition().x;
+                    sumY += node.getPosition().y;
+
+                    numChildren = numChildren + 1;
+                }
+            }
+
+            const centerX = sumX / numChildren;
+            const centerY = sumY / numChildren;
+
+            construct.setPosition(centerX, centerY);
+        }
+
+        // loop through all children - find distance from center of construct
         for (const node of eagle.logicalGraph().getNodes()){
             if (node.getParentKey() === construct.getKey()){
                 const dx = construct.getPosition().x - node.getPosition().x;
@@ -565,7 +585,6 @@ export class GraphRenderer {
                 //console.log("paddedDistance to", node.getName(), paddedDistance, "(", node.getRadius(), ")");
 
                 maxDistance = Math.max(maxDistance, paddedDistance);
-                numChildren = numChildren + 1;
             }
         }
 

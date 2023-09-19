@@ -691,6 +691,32 @@ export class LogicalGraph {
         return result;
     }
 
+    getNodesDrawOrdered = () : Node[] => {
+        const indexPlusDepths : {index:number, depth:number}[] = [];
+        const result : Node[] = [];
+
+        // populate index plus depths
+        for (let i = 0 ; i < this.getNodes().length ; i++){
+            const node = this.getNodes()[i];
+
+            const depth = this.findDepthByKey(node.getKey());
+
+            indexPlusDepths.push({index:i, depth:depth});
+        }
+
+        // sort nodes in depth ascending
+        indexPlusDepths.sort(function(a, b){
+            return a.depth - b.depth;
+        });
+
+        // write nodes to result in sorted order
+        for (const indexPlusDepth of indexPlusDepths){
+            result.push(this.getNodes()[indexPlusDepth.index]);
+        }
+
+        return result;
+    }
+
     static normaliseNodes = (nodes: Node[]) : {x: number, y: number} => {
         let minX = Number.MAX_SAFE_INTEGER;
         let maxX = Number.MIN_SAFE_INTEGER;

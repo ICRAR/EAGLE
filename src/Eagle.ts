@@ -460,7 +460,7 @@ export class Eagle {
         for (let i = 0 ; i < 10 ; i++){
             for (const node of this.logicalGraph().getNodes()){
                 if (node.isGroup()){
-                    GraphRenderer.resizeConstruct(node);
+                    GraphRenderer.resizeConstruct(node, true);
                 }
             }
         }
