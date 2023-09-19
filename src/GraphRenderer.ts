@@ -77,6 +77,9 @@ ko.bindingHandlers.nodeRenderHandler = {
         }
     },
     update: function (element:any, node) {
+        const eagle : Eagle = Eagle.getInstance();
+
+        GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(eagle.logicalGraph(), eagle.showDataNodes());
 
     },
 };
@@ -245,17 +248,26 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
 export class GraphRenderer {
 
+    static nodeData : Node[]
+
     //port drag handler globals
     static draggingPort : boolean
     static portDragSourceNode : Node
     static portDragSourcePort : Field
     static portDragSourcePortIsInput :boolean
+    static portDragSuggestedNode : Node |null
+    static portDragSuggestedField : Field |null
     
     constructor(){
+        GraphRenderer.nodeData = null
+
+
         GraphRenderer.draggingPort = false;
         GraphRenderer.portDragSourceNode = null;
         GraphRenderer.portDragSourcePort = null;
         GraphRenderer.portDragSourcePortIsInput = false;
+        GraphRenderer.portDragSuggestedNode = null;
+        GraphRenderer.portDragSuggestedField = null;
 
     }
 
@@ -531,6 +543,7 @@ export class GraphRenderer {
     }
 
     static portDragging = (event:any) : void => {
+        const eagle = Eagle.getInstance();
         console.log('drag')
 
         // grab and convert mouse position to graph coordinates
@@ -538,9 +551,21 @@ export class GraphRenderer {
         currentMousePos.x = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(event.pageX);
         currentMousePos.y = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(event.pageY);
 
+        // check for nearby nodes
         const nearbyNodes = GraphRenderer.findNodesInRange(currentMousePos.x, currentMousePos.y, GraphConfig.getNodeSuggestionRadius(), GraphRenderer.portDragSourceNode.getKey());
 
         
+        // check for nearest matching port in the nearby nodes
+        const matchingPort: Field = GraphRenderer.findNearestMatchingPort(currentMousePos.x , currentMousePos.y , nearbyNodes, GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
+
+        if (matchingPort !== null){
+            GraphRenderer.portDragSuggestedNode = eagle.logicalGraph().findNodeByKey(matchingPort.getNodeKey());
+            GraphRenderer.portDragSuggestedField = matchingPort;
+        } else {
+            GraphRenderer.portDragSuggestedNode = null;
+            GraphRenderer.portDragSuggestedField = null;
+        }
+
     }
 
     static portDragEnd = () : void => {
@@ -551,6 +576,9 @@ export class GraphRenderer {
         // cleanign up the port drag event listeners
         $('#logicalGraphParent').off('mouseup.portDrag')
         $('.node .body').off('mouseup.portDrag')
+
+
+        
     }
     
     static DISPLAY_TO_REAL_POSITION_X(x: number) : number {
@@ -571,7 +599,7 @@ export class GraphRenderer {
     static findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
         const eagle = Eagle.getInstance();
         const result: Node[] = [];
-        const nodeData : Node[] = GraphRenderer.depthFirstTraversalOfNodes(eagle.logicalGraph(), eagle.showDataNodes());
+        const nodeData : Node[] = GraphRenderer.nodeData
 
         //console.log("findNodesInRange(): sourceNodeKey", sourceNodeKey);
 
@@ -741,5 +769,68 @@ export class GraphRenderer {
 
         console.warn("Cannot find node with key", key);
         return null;
+    }
+
+    
+    static findNearestMatchingPort(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : Field {
+        //console.log("findNearestMatchingPort(), sourcePortIsInput", sourcePortIsInput);
+        let minDistance = Number.MAX_SAFE_INTEGER;
+        let minPort = null;
+
+        for (const node of nearbyNodes){
+            let portList: Field[] = [];
+
+            // if source node is Data, then no nearby Data nodes can have matching ports
+            if (sourceNode.getCategoryType() === Category.Type.Data && node.getCategoryType() === Category.Type.Data){
+                continue;
+            }
+
+            // if sourcePortIsInput, we should search for output ports, and vice versa
+            if (sourcePortIsInput){
+                portList = portList.concat(node.getOutputPorts());
+            } else {
+                portList = portList.concat(node.getInputPorts());
+            }
+
+            // get inputApplication ports
+            if (sourcePortIsInput){
+                portList = portList.concat(node.getInputApplicationOutputPorts());
+            } else {
+                portList = portList.concat(node.getInputApplicationInputPorts());
+            }
+
+            // get outputApplication ports
+            if (sourcePortIsInput){
+                portList = portList.concat(node.getOutputApplicationOutputPorts());
+            } else {
+                portList = portList.concat(node.getOutputApplicationInputPorts());
+            }
+
+            for (const port of portList){
+                if (!Utils.portsMatch(port, sourcePort)){
+                    continue;
+                }
+
+                // if port has no id (broken) then don't consider it as a auto-complete target
+                if (port.getId() === ""){
+                    continue;
+                }
+
+                // get position of port
+                const portX = node.getPosition().x;
+                const portY = node.getPosition().y;
+
+                // get distance to port
+                const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
+
+                // remember this port if it the best so far
+                if (distance < minDistance){
+                    minPort = port;
+                    minDistance = distance;
+                }
+            }
+        }
+
+        return minPort;
     }
 }
