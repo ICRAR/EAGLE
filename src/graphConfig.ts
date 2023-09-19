@@ -38,18 +38,23 @@ const colors: { name: string; color: string; }[] = [
     }
 ]
 
-const nodeSuggestionRadius = 150
-
-
-const normalNodeRadius = 25
-const branchNodeRadius = 44
-const constructNodeRadius = 300
-
 export class GraphConfig {
+
+    public static readonly NODE_SUGGESTION_RADIUS = 150
+    
+    // TODO: could move to CategoryData?
+    public static readonly NORMAL_NODE_RADIUS : number = 25;
+    public static readonly BRANCH_NODE_RADIUS : number = 44;
+    public static readonly CONSTRUCT_NODE_RADIUS: number = 300;
+    public static readonly MINIMUM_CONSTRUCT_RADIUS : number = 200;
+
+    // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
+    // this is the default margin that should be left on each side
+    public static readonly CONSTRUCT_MARGIN: number = 25;
 
     static getColor = (name:string) : string => {
         let result = 'red'
-        for (var color of colors) {
+        for (const color of colors) {
             if(color.name === name){
                 result = color.color
             }else{
@@ -58,21 +63,4 @@ export class GraphConfig {
         }
         return result
     }
-
-    static getNormalRadius = () : number => {
-        return normalNodeRadius
-    }
-
-    static getBranchRadius = () : number => {
-        return branchNodeRadius
-    }
-
-    static getConstructRadius = () : number => {
-        return constructNodeRadius
-    }
-
-    static getNodeSuggestionRadius = () : number => {
-        return nodeSuggestionRadius
-    }
-
 }

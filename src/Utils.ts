@@ -1557,32 +1557,13 @@ export class Utils {
         link.click();
     }
 
-    // https://noonat.github.io/intersect/#aabb-vs-aabb
-    static nodesOverlap(n0x: number, n0y: number, n0width: number, n0height: number, n1x: number, n1y: number, n1width: number, n1height: number) : boolean {
-        const n0pos = {x:n0x + n0width/2, y:n0y + n0height/2};
-        const n1pos = {x:n1x + n1width/2, y:n1y + n1height/2};
-        const n0half = {x:n0width/2, y:n0height/2};
-        const n1half = {x:n1width/2, y:n1height/2};
 
-        //console.log("compare", n0x, n0y, n0width, n0height, n1x, n1y, n1width, n1height);
+    static nodesOverlap(n0x: number, n0y: number, n0radius: number, n1x: number, n1y: number, n1radius: number) : boolean {
+        const dx = n0x - n1x;
+        const dy = n0y - n1y;
+        const distance = Math.sqrt(dx*dx + dy*dy);
 
-        const dx = n0pos.x - n1pos.x;
-        const px = (n0half.x + n1half.x) - Math.abs(dx);
-        if (px <= 0) {
-            //console.log("compare OK");
-            return false;
-        }
-
-        const dy = n0pos.y - n1pos.y;
-        const py = (n0half.y + n1half.y) - Math.abs(dy);
-        if (py <= 0) {
-            //console.log("compare OK");
-            return false;
-        }
-
-        //console.log("compares HIT");
-
-        return true;
+        return distance <= (n0radius + n1radius);
     }
 
     static table2CSV(table: any[]) : string {
@@ -1602,16 +1583,15 @@ export class Utils {
         return s;
     }
 
-    // https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point
     static positionToNodeDistance(positionX: number, positionY: number, node: Node): number {
-        const rectMinX = node.getPosition().x;
-        const rectMaxX = node.getPosition().x + node.getWidth();
-        const rectMinY = node.getPosition().y;
-        const rectMaxY = node.getPosition().y + node.getHeight();
+        // first determine the distance between the position and node center
+        const dx = node.getPosition().x - positionX;
+        const dy = node.getPosition().y - positionY;
+        let distance = Math.sqrt(dx*dx + dy*dy);
 
-        const dx = Math.max(rectMinX - positionX, 0, positionX - rectMaxX);
-        const dy = Math.max(rectMinY - positionY, 0, positionY - rectMaxY);
-        return Math.sqrt(dx*dx + dy*dy);
+        // then subtract the radius, limit to zero
+        distance = Math.max(distance - node.getRadius(), 0);
+        return distance;
     }
 
 
@@ -2045,8 +2025,7 @@ export class Utils {
                 "y":node.getPosition().y,
                 "realX":node.getRealPosition().x,
                 "realY":node.getRealPosition().y,
-                "width":node.getWidth(),
-                "height":node.getHeight(),
+                "radius":node.getRadius(),
                 "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
                 "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
                 "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),

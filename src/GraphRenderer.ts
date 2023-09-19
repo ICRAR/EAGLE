@@ -25,7 +25,6 @@
 import * as ko from "knockout";
 
 import { Category } from './Category';
-import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
 import { Edge } from "./Edge";
 import { Field } from './Field';
@@ -39,9 +38,7 @@ import { RightClick } from "./RightClick";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
-
-        
-        const node :Node = ko.unwrap(valueAccessor())
+        const node: Node = ko.unwrap(valueAccessor())
 
         //overwriting css variables using colours from graphConfig.ts. I am using this for simple styling to avoid excessive css data binds in the node html files
         $("#logicalGraphParent").get(0).style.setProperty("--selectedBg", GraphConfig.getColor('selectBackground'));
@@ -54,46 +51,22 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--edgeColor", GraphConfig.getColor('edgeColor'));
         $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", GraphConfig.getColor('commentEdgeColor'));
         
-
-        switch(node.getCategory()){
-            case Category.Branch: 
-                node.setNodeRadius(GraphConfig.getBranchRadius())
-                $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
-                break
-
-            case Category.Scatter:
-            case Category.Gather:
-            case Category.MKN: 
-            case Category.GroupBy:
-            case Category.Loop:
-            case Category.SubGraph:
-                node.setNodeRadius(GraphConfig.getConstructRadius())
-                $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
-
-                break
-            
-            
-            default : 
-                node.setNodeRadius(GraphConfig.getNormalRadius())
-                $(element).css({'height':node.getNodeRadius()*2+'px','width':node.getNodeRadius()*2+'px'})
-        }
+        // transition for grow/shrink
+        $(element).css({'transition': 'width .2s ease-out, height .2s ease-out'});
     },
-    update: function (element:any, node) {
+    update: function (element:any, valueAccessor, allBindings, viewModel, bindingContext) {
         const eagle : Eagle = Eagle.getInstance();
 
         GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(eagle.logicalGraph(), eagle.showDataNodes());
+        const node: Node = ko.unwrap(valueAccessor());
 
+        // set size
+        $(element).css({'height':node.getRadius()*2+'px','width':node.getRadius()*2+'px'});
     },
 };
 
 ko.bindingHandlers.graphRendererPortPosition = {
     init: function(element:any, valueAccessor, allBindings) {
-        const eagle : Eagle = Eagle.getInstance();
-        
-        const data = ko.utils.unwrapObservable(valueAccessor()).data;
-        const dataType: string = ko.utils.unwrapObservable(valueAccessor()).type;
-
-        
 
     },
     update: function (element:any, valueAccessor) {
@@ -103,7 +76,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         const data = ko.utils.unwrapObservable(valueAccessor()).data;
         const dataType: string = ko.utils.unwrapObservable(valueAccessor()).type;
 
-        let portOnEmbeddedApp = false //used to identify when we are calculating the port position for a port on an embedded application
+        const portOnEmbeddedApp = false //used to identify when we are calculating the port position for a port on an embedded application
 
         // determine the 'node' and 'field' attributes (for this way of using this binding)
         let node : Node 
@@ -184,10 +157,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
 
         //for branch nodes the ports are inset from the outer radius a little bit in their design
-        let nodeRadius = node.getNodeRadius()
+        let nodeRadius = node.getRadius()
         if(portOnEmbeddedApp){
             // if we are working with ports of an embedded app, we need to use the parent construct to calculate the angle, but we want to use the radius of the embedded app to place the port
-            nodeRadius = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey()).getNodeRadius() 
+            nodeRadius = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey()).getRadius()
         }
 
         // determine port position
@@ -261,7 +234,7 @@ export class GraphRenderer {
     static portDragSourcePortIsInput :boolean =false;
     static portDragSuggestedNode : Node |null = null;
     static portDragSuggestedField : Field |null = null;
-    static isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
+    // static isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
 
 
     static currentMousePos = { x: -1, y: -1 };
@@ -434,8 +407,8 @@ export class GraphRenderer {
             return "";
         }
 
-        const srcNodeRadius = srcNode.getNodeRadius()
-        const destNodeRadius = destNode.getNodeRadius()
+        const srcNodeRadius = srcNode.getRadius()
+        const destNodeRadius = destNode.getRadius()
 
         // get offset and scale
         const offsetX: number = eagle.globalOffsetX();
@@ -458,7 +431,6 @@ export class GraphRenderer {
                 // move node
                 eagle.draggingNode().changePosition(mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
                 GraphRenderer.moveChildNodes(eagle.draggingNode(), mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
-
             } else {
                 // move background
                 eagle.globalOffsetX(eagle.globalOffsetX() + mouseEvent.movementX/eagle.globalScale());
@@ -475,8 +447,11 @@ export class GraphRenderer {
     static scrollZoom = (eagle: Eagle, event: JQueryEventObject) : void => {
         const wheelEvent: WheelEvent = <WheelEvent>event.originalEvent;
 
-        eagle.globalScale(Math.abs(eagle.globalScale() - eagle.globalScale()/wheelEvent.deltaY*20));
-        $('#logicalGraphD3Div').css('transform','scale('+eagle.globalScale()+')')
+        if (wheelEvent.deltaY < 0){
+            eagle.zoomIn();
+        } else {
+            eagle.zoomOut();
+        }
     }
 
     static startDrag = (node: Node, event: MouseEvent) : void => {
@@ -501,6 +476,43 @@ export class GraphRenderer {
         //console.log("endDrag", node ? node.getName() : node)
         eagle.isDragging(false);
         eagle.draggingNode(null);
+
+        if(node === null){
+            return
+        }
+        // remember node parent from before things change
+        const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey());
+
+        // check for nodes underneath the node we dropped
+        const parent: Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getRadius(), node.getKey(), true);
+
+        // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
+        const ancestorOfParent = GraphRenderer.isAncestor(parent, node);
+
+        // keep track of whether we would update any node parents
+        const updated = {parent: false};
+        const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+
+        // if a parent was found, update
+        if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && !ancestorOfParent){
+            GraphRenderer._updateNodeParent(node, parent.getKey(), updated, allowGraphEditing);
+        }
+
+        // if no parent found, update
+        if (parent === null && node.getParentKey() !== null){
+            GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
+        }
+
+        // recalculate size of parent (or oldParent)
+        if (parent === null){
+            if (oldParent !== null){
+                // moved out of a construct
+                GraphRenderer.resizeConstruct(oldParent);
+            }
+        } else {
+            // moved into or within a construct
+            GraphRenderer.resizeConstruct(parent);
+        }
     }
 
     static moveChildNodes = (node: Node, deltax : number, deltay : number) : void => {
@@ -518,6 +530,102 @@ export class GraphRenderer {
                 GraphRenderer.moveChildNodes(node, deltax, deltay);
             }
         }
+    }
+
+    static isAncestor = (node : Node, possibleAncestor : Node) : boolean => {
+        const eagle = Eagle.getInstance();
+        let n : Node = node;
+        let iterations = 0;
+
+        if (n === null){
+            return false;
+        }
+
+        while (true){
+            if (iterations > 32){
+                console.error("too many iterations in isDescendent()");
+                return null;
+            }
+
+            iterations += 1;
+
+            // check if found
+            if (n.getKey() === possibleAncestor.getKey()){
+                return true;
+            }
+
+            // otherwise keep traversing upwards
+            const newKey = n.getParentKey();
+
+            // if we reach a null parent, we are done looking
+            if (newKey === null){
+                return false;
+            }
+
+            //n = findNodeWithKey(newKey, nodeData);
+            n = eagle.logicalGraph().findNodeByKey(newKey);
+        }
+    }
+
+    // update the parent of the given node
+    // however, if allGraphEditing is false, then don't update
+    // always keep track of whether an update would have happened, sp we can warn user
+    static _updateNodeParent = (node: Node, parentKey: number, updated: {parent: boolean}, allowGraphEditing: boolean): void => {
+        if (node.getParentKey() !== parentKey){
+            if (allowGraphEditing){
+                node.setParentKey(parentKey);
+            }
+            updated.parent = true;
+        }
+    }
+
+    // resize a construct so that it contains its children
+    // NOTE: does not move the construct
+    static resizeConstruct = (construct: Node, allowMovement: boolean = false): void => {
+        const eagle = Eagle.getInstance();
+        let maxDistance = 0;
+        let numChildren = 0;
+
+        // loop through all children - compute centroid
+        if (allowMovement){
+            let sumX = 0;
+            let sumY = 0;
+
+            for (const node of eagle.logicalGraph().getNodes()){
+                if (node.getParentKey() === construct.getKey()){
+                    sumX += node.getPosition().x;
+                    sumY += node.getPosition().y;
+
+                    numChildren = numChildren + 1;
+                }
+            }
+
+            const centerX = sumX / numChildren;
+            const centerY = sumY / numChildren;
+
+            construct.setPosition(centerX, centerY);
+        }
+
+        // loop through all children - find distance from center of construct
+        for (const node of eagle.logicalGraph().getNodes()){
+            if (node.getParentKey() === construct.getKey()){
+                const dx = construct.getPosition().x - node.getPosition().x;
+                const dy = construct.getPosition().y - node.getPosition().y;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                //console.log("distance to", node.getName(), distance);
+
+                const paddedDistance = distance + node.getRadius() + GraphConfig.CONSTRUCT_MARGIN;
+                //console.log("paddedDistance to", node.getName(), paddedDistance, "(", node.getRadius(), ")");
+
+                maxDistance = Math.max(maxDistance, paddedDistance);
+            }
+        }
+
+        // make sure constructs are never below minimum size
+        maxDistance = Math.max(maxDistance, GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
+
+        //console.log("Resize", construct.getName(), "radius to", maxDistance, "to contain", numChildren, "children");
+        construct.setRadius(maxDistance);
     }
 
     static portDragStart = (port:Field,usage:string) : void => {
@@ -547,7 +655,7 @@ export class GraphRenderer {
         GraphRenderer.currentMousePos.y = GraphRenderer.DISPLAY_TO_REAL_POSITION_Y(event.pageY-84);
         console.log('event',event.pageX,event.pageY,'processed',GraphRenderer.currentMousePos.x,GraphRenderer.currentMousePos.y,'global scale',eagle.globalScale(),'offset',eagle.globalOffsetX(),eagle.globalOffsetY())
         // check for nearby nodes
-        const nearbyNodes = GraphRenderer.findNodesInRange(GraphRenderer.currentMousePos.x, GraphRenderer.currentMousePos.y, GraphConfig.getNodeSuggestionRadius(), GraphRenderer.portDragSourceNode.getKey());
+        const nearbyNodes = GraphRenderer.findNodesInRange(GraphRenderer.currentMousePos.x, GraphRenderer.currentMousePos.y, GraphConfig.NODE_SUGGESTION_RADIUS, GraphRenderer.portDragSourceNode.getKey());
 
         
         // check for nearest matching port in the nearby nodes
@@ -909,21 +1017,21 @@ export class GraphRenderer {
     }
 
     static mouseEnterPort(port : Field) : void {
-        if (!GraphRenderer.draggingPort){
-            return;
-        }
-        const eagle = Eagle.getInstance();
-        GraphRenderer.destinationPort = port;
-        GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
+        // if (!GraphRenderer.draggingPort){
+        //     return;
+        // }
+        // const eagle = Eagle.getInstance();
+        // GraphRenderer.destinationPort = port;
+        // GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
 
-        GraphRenderer.isDraggingPortValid = Edge.isValid(eagle, null, GraphRenderer.portDragSourceNode.getKey(), GraphRenderer.portDragSourcePort.getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), GraphRenderer.portDragSourcePort.getType(), false, false, false, false, {errors:[], warnings:[]});
+        // GraphRenderer.isDraggingPortValid = Edge.isValid(eagle, null, GraphRenderer.portDragSourceNode.getKey(), GraphRenderer.portDragSourcePort.getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), GraphRenderer.portDragSourcePort.getType(), false, false, false, false, {errors:[], warnings:[]});
     }
 
     static mouseLeavePort(port : Field) : void {
-        GraphRenderer.destinationPort = null;
-        GraphRenderer.destinationNode = null;
+        // GraphRenderer.destinationPort = null;
+        // GraphRenderer.destinationNode = null;
 
-        GraphRenderer.isDraggingPortValid = Eagle.LinkValid.Unknown;
+        // GraphRenderer.isDraggingPortValid = Eagle.LinkValid.Unknown;
     }
     
     static draggingEdgeGetStrokeColor(edge: Edge, index: number) : string {
