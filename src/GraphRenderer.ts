@@ -250,38 +250,22 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
 export class GraphRenderer {
 
-    static nodeData : Node[]
+    static nodeData : Node[] =null
 
     //port drag handler globals
-    static draggingPort : boolean
-    static destinationPort : Field
-    static destinationNode : Node
-    static portDragSourceNode : Node
-    static portDragSourcePort : Field
-    static portDragSourcePortIsInput :boolean
-    static portDragSuggestedNode : Node |null
-    static portDragSuggestedField : Field |null
-    static isDraggingPortValid : Eagle.LinkValid
+    static draggingPort : boolean = false
+    static destinationPort : Field = null;
+    static destinationNode : Node = null;
+    static portDragSourceNode : Node = null;
+    static portDragSourcePort : Field = null;
+    static portDragSourcePortIsInput :boolean =false;
+    static portDragSuggestedNode : Node |null = null;
+    static portDragSuggestedField : Field |null = null;
+    static isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
 
 
     static currentMousePos = { x: -1, y: -1 };
 
-    
-    constructor(){
-        GraphRenderer.nodeData = null
-
-
-        GraphRenderer.draggingPort = false;
-        GraphRenderer.destinationPort = null
-        GraphRenderer.destinationNode = null
-        GraphRenderer.portDragSourceNode = null;
-        GraphRenderer.portDragSourcePort = null;
-        GraphRenderer.portDragSourcePortIsInput = false;
-        GraphRenderer.portDragSuggestedNode = null;
-        GraphRenderer.portDragSuggestedField = null;
-        GraphRenderer.isDraggingPortValid = Eagle.LinkValid.Unknown;
-
-    }
 
     static averageAngles(angles: number[]) : number {
         let x: number = 0;
@@ -578,6 +562,8 @@ export class GraphRenderer {
         }
         console.log(nearbyNodes,matchingPort)
 
+        $('.portport').remove()
+        $('#logicalGraphD3Div').append('<div class="portport" style="z-index:200;background-color:red;height:5px;width:5px;top:'+GraphRenderer.currentMousePos.y+'px;left:'+GraphRenderer.currentMousePos.x+'px;position:absolute;"></div>')
     }
 
     static portDragEnd = () : void => {
@@ -590,6 +576,7 @@ export class GraphRenderer {
         $('#logicalGraphParent').off('mouseup.portDrag')
         $('.node .body').off('mouseup.portDrag')
 
+        console.log(GraphRenderer.destinationPort,GraphRenderer.portDragSuggestedField)
         if (GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField !== null){
             const srcNode = GraphRenderer.portDragSourceNode;
             const srcPort = GraphRenderer.portDragSourcePort;
@@ -685,7 +672,6 @@ export class GraphRenderer {
     }
 
     static findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
-        const eagle = Eagle.getInstance();
         const result: Node[] = [];
         const nodeData : Node[] = GraphRenderer.nodeData
 
@@ -927,7 +913,6 @@ export class GraphRenderer {
             return;
         }
         const eagle = Eagle.getInstance();
-
         GraphRenderer.destinationPort = port;
         GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
 
