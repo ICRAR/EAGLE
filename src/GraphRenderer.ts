@@ -32,8 +32,10 @@ import { Field } from './Field';
 import { GraphConfig } from './graphConfig';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
-import {Utils} from './Utils';
+import { Utils } from './Utils';
 import { CategoryData} from './CategoryData';
+import {Setting, SettingsGroup} from './Setting';
+import { RightClick } from "./RightClick";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
@@ -252,22 +254,32 @@ export class GraphRenderer {
 
     //port drag handler globals
     static draggingPort : boolean
+    static destinationPort : Field
+    static destinationNode : Node
     static portDragSourceNode : Node
     static portDragSourcePort : Field
     static portDragSourcePortIsInput :boolean
     static portDragSuggestedNode : Node |null
     static portDragSuggestedField : Field |null
+    static isDraggingPortValid : Eagle.LinkValid
+
+
+    static currentMousePos = { x: -1, y: -1 };
+
     
     constructor(){
         GraphRenderer.nodeData = null
 
 
         GraphRenderer.draggingPort = false;
+        GraphRenderer.destinationPort = null
+        GraphRenderer.destinationNode = null
         GraphRenderer.portDragSourceNode = null;
         GraphRenderer.portDragSourcePort = null;
         GraphRenderer.portDragSourcePortIsInput = false;
         GraphRenderer.portDragSuggestedNode = null;
         GraphRenderer.portDragSuggestedField = null;
+        GraphRenderer.isDraggingPortValid = Eagle.LinkValid.Unknown;
 
     }
 
@@ -547,16 +559,15 @@ export class GraphRenderer {
         console.log('drag')
 
         // grab and convert mouse position to graph coordinates
-        let currentMousePos = { x: -1, y: -1 };
-        currentMousePos.x = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(event.pageX);
-        currentMousePos.y = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(event.pageY);
+        GraphRenderer.currentMousePos.x = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(event.pageX);
+        GraphRenderer.currentMousePos.y = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(event.pageY);
 
         // check for nearby nodes
-        const nearbyNodes = GraphRenderer.findNodesInRange(currentMousePos.x, currentMousePos.y, GraphConfig.getNodeSuggestionRadius(), GraphRenderer.portDragSourceNode.getKey());
+        const nearbyNodes = GraphRenderer.findNodesInRange(GraphRenderer.currentMousePos.x, GraphRenderer.currentMousePos.y, GraphConfig.getNodeSuggestionRadius(), GraphRenderer.portDragSourceNode.getKey());
 
         
         // check for nearest matching port in the nearby nodes
-        const matchingPort: Field = GraphRenderer.findNearestMatchingPort(currentMousePos.x , currentMousePos.y , nearbyNodes, GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
+        const matchingPort: Field = GraphRenderer.findNearestMatchingPort(GraphRenderer.currentMousePos.x , GraphRenderer.currentMousePos.y , nearbyNodes, GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
 
         if (matchingPort !== null){
             GraphRenderer.portDragSuggestedNode = eagle.logicalGraph().findNodeByKey(matchingPort.getNodeKey());
@@ -565,10 +576,12 @@ export class GraphRenderer {
             GraphRenderer.portDragSuggestedNode = null;
             GraphRenderer.portDragSuggestedField = null;
         }
+        console.log(nearbyNodes,matchingPort)
 
     }
 
     static portDragEnd = () : void => {
+        const eagle = Eagle.getInstance();
         console.log('end')
 
         GraphRenderer.draggingPort = false
@@ -577,8 +590,83 @@ export class GraphRenderer {
         $('#logicalGraphParent').off('mouseup.portDrag')
         $('.node .body').off('mouseup.portDrag')
 
+        if (GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField !== null){
+            const srcNode = GraphRenderer.portDragSourceNode;
+            const srcPort = GraphRenderer.portDragSourcePort;
 
-        
+            let destNode;
+            let destPort;
+
+            if (GraphRenderer.destinationPort !== null){
+                destNode = GraphRenderer.destinationNode;
+                destPort = GraphRenderer.destinationPort;
+            } else {
+                destNode = GraphRenderer.portDragSuggestedNode;
+                destPort = GraphRenderer.portDragSuggestedField;
+            }
+
+            // check if edge is back-to-front (input-to-output), if so, swap the source and destination
+            //const backToFront : boolean = (srcPortType === "input" || srcPortType === "outputLocal") && (destPortType === "output" || destPortType === "inputLocal");
+            const backToFront : boolean = GraphRenderer.portDragSourcePortIsInput;
+            const realSourceNode: Node       = backToFront ? destNode : srcNode;
+            const realSourcePort: Field      = backToFront ? destPort : srcPort;
+            const realDestinationNode: Node  = backToFront ? srcNode  : destNode;
+            const realDestinationPort: Field = backToFront ? srcPort  : destPort;
+
+            // notify user
+            if (backToFront){
+                Utils.showNotification("Automatically reversed edge direction", "The edge began at an input port and ended at an output port, so the direction was reversed.", "info");
+            }
+
+            // check if link is valid
+            const linkValid : Eagle.LinkValid = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), realSourcePort.getType(), false, false, true, true, {errors:[], warnings:[]});
+
+            // abort if edge is invalid
+            if (Setting.findValue(Setting.ALLOW_INVALID_EDGES) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
+                if (linkValid === Eagle.LinkValid.Warning){
+                    GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
+                } else {
+                    GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, false, false);
+                }
+            } else {
+                console.warn("link not valid, result", linkValid);
+            }
+        } else {
+            // no destination, ask user to choose a new node
+            const dataEligible = GraphRenderer.portDragSourceNode.getCategoryType() !== Category.Type.Data;
+            //getting matches from both the graph and the palettes list
+            const eligibleComponents = Utils.getComponentsWithMatchingPort('palette graph', !GraphRenderer.portDragSourcePortIsInput, GraphRenderer.portDragSourcePort.getType(), dataEligible);
+            
+            // console.log("Found", eligibleComponents.length, "eligible automatically suggested components that have a " + (sourcePortIsInput ? "output" : "input") + " port of type:", sourcePort.getType());
+
+            // check we found at least one eligible component
+            if (eligibleComponents.length === 0){
+                Utils.showNotification("Not Found", "No eligible components found for connection to port of this type (" + GraphRenderer.portDragSourcePort.getType() + ")", "info");
+            } else {
+
+                // get list of strings from list of eligible components
+                const eligibleComponentNames : Node[] = [];
+                for (const c of eligibleComponents){
+                    eligibleComponentNames.push(c);
+                }
+
+                // NOTE: create copy in right click ts because we are using the right click menus to handle the node selection
+                RightClick.edgeDropSrcNode = GraphRenderer.portDragSourceNode;
+                RightClick.edgeDropSrcPort = GraphRenderer.portDragSourcePort;
+                RightClick.edgeDropSrcIsInput = GraphRenderer.portDragSourcePortIsInput;
+
+                const x = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(GraphRenderer.currentMousePos.x);
+                const y = GraphRenderer.DISPLAY_TO_REAL_POSITION_Y(GraphRenderer.currentMousePos.y);
+
+                Eagle.selectedRightClickPosition = {x:x, y:y};
+
+                RightClick.edgeDropCreateNode(eligibleComponentNames,null)
+            }
+        }
+
+        GraphRenderer.clearEdgeVars();
+        eagle.logicalGraph.valueHasMutated();
+
     }
     
     static DISPLAY_TO_REAL_POSITION_X(x: number) : number {
@@ -832,5 +920,62 @@ export class GraphRenderer {
         }
 
         return minPort;
+    }
+
+    static mouseEnterPort(port : Field) : void {
+        if (!GraphRenderer.draggingPort){
+            return;
+        }
+        const eagle = Eagle.getInstance();
+
+        GraphRenderer.destinationPort = port;
+        GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
+
+        GraphRenderer.isDraggingPortValid = Edge.isValid(eagle, null, GraphRenderer.portDragSourceNode.getKey(), GraphRenderer.portDragSourcePort.getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), GraphRenderer.portDragSourcePort.getType(), false, false, false, false, {errors:[], warnings:[]});
+    }
+
+    static mouseLeavePort(port : Field) : void {
+        GraphRenderer.destinationPort = null;
+        GraphRenderer.destinationNode = null;
+
+        GraphRenderer.isDraggingPortValid = Eagle.LinkValid.Unknown;
+    }
+    
+    static draggingEdgeGetStrokeColor(edge: Edge, index: number) : string {
+        // switch (isDraggingPortValid){
+        //     case Eagle.LinkValid.Unknown:
+        //         return "black";
+        //     case Eagle.LinkValid.Invalid:
+        //         return LINK_COLORS.INVALID;
+        //     case Eagle.LinkValid.Warning:
+        //         return LINK_COLORS.WARNING;
+        //     case Eagle.LinkValid.Valid:
+        //         return LINK_COLORS.VALID;
+        // }
+        return ''
+    }
+
+    static addEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean) : void {
+        const eagle = Eagle.getInstance();
+        if (srcPort.getId() === destPort.getId()){
+            console.warn("Abort addLink() from port to itself!");
+            return;
+        }
+
+        eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, (edge : Edge) : void => {
+            eagle.checkGraph();
+            eagle.logicalGraph.valueHasMutated();
+            GraphRenderer.clearEdgeVars();
+        });
+    }
+
+    static clearEdgeVars(){
+        GraphRenderer.portDragSourcePort = null
+        GraphRenderer.portDragSourceNode = null
+        GraphRenderer.portDragSourcePortIsInput = null
+        GraphRenderer.destinationPort = null
+        GraphRenderer.destinationNode = null
+        GraphRenderer.portDragSuggestedNode = null
+        GraphRenderer.portDragSuggestedNode = null
     }
 }
