@@ -237,7 +237,7 @@ export class GraphRenderer {
     // static isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
 
 
-    static currentMousePos = { x: -1, y: -1 };
+    static graphMousePos = { x: -1, y: -1 };
 
 
     static averageAngles(angles: number[]) : number {
@@ -648,18 +648,23 @@ export class GraphRenderer {
 
     static portDragging = (event:any) : void => {
         const eagle = Eagle.getInstance();
-        console.log('drag')
+        console.log('drag');
+        const d3DivOffset = $('#logicalGraphD3Div').offset();
 
         // grab and convert mouse position to graph coordinates
-        GraphRenderer.currentMousePos.x = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(event.pageX);
-        GraphRenderer.currentMousePos.y = GraphRenderer.DISPLAY_TO_REAL_POSITION_Y(event.pageY-84);
-        console.log('event',event.pageX,event.pageY,'processed',GraphRenderer.currentMousePos.x,GraphRenderer.currentMousePos.y,'global scale',eagle.globalScale(),'offset',eagle.globalOffsetX(),eagle.globalOffsetY())
+        const mouseX = event.pageX - d3DivOffset.left;
+        const mouseY = event.pageY - d3DivOffset.top;
+
+        GraphRenderer.graphMousePos.x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(mouseX);
+        GraphRenderer.graphMousePos.y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(mouseY);
+        console.log('mouse', mouseX, mouseY, 'graph', GraphRenderer.graphMousePos.x, GraphRenderer.graphMousePos.y, 'global scale', eagle.globalScale(), 'offset', eagle.globalOffsetX(), eagle.globalOffsetY())
+
         // check for nearby nodes
-        const nearbyNodes = GraphRenderer.findNodesInRange(GraphRenderer.currentMousePos.x, GraphRenderer.currentMousePos.y, GraphConfig.NODE_SUGGESTION_RADIUS, GraphRenderer.portDragSourceNode.getKey());
+        const nearbyNodes = GraphRenderer.findNodesInRange(GraphRenderer.graphMousePos.x, GraphRenderer.graphMousePos.y, GraphConfig.NODE_SUGGESTION_RADIUS, GraphRenderer.portDragSourceNode.getKey());
 
         
         // check for nearest matching port in the nearby nodes
-        const matchingPort: Field = GraphRenderer.findNearestMatchingPort(GraphRenderer.currentMousePos.x , GraphRenderer.currentMousePos.y , nearbyNodes, GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
+        const matchingPort: Field = GraphRenderer.findNearestMatchingPort(GraphRenderer.graphMousePos.x, GraphRenderer.graphMousePos.y, nearbyNodes, GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
 
         if (matchingPort !== null){
             GraphRenderer.portDragSuggestedNode = eagle.logicalGraph().findNodeByKey(matchingPort.getNodeKey());
@@ -670,8 +675,15 @@ export class GraphRenderer {
         }
         console.log(nearbyNodes.map(function(node){return node.getName()}),matchingPort)
 
+        // debug - draw a red dot at the mouse position
+        const screenX = GraphRenderer.GRAPH_TO_SCREEN_POSITION_X(GraphRenderer.graphMousePos.x);
+        const screenY = GraphRenderer.GRAPH_TO_SCREEN_POSITION_Y(GraphRenderer.graphMousePos.y);
+        //const screenX = GraphRenderer.graphMousePos.x + eagle.globalOffsetX();
+        //const screenY = GraphRenderer.graphMousePos.y + eagle.globalOffsetY();
+
+        console.log("screen:", screenX, screenY, d3DivOffset);
         $('.portport').remove()
-        $('#logicalGraphD3Div').append('<div class="portport" style="z-index:200;background-color:red;height:5px;width:5px;top:'+GraphRenderer.currentMousePos.y+'px;left:'+GraphRenderer.currentMousePos.x+'px;position:absolute;"></div>')
+        $('#logicalGraphD3Div').append('<div class="portport" style="z-index:200;background-color:red;height:5px;width:5px;top:'+screenY+'px;left:'+screenX+'px;position:absolute;"></div>')
     }
 
     static portDragEnd = () : void => {
@@ -680,7 +692,7 @@ export class GraphRenderer {
 
         GraphRenderer.draggingPort = false
 
-        // cleanign up the port drag event listeners
+        // cleaning up the port drag event listeners
         $('#logicalGraphParent').off('mouseup.portDrag')
         $('.node .body').off('mouseup.portDrag')
 
@@ -750,10 +762,7 @@ export class GraphRenderer {
                 RightClick.edgeDropSrcPort = GraphRenderer.portDragSourcePort;
                 RightClick.edgeDropSrcIsInput = GraphRenderer.portDragSourcePortIsInput;
 
-                const x = GraphRenderer.currentMousePos.x;
-                const y = GraphRenderer.currentMousePos.y;
-
-                Eagle.selectedRightClickPosition = {x:x, y:y};
+                Eagle.selectedRightClickPosition = {x:GraphRenderer.graphMousePos.x, y:GraphRenderer.graphMousePos.y};
 
                 RightClick.edgeDropCreateNode(eligibleComponentNames,null)
             }
@@ -764,19 +773,31 @@ export class GraphRenderer {
 
     }
     
-    static DISPLAY_TO_REAL_POSITION_X(x: number) : number {
+    static SCREEN_TO_GRAPH_POSITION_X(x: number) : number {
         const eagle = Eagle.getInstance();
-        return (x - eagle.globalOffsetX())/eagle.globalScale();
+        return (x - eagle.globalOffsetX())*eagle.globalScale();
     }
 
-    static DISPLAY_TO_REAL_POSITION_Y(y: number) : number {
+    static SCREEN_TO_GRAPH_POSITION_Y(y: number) : number {
         const eagle = Eagle.getInstance();
-        return (y - eagle.globalOffsetY())/eagle.globalScale();
+        return (y - eagle.globalOffsetY())*eagle.globalScale();
     }
 
-    static DISPLAY_TO_REAL_SCALE(n: number) : number {
+    static SCREEN_TO_GRAPH_SCALE(n: number) : number {
         const eagle = Eagle.getInstance();
-        return n / eagle.globalScale();
+        return n * eagle.globalScale();
+    }
+
+    static GRAPH_TO_SCREEN_POSITION_X(x: number) : number {
+        const eagle = Eagle.getInstance();
+        return (x / eagle.globalScale()) + eagle.globalOffsetX();
+        //return (x + eagle.globalOffsetX())/eagle.globalScale();
+    }
+
+    static GRAPH_TO_SCREEN_POSITION_Y(y: number) : number {
+        const eagle = Eagle.getInstance();
+        return (y / eagle.globalScale()) + eagle.globalOffsetY();
+        //return (y + eagle.globalOffsetY())/eagle.globalScale();
     }
 
     static findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
