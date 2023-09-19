@@ -544,8 +544,8 @@ export class GraphRenderer {
 
         // grab and convert mouse position to graph coordinates
         GraphRenderer.currentMousePos.x = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(event.pageX);
-        GraphRenderer.currentMousePos.y = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(event.pageY);
-
+        GraphRenderer.currentMousePos.y = GraphRenderer.DISPLAY_TO_REAL_POSITION_Y(event.pageY-84);
+        console.log('event',event.pageX,event.pageY,'processed',GraphRenderer.currentMousePos.x,GraphRenderer.currentMousePos.y,'global scale',eagle.globalScale(),'offset',eagle.globalOffsetX(),eagle.globalOffsetY())
         // check for nearby nodes
         const nearbyNodes = GraphRenderer.findNodesInRange(GraphRenderer.currentMousePos.x, GraphRenderer.currentMousePos.y, GraphConfig.getNodeSuggestionRadius(), GraphRenderer.portDragSourceNode.getKey());
 
@@ -560,7 +560,7 @@ export class GraphRenderer {
             GraphRenderer.portDragSuggestedNode = null;
             GraphRenderer.portDragSuggestedField = null;
         }
-        console.log(nearbyNodes,matchingPort)
+        console.log(nearbyNodes.map(function(node){return node.getName()}),matchingPort)
 
         $('.portport').remove()
         $('#logicalGraphD3Div').append('<div class="portport" style="z-index:200;background-color:red;height:5px;width:5px;top:'+GraphRenderer.currentMousePos.y+'px;left:'+GraphRenderer.currentMousePos.x+'px;position:absolute;"></div>')
@@ -642,8 +642,8 @@ export class GraphRenderer {
                 RightClick.edgeDropSrcPort = GraphRenderer.portDragSourcePort;
                 RightClick.edgeDropSrcIsInput = GraphRenderer.portDragSourcePortIsInput;
 
-                const x = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(GraphRenderer.currentMousePos.x);
-                const y = GraphRenderer.DISPLAY_TO_REAL_POSITION_Y(GraphRenderer.currentMousePos.y);
+                const x = GraphRenderer.currentMousePos.x;
+                const y = GraphRenderer.currentMousePos.y;
 
                 Eagle.selectedRightClickPosition = {x:x, y:y};
 
