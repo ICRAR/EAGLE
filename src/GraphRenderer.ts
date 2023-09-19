@@ -32,6 +32,8 @@ import { Field } from './Field';
 import { GraphConfig } from './graphConfig';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
+import {Utils} from './Utils';
+import { CategoryData} from './CategoryData';
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
@@ -245,15 +247,15 @@ export class GraphRenderer {
 
     //port drag handler globals
     static draggingPort : boolean
-    static sourceNode : Node
-    static sourcePort : Field
-    static sourcePortIsInput :boolean
+    static portDragSourceNode : Node
+    static portDragSourcePort : Field
+    static portDragSourcePortIsInput :boolean
     
     constructor(){
         GraphRenderer.draggingPort = false;
-        GraphRenderer.sourceNode = null;
-        GraphRenderer.sourcePort = null;
-        GraphRenderer.sourcePortIsInput = false;
+        GraphRenderer.portDragSourceNode = null;
+        GraphRenderer.portDragSourcePort = null;
+        GraphRenderer.portDragSourcePortIsInput = false;
 
     }
 
@@ -457,7 +459,7 @@ export class GraphRenderer {
         }
 
         if(GraphRenderer.draggingPort){
-            GraphRenderer.portDragging()
+            GraphRenderer.portDragging(event)
         }
         
     }
@@ -510,25 +512,35 @@ export class GraphRenderer {
         }
     }
 
-    static portDragHandler = (event:any, port:Field) : void => {
-        console.log('bop',event)
-        event.stopPropagation(); 
-    } 
+    static portDragStart = (port:Field,usage:string) : void => {
+        const eagle = Eagle.getInstance();
 
-    static portDragStart = (port:Field) : void => {
         console.log('start')
+        //prevents moving the node when dragging the port
         event.stopPropagation();
         
+        //preparing neccessary port info 
         GraphRenderer.draggingPort = true
+        GraphRenderer.portDragSourceNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
+        GraphRenderer.portDragSourcePort = port;
+        GraphRenderer.portDragSourcePortIsInput = usage === 'input';
 
         //setting up the port event listeners
         $('#logicalGraphParent').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
         $('.node .body').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
-        console.log('hehe')
     }
 
-    static portDragging = () : void => {
+    static portDragging = (event:any) : void => {
         console.log('drag')
+
+        // grab and convert mouse position to graph coordinates
+        let currentMousePos = { x: -1, y: -1 };
+        currentMousePos.x = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(event.pageX);
+        currentMousePos.y = GraphRenderer.DISPLAY_TO_REAL_POSITION_X(event.pageY);
+
+        const nearbyNodes = GraphRenderer.findNodesInRange(currentMousePos.x, currentMousePos.y, GraphConfig.getNodeSuggestionRadius(), GraphRenderer.portDragSourceNode.getKey());
+
+        
     }
 
     static portDragEnd = () : void => {
@@ -539,5 +551,195 @@ export class GraphRenderer {
         // cleanign up the port drag event listeners
         $('#logicalGraphParent').off('mouseup.portDrag')
         $('.node .body').off('mouseup.portDrag')
+    }
+    
+    static DISPLAY_TO_REAL_POSITION_X(x: number) : number {
+        const eagle = Eagle.getInstance();
+        return (x - eagle.globalOffsetX())/eagle.globalScale();
+    }
+
+    static DISPLAY_TO_REAL_POSITION_Y(y: number) : number {
+        const eagle = Eagle.getInstance();
+        return (y - eagle.globalOffsetY())/eagle.globalScale();
+    }
+
+    static DISPLAY_TO_REAL_SCALE(n: number) : number {
+        const eagle = Eagle.getInstance();
+        return n / eagle.globalScale();
+    }
+
+    static findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
+        const eagle = Eagle.getInstance();
+        const result: Node[] = [];
+        const nodeData : Node[] = GraphRenderer.depthFirstTraversalOfNodes(eagle.logicalGraph(), eagle.showDataNodes());
+
+        //console.log("findNodesInRange(): sourceNodeKey", sourceNodeKey);
+
+        for (let i = 0; i < nodeData.length; i++){
+            // skip the source node
+            if (nodeData[i].getKey() === sourceNodeKey){
+                continue;
+            }
+
+            // fetch categoryData for the node
+            const categoryData = CategoryData.getCategoryData(nodeData[i].getCategory());
+            let possibleInputs = categoryData.maxInputs;
+            let possibleOutputs = categoryData.maxOutputs;
+
+            // add categoryData for embedded apps (if they exist)
+            if (nodeData[i].hasInputApplication()){
+                const inputApp = nodeData[i].getInputApplication();
+                const inputAppCategoryData = CategoryData.getCategoryData(inputApp.getCategory());
+                possibleInputs += inputAppCategoryData.maxInputs;
+                possibleOutputs += inputAppCategoryData.maxOutputs;
+            }
+            if (nodeData[i].hasOutputApplication()){
+                const outputApp = nodeData[i].getOutputApplication();
+                const outputAppCategoryData = CategoryData.getCategoryData(outputApp.getCategory());
+                possibleInputs += outputAppCategoryData.maxInputs;
+                possibleOutputs += outputAppCategoryData.maxOutputs;
+            }
+
+            // skip nodes that can't have inputs or outputs
+            if (possibleInputs === 0 && possibleOutputs === 0){
+                continue;
+            }
+
+            // determine distance from position to this node
+            const distance = Utils.positionToNodeDistance(positionX, positionY, nodeData[i]);
+
+            if (distance <= range){
+                //console.log("distance to", nodeData[i].getName(), nodeData[i].getKey(), "=", distance);
+                result.push(nodeData[i]);
+            }
+        }
+
+        return result;
+    }
+
+    static depthFirstTraversalOfNodes(graph: LogicalGraph, showDataNodes: boolean) : Node[] {
+        const indexPlusDepths : {index:number, depth:number}[] = [];
+        const result : Node[] = [];
+
+        // populate key plus depths
+        for (let i = 0 ; i < graph.getNodes().length ; i++){
+            let nodeHasConnectedInput: boolean = false;
+            let nodeHasConnectedOutput: boolean = false;
+            const node = graph.getNodes()[i];
+
+            // check if node has connected input and output
+            for (const edge of graph.getEdges()){
+                if (edge.getDestNodeKey() === node.getKey()){
+                    nodeHasConnectedInput = true;
+                }
+
+                if (edge.getSrcNodeKey() === node.getKey()){
+                    nodeHasConnectedOutput = true;
+                }
+            }
+
+            // skip data nodes, if showDataNodes is false
+            if (!showDataNodes && node.isData() && nodeHasConnectedInput && nodeHasConnectedOutput){
+                continue;
+            }
+
+            const depth = GraphRenderer.findDepthOfNode(i, graph.getNodes());
+
+            indexPlusDepths.push({index:i, depth:depth});
+        }
+
+        // sort nodes in depth ascending
+        indexPlusDepths.sort(function(a, b){
+            return a.depth - b.depth;
+        });
+
+        // write nodes to result in sorted order
+        for (const indexPlusDepth of indexPlusDepths){
+            result.push(graph.getNodes()[indexPlusDepth.index]);
+        }
+
+        return result;
+    }
+
+    static findDepthOfNode(index: number, nodes : Node[]) : number {
+        const eagle = Eagle.getInstance();
+        if (index >= nodes.length){
+            console.warn("findDepthOfNode() with node index outside range of nodes. index:", index, "nodes.length", nodes.length);
+            return 0;
+        }
+
+        let depth : number = 0;
+        let node : Node = nodes[index];
+        let nodeKey : number;
+        let nodeParentKey : number = node.getParentKey();
+        let iterations = 0;
+
+        // follow the chain of parents
+        while (nodeParentKey != null){
+            if (iterations > 10){
+                console.error("too many iterations in findDepthOfNode()");
+                break;
+            }
+
+            iterations += 1;
+            depth += 1;
+            depth += node.getDrawOrderHint() / 10;
+            nodeKey = node.getKey();
+            nodeParentKey = node.getParentKey();
+
+            if (nodeParentKey === null){
+                return depth;
+            }
+
+            node = GraphRenderer.findNodeWithKey(nodeParentKey, nodes);
+
+            if (node === null){
+                console.error("Node", nodeKey, "has parentKey", nodeParentKey, "but call to findNodeWithKey(", nodeParentKey, ") returned null");
+                return depth;
+            }
+
+            // if parent is selected, add more depth, so that it will appear on top
+            if (eagle.objectIsSelected(node)){
+                depth += 10;
+            }
+        }
+
+        depth += node.getDrawOrderHint() / 10;
+
+        // if node is selected, add more depth, so that it will appear on top
+        if (eagle.objectIsSelected(node)){
+            depth += 10;
+        }
+
+        return depth;
+    }
+
+    static findNodeWithKey(key: number, nodes: Node[]) : Node {
+        if (key === null){
+            return null;
+        }
+
+        for (const node of nodes){
+            if (node.getKey() === key){
+                return node;
+            }
+
+            // check if the node's inputApp has a matching key
+            if (node.hasInputApplication()){
+                if (node.getInputApplication().getKey() === key){
+                    return node.getInputApplication();
+                }
+            }
+
+            // check if the node's outputApp has a matching key
+            if (node.hasOutputApplication()){
+                if (node.getOutputApplication().getKey() === key){
+                    return node.getOutputApplication();
+                }
+            }
+        }
+
+        console.warn("Cannot find node with key", key);
+        return null;
     }
 }

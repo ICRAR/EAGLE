@@ -38,6 +38,9 @@ const colors: { name: string; color: string; }[] = [
     }
 ]
 
+const nodeSuggestionRadius = 150
+
+
 const normalNodeRadius = 25
 const branchNodeRadius = 44
 const constructNodeRadius = 300
@@ -66,6 +69,10 @@ export class GraphConfig {
 
     static getConstructRadius = () : number => {
         return constructNodeRadius
+    }
+
+    static getNodeSuggestionRadius = () : number => {
+        return nodeSuggestionRadius
     }
 
 }

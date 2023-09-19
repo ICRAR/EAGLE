@@ -7,10 +7,10 @@
         <div class="body" data-bind="eagleRightClick: {data:$data,type:'rightClick_graphNode'}, event: {mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false">
             <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
             <!-- ko foreach: $data.getInputPorts() -->
-                <div class="inputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:{data:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data)}}"></div>
+                <div class="inputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:{data:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}}"></div>
             <!-- /ko -->
             <!-- ko foreach: $data.getOutputPorts() -->
-                <div class="outputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:{data:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data)}}"></div>
+                <div class="outputPort port" data-bind="style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:{data:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'output')}}"></div>
             <!-- /ko -->
         </div>
     </div>
