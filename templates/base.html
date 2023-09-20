@@ -83,7 +83,7 @@
                     <!-- /ko -->
                     <svg>
                         <!-- ko foreach: $root.logicalGraph().getEdges() -->
-                        <path data-bind="attr:{d: GraphRenderer.getPath($data)},click:function(viewModel, event){GraphRenderer.selectEdge(viewModel, event)}"></path>
+                        <path data-bind="attr:{d: GraphRenderer.getPath($data)},click:function(viewModel, event){GraphRenderer.selectEdge(viewModel, event)},eagleRightClick: {data:$data,type:'rightClick_graphEdge'}"></path>
                         <!-- /ko -->
                         <!-- ko foreach: $root.logicalGraph().getCommentNodes() -->
                         <path class="commentEdge" data-bind="attr:{d: GraphRenderer.getPathComment($data)}"></path>
