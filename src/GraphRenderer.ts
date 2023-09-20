@@ -1092,4 +1092,16 @@ export class GraphRenderer {
         GraphRenderer.portDragSuggestedNode = null
         GraphRenderer.portDragSuggestedNode = null
     }
+
+    static selectEdge(edge : Edge,event:any){
+        const eagle = Eagle.getInstance();
+
+        if (edge !== null){
+            if (event.shiftKey){
+                eagle.editSelection(Eagle.RightWindowMode.Inspector, edge, Eagle.FileType.Graph);
+            } else {
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, edge, Eagle.FileType.Graph);
+            }
+        }
+    }
 }
