@@ -33,6 +33,11 @@
     stroke-width: 2;
 }
 
+#logicalGraphD3Div svg path.eddgeClickTarget{
+    stroke-width: 10px;
+    stroke:transparent;
+}
+
 .branch_node .container,.branch_node .header{
     z-index: 3;
 }
