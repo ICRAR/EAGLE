@@ -1104,4 +1104,46 @@ export class GraphRenderer {
             }
         }
     }
+
+    
+
+    static edgeGetStrokeColor(edge: Edge, event: any) : string {
+        const eagle = Eagle.getInstance();
+        
+        let normalColor: string = GraphConfig.getColor('edgeDefault');
+        let selectedColor: string = GraphConfig.getColor('edgeDefaultSelected');
+
+        // check if source node is an event, if so, draw in blue
+        const srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+
+        if (srcNode !== null){
+            const srcPort : Field = srcNode.findFieldById(edge.getSrcPortId());
+
+            if (srcPort !== null && srcPort.getIsEvent()){
+                normalColor = GraphConfig.getColor('edgeEvent');
+                selectedColor = GraphConfig.getColor('edgeEventSelected');
+            }
+        }
+
+        // check if link has a warning or is invalid
+        const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+
+        if (linkValid === Eagle.LinkValid.Invalid){
+            normalColor = GraphConfig.getColor('edgeInvalid');
+            selectedColor = GraphConfig.getColor('edgeInvalidSelected');
+        }
+
+        if (linkValid === Eagle.LinkValid.Warning){
+            normalColor = GraphConfig.getColor('edgeWarning');
+            selectedColor = GraphConfig.getColor('edgeWarningSelected');
+        }
+
+        // check if the edge is a "closes loop" edge
+        if (edge.isClosesLoop()){
+            normalColor = GraphConfig.getColor('edgeClosesLoop');
+            selectedColor = GraphConfig.getColor('edgeClosesLoopSelected');
+        }
+
+        return eagle.objectIsSelected(edge) ? selectedColor : normalColor;
+    }
 }

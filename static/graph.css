@@ -33,7 +33,7 @@
     stroke-width: 2;
 }
 
-#logicalGraphD3Div svg path.eddgeClickTarget{
+#logicalGraphD3Div svg path.edgeClickTarget{
     stroke-width: 10px;
     stroke:transparent;
 }

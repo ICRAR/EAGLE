@@ -33,10 +33,10 @@ const colors: { name: string; color: string; }[] = [
     },{
 
     //edge colours
-        name: 'default',
+        name: 'edgeDefault',
         color: '#58595b'
     },{
-        name: 'defaultSelected',
+        name: 'edgeDefaultSelected',
         color: '#3f29d5'
     },{
         name: 'commentEdge',
