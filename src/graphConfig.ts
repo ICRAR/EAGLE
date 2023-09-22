@@ -1,5 +1,6 @@
 const colors: { name: string; color: string; }[] = [
     {
+    //node colours
         name: 'bodyBorder',
         color: '#2e3192'
     },{
@@ -30,11 +31,49 @@ const colors: { name: string; color: string; }[] = [
         name: 'selectBackground',
         color: '#b4d4ff'
     },{
-        name: 'edgeColor',
+
+    //edge colours
+        name: 'default',
         color: '#58595b'
     },{
-        name: 'commentEdgeColor',
+        name: 'defaultSelected',
+        color: '#3f29d5'
+    },{
+        name: 'commentEdge',
         color: '#7c7e81'
+    },{
+        name: 'edgeValid',
+        color: '#32cd32'
+    },{
+        name: 'edgeWarning',
+        color: '#ffa500'
+    },{
+        name: 'edgeWarningSelected',
+        color: '#df3e00'
+    },{
+        name: 'edgeInvalid',
+        color: '#ff0000'
+    },{
+        name: 'edgeInvalidSelected',
+        color: '#3f29d5'
+    },{
+        name: 'edgeEvent',
+        color: '#a6a6fe'
+    },{
+        name: 'edgeEventSelected',
+        color: '#3f29d5'
+    },{
+        name: 'edgeAutoCompleteSuggestion',
+        color: '#9980af'
+    },{
+        name: 'edgeAutoComplete',
+        color: '#9c3bca'
+    },{
+        name: 'edgeClosesLoop',
+        color: '#696969'
+    },{
+        name: 'edgeClosesLoopSelected',
+        color: '#3f29d5'
     }
 ]
 
