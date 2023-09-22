@@ -48,8 +48,7 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--branchBg", GraphConfig.getColor('branchBg'));
         $("#logicalGraphParent").get(0).style.setProperty("--constructBg", GraphConfig.getColor('constructBg'));
         $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", GraphConfig.getColor('constructIcon'));
-        $("#logicalGraphParent").get(0).style.setProperty("--edgeColor", GraphConfig.getColor('edgeColor'));
-        $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", GraphConfig.getColor('commentEdgeColor'));
+        $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", GraphConfig.getColor('commentEdge'));
         
         // transition for grow/shrink
         $(element).css({'transition': 'width .2s ease-out, height .2s ease-out'});
@@ -1109,7 +1108,7 @@ export class GraphRenderer {
 
     static edgeGetStrokeColor(edge: Edge, event: any) : string {
         const eagle = Eagle.getInstance();
-        
+
         let normalColor: string = GraphConfig.getColor('edgeDefault');
         let selectedColor: string = GraphConfig.getColor('edgeDefaultSelected');
 
