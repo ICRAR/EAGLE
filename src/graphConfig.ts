@@ -37,7 +37,7 @@ const colors: { name: string; color: string; }[] = [
         color: '#58595b'
     },{
         name: 'edgeDefaultSelected',
-        color: '#3f29d5'
+        color: '#2e3192'
     },{
         name: 'commentEdge',
         color: '#7c7e81'
@@ -49,19 +49,19 @@ const colors: { name: string; color: string; }[] = [
         color: '#ffa500'
     },{
         name: 'edgeWarningSelected',
-        color: '#df3e00'
+        color: '#2e3192'
     },{
         name: 'edgeInvalid',
         color: '#ff0000'
     },{
         name: 'edgeInvalidSelected',
-        color: '#3f29d5'
+        color: '#2e3192'
     },{
         name: 'edgeEvent',
         color: '#a6a6fe'
     },{
         name: 'edgeEventSelected',
-        color: '#3f29d5'
+        color: '#2e3192'
     },{
         name: 'edgeAutoCompleteSuggestion',
         color: '#9980af'
@@ -73,7 +73,7 @@ const colors: { name: string; color: string; }[] = [
         color: '#696969'
     },{
         name: 'edgeClosesLoopSelected',
-        color: '#3f29d5'
+        color: '#2e3192'
     }
 ]
 
@@ -89,7 +89,8 @@ export class GraphConfig {
 
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
     // this is the default margin that should be left on each side
-    public static readonly CONSTRUCT_MARGIN: number = 25;
+    public static readonly CONSTRUCT_MARGIN: number = 50;
+    public static readonly CONSTRUCT_DRAG_OUT_DISTANCE: number = 200;
 
     static getColor = (name:string) : string => {
         let result = 'red'

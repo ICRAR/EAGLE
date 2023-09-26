@@ -214,3 +214,7 @@
     -1px  0   0 #ffffff;
 
 }
+
+.node.transition{
+    transition: width .2s ease-out, height .2s ease-out;
+}
