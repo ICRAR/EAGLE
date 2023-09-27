@@ -443,8 +443,12 @@ export class GraphRenderer {
                 }
 
                 // move node
-                eagle.draggingNode().changePosition(mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
-                GraphRenderer.moveChildNodes(eagle.draggingNode(), mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
+                eagle.selectedObjects().forEach(function(obj){
+                    if(obj instanceof Node){
+                        obj.changePosition(mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
+                        GraphRenderer.moveChildNodes(obj, mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
+                    }
+                })
 
 
                 if(node.getParentKey() != null){
@@ -530,13 +534,16 @@ export class GraphRenderer {
                 GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
             }
         }
-        
-        // check if shift key is down, if so, add selected node to current selection
-        if (node !== null && event.shiftKey){
-            eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
-        } else {
-            eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+
+        if(!eagle.objectIsSelected(node)){
+            // check if shift key is down, if so, add selected node to current selection
+            if (node !== null && event.shiftKey){
+                eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+            } else {
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+            }
         }
+       
     }
 
     static endDrag = (node: Node, event: MouseEvent) : void => {
@@ -561,7 +568,6 @@ export class GraphRenderer {
         // loop through all nodes, if they belong to the parent's group, move them too
         for (let i = 0 ; i < eagle.logicalGraph().getNodes().length ; i++){
             const node = eagle.logicalGraph().getNodes()[i];
-
             if (node.getParentKey() === parentKey){
                 node.changePosition(deltax, deltay);
                 GraphRenderer.moveChildNodes(node, deltax, deltay);
@@ -1141,8 +1147,6 @@ export class GraphRenderer {
             }
         }
     }
-
-    
 
     static edgeGetStrokeColor(edge: Edge, event: any) : string {
         const eagle = Eagle.getInstance();

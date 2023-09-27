@@ -724,7 +724,7 @@ export class Eagle {
                 // center graph
                 this.centerGraph();
 
-                this.resizeConstructs();
+                // this.resizeConstructs();
 
                 // update the activeFileInfo with details of the repository the file was loaded from
                 if (fileFullPath !== ""){
