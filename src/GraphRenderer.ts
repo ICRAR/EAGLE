@@ -51,7 +51,10 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", GraphConfig.getColor('commentEdge'));
         
         // transition for grow/shrink
-        $(element).css({'transition': 'width .2s ease-out, height .2s ease-out'});
+        if(node.isConstruct()){
+            $(element).addClass('transition')
+            console.log($(element))
+        }
     },
     update: function (element:any, valueAccessor, allBindings, viewModel, bindingContext) {
         const eagle : Eagle = Eagle.getInstance();
@@ -233,6 +236,10 @@ export class GraphRenderer {
     static portDragSourcePortIsInput :boolean =false;
     static portDragSuggestedNode : Node |null = null;
     static portDragSuggestedField : Field |null = null;
+
+    //node drag handler globals
+    static NodeParentRadiusPreDrag : number = null;
+    static nodeDragElement : any = null
     // static isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
 
 
@@ -427,9 +434,62 @@ export class GraphRenderer {
 
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null){
+                const node:Node = eagle.draggingNode()
+
+                // remember node parent from before things change
+                const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey());
+
+                if(oldParent != null){
+                }
+
                 // move node
                 eagle.draggingNode().changePosition(mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
                 GraphRenderer.moveChildNodes(eagle.draggingNode(), mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
+
+
+                if(node.getParentKey() != null){
+
+
+                    if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+GraphConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
+                        // GraphRenderer._updateNodeParent(node, null, false, allowGraphEditing);
+
+                        oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag)
+                    }
+
+                }
+                    // check for nodes underneath the node we dropped
+                    const parent: Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getRadius(), node.getKey(), true);
+
+                    // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
+                    const ancestorOfParent = GraphRenderer.isAncestor(parent, node);
+
+                    // keep track of whether we would update any node parents
+                    const updated = {parent: false};
+                    const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+
+                    // if a parent was found, update
+                    if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && !ancestorOfParent){
+                        GraphRenderer._updateNodeParent(node, parent.getKey(), updated, allowGraphEditing);
+                    }
+
+                    // if no parent found, update
+                    if (parent === null && node.getParentKey() !== null){
+                        GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
+                    }
+
+                    // recalculate size of parent (or oldParent)
+                    if (parent === null){
+                        if (oldParent !== null){
+                            // moved out of a construct
+                            $('#'+oldParent.getId()).addClass('transition')
+                            GraphRenderer.resizeConstruct(oldParent);
+                        }
+                    } else {
+                        // moved into or within a construct
+                        $('#'+parent.getId()).removeClass('transition')
+                        GraphRenderer.resizeConstruct(parent);
+                    }
+
             } else {
                 // move background
                 eagle.globalOffsetX(eagle.globalOffsetX() + mouseEvent.movementX/eagle.globalScale());
@@ -455,10 +515,20 @@ export class GraphRenderer {
 
     static startDrag = (node: Node, event: MouseEvent) : void => {
         const eagle = Eagle.getInstance();
-        if(node === null || !node.isEmbedded()){
+        if(node === null){
+            eagle.isDragging(true);
+
+        } else if(!node.isEmbedded()){
            //only non-embedded nodes can be dragged
             eagle.isDragging(true);
             eagle.draggingNode(node);
+            GraphRenderer.nodeDragElement = event.target
+
+            if(node.getParentKey() != null){
+                const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
+                $('#'+parentNode.getId()).removeClass('transition')
+                GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
+            }
         }
         
         // check if shift key is down, if so, add selected node to current selection
@@ -476,41 +546,9 @@ export class GraphRenderer {
         eagle.isDragging(false);
         eagle.draggingNode(null);
 
-        if(node === null){
-            return
-        }
-        // remember node parent from before things change
-        const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey());
-
-        // check for nodes underneath the node we dropped
-        const parent: Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getRadius(), node.getKey(), true);
-
-        // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
-        const ancestorOfParent = GraphRenderer.isAncestor(parent, node);
-
-        // keep track of whether we would update any node parents
-        const updated = {parent: false};
-        const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
-
-        // if a parent was found, update
-        if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && !ancestorOfParent){
-            GraphRenderer._updateNodeParent(node, parent.getKey(), updated, allowGraphEditing);
-        }
-
-        // if no parent found, update
-        if (parent === null && node.getParentKey() !== null){
-            GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
-        }
-
-        // recalculate size of parent (or oldParent)
-        if (parent === null){
-            if (oldParent !== null){
-                // moved out of a construct
-                GraphRenderer.resizeConstruct(oldParent);
-            }
-        } else {
-            // moved into or within a construct
-            GraphRenderer.resizeConstruct(parent);
+        if (node != null && node.getParentKey() != null){
+            const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
+            $('#'+parentNode.getId()).addClass('transition')
         }
     }
 
