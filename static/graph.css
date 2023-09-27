@@ -1,6 +1,7 @@
 #logicalGraphParent{
     /* declaring custom variables used in css set via ts later from the graph config variables */
     --selectedBg : red;
+    --selectedConstructBg:red;
     --nodeBorder : red;
     --nodeBg:red;
     --graphText:red;
@@ -132,7 +133,7 @@
 }
 
 .node .construct_node span {
-    font-size: 500px;
+    font-size: 600px;
     color: var(--constructIcon);
 }
 
@@ -179,7 +180,9 @@
     background-color:  var(--selectedBg) !important;
     /* box-shadow: 0 8px 6px -6px black; */
 }
-
+.node .construct_node .container.selected .body {
+    background-color: var(--selectedConstructBg);
+}
 .node .header-name {
     color:var(--graphText)
 }

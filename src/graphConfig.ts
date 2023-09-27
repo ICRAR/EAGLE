@@ -8,10 +8,10 @@ const colors: { name: string; color: string; }[] = [
         color: '#d4d4d4'
     },{
         name: 'constructBg',
-        color: '#d4d4d4'
+        color: '#0000001f'
     },{
         name: 'constructIcon',
-        color: '#0000002e'
+        color: '#0000000f'
     },{
         name: 'graphText',
         color: 'black'
@@ -30,6 +30,9 @@ const colors: { name: string; color: string; }[] = [
     },{
         name: 'selectBackground',
         color: '#b4d4ff'
+    },{
+        name: 'selectConstructBackground',
+        color: '#85b9ff94'
     },{
 
     //edge colours

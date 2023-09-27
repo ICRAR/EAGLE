@@ -42,6 +42,7 @@ ko.bindingHandlers.nodeRenderHandler = {
 
         //overwriting css variables using colours from graphConfig.ts. I am using this for simple styling to avoid excessive css data binds in the node html files
         $("#logicalGraphParent").get(0).style.setProperty("--selectedBg", GraphConfig.getColor('selectBackground'));
+        $("#logicalGraphParent").get(0).style.setProperty("--selectedConstructBg", GraphConfig.getColor('selectConstructBackground'));
         $("#logicalGraphParent").get(0).style.setProperty("--nodeBorder", GraphConfig.getColor('bodyBorder'));
         $("#logicalGraphParent").get(0).style.setProperty("--nodeBg", GraphConfig.getColor('nodeBg'));
         $("#logicalGraphParent").get(0).style.setProperty("--graphText", GraphConfig.getColor('graphText'));
@@ -544,6 +545,12 @@ export class GraphRenderer {
             }
 
             if(event.altKey&&node.isConstruct()){
+                if(!event.shiftKey){
+                    eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
+                    eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+                
+                }
+                
                 eagle.logicalGraph().getNodes().forEach(function(obj){
                     if(obj.getParentKey()===node.getKey()){
                         eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
