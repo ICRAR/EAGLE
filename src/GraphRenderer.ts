@@ -536,28 +536,35 @@ export class GraphRenderer {
             }
         }
 
+        //select handlers
+
         if(node !== null){
-            // check if shift key is down, if so, add selected node to current selection
+            // check if shift key is down, if so, add or remove selected node to/from current selection
             if (node !== null && event.shiftKey && !event.altKey){
                 eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
             } else if(!eagle.objectIsSelected(node)) {
                 eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
             }
 
+            //check for alt clicking, if so, add the target node and its children to the selection
             if(event.altKey&&node.isConstruct()){
+                //if shift is not clicked, we first clear the selection
                 if(!event.shiftKey){
                     eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
                     eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
-                
                 }
                 
                 eagle.logicalGraph().getNodes().forEach(function(obj){
                     if(obj.getParentKey()===node.getKey()){
+                        if(obj.isConstruct()){
+                            //loop through child nodes and also add..
+                        }
                         eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
                     }
                 })
             }
         }else{
+            //if node is null, the empty canvas has been clicked. clear the selection
             eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
         }
        
