@@ -216,5 +216,6 @@
 }
 
 .node.transition{
-    transition: width .2s ease-out, height .2s ease-out;
+    transition: .2s;
+    transition-timing-function: cubic-bezier(0.64, 1.92, 0.42, 0.57);
 }
