@@ -89,7 +89,7 @@ export class GraphConfig {
 
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
     // this is the default margin that should be left on each side
-    public static readonly CONSTRUCT_MARGIN: number = 50;
+    public static readonly CONSTRUCT_MARGIN: number = 30;
     public static readonly CONSTRUCT_DRAG_OUT_DISTANCE: number = 200;
 
     static getColor = (name:string) : string => {

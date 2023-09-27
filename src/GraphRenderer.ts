@@ -546,13 +546,9 @@ export class GraphRenderer {
         eagle.isDragging(false);
         eagle.draggingNode(null);
 
-        if(node.getParentKey() != null){
+        if (node != null && node.getParentKey() != null){
             const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
             $('#'+parentNode.getId()).addClass('transition')
-        }
-
-        if(node === null){
-            return
         }
     }
 
