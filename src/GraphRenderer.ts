@@ -446,7 +446,7 @@ export class GraphRenderer {
                 eagle.selectedObjects().forEach(function(obj){
                     if(obj instanceof Node){
                         obj.changePosition(mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
-                        GraphRenderer.moveChildNodes(obj, mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
+                        // GraphRenderer.moveChildNodes(obj, mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
                     }
                 })
 
@@ -523,7 +523,7 @@ export class GraphRenderer {
             eagle.isDragging(true);
 
         } else if(!node.isEmbedded()){
-           //only non-embedded nodes can be dragged
+           //embedded nodes, aka input and output applications of constructs, cant be dragged
             eagle.isDragging(true);
             eagle.draggingNode(node);
             GraphRenderer.nodeDragElement = event.target
@@ -535,13 +535,23 @@ export class GraphRenderer {
             }
         }
 
-        if(!eagle.objectIsSelected(node)){
+        if(node !== null){
             // check if shift key is down, if so, add selected node to current selection
-            if (node !== null && event.shiftKey){
+            if (node !== null && event.shiftKey && !event.altKey){
                 eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
-            } else {
+            } else if(!eagle.objectIsSelected(node)) {
                 eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
             }
+
+            if(event.altKey&&node.isConstruct()){
+                eagle.logicalGraph().getNodes().forEach(function(obj){
+                    if(obj.getParentKey()===node.getKey()){
+                        eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
+                    }
+                })
+            }
+        }else{
+            eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
         }
        
     }
