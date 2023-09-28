@@ -553,15 +553,32 @@ export class GraphRenderer {
                     eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
                     eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
                 }
+
+                //getting all children, including children of child constructs etc..
+                let childIsConstruct = true
+                let constructs : Node[]= [node]
                 
-                eagle.logicalGraph().getNodes().forEach(function(obj){
-                    if(obj.getParentKey()===node.getKey()){
-                        if(obj.isConstruct()){
-                            //loop through child nodes and also add..
-                        }
-                        eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
+                while(childIsConstruct){
+                    let constructFound = false
+                    let i = -1
+                    constructs.forEach(function(construct){
+                        i++
+                        eagle.logicalGraph().getNodes().forEach(function(obj){
+                            if(obj.getParentKey()===construct.getKey()){
+                                eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
+    
+                                if(obj.isConstruct()){
+                                    constructFound = true
+                                    constructs.push(obj)
+                                }
+                            }
+                        })
+                        constructs.splice(i,1)
+                    })
+                    if(!constructFound){
+                        childIsConstruct = false
                     }
-                })
+                }
             }
         }else{
             //if node is null, the empty canvas has been clicked. clear the selection
