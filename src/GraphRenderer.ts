@@ -684,7 +684,7 @@ export class GraphRenderer {
             const centerX = sumX / numChildren;
             const centerY = sumY / numChildren;
 
-            //removed this bit of code because it was badly positioning constructs on graphs i designed using the new editor
+            //disabled this bit of code for now because it was badly positioning constructs on graphs i designed using the new editor
             // construct.setPosition(centerX, centerY);
         }
 

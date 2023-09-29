@@ -479,11 +479,11 @@ export class Eagle {
         let maxX : number = -Number.MAX_VALUE;
         let maxY : number = -Number.MAX_VALUE;
         for (const node of this.logicalGraph().getNodes()){
-            if (node.getPosition().x < minX){
-                minX = node.getPosition().x;
+            if (node.getPosition().x - node.getRadius() < minX){
+                minX = node.getPosition().x - node.getRadius();
             }
-            if (node.getPosition().y < minY){
-                minY = node.getPosition().y;
+            if (node.getPosition().y - node.getRadius() < minY){
+                minY = node.getPosition().y - node.getRadius();
             }
             if (node.getPosition().x + node.getRadius() > maxX){
                 maxX = node.getPosition().x + node.getRadius();
@@ -1812,10 +1812,10 @@ export class Eagle {
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
+        this.resizeConstructs();
+
         // center graph
         this.centerGraph();
-
-        this.resizeConstructs();
 
         // check graph
         this.checkGraph();
