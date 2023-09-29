@@ -667,7 +667,6 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         let maxDistance = 0;
         let numChildren = 0;
-
         // loop through all children - compute centroid
         if (allowMovement){
             let sumX = 0;
@@ -685,7 +684,8 @@ export class GraphRenderer {
             const centerX = sumX / numChildren;
             const centerY = sumY / numChildren;
 
-            construct.setPosition(centerX, centerY);
+            //removed this bit of code because it was badly positioning constructs on graphs i designed using the new editor
+            // construct.setPosition(centerX, centerY);
         }
 
         // loop through all children - find distance from center of construct
