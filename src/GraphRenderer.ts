@@ -54,7 +54,6 @@ ko.bindingHandlers.nodeRenderHandler = {
         // transition for grow/shrink
         if(node.isConstruct()){
             $(element).addClass('transition')
-            console.log($(element))
         }
     },
     update: function (element:any, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -452,9 +451,8 @@ export class GraphRenderer {
                 })
 
 
+                //construct resizing 
                 if(node.getParentKey() != null){
-
-
                     if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+GraphConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
                         // GraphRenderer._updateNodeParent(node, null, false, allowGraphEditing);
 

@@ -230,6 +230,11 @@
 
 }
 
+.construct_node .header-name{
+    font-size: 20px;
+    font-weight: 650;
+}
+
 .node.transition{
     transition: width .2s cubic-bezier(0.68, 2.15, 0.5, 0.75), height .2s cubic-bezier(0.68, 2.15, 0.5, 0.75);
     
