@@ -1226,4 +1226,12 @@ export class GraphRenderer {
 
         return eagle.objectIsSelected(edge) ? selectedColor : normalColor;
     }
+
+    static edgeGetStrokeType(edge:Edge, event:any) : string {
+        if(edge.isClosesLoop()){
+            return '15,10'
+        }else{
+            return ''
+        }
+    }
 }
