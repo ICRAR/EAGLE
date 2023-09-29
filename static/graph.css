@@ -77,6 +77,7 @@
     width: 100%;
     padding:0px;
     transform: translate(-50%,-50%);
+    pointer-events: none;
 }
 
 .node .construct_node .basic_node .container{
@@ -91,6 +92,7 @@
     width: 100%;
     height: 100%;
     box-shadow: -2px 5px 5px -4px #555555;
+    pointer-events: all;
 }
 
 .node .comment_node .body {
@@ -130,6 +132,10 @@
 
 .node .construct_node .body {
     background-color: var(--constructBg);
+}
+
+.node .construct_node .basic_node .body {
+    background-color: var(--nodeBg);
 }
 
 .node .construct_node span {
@@ -180,9 +186,15 @@
     background-color:  var(--selectedBg) !important;
     /* box-shadow: 0 8px 6px -6px black; */
 }
+
 .node .construct_node .container.selected .body {
     background-color: var(--selectedConstructBg);
 }
+
+.node .construct_node .basic_node .container.selected .body {
+    background-color: var(--selectedBg);
+}
+
 .node .header-name {
     color:var(--graphText)
 }
