@@ -81,7 +81,7 @@
                     <!-- ko foreach: $root.logicalGraph().getNodesDrawOrdered() -->
                         {% include 'node.html' %}
                     <!-- /ko -->
-                    <svg>
+                    <svg  xmlns="https://www.w3.org/2000/svg">
                         <!-- ko foreach: $root.logicalGraph().getEdges() -->
                             <g data-bind="attr:{id:$data.getId()}">
                                 <path data-bind="attr:{d: GraphRenderer.getPath($data)},style:{'stroke':function(viewmodel,event){return GraphRenderer.edgeGetStrokeColor($data,event)}, 'stroke-dasharray': function(viewmodel,event){return GraphRenderer.edgeGetStrokeType($data,event)}}"></path>

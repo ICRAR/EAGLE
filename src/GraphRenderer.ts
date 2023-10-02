@@ -402,6 +402,7 @@ export class GraphRenderer {
             let P3y = arrowPosy-7
 
             $('#'+edge.getId() +" polygon").attr('points', P1x +','+P1y+', '+ P2x +','+P2y +', '+ P3x +','+P3y)
+            $('#'+edge.getId() +" polygon").attr({'transform':'rotate('+srcCPAngle* (180/Math.PI)+','+arrowPosx+','+arrowPosy +')'});
         }
 
 
