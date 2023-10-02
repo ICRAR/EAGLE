@@ -40,7 +40,7 @@ const colors: { name: string; color: string; }[] = [
         color: '#58595b'
     },{
         name: 'edgeDefaultSelected',
-        color: '#2e3192'
+        color: '#4247df'
     },{
         name: 'commentEdge',
         color: '#7c7e81'
@@ -52,19 +52,19 @@ const colors: { name: string; color: string; }[] = [
         color: '#ffa500'
     },{
         name: 'edgeWarningSelected',
-        color: '#2e3192'
+        color: '#4247df'
     },{
         name: 'edgeInvalid',
         color: '#ff0000'
     },{
         name: 'edgeInvalidSelected',
-        color: '#2e3192'
+        color: '#4247df'
     },{
         name: 'edgeEvent',
         color: '#a6a6fe'
     },{
         name: 'edgeEventSelected',
-        color: '#2e3192'
+        color: '#4247df'
     },{
         name: 'edgeAutoCompleteSuggestion',
         color: '#9980af'
@@ -76,7 +76,7 @@ const colors: { name: string; color: string; }[] = [
         color: '#696969'
     },{
         name: 'edgeClosesLoopSelected',
-        color: '#2e3192'
+        color: '#4247df'
     }
 ]
 

@@ -51,6 +51,10 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", GraphConfig.getColor('constructIcon'));
         $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", GraphConfig.getColor('commentEdge'));
         
+        if( node.isData()){
+            $(element).find('.body').css('background-color:#575757','color:white')
+        }
+
         // transition for grow/shrink
         if(node.isConstruct()){
             $(element).addClass('transition')
@@ -328,7 +332,7 @@ export class GraphRenderer {
         return interpolatedAngle;
     }
 
-    static createBezier(srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field) : string {
+    static createBezier(edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field) : string {
         //console.log("createBezier", srcNodePosition, destNodePosition);
 
         // determine if the edge falls below a certain length threshold
@@ -381,6 +385,26 @@ export class GraphRenderer {
         const c2x = destNodePosition.x + destCPOffset.x;
         const c2y = destNodePosition.y + destCPOffset.y;
 
+
+
+        if(edge != null){
+            //were adding the position and shape of the arrow to the edges
+            
+            const arrowPosx =  (1/8 * x1 + 3/8 *c1x + 3/8 *c2x + 1/8 *x2)
+            const arrowPosy =  (1/8 * y1 + 3/8 *c1y + 3/8 *c2y + 1/8 *y2)
+
+            //generating the points for the arrow polygon
+            let P1x = arrowPosx+7
+            let P1y = arrowPosy
+            let P2x = arrowPosx-7
+            let P2y = arrowPosy+7
+            let P3x = arrowPosx-7
+            let P3y = arrowPosy-7
+
+            $('#'+edge.getId() +" polygon").attr('points', P1x +','+P1y+', '+ P2x +','+P2y +', '+ P3x +','+P3y)
+        }
+
+
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
     }
 
@@ -394,7 +418,7 @@ export class GraphRenderer {
         const srcField: Field = srcNode.findFieldById(edge.getSrcPortId());
         const destField: Field = destNode.findFieldById(edge.getDestPortId());
 
-        return this._getPath(srcNode, destNode, srcField, destField, eagle);
+        return this._getPath(edge,srcNode, destNode, srcField, destField, eagle);
     }
 
     static getPathComment(commentNode: Node) : string {
@@ -404,10 +428,10 @@ export class GraphRenderer {
         const srcNode: Node = commentNode;
         const destNode: Node = lg.findNodeByKeyQuiet(commentNode.getSubjectKey());
 
-        return this._getPath(srcNode, destNode, null, null, eagle);
+        return this._getPath(null,srcNode, destNode, null, null, eagle);
     }
 
-    static _getPath(srcNode: Node, destNode: Node, srcField: Field, destField: Field, eagle: Eagle) : string {
+    static _getPath(edge:Edge,srcNode: Node, destNode: Node, srcField: Field, destField: Field, eagle: Eagle) : string {
         if (srcNode === null || destNode === null){
             console.warn("Cannot getPath between null nodes. srcNode:", srcNode, "destNode:", destNode);
             return "";
@@ -426,7 +450,7 @@ export class GraphRenderer {
         const destX = destNode.getPosition().x + offsetX -destNodeRadius;
         const destY = destNode.getPosition().y + offsetY -destNodeRadius;
 
-        return GraphRenderer.createBezier(srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
+        return GraphRenderer.createBezier(edge,srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
     }
 
     static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
