@@ -389,9 +389,8 @@ export class GraphRenderer {
 
         if(edge != null){
             //were adding the position and shape of the arrow to the edges
-            
-            const arrowPosx =  (1/8 * x1 + 3/8 *c1x + 3/8 *c2x + 1/8 *x2)
-            const arrowPosy =  (1/8 * y1 + 3/8 *c1y + 3/8 *c2y + 1/8 *y2)
+            const arrowPosx =  GraphRenderer.getCoordinateOnBezier(0.5,x1,c1x,c2x,x2)
+            const arrowPosy =  GraphRenderer.getCoordinateOnBezier(0.5,y1,c1y,c2y,y2)
 
             //generating the points for the arrow polygon
             let P1x = arrowPosx+GraphConfig.EDGE_ARROW_SIZE
@@ -401,12 +400,25 @@ export class GraphRenderer {
             let P3x = arrowPosx-GraphConfig.EDGE_ARROW_SIZE
             let P3y = arrowPosy-GraphConfig.EDGE_ARROW_SIZE
 
+            //we are calculating the angle the arrow should be pointing by getting two positions on either sider of the center of the bezier curve then calculating the angle 
+            const  anglePos1x =  GraphRenderer.getCoordinateOnBezier(0.55,x1,c1x,c2x,x2)
+            const  anglePos1y =  GraphRenderer.getCoordinateOnBezier(0.55,y1,c1y,c2y,y2)
+            const  anglePos2x =  GraphRenderer.getCoordinateOnBezier(0.45,x1,c1x,c2x,x2)
+            const  anglePos2y =  GraphRenderer.getCoordinateOnBezier(0.45,y1,c1y,c2y,y2)
+
+            const arrowAngle = GraphRenderer.calculateConnectionAngle({x:anglePos1x,y:anglePos1y}, {x:anglePos2x,y:anglePos2y})
+
             $('#'+edge.getId() +" polygon").attr('points', P1x +','+P1y+', '+ P2x +','+P2y +', '+ P3x +','+P3y)
-            $('#'+edge.getId() +" polygon").attr({'transform':'rotate('+srcPortAngle*(180/Math.PI)*-1+','+arrowPosx+','+arrowPosy +')'});
+            $('#'+edge.getId() +" polygon").attr({'transform':'rotate('+arrowAngle*(180/Math.PI)*-1+','+arrowPosx+','+arrowPosy +')'});
         }
 
 
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
+    }
+
+    static getCoordinateOnBezier(t:number,p1:number,p2:number,p3:number,p4:number) : number {
+        //t is a number from 0-1 that specifies where on the curve we want the coordinates. 0.5 is the center.
+        return (1-t)*(1-t)*(1-t)*p1 + 3*(1-t)*(1-t)*t*p2 + 3*(1-t)*t*t*p3 + t*t*t*p4;
     }
 
     static getPath(edge: Edge) : string {
