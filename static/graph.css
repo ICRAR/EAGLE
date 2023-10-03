@@ -39,25 +39,14 @@
     stroke:transparent;
 }
 
-.branch_node .container,.branch_node .header{
+ .container, .header{
     z-index: 3;
-}
-
-.comment_node .container,.comment_node .header{
-    z-index: 3;
+    pointer-events: all;
 }
 
 .construct_node .container ,.construct_node .header {
     z-index: 1;
     max-width: none;
-}
-
-.basic_node .container,.basic_node .header{
-    z-index: 3;
-}
-
-.constructOutputApp,.constructInputApp{
-    z-index: 3;
 }
 
 .node {

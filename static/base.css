@@ -2664,7 +2664,7 @@ palette-component input.form-control.selected {
 }
 
 .tooltip-inner h3 {
-    font-size: 1.2rem;
+    font-size: 18px;
     font-weight: 600;
     margin: 0px;
 }

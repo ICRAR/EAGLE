@@ -403,10 +403,10 @@ export class GraphRenderer {
                 let P3y = arrowPosy-GraphConfig.EDGE_ARROW_SIZE
 
                 //we are calculating the angle the arrow should be pointing by getting two positions on either sider of the center of the bezier curve then calculating the angle 
-                const  anglePos1x =  GraphRenderer.getCoordinateOnBezier(0.55,x1,c1x,c2x,x2)
-                const  anglePos1y =  GraphRenderer.getCoordinateOnBezier(0.55,y1,c1y,c2y,y2)
-                const  anglePos2x =  GraphRenderer.getCoordinateOnBezier(0.45,x1,c1x,c2x,x2)
-                const  anglePos2y =  GraphRenderer.getCoordinateOnBezier(0.45,y1,c1y,c2y,y2)
+                const  anglePos1x =  GraphRenderer.getCoordinateOnBezier(0.45,x1,c1x,c2x,x2)
+                const  anglePos1y =  GraphRenderer.getCoordinateOnBezier(0.45,y1,c1y,c2y,y2)
+                const  anglePos2x =  GraphRenderer.getCoordinateOnBezier(0.55,x1,c1x,c2x,x2)
+                const  anglePos2y =  GraphRenderer.getCoordinateOnBezier(0.55,y1,c1y,c2y,y2)
 
                 const arrowAngle = GraphRenderer.calculateConnectionAngle({x:anglePos1x,y:anglePos1y}, {x:anglePos2x,y:anglePos2y})
 
