@@ -386,30 +386,37 @@ export class GraphRenderer {
         const c2y = destNodePosition.y + destCPOffset.y;
 
 
-
+        //the edge paramter is null if we are rendering a comment edge
         if(edge != null){
-            //were adding the position and shape of the arrow to the edges
-            const arrowPosx =  GraphRenderer.getCoordinateOnBezier(0.5,x1,c1x,c2x,x2)
-            const arrowPosy =  GraphRenderer.getCoordinateOnBezier(0.5,y1,c1y,c2y,y2)
+            //we are hiding the arrows if the edge is too short
+            if(edgeLength > GraphConfig.EDGE_DISTANCE_ARROW_VISIBILITY){
+                //were adding the position and shape of the arrow to the edges
+                const arrowPosx =  GraphRenderer.getCoordinateOnBezier(0.5,x1,c1x,c2x,x2)
+                const arrowPosy =  GraphRenderer.getCoordinateOnBezier(0.5,y1,c1y,c2y,y2)
 
-            //generating the points for the arrow polygon
-            let P1x = arrowPosx+GraphConfig.EDGE_ARROW_SIZE
-            let P1y = arrowPosy
-            let P2x = arrowPosx-GraphConfig.EDGE_ARROW_SIZE
-            let P2y = arrowPosy+GraphConfig.EDGE_ARROW_SIZE
-            let P3x = arrowPosx-GraphConfig.EDGE_ARROW_SIZE
-            let P3y = arrowPosy-GraphConfig.EDGE_ARROW_SIZE
+                //generating the points for the arrow polygon
+                let P1x = arrowPosx+GraphConfig.EDGE_ARROW_SIZE
+                let P1y = arrowPosy
+                let P2x = arrowPosx-GraphConfig.EDGE_ARROW_SIZE
+                let P2y = arrowPosy+GraphConfig.EDGE_ARROW_SIZE
+                let P3x = arrowPosx-GraphConfig.EDGE_ARROW_SIZE
+                let P3y = arrowPosy-GraphConfig.EDGE_ARROW_SIZE
 
-            //we are calculating the angle the arrow should be pointing by getting two positions on either sider of the center of the bezier curve then calculating the angle 
-            const  anglePos1x =  GraphRenderer.getCoordinateOnBezier(0.55,x1,c1x,c2x,x2)
-            const  anglePos1y =  GraphRenderer.getCoordinateOnBezier(0.55,y1,c1y,c2y,y2)
-            const  anglePos2x =  GraphRenderer.getCoordinateOnBezier(0.45,x1,c1x,c2x,x2)
-            const  anglePos2y =  GraphRenderer.getCoordinateOnBezier(0.45,y1,c1y,c2y,y2)
+                //we are calculating the angle the arrow should be pointing by getting two positions on either sider of the center of the bezier curve then calculating the angle 
+                const  anglePos1x =  GraphRenderer.getCoordinateOnBezier(0.55,x1,c1x,c2x,x2)
+                const  anglePos1y =  GraphRenderer.getCoordinateOnBezier(0.55,y1,c1y,c2y,y2)
+                const  anglePos2x =  GraphRenderer.getCoordinateOnBezier(0.45,x1,c1x,c2x,x2)
+                const  anglePos2y =  GraphRenderer.getCoordinateOnBezier(0.45,y1,c1y,c2y,y2)
 
-            const arrowAngle = GraphRenderer.calculateConnectionAngle({x:anglePos1x,y:anglePos1y}, {x:anglePos2x,y:anglePos2y})
+                const arrowAngle = GraphRenderer.calculateConnectionAngle({x:anglePos1x,y:anglePos1y}, {x:anglePos2x,y:anglePos2y})
 
-            $('#'+edge.getId() +" polygon").attr('points', P1x +','+P1y+', '+ P2x +','+P2y +', '+ P3x +','+P3y)
-            $('#'+edge.getId() +" polygon").attr({'transform':'rotate('+arrowAngle*(180/Math.PI)*-1+','+arrowPosx+','+arrowPosy +')'});
+                $('#'+edge.getId() +" polygon").show()
+                $('#'+edge.getId() +" polygon").attr('points', P1x +','+P1y+', '+ P2x +','+P2y +', '+ P3x +','+P3y)
+                // the rotate argument takes three inputs, (angle in deg, x , y coordinates for the mipoint to rotate around)
+                $('#'+edge.getId() +" polygon").attr({'transform':'rotate('+arrowAngle*(180/Math.PI)*-1+','+arrowPosx+','+arrowPosy +')'});
+            }else{
+                $('#'+edge.getId() +" polygon").hide()
+            }
         }
 
 

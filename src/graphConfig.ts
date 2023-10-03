@@ -82,14 +82,19 @@ const colors: { name: string; color: string; }[] = [
 
 export class GraphConfig {
 
+    // graph behaviour
     public static readonly NODE_SUGGESTION_RADIUS = 150
     
+    //node settings
     // TODO: could move to CategoryData?
     public static readonly NORMAL_NODE_RADIUS : number = 25;
     public static readonly BRANCH_NODE_RADIUS : number = 44;
     public static readonly CONSTRUCT_NODE_RADIUS: number = 300;
     public static readonly MINIMUM_CONSTRUCT_RADIUS : number = 200;
+
+    //edge settings
     public static readonly EDGE_ARROW_SIZE : number = 8;
+    public static readonly EDGE_DISTANCE_ARROW_VISIBILITY : number = 100; //how loong does an edge have to be to show the direction arrows
 
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
     // this is the default margin that should be left on each side
