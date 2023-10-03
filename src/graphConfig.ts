@@ -89,6 +89,7 @@ export class GraphConfig {
     public static readonly BRANCH_NODE_RADIUS : number = 44;
     public static readonly CONSTRUCT_NODE_RADIUS: number = 300;
     public static readonly MINIMUM_CONSTRUCT_RADIUS : number = 200;
+    public static readonly EDGE_ARROW_SIZE : number = 8;
 
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
     // this is the default margin that should be left on each side

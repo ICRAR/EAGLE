@@ -394,12 +394,12 @@ export class GraphRenderer {
             const arrowPosy =  (1/8 * y1 + 3/8 *c1y + 3/8 *c2y + 1/8 *y2)
 
             //generating the points for the arrow polygon
-            let P1x = arrowPosx+7
+            let P1x = arrowPosx+GraphConfig.EDGE_ARROW_SIZE
             let P1y = arrowPosy
-            let P2x = arrowPosx-7
-            let P2y = arrowPosy+7
-            let P3x = arrowPosx-7
-            let P3y = arrowPosy-7
+            let P2x = arrowPosx-GraphConfig.EDGE_ARROW_SIZE
+            let P2y = arrowPosy+GraphConfig.EDGE_ARROW_SIZE
+            let P3x = arrowPosx-GraphConfig.EDGE_ARROW_SIZE
+            let P3y = arrowPosy-GraphConfig.EDGE_ARROW_SIZE
 
             $('#'+edge.getId() +" polygon").attr('points', P1x +','+P1y+', '+ P2x +','+P2y +', '+ P3x +','+P3y)
             $('#'+edge.getId() +" polygon").attr({'transform':'rotate('+srcPortAngle*(180/Math.PI)*-1+','+arrowPosx+','+arrowPosy +')'});
