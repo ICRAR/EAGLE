@@ -485,6 +485,11 @@ export class Field {
         return "";
     }
 
+    getHelpHtml= () : string => {
+        return "###"+ this.getDisplayText() + "\n" + this.getDescription();
+
+    }
+
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
     static stringAsType = (value: string, type: string) : any => {
