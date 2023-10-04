@@ -20,6 +20,9 @@
     position:absolute;   
     z-index: 2;
     pointer-events: none;
+    width: 10000px; 
+    height: 10000px;
+    transform: translate(-50%,-50%);
 }
 
 #logicalGraphD3Div svg path {

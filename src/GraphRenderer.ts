@@ -335,6 +335,10 @@ export class GraphRenderer {
     static createBezier(edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field) : string {
         //console.log("createBezier", srcNodePosition, destNodePosition);
 
+        //since the svg parent is translated -50% to center our working area, we need to add half of its width to correct the positions
+        destNodePosition={x:destNodePosition.x+5000,y:destNodePosition.y+5000}
+        srcNodePosition={x:srcNodePosition.x+5000,y:srcNodePosition.y+5000}
+
         // determine if the edge falls below a certain length threshold
         const edgeLength = Math.sqrt((destNodePosition.x - srcNodePosition.x)**2 + (destNodePosition.y - srcNodePosition.y)**2);
         const isShortEdge: boolean = edgeLength < srcNodeRadius * 3;
