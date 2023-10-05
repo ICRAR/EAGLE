@@ -42,14 +42,25 @@
     stroke:transparent;
 }
 
- .container, .header{
+
+.node .container, .constructOutputApp, .constructInputApp{
+    z-index: 5;
+    pointer-events: all;
+}
+
+.node .container .body{
     z-index: 3;
     pointer-events: all;
 }
 
-.construct_node .container ,.construct_node .header {
+.construct_node .container .body{
     z-index: 1;
     max-width: none;
+}
+
+.construct_node .container .basic_node .body{
+    z-index: 3;
+    pointer-events: all;
 }
 
 .node {
@@ -74,6 +85,11 @@
 
 .node .construct_node .basic_node .container{
     transform: none;
+}
+
+.node .construct_node .basic_node .header-name{
+    font-size: 16px;
+    font-weight: 400;
 }
 
 .node .body {
