@@ -519,7 +519,7 @@ export class GraphRenderer {
                     const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
 
                     // if a parent was found, update
-                    if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && !ancestorOfParent){
+                    if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && !ancestorOfParent && !node.isEmbedded()){
                         GraphRenderer._updateNodeParent(node, parent.getKey(), updated, allowGraphEditing);
                     }
 
@@ -593,7 +593,7 @@ export class GraphRenderer {
             }
 
             //check for alt clicking, if so, add the target node and its children to the selection
-            if(event.altKey&&node.isConstruct()){
+            if(!event.altKey&&node.isConstruct()){
                 //if shift is not clicked, we first clear the selection
                 if(!event.shiftKey){
                     eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
