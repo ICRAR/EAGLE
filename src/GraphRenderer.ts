@@ -54,11 +54,6 @@ ko.bindingHandlers.nodeRenderHandler = {
         if( node.isData()){
             $(element).find('.body').css('background-color:#575757','color:white')
         }
-
-        // transition for grow/shrink
-        if(node.isConstruct()){
-            $(element).addClass('transition')
-        }
     },
     update: function (element:any, valueAccessor, allBindings, viewModel, bindingContext) {
         const eagle : Eagle = Eagle.getInstance();
@@ -533,12 +528,12 @@ export class GraphRenderer {
                         if (oldParent !== null){
                             // moved out of a construct
                             $('#'+oldParent.getId()).addClass('transition')
-                            GraphRenderer.resizeConstruct(oldParent);
+                            eagle.resizeConstructs();
                         }
                     } else {
                         // moved into or within a construct
                         $('#'+parent.getId()).removeClass('transition')
-                        GraphRenderer.resizeConstruct(parent);
+                        eagle.resizeConstructs();
                     }
 
             } else {
@@ -642,7 +637,6 @@ export class GraphRenderer {
 
         if (node != null && node.getParentKey() != null){
             const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
-            $('#'+parentNode.getId()).addClass('transition')
         }
     }
 
