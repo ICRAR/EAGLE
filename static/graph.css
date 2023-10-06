@@ -147,7 +147,7 @@
 }
 
 .node .construct_node span {
-    font-size: 600px;
+    font-size: 150px;
     color: var(--constructIcon);
 }
 

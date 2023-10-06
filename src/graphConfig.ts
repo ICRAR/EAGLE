@@ -89,8 +89,8 @@ export class GraphConfig {
     // TODO: could move to CategoryData?
     public static readonly NORMAL_NODE_RADIUS : number = 25;
     public static readonly BRANCH_NODE_RADIUS : number = 44;
-    public static readonly CONSTRUCT_NODE_RADIUS: number = 300;
-    public static readonly MINIMUM_CONSTRUCT_RADIUS : number = 200;
+    public static readonly CONSTRUCT_NODE_RADIUS: number = 200;
+    public static readonly MINIMUM_CONSTRUCT_RADIUS : number = 44;
 
     //edge settings
     public static readonly EDGE_ARROW_SIZE : number = 8;

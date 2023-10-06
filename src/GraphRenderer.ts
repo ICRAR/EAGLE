@@ -524,7 +524,7 @@ export class GraphRenderer {
                     }
 
                     // if no parent found, update
-                    if (parent === null && node.getParentKey() !== null){
+                    if (parent === null && node.getParentKey() !== null && !node.isEmbedded()){
                         GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
                     }
 
@@ -721,7 +721,7 @@ export class GraphRenderer {
             let sumY = 0;
 
             for (const node of eagle.logicalGraph().getNodes()){
-                if (node.getParentKey() === construct.getKey()){
+                if (!node.isEmbedded && node.getParentKey() === construct.getKey()){
                     sumX += node.getPosition().x;
                     sumY += node.getPosition().y;
 
