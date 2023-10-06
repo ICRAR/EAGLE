@@ -81,6 +81,7 @@
     padding:0px;
     transform: translate(-50%,-50%);
     pointer-events: none;
+    max-width: unset;
 }
 
 .node .construct_node .basic_node .container{
