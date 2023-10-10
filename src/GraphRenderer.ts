@@ -209,14 +209,23 @@ ko.bindingHandlers.graphRendererPortPosition = {
             field.setInputPosition(portPosition.x, portPosition.y);
         } else if (dataType === 'outputPort'){
             field.setOutputPosition(portPosition.x, portPosition.y);
-        }else if (dataType === 'inputApp' || dataType === 'outputApp'){
+        }
+        
+        let x
+        let y
+
+        if (dataType === 'inputApp' || dataType === 'outputApp'){
             //we are saving the embedded application's position data here using the offset we calculated
             const newPos = {x: node.getPosition().x-nodeRadius+portPosition.x, y:node.getPosition().y-nodeRadius+portPosition.y}
             data.setPosition(newPos.x,newPos.y)
             portPosition = {x:portPosition.x-nodeRadius,y:portPosition.y-nodeRadius}
+            x = portPosition.x
+            y = portPosition.y
+        }else{
+                
+            x = portPosition.x + currentNodePos.x + eagle.globalOffsetX() - nodeRadius
+            y = portPosition.y + currentNodePos.y + eagle.globalOffsetY() - nodeRadius
         }
-        let x = portPosition.x + currentNodePos.x + eagle.globalOffsetX() - nodeRadius
-        let y = portPosition.y + currentNodePos.y + eagle.globalOffsetY() - nodeRadius
 
         //applying the offset to the element
         $(element).css({'top':y+'px','left':x+'px'})
