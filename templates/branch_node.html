@@ -8,12 +8,6 @@
             <div class="innerRing"></div>
             <div class="outerRing"></div>
                 <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
-                <!-- ko foreach: $data.getInputPorts() -->
-                    <div class="inputPort port" data-bind="eagleTooltip:$data.getHelpHtml(), style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:{data:$data,type:'inputPort'}"></div>
-                <!-- /ko -->
-                <!-- ko foreach: $data.getOutputPorts() -->
-                    <div class="outputPort port" data-bind="eagleTooltip:$data.getHelpHtml(), style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:{data:$data,type:'outputPort'}"></div>
-                <!-- /ko -->
         </div> 
     </div>
    

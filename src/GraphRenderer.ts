@@ -76,7 +76,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         
         const data = ko.utils.unwrapObservable(valueAccessor()).data;
         const dataType: string = ko.utils.unwrapObservable(valueAccessor()).type;
-
         const portOnEmbeddedApp = false //used to identify when we are calculating the port position for a port on an embedded application
 
         // determine the 'node' and 'field' attributes (for this way of using this binding)
@@ -216,9 +215,11 @@ ko.bindingHandlers.graphRendererPortPosition = {
             data.setPosition(newPos.x,newPos.y)
             portPosition = {x:portPosition.x-nodeRadius,y:portPosition.y-nodeRadius}
         }
+        let x = portPosition.x + currentNodePos.x + eagle.globalOffsetX() - nodeRadius
+        let y = portPosition.y + currentNodePos.y + eagle.globalOffsetY() - nodeRadius
 
         //applying the offset to the element
-        $(element).css({'top':portPosition.y+'px','left':portPosition.x+'px'})
+        $(element).css({'top':y+'px','left':x+'px'})
     }
 };
 
