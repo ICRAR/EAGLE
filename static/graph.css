@@ -42,6 +42,11 @@
     stroke:transparent;
 }
 
+.container, .header{
+   z-index: 3;
+   pointer-events: all;
+}
+
 
 .node .container, .constructOutputApp, .constructInputApp{
     z-index: 5;
@@ -53,7 +58,7 @@
     pointer-events: all;
 }
 
-.construct_node .container .body{
+.construct_node .container{
     z-index: 1;
     max-width: none;
 }
