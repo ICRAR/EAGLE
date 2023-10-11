@@ -221,6 +221,22 @@ export class LogicalGraph {
         return this.nodes;
     }
 
+    getAllNodes = () : Node[] => {
+        let nodes : Node[] =[]
+        this.nodes.forEach(function(node){
+            nodes.push(node)
+            if(node.isConstruct()){
+                if(node.getInputApplication()!= null){
+                    nodes.push(node.getInputApplication())
+                }
+                if(node.getOutputApplication() != null){
+                    nodes.push(node.getOutputApplication())
+                }
+            }
+        })
+        return nodes;
+    }
+
     getNumNodes = () : number => {
         return this.nodes.length;
     }

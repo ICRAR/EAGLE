@@ -82,7 +82,7 @@
                             {% include 'node.html' %}
                         <!-- /ko -->
                         <div id="portContainer">
-                            <!-- ko foreach: $root.logicalGraph().getNodesDrawOrdered() -->
+                            <!-- ko foreach: $root.logicalGraph().getAllNodes() -->
                                 <!-- ko foreach: $data.getInputPorts() -->
                                     <div class="inputPort port" data-bind="eagleTooltip:$data.getHelpHtml(), style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:{data:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}}"></div>
                                 <!-- /ko -->
