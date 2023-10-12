@@ -503,7 +503,6 @@ export class GraphRenderer {
                     }
                 })
 
-
                 //construct resizing 
                 if(node.getParentKey() != null){
                     if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+GraphConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
@@ -571,7 +570,7 @@ export class GraphRenderer {
 
     static startDrag = (node: Node, event: MouseEvent) : void => {
         const eagle = Eagle.getInstance();
-        if(node === null){
+        if(node === null || event.which === 2){
             eagle.isDragging(true);
 
         } else if(!node.isEmbedded()){
@@ -587,8 +586,8 @@ export class GraphRenderer {
             }
         }
 
-        //select handlers
 
+        //select handlers
         if(node !== null){
             // check if shift key is down, if so, add or remove selected node to/from current selection
             if (node !== null && event.shiftKey && !event.altKey){

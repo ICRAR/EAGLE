@@ -591,7 +591,6 @@ export class Utils {
                 }else{
                     $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
                 }
-                console.log($('#confirmModalDontShowAgain button').text())
             })
         }
         
