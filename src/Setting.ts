@@ -294,6 +294,7 @@ export class Setting {
     static readonly SNAP_TO_GRID: string = "SnapToGrid";
     static readonly SNAP_TO_GRID_SIZE: string = "SnapToGridSize";
     static readonly SHOW_INSPECTOR_WARNINGS: string = "ShowInspectorWarnings";
+    static readonly SHOW_ALL_CATEGORY_OPTIONS: string = "ShowAllCategoryOptions";
 }
 
 export namespace Setting {
@@ -402,6 +403,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Create Applications for Construct Ports", Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, "When loading old graph files with ports on construct nodes, move the port to an embedded application",false, Setting.Type.Boolean, true,true,true, true, true),
             new Setting(true, "Skip 'closes loop' edges in JSON output", Setting.SKIP_CLOSE_LOOP_EDGES, "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", false, Setting.Type.Boolean, true, true, true,true,true),
             new Setting(true, "Print Undo state to JS Console", Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", false, Setting.Type.Boolean, false,false ,false, false, false),
+            new Setting(true, "Display all Category options", Setting.SHOW_ALL_CATEGORY_OPTIONS, "Displays all category options when changing the category of a node", false, Setting.Type.Boolean, false,false ,false, false, false),
         ]
     )
 ];
