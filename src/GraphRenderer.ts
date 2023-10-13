@@ -76,7 +76,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         
         const data = ko.utils.unwrapObservable(valueAccessor()).data;
         const dataType: string = ko.utils.unwrapObservable(valueAccessor()).type;
-        const portOnEmbeddedApp = false //used to identify when we are calculating the port position for a port on an embedded application
 
         // determine the 'node' and 'field' attributes (for this way of using this binding)
         let node : Node 
@@ -158,9 +157,156 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         //for branch nodes the ports are inset from the outer radius a little bit in their design
         let nodeRadius = node.getRadius()
+        // if(portOnEmbeddedApp){
+        //     // if we are working with ports of an embedded app, we need to use the parent construct to calculate the angle, but we want to use the radius of the embedded app to place the port
+        //     nodeRadius = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey()).getRadius()
+        // }
+
+        // determine port position
+        const currentNodePos = node.getPosition();
+        let portPosition;
+
+        if(connectedField || dataType === 'comment'){
+
+            // calculate angles to all adjacent nodes
+            const angles: number[] = [];
+            for (const adjacentNode of adjacentNodes){
+                const adjacentNodePos = adjacentNode.getPosition()
+                const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos, adjacentNodePos)
+                angles.push(edgeAngle);
+            }
+
+            // average the angles
+            const averageAngle = GraphRenderer.averageAngles(angles);
+
+            node.addPortAngle(averageAngle);
+            portPosition = GraphRenderer.calculatePortPos(averageAngle, nodeRadius, nodeRadius)
+        }else{
+            // find a default position for the port when not connected
+            switch (dataType){
+                case 'inputApp':
+                case 'inputPort':
+                    portPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
+                    break;
+                case 'outputApp':
+                case 'outputPort':
+                    portPosition=GraphRenderer.calculatePortPos(0, nodeRadius, nodeRadius)
+                    break;
+                default:
+                    console.warn("disconnected field with dataType:", dataType);
+                    portPosition=GraphRenderer.calculatePortPos(Math.PI/2, nodeRadius, nodeRadius)
+                    break;
+            }
+        }
+
+        //a little 1px reduction is needed to center ports for some reason
+        if(!node.isBranch()){
+            portPosition = {x:portPosition.x-1,y:portPosition.y-1}
+        }
+
+        if (dataType === 'inputPort'){
+            field.setPortPosition(portPosition.x, portPosition.y);
+        } else if (dataType === 'outputPort'){
+            field.setPortPosition(portPosition.x, portPosition.y);
+        }
+        
+        let x
+        let y
+
+        if (dataType === 'inputApp' || dataType === 'outputApp'){
+            //we are saving the embedded application's position data here using the offset we calculated
+            const newPos = {x: node.getPosition().x-nodeRadius+portPosition.x, y:node.getPosition().y-nodeRadius+portPosition.y}
+            data.setPosition(newPos.x,newPos.y)
+            portPosition = {x:portPosition.x-nodeRadius,y:portPosition.y-nodeRadius}
+            x = portPosition.x
+            y = portPosition.y
+        }else{
+                
+            x = portPosition.x + currentNodePos.x + eagle.globalOffsetX() - nodeRadius
+            y = portPosition.y + currentNodePos.y + eagle.globalOffsetY() - nodeRadius
+        }
+
+        //applying the offset to the element
+        $(element).css({'top':y+'px','left':x+'px'})
+    }
+};
+
+export class GraphRenderer {
+
+    static nodeData : Node[] =null
+
+    //port drag handler globals
+    static draggingPort : boolean = false
+    static destinationPort : Field = null;
+    static destinationNode : Node = null;
+    static portDragSourceNode : Node = null;
+    static portDragSourcePort : Field = null;
+    static portDragSourcePortIsInput :boolean =false;
+    static portDragSuggestedNode : Node |null = null;
+    static portDragSuggestedField : Field |null = null;
+
+    //node drag handler globals
+    static NodeParentRadiusPreDrag : number = null;
+    static nodeDragElement : any = null
+    // static isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
+
+    static graphMousePos = { x: -1, y: -1 };
+
+    static getPortPositions(node: Node,field:Field,dataType:string) : void {
+        //the update function is called initially and then whenever a change to a utilised observable occurs
+        const eagle : Eagle = Eagle.getInstance();
+
+        const portOnEmbeddedApp = false //used to identify when we are calculating the port position for a port on an embedded application
+
+        // clearing the saved port angles array
+        node.resetPortAngles()
+
+        // determine all the adjacent nodes
+        const adjacentNodes: Node[] = [];
+        let connectedField:boolean=false;
+
+        switch(dataType){
+            case 'comment':
+                const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(node.getSubjectKey());
+
+                if (adjacentNode === null){
+                    console.warn("Could not find adjacentNode for comment with subjectKey", node.getSubjectKey());
+                    return;
+                }
+
+                adjacentNodes.push(adjacentNode);
+                break;
+
+            case 'inputApp':
+            case 'inputPort':
+                for(const edge of eagle.logicalGraph().getEdges()){
+                    if(field.getId()===edge.getDestPortId()){
+                        const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey());
+                        connectedField=true
+                        adjacentNodes.push(adjacentNode);
+                        continue;
+                    }
+                }
+                break;
+
+            case 'outputApp':
+            case 'outputPort':
+                for(const edge of eagle.logicalGraph().getEdges()){
+                    if(field.getId()===edge.getSrcPortId()){
+                        const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey());
+                        connectedField=true
+                        adjacentNodes.push(adjacentNode);
+                        continue;
+                    }
+                }
+                break;
+        }
+
+        //for branch nodes the ports are inset from the outer radius a little bit in their design
+        let nodeRadius = node.getRadius()
         if(portOnEmbeddedApp){
             // if we are working with ports of an embedded app, we need to use the parent construct to calculate the angle, but we want to use the radius of the embedded app to place the port
-            nodeRadius = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey()).getRadius()
+            nodeRadius = eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()).getRadius()
         }
 
         // determine port position
@@ -206,18 +352,18 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
 
         if (dataType === 'inputPort'){
-            field.setInputPosition(portPosition.x, portPosition.y);
+            field.setPortPosition(portPosition.x, portPosition.y);
         } else if (dataType === 'outputPort'){
-            field.setOutputPosition(portPosition.x, portPosition.y);
+            field.setPortPosition(portPosition.x, portPosition.y);
         }
-        
+
         let x
         let y
 
         if (dataType === 'inputApp' || dataType === 'outputApp'){
             //we are saving the embedded application's position data here using the offset we calculated
             const newPos = {x: node.getPosition().x-nodeRadius+portPosition.x, y:node.getPosition().y-nodeRadius+portPosition.y}
-            data.setPosition(newPos.x,newPos.y)
+            node.setPosition(newPos.x,newPos.y)
             portPosition = {x:portPosition.x-nodeRadius,y:portPosition.y-nodeRadius}
             x = portPosition.x
             y = portPosition.y
@@ -228,32 +374,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
 
         //applying the offset to the element
-        $(element).css({'top':y+'px','left':x+'px'})
+        // $(element).css({'top':y+'px','left':x+'px'})
     }
-};
-
-export class GraphRenderer {
-
-    static nodeData : Node[] =null
-
-    //port drag handler globals
-    static draggingPort : boolean = false
-    static destinationPort : Field = null;
-    static destinationNode : Node = null;
-    static portDragSourceNode : Node = null;
-    static portDragSourcePort : Field = null;
-    static portDragSourcePortIsInput :boolean =false;
-    static portDragSuggestedNode : Node |null = null;
-    static portDragSuggestedField : Field |null = null;
-
-    //node drag handler globals
-    static NodeParentRadiusPreDrag : number = null;
-    static nodeDragElement : any = null
-    // static isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
-
-
-    static graphMousePos = { x: -1, y: -1 };
-
 
     static averageAngles(angles: number[]) : number {
         let x: number = 0;
@@ -359,12 +481,12 @@ export class GraphRenderer {
         let srcPortOffset;
         let destPortOffset;
         if (srcField){
-            srcPortOffset = srcField.getOutputPosition();
+            srcPortOffset = srcField.getPortPosition();
         } else {
             srcPortOffset = GraphRenderer.calculatePortPos(srcPortAngle, srcNodeRadius, srcNodeRadius);
         }
         if (destField){
-            destPortOffset = destField.getInputPosition();
+            destPortOffset = destField.getPortPosition();
         } else {
             destPortOffset = GraphRenderer.calculatePortPos(destPortAngle, destNodeRadius, destNodeRadius);
         }

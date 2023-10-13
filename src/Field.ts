@@ -16,10 +16,8 @@ export class Field {
     private positional : ko.Observable<boolean>;
     private keyAttribute : ko.Observable<boolean>;
 
-    private inputX : number;
-    private inputY : number;
-    private outputX : number;
-    private outputY : number;
+    private x : number;
+    private y : number;
 
     // port-specific attributes
     private id : ko.Observable<string>;
@@ -40,10 +38,8 @@ export class Field {
         this.positional = ko.observable(positional);
         this.keyAttribute = ko.observable(keyAttribute);
 
-        this.inputX = 0;
-        this.inputY = 0;
-        this.outputX = 0;
-        this.outputY = 0;
+        this.x = 0;
+        this.y = 0;
 
         this.id = ko.observable(id);
         this.parameterType = ko.observable(parameterType);
@@ -100,22 +96,13 @@ export class Field {
         return this.description() == "" ? "No description available" + " (" + this.type() + ", default value:'" + this.defaultValue() + "')" : this.description() + " (" + this.type() + ", default value:'" + this.defaultValue() + "')";
     }, this);
 
-    getInputPosition = () : {x:number, y:number} => {
-        return {x: this.inputX, y: this.inputY};
+    getPortPosition = () : {x:number, y:number} => {
+        return {x: this.x, y: this.y};
     }
 
-    getOutputPosition = () : {x:number, y:number} => {
-        return {x: this.outputX, y: this.outputY};
-    }
-
-    setInputPosition = (x: number, y: number) : void => {
-        this.inputX = x;
-        this.inputY = y;
-    }
-
-    setOutputPosition = (x: number, y: number) : void => {
-        this.outputX = x;
-        this.outputY = y;
+    setPortPosition = (x: number, y: number) : void => {
+        this.x = x;
+        this.y = y;
     }
 
     isReadonly = () : boolean => {
