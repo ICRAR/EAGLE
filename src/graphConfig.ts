@@ -73,7 +73,7 @@ const colors: { name: string; color: string; }[] = [
         color: '#9c3bca'
     },{
         name: 'edgeClosesLoop',
-        color: '#696969'
+        color: '#58595b'
     },{
         name: 'edgeClosesLoopSelected',
         color: '#4247df'
