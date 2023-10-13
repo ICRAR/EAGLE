@@ -8,7 +8,10 @@ const colors: { name: string; color: string; }[] = [
         color: '#d4d4d4'
     },{
         name: 'constructBg',
-        color: '#0000001f'
+        color: '#0000001a'
+    },{
+        name: 'embeddedApp',
+        color: '#c5c5c5'
     },{
         name: 'constructIcon',
         color: '#0000000f'

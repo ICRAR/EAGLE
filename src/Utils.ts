@@ -591,7 +591,6 @@ export class Utils {
                 }else{
                     $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
                 }
-                console.log($('#confirmModalDontShowAgain button').text())
             })
         }
         
@@ -1081,19 +1080,24 @@ export class Utils {
         const result: Category[] = [];
         for (const [categoryName, categoryData] of Object.entries(CategoryData.cData)){
 
-            if (categoryData.categoryType !== categoryType){
-                continue;
-            }
 
-            // if input ports required, skip nodes with too few
-            if (numRequiredInputs > categoryData.maxInputs){
-                continue;
-            }
+            if(!Setting.findValue(Setting.SHOW_ALL_CATEGORY_OPTIONS)){
+                
+                if (categoryData.categoryType !== categoryType){
+                    continue;
+                }
+                
+                // if input ports required, skip nodes with too few
+                if (numRequiredInputs > categoryData.maxInputs){
+                    continue;
+                }
 
-            // if output ports required, skip nodes with too few
-            if (numRequiredOutputs > categoryData.maxOutputs){
-                continue;
+                // if output ports required, skip nodes with too few
+                if (numRequiredOutputs > categoryData.maxOutputs){
+                    continue;
+                }
             }
+            
             result.push(categoryName as Category);
         }
 
