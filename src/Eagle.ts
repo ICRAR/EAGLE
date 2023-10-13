@@ -4565,6 +4565,39 @@ export class Eagle {
             }
         });
     }
+
+    findPaletteContainingNode = (nodeId: string): Palette => {
+        for (const palette of this.palettes()){
+            for (const node of palette.getNodes()){
+                if (node.getId() === nodeId){
+                    return palette;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // when a field value is modified in the parameter table, we need to flag the containing palette or logical graph as modified
+    onFieldValueChanged = () : void => {
+        const eagle = Eagle.getInstance();
+
+        switch (Eagle.selectedLocation()){
+            case Eagle.FileType.Palette:
+                const paletteNode: Node | Edge = eagle.selectedObjects()[0];
+                console.assert(paletteNode instanceof Node)
+
+                const containingPalette: Palette = eagle.findPaletteContainingNode(paletteNode.getId());
+
+                containingPalette.fileInfo().modified = true;
+                break;
+            case Eagle.FileType.Graph:
+                eagle.logicalGraph().fileInfo().modified = true;
+                break;
+        }
+
+        eagle.selectedObjects.valueHasMutated();
+    }
 }
 
 export namespace Eagle

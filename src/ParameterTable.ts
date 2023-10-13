@@ -206,6 +206,12 @@ export class ParameterTable {
         }
     }
 
+    fieldValueChanged = (field: Field) : void => {
+        console.log("fieldValueChanged", field.getNodeKey());
+
+        // TODO: put code here instead of eagle?
+    }
+
     static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void => {
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);
