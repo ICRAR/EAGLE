@@ -3104,8 +3104,8 @@ export class Eagle {
         }
     }
 
-    addNodeToLogicalGraphAndConnect = (newNode:Node) : void => {
-        this.addNodeToLogicalGraph(newNode,(node: Node)=>{
+    addNodeToLogicalGraphAndConnect = (newNodeId: string) : void => {
+        this.addNodeToLogicalGraph(null, newNodeId, Eagle.AddNodeMode.ContextMenu, (node: Node)=>{
             const realSourceNode = RightClick.edgeDropSrcNode;
             const realSourcePort = RightClick.edgeDropSrcPort;
             const realDestNode = node;
@@ -3122,10 +3122,10 @@ export class Eagle {
             } else {    
                 this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, null);
             }
-        },'contextMenu')
+        });
     }
 
-    addNodeToLogicalGraph = (node : any, callback: (node: Node) => void, mode:string) : void => {
+    addNodeToLogicalGraph = (node: Node, nodeId: string, mode: Eagle.AddNodeMode, callback: (node: Node) => void) : void => {
         let pos : {x:number, y:number};
         pos = {x:0,y:0}
         
@@ -3136,19 +3136,19 @@ export class Eagle {
             return;
         }
 
-        if(mode === 'contextMenu'){
+        if(mode === Eagle.AddNodeMode.ContextMenu){
             let nodeFound = false 
 
             pos = Eagle.selectedRightClickPosition;
             this.palettes().forEach(function(palette){
-                if(palette.findNodeById(node)!==null){
-                    node = palette.findNodeById(node)
+                if(palette.findNodeById(nodeId)!==null){
+                    node = palette.findNodeById(nodeId)
                     nodeFound = true
                 }
             })
 
             if (!nodeFound){
-                node = this.logicalGraph().findNodeById(node)
+                node = this.logicalGraph().findNodeById(nodeId)
             }
             $('#customContextMenu').remove()
         }
@@ -3162,7 +3162,7 @@ export class Eagle {
         if(pos.x === 0 && pos.y === 0){
             // get new position for node
             if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
-                pos = this.getNewNodePosition(node.getWidth(), node.getHeight());
+                pos = this.getNewNodePosition(node.getRadius(), node.getRadius());
             } else {
                 pos = Eagle.nodeDropLocation;
             }
@@ -3849,7 +3849,7 @@ export class Eagle {
 
         // add each of the nodes we are moving
         for (const sourceComponent of sourceComponents){
-            this.addNodeToLogicalGraph(sourceComponent, null,'');
+            this.addNodeToLogicalGraph(sourceComponent, "", Eagle.AddNodeMode.Default, null);
 
             // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
             Eagle.nodeDropLocation.x += 20;
@@ -4212,7 +4212,7 @@ export class Eagle {
         });
     }
 
-    getNewNodePosition = (width:number, height:number) : {x:number, y:number} => {
+    getNewNodePosition = (width: number, height: number) : {x:number, y:number} => {
         const MARGIN = 100; // buffer to keep new nodes away from the maxX and maxY sides of the LG display area
         let suitablePositionFound = false;
         let numIterations = 0;
@@ -4603,6 +4603,11 @@ export namespace Eagle
         Inspector = "Inspector",
         TranslationMenu = "TranslationMenu",
         Hierarchy = "Hierarchy"
+    }
+
+    export enum AddNodeMode {
+        ContextMenu = "ContextMenu",
+        Default = "Default"
     }
 
     export enum FileType {
