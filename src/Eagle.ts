@@ -200,7 +200,8 @@ export class Eagle {
         this.snapToGrid = ko.observable(false);
 
         this.selectedObjects.subscribe(function(){
-            this.logicalGraph.valueHasMutated();
+            //TODO check if the selectedObjects array has changed, if not, abort
+            GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(this.logicalGraph(), this.showDataNodes());
             Hierarchy.updateDisplay()
             if(this.selectedObjects().length === 0){
                 this.tableModalType('keyParametersTableModal')

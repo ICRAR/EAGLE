@@ -58,7 +58,6 @@ ko.bindingHandlers.nodeRenderHandler = {
     update: function (element:any, valueAccessor, allBindings, viewModel, bindingContext) {
         const eagle : Eagle = Eagle.getInstance();
 
-        GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(eagle.logicalGraph(), eagle.showDataNodes());
         const node: Node = ko.unwrap(valueAccessor());
 
         // set size
@@ -73,7 +72,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
     update: function (element:any, valueAccessor) {
         //the update function is called initially and then whenever a change to a utilised observable occurs
         const eagle : Eagle = Eagle.getInstance();
-        
         const data = ko.utils.unwrapObservable(valueAccessor()).data;
         const dataType: string = ko.utils.unwrapObservable(valueAccessor()).type;
         const portOnEmbeddedApp = false //used to identify when we are calculating the port position for a port on an embedded application
@@ -223,8 +221,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
             y = portPosition.y
         }else{
                 
-            x = portPosition.x + currentNodePos.x + eagle.globalOffsetX() - nodeRadius
-            y = portPosition.y + currentNodePos.y + eagle.globalOffsetY() - nodeRadius
+            x = portPosition.x + currentNodePos.x  - nodeRadius
+            y = portPosition.y + currentNodePos.y  - nodeRadius
         }
 
         //applying the offset to the element
@@ -470,14 +468,14 @@ export class GraphRenderer {
         const destNodeRadius = destNode.getRadius()
 
         // get offset and scale
-        const offsetX: number = eagle.globalOffsetX();
-        const offsetY: number = eagle.globalOffsetY();
+        // const offsetX: number = eagle.globalOffsetX();
+        // const offsetY: number = eagle.globalOffsetY();
 
         // we subtract node radius from all these numbers to account for the transform translate(-50%, -50%) css on the nodes
-        const srcX = srcNode.getPosition().x + offsetX -srcNodeRadius;
-        const srcY = srcNode.getPosition().y + offsetY -srcNodeRadius;
-        const destX = destNode.getPosition().x + offsetX -destNodeRadius;
-        const destY = destNode.getPosition().y + offsetY -destNodeRadius;
+        const srcX = srcNode.getPosition().x -srcNodeRadius;
+        const srcY = srcNode.getPosition().y -srcNodeRadius;
+        const destX = destNode.getPosition().x -destNodeRadius;
+        const destY = destNode.getPosition().y -destNodeRadius;
 
         return GraphRenderer.createBezier(edge,srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
     }
@@ -585,7 +583,6 @@ export class GraphRenderer {
                 GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
             }
         }
-
 
         //select handlers
         if(node !== null){
@@ -908,12 +905,12 @@ export class GraphRenderer {
     
     static SCREEN_TO_GRAPH_POSITION_X(x: number) : number {
         const eagle = Eagle.getInstance();
-        return (x - eagle.globalOffsetX())*eagle.globalScale();
+        return x*eagle.globalScale();
     }
 
     static SCREEN_TO_GRAPH_POSITION_Y(y: number) : number {
         const eagle = Eagle.getInstance();
-        return (y - eagle.globalOffsetY())*eagle.globalScale();
+        return y *eagle.globalScale();
     }
 
     static SCREEN_TO_GRAPH_SCALE(n: number) : number {
@@ -923,14 +920,14 @@ export class GraphRenderer {
 
     static GRAPH_TO_SCREEN_POSITION_X(x: number) : number {
         const eagle = Eagle.getInstance();
-        return (x / eagle.globalScale()) + eagle.globalOffsetX();
-        //return (x + eagle.globalOffsetX())/eagle.globalScale();
+        return (x / eagle.globalScale()) + eagle.globalOffsetX() ;
+        // return (x + eagle.globalOffsetX())/eagle.globalScale();
     }
 
     static GRAPH_TO_SCREEN_POSITION_Y(y: number) : number {
         const eagle = Eagle.getInstance();
         return (y / eagle.globalScale()) + eagle.globalOffsetY();
-        //return (y + eagle.globalOffsetY())/eagle.globalScale();
+        // return (y + eagle.globalOffsetY())/eagle.globalScale();
     }
 
     static findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
