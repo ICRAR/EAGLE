@@ -34,22 +34,22 @@ import { Errors } from './Errors';
 
 export class Edge {
     private _id : string
-    private srcNodeKey : number;
-    private srcPortId : string;
-    private destNodeKey : number;
-    private destPortId : string;
-    private dataType : string;
-    private loopAware : boolean; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
-    private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
-    private selectionRelative : boolean // indicates if the edge is either selected or attached to a selected node
+    private srcNode: Node;
+    private srcPort: Field;
+    private destNode: Node;
+    private destPort: Field;
+    private dataType: string;
+    private loopAware: boolean; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
+    private closesLoop: boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
+    private selectionRelative: boolean // indicates if the edge is either selected or attached to a selected node
 
-    constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
+    constructor(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, dataType: string, loopAware: boolean, closesLoop: boolean, selectionRelative: boolean){
         this._id = Utils.uuidv4();
 
-        this.srcNodeKey = srcNodeKey;
-        this.srcPortId = srcPortId;
-        this.destNodeKey = destNodeKey;
-        this.destPortId = destPortId;
+        this.srcNode = srcNode;
+        this.srcPort = srcPort;
+        this.destNode = destNode;
+        this.destPort = destPort;
 
         this.dataType = dataType;
         this.loopAware = loopAware;
@@ -65,40 +65,40 @@ export class Edge {
         this._id = id;
     }
 
-    getSrcNodeKey = () : number => {
-        return this.srcNodeKey;
+    getSrcNode = () : Node => {
+        return this.srcNode;
     }
 
-    setSrcNodeKey = (key: number): void => {
-        this.srcNodeKey = key;
+    setSrcNode = (srcNode: Node): void => {
+        this.srcNode = srcNode;
     }
 
-    getSrcPortId = () : string => {
-        return this.srcPortId;
+    getSrcPort = () : Field => {
+        return this.srcPort;
     }
 
-    setSrcPortId = (id: string) : void => {
-        this.srcPortId = id;
+    setSrcPort = (srcPort: Field) : void => {
+        this.srcPort = srcPort;
     }
 
-    getDestNodeKey = () : number => {
-        return this.destNodeKey;
+    getDestNode = () : Node => {
+        return this.destNode;
     }
 
-    setDestNodeKey = (key: number): void => {
-        this.destNodeKey = key;
+    setDestNode = (destNode: Node): void => {
+        this.destNode = destNode;
     }
 
-    getDestPortId = () : string => {
-        return this.destPortId;
+    getDestPort = () : Field => {
+        return this.destPort;
+    }
+
+    setDestPort = (destPort: Field) : void => {
+        this.destPort = destPort;
     }
 
     getSelectionRelative = () : boolean => {
         return this.selectionRelative;
-    }
-
-    setDestPortId = (id: string) : void => {
-        this.destPortId = id;
     }
 
     getDataType = () : string => {
@@ -143,17 +143,17 @@ export class Edge {
 
     clear = () : void => {
         this._id = "";
-        this.srcNodeKey = 0;
-        this.srcPortId = "";
-        this.destNodeKey = 0;
-        this.destPortId = "";
+        this.srcNode = null;
+        this.srcPort = null;
+        this.destNode = null;
+        this.destPort = null;
         this.dataType = "";
         this.loopAware = false;
         this.closesLoop = false;
     }
 
     clone = () : Edge => {
-        const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware, this.closesLoop, this.selectionRelative);
+        const result : Edge = new Edge(this.srcNode, this.srcPort, this.destNode, this.destPort, this.dataType, this.loopAware, this.closesLoop, this.selectionRelative);
 
         result._id = this._id;
 
@@ -163,17 +163,17 @@ export class Edge {
     getErrorsWarnings = (eagle: Eagle): Errors.ErrorsWarnings => {
         const result: {warnings: Errors.Issue[], errors: Errors.Issue[]} = {warnings: [], errors: []};
 
-        Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.dataType, this.loopAware, this.closesLoop, false, false, result);
+        Edge.isValid(eagle, this._id, this.srcNode, this.srcPort, this.destNode, this.destPort, this.dataType, this.loopAware, this.closesLoop, false, false, result);
 
         return result;
     }
 
     static toOJSJson = (edge : Edge) : object => {
         return {
-            from: edge.srcNodeKey,
-            fromPort: edge.srcPortId,
-            to: edge.destNodeKey,
-            toPort: edge.destPortId,
+            from: edge.srcNode.getKey(),
+            fromPort: edge.srcPort.getId(),
+            to: edge.destNode.getKey(),
+            toPort: edge.destPort.getId(),
             dataType: edge.dataType,
             loop_aware: edge.loopAware ? "1" : "0",
             closesLoop: edge.closesLoop
@@ -234,10 +234,10 @@ export class Edge {
 
     static toV3Json = (edge : Edge) : object => {
         return {
-            srcNode: edge.srcNodeKey.toString(),
-            srcPort: edge.srcPortId,
-            destNode: edge.destNodeKey.toString(),
-            destPort: edge.destPortId,
+            srcNode: edge.srcNode.getKey().toString(),
+            srcPort: edge.srcPort.getId(),
+            destNode: edge.destNode.getKey().toString(),
+            destPort: edge.destPort.getId(),
             loop_aware: edge.loopAware ? "1" : "0",
             closesLoop: edge.closesLoop
         }
@@ -259,15 +259,15 @@ export class Edge {
         };
 
         // if srcNode is an embedded application, add a 'fromRef' attribute to the edge
-        const srcNode : Node = lg.findNodeByKey(edge.srcNodeKey);
-        if (srcNode.getEmbedKey() !== null){
-            result.fromRef = srcNode.getEmbedKey();
+        const srcNode : Node = edge.getSrcNode();
+        if (srcNode.getEmbed() !== null){
+            result.fromRef = srcNode.getEmbed().getKey();
         }
 
         // if destNode is an embedded application, add a 'toRef' attribute to the edge
-        const destNode : Node = lg.findNodeByKey(edge.destNodeKey);
-        if (destNode.getEmbedKey() != null){
-            result.toRef = destNode.getEmbedKey();
+        const destNode : Node = edge.getDestNode();
+        if (destNode.getEmbed() !== null){
+            result.toRef = destNode.getEmbed().getKey();
         }
 
         return result;
@@ -277,43 +277,27 @@ export class Edge {
         return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware, edgeData.closesLoop, false);
     }
 
-    static isValid = (eagle: Eagle, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, dataType: string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
+    static isValid = (eagle: Eagle, edgeId: string, sourceNode: Node, sourcePort: Field, destinationNode: Node, destinationPort: Field, dataType: string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
         // check for problems
-        if (isNaN(sourceNodeKey)){
+        if (sourceNode === null){
             return Eagle.LinkValid.Unknown;
         }
 
-        if (isNaN(destinationNodeKey)){
+        if (destinationNode === null){
             return Eagle.LinkValid.Unknown;
         }
 
-        if (sourcePortId === ""){
-            const issue = Errors.Fix("source port has no id", function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on source node");
+        if (sourcePort === null){
+            const issue = Errors.Fix("source port is null", function(){Utils.fixNodeFieldIds(eagle, sourceNode)}, "Generate ids for ports on source node");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
             return Eagle.LinkValid.Invalid;
         }
 
-        if (destinationPortId === ""){
-            const issue = Errors.Fix("destination port has no id", function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on destination node");
+        if (destinationPort === null){
+            const issue = Errors.Fix("destination port is null", function(){Utils.fixNodeFieldIds(eagle, destinationNode)}, "Generate ids for ports on destination node");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
             return Eagle.LinkValid.Invalid;
         }
-
-        if (sourcePortId === null){
-            const issue = Errors.Fix("source port id is null", function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on source node");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
-            return Eagle.LinkValid.Invalid;
-        }
-
-        if (destinationPortId === null){
-            const issue = Errors.Fix("destination port id is null", function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on destination node");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
-            return Eagle.LinkValid.Invalid;
-        }
-
-        // get references to actual source and destination nodes (from the keys)
-        const sourceNode : Node = eagle.logicalGraph().findNodeByKey(sourceNodeKey);
-        const destinationNode : Node = eagle.logicalGraph().findNodeByKey(destinationNodeKey);
 
         if (sourceNode === null || typeof sourceNode === "undefined" || destinationNode === null || typeof destinationNode === "undefined"){
             return Eagle.LinkValid.Unknown;
@@ -336,7 +320,7 @@ export class Edge {
         }
 
         // check that we are not connecting two ports within the same node
-        if (sourceNodeKey === destinationNodeKey){
+        if (sourceNode.getKey() === destinationNode.getKey()){
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("sourceNodeKey and destinationNodeKey are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
@@ -348,9 +332,6 @@ export class Edge {
             const issue: Errors.Issue = Errors.ShowFix("output from Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", function(){Utils.showNode(eagle, Eagle.FileType.Graph, sourceNode.getId())}, function(){Utils.fixNodeCategory(eagle, sourceNode, Category.File)}, "Change data component type to File");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, issue, showNotification, showConsole, errorsWarnings);
         }
-
-        const sourcePort : Field = sourceNode.findFieldById(sourcePortId);
-        const destinationPort : Field = destinationNode.findFieldById(destinationPortId);
 
         // check if source port was found
         if (sourcePort === null) {
@@ -365,7 +346,7 @@ export class Edge {
         }
 
         // check that we are not connecting a port to itself
-        if (sourcePortId === destinationPortId){
+        if (sourcePort.getId() === destinationPort.getId()){
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source port and destination port are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
@@ -387,22 +368,22 @@ export class Edge {
         }
 
         // check relationship between destination and source node
-        const isParent : boolean = sourceNode.getParentKey() === destinationNodeKey;
-        const isParentOfConstruct : boolean = sourceNode.getParentKey() === destinationNode.getEmbedKey() && sourceNode.getParentKey() !== null;
-        const isChild : boolean = destinationNode.getParentKey() === sourceNodeKey;
-        const isChildOfConstruct : boolean = destinationNode.getParentKey() === sourceNode.getEmbedKey() && destinationNode.getParentKey() !== null;
-        const isSibling : boolean = sourceNode.getParentKey() === destinationNode.getParentKey();
+        const isParent : boolean = sourceNode.getParent().getKey() === destinationNode.getKey();
+        const isParentOfConstruct : boolean = sourceNode.getParent().getKey() === destinationNode.getEmbed().getKey() && sourceNode.getParent().getKey() !== null;
+        const isChild : boolean = destinationNode.getParent().getKey() === sourceNode.getKey();
+        const isChildOfConstruct : boolean = destinationNode.getParent().getKey() === sourceNode.getEmbed().getKey() && destinationNode.getParent().getKey() !== null;
+        const isSibling : boolean = sourceNode.getParent().getKey() === destinationNode.getParent().getKey();
         let parentIsEFN : boolean = false;
 
         // determine if the new edge is crossing a ExclusiveForceNode boundary
-        if (destinationNode.getParentKey() !== null){
-            if (eagle.logicalGraph().findNodeByKey(destinationNode.getParentKey()) !== null){
-                parentIsEFN = eagle.logicalGraph().findNodeByKey(destinationNode.getParentKey()).getCategory() === Category.ExclusiveForceNode;
+        if (destinationNode.getParent().getKey() !== null){
+            if (destinationNode.getParent() !== null){
+                parentIsEFN = destinationNode.getParent().getCategory() === Category.ExclusiveForceNode;
             }
         }
-        if (sourceNode.getParentKey() !== null){
-            if (eagle.logicalGraph().findNodeByKey(sourceNode.getParentKey()) !== null){
-                parentIsEFN = eagle.logicalGraph().findNodeByKey(sourceNode.getParentKey()).getCategory() === Category.ExclusiveForceNode;
+        if (sourceNode.getParent().getKey() !== null){
+            if (sourceNode.getParent() !== null){
+                parentIsEFN = sourceNode.getParent().getCategory() === Category.ExclusiveForceNode;
             }
         }
 
@@ -410,21 +391,21 @@ export class Edge {
         //console.log("isParent", isParent, "isParentOfConstruct", isParentOfConstruct, "isChild", isChild, "isChildOfConstruct", isChildOfConstruct, "isSibling", isSibling, "parentIsEFN", parentIsEFN);
 
         // if a node is connecting to its parent, it must connect to the local port
-        if (isParent && !destinationNode.hasLocalPortWithId(destinationPortId)){
+        if (isParent && !destinationNode.hasLocalPortWithId(destinationPort.getId())){
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source port is connecting to its parent, yet destination port is not local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // if a node is connecting to a child, it must start from the local port
-        if (isChild && !sourceNode.hasLocalPortWithId(sourcePortId)){
+        if (isChild && !sourceNode.hasLocalPortWithId(sourcePort.getId())){
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source connecting to child, yet source port is not local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // if destination node is not a child, destination port cannot be a local port
-        if (!parentIsEFN && !isParent && destinationNode.hasLocalPortWithId(destinationPortId)){
+        if (!parentIsEFN && !isParent && destinationNode.hasLocalPortWithId(destinationPort.getId())){
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source is not a child of destination, yet destination port is local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
-        if (!parentIsEFN && !isChild && sourceNode.hasLocalPortWithId(sourcePortId)){
+        if (!parentIsEFN && !isChild && sourceNode.hasLocalPortWithId(sourcePort.getId())){
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Destination is not a child of source, yet source port is local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
@@ -443,7 +424,7 @@ export class Edge {
 
         // check if the edge already exists in the graph, there is no point in a duplicate
         for (const edge of eagle.logicalGraph().getEdges()){
-            if (edge.getSrcPortId() === sourcePortId && edge.getDestPortId() === destinationPortId && edge.getId() !== edgeId){
+            if (edge.getSrcPort().getId() === sourcePort.getId() && edge.getDestPort().getId() === destinationPort.getId() && edge.getId() !== edgeId){
                 const x = Errors.ShowFix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDeleteEdge(eagle, edgeId);}, "Delete edge");
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }

@@ -1727,9 +1727,7 @@ export class Utils {
         node.addField(field);
     }
 
-    static fixNodeFieldIds(eagle: Eagle, nodeKey: number){
-        const node: Node = eagle.logicalGraph().findNodeByKey(nodeKey);
-
+    static fixNodeFieldIds(eagle: Eagle, node: Node){
         if (node === null){
             return;
         }
@@ -2021,7 +2019,7 @@ export class Utils {
                 "name":node.getName(),
                 "key":node.getKey(),
                 "id":node.getId(),
-                "parentKey":node.getParentKey(),
+                "parentKey":node.getParent().getKey(),
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
                 "expanded":node.getExpanded(),
@@ -2032,10 +2030,10 @@ export class Utils {
                 "radius":node.getRadius(),
                 "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
                 "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
-                "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
+                "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbed().getKey(),
                 "outputAppKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getKey(),
                 "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
-                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey()
+                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbed().getKey()
             });
         }
 
@@ -2050,10 +2048,10 @@ export class Utils {
         for (const edge of eagle.logicalGraph().getEdges()){
             tableData.push({
                 "_id":edge.getId(),
-                "sourceNodeKey":edge.getSrcNodeKey(),
-                "sourcePortId":edge.getSrcPortId(),
-                "destNodeKey":edge.getDestNodeKey(),
-                "destPortId":edge.getDestPortId(),
+                "sourceNodeKey":edge.getSrcNode().getKey(),
+                "sourcePortId":edge.getSrcPort().getId(),
+                "destNodeKey":edge.getDestNode().getKey(),
+                "destPortId":edge.getDestPort().getId(),
                 "dataType":edge.getDataType(),
                 "loopAware":edge.isLoopAware(),
                 "isSelectionRelative":edge.getSelectionRelative()
@@ -2075,7 +2073,7 @@ export class Utils {
                     "name":node.getName(),
                     "key":node.getKey(),
                     "id":node.getId(),
-                    "embedKey":node.getEmbedKey(),
+                    "embed":node.getEmbed().getKey(),
                     "category":node.getCategory(),
                     "categoryType":node.getCategoryType(),
                     "numFields":node.getNumFields(),

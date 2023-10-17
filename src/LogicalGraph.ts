@@ -76,19 +76,17 @@ export class LogicalGraph {
             }
 
             const linkData : any = Edge.toOJSJson(edge);
-
-            let srcKey = edge.getSrcNodeKey();
-            let destKey = edge.getDestNodeKey();
-
-            const srcNode = graph.findNodeByKey(srcKey);
-            const destNode = graph.findNodeByKey(destKey);
+            const srcNode: Node = edge.getSrcNode();
+            const destNode: Node = edge.getDestNode();
+            let srcKey = srcNode.getKey();
+            let destKey = destNode.getKey();
 
             // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
             if (srcNode.isEmbedded()){
-                srcKey = srcNode.getEmbedKey();
+                srcKey = srcNode.getEmbed().getKey();
             }
             if (destNode.isEmbedded()){
-                destKey = destNode.getEmbedKey();
+                destKey = destNode.getEmbed().getKey();
             }
 
             linkData.from = srcKey;
@@ -153,7 +151,7 @@ export class LogicalGraph {
             const parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.group);
 
             if (parentIndex !== -1){
-                result.nodes()[i].setParentKey(result.nodes()[parentIndex].getKey());
+                result.nodes()[i].setParent(result.nodes()[parentIndex]);
             }
         }
 
@@ -180,21 +178,21 @@ export class LogicalGraph {
         // add warnings to errorsWarnings
         for (const edge of result.edges()){
             // get references to actual source and destination nodes (from the keys)
-            const sourceNode : Node = result.findNodeByKey(edge.getSrcNodeKey());
-            const destinationNode : Node = result.findNodeByKey(edge.getDestNodeKey());
+            const sourceNode : Node = edge.getSrcNode();
+            const destinationNode : Node = edge.getDestNode();
 
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
             if (sourceNode.getCategoryType() === Category.Type.Construct){
-                const srcKeyAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPortId());
-                const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNodeKey() + " to embedded application " + srcKeyAndPort.key;
+                const srcKeyAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPort().getId());
+                const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNode().getKey() + " to embedded application " + srcKeyAndPort.key;
                 errorsWarnings.warnings.push(Errors.Message(warning));
-                edge.setSrcNodeKey(srcKeyAndPort.key);
+                edge.setSrcNode(srcKeyAndPort.node);
             }
             if (destinationNode.getCategoryType() === Category.Type.Construct){
-                const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPortId());
-                const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNodeKey() + " to embedded application " + destKeyAndPort.key;
+                const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPort().getId());
+                const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNode().getKey() + " to embedded application " + destKeyAndPort.key;
                 errorsWarnings.warnings.push(Errors.Message(warning));
-                edge.setDestNodeKey(destKeyAndPort.key);
+                edge.setDestNode(destKeyAndPort.node);
             }
         }
 
@@ -269,7 +267,7 @@ export class LogicalGraph {
         let result: number = 0;
 
         for (const edge of this.edges()){
-            if ((edge.getSrcNodeKey() === node.getKey() ) || ( edge.getDestNodeKey() === node.getKey() )){
+            if ((edge.getSrcNode().getKey() === node.getKey() ) || ( edge.getDestNode().getKey() === node.getKey() )){
                 result += 1;
             }
         }
@@ -354,6 +352,7 @@ export class LogicalGraph {
         return newNode;
     }
 
+    /*
     findNodeByKey = (key : number) : Node => {
         for (let i = this.nodes().length - 1; i >= 0 ; i--){
 
@@ -431,6 +430,7 @@ export class LogicalGraph {
         console.warn("findNodeByKey(): could not find node with key (", id, ")");
         return null;
     }
+    */
 
     findNodeGraphIdByNodeName = (name:string) :string =>{
         const eagle: Eagle = Eagle.getInstance();
@@ -508,6 +508,7 @@ export class LogicalGraph {
         }
     }
 
+    /*
     findEdgeById = (id: string) : Edge => {
         for (let i = this.edges().length - 1; i >= 0 ; i--){
             if (this.edges()[i].getId() === id){
@@ -516,6 +517,7 @@ export class LogicalGraph {
         }
         return null;
     }
+    */
 
     removeEdgeById = (id: string) : void => {
         let found = false;
@@ -536,7 +538,7 @@ export class LogicalGraph {
     removeEdgesByKey = (key: number) : void => {
         for (let i = this.edges().length - 1 ; i >= 0; i--){
             const edge : Edge = this.edges()[i];
-            if (edge.getSrcNodeKey() === key || edge.getDestNodeKey() === key){
+            if (edge.getSrcNode().getKey() === key || edge.getDestNode().getKey() === key){
                 this.edges.splice(i, 1);
             }
         }
@@ -544,8 +546,8 @@ export class LogicalGraph {
 
     portIsLinked = (nodeKey : number, portId : string) : boolean => {
         for (const edge of this.edges()){
-            if (edge.getSrcNodeKey() === nodeKey && edge.getSrcPortId() === portId ||
-                edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
+            if (edge.getSrcNode().getKey() === nodeKey && edge.getSrcPort().getId() === portId ||
+                edge.getDestNode().getKey() === nodeKey && edge.getDestPort().getId() === portId){
                 return true;
             }
         }
@@ -671,12 +673,12 @@ export class LogicalGraph {
     }
 
     findDepthByKey = (key: number) : number => {
-        const node = this.findNodeByKey(key);
-        let parentKey = node.getParentKey();
+        const node: Node = this.findNodeByKey(key);
+        let parent: Node = node.getParent();
         let depth = 0;
         let iterations = 0;
 
-        while (parentKey !== null){
+        while (parent !== null){
             if (iterations > 10){
                 console.error("too many iterations in findDepthByKey()");
                 break;
@@ -684,7 +686,7 @@ export class LogicalGraph {
 
             iterations += 1;
             depth += 1;
-            parentKey = this.findNodeByKey(parentKey).getParentKey();
+            parent = parent.getParent();
         }
 
         return depth;

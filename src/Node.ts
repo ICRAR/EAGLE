@@ -53,8 +53,8 @@ export class Node {
                                                    // (primary method is using parent-child relationships)
                                                    // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
 
-    private parentKey : ko.Observable<number>;
-    private embedKey : ko.Observable<number>;
+    private parent : ko.Observable<Node>;
+    private embed : ko.Observable<Node>;
     private collapsed : ko.Observable<boolean>;    // indicates whether the node is shown collapsed in the graph display
     private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
     private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
@@ -103,8 +103,8 @@ export class Node {
         this.color = ko.observable(Utils.getColorForNode(category));
         this.drawOrderHint = ko.observable(0);
 
-        this.parentKey = ko.observable(null);
-        this.embedKey = ko.observable(null);
+        this.parent = ko.observable(null);
+        this.embed = ko.observable(null);
         this.collapsed = ko.observable(true);
         this.peek = false;
 
@@ -290,30 +290,30 @@ export class Node {
         this.drawOrderHint(drawOrderHint);
     }
 
-    getParentKey = () : number => {
-        return this.parentKey();
+    getParent = () : Node => {
+        return this.parent();
     }
 
-    setParentKey = (key : number) : void => {
+    setParent = (parent: Node) : void => {
         // check that we are not making this node its own parent
-        if (key === this.key()){
+        if (parent.key() === this.key()){
             console.warn("Setting node as its own parent!");
             return;
         }
 
-        this.parentKey(key);
+        this.parent(parent);
     }
 
-    getEmbedKey = () : number => {
-        return this.embedKey();
+    getEmbed = () : Node => {
+        return this.embed();
     }
 
-    setEmbedKey = (key : number) : void => {
-        this.embedKey(key);
+    setEmbed = (embed: Node) : void => {
+        this.embed(embed);
     }
 
     isEmbedded = () : boolean => {
-        return this.embedKey() !== null;
+        return this.embed() !== null;
     }
 
     isCollapsed = () : boolean => {
@@ -750,7 +750,7 @@ export class Node {
         this.inputApplication(inputApplication);
 
         if (inputApplication !== null){
-            inputApplication.setEmbedKey(this.getKey());
+            inputApplication.setEmbed(this);
             console.assert(this.canHaveInputApplication());
         }
     }
@@ -767,7 +767,7 @@ export class Node {
         this.outputApplication(outputApplication);
 
         if (outputApplication !== null){
-            outputApplication.setEmbedKey(this.getKey());
+            outputApplication.setEmbed(this);
             console.assert(this.canHaveOutputApplication());
         }
     }
@@ -791,8 +791,8 @@ export class Node {
         this.color(Node.DEFAULT_COLOR);
         this.drawOrderHint(0);
 
-        this.parentKey(null);
-        this.embedKey(null);
+        this.parent(null);
+        this.embed(null);
         this.collapsed(true);
 
         this.inputApplication(null);
@@ -846,6 +846,7 @@ export class Node {
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
     }, this);
 
+    /*
     findFieldById = (id: string) : Field => {
         for (const field of this.fields()){
             if (field.getId() === id){
@@ -855,18 +856,19 @@ export class Node {
 
         return null;
     }
+    */
 
-    findPortInApplicationsById = (portId : string) : {key: number, port: Field} => {
+    findPortInApplicationsById = (portId : string) : {node: Node, port: Field} => {
         // if node has an inputApplication, check those ports too
         if (this.hasInputApplication()){
             for (const inputPort of this.inputApplication().getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {key: this.inputApplication().getKey(), port: inputPort};
+                    return {node: this.inputApplication(), port: inputPort};
                 }
             }
             for (const outputPort of this.inputApplication().getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {key: this.inputApplication().getKey(), port: outputPort};
+                    return {node: this.inputApplication(), port: outputPort};
                 }
             }
         }
@@ -875,17 +877,17 @@ export class Node {
         if (this.hasOutputApplication()){
             for (const inputPort of this.outputApplication().getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {key: this.outputApplication().getKey(), port: inputPort};
+                    return {node: this.outputApplication(), port: inputPort};
                 }
             }
             for (const outputPort of this.outputApplication().getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {key: this.outputApplication().getKey(), port: outputPort};
+                    return {node: this.outputApplication(), port: outputPort};
                 }
             }
         }
 
-        return {key: null, port: null};
+        return {node: null, port: null};
     }
 
     findPortIndexById = (portId : string) : number => {
@@ -1136,8 +1138,8 @@ export class Node {
         result.color(this.color());
         result.drawOrderHint(this.drawOrderHint());
 
-        result.parentKey(this.parentKey());
-        result.embedKey(this.embedKey());
+        result.parent(this.parent());
+        result.embed(this.embed());
 
         result.collapsed(this.collapsed());
         result.expanded(this.expanded());
@@ -1541,7 +1543,7 @@ export class Node {
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 node.inputApplication(Node.fromOJSJson(nodeData.inputApplication, errorsWarnings, isPaletteNode, generateKeyFunc));
-                node.inputApplication().setEmbedKey(node.getKey());
+                node.inputApplication().setEmbed(node);
             }
         }
         if (typeof nodeData.outputApplication !== 'undefined' && nodeData.outputApplication !== null){
@@ -1549,7 +1551,7 @@ export class Node {
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
                 node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, isPaletteNode, generateKeyFunc));
-                node.outputApplication().setEmbedKey(node.getKey());
+                node.outputApplication().setEmbed(node);
             }
         }
 
@@ -1808,12 +1810,12 @@ export class Node {
         result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
 
-        if (node.parentKey() !== null){
-            result.group = node.parentKey();
+        if (node.parent() !== null){
+            result.group = node.parent().getKey();
         }
 
-        if (node.embedKey() !== null){
-            result.embedKey = node.embedKey();
+        if (node.embed() !== null){
+            result.embedKey = node.embed().getKey();
         }
 
         // add fields
@@ -2180,7 +2182,7 @@ export class Node {
         // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
         let isConnected: boolean = false;
         for (const edge of eagle.logicalGraph().getEdges()){
-            if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
+            if (edge.getSrcNode().getKey() === node.getKey() || edge.getDestNode().getKey() === node.getKey()){
                 isConnected = true;
                 break;
             }
