@@ -7,6 +7,7 @@
     --graphText:red;
     --branchBg:red;
     --constructBg:red;
+    --embeddedApp:red;
     --constructIcon:red;
     --edgeColor:red;
     --commentEdgeColor:red;
@@ -155,7 +156,7 @@
 }
 
 .node .construct_node .basic_node .body {
-    background-color: var(--nodeBg);
+    background-color: var(--embeddedApp);
 }
 
 .node .construct_node span {
