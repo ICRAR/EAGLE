@@ -67,10 +67,10 @@ ko.bindingHandlers.nodeRenderHandler = {
             $(element).children().children().children('.body').css({'border-style':'double','border-width':'7px'})
         }
         if(node.isGather()){
-            $(element).children().children().children('.body').css({'border-style':'dotted','border-width':'3px'})
+            $(element).children().children().children('.body').css({'border-style':'dashed','border-width':'5px'})
         }
         if(node.isScatter()){
-            $(element).children().children().children('.body').css({'border-style':'dashed','border-width':'5px'})
+            $(element).children().children().children('.body').css({'border-style':'dotted','border-width':'3px'})
         }
     },
 };
