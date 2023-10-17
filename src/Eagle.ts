@@ -533,10 +533,8 @@ export class Eagle {
         //determening which is the smaller scale multiplier to fit the graph and setting it
         if(graphYScale>graphXScale){
             this.globalScale(graphXScale);
-            console.log(graphXScale)
         }else if(graphYScale<graphXScale){
             this.globalScale(graphYScale)
-            console.log(graphYScale)
         }else{
             this.globalScale(1)
         }
