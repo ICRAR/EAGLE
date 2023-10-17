@@ -739,12 +739,6 @@ export class GraphRenderer {
                     numChildren = numChildren + 1;
                 }
             }
-
-            const centerX = sumX / numChildren;
-            const centerY = sumY / numChildren;
-
-            //disabled this bit of code for now because it was badly positioning constructs on graphs i designed using the new editor
-            // construct.setPosition(centerX, centerY);
         }
 
         // loop through all children - find distance from center of construct

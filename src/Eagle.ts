@@ -493,27 +493,53 @@ export class Eagle {
                 maxY = node.getPosition().y + node.getRadius();
             }
         }
-
         // determine the centroid of the graph
         const centroidX = minX + ((maxX - minX) / 2);
         const centroidY = minY + ((maxY - minY) / 2);
 
-        // reset scale
-        this.globalScale(1.0);
 
-        $('#logicalGraphD3Div').css('transform','scale('+1+')')
-        $('#logicalGraphD3Div').css('transform','translate(0px,0px)')
+        //calculating scale multipliers needed for each, height and width in order to fit the graph
+        const containerHeight = $('#logicalGraphD3Div').height()
+        const graphHeight = maxY-minY+200
+        const graphYScale = containerHeight/graphHeight
+        
+        //we are taking into account the current widths of the left and right windows
+        let leftWindow = 0
+        if(this.leftWindow().shown()){
+            leftWindow = this.leftWindow().width()
+        }
+        
+        let rightWindow = 0
+        if(this.rightWindow().shown()){
+            rightWindow = this.rightWindow().width()
+        }
+
+        const containerWidth = $('#logicalGraphD3Div').width() - leftWindow - rightWindow
+        const graphWidth = maxX-minX+200
+        const graphXScale = containerWidth/graphWidth
+
+
+        // reset scale to center the graph correctly
+        this.globalScale(1)
 
         //determine center of the display area
-        const displayCenterX : number = $('#logicalGraphParent').width() / this.globalScale() / 2;
+        const displayCenterX : number = (containerWidth / this.globalScale() / 2);
         const displayCenterY : number = $('#logicalGraphParent').height() / this.globalScale() / 2;
 
         // translate display to center the graph centroid
-        this.globalOffsetX(Math.round(displayCenterX - centroidX));
+        this.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
         this.globalOffsetY(Math.round(displayCenterY - centroidY));
 
-        // trigger render
-        this.logicalGraph.valueHasMutated();
+        //determening which is the smaller scale multiplier to fit the graph and setting it
+        if(graphYScale>graphXScale){
+            this.globalScale(graphXScale);
+            console.log(graphXScale)
+        }else if(graphYScale<graphXScale){
+            this.globalScale(graphYScale)
+            console.log(graphYScale)
+        }else{
+            this.globalScale(1)
+        }
     }
 
     getSelectedText = () : string => {
