@@ -5,13 +5,13 @@ const colors: { name: string; color: string; }[] = [
         color: '#2e3192'
     },{
         name: 'branchBg',
-        color: '#d4d4d4'
+        color: '#dcdee2'
     },{
         name: 'constructBg',
         color: '#05142912'
     },{
         name: 'embeddedApp',
-        color: '#d2d5d9'
+        color: '#dcdee2'
     },{
         name: 'constructIcon',
         color: '#0000000f'
