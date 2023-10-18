@@ -258,6 +258,10 @@ export class GraphRenderer {
     //node drag handler globals
     static NodeParentRadiusPreDrag : number = null;
     static nodeDragElement : any = null
+    static nodeDragNode : Node = null
+    static dragStartPosition : any = null
+    static dragCurrentPosition : any = null
+    static dragSelectionHandled : any = false
     // static isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
 
 
@@ -491,8 +495,95 @@ export class GraphRenderer {
         return GraphRenderer.createBezier(edge,srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
     }
 
+    static scrollZoom = (eagle: Eagle, event: JQueryEventObject) : void => {
+        const wheelEvent: WheelEvent = <WheelEvent>event.originalEvent;
+
+        if (wheelEvent.deltaY < 0){
+            eagle.zoomIn();
+        } else {
+            eagle.zoomOut();
+        }
+    }
+
+    static startDrag = (node: Node, event: MouseEvent) : void => {
+        const eagle = Eagle.getInstance();
+        //resetting the shift event
+        GraphRenderer.dragSelectionHandled = false
+
+        if(node === null || event.which === 2){
+            //if no node is selected or we are dragging using middle mouse, we are dragging the background
+            eagle.isDragging(true);
+        } else if(!node.isEmbedded()){
+           //embedded nodes, aka input and output applications of constructs, cant be dragged
+            eagle.isDragging(true);
+            eagle.draggingNode(node);
+            GraphRenderer.nodeDragElement = event.target
+            GraphRenderer.nodeDragNode = node
+            GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
+            GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
+
+            if(node.getParentKey() != null){
+                const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
+                $('#'+parentNode.getId()).removeClass('transition')
+                GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
+            }
+        }
+
+        //select handlers
+        if(node !== null){
+            // check if shift key is down, if so, add or remove selected node to/from current selection
+            if (node !== null && event.shiftKey && !event.altKey){
+            GraphRenderer.dragSelectionHandled = true
+            eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+            } else if(!eagle.objectIsSelected(node)) {
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+            }
+
+            //check for alt clicking, if so, add the target node and its children to the selection
+            if(!event.altKey&&node.isConstruct()){
+                GraphRenderer.dragSelectionHandled = true
+                //if shift is not clicked, we first clear the selection
+                if(!event.shiftKey){
+                    eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
+                    eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+                }
+
+                //getting all children, including children of child constructs etc..
+                let childIsConstruct = true
+                let constructs : Node[]= [node]
+                
+                while(childIsConstruct){
+                    let constructFound = false
+                    let i = -1
+                    constructs.forEach(function(construct){
+                        i++
+                        eagle.logicalGraph().getNodes().forEach(function(obj){
+                            if(obj.getParentKey()===construct.getKey()){
+                                eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
+    
+                                if(obj.isConstruct()){
+                                    constructFound = true
+                                    constructs.push(obj)
+                                }
+                            }
+                        })
+                        constructs.splice(i,1)
+                    })
+                    if(!constructFound){
+                        childIsConstruct = false
+                    }
+                }
+            }
+        }else{
+            //if node is null, the empty canvas has been clicked. clear the selection
+            eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
+        }
+       
+    }
+
     static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
         const mouseEvent: MouseEvent = <MouseEvent>event.originalEvent;
+        GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
 
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null){
@@ -567,90 +658,21 @@ export class GraphRenderer {
         
     }
 
-    static scrollZoom = (eagle: Eagle, event: JQueryEventObject) : void => {
-        const wheelEvent: WheelEvent = <WheelEvent>event.originalEvent;
-
-        if (wheelEvent.deltaY < 0){
-            eagle.zoomIn();
-        } else {
-            eagle.zoomOut();
-        }
-    }
-
-    static startDrag = (node: Node, event: MouseEvent) : void => {
-        const eagle = Eagle.getInstance();
-        if(node === null || event.which === 2){
-            eagle.isDragging(true);
-
-        } else if(!node.isEmbedded()){
-           //embedded nodes, aka input and output applications of constructs, cant be dragged
-            eagle.isDragging(true);
-            eagle.draggingNode(node);
-            GraphRenderer.nodeDragElement = event.target
-
-            if(node.getParentKey() != null){
-                const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
-                $('#'+parentNode.getId()).removeClass('transition')
-                GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
-            }
-        }
-
-        //select handlers
-        if(node !== null){
-            // check if shift key is down, if so, add or remove selected node to/from current selection
-            if (node !== null && event.shiftKey && !event.altKey){
-                eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
-            } else if(!eagle.objectIsSelected(node)) {
-                eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
-            }
-
-            //check for alt clicking, if so, add the target node and its children to the selection
-            if(!event.altKey&&node.isConstruct()){
-                //if shift is not clicked, we first clear the selection
-                if(!event.shiftKey){
-                    eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
-                    eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
-                }
-
-                //getting all children, including children of child constructs etc..
-                let childIsConstruct = true
-                let constructs : Node[]= [node]
-                
-                while(childIsConstruct){
-                    let constructFound = false
-                    let i = -1
-                    constructs.forEach(function(construct){
-                        i++
-                        eagle.logicalGraph().getNodes().forEach(function(obj){
-                            if(obj.getParentKey()===construct.getKey()){
-                                eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
-    
-                                if(obj.isConstruct()){
-                                    constructFound = true
-                                    constructs.push(obj)
-                                }
-                            }
-                        })
-                        constructs.splice(i,1)
-                    })
-                    if(!constructFound){
-                        childIsConstruct = false
-                    }
-                }
-            }
-        }else{
-            //if node is null, the empty canvas has been clicked. clear the selection
-            eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
-        }
-       
-    }
-
-    static endDrag = (node: Node, event: MouseEvent) : void => {
+    static endDrag = (node: Node, event: any) : void => {
         const eagle = Eagle.getInstance();
 
         //console.log("endDrag", node ? node.getName() : node)
         eagle.isDragging(false);
         eagle.draggingNode(null);
+        
+        if(!GraphRenderer.dragSelectionHandled){
+            const distanceMovedX = Math.abs(GraphRenderer.dragStartPosition.x-GraphRenderer.dragCurrentPosition.x)
+            const distanceMovedY = Math.abs(GraphRenderer.dragStartPosition.y-GraphRenderer.dragCurrentPosition.y)
+    
+            if(distanceMovedX<5 || distanceMovedY<5){
+                eagle.setSelection(null, node,Eagle.FileType.Graph)
+            }
+        }
 
         if (node != null && node.getParentKey() != null){
             const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
