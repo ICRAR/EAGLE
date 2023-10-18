@@ -530,7 +530,7 @@ export class GraphRenderer {
         }
 
         //select handlers
-        if(node !== null){
+        if(node !== null && event.which != 2){
             // check if shift key is down, if so, add or remove selected node to/from current selection
             if (node !== null && event.shiftKey && !event.altKey){
             GraphRenderer.dragSelectionHandled = true
