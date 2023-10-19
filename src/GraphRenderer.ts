@@ -262,6 +262,7 @@ export class GraphRenderer {
     static dragStartPosition : any = null
     static dragCurrentPosition : any = null
     static dragSelectionHandled : any = false
+    static dragSelectionDoubleClick :boolean = false;
     // static isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
 
 
@@ -533,14 +534,14 @@ export class GraphRenderer {
         if(node !== null && event.which != 2){
             // check if shift key is down, if so, add or remove selected node to/from current selection
             if (node !== null && event.shiftKey && !event.altKey){
-            GraphRenderer.dragSelectionHandled = true
-            eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+                GraphRenderer.dragSelectionHandled = true
+                eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
             } else if(!eagle.objectIsSelected(node)) {
                 eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
             }
 
             //check for alt clicking, if so, add the target node and its children to the selection
-            if(!event.altKey&&node.isConstruct()){
+            if(event.altKey&&node.isConstruct()||GraphRenderer.dragSelectionDoubleClick&&node.isConstruct()){
                 GraphRenderer.dragSelectionHandled = true
                 //if shift is not clicked, we first clear the selection
                 if(!event.shiftKey){
@@ -578,7 +579,11 @@ export class GraphRenderer {
             //if node is null, the empty canvas has been clicked. clear the selection
             eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
         }
-       
+
+        GraphRenderer.dragSelectionDoubleClick = true
+        setTimeout(function () {
+            GraphRenderer.dragSelectionDoubleClick = false
+        }, 500)
     }
 
     static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
