@@ -1109,18 +1109,30 @@ export class Node {
         }
     }
 
+    // removes all InputPort ports, and changes all InputOutput ports to be OutputPort
     removeAllInputPorts = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getUsage() === Daliuge.FieldUsage.InputPort){
+            const field: Field = this.fields()[i];
+
+            if (field.getUsage() === Daliuge.FieldUsage.InputPort){
                 this.fields.splice(i, 1);
+            }
+            if (field.getUsage() === Daliuge.FieldUsage.InputOutput){
+                field.setUsage(Daliuge.FieldUsage.OutputPort);
             }
         }
     }
 
+    // removes all OutputPort ports, and changes all InputOutput ports to be InputPort
     removeAllOutputPorts = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getUsage() === Daliuge.FieldUsage.OutputPort){
+            const field: Field = this.fields()[i];
+
+            if (field.getUsage() === Daliuge.FieldUsage.OutputPort){
                 this.fields.splice(i, 1);
+            }
+            if (field.getUsage() === Daliuge.FieldUsage.InputOutput){
+                field.setUsage(Daliuge.FieldUsage.InputPort);
             }
         }
     }
