@@ -1198,7 +1198,7 @@ export class Eagle {
             }
 
             for (const e of clipboard.edges){
-                const edge = Edge.fromOJSJson(e, null);
+                const edge = Edge.fromOJSJson(e, clipboard.nodes, null);
 
                 edges.push(edge);
             }
@@ -2759,7 +2759,7 @@ export class Eagle {
         }
 
         for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, errorsWarnings);
+            const edge = Edge.fromOJSJson(e, clipboard.nodes, errorsWarnings);
 
             edges.push(edge);
         }
@@ -4640,13 +4640,13 @@ $( document ).ready(function() {
         $("#editFieldModal textarea").attr('style','')
         $("#errorsModalAccordion").parent().parent().attr('style','')
 
-        //reset parameter table selecction
+        //reset parameter table selection
         ParameterTable.resetSelection()
     }); 
 
     $('.modal').on('shown.bs.modal',function(){
         // modal draggables
-        //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
+        //the any type is required so we don't have an error when building. at runtime on eagle this actually functions without it.
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
         });

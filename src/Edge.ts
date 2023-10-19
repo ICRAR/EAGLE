@@ -180,7 +180,7 @@ export class Edge {
         };
     }
 
-    static fromOJSJson = (linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
+    static fromOJSJson = (linkData: any, nodes: Node[], errorsWarnings: Errors.ErrorsWarnings) : Edge => {
         // try to read source and destination nodes and ports
         let srcNodeKey : number = 0;
         let srcPortId : string = "";
@@ -229,7 +229,29 @@ export class Edge {
             closesLoop = linkData.closesLoop;
         }
 
-        return new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop, false);
+        // find source node and destination node in nodes
+        let srcNode: Node = null;
+        let destNode: Node = null;
+        for (const node of nodes){
+            if (node.getKey() === srcNodeKey){
+                srcNode = node;
+            }
+            if (node.getKey() === destNodeKey){
+                destNode = node;
+            }
+        }
+        if (srcNode === null){
+            console.warn("Could not find the source node", srcNodeKey);
+        }
+        if (destNode === null){
+            console.warn("Could not find the destination node", destNodeKey);
+        }
+
+        // find the source port within the source node
+        const srcPort: Field = srcNode.getFieldById(srcPortId);
+        const destPort: Field = destNode.getFieldById(destPortId);
+
+        return new Edge(srcNode, srcPort, destNode, destPort, dataType, loopAware, closesLoop, false);
     }
 
     static toV3Json = (edge : Edge) : object => {
