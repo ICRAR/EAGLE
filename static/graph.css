@@ -200,6 +200,10 @@
     /* box-shadow: 0 8px 6px -6px black; */
 }
 
+.node .construct_node .container.selected .body {
+    outline: solid 5px var(--nodeBorder);
+}
+
 .node .branch_node .container.selected .outerRing {
     outline: solid 2px var(--nodeBorder);
     outline-offset: 0px;

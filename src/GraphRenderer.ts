@@ -665,12 +665,14 @@ export class GraphRenderer {
         eagle.isDragging(false);
         eagle.draggingNode(null);
         
-        if(!GraphRenderer.dragSelectionHandled){
-            const distanceMovedX = Math.abs(GraphRenderer.dragStartPosition.x-GraphRenderer.dragCurrentPosition.x)
-            const distanceMovedY = Math.abs(GraphRenderer.dragStartPosition.y-GraphRenderer.dragCurrentPosition.y)
-    
-            if(distanceMovedX<5 || distanceMovedY<5){
-                eagle.setSelection(null, node,Eagle.FileType.Graph)
+        if(node != null){
+            if(!GraphRenderer.dragSelectionHandled){
+                const distanceMovedX = Math.abs(GraphRenderer.dragStartPosition.x-GraphRenderer.dragCurrentPosition.x)
+                const distanceMovedY = Math.abs(GraphRenderer.dragStartPosition.y-GraphRenderer.dragCurrentPosition.y)
+        
+                if(distanceMovedX<5 || distanceMovedY<5){
+                    eagle.setSelection(null, node,Eagle.FileType.Graph)
+                }
             }
         }
 
