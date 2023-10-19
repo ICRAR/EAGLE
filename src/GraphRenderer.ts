@@ -25,6 +25,7 @@
 import * as ko from "knockout";
 
 import { Category } from './Category';
+import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { Edge } from "./Edge";
 import { Field } from './Field';
@@ -904,9 +905,31 @@ export class GraphRenderer {
             }
         } else {
             // no destination, ask user to choose a new node
-            const dataEligible = GraphRenderer.portDragSourceNode.getCategoryType() !== Category.Type.Data;
-            //getting matches from both the graph and the palettes list
-            const eligibleComponents = Utils.getComponentsWithMatchingPort('palette graph', !GraphRenderer.portDragSourcePortIsInput, GraphRenderer.portDragSourcePort.getType(), dataEligible);
+            const dataEligible: boolean = GraphRenderer.portDragSourceNode.getCategoryType() !== Category.Type.Data;
+
+            // check if source port is a 'dummy' port
+            // if so, consider all components as eligible, to ease the creation of new graphs
+            const sourcePortIsDummy: boolean = GraphRenderer.portDragSourcePort.getDisplayText() === Daliuge.FieldName.DUMMY;
+
+            let eligibleComponents: Node[];
+
+            if (!sourcePortIsDummy && Setting.findValue(Setting.FILTER_NODE_SUGGESTIONS)){
+                // getting matches from both the graph and the palettes list
+                eligibleComponents = Utils.getComponentsWithMatchingPort('palette graph', !GraphRenderer.portDragSourcePortIsInput, GraphRenderer.portDragSourcePort.getType(), dataEligible);
+            } else {
+                // get all nodes
+                eligibleComponents = [];
+
+                eagle.palettes().forEach(function(palette){
+                    palette.getNodes().forEach(function(node){
+                        eligibleComponents.push(node);
+                    })
+                });
+
+                eagle.logicalGraph().getNodes().forEach(function(graphNode){
+                    eligibleComponents.push(graphNode);
+                })
+            }
             
             // console.log("Found", eligibleComponents.length, "eligible automatically suggested components that have a " + (sourcePortIsInput ? "output" : "input") + " port of type:", sourcePort.getType());
 
@@ -928,7 +951,7 @@ export class GraphRenderer {
 
                 Eagle.selectedRightClickPosition = {x:GraphRenderer.graphMousePos.x, y:GraphRenderer.graphMousePos.y};
 
-                RightClick.edgeDropCreateNode(eligibleComponentNames,null)
+                RightClick.edgeDropCreateNode(eligibleComponentNames, null)
             }
         }
 
