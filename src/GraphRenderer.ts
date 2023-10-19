@@ -514,6 +514,7 @@ export class GraphRenderer {
 
         if(node === null || event.which === 2){
             //if no node is selected or we are dragging using middle mouse, we are dragging the background
+            GraphRenderer.dragSelectionHandled = true
             eagle.isDragging(true);
         } else if(!node.isEmbedded()){
            //embedded nodes, aka input and output applications of constructs, cant be dragged
@@ -529,6 +530,8 @@ export class GraphRenderer {
                 $('#'+parentNode.getId()).removeClass('transition')
                 GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
             }
+        }else{
+            GraphRenderer.dragSelectionHandled = true
         }
 
         //select handlers
@@ -581,6 +584,7 @@ export class GraphRenderer {
             eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
         }
 
+        //this is the timeout for the double click that is used to select the children of cunstructs
         GraphRenderer.dragSelectionDoubleClick = true
         setTimeout(function () {
             GraphRenderer.dragSelectionDoubleClick = false
