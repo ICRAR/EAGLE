@@ -28,7 +28,6 @@ import * as ko from "knockout";
 
 import {Category} from './Category';
 import {CategoryData} from "./CategoryData";
-import {Config} from './Config';
 import {Daliuge} from './Daliuge';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
@@ -813,7 +812,7 @@ export class Utils {
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
                     value: node.getKey(),
                     text: node.getName(),
-                    selected: edge.getSrcNodeKey() === node.getKey()
+                    selected: edge.getSrcNode().getKey() === node.getKey()
                 }));
             }
 
@@ -824,7 +823,7 @@ export class Utils {
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
                     value: inputApp.getKey(),
                     text: inputApp.getName(),
-                    selected: edge.getSrcNodeKey() === inputApp.getKey()
+                    selected: edge.getSrcNode().getKey() === inputApp.getKey()
                 }));
             }
 
@@ -835,7 +834,7 @@ export class Utils {
                 $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
                     value: outputApp.getKey(),
                     text: outputApp.getName(),
-                    selected: edge.getSrcNodeKey() === outputApp.getKey()
+                    selected: edge.getSrcNode().getKey() === outputApp.getKey()
                 }));
             }
         }
@@ -859,7 +858,7 @@ export class Utils {
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getDisplayText(),
-                    selected: edge.getSrcPortId() === port.getId()
+                    selected: edge.getSrcPort().getId() === port.getId()
                 }));
             }
         }
@@ -871,7 +870,7 @@ export class Utils {
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
                     value: node.getKey(),
                     text: node.getName(),
-                    selected: edge.getDestNodeKey() === node.getKey()
+                    selected: edge.getDestNode().getKey() === node.getKey()
                 }));
             }
 
@@ -882,7 +881,7 @@ export class Utils {
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
                     value: inputApp.getKey(),
                     text: inputApp.getName(),
-                    selected: edge.getDestNodeKey() === inputApp.getKey()
+                    selected: edge.getDestNode().getKey() === inputApp.getKey()
                 }));
             }
 
@@ -893,7 +892,7 @@ export class Utils {
                 $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
                     value: outputApp.getKey(),
                     text: outputApp.getName(),
-                    selected: edge.getDestNodeKey() === outputApp.getKey()
+                    selected: edge.getDestNode().getKey() === outputApp.getKey()
                 }));
             }
         }
@@ -917,7 +916,7 @@ export class Utils {
                 $('#editEdgeModalDestPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getDisplayText(),
-                    selected: edge.getDestPortId() === port.getId()
+                    selected: edge.getDestPort().getId() === port.getId()
                 }));
             }
         }
@@ -1430,7 +1429,7 @@ export class Utils {
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
+            Edge.isValid(eagle, edge.getId(), edge.getSrcNode(), edge.getSrcPort(), edge.getDestNode(), edge.getDestPort(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
         }
 
         // check that all node, edge, field ids are unique
@@ -1767,7 +1766,7 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(eagle, field1.getId(), field0.getId());
+        this._mergeEdges(eagle, field1, field0);
     }
 
     // NOTE: merges field1 into field0
@@ -1794,7 +1793,7 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(eagle, field1.getId(), field0.getId());
+        this._mergeEdges(eagle, field1, field0);
     }
 
     static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
@@ -1816,17 +1815,17 @@ export class Utils {
         return result;
     }
 
-    static _mergeEdges(eagle: Eagle, oldFieldId: string, newFieldId: string){
+    static _mergeEdges(eagle: Eagle, oldField: Field, newField: Field){
         // update all edges to use new field
         for (const edge of eagle.logicalGraph().getEdges()){
             // update src port
-            if (edge.getSrcPortId() === oldFieldId){
-                edge.setSrcPortId(newFieldId);
+            if (edge.getSrcPort().getId() === oldField.getId()){
+                edge.setSrcPort(newField);
             }
 
             // update dest port
-            if (edge.getDestPortId() === oldFieldId){
-                edge.setDestPortId(newFieldId);
+            if (edge.getDestPort().getId() === oldField.getId()){
+                edge.setDestPort(newField);
             }
         }
     }
