@@ -4565,6 +4565,18 @@ export class Eagle {
             }
         });
     }
+
+    findPaletteContainingNode = (nodeId: string): Palette => {
+        for (const palette of this.palettes()){
+            for (const node of palette.getNodes()){
+                if (node.getId() === nodeId){
+                    return palette;
+                }
+            }
+        }
+
+        return null;
+    }
 }
 
 export namespace Eagle
