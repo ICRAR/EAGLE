@@ -441,12 +441,10 @@ export class Eagle {
     zoomIn = () : void => {
         //changed the equations to make the speec a curve and prevent the graph from inverting
         this.globalScale(Math.abs(this.globalScale() + this.globalScale()*0.2));
-        this.logicalGraph.valueHasMutated();
     }
 
     zoomOut = () : void => {
         this.globalScale(Math.abs(this.globalScale() - this.globalScale()*0.2));
-        this.logicalGraph.valueHasMutated();
     }
 
     zoomToFit = () : void => {
