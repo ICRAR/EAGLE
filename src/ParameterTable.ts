@@ -1,10 +1,13 @@
 import * as ko from "knockout";
 
-import {Field} from './Field';
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
+import { Edge } from "./Edge";
+import { Field } from './Field';
+import { Node } from "./Node";
+import { Palette } from "./Palette";
+import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
-import {Setting} from "./Setting";
+import { Utils } from './Utils';
 
 export class ParameterTable {
 
@@ -174,8 +177,8 @@ export class ParameterTable {
         }
     }
 
-    fieldUsageChanged = (field: Field) : void => {
-        console.log("fieldUsageChanged", field.getUsage(), field.getNodeKey());
+    static fieldUsageChanged = (field: Field) : void => {
+        //console.log("fieldUsageChanged", field.getUsage(), field.getNodeKey());
         
         const eagle: Eagle = Eagle.getInstance();
         const edgesToRemove: string[] = [];
@@ -206,10 +209,27 @@ export class ParameterTable {
         }
     }
 
-    fieldValueChanged = (field: Field) : void => {
-        console.log("fieldValueChanged", field.getNodeKey());
+    // when a field value is modified in the parameter table, we need to flag the containing palette or logical graph as modified
+    static fieldValueChanged = (field: Field) : void => {
+        //console.log("fieldValueChanged", field.getDisplayText(), field.getValue(), "node key", field.getNodeKey());
 
-        // TODO: put code here instead of eagle?
+        const eagle = Eagle.getInstance();
+
+        switch (Eagle.selectedLocation()){
+            case Eagle.FileType.Palette:
+                const paletteNode: Node | Edge = eagle.selectedObjects()[0];
+                console.assert(paletteNode instanceof Node)
+
+                const containingPalette: Palette = eagle.findPaletteContainingNode(paletteNode.getId());
+
+                containingPalette.fileInfo().modified = true;
+                break;
+            case Eagle.FileType.Graph:
+                eagle.logicalGraph().fileInfo().modified = true;
+                break;
+        }
+
+        eagle.selectedObjects.valueHasMutated();
     }
 
     static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void => {
