@@ -247,7 +247,8 @@ export class GraphRenderer {
     static nodeData : Node[] =null
 
     //port drag handler globals
-    static draggingPort : boolean = false
+    static draggingPort : boolean = false;
+    static renderDraggingPortEdge : boolean = false;
     static destinationPort : Field = null;
     static destinationNode : Node = null;
     static portDragSourceNode : Node = null;
@@ -410,7 +411,7 @@ export class GraphRenderer {
         const c2y = destNodePosition.y + destCPOffset.y;
 
 
-        //the edge paramter is null if we are rendering a comment edge
+        //the edge parameter is null if we are rendering a comment edge
         if(edge != null){
             //we are hiding the arrows if the edge is too short
             if(edgeLength > GraphConfig.EDGE_DISTANCE_ARROW_VISIBILITY){
@@ -475,7 +476,25 @@ export class GraphRenderer {
         return this._getPath(null,srcNode, destNode, null, null, eagle);
     }
 
-    static _getPath(edge:Edge,srcNode: Node, destNode: Node, srcField: Field, destField: Field, eagle: Eagle) : string {
+    static getPathDraggingEdge() : string {
+        if (GraphRenderer.portDragSourceNode === null){
+            return '';
+        }
+
+        const srcNodeRadius = GraphRenderer.portDragSourceNode.getRadius();
+        const destNodeRadius = 0;
+        const srcX = GraphRenderer.portDragSourceNode.getPosition().x - srcNodeRadius;
+        const srcY = GraphRenderer.portDragSourceNode.getPosition().y -srcNodeRadius;
+        const destX = GraphRenderer.graphMousePos.x;
+        const destY = GraphRenderer.graphMousePos.y;
+        const srcField = GraphRenderer.portDragSourcePort;
+        const destField: Field = null;
+
+        const path: string = GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
+        console.log("getPathDraggingEdge", path);
+    }
+
+    static _getPath(edge:Edge, srcNode: Node, destNode: Node, srcField: Field, destField: Field, eagle: Eagle) : string {
         if (srcNode === null || destNode === null){
             console.warn("Cannot getPath between null nodes. srcNode:", srcNode, "destNode:", destNode);
             return "";
@@ -494,7 +513,7 @@ export class GraphRenderer {
         const destX = destNode.getPosition().x -destNodeRadius;
         const destY = destNode.getPosition().y -destNodeRadius;
 
-        return GraphRenderer.createBezier(edge,srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
+        return GraphRenderer.createBezier(edge, srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
     }
 
     static scrollZoom = (eagle: Eagle, event: JQueryEventObject) : void => {
@@ -806,6 +825,7 @@ export class GraphRenderer {
         
         //preparing neccessary port info 
         GraphRenderer.draggingPort = true
+        GraphRenderer.renderDraggingPortEdge = true;
         GraphRenderer.portDragSourceNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
         GraphRenderer.portDragSourcePort = port;
         GraphRenderer.portDragSourcePortIsInput = usage === 'input';
@@ -859,7 +879,7 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         console.log('end')
 
-        GraphRenderer.draggingPort = false
+        GraphRenderer.draggingPort = false;
 
         // cleaning up the port drag event listeners
         $('#logicalGraphParent').off('mouseup.portDrag')
@@ -907,6 +927,9 @@ export class GraphRenderer {
             } else {
                 console.warn("link not valid, result", linkValid);
             }
+
+            // we can stop rendering the dragging edge
+            GraphRenderer.renderDraggingPortEdge = false;
         } else {
             // no destination, ask user to choose a new node
             const dataEligible: boolean = GraphRenderer.portDragSourceNode.getCategoryType() !== Category.Type.Data;
@@ -940,6 +963,9 @@ export class GraphRenderer {
             // check we found at least one eligible component
             if (eligibleComponents.length === 0){
                 Utils.showNotification("Not Found", "No eligible components found for connection to port of this type (" + GraphRenderer.portDragSourcePort.getType() + ")", "info");
+
+                // stop rendering the dragging edge
+                GraphRenderer.renderDraggingPortEdge = false;
             } else {
 
                 // get list of strings from list of eligible components
@@ -1246,7 +1272,7 @@ export class GraphRenderer {
         // GraphRenderer.isDraggingPortValid = Eagle.LinkValid.Unknown;
     }
     
-    static draggingEdgeGetStrokeColor(edge: Edge, index: number) : string {
+    static draggingEdgeGetStrokeColor() : string {
         // switch (isDraggingPortValid){
         //     case Eagle.LinkValid.Unknown:
         //         return "black";
@@ -1257,7 +1283,11 @@ export class GraphRenderer {
         //     case Eagle.LinkValid.Valid:
         //         return LINK_COLORS.VALID;
         // }
-        return ''
+        return 'black'
+    }
+
+    static draggingEdgeGetStrokeType() : string {
+        return '';
     }
 
     static addEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean) : void {

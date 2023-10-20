@@ -2401,7 +2401,9 @@ export class Eagle {
         this.showTableModal(true)
         if(selectType === 'rightClick'){
             this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
-            $('#customContextMenu').remove();
+
+            RightClick.closeCustomContextMenu(true);
+
             setTimeout(function() {
                 Utils.showOpenParamsTableModal(mode);
             }, 30);
@@ -3175,7 +3177,8 @@ export class Eagle {
             if (!nodeFound){
                 node = this.logicalGraph().findNodeById(nodeId)
             }
-            $('#customContextMenu').remove()
+
+            RightClick.closeCustomContextMenu(true);
         }
 
         // if node is a construct, set width and height a little larger
@@ -4735,7 +4738,7 @@ $( document ).ready(function() {
         $("textarea").blur();
 
         //back up method of hiding the right click context menu in case it get stuck open
-        $('#customContextMenu').remove();
+        RightClick.closeCustomContextMenu(true);
     });
 
     $(".tableParameter").on("click", function(){
