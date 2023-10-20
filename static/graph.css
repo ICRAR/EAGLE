@@ -240,6 +240,10 @@
     max-width: 150px;
 }
 
+.node .branch_node .header{
+    bottom:calc(100% + 20px);
+}
+
 .node .header .header-name, .node .body .contents .app-name {
     padding: 4px;
     user-select: none;
