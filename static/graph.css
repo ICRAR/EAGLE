@@ -234,10 +234,10 @@
     position: absolute;
     overflow: hidden;
     text-align: center;
-    top: -37px;
+    bottom:calc(100% + 10px);
     left: 50%;
     transform: translateX(-50%);
-    width: 150px;
+    max-width: 150px;
 }
 
 .node .header .header-name, .node .body .contents .app-name {

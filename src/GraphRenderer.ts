@@ -599,16 +599,13 @@ export class GraphRenderer {
     static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
         const mouseEvent: MouseEvent = <MouseEvent>event.originalEvent;
         GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
-        // console.log('mouse move')
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null){
                 const node:Node = eagle.draggingNode()
+                $('.node.transition').removeClass('transition')
 
                 // remember node parent from before things change
                 const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey());
-
-                if(oldParent != null){
-                }
 
                 // move node
                 eagle.selectedObjects().forEach(function(obj){
@@ -646,14 +643,14 @@ export class GraphRenderer {
                 if (parent === null && node.getParentKey() !== null && !node.isEmbedded()){
                     GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
                 }
-
+                if (oldParent !== null){
+                    // moved out of a construct
+                    $('#'+oldParent.getId()).addClass('transition')
+                    // eagle.resizeConstructs();
+                }
                 // recalculate size of parent (or oldParent)
                 if (parent === null){
-                    if (oldParent !== null){
-                        // moved out of a construct
-                        $('#'+oldParent.getId()).addClass('transition')
-                        // eagle.resizeConstructs();
-                    }
+                    
                 } else {
                     // moved into or within a construct
                     $('#'+parent.getId()).removeClass('transition')
