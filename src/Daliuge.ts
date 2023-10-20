@@ -66,7 +66,10 @@ export namespace Daliuge {
 
         // branch
         YES = "yes",
-        NO = "no"
+        NO = "no",
+
+        // dummy
+        DUMMY = "dummy"
     }
 
     export enum DataType {

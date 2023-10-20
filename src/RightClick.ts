@@ -130,10 +130,12 @@ export class RightClick {
         let paletteList:string = ''
         const palettes = eagle.palettes()
 
+        // add nodes from each palette
         palettes.forEach(function(palette){
             paletteList = paletteList + RightClick.constructHtmlPaletteList(palette.getNodes(),'addNode',null,palette.fileInfo().name)
         })
 
+        // add nodes from the logical graph
         paletteList = paletteList + RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(),'addNode',null,'Graph')
 
         return paletteList
@@ -143,30 +145,13 @@ export class RightClick {
         const eagle: Eagle = Eagle.getInstance();
 
         let paletteList:string = ''
-        const palettes = eagle.palettes()
-
-        //toggling showing only filtered nodes or showing all
-        if(!Setting.findValue(Setting.FILTER_NODE_SUGGESTIONS)){
-            const x : Node[] = []
-            palettes.forEach(function(palette){
-
-                palette.getNodes().forEach(function(node){
-                    x.push(node)
-                })
-
-                eagle.logicalGraph().getNodes().forEach(function(graphNode){
-                    x.push(graphNode)
-                })
-            })
-
-            compatibleNodesList = x
-        }
+        const palettes = eagle.palettes();
 
         palettes.forEach(function(palette){
-            paletteList = paletteList+RightClick.constructHtmlPaletteList(palette.getNodes(), 'addAndConnect', compatibleNodesList ,palette.fileInfo().name)
+            paletteList = paletteList + RightClick.constructHtmlPaletteList(palette.getNodes(), 'addAndConnect', compatibleNodesList, palette.fileInfo().name)
         })
 
-        paletteList = paletteList + RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(),'addAndConnect',compatibleNodesList,'Graph')
+        paletteList = paletteList + RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(), 'addAndConnect', compatibleNodesList, 'Graph')
         return paletteList
     }
 
@@ -380,7 +365,7 @@ export class RightClick {
             passedObjectClass = 'rightClick_graphEdge'
         }
                     
-        RightClick.requestCustomContextMenu(data,eventTarget, passedObjectClass)
+        RightClick.requestCustomContextMenu(data, eventTarget, passedObjectClass)
 
         // prevent bubbling events
         event.stopPropagation();
@@ -388,15 +373,14 @@ export class RightClick {
 
     static edgeDropCreateNode = (data:any, eventTarget:any) : void => {
                     
-        RightClick.requestCustomContextMenu(data,eventTarget, 'edgeDropCreate')
+        RightClick.requestCustomContextMenu(data, eventTarget, 'edgeDropCreate')
 
         // prevent bubbling events
         event.stopPropagation();
     }
 
     static requestCustomContextMenu = (data:any, targetElement:JQuery, passedObjectClass:string) : void => {
-
-        //getting the mouse event for positioning the right click menu at the cursor location
+        // getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
 
         const thisEvent = event as MouseEvent
@@ -408,7 +392,7 @@ export class RightClick {
             Eagle.selectedRightClickObject(data)
         }
 
-        //setting up the menu div
+        // setting up the menu div
         $('#customContextMenu').remove()
         $(document).find('body').append('<div id="customContextMenu" onmouseleave="RightClick.closeCustomContextMenu(false)"></div>')
         $('#customContextMenu').css('top',mouseY+'px')
