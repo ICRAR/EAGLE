@@ -872,7 +872,6 @@ export class GraphRenderer {
 
     static portDragEnd = () : void => {
         const eagle = Eagle.getInstance();
-        console.log('end')
 
         GraphRenderer.draggingPort = false;
 
@@ -880,7 +879,6 @@ export class GraphRenderer {
         $('#logicalGraphParent').off('mouseup.portDrag')
         $('.node .body').off('mouseup.portDrag')
 
-        console.log(GraphRenderer.destinationPort,GraphRenderer.portDragSuggestedField)
         if (GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField !== null){
             const srcNode = GraphRenderer.portDragSourceNode;
             const srcPort = GraphRenderer.portDragSourcePort;

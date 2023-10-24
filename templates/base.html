@@ -105,8 +105,6 @@
                             <!-- ko if: GraphRenderer.renderDraggingPortEdge -->
                                 <g data-bind="attr:{id:'draggingEdge'}">
                                     <path data-bind="attr:{d: GraphRenderer.getPathDraggingEdge()},style:{'stroke':function(viewmodel,event){return GraphRenderer.draggingEdgeGetStrokeColor()}, 'stroke-dasharray': function(viewmodel,event){return GraphRenderer.draggingEdgeGetStrokeType()}}"></path>
-                                    <path class="edgeClickTarget" data-bind="attr:{d: GraphRenderer.getPathDraggingEdge()}"></path>
-                                    <polygon data-bind="style:{'fill':function(viewmodel,event){return GraphRenderer.draggingEdgeGetStrokeColor()}}"></polygon>
                                 </g>
                             <!-- /ko -->
                         </svg>
