@@ -464,8 +464,6 @@ export class RightClick {
                     $('#customContextMenu').append(message)
                 }
             }else if(passedObjectClass === 'edgeDropCreate'){
-                console.log("edgeDropCreate");
-
                 if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
                     const searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
                         <i class="material-icons md-18 searchBarIcon">search</i>
