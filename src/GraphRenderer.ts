@@ -269,7 +269,7 @@ export class GraphRenderer {
     static mousePosY : ko.Observable<number> = ko.observable(-1);
 
     // TODO: observable!
-    static renderDraggingPortEdge : boolean = false;
+    static renderDraggingPortEdge : ko.Observable<boolean> = ko.observable(false);
 
     static averageAngles(angles: number[]) : number {
         let x: number = 0;
@@ -478,8 +478,7 @@ export class GraphRenderer {
 
     static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
         if (GraphRenderer.portDragSourceNode === null){
-            console.log("getPathDraggingEdge", GraphRenderer.portDragSourceNode, "no path", "mouse", GraphRenderer.mousePosX(), GraphRenderer.mousePosY());
-            return 'M150 0 L75 200 L225 200 Z';
+            return '';
         }
 
         const srcNodeRadius: number = GraphRenderer.portDragSourceNode.getRadius();
@@ -491,9 +490,7 @@ export class GraphRenderer {
         const srcField: Field = GraphRenderer.portDragSourcePort;
         const destField: Field = null;
 
-        const path: string = GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
-        console.log("getPathDraggingEdge", GraphRenderer.portDragSourceNode, path);
-        return path;
+        return GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
     }, this);
 
     static _getPath(edge:Edge, srcNode: Node, destNode: Node, srcField: Field, destField: Field, eagle: Eagle) : string {
@@ -818,19 +815,29 @@ export class GraphRenderer {
         construct.setRadius(maxDistance);
     }
 
-    static portDragStart = (port:Field,usage:string) : void => {
+    static updateMousePos = (): void => {
+        // grab and convert mouse position to graph coordinates
+        const d3DivOffset = $('#logicalGraphD3Div').offset();
+        const mouseX = (<any>event).pageX - d3DivOffset.left;
+        const mouseY = (<any>event).pageY - d3DivOffset.top;
+        GraphRenderer.mousePosX(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(mouseX));
+        GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(mouseY));
+    }
+
+    static portDragStart = (port:Field, usage:string) : void => {
         const eagle = Eagle.getInstance();
 
-        console.log('start')
+        GraphRenderer.updateMousePos();
+
         //prevents moving the node when dragging the port
         event.stopPropagation();
         
-        //preparing neccessary port info 
+        //preparing necessary port info
         GraphRenderer.draggingPort = true
-        GraphRenderer.renderDraggingPortEdge = true;
         GraphRenderer.portDragSourceNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
         GraphRenderer.portDragSourcePort = port;
-        GraphRenderer.portDragSourcePortIsInput = usage === 'input';
+        GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
+        GraphRenderer.renderDraggingPortEdge(true);
 
         //setting up the port event listeners
         $('#logicalGraphParent').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
@@ -839,21 +846,12 @@ export class GraphRenderer {
 
     static portDragging = (event:any) : void => {
         const eagle = Eagle.getInstance();
-        console.log('drag');
-        const d3DivOffset = $('#logicalGraphD3Div').offset();
 
-        // grab and convert mouse position to graph coordinates
-        const mouseX = event.pageX - d3DivOffset.left;
-        const mouseY = event.pageY - d3DivOffset.top;
-
-        GraphRenderer.mousePosX(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(mouseX));
-        GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(mouseY));
-        console.log('mouse', mouseX, mouseY, 'graph', GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), 'global scale', eagle.globalScale(), 'offset', eagle.globalOffsetX(), eagle.globalOffsetY())
+        GraphRenderer.updateMousePos();
 
         // check for nearby nodes
         const nearbyNodes = GraphRenderer.findNodesInRange(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), GraphConfig.NODE_SUGGESTION_RADIUS, GraphRenderer.portDragSourceNode.getKey());
 
-        
         // check for nearest matching port in the nearby nodes
         const matchingPort: Field = GraphRenderer.findNearestMatchingPort(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), nearbyNodes, GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
 
@@ -927,7 +925,7 @@ export class GraphRenderer {
             }
 
             // we can stop rendering the dragging edge
-            GraphRenderer.renderDraggingPortEdge = false;
+            GraphRenderer.renderDraggingPortEdge(false);
         } else {
             // no destination, ask user to choose a new node
             const dataEligible: boolean = GraphRenderer.portDragSourceNode.getCategoryType() !== Category.Type.Data;
@@ -963,7 +961,7 @@ export class GraphRenderer {
                 Utils.showNotification("Not Found", "No eligible components found for connection to port of this type (" + GraphRenderer.portDragSourcePort.getType() + ")", "info");
 
                 // stop rendering the dragging edge
-                GraphRenderer.renderDraggingPortEdge = false;
+                GraphRenderer.renderDraggingPortEdge(false);
             } else {
 
                 // get list of strings from list of eligible components

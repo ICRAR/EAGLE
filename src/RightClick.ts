@@ -110,8 +110,6 @@ export class RightClick {
     }
 
     static closeCustomContextMenu = (force:boolean) : void => {
-        console.log("closeCustomContextMenu()");
-
         if(force){
             $("#customContextMenu").remove()
         }else {
@@ -126,7 +124,7 @@ export class RightClick {
             }, 300);
         }
 
-        GraphRenderer.renderDraggingPortEdge = false;
+        GraphRenderer.renderDraggingPortEdge(false);
     }
 
     static createHtmlPaletteList = () : string => {
@@ -398,7 +396,8 @@ export class RightClick {
         }
 
         // close any existing context menu
-        RightClick.closeCustomContextMenu(true);
+        //RightClick.closeCustomContextMenu(true);
+        $('#customContextMenu').remove();
 
         // setting up the menu div
         $(document).find('body').append('<div id="customContextMenu" onmouseleave="RightClick.closeCustomContextMenu(false)"></div>')
