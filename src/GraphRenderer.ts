@@ -268,7 +268,6 @@ export class GraphRenderer {
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
 
-    // TODO: observable!
     static renderDraggingPortEdge : ko.Observable<boolean> = ko.observable(false);
 
     static averageAngles(angles: number[]) : number {
