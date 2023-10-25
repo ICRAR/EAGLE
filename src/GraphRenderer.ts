@@ -421,7 +421,7 @@ export class GraphRenderer {
         const c2y = destNodePosition.y + destCPOffset.y;
 
 
-        //the edge parameter is null if we are rendering a comment edge
+        //the edge parameter is null if we are rendering a comment edge and this is not needed
         if(edge != null){
             //we are hiding the arrows if the edge is too short
             if(edgeLength > GraphConfig.EDGE_DISTANCE_ARROW_VISIBILITY){
@@ -848,8 +848,8 @@ export class GraphRenderer {
         const d3DivOffset = $('#logicalGraphD3Div').offset();
         const mouseX = (<any>event).pageX - d3DivOffset.left;
         const mouseY = (<any>event).pageY - d3DivOffset.top;
-        GraphRenderer.mousePosX(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(mouseX));
-        GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(mouseY));
+        GraphRenderer.mousePosX(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X());
+        GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y());
     }
 
     static portDragStart = (port:Field, usage:string) : void => {
@@ -1003,14 +1003,14 @@ export class GraphRenderer {
 
     }
     
-    static SCREEN_TO_GRAPH_POSITION_X(x: number) : number {
+    static SCREEN_TO_GRAPH_POSITION_X() : number {
         const eagle = Eagle.getInstance();
-        return x*eagle.globalScale();
+        return GraphRenderer.dragCurrentPosition.x/eagle.globalScale() - eagle.globalOffsetX();
     }
 
-    static SCREEN_TO_GRAPH_POSITION_Y(y: number) : number {
+    static SCREEN_TO_GRAPH_POSITION_Y() : number {
         const eagle = Eagle.getInstance();
-        return y *eagle.globalScale();
+        return (GraphRenderer.dragCurrentPosition.y-83.77)/eagle.globalScale() -eagle.globalOffsetY();
     }
 
     static SCREEN_TO_GRAPH_SCALE(n: number) : number {
