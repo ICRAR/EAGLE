@@ -222,7 +222,7 @@ export class LogicalGraph {
     }
 
     getAllNodes = () : Node[] => {
-        let nodes : Node[] =[]
+        const nodes : Node[] =[]
         this.nodes().forEach(function(node){
             nodes.push(node)
             if(node.isConstruct()){

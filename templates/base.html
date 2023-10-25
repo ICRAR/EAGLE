@@ -107,6 +107,11 @@
                                     <path data-bind="attr:{d: GraphRenderer.getPathDraggingEdge()},style:{'stroke':function(viewmodel,event){return GraphRenderer.draggingEdgeGetStrokeColor()}, 'stroke-dasharray': function(viewmodel,event){return GraphRenderer.draggingEdgeGetStrokeType()}}"></path>
                                 </g>
                             <!-- /ko -->
+                            <!-- ko if: true -->
+                                <g data-bind="attr:{id:'suggestedEdge'}">
+                                    <path data-bind="attr:{d: GraphRenderer.getPathSuggestedEdge()},style:{'stroke':function(viewmodel,event){return GraphRenderer.suggestedEdgeGetStrokeColor()}, 'stroke-dasharray': function(viewmodel,event){return GraphRenderer.suggestedEdgeGetStrokeType()}}"></path>
+                                </g>
+                            <!-- /ko -->
                         </svg>
                         <div class="portport" data-bind="style: {'z-index': 200, 'background-color': 'red', height: '5px', width: '5px', top: GraphRenderer.mousePosY()+'px', left: GraphRenderer.mousePosX()+'px', position: 'absolute'}"></div>
                     <!-- /ko -->
