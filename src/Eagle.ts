@@ -95,8 +95,10 @@ export class Eagle {
 
     explorePalettes : ko.Observable<ExplorePalettes>;
 
+    // TODO: move these to GraphRenderer.ts
     isDragging : ko.Observable<boolean>;
     draggingNode : ko.Observable<Node>;
+
     errorsMode : ko.Observable<Setting.ErrorsMode>;
     graphWarnings : ko.ObservableArray<Errors.Issue>;
     graphErrors : ko.ObservableArray<Errors.Issue>;

@@ -1269,6 +1269,24 @@ export class GraphRenderer {
         return {node: minNode, field: minPort};
     }
     
+    static mouseEnterPort(port : Field) : void {
+        // if (!GraphRenderer.draggingPort){
+        //     return;
+        // }
+        // const eagle = Eagle.getInstance();
+        // GraphRenderer.destinationPort = port;
+        // GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
+
+        // GraphRenderer.isDraggingPortValid = Edge.isValid(eagle, null, GraphRenderer.portDragSourceNode.getKey(), GraphRenderer.portDragSourcePort.getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), GraphRenderer.portDragSourcePort.getType(), false, false, false, false, {errors:[], warnings:[]});
+    }
+
+    static mouseLeavePort(port : Field) : void {
+        // GraphRenderer.destinationPort = null;
+        // GraphRenderer.destinationNode = null;
+
+        // GraphRenderer.isDraggingPortValid = Eagle.LinkValid.Unknown;
+    }
+
     static draggingEdgeGetStrokeColor() : string {
         // switch (isDraggingPortValid){
         //     case Eagle.LinkValid.Unknown:
