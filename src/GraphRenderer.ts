@@ -247,11 +247,13 @@ export class GraphRenderer {
 
     //port drag handler globals
     static draggingPort : boolean = false;
-    static destinationPort : Field = null;
     static destinationNode : Node = null;
+    static destinationPort : Field = null;
+    
     static portDragSourceNode : Node = null;
     static portDragSourcePort : Field = null;
-    static portDragSourcePortIsInput :boolean =false;
+    static portDragSourcePortIsInput: boolean = false;
+
     static portDragSuggestedNode : ko.Observable<Node> = ko.observable(null);
     static portDragSuggestedField : ko.Observable<Field> = ko.observable(null);
 
@@ -352,10 +354,11 @@ export class GraphRenderer {
         return interpolatedAngle;
     }
 
-    static createBezier(edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field) : string {
+    static createBezier(edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field, sourcePortIsInput: boolean) : string {
         //console.log("createBezier", srcNodePosition, destNodePosition);
 
         //since the svg parent is translated -50% to center our working area, we need to add half of its width to correct the positions
+        // TODO: remove magic numbers here (5000)
         destNodePosition={x:destNodePosition.x+5000,y:destNodePosition.y+5000}
         srcNodePosition={x:srcNodePosition.x+5000,y:srcNodePosition.y+5000}
 
@@ -374,12 +377,20 @@ export class GraphRenderer {
         let srcPortOffset;
         let destPortOffset;
         if (srcField){
-            srcPortOffset = srcField.getOutputPosition();
+            if (sourcePortIsInput){
+                srcPortOffset = srcField.getInputPosition();
+            } else {
+                srcPortOffset = srcField.getOutputPosition();
+            }
         } else {
             srcPortOffset = GraphRenderer.calculatePortPos(srcPortAngle, srcNodeRadius, srcNodeRadius);
         }
         if (destField){
-            destPortOffset = destField.getInputPosition();
+            if (sourcePortIsInput){
+                destPortOffset = destField.getOutputPosition();
+            } else {
+                destPortOffset = destField.getInputPosition();
+            }
         } else {
             destPortOffset = GraphRenderer.calculatePortPos(destPortAngle, destNodeRadius, destNodeRadius);
         }
@@ -486,10 +497,11 @@ export class GraphRenderer {
         const srcY: number = GraphRenderer.portDragSourceNode.getPosition().y - srcNodeRadius;
         const destX: number = GraphRenderer.mousePosX();
         const destY: number = GraphRenderer.mousePosY();
+
         const srcField: Field = GraphRenderer.portDragSourcePort;
         const destField: Field = null;
 
-        return GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
+        return GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
     }, this);
 
     static getPathSuggestedEdge : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -506,7 +518,7 @@ export class GraphRenderer {
         const srcField: Field = null;
         const destField: Field = GraphRenderer.portDragSuggestedField();
 
-        return GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
+        return GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
     }, this);
 
     static _getPath(edge:Edge, srcNode: Node, destNode: Node, srcField: Field, destField: Field, eagle: Eagle) : string {
@@ -528,7 +540,7 @@ export class GraphRenderer {
         const destX = destNode.getPosition().x -destNodeRadius;
         const destY = destNode.getPosition().y -destNodeRadius;
 
-        return GraphRenderer.createBezier(edge, srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
+        return GraphRenderer.createBezier(edge, srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, false);
     }
 
     static scrollZoom = (eagle: Eagle, event: JQueryEventObject) : void => {
