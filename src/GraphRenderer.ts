@@ -256,7 +256,6 @@ export class GraphRenderer {
 
     static portDragSuggestedNode : ko.Observable<Node> = ko.observable(null);
     static portDragSuggestedField : ko.Observable<Field> = ko.observable(null);
-    static portDragSuggestedFieldIsInput: boolean = false;
 
     //node drag handler globals
     static NodeParentRadiusPreDrag : number = null;
@@ -519,7 +518,7 @@ export class GraphRenderer {
         const srcField: Field = null;
         const destField: Field = GraphRenderer.portDragSuggestedField();
 
-        return GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSuggestedFieldIsInput);
+        return GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
     }, this);
 
     static _getPath(edge:Edge, srcNode: Node, destNode: Node, srcField: Field, destField: Field, eagle: Eagle) : string {
