@@ -925,17 +925,33 @@ export class GraphRenderer {
                 // getting matches from both the graph and the palettes list
                 eligibleComponents = Utils.getComponentsWithMatchingPort('palette graph', !GraphRenderer.portDragSourcePortIsInput, GraphRenderer.portDragSourcePort.getType(), dataEligible);
             } else {
-                // get all nodes
+                // get all nodes with at least one port with opposite "direction" (input/output) from the source node
                 eligibleComponents = [];
 
                 eagle.palettes().forEach(function(palette){
                     palette.getNodes().forEach(function(node){
-                        eligibleComponents.push(node);
+                        if (GraphRenderer.portDragSourcePortIsInput){
+                            if (node.getOutputPorts().length > 0){
+                                eligibleComponents.push(node);
+                            }
+                        } else {
+                            if (node.getInputPorts().length > 0){
+                                eligibleComponents.push(node);
+                            }
+                        }
                     })
                 });
 
                 eagle.logicalGraph().getNodes().forEach(function(graphNode){
-                    eligibleComponents.push(graphNode);
+                    if (GraphRenderer.portDragSourcePortIsInput){
+                        if (graphNode.getOutputPorts().length > 0){
+                            eligibleComponents.push(graphNode);
+                        }
+                    } else {
+                        if (graphNode.getInputPorts().length > 0){
+                            eligibleComponents.push(graphNode);
+                        }
+                    }
                 })
             }
             
