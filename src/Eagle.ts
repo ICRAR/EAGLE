@@ -494,13 +494,13 @@ export class Eagle {
             }
         }
         // determine the centroid of the graph
-        const centroidX = minX + ((maxX - minX) / 2);
-        const centroidY = minY + ((maxY - minY) / 2);
+        let centroidX = minX + ((maxX - minX) / 2);
+        let centroidY = minY + ((maxY - minY) / 2);
 
 
         //calculating scale multipliers needed for each, height and width in order to fit the graph
-        const containerHeight = $('#logicalGraphD3Div').height()
-        const graphHeight = maxY-minY+200
+        const containerHeight = $('#logicalGraphParent').height()
+        const graphHeight = maxY-minY+200//the 200 is the margin we are leaving between the graphs and the edges
         const graphYScale = containerHeight/graphHeight
         
         //we are taking into account the current widths of the left and right windows
@@ -514,21 +514,15 @@ export class Eagle {
             rightWindow = this.rightWindow().width()
         }
 
-        const containerWidth = $('#logicalGraphD3Div').width() - leftWindow - rightWindow
+        const containerWidth = $('#logicalGraphParent').width() - leftWindow - rightWindow
         const graphWidth = maxX-minX+200
         const graphXScale = containerWidth/graphWidth
 
 
-        // reset scale to center the graph correctly
-        this.globalScale(1)
+        // // reset scale to center the graph correctly
+        // this.globalScale(1)
 
-        //determine center of the display area
-        const displayCenterX : number = (containerWidth / this.globalScale() / 2);
-        const displayCenterY : number = $('#logicalGraphParent').height() / this.globalScale() / 2;
 
-        // translate display to center the graph centroid
-        this.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
-        this.globalOffsetY(Math.round(displayCenterY - centroidY));
 
         //determening which is the smaller scale multiplier to fit the graph and setting it
         if(graphYScale>graphXScale){
@@ -538,6 +532,18 @@ export class Eagle {
         }else{
             this.globalScale(1)
         }
+
+        //determine center of the display area
+        const displayCenterX : number = (containerWidth / this.globalScale() / 2);
+        const displayCenterY : number = $('#logicalGraphParent').height() / this.globalScale() / 2;
+
+        centroidX = GraphRenderer.GRAPH_TO_SCREEN_POSITION_X(centroidX)
+        centroidY = GraphRenderer.GRAPH_TO_SCREEN_POSITION_Y(centroidY)
+console.log(centroidX,centroidY)
+        
+        // translate display to center the graph centroid
+        this.globalOffsetX(Math.round(displayCenterX - centroidX +leftWindow));
+        this.globalOffsetY(Math.round(displayCenterY - centroidY));
     }
 
     getSelectedText = () : string => {
