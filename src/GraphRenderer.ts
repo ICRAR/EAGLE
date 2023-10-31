@@ -1020,14 +1020,16 @@ export class GraphRenderer {
 
     static GRAPH_TO_SCREEN_POSITION_X(x: number) : number {
         const eagle = Eagle.getInstance();
-        return (x / eagle.globalScale()) + eagle.globalOffsetX() ;
+        // return (x * eagle.globalScale()) + eagle.globalOffsetX() ;
+        return(x + eagle.globalOffsetX()) * eagle.globalScale()
         // return (x + eagle.globalOffsetX())/eagle.globalScale();
     }
 
     static GRAPH_TO_SCREEN_POSITION_Y(y: number) : number {
         const eagle = Eagle.getInstance();
-        return (y / eagle.globalScale()) + eagle.globalOffsetY();
+        // return (y * eagle.globalScale()) + eagle.globalOffsetY();
         // return (y + eagle.globalOffsetY())/eagle.globalScale();
+        return (y+eagle.globalOffsetY())*eagle.globalScale()+83.77
     }
 
     static findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
