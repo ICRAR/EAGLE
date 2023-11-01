@@ -457,16 +457,16 @@ export class Eagle {
         console.error("Not implemented!");
     }
 
-    resizeConstructs = () : void => {
-        // debug - resize a few times, to avoid the need to resize from leaves upwards
-        for (let i = 0 ; i < 10 ; i++){
-            for (const node of this.logicalGraph().getNodes()){
-                if (node.isGroup()){
-                    GraphRenderer.resizeConstruct(node, true);
-                }
-            }
-        }
-    }
+    // resizeConstructs = () : void => {
+    //     // debug - resize a few times, to avoid the need to resize from leaves upwards
+    //     for (let i = 0 ; i < 10 ; i++){
+    //         for (const node of this.logicalGraph().getNodes()){
+    //             if (node.isGroup()){
+    //                 GraphRenderer.resizeConstruct(node, true);
+    //             }
+    //         }
+    //     }
+    // }
 
     centerGraph = () : void => {
         // if there are no nodes in the logical graph, abort
@@ -1837,7 +1837,7 @@ export class Eagle {
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
-        this.resizeConstructs();
+        // this.resizeConstructs();
 
         // center graph
         this.centerGraph();

@@ -36,6 +36,7 @@ import { Utils } from './Utils';
 import { CategoryData} from './CategoryData';
 import {Setting, SettingsGroup} from './Setting';
 import { RightClick } from "./RightClick";
+import { GraphUpdater } from "./GraphUpdater";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
@@ -73,6 +74,10 @@ ko.bindingHandlers.nodeRenderHandler = {
         }
         if(node.isScatter()){
             $(element).children().children().children('.body').css({'border-style':'double','border-width':'7px'})
+        }
+
+        if(node.isConstruct()|| node.getParentKey() != null){
+            GraphRenderer.resizeConstruct(node,false)
         }
     },
 };
@@ -640,16 +645,13 @@ export class GraphRenderer {
     static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
         const mouseEvent: MouseEvent = <MouseEvent>event.originalEvent;
         GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
-
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null){
                 const node:Node = eagle.draggingNode()
+                $('.node.transition').removeClass('transition')
 
                 // remember node parent from before things change
                 const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey());
-
-                if(oldParent != null){
-                }
 
                 // move node
                 eagle.selectedObjects().forEach(function(obj){
@@ -666,40 +668,40 @@ export class GraphRenderer {
 
                         oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag)
                     }
-
                 }
-                    // check for nodes underneath the node we dropped
-                    const parent: Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getRadius(), node.getKey(), true);
 
-                    // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
-                    const ancestorOfParent = GraphRenderer.isAncestor(parent, node);
+                // check for nodes underneath the node we dropped
+                const parent: Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getRadius(), node.getKey(), true);
 
-                    // keep track of whether we would update any node parents
-                    const updated = {parent: false};
-                    const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+                // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
+                const ancestorOfParent = GraphRenderer.isAncestor(parent, node);
 
-                    // if a parent was found, update
-                    if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && !ancestorOfParent && !node.isEmbedded()){
-                        GraphRenderer._updateNodeParent(node, parent.getKey(), updated, allowGraphEditing);
-                    }
+                // keep track of whether we would update any node parents
+                const updated = {parent: false};
+                const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
 
-                    // if no parent found, update
-                    if (parent === null && node.getParentKey() !== null && !node.isEmbedded()){
-                        GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
-                    }
+                // if a parent was found, update
+                if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && !ancestorOfParent && !node.isEmbedded()){
+                    GraphRenderer._updateNodeParent(node, parent.getKey(), updated, allowGraphEditing);
+                }
 
-                    // recalculate size of parent (or oldParent)
-                    if (parent === null){
-                        if (oldParent !== null){
-                            // moved out of a construct
-                            $('#'+oldParent.getId()).addClass('transition')
-                            eagle.resizeConstructs();
-                        }
-                    } else {
-                        // moved into or within a construct
-                        $('#'+parent.getId()).removeClass('transition')
-                        eagle.resizeConstructs();
-                    }
+                // if no parent found, update
+                if (parent === null && node.getParentKey() !== null && !node.isEmbedded()){
+                    GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
+                }
+                if (oldParent !== null){
+                    // moved out of a construct
+                    $('#'+oldParent.getId()).addClass('transition')
+                    // eagle.resizeConstructs();
+                }
+                // recalculate size of parent (or oldParent)
+                if (parent === null){
+                    
+                } else {
+                    // moved into or within a construct
+                    $('#'+parent.getId()).removeClass('transition')
+                    // eagle.resizeConstructs();
+                }
 
             } else {
                 // move background
@@ -840,7 +842,9 @@ export class GraphRenderer {
         maxDistance = Math.max(maxDistance, GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
 
         //console.log("Resize", construct.getName(), "radius to", maxDistance, "to contain", numChildren, "children");
-        construct.setRadius(maxDistance);
+        if(construct.isConstruct()){
+            construct.setRadius(maxDistance);
+        }
     }
 
     static updateMousePos = (): void => {
@@ -957,17 +961,33 @@ export class GraphRenderer {
                 // getting matches from both the graph and the palettes list
                 eligibleComponents = Utils.getComponentsWithMatchingPort('palette graph', !GraphRenderer.portDragSourcePortIsInput, GraphRenderer.portDragSourcePort.getType(), dataEligible);
             } else {
-                // get all nodes
+                // get all nodes with at least one port with opposite "direction" (input/output) from the source node
                 eligibleComponents = [];
 
                 eagle.palettes().forEach(function(palette){
                     palette.getNodes().forEach(function(node){
-                        eligibleComponents.push(node);
+                        if (GraphRenderer.portDragSourcePortIsInput){
+                            if (node.getOutputPorts().length > 0){
+                                eligibleComponents.push(node);
+                            }
+                        } else {
+                            if (node.getInputPorts().length > 0){
+                                eligibleComponents.push(node);
+                            }
+                        }
                     })
                 });
 
                 eagle.logicalGraph().getNodes().forEach(function(graphNode){
-                    eligibleComponents.push(graphNode);
+                    if (GraphRenderer.portDragSourcePortIsInput){
+                        if (graphNode.getOutputPorts().length > 0){
+                            eligibleComponents.push(graphNode);
+                        }
+                    } else {
+                        if (graphNode.getInputPorts().length > 0){
+                            eligibleComponents.push(graphNode);
+                        }
+                    }
                 })
             }
             
