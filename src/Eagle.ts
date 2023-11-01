@@ -980,6 +980,8 @@ export class Eagle {
                     insertedNode.setParentKey(parentNode.getKey());
                 }
 
+
+                
                 // copy embedded input application
                 if (node.hasInputApplication()){
                     const inputApplication : Node = node.getInputApplication();
@@ -988,6 +990,14 @@ export class Eagle {
                     const newId : string = Utils.uuidv4();
                     clone.setKey(newKey);
                     clone.setId(newId);
+                    
+                    if(clone.getFields() != null){
+                        // set new ids for any fields in this node
+                        for (const field of clone.getFields()){
+                            field.setId(Utils.uuidv4());
+                        }
+                    }
+                    
                     keyMap.set(inputApplication.getKey(), clone);
 
                     insertedNode.setInputApplication(clone);
@@ -1010,7 +1020,16 @@ export class Eagle {
                     const newId : string = Utils.uuidv4();
                     clone.setKey(newKey);
                     clone.setId(newId);
+                    
+                    if(clone.getFields() != null){
+                        // set new ids for any fields in this node
+                        for (const field of clone.getFields()){
+                            field.setId(Utils.uuidv4());
+                        }
+                    }
+                    
                     keyMap.set(outputApplication.getKey(), clone);
+
 
                     insertedNode.setOutputApplication(clone);
 
@@ -4198,6 +4217,13 @@ export class Eagle {
             clone.setKey(newKey);
             clone.setId(newId)
 
+            if(clone.getFields() != null){
+                // set new ids for any fields in this node
+                for (const field of clone.getFields()){
+                    field.setId(Utils.uuidv4());
+                }
+            }
+
             callback(clone);
         });
     }
@@ -4563,7 +4589,6 @@ export class Eagle {
         newNode.setKey(Utils.newKey(this.logicalGraph().getNodes()));
         newNode.setPosition(x, y);
         newNode.setEmbedKey(null);
-
         this.logicalGraph().addNodeComplete(newNode);
 
         // set new ids for any fields in this node
@@ -4574,6 +4599,7 @@ export class Eagle {
         // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
         if (newNode.hasInputApplication()){
             newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            newNode.getInputApplication().setId(Utils.uuidv4());
             newNode.getInputApplication().setEmbedKey(newNode.getKey());
 
             // set new ids for any fields in this node
@@ -4583,6 +4609,7 @@ export class Eagle {
         }
         if (newNode.hasOutputApplication()){
             newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            newNode.getOutputApplication().setId(Utils.uuidv4());
             newNode.getOutputApplication().setEmbedKey(newNode.getKey());
 
             // set new ids for any fields in this node
