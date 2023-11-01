@@ -220,8 +220,8 @@ export class Node {
     }
 
     setPosition = (x: number, y: number, allowSnap: boolean = true) : void => {
-        this.realX = Math.round(x);
-        this.realY = Math.round(y);
+        this.realX = x;
+        this.realY = y;
 
         if (Eagle.getInstance().snapToGrid() && allowSnap){
             this.x(Utils.snapToGrid(this.realX, this.getDisplayRadius()));
@@ -233,10 +233,10 @@ export class Node {
     }
 
     changePosition = (dx : number, dy : number, allowSnap: boolean = true) : {dx:number, dy:number} => {
-        this.realX += Math.round(dx);
-        this.realY += Math.round(dy);
+        this.realX += dx;
+        this.realY += dy;
 
-        const beforePos = {x:Math.round(this.x()), y:Math.round(this.y())};
+        const beforePos = {x:this.x(), y:this.y()};
 
         if (Eagle.getInstance().snapToGrid() && allowSnap){
             this.x(Utils.snapToGrid(this.realX, this.getDisplayRadius()));
