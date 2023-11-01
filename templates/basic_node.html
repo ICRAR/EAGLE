@@ -1,5 +1,5 @@
 <div class="nodeContent basic_node">
-    <div class="container" data-bind="css: {selected: $root.objectIsSelected($data)}">
+    <div class="container" data-bind="css: {selected: $root.objectIsSelected($data)},attr:{id:$data.getId()}">
         <div class="header" data-bind="eagleTooltip: $data.getHelpHTML()">
             <div class="header-name" data-bind="html: $data.name"></div>
         </div>

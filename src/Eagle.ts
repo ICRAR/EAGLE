@@ -985,7 +985,9 @@ export class Eagle {
                     const inputApplication : Node = node.getInputApplication();
                     const clone : Node = inputApplication.clone();
                     const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
+                    const newId : string = Utils.uuidv4();
                     clone.setKey(newKey);
+                    clone.setId(newId);
                     keyMap.set(inputApplication.getKey(), clone);
 
                     insertedNode.setInputApplication(clone);
@@ -1005,7 +1007,9 @@ export class Eagle {
                     const outputApplication : Node = node.getOutputApplication();
                     const clone : Node = outputApplication.clone();
                     const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
+                    const newId : string = Utils.uuidv4();
                     clone.setKey(newKey);
+                    clone.setId(newId);
                     keyMap.set(outputApplication.getKey(), clone);
 
                     insertedNode.setOutputApplication(clone);
@@ -4190,7 +4194,9 @@ export class Eagle {
             // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
             const clone : Node = application.clone();
             const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
+            const newId : string = Utils.uuidv4();
             clone.setKey(newKey);
+            clone.setId(newId)
 
             callback(clone);
         });
