@@ -45,9 +45,9 @@
     <body>
         <!-- hidden area -->
         <div style="display:none;">
-            <input id="uploadedGraphFileToLoad" class="fileSelector" type="file" name="file" data-bind="event: { change: uploadGraphFile }">
+            <input id="uploadedGraphFileToLoad" class="fileSelector" type="file" name="file" data-bind="event: { change: loadLocalGraphFile }">
             <input id="uploadedGraphFileToInsert" class="fileSelector" type="file" name="file" data-bind="event: { change: insertGraphFile }">
-            <input id="uploadedPaletteFileToLoad" class="fileSelector" type="file" name="file" data-bind="event: { change: uploadPaletteFile }">
+            <input id="uploadedPaletteFileToLoad" class="fileSelector" type="file" name="file" data-bind="event: { change: loadLocalPaletteFile }">
         </div>
 
         {% include 'navbar.html' %}

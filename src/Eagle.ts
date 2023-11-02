@@ -674,45 +674,39 @@ export class Eagle {
         return false;
     }
 
-    /**
-     * Uploads a file from a local file location.
-     */
-    uploadGraphFile = () : void => {
+    loadLocalGraphFile = () : void => {
         const uploadedGraphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToLoad");
         const fileFullPath : string = uploadedGraphFileToLoadInputElement.value;
+        const eagle: Eagle = Eagle.getInstance();
 
         // abort if value is empty string
         if (fileFullPath === ""){
             return;
         }
 
-        // Gets the file from formdata.
-        const formData = new FormData();
-        formData.append('file', uploadedGraphFileToLoadInputElement.files[0]);
-        uploadedGraphFileToLoadInputElement.value = "";
+        const fr: FileReader = new FileReader();
 
-        Utils.httpPostForm('/uploadFile', formData, (error : string, data : string) : void => {
-            if (error !== null){
-                console.error(error);
-                return;
-            }
+        fr.onload=function(){
+            const data = fr.result.toString();
 
-            this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                this.logicalGraph(lg);
+            eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                eagle.logicalGraph(lg);
 
                 // center graph
-                this.centerGraph();
+                eagle.centerGraph();
 
                 // update the activeFileInfo with details of the repository the file was loaded from
                 if (fileFullPath !== ""){
-                    this.updateLogicalGraphFileInfo(Eagle.RepositoryService.File, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+                    eagle.updateLogicalGraphFileInfo(Eagle.RepositoryService.File, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
                 }
 
                 // check graph
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Loaded " + fileFullPath);
+                eagle.checkGraph();
+                eagle.undo().pushSnapshot(eagle, "Loaded " + fileFullPath);
             });
-        });
+        }
+
+        fr.readAsText(uploadedGraphFileToLoadInputElement.files[0]);
     }
 
     /**
@@ -722,35 +716,32 @@ export class Eagle {
         const uploadedGraphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToInsert");
         const fileFullPath : string = uploadedGraphFileToInsertInputElement.value;
         const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const eagle: Eagle = Eagle.getInstance();
 
         // abort if value is empty string
         if (fileFullPath === ""){
             return;
         }
 
-        // Gets the file from formdata.
-        const formData = new FormData();
-        formData.append('file', uploadedGraphFileToInsertInputElement.files[0]);
-        uploadedGraphFileToInsertInputElement.value = "";
+        const fr: FileReader = new FileReader();
 
-        Utils.httpPostForm('/uploadFile', formData, (error : string, data : string) : void => {
-            if (error !== null){
-                console.error(error);
-                return;
-            }
+        fr.onload=function(){
+            const data = fr.result.toString();
 
-            this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+            eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                const parentNode: Node = new Node(Utils.newKey(eagle.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
-                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
+                eagle.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
 
                 // TODO: handle errors and warnings
 
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Insert Logical Graph");
-                this.logicalGraph.valueHasMutated();
+                eagle.checkGraph();
+                eagle.undo().pushSnapshot(eagle, "Insert Logical Graph");
+                eagle.logicalGraph.valueHasMutated();
             });
-        });
+        }
+
+        fr.readAsText(uploadedGraphFileToInsertInputElement.files[0]);
     }
 
     private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
@@ -1035,32 +1026,30 @@ export class Eagle {
     /**
      * Loads a custom palette from a file.
      */
-    uploadPaletteFile = () : void => {
+    loadLocalPaletteFile = () : void => {
         const uploadedPaletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedPaletteFileToLoad");
         const fileFullPath : string = uploadedPaletteFileInputElement.value;
+        const eagle: Eagle = Eagle.getInstance();
 
         // abort if value is empty string
         if (fileFullPath === ""){
             return;
         }
 
-        // Get and load the specified configuration file.
-        const formData = new FormData();
-        formData.append('file', uploadedPaletteFileInputElement.files[0]);
-        uploadedPaletteFileInputElement.value = "";
+        const fr: FileReader = new FileReader();
 
-        Utils.httpPostForm('/uploadFile', formData, (error : string, data : string) : void => {
-            if (error !== null){
-                console.error(error);
-                return;
-            }
+        fr.onload=function(){
+            const data = fr.result.toString();
 
-            this._loadPaletteJSON(data, fileFullPath);
+            eagle._loadPaletteJSON(data, fileFullPath);
 
-            this.palettes()[0].fileInfo().repositoryService = Eagle.RepositoryService.File;
-            this.palettes()[0].fileInfo.valueHasMutated();
-        });
+            eagle.palettes()[0].fileInfo().repositoryService = Eagle.RepositoryService.File;
+            eagle.palettes()[0].fileInfo.valueHasMutated();
+        }
+
+        fr.readAsText(uploadedPaletteFileInputElement.files[0]);
     }
+
 
     private _loadPaletteJSON = (data: string, fileFullPath: string) => {
         let dataObject;
@@ -1097,8 +1086,6 @@ export class Eagle {
 
         // show the left window
         this.leftWindow().shown(true);
-
-        Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
     }
 
     /**
