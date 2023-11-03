@@ -4611,14 +4611,14 @@ export class Eagle {
             newNode.setInputApplication(clone)
             // console.log(node.hasInputApplication(),node.getInputApplication(),newNode.hasInputApplication(),newNode.getInputApplication())
 
-            // newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
-            // newNode.getInputApplication().setId(Utils.uuidv4());
-            // newNode.getInputApplication().setEmbedKey(newNode.getKey());
+            newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            newNode.getInputApplication().setId(Utils.uuidv4());
+            newNode.getInputApplication().setEmbedKey(newNode.getKey());
 
             // set new ids for any fields in this node
-            // for (const field of newNode.getInputApplication().getFields()){
-            //     field.setId(Utils.uuidv4());
-            // }
+            for (const field of newNode.getInputApplication().getFields()){
+                field.setId(Utils.uuidv4());
+            }
         }
         if (node.hasOutputApplication()){
             const clone : Node = node.getOutputApplication().clone();
@@ -4631,14 +4631,14 @@ export class Eagle {
             }
             newNode.setOutputApplication(clone)
 
-            // newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
-            // newNode.getOutputApplication().setId(Utils.uuidv4());
-            // newNode.getOutputApplication().setEmbedKey(newNode.getKey());
+            newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            newNode.getOutputApplication().setId(Utils.uuidv4());
+            newNode.getOutputApplication().setEmbedKey(newNode.getKey());
 
             // set new ids for any fields in this node
-            // for (const field of newNode.getOutputApplication().getFields()){
-            //     field.setId(Utils.uuidv4());
-            // }
+            for (const field of newNode.getOutputApplication().getFields()){
+                field.setId(Utils.uuidv4());
+            }
         }
 
         // flag that the logical graph has been modified
