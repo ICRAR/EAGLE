@@ -971,7 +971,7 @@ export class Eagle {
 
         // insert nodes from lg into the existing logicalGraph
         for (const node of nodes){
-            this.addNode(node.clone(), parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
+            this.addNode(node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
                 // save mapping for node itself
                 keyMap.set(node.getKey(), insertedNode);
 
@@ -979,67 +979,79 @@ export class Eagle {
                 if (insertedNode.getParentKey() === null && parentNode !== null){
                     insertedNode.setParentKey(parentNode.getKey());
                 }
-
-
                 
                 // copy embedded input application
                 if (node.hasInputApplication()){
-                    const inputApplication : Node = node.getInputApplication();
-                    const clone : Node = inputApplication.clone();
-                    const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
-                    const newId : string = Utils.uuidv4();
-                    clone.setKey(newKey);
-                    clone.setId(newId);
+                    const oldInputApplication : Node = node.getInputApplication();
+                    const newInputApplication : Node = insertedNode.getInputApplication();
+                    console.log(insertedNode)
+                   
                     
-                    if(clone.getFields() != null){
-                        // set new ids for any fields in this node
-                        for (const field of clone.getFields()){
-                            field.setId(Utils.uuidv4());
-                        }
-                    }
-                    
-                    keyMap.set(inputApplication.getKey(), clone);
+                    keyMap.set(oldInputApplication.getKey(), newInputApplication);
 
-                    insertedNode.setInputApplication(clone);
+                    // insertedNode.setInputApplication(newInputApplication);
 
                     // loop through ports, adding them to the port map
-                    for (const inputPort of inputApplication.getInputPorts()){
-                        portMap.set(inputPort.getId(), inputPort);
+                    // for (const inputPort of oldInputApplication.getInputPorts()){
+                    //     portMap.set(inputPort.getId(), newInputApplication);
+                    // }
+
+                    // for (const outputPort of inputApplication.getOutputPorts()){
+                    //     portMap.set(outputPort.getId(), outputPort);
+                    // }
+
+                    console.log(node.hasInputApplication(), oldInputApplication,newInputApplication)
+                    // save mapping for input ports
+                    for (let j = 0 ; j < oldInputApplication.getInputPorts().length; j++ ){
+                        portMap.set(oldInputApplication.getInputPorts()[j].getId(), newInputApplication.getInputPorts()[j]);
+                        
                     }
 
-                    for (const outputPort of inputApplication.getOutputPorts()){
-                        portMap.set(outputPort.getId(), outputPort);
+                    // save mapping for output ports
+                    for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
+                        portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
                     }
                 }
 
                 // copy embedded output application
                 if (node.hasOutputApplication()){
-                    const outputApplication : Node = node.getOutputApplication();
-                    const clone : Node = outputApplication.clone();
-                    const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
-                    const newId : string = Utils.uuidv4();
-                    clone.setKey(newKey);
-                    clone.setId(newId);
+                    const oldOutputApplication : Node = node.getOutputApplication();
+                    const newOutputApplication : Node = insertedNode.getOutputApplication();
+                    // const clone : Node = outputApplication.clone();
+                    // const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
+                    // const newId : string = Utils.uuidv4();
+                    // clone.setKey(newKey);
+                    // clone.setId(newId);
                     
-                    if(clone.getFields() != null){
-                        // set new ids for any fields in this node
-                        for (const field of clone.getFields()){
-                            field.setId(Utils.uuidv4());
-                        }
-                    }
+                    // if(clone.getFields() != null){
+                    //     // set new ids for any fields in this node
+                    //     for (const field of clone.getFields()){
+                    //         field.setId(Utils.uuidv4());
+                    //     }
+                    // }
                     
-                    keyMap.set(outputApplication.getKey(), clone);
+                    keyMap.set(oldOutputApplication.getKey(), newOutputApplication);
 
 
-                    insertedNode.setOutputApplication(clone);
+                    // insertedNode.setOutputApplication(clone);
 
                     // loop through ports, adding them to the port map
-                    for (const inputPort of outputApplication.getInputPorts()){
-                        portMap.set(inputPort.getId(), inputPort);
+                    // for (const inputPort of outputApplication.getInputPorts()){
+                    //     portMap.set(inputPort.getId(), inputPort);
+                    // }
+
+                    // for (const outputPort of outputApplication.getOutputPorts()){
+                    //     portMap.set(outputPort.getId(), outputPort);
+                    // }
+                    
+                    // save mapping for input ports
+                    for (let j = 0 ; j < oldOutputApplication.getInputPorts().length; j++){
+                        portMap.set(oldOutputApplication.getInputPorts()[j].getId(), newOutputApplication.getInputPorts()[j]);
                     }
 
-                    for (const outputPort of outputApplication.getOutputPorts()){
-                        portMap.set(outputPort.getId(), outputPort);
+                    // save mapping for output ports
+                    for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
+                        portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
                     }
                 }
 
@@ -4212,17 +4224,6 @@ export class Eagle {
             // clone the input application to make a local copy
             // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
             const clone : Node = application.clone();
-            const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
-            const newId : string = Utils.uuidv4();
-            clone.setKey(newKey);
-            clone.setId(newId)
-
-            if(clone.getFields() != null){
-                // set new ids for any fields in this node
-                for (const field of clone.getFields()){
-                    field.setId(Utils.uuidv4());
-                }
-            }
 
             callback(clone);
         });
@@ -4584,7 +4585,7 @@ export class Eagle {
         // copy node
         const newNode : Node = node.clone();
 
-        // set appropriate key for node (one that is not already in use)
+        // // set appropriate key for node (one that is not already in use)
         newNode.setId(Utils.uuidv4());
         newNode.setKey(Utils.newKey(this.logicalGraph().getNodes()));
         newNode.setPosition(x, y);
@@ -4596,26 +4597,48 @@ export class Eagle {
             field.setId(Utils.uuidv4());
         }
 
+        // console.log(node.hasInputApplication(),node.getInputApplication(),newNode.hasInputApplication(),newNode.getInputApplication())
         // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
-        if (newNode.hasInputApplication()){
-            newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
-            newNode.getInputApplication().setId(Utils.uuidv4());
-            newNode.getInputApplication().setEmbedKey(newNode.getKey());
+        if (node.hasInputApplication()){
+            const clone : Node = node.getInputApplication().clone();
+            
+            if(clone.getFields() != null){
+                // set new ids for any fields in this node
+                for (const field of clone.getFields()){
+                    field.setId(Utils.uuidv4());
+                }
+            }
+            newNode.setInputApplication(clone)
+            // console.log(node.hasInputApplication(),node.getInputApplication(),newNode.hasInputApplication(),newNode.getInputApplication())
+
+            // newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            // newNode.getInputApplication().setId(Utils.uuidv4());
+            // newNode.getInputApplication().setEmbedKey(newNode.getKey());
 
             // set new ids for any fields in this node
-            for (const field of newNode.getInputApplication().getFields()){
-                field.setId(Utils.uuidv4());
-            }
+            // for (const field of newNode.getInputApplication().getFields()){
+            //     field.setId(Utils.uuidv4());
+            // }
         }
-        if (newNode.hasOutputApplication()){
-            newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
-            newNode.getOutputApplication().setId(Utils.uuidv4());
-            newNode.getOutputApplication().setEmbedKey(newNode.getKey());
+        if (node.hasOutputApplication()){
+            const clone : Node = node.getOutputApplication().clone();
+            
+            if(clone.getFields() != null){
+                // set new ids for any fields in this node
+                for (const field of clone.getFields()){
+                    field.setId(Utils.uuidv4());
+                }
+            }
+            newNode.setOutputApplication(clone)
+
+            // newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            // newNode.getOutputApplication().setId(Utils.uuidv4());
+            // newNode.getOutputApplication().setEmbedKey(newNode.getKey());
 
             // set new ids for any fields in this node
-            for (const field of newNode.getOutputApplication().getFields()){
-                field.setId(Utils.uuidv4());
-            }
+            // for (const field of newNode.getOutputApplication().getFields()){
+            //     field.setId(Utils.uuidv4());
+            // }
         }
 
         // flag that the logical graph has been modified

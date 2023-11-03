@@ -1138,6 +1138,7 @@ export class Node {
     }
 
     clone = () : Node => {
+
         const result : Node = new Node(this.key(), this.name(), this.description(), this.category());
 
         result._id(this._id());
@@ -1157,18 +1158,6 @@ export class Node {
 
         result.peek = this.peek;
 
-        // copy input,output and exit applications
-        if (this.inputApplication() === null){
-            result.inputApplication(null);
-        } else {
-            result.inputApplication(this.inputApplication().clone());
-        }
-        if (this.outputApplication() === null){
-            result.outputApplication(null);
-        } else {
-            result.outputApplication(this.outputApplication().clone());
-        }
-
         result.subject = this.subject;
 
         // clone fields
@@ -1180,7 +1169,7 @@ export class Node {
         result.commitHash(this.commitHash());
         result.paletteDownloadUrl(this.paletteDownloadUrl());
         result.dataHash(this.dataHash());
-
+        
         return result;
     }
 
