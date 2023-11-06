@@ -4238,13 +4238,25 @@ export class Eagle {
         this.setNodeApplication("Input Application", "Choose an input application", (inputApplication: Node) => {
             const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
             const oldApp: Node = node.getInputApplication();
+            const clone : Node = inputApplication.clone();
 
             // remove all edges incident on the old input application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
             }
 
-            node.setInputApplication(inputApplication);
+            if(clone.getFields() != null){
+                // set new ids for any fields in this node
+                for (const field of clone.getFields()){
+                    field.setId(Utils.uuidv4());
+                }
+            }
+
+            node.setInputApplication(clone);
+
+            node.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            node.getInputApplication().setId(Utils.uuidv4());
+            node.getInputApplication().setEmbedKey(node.getKey());
 
             this.checkGraph();
             this.undo().pushSnapshot(this, "Set Node Input Application");
@@ -4260,13 +4272,24 @@ export class Eagle {
         this.setNodeApplication("Output Application", "Choose an output application", (outputApplication: Node) => {
             const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
             const oldApp: Node = node.getOutputApplication();
+            const clone : Node = node.getOutputApplication().clone();
 
             // remove all edges incident on the old output application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
             }
+            if(clone.getFields() != null){
+                // set new ids for any fields in this node
+                for (const field of clone.getFields()){
+                    field.setId(Utils.uuidv4());
+                }
+            }
 
-            node.setOutputApplication(outputApplication);
+            node.setOutputApplication(clone);
+
+            node.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            node.getOutputApplication().setId(Utils.uuidv4());
+            node.getOutputApplication().setEmbedKey(node.getKey());
 
             this.checkGraph();
             this.undo().pushSnapshot(this, "Set Node Output Application");
