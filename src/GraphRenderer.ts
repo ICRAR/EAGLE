@@ -204,7 +204,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 case 'inputApp':
                 case 'inputPort':
                     portPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
-                    averageAngle = 180
+                    averageAngle = 3.14159
                     break;
                 case 'outputApp':
                 case 'outputPort':
@@ -243,7 +243,18 @@ ko.bindingHandlers.graphRendererPortPosition = {
             x = portPosition.x + currentNodePos.x  - nodeRadius
             y = portPosition.y + currentNodePos.y  - nodeRadius
             console.log(averageAngle,data.displayText())
-            if(averageAngle>90 && averageAngle<270){
+
+            //align the port titles to the correct side of the node, depending on node angle
+            //clear style since it doesnt seem to overwrite
+            $(element).find(".portTitle").removeAttr( "style" )
+
+            //convert negative radian angles to positive
+            if(averageAngle<0){
+                averageAngle= averageAngle+2*Math.PI
+            }
+
+            //apply the correct css
+            if(averageAngle>1.5708 && averageAngle<4.71239){
                 $(element).find(".portTitle").css({'text-align':'right','left':-5+'px','transform':'translateX(-100%)'})
             }else{
                 $(element).find(".portTitle").css({'text-align':'left','right':-5+'px','transform':'translateX(100%)'})
