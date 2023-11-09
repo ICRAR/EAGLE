@@ -181,6 +181,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         // determine port position
         const currentNodePos = node.getPosition();
         let portPosition;
+        let averageAngle
 
         if(connectedField || dataType === 'comment'){
 
@@ -193,7 +194,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
             }
 
             // average the angles
-            const averageAngle = GraphRenderer.averageAngles(angles);
+            averageAngle = GraphRenderer.averageAngles(angles);
 
             node.addPortAngle(averageAngle);
             portPosition = GraphRenderer.calculatePortPos(averageAngle, nodeRadius, nodeRadius)
@@ -203,10 +204,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 case 'inputApp':
                 case 'inputPort':
                     portPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
+                    averageAngle = 180
                     break;
                 case 'outputApp':
                 case 'outputPort':
                     portPosition=GraphRenderer.calculatePortPos(0, nodeRadius, nodeRadius)
+                    averageAngle = 0
                     break;
                 default:
                     console.warn("disconnected field with dataType:", dataType);
@@ -237,9 +240,14 @@ ko.bindingHandlers.graphRendererPortPosition = {
             x = portPosition.x
             y = portPosition.y
         }else{
-                
             x = portPosition.x + currentNodePos.x  - nodeRadius
             y = portPosition.y + currentNodePos.y  - nodeRadius
+            console.log(averageAngle,data.displayText())
+            if(averageAngle>90 && averageAngle<270){
+                $(element).find(".portTitle").css({'text-align':'right','left':-5+'px','transform':'translateX(-100%)'})
+            }else{
+                $(element).find(".portTitle").css({'text-align':'left','right':-5+'px','transform':'translateX(100%)'})
+            }
         }
 
         //applying the offset to the element
