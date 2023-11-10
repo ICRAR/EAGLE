@@ -201,7 +201,7 @@
 
 #portContainer div .portTitle{
     position: absolute;
-    font-size: 8px;
+    font-size: 12px;
     top: -1px;
     width: 100px;
     pointer-events: none;
