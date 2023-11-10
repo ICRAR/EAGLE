@@ -16,17 +16,18 @@ export class Field {
     private positional : ko.Observable<boolean>;
     private keyAttribute : ko.Observable<boolean>;
 
-    private inputX : number;
-    private inputY : number;
-    private outputX : number;
-    private outputY : number;
-
     // port-specific attributes
     private id : ko.Observable<string>;
     private parameterType : ko.Observable<Daliuge.FieldType>;
     private usage : ko.Observable<Daliuge.FieldUsage>;
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
+
+    //graph related things
+    private inputX : number;
+    private inputY : number;
+    private outputX : number;
+    private outputY : number;
 
     constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);

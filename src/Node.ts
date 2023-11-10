@@ -41,25 +41,14 @@ export class Node {
     private key : ko.Observable<number>;
     private name : ko.Observable<string>;
     private description : ko.Observable<string>;
+
     private x : ko.Observable<number>;
     private y : ko.Observable<number>;
-    private radius : ko.Observable<number>;
-
     private realX : number; // underlying position (pre snap-to-grid)
     private realY : number;
-    
-    private color : ko.Observable<string>;
-    private drawOrderHint : ko.Observable<number>; // a secondary sorting hint when ordering the nodes for drawing
-                                                   // (primary method is using parent-child relationships)
-                                                   // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
 
     private parentKey : ko.Observable<number>;
     private embedKey : ko.Observable<number>;
-    private collapsed : ko.Observable<boolean>;    // indicates whether the node is shown collapsed in the graph display
-    private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
-    private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
-
-    private peek : boolean;                        // true if we are temporarily showing the ports based on the users mouse position
 
     private inputApplication : ko.Observable<Node>;
     private outputApplication : ko.Observable<Node>;
@@ -76,59 +65,71 @@ export class Node {
     private paletteDownloadUrl : ko.Observable<string>;
     private dataHash : ko.Observable<string>;
 
-    private portAngles : number[]
 
     public static readonly DEFAULT_COLOR : string = "ffffff";
 
     public static readonly NO_APP_STRING : string = "-no app-";
     public static readonly NO_APP_NAME_STRING : string = "-no name-";
 
+    //graph related things
+    private collapsed : ko.Observable<boolean>;    // indicates whether the node is shown collapsed in the graph display
+    private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
+    private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
+    private peek : boolean;     // true if we are temporarily showing the ports based on the users mouse position
+    private portAngles : number[]
+    private radius : ko.Observable<number>;
+    
+    private color : ko.Observable<string>;
+    private drawOrderHint : ko.Observable<number>; // a secondary sorting hint when ordering the nodes for drawing
+                                                   // (primary method is using parent-child relationships)
+                                                   // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
+
     constructor(key : number, name : string, description : string, category : Category){
         this._id = ko.observable(Utils.uuidv4());
         this.key = ko.observable(key);
         this.name = ko.observable(name);
         this.description = ko.observable(description);
+
         this.x = ko.observable(0);
         this.y = ko.observable(0);
-        this.radius = ko.observable(0);
+        // display position
+        this.realX = 0;
+        this.realY = 0;
         
         this.key = ko.observable(key);
         this.name = ko.observable(name);
         this.description = ko.observable(description);
 
-        // display position
-        this.realX = 0;
-        this.realY = 0;
-
-        this.color = ko.observable(Utils.getColorForNode(category));
-        this.drawOrderHint = ko.observable(0);
-
         this.parentKey = ko.observable(null);
         this.embedKey = ko.observable(null);
-        this.collapsed = ko.observable(true);
-        this.peek = false;
 
         this.inputApplication = ko.observable(null);
         this.outputApplication = ko.observable(null);
 
         this.fields = ko.observableArray([]);
-
         this.category = ko.observable(category);
 
         // lookup correct categoryType based on category
         this.categoryType = ko.observable(CategoryData.getCategoryData(category).categoryType);
-
         this.subject = ko.observable(null);
-
-        this.expanded = ko.observable(true);
-        this.keepExpanded = ko.observable(false);
 
         this.repositoryUrl = ko.observable("");
         this.commitHash = ko.observable("");
         this.paletteDownloadUrl = ko.observable("");
         this.dataHash = ko.observable("");
 
+        //graph related things
+
         this.portAngles = []
+
+        this.expanded = ko.observable(true);
+        this.keepExpanded = ko.observable(false);
+        this.collapsed = ko.observable(true);
+        this.peek = false;
+
+        this.color = ko.observable(Utils.getColorForNode(category));
+        this.drawOrderHint = ko.observable(0);
+        this.radius = ko.observable(0);
     }
 
     getId = () : string => {
