@@ -209,14 +209,14 @@
 
     /* white outer border, a bit ugle but the only way i found to do it */
     text-shadow:
-    -0.4px -0.4px 0 #ffffff,
-     0   -0.4px 0 #ffffff,
-     0.4px -0.4px 0 #ffffff,
-     0.4px  0   0 #ffffff,
-     0.4px  0.4px 0 #ffffff,
-     0    0.4px 0 #ffffff,
-    -0.4px  0.4px 0 #ffffff,
-    -0.4px  0   0 #ffffff;
+    -0.8px -0.8px 0 #ffffff,
+     0   -0.8px 0 #ffffff,
+     0.8px -0.8px 0 #ffffff,
+     0.8px  0   0 #ffffff,
+     0.8px  0.8px 0 #ffffff,
+     0    0.8px 0 #ffffff,
+    -0.8px  0.8px 0 #ffffff,
+    -0.8px  0   0 #ffffff;
 }
 
 #portContainer .selected div .portTitle{
