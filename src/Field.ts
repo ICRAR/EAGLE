@@ -28,6 +28,7 @@ export class Field {
     private inputY : number;
     private outputX : number;
     private outputY : number;
+    private peek : boolean;
 
     constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
@@ -41,16 +42,18 @@ export class Field {
         this.positional = ko.observable(positional);
         this.keyAttribute = ko.observable(keyAttribute);
 
-        this.inputX = 0;
-        this.inputY = 0;
-        this.outputX = 0;
-        this.outputY = 0;
-
         this.id = ko.observable(id);
         this.parameterType = ko.observable(parameterType);
         this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
         this.nodeKey = ko.observable(0);
+
+        //graph related things
+        this.inputX = 0;
+        this.inputY = 0;
+        this.outputX = 0;
+        this.outputY = 0;
+        this.peek = false;
     }
 
     getId = () : string => {
@@ -489,6 +492,14 @@ export class Field {
     getHelpHtml= () : string => {
         return "###"+ this.getDisplayText() + "\n" + this.getDescription();
 
+    }
+
+    isPeek = () : boolean => {
+        return this.peek
+    }
+
+    setPeek = (value:boolean) : void => {
+        this.peek = value;
     }
 
     // used to transform the value attribute of a field into a variable with the correct type

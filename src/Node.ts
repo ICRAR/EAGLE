@@ -75,7 +75,7 @@ export class Node {
     private collapsed : ko.Observable<boolean>;    // indicates whether the node is shown collapsed in the graph display
     private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
     private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
-    private peek : boolean;     // true if we are temporarily showing the ports based on the users mouse position
+    private peek : ko.Observable<boolean>;     // true if we are temporarily showing the ports based on the users mouse position
     private portAngles : number[]
     private radius : ko.Observable<number>;
     
@@ -125,7 +125,7 @@ export class Node {
         this.expanded = ko.observable(true);
         this.keepExpanded = ko.observable(false);
         this.collapsed = ko.observable(true);
-        this.peek = false;
+        this.peek = ko.observable(false);
 
         this.color = ko.observable(Utils.getColorForNode(category));
         this.drawOrderHint = ko.observable(0);
@@ -350,11 +350,15 @@ export class Node {
     }
 
     isPeek = () : boolean => {
-        return this.peek;
+        return this.peek();
     }
 
     setPeek = (value : boolean) : void => {
-        this.peek = value;
+        this.peek(value);
+    }
+
+    togglePeek = () : void => {
+        this.setPeek(!this.peek());
     }
 
     isLocked : ko.PureComputed<boolean> = ko.pureComputed(() => {

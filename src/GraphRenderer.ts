@@ -242,7 +242,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }else{
             x = portPosition.x + currentNodePos.x  - nodeRadius
             y = portPosition.y + currentNodePos.y  - nodeRadius
-            console.log(averageAngle,data.displayText())
 
             //align the port titles to the correct side of the node, depending on node angle
             //clear style since it doesnt seem to overwrite
@@ -1040,6 +1039,19 @@ export class GraphRenderer {
         GraphRenderer.clearEdgeVars();
         eagle.logicalGraph.valueHasMutated();
 
+    }
+
+    static showPort(field:Field,node:Node) :boolean {
+        const eagle = Eagle.getInstance();
+        if(node.isPeek()){
+            return true
+        }else if(eagle.objectIsSelected(node)){
+            return true
+        }else if(field.isPeek()){
+            return true
+        }else{
+            return false
+        }
     }
     
     static SCREEN_TO_GRAPH_POSITION_X() : number {
