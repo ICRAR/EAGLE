@@ -204,7 +204,9 @@
     top: -1px;
     width: 100px;
     pointer-events: none;
+    display: none;
 
+    /* white outer border, a bit ugle but the only way i found to do it */
     text-shadow:
     -0.4px -0.4px 0 #ffffff,
      0   -0.4px 0 #ffffff,
@@ -214,6 +216,10 @@
      0    0.4px 0 #ffffff,
     -0.4px  0.4px 0 #ffffff,
     -0.4px  0   0 #ffffff;
+}
+
+#portContainer .selected div .portTitle{
+    display: block;
 }
 
 .node .container.selected .body {
@@ -271,6 +277,8 @@
     padding: 4px;
     user-select: none;
     line-height: 14px;
+    
+    /* white outer border, a bit ugle but the only way i found to do it */
     text-shadow:
     -1px -1px 0 #ffffff,
      0   -1px 0 #ffffff,
@@ -280,7 +288,6 @@
      0    1px 0 #ffffff,
     -1px  1px 0 #ffffff,
     -1px  0   0 #ffffff;
-
 }
 
 .construct_node .header-name{
