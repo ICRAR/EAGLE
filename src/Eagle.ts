@@ -477,6 +477,7 @@ export class Eagle {
                 return;
             }
 
+<<<<<<< Updated upstream
             // iterate over all nodes in graph and record minimum and maximum extents in X and Y
             let minX : number = Number.MAX_VALUE;
             let minY : number = Number.MAX_VALUE;
@@ -500,6 +501,10 @@ export class Eagle {
             const centroidX = minX + ((maxX - minX) / 2);
             const centroidY = minY + ((maxY - minY) / 2);
 
+=======
+        // reset scale to center the graph correctly
+        this.globalScale(1)
+>>>>>>> Stashed changes
 
             //calculating scale multipliers needed for each, height and width in order to fit the graph
             const containerHeight = $('#logicalGraphParent').height()
@@ -560,7 +565,21 @@ export class Eagle {
                 },200)
             },200)
 
+<<<<<<< Updated upstream
         },500)
+=======
+        //determening which is the smaller scale multiplier to fit the graph and setting it
+        if(graphYScale>graphXScale){
+            this.globalScale(graphXScale);
+        }else if(graphYScale<graphXScale){
+            this.globalScale(graphYScale)
+        }else{
+            this.globalScale(1)
+        }
+        this.globalOffsetX(this.globalOffsetX()-$('#logicalGraphD3Div').width()/this.globalScale())
+        this.globalOffsetY(this.globalOffsetY()-$('#logicalGraphD3Div').height()/this.globalScale())
+
+>>>>>>> Stashed changes
     }
 
     getSelectedText = () : string => {

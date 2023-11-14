@@ -898,7 +898,7 @@ export class GraphRenderer {
         GraphRenderer.updateMousePos();
 
         // check for nearby nodes
-        const nearbyNodes = GraphRenderer.findNodesInRange(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), GraphConfig.NODE_SUGGESTION_RADIUS, GraphRenderer.portDragSourceNode.getKey());
+        const nearbyNodes = GraphRenderer.findMatchingNodes(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), GraphConfig.NODE_SUGGESTION_RADIUS, GraphRenderer.portDragSourceNode.getKey());
 
         // check for nearest matching port in the nearby nodes
         const match: {node: Node, field: Field} = GraphRenderer.findNearestMatchingPort(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), nearbyNodes, GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
@@ -1083,7 +1083,7 @@ export class GraphRenderer {
         return (y+eagle.globalOffsetY())*eagle.globalScale()+83.77
     }
 
-    static findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
+    static findMatchingNodes(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
         const result: Node[] = [];
         const nodeData : Node[] = GraphRenderer.nodeData
 
@@ -1120,12 +1120,12 @@ export class GraphRenderer {
             }
 
             // determine distance from position to this node
-            const distance = Utils.positionToNodeDistance(positionX, positionY, nodeData[i]);
+            // const distance = Utils.positionToNodeDistance(positionX, positionY, nodeData[i]);
 
-            if (distance <= range){
+            // if (distance <= range){
                 //console.log("distance to", nodeData[i].getName(), nodeData[i].getKey(), "=", distance);
                 result.push(nodeData[i]);
-            }
+            // }
         }
 
         return result;
@@ -1302,10 +1302,18 @@ export class GraphRenderer {
                 if (port.getId() === ""){
                     continue;
                 }
+                let portX
+                let portY
+                if (sourcePortIsInput){
+                    
+                    // get position of port
+                    portX = port.getOutputPosition().x;
+                    portY = port.getOutputPosition().y;
+                    portList = portList.concat(node.getInputApplicationOutputPorts());
+                } else {
+                    portList = portList.concat(node.getInputApplicationInputPorts());
+                }
 
-                // get position of port
-                const portX = node.getPosition().x;
-                const portY = node.getPosition().y;
 
                 // get distance to port
                 const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
