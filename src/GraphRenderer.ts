@@ -279,6 +279,7 @@ export class GraphRenderer {
 
     static portDragSuggestedNode : ko.Observable<Node> = ko.observable(null);
     static portDragSuggestedField : ko.Observable<Field> = ko.observable(null);
+    static matchingPortList : {field:Field,node:Node}[] = []
 
     //node drag handler globals
     static NodeParentRadiusPreDrag : number = null;
@@ -892,16 +893,22 @@ export class GraphRenderer {
         //setting up the port event listeners
         $('#logicalGraphParent').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
         $('.node .body').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
+
+        
+        // check for nearby nodes
+        const matchingNodes = GraphRenderer.findMatchingNodes(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), GraphConfig.NODE_SUGGESTION_RADIUS, GraphRenderer.portDragSourceNode.getKey());
+
+        // check for nearest matching port in the nearby nodes
+        const matchingPorts = GraphRenderer.findMatchingPorts(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), matchingNodes, GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
+        GraphRenderer.matchingPortList = matchingPorts
     }
 
     static portDragging = (event:any) : void => {
         GraphRenderer.updateMousePos();
 
-        // check for nearby nodes
-        const nearbyNodes = GraphRenderer.findMatchingNodes(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), GraphConfig.NODE_SUGGESTION_RADIUS, GraphRenderer.portDragSourceNode.getKey());
 
         // check for nearest matching port in the nearby nodes
-        const match: {node: Node, field: Field} = GraphRenderer.findNearestMatchingPort(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), nearbyNodes, GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
+        const match: {node: Node, field: Field} = GraphRenderer.findNearestMatchingPort(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
 
         if (match.field !== null){
             GraphRenderer.portDragSuggestedNode(match.node);
@@ -1036,6 +1043,8 @@ export class GraphRenderer {
             }
         }
 
+        //resetting some global cached variables
+        GraphRenderer.matchingPortList = []
         GraphRenderer.clearEdgeVars();
         eagle.logicalGraph.valueHasMutated();
 
@@ -1258,12 +1267,9 @@ export class GraphRenderer {
     }
 
     
-    static findNearestMatchingPort(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node, field: Field} {
+    static findMatchingPorts(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node, field: Field}[] {
         //console.log("findNearestMatchingPort(), sourcePortIsInput", sourcePortIsInput);
-        let minDistance: number = Number.MAX_SAFE_INTEGER;
-        let minNode: Node = null;
-        let minPort: Field = null;
-
+        const result :{field:Field, node:Node}[]= []
         for (const node of nearbyNodes){
             let portList: Field[] = [];
 
@@ -1302,28 +1308,46 @@ export class GraphRenderer {
                 if (port.getId() === ""){
                     continue;
                 }
-                let portX
-                let portY
-                if (sourcePortIsInput){
-                    
-                    // get position of port
-                    portX = port.getOutputPosition().x;
-                    portY = port.getOutputPosition().y;
-                    portList = portList.concat(node.getInputApplicationOutputPorts());
-                } else {
-                    portList = portList.concat(node.getInputApplicationInputPorts());
-                }
+                
+                result.push({field:port,node:node})
+            }
+        }
 
+        return result
+    }
+    
+    static findNearestMatchingPort(positionX: number, positionY: number, sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node, field: Field} {
+        //console.log("findNearestMatchingPort(), sourcePortIsInput", sourcePortIsInput);
+        let minDistance: number = Number.MAX_SAFE_INTEGER;
+        let minNode: Node = null;
+        let minPort: Field = null;
 
-                // get distance to port
-                const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
+        const portList = GraphRenderer.matchingPortList
+        console.log(portList)
+        for (const x of portList){
+            const port = x.field
+            const node = x.node
 
-                // remember this port if it the best so far
-                if (distance < minDistance){
-                    minPort = port;
-                    minNode = node;
-                    minDistance = distance;
-                }
+            // get position of port
+            let portX
+            let portY
+            
+            if (sourcePortIsInput){
+                portX = port.getOutputPosition().x;
+                portY = port.getOutputPosition().y;
+            } else {
+                portX = port.getInputPosition().x;
+                portY = port.getInputPosition().y;
+            }
+
+            // get distance to port
+            const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
+
+            // remember this port if it the best so far
+            if (distance < minDistance){
+                minPort = port;
+                minNode = node;
+                minDistance = distance;
             }
         }
 
