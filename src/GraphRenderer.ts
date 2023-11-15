@@ -1345,6 +1345,10 @@ export class GraphRenderer {
             // get distance to port
             const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
 
+            if(distance > GraphConfig.NODE_SUGGESTION_RADIUS){
+                continue
+            }
+
             // remember this port if it the best so far
             if (distance < minDistance){
                 minPort = port;
