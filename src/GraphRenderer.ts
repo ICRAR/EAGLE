@@ -906,7 +906,6 @@ export class GraphRenderer {
     static portDragging = (event:any) : void => {
         GraphRenderer.updateMousePos();
 
-
         // check for nearest matching port in the nearby nodes
         const match: {node: Node, field: Field} = GraphRenderer.findNearestMatchingPort(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
 
@@ -1323,7 +1322,7 @@ export class GraphRenderer {
         let minPort: Field = null;
 
         const portList = GraphRenderer.matchingPortList
-        console.log(portList)
+        console.log(portList,positionX,positionY)
         for (const x of portList){
             const port = x.field
             const node = x.node
@@ -1331,7 +1330,7 @@ export class GraphRenderer {
             // get position of port
             let portX
             let portY
-            
+            console.log(sourcePortIsInput)
             if (sourcePortIsInput){
                 portX = port.getOutputPosition().x;
                 portY = port.getOutputPosition().y;
@@ -1339,6 +1338,9 @@ export class GraphRenderer {
                 portX = port.getInputPosition().x;
                 portY = port.getInputPosition().y;
             }
+            portX = node.getPosition().x + portX
+            portY = node.getPosition().y + portY
+            console.log('match location',node.getName(),portX,portY)
 
             // get distance to port
             const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
