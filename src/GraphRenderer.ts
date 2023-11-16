@@ -1268,6 +1268,7 @@ export class GraphRenderer {
     
     static findMatchingPorts(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node, field: Field}[] {
         //console.log("findNearestMatchingPort(), sourcePortIsInput", sourcePortIsInput);
+        const eagle = Eagle.getInstance();
         const result :{field:Field, node:Node}[]= []
         for (const node of nearbyNodes){
             let portList: Field[] = [];
@@ -1307,8 +1308,10 @@ export class GraphRenderer {
                 if (port.getId() === ""){
                     continue;
                 }
+
+                const realNode = eagle.logicalGraph().findNodeByKeyQuiet(port.getNodeKey())
                 
-                result.push({field:port,node:node})
+                result.push({field:port,node:realNode})
             }
         }
 
@@ -1330,6 +1333,7 @@ export class GraphRenderer {
             // get position of port
             let portX
             let portY
+            console.log(node.getName())
             console.log(sourcePortIsInput)
             if (sourcePortIsInput){
                 portX = port.getOutputPosition().x;
