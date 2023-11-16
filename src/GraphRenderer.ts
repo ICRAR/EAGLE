@@ -1309,6 +1309,7 @@ export class GraphRenderer {
                     continue;
                 }
 
+                //this is needed for embedded apps, as the node variable is still the construct
                 const realNode = eagle.logicalGraph().findNodeByKeyQuiet(port.getNodeKey())
                 
                 result.push({field:port,node:realNode})
@@ -1319,13 +1320,11 @@ export class GraphRenderer {
     }
     
     static findNearestMatchingPort(positionX: number, positionY: number, sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node, field: Field} {
-        //console.log("findNearestMatchingPort(), sourcePortIsInput", sourcePortIsInput);
         let minDistance: number = Number.MAX_SAFE_INTEGER;
         let minNode: Node = null;
         let minPort: Field = null;
 
         const portList = GraphRenderer.matchingPortList
-        console.log(portList,positionX,positionY)
         for (const x of portList){
             const port = x.field
             const node = x.node
@@ -1333,8 +1332,6 @@ export class GraphRenderer {
             // get position of port
             let portX
             let portY
-            console.log(node.getName())
-            console.log(sourcePortIsInput)
             if (sourcePortIsInput){
                 portX = port.getOutputPosition().x;
                 portY = port.getOutputPosition().y;
@@ -1344,7 +1341,6 @@ export class GraphRenderer {
             }
             portX = node.getPosition().x + portX
             portY = node.getPosition().y + portY
-            console.log('match location',node.getName(),portX,portY)
 
             // get distance to port
             const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
