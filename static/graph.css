@@ -11,6 +11,7 @@
     --constructIcon:red;
     --edgeColor:red;
     --commentEdgeColor:red;
+    --matchingEdgeColor:red;
 }
 
 #logicalGraphD3Div {
@@ -249,6 +250,10 @@
 
 .node .construct_node .basic_node .container.selected .body {
     background-color: var(--selectedBg);
+}
+
+#portContainer .port.match.selected {
+    outline: 2px solid var(--matchingEdgeColor);
 }
 
 .node .header-name {

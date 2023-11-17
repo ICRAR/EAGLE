@@ -53,6 +53,7 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--embeddedApp", GraphConfig.getColor('embeddedApp'));
         $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", GraphConfig.getColor('constructIcon'));
         $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", GraphConfig.getColor('commentEdge'));
+        $("#logicalGraphParent").get(0).style.setProperty("--matchingEdgeColor", GraphConfig.getColor('edgeAutoComplete'));
         
         if( node.isData()){
             $(element).find('.body').css('background-color:#575757','color:white')
@@ -896,7 +897,7 @@ export class GraphRenderer {
 
         
         // check for nearby nodes
-        const matchingNodes = GraphRenderer.findMatchingNodes(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), GraphConfig.NODE_SUGGESTION_RADIUS, GraphRenderer.portDragSourceNode.getKey());
+        const matchingNodes = GraphRenderer.findMatchingNodes(GraphRenderer.portDragSourceNode.getKey());
 
         // check for nearest matching port in the nearby nodes
         const matchingPorts = GraphRenderer.findMatchingPorts(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), matchingNodes, GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
@@ -1043,6 +1044,10 @@ export class GraphRenderer {
         }
 
         //resetting some global cached variables
+        GraphRenderer.matchingPortList.forEach(function(x){
+            x.field.setPeek(false)
+        })
+
         GraphRenderer.matchingPortList = []
         GraphRenderer.clearEdgeVars();
         eagle.logicalGraph.valueHasMutated();
@@ -1091,7 +1096,7 @@ export class GraphRenderer {
         return (y+eagle.globalOffsetY())*eagle.globalScale()+83.77
     }
 
-    static findMatchingNodes(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
+    static findMatchingNodes(sourceNodeKey: number): Node[]{
         const result: Node[] = [];
         const nodeData : Node[] = GraphRenderer.nodeData
 
@@ -1313,6 +1318,7 @@ export class GraphRenderer {
                 const realNode = eagle.logicalGraph().findNodeByKeyQuiet(port.getNodeKey())
                 
                 result.push({field:port,node:realNode})
+                port.setPeek(true)
             }
         }
 
@@ -1420,7 +1426,6 @@ export class GraphRenderer {
     }
 
     static clearEdgeVars(){
-        console.log("clearEdgeVars()");
         GraphRenderer.portDragSourcePort = null
         GraphRenderer.portDragSourceNode = null
         GraphRenderer.portDragSourcePortIsInput = false

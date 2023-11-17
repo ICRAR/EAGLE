@@ -70,7 +70,7 @@ const colors: { name: string; color: string; }[] = [
         color: '#4247df'
     },{
         name: 'edgeAutoCompleteSuggestion',
-        color: '#9980af'
+        color: 'rgb(156, 59, 202)'
     },{
         name: 'edgeAutoComplete',
         color: '#9c3bca'
