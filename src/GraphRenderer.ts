@@ -281,6 +281,7 @@ export class GraphRenderer {
     static portDragSuggestedNode : ko.Observable<Node> = ko.observable(null);
     static portDragSuggestedField : ko.Observable<Field> = ko.observable(null);
     static matchingPortList : {field:Field,node:Node}[] = []
+    static PortMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
     //node drag handler globals
     static NodeParentRadiusPreDrag : number = null;
@@ -923,12 +924,11 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
 
         GraphRenderer.draggingPort = false;
-
         // cleaning up the port drag event listeners
         $('#logicalGraphParent').off('mouseup.portDrag')
         $('.node .body').off('mouseup.portDrag')
 
-        if (GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null){
+        if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.PortMatchCloseEnough()){
             const srcNode = GraphRenderer.portDragSourceNode;
             const srcPort = GraphRenderer.portDragSourcePort;
 
@@ -1329,6 +1329,7 @@ export class GraphRenderer {
         let minDistance: number = Number.MAX_SAFE_INTEGER;
         let minNode: Node = null;
         let minPort: Field = null;
+        GraphRenderer.PortMatchCloseEnough(false)
 
         const portList = GraphRenderer.matchingPortList
         for (const x of portList){
@@ -1361,6 +1362,9 @@ export class GraphRenderer {
                 minNode = node;
                 minDistance = distance;
             }
+        }
+        if (minDistance<GraphConfig.NODE_SUGGESTION_SNAP_RADIUS){
+            GraphRenderer.PortMatchCloseEnough(true)
         }
 
         return {node: minNode, field: minPort};
@@ -1399,8 +1403,11 @@ export class GraphRenderer {
     }
 
     static suggestedEdgeGetStrokeColor() : string {
-        //return GraphConfig.getColor("edgeAutoCompleteSuggestion");
-        return GraphConfig.getColor("edgeAutoComplete");
+        if(GraphRenderer.PortMatchCloseEnough()){
+            return GraphConfig.getColor("edgeAutoComplete");
+        }else{
+            return GraphConfig.getColor("edgeAutoCompleteSuggestion");
+        }
     }
 
     static draggingEdgeGetStrokeType() : string {

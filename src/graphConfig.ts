@@ -70,7 +70,7 @@ const colors: { name: string; color: string; }[] = [
         color: '#4247df'
     },{
         name: 'edgeAutoCompleteSuggestion',
-        color: 'rgb(156, 59, 202)'
+        color: '#dbcfe1'
     },{
         name: 'edgeAutoComplete',
         color: '#9c3bca'
@@ -86,7 +86,8 @@ const colors: { name: string; color: string; }[] = [
 export class GraphConfig {
 
     // graph behaviour
-    public static readonly NODE_SUGGESTION_RADIUS = 150
+    public static readonly NODE_SUGGESTION_RADIUS = 300
+    public static readonly NODE_SUGGESTION_SNAP_RADIUS = 150
     
     //node settings
     // TODO: could move to CategoryData?
