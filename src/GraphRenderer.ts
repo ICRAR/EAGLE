@@ -274,7 +274,7 @@ export class GraphRenderer {
     static destinationNode : Node = null;
     static destinationPort : Field = null;
     
-    static portDragSourceNode : Node = null;
+    static portDragSourceNode : ko.Observable<Node> = ko.observable(null);
     static portDragSourcePort : Field = null;
     static portDragSourcePortIsInput: boolean = false;
 
@@ -513,14 +513,17 @@ export class GraphRenderer {
     }
 
     static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (GraphRenderer.portDragSourceNode === null){
+        console.log('get path dragging edge', GraphRenderer.portDragSourceNode())
+        if (GraphRenderer.portDragSourceNode() === null){
+            console.warn('no source node detected')
             return '';
         }
 
-        const srcNodeRadius: number = GraphRenderer.portDragSourceNode.getRadius();
+
+        const srcNodeRadius: number = GraphRenderer.portDragSourceNode().getRadius();
         const destNodeRadius: number = 0;
-        const srcX: number = GraphRenderer.portDragSourceNode.getPosition().x - srcNodeRadius;
-        const srcY: number = GraphRenderer.portDragSourceNode.getPosition().y - srcNodeRadius;
+        const srcX: number = GraphRenderer.portDragSourceNode().getPosition().x - srcNodeRadius;
+        const srcY: number = GraphRenderer.portDragSourceNode().getPosition().y - srcNodeRadius;
         const destX: number = GraphRenderer.mousePosX();
         const destY: number = GraphRenderer.mousePosY();
 
@@ -887,7 +890,8 @@ export class GraphRenderer {
         
         //preparing necessary port info
         GraphRenderer.draggingPort = true
-        GraphRenderer.portDragSourceNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
+        console.log('port drag start', eagle.logicalGraph().findNodeByKey(port.getNodeKey()).getName())
+        GraphRenderer.portDragSourceNode(eagle.logicalGraph().findNodeByKey(port.getNodeKey()));
         GraphRenderer.portDragSourcePort = port;
         GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
         GraphRenderer.renderDraggingPortEdge(true);
@@ -898,10 +902,10 @@ export class GraphRenderer {
 
         
         // check for nearby nodes
-        const matchingNodes = GraphRenderer.findMatchingNodes(GraphRenderer.portDragSourceNode.getKey());
+        const matchingNodes = GraphRenderer.findMatchingNodes(GraphRenderer.portDragSourceNode().getKey());
 
         // check for nearest matching port in the nearby nodes
-        const matchingPorts = GraphRenderer.findMatchingPorts(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), matchingNodes, GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
+        const matchingPorts = GraphRenderer.findMatchingPorts(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), matchingNodes, GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
         GraphRenderer.matchingPortList = matchingPorts
     }
 
@@ -909,7 +913,7 @@ export class GraphRenderer {
         GraphRenderer.updateMousePos();
 
         // check for nearest matching port in the nearby nodes
-        const match: {node: Node, field: Field} = GraphRenderer.findNearestMatchingPort(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
+        const match: {node: Node, field: Field} = GraphRenderer.findNearestMatchingPort(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
 
         if (match.field !== null){
             GraphRenderer.portDragSuggestedNode(match.node);
@@ -929,7 +933,7 @@ export class GraphRenderer {
         $('.node .body').off('mouseup.portDrag')
 
         if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.PortMatchCloseEnough()){
-            const srcNode = GraphRenderer.portDragSourceNode;
+            const srcNode = GraphRenderer.portDragSourceNode();
             const srcPort = GraphRenderer.portDragSourcePort;
 
             let destNode: Node = null;
@@ -972,9 +976,14 @@ export class GraphRenderer {
 
             // we can stop rendering the dragging edge
             GraphRenderer.renderDraggingPortEdge(false);
+            GraphRenderer.clearEdgeVars();
         } else {
+            
+            //hiding the suggested node edge while the right click menu shows up
+            GraphRenderer.portDragSuggestedNode(null)
+            GraphRenderer.portDragSuggestedField(null)
             // no destination, ask user to choose a new node
-            const dataEligible: boolean = GraphRenderer.portDragSourceNode.getCategoryType() !== Category.Type.Data;
+            const dataEligible: boolean = GraphRenderer.portDragSourceNode().getCategoryType() !== Category.Type.Data;
 
             // check if source port is a 'dummy' port
             // if so, consider all components as eligible, to ease the creation of new graphs
@@ -1033,7 +1042,7 @@ export class GraphRenderer {
                 }
 
                 // NOTE: create copy in right click ts because we are using the right click menus to handle the node selection
-                RightClick.edgeDropSrcNode = GraphRenderer.portDragSourceNode;
+                RightClick.edgeDropSrcNode = GraphRenderer.portDragSourceNode();
                 RightClick.edgeDropSrcPort = GraphRenderer.portDragSourcePort;
                 RightClick.edgeDropSrcIsInput = GraphRenderer.portDragSourcePortIsInput;
 
@@ -1049,7 +1058,6 @@ export class GraphRenderer {
         })
 
         GraphRenderer.matchingPortList = []
-        GraphRenderer.clearEdgeVars();
         eagle.logicalGraph.valueHasMutated();
 
     }
@@ -1433,8 +1441,9 @@ export class GraphRenderer {
     }
 
     static clearEdgeVars(){
+        console.log('clearing edge vars')
         GraphRenderer.portDragSourcePort = null
-        GraphRenderer.portDragSourceNode = null
+        GraphRenderer.portDragSourceNode(null)
         GraphRenderer.portDragSourcePortIsInput = false
         GraphRenderer.destinationPort = null
         GraphRenderer.destinationNode = null
