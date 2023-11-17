@@ -513,7 +513,6 @@ export class GraphRenderer {
     }
 
     static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
-        console.log('get path dragging edge', GraphRenderer.portDragSourceNode())
         if (GraphRenderer.portDragSourceNode() === null){
             console.warn('no source node detected')
             return '';
@@ -890,7 +889,6 @@ export class GraphRenderer {
         
         //preparing necessary port info
         GraphRenderer.draggingPort = true
-        console.log('port drag start', eagle.logicalGraph().findNodeByKey(port.getNodeKey()).getName())
         GraphRenderer.portDragSourceNode(eagle.logicalGraph().findNodeByKey(port.getNodeKey()));
         GraphRenderer.portDragSourcePort = port;
         GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
