@@ -53,6 +53,7 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--embeddedApp", GraphConfig.getColor('embeddedApp'));
         $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", GraphConfig.getColor('constructIcon'));
         $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", GraphConfig.getColor('commentEdge'));
+        $("#logicalGraphParent").get(0).style.setProperty("--matchingEdgeColor", GraphConfig.getColor('edgeAutoComplete'));
         
         if( node.isData()){
             $(element).find('.body').css('background-color:#575757','color:white')
@@ -181,6 +182,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         // determine port position
         const currentNodePos = node.getPosition();
         let portPosition;
+        let averageAngle
 
         if(connectedField || dataType === 'comment'){
 
@@ -193,7 +195,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
             }
 
             // average the angles
-            const averageAngle = GraphRenderer.averageAngles(angles);
+            averageAngle = GraphRenderer.averageAngles(angles);
 
             node.addPortAngle(averageAngle);
             portPosition = GraphRenderer.calculatePortPos(averageAngle, nodeRadius, nodeRadius)
@@ -203,10 +205,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 case 'inputApp':
                 case 'inputPort':
                     portPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
+                    averageAngle = 3.14159
                     break;
                 case 'outputApp':
                 case 'outputPort':
                     portPosition=GraphRenderer.calculatePortPos(0, nodeRadius, nodeRadius)
+                    averageAngle = 0
                     break;
                 default:
                     console.warn("disconnected field with dataType:", dataType);
@@ -237,9 +241,24 @@ ko.bindingHandlers.graphRendererPortPosition = {
             x = portPosition.x
             y = portPosition.y
         }else{
-                
             x = portPosition.x + currentNodePos.x  - nodeRadius
             y = portPosition.y + currentNodePos.y  - nodeRadius
+
+            //align the port titles to the correct side of the node, depending on node angle
+            //clear style since it doesnt seem to overwrite
+            $(element).find(".portTitle").removeAttr( "style" )
+
+            //convert negative radian angles to positive
+            if(averageAngle<0){
+                averageAngle= averageAngle+2*Math.PI
+            }
+
+            //apply the correct css
+            if(averageAngle>1.5708 && averageAngle<4.71239){
+                $(element).find(".portTitle").css({'text-align':'right','left':-5+'px','transform':'translateX(-100%)'})
+            }else{
+                $(element).find(".portTitle").css({'text-align':'left','right':-5+'px','transform':'translateX(100%)'})
+            }
         }
 
         //applying the offset to the element
@@ -248,18 +267,21 @@ ko.bindingHandlers.graphRendererPortPosition = {
 };
 
 export class GraphRenderer {
-
-    static nodeData : Node[] =null
+    static nodeData : Node[] = null
 
     //port drag handler globals
-    static draggingPort : boolean = false
-    static destinationPort : Field = null;
+    static draggingPort : boolean = false;
     static destinationNode : Node = null;
-    static portDragSourceNode : Node = null;
+    static destinationPort : Field = null;
+    
+    static portDragSourceNode : ko.Observable<Node> = ko.observable(null);
     static portDragSourcePort : Field = null;
-    static portDragSourcePortIsInput :boolean =false;
-    static portDragSuggestedNode : Node |null = null;
-    static portDragSuggestedField : Field |null = null;
+    static portDragSourcePortIsInput: boolean = false;
+
+    static portDragSuggestedNode : ko.Observable<Node> = ko.observable(null);
+    static portDragSuggestedField : ko.Observable<Field> = ko.observable(null);
+    static matchingPortList : {field:Field,node:Node}[] = []
+    static PortMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
     //node drag handler globals
     static NodeParentRadiusPreDrag : number = null;
@@ -271,9 +293,10 @@ export class GraphRenderer {
     static dragSelectionDoubleClick :boolean = false;
     // static isDraggingPortValid : Eagle.LinkValid = Eagle.LinkValid.Unknown;
 
+    static mousePosX : ko.Observable<number> = ko.observable(-1);
+    static mousePosY : ko.Observable<number> = ko.observable(-1);
 
-    static graphMousePos = { x: -1, y: -1 };
-
+    static renderDraggingPortEdge : ko.Observable<boolean> = ko.observable(false);
 
     static averageAngles(angles: number[]) : number {
         let x: number = 0;
@@ -357,10 +380,11 @@ export class GraphRenderer {
         return interpolatedAngle;
     }
 
-    static createBezier(edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field) : string {
+    static createBezier(edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field, sourcePortIsInput: boolean) : string {
         //console.log("createBezier", srcNodePosition, destNodePosition);
 
         //since the svg parent is translated -50% to center our working area, we need to add half of its width to correct the positions
+        // TODO: remove magic numbers here (5000)
         destNodePosition={x:destNodePosition.x+5000,y:destNodePosition.y+5000}
         srcNodePosition={x:srcNodePosition.x+5000,y:srcNodePosition.y+5000}
 
@@ -379,12 +403,20 @@ export class GraphRenderer {
         let srcPortOffset;
         let destPortOffset;
         if (srcField){
-            srcPortOffset = srcField.getOutputPosition();
+            if (sourcePortIsInput){
+                srcPortOffset = srcField.getInputPosition();
+            } else {
+                srcPortOffset = srcField.getOutputPosition();
+            }
         } else {
             srcPortOffset = GraphRenderer.calculatePortPos(srcPortAngle, srcNodeRadius, srcNodeRadius);
         }
         if (destField){
-            destPortOffset = destField.getInputPosition();
+            if (sourcePortIsInput){
+                destPortOffset = destField.getOutputPosition();
+            } else {
+                destPortOffset = destField.getInputPosition();
+            }
         } else {
             destPortOffset = GraphRenderer.calculatePortPos(destPortAngle, destNodeRadius, destNodeRadius);
         }
@@ -415,7 +447,7 @@ export class GraphRenderer {
         const c2y = destNodePosition.y + destCPOffset.y;
 
 
-        //the edge paramter is null if we are rendering a comment edge
+        //the edge parameter is null if we are rendering a comment edge and this is not needed
         if(edge != null){
             //we are hiding the arrows if the edge is too short
             if(edgeLength > GraphConfig.EDGE_DISTANCE_ARROW_VISIBILITY){
@@ -424,12 +456,12 @@ export class GraphRenderer {
                 const arrowPosy =  GraphRenderer.getCoordinateOnBezier(0.5,y1,c1y,c2y,y2)
 
                 //generating the points for the arrow polygon
-                let P1x = arrowPosx+GraphConfig.EDGE_ARROW_SIZE
-                let P1y = arrowPosy
-                let P2x = arrowPosx-GraphConfig.EDGE_ARROW_SIZE
-                let P2y = arrowPosy+GraphConfig.EDGE_ARROW_SIZE
-                let P3x = arrowPosx-GraphConfig.EDGE_ARROW_SIZE
-                let P3y = arrowPosy-GraphConfig.EDGE_ARROW_SIZE
+                const P1x = arrowPosx+GraphConfig.EDGE_ARROW_SIZE
+                const P1y = arrowPosy
+                const P2x = arrowPosx-GraphConfig.EDGE_ARROW_SIZE
+                const P2y = arrowPosy+GraphConfig.EDGE_ARROW_SIZE
+                const P3x = arrowPosx-GraphConfig.EDGE_ARROW_SIZE
+                const P3y = arrowPosy-GraphConfig.EDGE_ARROW_SIZE
 
                 //we are calculating the angle the arrow should be pointing by getting two positions on either sider of the center of the bezier curve then calculating the angle 
                 const  anglePos1x =  GraphRenderer.getCoordinateOnBezier(0.45,x1,c1x,c2x,x2)
@@ -480,7 +512,44 @@ export class GraphRenderer {
         return this._getPath(null,srcNode, destNode, null, null, eagle);
     }
 
-    static _getPath(edge:Edge,srcNode: Node, destNode: Node, srcField: Field, destField: Field, eagle: Eagle) : string {
+    static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
+        if (GraphRenderer.portDragSourceNode() === null){
+            console.warn('no source node detected')
+            return '';
+        }
+
+
+        const srcNodeRadius: number = GraphRenderer.portDragSourceNode().getRadius();
+        const destNodeRadius: number = 0;
+        const srcX: number = GraphRenderer.portDragSourceNode().getPosition().x - srcNodeRadius;
+        const srcY: number = GraphRenderer.portDragSourceNode().getPosition().y - srcNodeRadius;
+        const destX: number = GraphRenderer.mousePosX();
+        const destY: number = GraphRenderer.mousePosY();
+
+        const srcField: Field = GraphRenderer.portDragSourcePort;
+        const destField: Field = null;
+
+        return GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
+    }, this);
+
+    static getPathSuggestedEdge : ko.PureComputed<string> = ko.pureComputed(() => {
+        if (GraphRenderer.portDragSuggestedNode() === null){
+            return '';
+        }
+
+        const srcNodeRadius: number = 0;
+        const destNodeRadius: number = GraphRenderer.portDragSuggestedNode().getRadius();
+        const srcX: number = GraphRenderer.mousePosX();
+        const srcY: number = GraphRenderer.mousePosY();
+        const destX = GraphRenderer.portDragSuggestedNode().getPosition().x - destNodeRadius;
+        const destY = GraphRenderer.portDragSuggestedNode().getPosition().y - destNodeRadius;
+        const srcField: Field = null;
+        const destField: Field = GraphRenderer.portDragSuggestedField();
+
+        return GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
+    }, this);
+
+    static _getPath(edge:Edge, srcNode: Node, destNode: Node, srcField: Field, destField: Field, eagle: Eagle) : string {
         if (srcNode === null || destNode === null){
             console.warn("Cannot getPath between null nodes. srcNode:", srcNode, "destNode:", destNode);
             return "";
@@ -499,7 +568,7 @@ export class GraphRenderer {
         const destX = destNode.getPosition().x -destNodeRadius;
         const destY = destNode.getPosition().y -destNodeRadius;
 
-        return GraphRenderer.createBezier(edge,srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField);
+        return GraphRenderer.createBezier(edge, srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, false);
     }
 
     static scrollZoom = (eagle: Eagle, event: JQueryEventObject) : void => {
@@ -560,7 +629,7 @@ export class GraphRenderer {
 
                 //getting all children, including children of child constructs etc..
                 let childIsConstruct = true
-                let constructs : Node[]= [node]
+                const constructs : Node[] = [node];
                 
                 while(childIsConstruct){
                     let constructFound = false
@@ -801,88 +870,79 @@ export class GraphRenderer {
         }
     }
 
-    static portDragStart = (port:Field,usage:string) : void => {
+    static updateMousePos = (): void => {
+        // grab and convert mouse position to graph coordinates
+        const d3DivOffset = $('#logicalGraphD3Div').offset();
+        const mouseX = (<any>event).pageX - d3DivOffset.left;
+        const mouseY = (<any>event).pageY - d3DivOffset.top;
+        GraphRenderer.mousePosX(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X());
+        GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y());
+    }
+
+    static portDragStart = (port:Field, usage:string) : void => {
         const eagle = Eagle.getInstance();
 
-        console.log('start')
+        GraphRenderer.updateMousePos();
+
         //prevents moving the node when dragging the port
         event.stopPropagation();
         
-        //preparing neccessary port info 
+        //preparing necessary port info
         GraphRenderer.draggingPort = true
-        GraphRenderer.portDragSourceNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
+        GraphRenderer.portDragSourceNode(eagle.logicalGraph().findNodeByKey(port.getNodeKey()));
         GraphRenderer.portDragSourcePort = port;
-        GraphRenderer.portDragSourcePortIsInput = usage === 'input';
+        GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
+        GraphRenderer.renderDraggingPortEdge(true);
 
         //setting up the port event listeners
         $('#logicalGraphParent').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
         $('.node .body').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
+
+        
+        // check for nearby nodes
+        const matchingNodes = GraphRenderer.findMatchingNodes(GraphRenderer.portDragSourceNode().getKey());
+
+        // check for nearest matching port in the nearby nodes
+        const matchingPorts = GraphRenderer.findMatchingPorts(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), matchingNodes, GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
+        GraphRenderer.matchingPortList = matchingPorts
     }
 
     static portDragging = (event:any) : void => {
-        const eagle = Eagle.getInstance();
-        console.log('drag');
-        const d3DivOffset = $('#logicalGraphD3Div').offset();
+        GraphRenderer.updateMousePos();
 
-        // grab and convert mouse position to graph coordinates
-        const mouseX = event.pageX - d3DivOffset.left;
-        const mouseY = event.pageY - d3DivOffset.top;
-
-        GraphRenderer.graphMousePos.x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(mouseX);
-        GraphRenderer.graphMousePos.y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(mouseY);
-        console.log('mouse', mouseX, mouseY, 'graph', GraphRenderer.graphMousePos.x, GraphRenderer.graphMousePos.y, 'global scale', eagle.globalScale(), 'offset', eagle.globalOffsetX(), eagle.globalOffsetY())
-
-        // check for nearby nodes
-        const nearbyNodes = GraphRenderer.findNodesInRange(GraphRenderer.graphMousePos.x, GraphRenderer.graphMousePos.y, GraphConfig.NODE_SUGGESTION_RADIUS, GraphRenderer.portDragSourceNode.getKey());
-
-        
         // check for nearest matching port in the nearby nodes
-        const matchingPort: Field = GraphRenderer.findNearestMatchingPort(GraphRenderer.graphMousePos.x, GraphRenderer.graphMousePos.y, nearbyNodes, GraphRenderer.portDragSourceNode, GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
+        const match: {node: Node, field: Field} = GraphRenderer.findNearestMatchingPort(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
 
-        if (matchingPort !== null){
-            GraphRenderer.portDragSuggestedNode = eagle.logicalGraph().findNodeByKey(matchingPort.getNodeKey());
-            GraphRenderer.portDragSuggestedField = matchingPort;
+        if (match.field !== null){
+            GraphRenderer.portDragSuggestedNode(match.node);
+            GraphRenderer.portDragSuggestedField(match.field);
         } else {
-            GraphRenderer.portDragSuggestedNode = null;
-            GraphRenderer.portDragSuggestedField = null;
+            GraphRenderer.portDragSuggestedNode(null);
+            GraphRenderer.portDragSuggestedField(null);
         }
-        console.log(nearbyNodes.map(function(node){return node.getName()}),matchingPort)
-
-        // debug - draw a red dot at the mouse position
-        const screenX = GraphRenderer.GRAPH_TO_SCREEN_POSITION_X(GraphRenderer.graphMousePos.x);
-        const screenY = GraphRenderer.GRAPH_TO_SCREEN_POSITION_Y(GraphRenderer.graphMousePos.y);
-        //const screenX = GraphRenderer.graphMousePos.x + eagle.globalOffsetX();
-        //const screenY = GraphRenderer.graphMousePos.y + eagle.globalOffsetY();
-
-        console.log("screen:", screenX, screenY, d3DivOffset);
-        $('.portport').remove()
-        $('#logicalGraphD3Div').append('<div class="portport" style="z-index:200;background-color:red;height:5px;width:5px;top:'+screenY+'px;left:'+screenX+'px;position:absolute;"></div>')
     }
 
     static portDragEnd = () : void => {
         const eagle = Eagle.getInstance();
-        console.log('end')
 
-        GraphRenderer.draggingPort = false
-
+        GraphRenderer.draggingPort = false;
         // cleaning up the port drag event listeners
         $('#logicalGraphParent').off('mouseup.portDrag')
         $('.node .body').off('mouseup.portDrag')
 
-        console.log(GraphRenderer.destinationPort,GraphRenderer.portDragSuggestedField)
-        if (GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField !== null){
-            const srcNode = GraphRenderer.portDragSourceNode;
+        if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.PortMatchCloseEnough()){
+            const srcNode = GraphRenderer.portDragSourceNode();
             const srcPort = GraphRenderer.portDragSourcePort;
 
-            let destNode;
-            let destPort;
+            let destNode: Node = null;
+            let destPort: Field = null;
 
             if (GraphRenderer.destinationPort !== null){
                 destNode = GraphRenderer.destinationNode;
                 destPort = GraphRenderer.destinationPort;
             } else {
-                destNode = GraphRenderer.portDragSuggestedNode;
-                destPort = GraphRenderer.portDragSuggestedField;
+                destNode = GraphRenderer.portDragSuggestedNode();
+                destPort = GraphRenderer.portDragSuggestedField();
             }
 
             // check if edge is back-to-front (input-to-output), if so, swap the source and destination
@@ -911,9 +971,17 @@ export class GraphRenderer {
             } else {
                 console.warn("link not valid, result", linkValid);
             }
+
+            // we can stop rendering the dragging edge
+            GraphRenderer.renderDraggingPortEdge(false);
+            GraphRenderer.clearEdgeVars();
         } else {
+            
+            //hiding the suggested node edge while the right click menu shows up
+            GraphRenderer.portDragSuggestedNode(null)
+            GraphRenderer.portDragSuggestedField(null)
             // no destination, ask user to choose a new node
-            const dataEligible: boolean = GraphRenderer.portDragSourceNode.getCategoryType() !== Category.Type.Data;
+            const dataEligible: boolean = GraphRenderer.portDragSourceNode().getCategoryType() !== Category.Type.Data;
 
             // check if source port is a 'dummy' port
             // if so, consider all components as eligible, to ease the creation of new graphs
@@ -960,6 +1028,9 @@ export class GraphRenderer {
             // check we found at least one eligible component
             if (eligibleComponents.length === 0){
                 Utils.showNotification("Not Found", "No eligible components found for connection to port of this type (" + GraphRenderer.portDragSourcePort.getType() + ")", "info");
+
+                // stop rendering the dragging edge
+                GraphRenderer.renderDraggingPortEdge(false);
             } else {
 
                 // get list of strings from list of eligible components
@@ -969,29 +1040,47 @@ export class GraphRenderer {
                 }
 
                 // NOTE: create copy in right click ts because we are using the right click menus to handle the node selection
-                RightClick.edgeDropSrcNode = GraphRenderer.portDragSourceNode;
+                RightClick.edgeDropSrcNode = GraphRenderer.portDragSourceNode();
                 RightClick.edgeDropSrcPort = GraphRenderer.portDragSourcePort;
                 RightClick.edgeDropSrcIsInput = GraphRenderer.portDragSourcePortIsInput;
 
-                Eagle.selectedRightClickPosition = {x:GraphRenderer.graphMousePos.x, y:GraphRenderer.graphMousePos.y};
+                Eagle.selectedRightClickPosition = {x:GraphRenderer.mousePosX(), y:GraphRenderer.mousePosY()};
 
                 RightClick.edgeDropCreateNode(eligibleComponentNames, null)
             }
         }
 
-        GraphRenderer.clearEdgeVars();
+        //resetting some global cached variables
+        GraphRenderer.matchingPortList.forEach(function(x){
+            x.field.setPeek(false)
+        })
+
+        GraphRenderer.matchingPortList = []
         eagle.logicalGraph.valueHasMutated();
 
     }
-    
-    static SCREEN_TO_GRAPH_POSITION_X(x: number) : number {
+
+    static showPort(field:Field,node:Node) :boolean {
         const eagle = Eagle.getInstance();
-        return x*eagle.globalScale();
+        if(node.isPeek()){
+            return true
+        }else if(eagle.objectIsSelected(node)){
+            return true
+        }else if(field.isPeek()){
+            return true
+        }else{
+            return false
+        }
+    }
+    
+    static SCREEN_TO_GRAPH_POSITION_X() : number {
+        const eagle = Eagle.getInstance();
+        return GraphRenderer.dragCurrentPosition.x/eagle.globalScale() - eagle.globalOffsetX();
     }
 
-    static SCREEN_TO_GRAPH_POSITION_Y(y: number) : number {
+    static SCREEN_TO_GRAPH_POSITION_Y() : number {
         const eagle = Eagle.getInstance();
-        return y *eagle.globalScale();
+        return (GraphRenderer.dragCurrentPosition.y-83.77)/eagle.globalScale() -eagle.globalOffsetY();
     }
 
     static SCREEN_TO_GRAPH_SCALE(n: number) : number {
@@ -1001,17 +1090,19 @@ export class GraphRenderer {
 
     static GRAPH_TO_SCREEN_POSITION_X(x: number) : number {
         const eagle = Eagle.getInstance();
-        return (x / eagle.globalScale()) + eagle.globalOffsetX() ;
+        // return (x * eagle.globalScale()) + eagle.globalOffsetX() ;
+        return(x + eagle.globalOffsetX()) * eagle.globalScale()
         // return (x + eagle.globalOffsetX())/eagle.globalScale();
     }
 
     static GRAPH_TO_SCREEN_POSITION_Y(y: number) : number {
         const eagle = Eagle.getInstance();
-        return (y / eagle.globalScale()) + eagle.globalOffsetY();
+        // return (y * eagle.globalScale()) + eagle.globalOffsetY();
         // return (y + eagle.globalOffsetY())/eagle.globalScale();
+        return (y+eagle.globalOffsetY())*eagle.globalScale()+83.77
     }
 
-    static findNodesInRange(positionX: number, positionY: number, range: number, sourceNodeKey: number): Node[]{
+    static findMatchingNodes(sourceNodeKey: number): Node[]{
         const result: Node[] = [];
         const nodeData : Node[] = GraphRenderer.nodeData
 
@@ -1048,12 +1139,12 @@ export class GraphRenderer {
             }
 
             // determine distance from position to this node
-            const distance = Utils.positionToNodeDistance(positionX, positionY, nodeData[i]);
+            // const distance = Utils.positionToNodeDistance(positionX, positionY, nodeData[i]);
 
-            if (distance <= range){
+            // if (distance <= range){
                 //console.log("distance to", nodeData[i].getName(), nodeData[i].getKey(), "=", distance);
                 result.push(nodeData[i]);
-            }
+            // }
         }
 
         return result;
@@ -1186,11 +1277,10 @@ export class GraphRenderer {
     }
 
     
-    static findNearestMatchingPort(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : Field {
+    static findMatchingPorts(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node, field: Field}[] {
         //console.log("findNearestMatchingPort(), sourcePortIsInput", sourcePortIsInput);
-        let minDistance = Number.MAX_SAFE_INTEGER;
-        let minPort = null;
-
+        const eagle = Eagle.getInstance();
+        const result :{field:Field, node:Node}[]= []
         for (const node of nearbyNodes){
             let portList: Field[] = [];
 
@@ -1230,24 +1320,62 @@ export class GraphRenderer {
                     continue;
                 }
 
-                // get position of port
-                const portX = node.getPosition().x;
-                const portY = node.getPosition().y;
-
-                // get distance to port
-                const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
-
-                // remember this port if it the best so far
-                if (distance < minDistance){
-                    minPort = port;
-                    minDistance = distance;
-                }
+                //this is needed for embedded apps, as the node variable is still the construct
+                const realNode = eagle.logicalGraph().findNodeByKeyQuiet(port.getNodeKey())
+                
+                result.push({field:port,node:realNode})
+                port.setPeek(true)
             }
         }
 
-        return minPort;
+        return result
     }
+    
+    static findNearestMatchingPort(positionX: number, positionY: number, sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node, field: Field} {
+        let minDistance: number = Number.MAX_SAFE_INTEGER;
+        let minNode: Node = null;
+        let minPort: Field = null;
+        GraphRenderer.PortMatchCloseEnough(false)
 
+        const portList = GraphRenderer.matchingPortList
+        for (const x of portList){
+            const port = x.field
+            const node = x.node
+
+            // get position of port
+            let portX
+            let portY
+            if (sourcePortIsInput){
+                portX = port.getOutputPosition().x;
+                portY = port.getOutputPosition().y;
+            } else {
+                portX = port.getInputPosition().x;
+                portY = port.getInputPosition().y;
+            }
+            portX = node.getPosition().x + portX
+            portY = node.getPosition().y + portY
+
+            // get distance to port
+            const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
+
+            if(distance > GraphConfig.NODE_SUGGESTION_RADIUS){
+                continue
+            }
+
+            // remember this port if it the best so far
+            if (distance < minDistance){
+                minPort = port;
+                minNode = node;
+                minDistance = distance;
+            }
+        }
+        if (minDistance<GraphConfig.NODE_SUGGESTION_SNAP_RADIUS){
+            GraphRenderer.PortMatchCloseEnough(true)
+        }
+
+        return {node: minNode, field: minPort};
+    }
+    
     static mouseEnterPort(port : Field) : void {
         // if (!GraphRenderer.draggingPort){
         //     return;
@@ -1265,8 +1393,8 @@ export class GraphRenderer {
 
         // GraphRenderer.isDraggingPortValid = Eagle.LinkValid.Unknown;
     }
-    
-    static draggingEdgeGetStrokeColor(edge: Edge, index: number) : string {
+
+    static draggingEdgeGetStrokeColor() : string {
         // switch (isDraggingPortValid){
         //     case Eagle.LinkValid.Unknown:
         //         return "black";
@@ -1277,7 +1405,23 @@ export class GraphRenderer {
         //     case Eagle.LinkValid.Valid:
         //         return LINK_COLORS.VALID;
         // }
-        return ''
+        return 'black';
+    }
+
+    static suggestedEdgeGetStrokeColor() : string {
+        if(GraphRenderer.PortMatchCloseEnough()){
+            return GraphConfig.getColor("edgeAutoComplete");
+        }else{
+            return GraphConfig.getColor("edgeAutoCompleteSuggestion");
+        }
+    }
+
+    static draggingEdgeGetStrokeType() : string {
+        return '';
+    }
+
+    static suggestedEdgeGetStrokeType() : string {
+        return '';
     }
 
     static addEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean) : void {
@@ -1295,13 +1439,14 @@ export class GraphRenderer {
     }
 
     static clearEdgeVars(){
+        console.log('clearing edge vars')
         GraphRenderer.portDragSourcePort = null
-        GraphRenderer.portDragSourceNode = null
-        GraphRenderer.portDragSourcePortIsInput = null
+        GraphRenderer.portDragSourceNode(null)
+        GraphRenderer.portDragSourcePortIsInput = false
         GraphRenderer.destinationPort = null
         GraphRenderer.destinationNode = null
-        GraphRenderer.portDragSuggestedNode = null
-        GraphRenderer.portDragSuggestedNode = null
+        GraphRenderer.portDragSuggestedNode(null)
+        GraphRenderer.portDragSuggestedField(null)
     }
 
     static selectEdge(edge : Edge,event:any){

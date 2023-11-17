@@ -1,5 +1,6 @@
 import { Eagle } from './Eagle';
 import { Edge } from './Edge';
+import { GraphRenderer } from './GraphRenderer';
 import { Node } from './Node';
 import { Palette } from './Palette';
 import { Setting } from './Setting';
@@ -122,6 +123,8 @@ export class RightClick {
                 }
             }, 300);
         }
+
+        GraphRenderer.renderDraggingPortEdge(false);
     }
 
     static createHtmlPaletteList = () : string => {
@@ -392,8 +395,11 @@ export class RightClick {
             Eagle.selectedRightClickObject(data)
         }
 
+        // close any existing context menu
+        //RightClick.closeCustomContextMenu(true);
+        $('#customContextMenu').remove();
+
         // setting up the menu div
-        $('#customContextMenu').remove()
         $(document).find('body').append('<div id="customContextMenu" onmouseleave="RightClick.closeCustomContextMenu(false)"></div>')
         $('#customContextMenu').css('top',mouseY+'px')
         $('#customContextMenu').css('left',mouseX+'px')
@@ -404,9 +410,9 @@ export class RightClick {
             let x = mouseX - offset.left;
             let y = mouseY - offset.top;
 
-        // transform display coords into real coords
-        x = (x - eagle.globalOffsetX())/eagle.globalScale();
-        y = (y - eagle.globalOffsetY())/eagle.globalScale();
+            // transform display coords into real coords
+            x = (x - eagle.globalOffsetX())/eagle.globalScale();
+            y = (y - eagle.globalOffsetY())/eagle.globalScale();
 
             Eagle.selectedRightClickPosition = {x:x, y:y};
         }

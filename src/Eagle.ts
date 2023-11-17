@@ -95,8 +95,10 @@ export class Eagle {
 
     explorePalettes : ko.Observable<ExplorePalettes>;
 
+    // TODO: move these to GraphRenderer.ts
     isDragging : ko.Observable<boolean>;
     draggingNode : ko.Observable<Node>;
+
     errorsMode : ko.Observable<Setting.ErrorsMode>;
     graphWarnings : ko.ObservableArray<Errors.Issue>;
     graphErrors : ko.ObservableArray<Errors.Issue>;
@@ -441,12 +443,10 @@ export class Eagle {
     zoomIn = () : void => {
         //changed the equations to make the speec a curve and prevent the graph from inverting
         this.globalScale(Math.abs(this.globalScale() + this.globalScale()*0.2));
-        this.logicalGraph.valueHasMutated();
     }
 
     zoomOut = () : void => {
         this.globalScale(Math.abs(this.globalScale() - this.globalScale()*0.2));
-        this.logicalGraph.valueHasMutated();
     }
 
     zoomToFit = () : void => {
@@ -469,75 +469,98 @@ export class Eagle {
     // }
 
     centerGraph = () : void => {
-        // if there are no nodes in the logical graph, abort
-        if (this.logicalGraph().getNumNodes() === 0){
-            return;
-        }
+        const that = this
+        setTimeout(function(){
 
-        // iterate over all nodes in graph and record minimum and maximum extents in X and Y
-        let minX : number = Number.MAX_VALUE;
-        let minY : number = Number.MAX_VALUE;
-        let maxX : number = -Number.MAX_VALUE;
-        let maxY : number = -Number.MAX_VALUE;
-        for (const node of this.logicalGraph().getNodes()){
-            if (node.getPosition().x - node.getRadius() < minX){
-                minX = node.getPosition().x - node.getRadius();
+            // if there are no nodes in the logical graph, abort
+            if (that.logicalGraph().getNumNodes() === 0){
+                return;
             }
-            if (node.getPosition().y - node.getRadius() < minY){
-                minY = node.getPosition().y - node.getRadius();
+
+            // iterate over all nodes in graph and record minimum and maximum extents in X and Y
+            let minX : number = Number.MAX_VALUE;
+            let minY : number = Number.MAX_VALUE;
+            let maxX : number = -Number.MAX_VALUE;
+            let maxY : number = -Number.MAX_VALUE;
+            for (const node of that.logicalGraph().getNodes()){
+                if (node.getPosition().x - node.getRadius() < minX){
+                    minX = node.getPosition().x - node.getRadius();
+                }
+                if (node.getPosition().y - node.getRadius() < minY){
+                    minY = node.getPosition().y - node.getRadius();
+                }
+                if (node.getPosition().x + node.getRadius() > maxX){
+                    maxX = node.getPosition().x + node.getRadius();
+                }
+                if (node.getPosition().y + node.getRadius() > maxY){
+                    maxY = node.getPosition().y + node.getRadius();
+                }
             }
-            if (node.getPosition().x + node.getRadius() > maxX){
-                maxX = node.getPosition().x + node.getRadius();
+            // determine the centroid of the graph
+            const centroidX = minX + ((maxX - minX) / 2);
+            const centroidY = minY + ((maxY - minY) / 2);
+
+
+            //calculating scale multipliers needed for each, height and width in order to fit the graph
+            const containerHeight = $('#logicalGraphParent').height()
+            const graphHeight = maxY-minY+200
+            const graphYScale = containerHeight/graphHeight
+            
+            //we are taking into account the current widths of the left and right windows
+            let leftWindow = 0
+            if(that.leftWindow().shown()){
+                leftWindow = that.leftWindow().width()
             }
-            if (node.getPosition().y + node.getRadius() > maxY){
-                maxY = node.getPosition().y + node.getRadius();
+            
+            let rightWindow = 0
+            if(that.rightWindow().shown()){
+                rightWindow = that.rightWindow().width()
             }
-        }
-        // determine the centroid of the graph
-        const centroidX = minX + ((maxX - minX) / 2);
-        const centroidY = minY + ((maxY - minY) / 2);
 
+            const containerWidth = $('#logicalGraphParent').width() - leftWindow - rightWindow
+            const graphWidth = maxX-minX+200
+            const graphXScale = containerWidth/graphWidth
 
-        //calculating scale multipliers needed for each, height and width in order to fit the graph
-        const containerHeight = $('#logicalGraphD3Div').height()
-        const graphHeight = maxY-minY+200
-        const graphYScale = containerHeight/graphHeight
-        
-        //we are taking into account the current widths of the left and right windows
-        let leftWindow = 0
-        if(this.leftWindow().shown()){
-            leftWindow = this.leftWindow().width()
-        }
-        
-        let rightWindow = 0
-        if(this.rightWindow().shown()){
-            rightWindow = this.rightWindow().width()
-        }
+            // reset scale to center the graph correctly
+            that.globalScale(1)
 
-        const containerWidth = $('#logicalGraphD3Div').width() - leftWindow - rightWindow
-        const graphWidth = maxX-minX+200
-        const graphXScale = containerWidth/graphWidth
+            //determine center of the display area
+            console.log('global scale should be one',that.globalScale(),containerWidth)
+            const displayCenterX : number = (containerWidth / that.globalScale() / 2);
+            const displayCenterY : number = $('#logicalGraphParent').height() / that.globalScale() / 2;
+            console.log('offset left',$('#logicalGraphD3Div').offset().left)
 
+            // translate display to center the graph centroid
+            that.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
+            that.globalOffsetY(Math.round(displayCenterY - centroidY));
+            setTimeout(function(){
+                console.log('offset post set offset and global offsets',$('#logicalGraphD3Div').offset().left,that.globalOffsetX(),that.globalOffsetY())
+                const prevOffsetLeft = $('#logicalGraphD3Div').offset().left
+                const prevOffsetTop = $('#logicalGraphD3Div').offset().top
+                console.log('prev offsets',prevOffsetLeft,prevOffsetTop)
+                // //determening which is the smaller scale multiplier to fit the graph and setting it
+                if(graphYScale>graphXScale){
+                    that.globalScale(graphXScale);
+                }else if(graphYScale<graphXScale){
+                    that.globalScale(graphYScale)
+                }else{
+                    that.globalScale(1)
+                }
 
-        // reset scale to center the graph correctly
-        this.globalScale(1)
+                console.log('global scale should be updated',that.globalScale())
+                setTimeout(function(){
+                    
+                    const postOffsetLeft = $('#logicalGraphD3Div').offset().left
+                    const postOffsetTop = $('#logicalGraphD3Div').offset().top
+                    const movex = prevOffsetLeft - (postOffsetLeft/that.globalScale())*2
+                    const movey = prevOffsetTop - (postOffsetTop/that.globalScale())*2
+                    console.log('post offsets and movement',postOffsetLeft,postOffsetTop,movex,movey)
+                    that.globalOffsetX(Math.round(that.globalOffsetX()+movex));
+                    that.globalOffsetY(Math.round(that.globalOffsetY()+movey));
+                },200)
+            },200)
 
-        //determine center of the display area
-        const displayCenterX : number = (containerWidth / this.globalScale() / 2);
-        const displayCenterY : number = $('#logicalGraphParent').height() / this.globalScale() / 2;
-
-        // translate display to center the graph centroid
-        this.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
-        this.globalOffsetY(Math.round(displayCenterY - centroidY));
-
-        //determening which is the smaller scale multiplier to fit the graph and setting it
-        if(graphYScale>graphXScale){
-            this.globalScale(graphXScale);
-        }else if(graphYScale<graphXScale){
-            this.globalScale(graphYScale)
-        }else{
-            this.globalScale(1)
-        }
+        },500)
     }
 
     getSelectedText = () : string => {
@@ -971,7 +994,7 @@ export class Eagle {
 
         // insert nodes from lg into the existing logicalGraph
         for (const node of nodes){
-            this.addNode(node.clone(), parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
+            this.addNode(node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
                 // save mapping for node itself
                 keyMap.set(node.getKey(), insertedNode);
 
@@ -979,44 +1002,79 @@ export class Eagle {
                 if (insertedNode.getParentKey() === null && parentNode !== null){
                     insertedNode.setParentKey(parentNode.getKey());
                 }
-
+                
                 // copy embedded input application
                 if (node.hasInputApplication()){
-                    const inputApplication : Node = node.getInputApplication();
-                    const clone : Node = inputApplication.clone();
-                    const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
-                    clone.setKey(newKey);
-                    keyMap.set(inputApplication.getKey(), clone);
+                    const oldInputApplication : Node = node.getInputApplication();
+                    const newInputApplication : Node = insertedNode.getInputApplication();
+                    console.log(insertedNode)
+                   
+                    
+                    keyMap.set(oldInputApplication.getKey(), newInputApplication);
 
-                    insertedNode.setInputApplication(clone);
+                    // insertedNode.setInputApplication(newInputApplication);
 
                     // loop through ports, adding them to the port map
-                    for (const inputPort of inputApplication.getInputPorts()){
-                        portMap.set(inputPort.getId(), inputPort);
+                    // for (const inputPort of oldInputApplication.getInputPorts()){
+                    //     portMap.set(inputPort.getId(), newInputApplication);
+                    // }
+
+                    // for (const outputPort of inputApplication.getOutputPorts()){
+                    //     portMap.set(outputPort.getId(), outputPort);
+                    // }
+
+                    console.log(node.hasInputApplication(), oldInputApplication,newInputApplication)
+                    // save mapping for input ports
+                    for (let j = 0 ; j < oldInputApplication.getInputPorts().length; j++ ){
+                        portMap.set(oldInputApplication.getInputPorts()[j].getId(), newInputApplication.getInputPorts()[j]);
+                        
                     }
 
-                    for (const outputPort of inputApplication.getOutputPorts()){
-                        portMap.set(outputPort.getId(), outputPort);
+                    // save mapping for output ports
+                    for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
+                        portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
                     }
                 }
 
                 // copy embedded output application
                 if (node.hasOutputApplication()){
-                    const outputApplication : Node = node.getOutputApplication();
-                    const clone : Node = outputApplication.clone();
-                    const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
-                    clone.setKey(newKey);
-                    keyMap.set(outputApplication.getKey(), clone);
+                    const oldOutputApplication : Node = node.getOutputApplication();
+                    const newOutputApplication : Node = insertedNode.getOutputApplication();
+                    // const clone : Node = outputApplication.clone();
+                    // const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
+                    // const newId : string = Utils.uuidv4();
+                    // clone.setKey(newKey);
+                    // clone.setId(newId);
+                    
+                    // if(clone.getFields() != null){
+                    //     // set new ids for any fields in this node
+                    //     for (const field of clone.getFields()){
+                    //         field.setId(Utils.uuidv4());
+                    //     }
+                    // }
+                    
+                    keyMap.set(oldOutputApplication.getKey(), newOutputApplication);
 
-                    insertedNode.setOutputApplication(clone);
+
+                    // insertedNode.setOutputApplication(clone);
 
                     // loop through ports, adding them to the port map
-                    for (const inputPort of outputApplication.getInputPorts()){
-                        portMap.set(inputPort.getId(), inputPort);
+                    // for (const inputPort of outputApplication.getInputPorts()){
+                    //     portMap.set(inputPort.getId(), inputPort);
+                    // }
+
+                    // for (const outputPort of outputApplication.getOutputPorts()){
+                    //     portMap.set(outputPort.getId(), outputPort);
+                    // }
+                    
+                    // save mapping for input ports
+                    for (let j = 0 ; j < oldOutputApplication.getInputPorts().length; j++){
+                        portMap.set(oldOutputApplication.getInputPorts()[j].getId(), newOutputApplication.getInputPorts()[j]);
                     }
 
-                    for (const outputPort of outputApplication.getOutputPorts()){
-                        portMap.set(outputPort.getId(), outputPort);
+                    // save mapping for output ports
+                    for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
+                        portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
                     }
                 }
 
@@ -2401,7 +2459,9 @@ export class Eagle {
         this.showTableModal(true)
         if(selectType === 'rightClick'){
             this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
-            $('#customContextMenu').remove();
+
+            RightClick.closeCustomContextMenu(true);
+
             setTimeout(function() {
                 Utils.showOpenParamsTableModal(mode);
             }, 30);
@@ -3175,7 +3235,8 @@ export class Eagle {
             if (!nodeFound){
                 node = this.logicalGraph().findNodeById(nodeId)
             }
-            $('#customContextMenu').remove()
+
+            RightClick.closeCustomContextMenu(true);
         }
 
         // if node is a construct, set width and height a little larger
@@ -4186,8 +4247,6 @@ export class Eagle {
             // clone the input application to make a local copy
             // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
             const clone : Node = application.clone();
-            const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
-            clone.setKey(newKey);
 
             callback(clone);
         });
@@ -4202,13 +4261,25 @@ export class Eagle {
         this.setNodeApplication("Input Application", "Choose an input application", (inputApplication: Node) => {
             const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
             const oldApp: Node = node.getInputApplication();
+            const clone : Node = inputApplication.clone();
 
             // remove all edges incident on the old input application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
             }
 
-            node.setInputApplication(inputApplication);
+            if(clone.getFields() != null){
+                // set new ids for any fields in this node
+                for (const field of clone.getFields()){
+                    field.setId(Utils.uuidv4());
+                }
+            }
+
+            node.setInputApplication(clone);
+
+            node.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            node.getInputApplication().setId(Utils.uuidv4());
+            node.getInputApplication().setEmbedKey(node.getKey());
 
             this.checkGraph();
             this.undo().pushSnapshot(this, "Set Node Input Application");
@@ -4224,13 +4295,24 @@ export class Eagle {
         this.setNodeApplication("Output Application", "Choose an output application", (outputApplication: Node) => {
             const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
             const oldApp: Node = node.getOutputApplication();
+            const clone : Node = node.getOutputApplication().clone();
 
             // remove all edges incident on the old output application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
             }
+            if(clone.getFields() != null){
+                // set new ids for any fields in this node
+                for (const field of clone.getFields()){
+                    field.setId(Utils.uuidv4());
+                }
+            }
 
-            node.setOutputApplication(outputApplication);
+            node.setOutputApplication(clone);
+
+            node.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            node.getOutputApplication().setId(Utils.uuidv4());
+            node.getOutputApplication().setEmbedKey(node.getKey());
 
             this.checkGraph();
             this.undo().pushSnapshot(this, "Set Node Output Application");
@@ -4549,12 +4631,11 @@ export class Eagle {
         // copy node
         const newNode : Node = node.clone();
 
-        // set appropriate key for node (one that is not already in use)
+        // // set appropriate key for node (one that is not already in use)
         newNode.setId(Utils.uuidv4());
         newNode.setKey(Utils.newKey(this.logicalGraph().getNodes()));
         newNode.setPosition(x, y);
         newNode.setEmbedKey(null);
-
         this.logicalGraph().addNodeComplete(newNode);
 
         // set new ids for any fields in this node
@@ -4562,9 +4643,22 @@ export class Eagle {
             field.setId(Utils.uuidv4());
         }
 
+        // console.log(node.hasInputApplication(),node.getInputApplication(),newNode.hasInputApplication(),newNode.getInputApplication())
         // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
-        if (newNode.hasInputApplication()){
+        if (node.hasInputApplication()){
+            const clone : Node = node.getInputApplication().clone();
+            
+            if(clone.getFields() != null){
+                // set new ids for any fields in this node
+                for (const field of clone.getFields()){
+                    field.setId(Utils.uuidv4());
+                }
+            }
+            newNode.setInputApplication(clone)
+            // console.log(node.hasInputApplication(),node.getInputApplication(),newNode.hasInputApplication(),newNode.getInputApplication())
+
             newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            newNode.getInputApplication().setId(Utils.uuidv4());
             newNode.getInputApplication().setEmbedKey(newNode.getKey());
 
             // set new ids for any fields in this node
@@ -4572,8 +4666,19 @@ export class Eagle {
                 field.setId(Utils.uuidv4());
             }
         }
-        if (newNode.hasOutputApplication()){
+        if (node.hasOutputApplication()){
+            const clone : Node = node.getOutputApplication().clone();
+            
+            if(clone.getFields() != null){
+                // set new ids for any fields in this node
+                for (const field of clone.getFields()){
+                    field.setId(Utils.uuidv4());
+                }
+            }
+            newNode.setOutputApplication(clone)
+
             newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
+            newNode.getOutputApplication().setId(Utils.uuidv4());
             newNode.getOutputApplication().setEmbedKey(newNode.getKey());
 
             // set new ids for any fields in this node
@@ -4735,7 +4840,7 @@ $( document ).ready(function() {
         $("textarea").blur();
 
         //back up method of hiding the right click context menu in case it get stuck open
-        $('#customContextMenu').remove();
+        RightClick.closeCustomContextMenu(true);
     });
 
     $(".tableParameter").on("click", function(){

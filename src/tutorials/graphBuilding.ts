@@ -1,5 +1,6 @@
-import {Tutorial, TutorialStep, TutorialSystem} from '../Tutorial';
-import {Eagle} from '../Eagle';
+import { Eagle } from '../Eagle';
+import { RightClick } from '../RightClick';
+import { TutorialStep, TutorialSystem } from '../Tutorial';
 
 
 const newTut = TutorialSystem.newTutorial('Graph Building', 'An introduction to graph building.')
@@ -35,8 +36,8 @@ newTut.newTutStep("Creating a new graph", "<em>And 'Ok' to save!</em>", function
 
 newTut.newTutStep("Graph Model Data", "This button brings up the 'Graph Modal Data' which allows you to add a description for your graph. <em>Try clicking it now to try it out</em>", function(){return $("#openGraphModelDataModal")})
 .setType(TutorialStep.Type.Press)
-.setBackPreFunction(function(){$('.modal').modal("hide");}) //hiding open moddals
- 
+.setBackPreFunction(function(){$('.modal').modal("hide");}) //hiding open modals
+
 newTut.newTutStep("Editing Graph Descriptions", "You are able to enter a simple first glance and a more detailed decription in addition to description nodes in the graph, should you need it.", function(){return $("#modelDataDescription")})
 .setWaitType(TutorialStep.Wait.Modal)
 
@@ -60,7 +61,7 @@ newTut.newTutStep("Graph Nodes", "Once added into your graph, the component is i
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 
-newTut.newTutStep("Editing Components", "The inspector panel provides access to the complete set of specifications of a component. The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $("#rightWindowContainer")})        
+newTut.newTutStep("Editing Components", "The inspector panel provides access to the complete set of specifications of a component. The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $("#rightWindowContainer")})
 .setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector)})
 
 newTut.newTutStep("Click to open", "<em>Click to open the node fields table and continue.</em>", function(){return $("#openNodeFieldsTable")})
@@ -68,12 +69,12 @@ newTut.newTutStep("Click to open", "<em>Click to open the node fields table and 
 .setType(TutorialStep.Type.Press)
 .setBackPreFunction(function(){$('#parameterTableModal').modal('hide')})
 
-newTut.newTutStep("Enter a Name", "In case of this hello world app we can change who we are greeting. <em>Enter a name and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})  
+newTut.newTutStep("Enter a Name", "In case of this hello world app we can change who we are greeting. <em>Enter a name and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})
 .setType(TutorialStep.Type.Input)
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(700)
 
-newTut.newTutStep("Key Attributes", "You can flag important parameters and attributes of a graph as 'Key Attributes'. These are then all available for editing in one location. <em>Click on the heart to flag this argument as key attribute.</em>", function(){return $('.column_KeyAttr button').first()})  
+newTut.newTutStep("Key Attributes", "You can flag important parameters and attributes of a graph as 'Key Attributes'. These are then all available for editing in one location. <em>Click on the heart to flag this argument as key attribute.</em>", function(){return $('.column_KeyAttr button').first()})
 .setType(TutorialStep.Type.Press)
 .setBackPreFunction(function(){$('#openNodeFieldsTable').click()})
 .setWaitType(TutorialStep.Wait.Delay)
@@ -82,13 +83,13 @@ newTut.newTutStep("Key Attributes", "You can flag important parameters and attri
 newTut.newTutStep("Key Attributes", "You can view the key attributes of a graph by opening the key attributes table located here.", function(){return $("#openKeyParameterTable")})
 .setPreFunction(function(){$('#parameterTableModal').modal('hide')})
 
-newTut.newTutStep("Right Click to add nodes", "There are also various right click options available in EAGLE. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})  
+newTut.newTutStep("Right Click to add nodes", "There are also various right click options available in EAGLE. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(){ if($('#customContextMenu').length){return true}else{return false}})
 .setPreFunction(function(){$('.modal').modal("hide");}) //hiding open moddals
-.setBackPreFunction(function(){$("#customContextMenu").remove();})
+.setBackPreFunction(function(){RightClick.closeCustomContextMenu(true);})
 
-newTut.newTutStep("Graph Context menu", "all of your loaded palettes and their contents will appear here", function(){return $("#rightClickPaletteList")})  
+newTut.newTutStep("Graph Context menu", "all of your loaded palettes and their contents will appear here", function(){return $("#rightClickPaletteList")})
 .setPreFunction(function(){$("#customContextMenu").addClass('forceShow')})
 .setWaitType(TutorialStep.Wait.Element)
 .setBackSkip(true)

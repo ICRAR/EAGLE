@@ -142,9 +142,9 @@ export class Utils {
         return usedKeys;
     }
 
-    static newKey(nodes: Node[]): number {
-        const usedKeys = Utils.getUsedKeys(nodes);
-        return Utils.findNewKey(usedKeys);
+    static newKey(nodes: Node[],usedKeys:number[] = []): number {
+        const allUsedKeys = Utils.getUsedKeys(nodes).concat(usedKeys);
+        return Utils.findNewKey(allUsedKeys);
     }
 
     static setEmbeddedApplicationNodeKeys(lg: LogicalGraph): void {

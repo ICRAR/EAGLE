@@ -84,10 +84,18 @@
                         <div id="portContainer">
                             <!-- ko foreach: $root.logicalGraph().getAllNodes() -->
                                 <!-- ko foreach: $data.getInputPorts() -->
-                                    <div class="inputPort port" data-bind="eagleTooltip:$data.getHelpHtml(), style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:{data:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}}"></div>
-                                <!-- /ko -->
+                                    <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data,$parent)}(), match:$data.isPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:{data:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}}">
+                                        <div>
+                                            <div class="portTitle" data-bind="text:$data.displayText()"></div>
+                                        </div>
+                                    </div>
+                                    <!-- /ko -->
                                 <!-- ko foreach: $data.getOutputPorts() -->
-                                    <div class="outputPort port" data-bind="eagleTooltip:$data.getHelpHtml(), style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:{data:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'output')}}"></div>
+                                    <div class="outputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data,$parent)}(), match:$data.isPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:{data:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'output')}}">
+                                        <div>
+                                            <div class="portTitle" data-bind="text:$data.displayText()"></div>
+                                        </div>
+                                    </div>
                                 <!-- /ko -->
                             <!-- /ko -->
                         </div>
@@ -101,6 +109,16 @@
                             <!-- /ko -->
                             <!-- ko foreach: $root.logicalGraph().getCommentNodes() -->
                                 <path class="commentEdge" data-bind="attr:{d: GraphRenderer.getPathComment($data)}"></path>
+                            <!-- /ko -->
+                            <!-- ko if: GraphRenderer.renderDraggingPortEdge -->
+                                <g data-bind="attr:{id:'draggingEdge'}">
+                                    <path data-bind="attr:{d: GraphRenderer.getPathDraggingEdge()},style:{'stroke':function(viewmodel,event){return GraphRenderer.draggingEdgeGetStrokeColor()}, 'stroke-dasharray': function(viewmodel,event){return GraphRenderer.draggingEdgeGetStrokeType()}}"></path>
+                                </g>
+                            <!-- /ko -->
+                            <!-- ko if: true -->
+                                <g data-bind="attr:{id:'suggestedEdge'}">
+                                    <path data-bind="attr:{d: GraphRenderer.getPathSuggestedEdge()},style:{'stroke':function(viewmodel,event){return GraphRenderer.suggestedEdgeGetStrokeColor()}, 'stroke-dasharray': function(viewmodel,event){return GraphRenderer.suggestedEdgeGetStrokeType()}}"></path>
+                                </g>
                             <!-- /ko -->
                         </svg>
                     <!-- /ko -->
