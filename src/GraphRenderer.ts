@@ -295,6 +295,7 @@ export class GraphRenderer {
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
+    static legacyGraph : boolean = false; //used for marking a graph when its nodes dont have a radius set. in this case we will do some conversion
 
     static renderDraggingPortEdge : ko.Observable<boolean> = ko.observable(false);
 
@@ -715,7 +716,6 @@ export class GraphRenderer {
                 if (oldParent !== null){
                     // moved out of a construct
                     $('#'+oldParent.getId()).addClass('transition')
-                    // eagle.resizeConstructs();
                 }
                 // recalculate size of parent (or oldParent)
                 if (parent === null){
@@ -723,7 +723,6 @@ export class GraphRenderer {
                 } else {
                     // moved into or within a construct
                     $('#'+parent.getId()).removeClass('transition')
-                    // eagle.resizeConstructs();
                 }
 
             } else {
@@ -830,21 +829,6 @@ export class GraphRenderer {
     static resizeConstruct = (construct: Node, allowMovement: boolean = false): void => {
         const eagle = Eagle.getInstance();
         let maxDistance = 0;
-        let numChildren = 0;
-        // loop through all children - compute centroid
-        if (allowMovement){
-            let sumX = 0;
-            let sumY = 0;
-
-            for (const node of eagle.logicalGraph().getNodes()){
-                if (!node.isEmbedded && node.getParentKey() === construct.getKey()){
-                    sumX += node.getPosition().x;
-                    sumY += node.getPosition().y;
-
-                    numChildren = numChildren + 1;
-                }
-            }
-        }
 
         // loop through all children - find distance from center of construct
         for (const node of eagle.logicalGraph().getNodes()){

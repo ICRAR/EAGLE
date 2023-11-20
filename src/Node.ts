@@ -1376,6 +1376,10 @@ export class Node {
             node.description(nodeData.description);
         }
 
+        if(node.getRadius()===0){
+            GraphRenderer.legacyGraph = true
+        }
+        
         // get size (if exists)
         let width = GraphConfig.NORMAL_NODE_RADIUS;
         let height = GraphConfig.NORMAL_NODE_RADIUS;
