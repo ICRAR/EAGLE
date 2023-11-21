@@ -169,31 +169,32 @@ export class LogicalGraph {
                 }
             })
 
-            result.getNodes().forEach(function(node){
-                if(node.isConstruct()&&!node.isEmbedded()){ 
+            GraphRenderer.centerConstructs(null,result.getNodes())
+            // result.getNodes().forEach(function(node){
+            //     if(node.isConstruct()&&!node.isEmbedded()){ 
 
-                    let numChildren :number = 0;
-                    // loop through all children - compute centroid
-                    let sumX :number  = 0;
-                    let sumY :number  = 0;
+            //         let numChildren :number = 0;
+            //         // loop through all children - compute centroid
+            //         let sumX :number  = 0;
+            //         let sumY :number  = 0;
         
-                    for (const x of result.getNodes()){
-                        console.log(node.getName(),x.getName(),node.getKey(),x.getParentKey())
+            //         for (const x of result.getNodes()){
+            //             console.log(node.getName(),x.getName(),node.getKey(),x.getParentKey())
 
-                        if (!x.isEmbedded() && x.getParentKey() === node.getKey()){
-                            sumX += x.getPosition().x;
-                            sumY += x.getPosition().y;
+            //             if (!x.isEmbedded() && x.getParentKey() === node.getKey()){
+            //                 sumX += x.getPosition().x;
+            //                 sumY += x.getPosition().y;
         
-                            numChildren++
-                        }
+            //                 numChildren++
+            //             }
         
-                    }
-                    console.log('setting center',node.getName(),sumX,sumY,numChildren,sumX/numChildren,sumY/numChildren)
-                    node.setPosition(sumX/numChildren,sumY/numChildren)
+            //         }
+            //         console.log('setting center',node.getName(),sumX,sumY,numChildren,sumX/numChildren,sumY/numChildren)
+            //         node.setPosition(sumX/numChildren,sumY/numChildren)
 
-                    GraphRenderer.resizeConstruct(node)
-                }
-            })
+            //         GraphRenderer.resizeConstruct(node)
+            //     }
+            // })
         }
 
         // add edges
