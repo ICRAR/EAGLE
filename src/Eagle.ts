@@ -759,6 +759,7 @@ export class Eagle {
                 this.logicalGraph(lg);
 
                 // center graph
+                GraphRenderer.translateLegacyGraph()
                 this.centerGraph();
 
                 // update the activeFileInfo with details of the repository the file was loaded from
@@ -1686,6 +1687,7 @@ export class Eagle {
             // clone the logical graph
             const lg_clone : LogicalGraph = (<LogicalGraph> obj).clone();
             lg_clone.fileInfo().updateEagleInfo();
+
             const jsonString: string = LogicalGraph.toOJSJsonString(lg_clone, false);
 
             this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
@@ -1883,6 +1885,7 @@ export class Eagle {
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
         // center graph
+        GraphRenderer.translateLegacyGraph()
         this.centerGraph();
 
         // check graph

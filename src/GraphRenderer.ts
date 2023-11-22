@@ -762,7 +762,6 @@ export class GraphRenderer {
     }
 
     static centerConstructs = (construct:Node, graphNodes:Node[]) :void => {
-        //BIG WIP
         let constructsList : Node[]=[]
         if(construct === null){
             graphNodes.forEach(function(node){
@@ -771,7 +770,6 @@ export class GraphRenderer {
                 }
             })
         }
-
         let findConstructId
         let orderedContructList:Node[] = []
 
@@ -791,13 +789,14 @@ export class GraphRenderer {
                         }
                     }
                     if(!found){
-                        finished = false
+                        finished = true
                     }
                 }
             }
         })
 
         orderedContructList.forEach(function(constr){
+            let childCount = 0
 
             let minX : number = Number.MAX_VALUE;
             let minY : number = Number.MAX_VALUE;
@@ -806,6 +805,7 @@ export class GraphRenderer {
             for (const node of graphNodes){
                 
                 if (!node.isEmbedded() && node.getParentKey() === constr.getKey()){
+                    childCount++
                     if (node.getPosition().x - node.getRadius() < minX){
                         minX = node.getPosition().x - node.getRadius();
                     }
@@ -820,17 +820,33 @@ export class GraphRenderer {
                     }
                 }
             }
+
+            if(childCount === 0){
+                return
+            }
+
             // determine the centroid of the graph
             const centroidX = minX + ((maxX - minX) / 2);
             const centroidY = minY + ((maxY - minY) / 2);
 
-
-            console.log('setting center',constr.getName(),centroidX,centroidY)
             constr.setPosition(centroidX,centroidY)
-
             GraphRenderer.resizeConstruct(constr)
-        
         })
+    }
+
+    static translateLegacyGraph = () : void =>{
+        const eagle = Eagle.getInstance();
+        
+        //we are moving each node by half its radius to counter the fact that the new graph renderer treats the node's visual center as node position, previously the node position was in its top left.
+        if(GraphRenderer.legacyGraph){
+            //we need to calculate the construct radius in relation to it's children
+            eagle.logicalGraph().getNodes().forEach(function(node){
+                if(!node.isConstruct()&&!node.isEmbedded()){
+                    node.setPosition(node.getPosition().x+node.getRadius()/2,node.getPosition().y + node.getRadius()/2,false)
+                }
+            })
+            GraphRenderer.centerConstructs(null,eagle.logicalGraph().getNodes())
+        }
     }
 
     static moveChildNodes = (node: Node, deltax : number, deltay : number) : void => {
