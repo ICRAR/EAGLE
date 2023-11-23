@@ -159,43 +159,6 @@ export class LogicalGraph {
             }
         }
 
-        
-        //we are moving each node by half its radius to counter the fact that the new graph renderer treats the node's visual center as node position, previously the node position was in its top left.
-        if(GraphRenderer.legacyGraph){
-            //we need to calculate the construct radius in relation to it's children
-            result.getNodes().forEach(function(node){
-                if(!node.isConstruct()&&!node.isEmbedded()){
-                    node.setPosition(node.getPosition().x+node.getRadius()/2,node.getPosition().y + node.getRadius()/2,false)
-                }
-            })
-
-            result.getNodes().forEach(function(node){
-                if(node.isConstruct()&&!node.isEmbedded()){ 
-
-                    let numChildren :number = 0;
-                    // loop through all children - compute centroid
-                    let sumX :number  = 0;
-                    let sumY :number  = 0;
-        
-                    for (const x of result.getNodes()){
-                        console.log(node.getName(),x.getName(),node.getKey(),x.getParentKey())
-
-                        if (!x.isEmbedded() && x.getParentKey() === node.getKey()){
-                            sumX += x.getPosition().x;
-                            sumY += x.getPosition().y;
-        
-                            numChildren++
-                        }
-        
-                    }
-                    console.log('setting center',node.getName(),sumX,sumY,numChildren,sumX/numChildren,sumY/numChildren)
-                    node.setPosition(sumX/numChildren,sumY/numChildren)
-
-                    GraphRenderer.resizeConstruct(node)
-                }
-            })
-        }
-
         // add edges
         for (const linkData of dataObject.linkDataArray){       
             const newEdge = Edge.fromOJSJson(linkData, errorsWarnings);
@@ -395,12 +358,10 @@ export class LogicalGraph {
 
     findNodeByKey = (key : number) : Node => {
         for (let i = this.nodes().length - 1; i >= 0 ; i--){
-
             // check if the node itself has a matching key
             if (this.nodes()[i].getKey() === key){
                 return this.nodes()[i];
             }
-
             // check if the node's inputApp has a matching key
             if (this.nodes()[i].hasInputApplication()){
                 if (this.nodes()[i].getInputApplication().getKey() === key){

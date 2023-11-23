@@ -761,6 +761,96 @@ export class GraphRenderer {
         }
     }
 
+    static centerConstructs = (construct:Node, graphNodes:Node[]) :void => {
+        let constructsList : Node[]=[]
+        if(construct === null){
+            graphNodes.forEach(function(node){
+                if(node.isConstruct()){
+                    constructsList.push(node)
+                }
+            })
+        }
+        let findConstructId
+        let orderedContructList:Node[] = []
+
+        constructsList.forEach(function(x){
+            if(x.getParentKey()===null){
+                let finished = false // while there are child construct found in this construct nest group
+
+                findConstructId = x.getKey()
+                orderedContructList.unshift(x)
+                while(!finished){
+                    let found = false
+                    for(const entry of constructsList){
+                        if(entry.getParentKey() === findConstructId){
+                            orderedContructList.unshift(entry)
+                            findConstructId = entry.getKey()
+                            found = true
+                        }
+                    }
+                    if(!found){
+                        finished = true
+                    }
+                }
+            }
+        })
+
+        orderedContructList.forEach(function(constr){
+            let childCount = 0
+
+            let minX : number = Number.MAX_VALUE;
+            let minY : number = Number.MAX_VALUE;
+            let maxX : number = -Number.MAX_VALUE;
+            let maxY : number = -Number.MAX_VALUE;
+            for (const node of graphNodes){
+                
+                if (!node.isEmbedded() && node.getParentKey() === constr.getKey()){
+                    childCount++
+                    if (node.getPosition().x - node.getRadius() < minX){
+                        minX = node.getPosition().x - node.getRadius();
+                    }
+                    if (node.getPosition().y - node.getRadius() < minY){
+                        minY = node.getPosition().y - node.getRadius();
+                    }
+                    if (node.getPosition().x + node.getRadius() > maxX){
+                        maxX = node.getPosition().x + node.getRadius();
+                    }
+                    if (node.getPosition().y + node.getRadius() > maxY){
+                        maxY = node.getPosition().y + node.getRadius();
+                    }
+                }
+            }
+
+            if(childCount === 0){
+                return
+            }
+
+            // determine the centroid of the graph
+            const centroidX = minX + ((maxX - minX) / 2);
+            const centroidY = minY + ((maxY - minY) / 2);
+
+            constr.setPosition(centroidX,centroidY)
+            GraphRenderer.resizeConstruct(constr)
+        })
+    }
+
+    static translateLegacyGraph = () : void =>{
+        const eagle = Eagle.getInstance();
+        console.log('starting',GraphRenderer.legacyGraph)
+        //we are moving each node by half its radius to counter the fact that the new graph renderer treats the node's visual center as node position, previously the node position was in its top left.
+        if(GraphRenderer.legacyGraph){
+            //we need to calculate the construct radius in relation to it's children
+            eagle.logicalGraph().getNodes().forEach(function(node){
+                if(!node.isConstruct()&&!node.isEmbedded()){
+                    node.setPosition(node.getPosition().x+node.getRadius()/2,node.getPosition().y + node.getRadius()/2,false)
+                }
+            })
+            GraphRenderer.centerConstructs(null,eagle.logicalGraph().getNodes())
+        }
+        GraphRenderer.legacyGraph = false
+        console.log(GraphRenderer.legacyGraph)
+    }
+
     static moveChildNodes = (node: Node, deltax : number, deltay : number) : void => {
         const eagle = Eagle.getInstance();
 

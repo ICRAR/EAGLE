@@ -1376,7 +1376,7 @@ export class Node {
             node.description(nodeData.description);
         }
 
-        if(node.getRadius()===0){
+        if(nodeData.radius === undefined){
             GraphRenderer.legacyGraph = true
         }
         
