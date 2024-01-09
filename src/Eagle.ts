@@ -522,12 +522,12 @@ export class Eagle {
             // translate display to center the graph centroid
             that.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
             that.globalOffsetY(Math.round(displayCenterY - centroidY));
-            setTimeout(function(){
-                console.log('offset post set offset and global offsets',$('#logicalGraphD3Div').offset().left,that.globalOffsetX(),that.globalOffsetY())
-                const prevOffsetLeft = $('#logicalGraphD3Div').offset().left
-                const prevOffsetTop = $('#logicalGraphD3Div').offset().top
-                console.log('prev offsets',prevOffsetLeft,prevOffsetTop)
-                // //determening which is the smaller scale multiplier to fit the graph and setting it
+            // setTimeout(function(){
+            //     console.log('offset post set offset and global offsets',$('#logicalGraphD3Div').offset().left,that.globalOffsetX(),that.globalOffsetY())
+            //     const prevOffsetLeft = that.globalOffsetX()
+            //     const prevOffsetTop = that.globalOffsetY()
+            //     console.log('prev offsets',prevOffsetLeft,prevOffsetTop)
+            //     // //determening which is the smaller scale multiplier to fit the graph and setting it
                 if(graphYScale>graphXScale){
                     that.globalScale(graphXScale);
                 }else if(graphYScale<graphXScale){
@@ -536,18 +536,29 @@ export class Eagle {
                     that.globalScale(1)
                 }
 
-                console.log('global scale should be updated',that.globalScale())
-                setTimeout(function(){
+                const realX = that.globalOffsetX()
+                const moveOffsetX = (realX/that.globalScale()-realX)*2
+                const moveOffsetY = that.globalOffsetY()/that.globalScale()-that.globalOffsetY()
+                console.log(realX,moveOffsetX,that.globalOffsetY(),moveOffsetY,that.globalScale())
+                that.globalOffsetX(that.globalOffsetX()+moveOffsetX*2)
+                that.globalOffsetY(that.globalOffsetY()+moveOffsetY)
+
+            //     console.log('global scale should be updated',that.globalScale())
+            //     setTimeout(function(){
                     
-                    const postOffsetLeft = $('#logicalGraphD3Div').offset().left
-                    const postOffsetTop = $('#logicalGraphD3Div').offset().top
-                    const movex = prevOffsetLeft - (postOffsetLeft/that.globalScale())*2
-                    const movey = prevOffsetTop - (postOffsetTop/that.globalScale())*2
-                    console.log('post offsets and movement',postOffsetLeft,postOffsetTop,movex,movey)
-                    that.globalOffsetX(Math.round(that.globalOffsetX()+movex));
-                    that.globalOffsetY(Math.round(that.globalOffsetY()+movey));
-                },200)
-            },200)
+            //         // const postOffsetLeft = $('#logicalGraphD3Div').offset().left
+            //         // const postOffsetTop = $('#logicalGraphD3Div').offset().top
+            //         // const movex = prevOffsetLeft - (postOffsetLeft/that.globalScale())*2
+            //         // const movey = prevOffsetTop - (postOffsetTop/that.globalScale())*2
+            //         // console.log('post offsets and movement',postOffsetLeft,postOffsetTop,movex,movey)
+
+            //         const movex = (prevOffsetLeft*that.globalScale())-prevOffsetLeft
+            //         const movey = (prevOffsetTop*that.globalScale())-prevOffsetTop
+            //         that.globalOffsetX(Math.round(that.globalOffsetX()-movex-$('#logicalGraphParent').width()/2));
+            //         that.globalOffsetY(Math.round(that.globalOffsetY()-movey+$('#logicalGraphParent').height()/2));
+            //         console.log('boopin?')
+            //     },200)
+            // },200)
 
         },500)
     }
