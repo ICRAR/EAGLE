@@ -459,108 +459,58 @@ export class Eagle {
 
     centerGraph = () : void => {
         const that = this
-        setTimeout(function(){
 
-            // if there are no nodes in the logical graph, abort
-            if (that.logicalGraph().getNumNodes() === 0){
-                return;
+        // if there are no nodes in the logical graph, abort
+        if (that.logicalGraph().getNumNodes() === 0){
+            return;
+        }
+
+        // iterate over all nodes in graph and record minimum and maximum extents in X and Y
+        let minX : number = Number.MAX_VALUE;
+        let minY : number = Number.MAX_VALUE;
+        let maxX : number = -Number.MAX_VALUE;
+        let maxY : number = -Number.MAX_VALUE;
+        for (const node of that.logicalGraph().getNodes()){
+            if (node.getPosition().x - node.getRadius() < minX){
+                minX = node.getPosition().x - node.getRadius();
             }
-
-            // iterate over all nodes in graph and record minimum and maximum extents in X and Y
-            let minX : number = Number.MAX_VALUE;
-            let minY : number = Number.MAX_VALUE;
-            let maxX : number = -Number.MAX_VALUE;
-            let maxY : number = -Number.MAX_VALUE;
-            for (const node of that.logicalGraph().getNodes()){
-                if (node.getPosition().x - node.getRadius() < minX){
-                    minX = node.getPosition().x - node.getRadius();
-                }
-                if (node.getPosition().y - node.getRadius() < minY){
-                    minY = node.getPosition().y - node.getRadius();
-                }
-                if (node.getPosition().x + node.getRadius() > maxX){
-                    maxX = node.getPosition().x + node.getRadius();
-                }
-                if (node.getPosition().y + node.getRadius() > maxY){
-                    maxY = node.getPosition().y + node.getRadius();
-                }
+            if (node.getPosition().y - node.getRadius() < minY){
+                minY = node.getPosition().y - node.getRadius();
             }
-            // determine the centroid of the graph
-            const centroidX = minX + ((maxX - minX) / 2);
-            const centroidY = minY + ((maxY - minY) / 2);
-
-
-            //calculating scale multipliers needed for each, height and width in order to fit the graph
-            const containerHeight = $('#logicalGraphParent').height()
-            const graphHeight = maxY-minY+200
-            const graphYScale = containerHeight/graphHeight
-            
-            //we are taking into account the current widths of the left and right windows
-            let leftWindow = 0
-            if(that.leftWindow().shown()){
-                leftWindow = that.leftWindow().width()
+            if (node.getPosition().x + node.getRadius() > maxX){
+                maxX = node.getPosition().x + node.getRadius();
             }
-            
-            let rightWindow = 0
-            if(that.rightWindow().shown()){
-                rightWindow = that.rightWindow().width()
+            if (node.getPosition().y + node.getRadius() > maxY){
+                maxY = node.getPosition().y + node.getRadius();
             }
+        }
+        // determine the centroid of the graph
+        const centroidX = minX + ((maxX - minX) / 2);
+        const centroidY = minY + ((maxY - minY) / 2);
+        
+        //we are taking into account the current widths of the left and right windows
+        let leftWindow = 0
+        if(that.leftWindow().shown()){
+            leftWindow = that.leftWindow().width()
+        }
+        
+        let rightWindow = 0
+        if(that.rightWindow().shown()){
+            rightWindow = that.rightWindow().width()
+        }
 
-            const containerWidth = $('#logicalGraphParent').width() - leftWindow - rightWindow
-            const graphWidth = maxX-minX+200
-            const graphXScale = containerWidth/graphWidth
+        const containerWidth = $('#logicalGraphParent').width() - leftWindow - rightWindow
 
-            // reset scale to center the graph correctly
-            that.globalScale(1)
+        // reset scale to center the graph correctly
+        that.globalScale(1)
 
-            //determine center of the display area
-            console.log('global scale should be one',that.globalScale(),containerWidth)
-            const displayCenterX : number = (containerWidth / that.globalScale() / 2);
-            const displayCenterY : number = $('#logicalGraphParent').height() / that.globalScale() / 2;
-            console.log('offset left',$('#logicalGraphD3Div').offset().left)
+        //determine center of the display area
+        const displayCenterX : number = (containerWidth / that.globalScale() / 2);
+        const displayCenterY : number = $('#logicalGraphParent').height() / that.globalScale() / 2;
 
-            // translate display to center the graph centroid
-            that.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
-            that.globalOffsetY(Math.round(displayCenterY - centroidY));
-            // setTimeout(function(){
-            //     console.log('offset post set offset and global offsets',$('#logicalGraphD3Div').offset().left,that.globalOffsetX(),that.globalOffsetY())
-            //     const prevOffsetLeft = that.globalOffsetX()
-            //     const prevOffsetTop = that.globalOffsetY()
-            //     console.log('prev offsets',prevOffsetLeft,prevOffsetTop)
-            //     // //determening which is the smaller scale multiplier to fit the graph and setting it
-                if(graphYScale>graphXScale){
-                    that.globalScale(graphXScale);
-                }else if(graphYScale<graphXScale){
-                    that.globalScale(graphYScale)
-                }else{
-                    that.globalScale(1)
-                }
-
-                const realX = that.globalOffsetX()
-                const moveOffsetX = (realX/that.globalScale()-realX)*2
-                const moveOffsetY = that.globalOffsetY()/that.globalScale()-that.globalOffsetY()
-                console.log(realX,moveOffsetX,that.globalOffsetY(),moveOffsetY,that.globalScale())
-                that.globalOffsetX(that.globalOffsetX()+moveOffsetX*2)
-                that.globalOffsetY(that.globalOffsetY()+moveOffsetY)
-
-            //     console.log('global scale should be updated',that.globalScale())
-            //     setTimeout(function(){
-                    
-            //         // const postOffsetLeft = $('#logicalGraphD3Div').offset().left
-            //         // const postOffsetTop = $('#logicalGraphD3Div').offset().top
-            //         // const movex = prevOffsetLeft - (postOffsetLeft/that.globalScale())*2
-            //         // const movey = prevOffsetTop - (postOffsetTop/that.globalScale())*2
-            //         // console.log('post offsets and movement',postOffsetLeft,postOffsetTop,movex,movey)
-
-            //         const movex = (prevOffsetLeft*that.globalScale())-prevOffsetLeft
-            //         const movey = (prevOffsetTop*that.globalScale())-prevOffsetTop
-            //         that.globalOffsetX(Math.round(that.globalOffsetX()-movex-$('#logicalGraphParent').width()/2));
-            //         that.globalOffsetY(Math.round(that.globalOffsetY()-movey+$('#logicalGraphParent').height()/2));
-            //         console.log('boopin?')
-            //     },200)
-            // },200)
-
-        },500)
+        // translate display to center the graph centroid
+        that.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
+        that.globalOffsetY(Math.round(displayCenterY - centroidY));
     }
 
     getSelectedText = () : string => {
