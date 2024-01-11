@@ -2105,6 +2105,11 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
      white-space: pre;
  }
 
+ #eagleAndVersion sup{
+    font-family: 'EB Garamond', serif;
+    font-size: 1em;
+ }
+
  #brandEagleIcon{
      margin-left:4px;
  }

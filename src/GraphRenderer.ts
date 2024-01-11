@@ -573,13 +573,28 @@ export class GraphRenderer {
     }
 
     static scrollZoom = (eagle: Eagle, event: JQueryEventObject) : void => {
-        const wheelEvent: WheelEvent = <WheelEvent>event.originalEvent;
+        const e: WheelEvent = <WheelEvent>event.originalEvent;
 
-        if (wheelEvent.deltaY < 0){
-            eagle.zoomIn();
-        } else {
-            eagle.zoomOut();
+        // if (wheelEvent.deltaY < 0){
+        //     eagle.zoomIn();
+        // } else {
+        //     eagle.zoomOut();
+        // }
+        const wheelDelta = e.deltaY;
+        const zoomDivisor = Setting.findValue(Setting.GRAPH_ZOOM_DIVISOR);
+
+        const xs = (e.clientX - eagle.globalOffsetX()) / eagle.globalScale()
+        const ys = (e.clientY - eagle.globalOffsetY()) / eagle.globalScale()
+
+        eagle.globalScale(eagle.globalScale()*(1-(wheelDelta/zoomDivisor)));
+
+        if(eagle.globalScale()<0){
+            //prevent negative scale which results in an inverted graph
+            eagle.globalScale(Math.abs(eagle.globalScale()))
         }
+        eagle.globalOffsetX(e.clientX - xs * eagle.globalScale());
+        eagle.globalOffsetY(e.clientY - ys * eagle.globalScale());
+        
     }
 
     static startDrag = (node: Node, event: MouseEvent) : void => {
