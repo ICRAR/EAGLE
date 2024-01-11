@@ -3140,14 +3140,14 @@ export class Eagle {
 
     addNodeToLogicalGraphAndConnect = (newNodeId: string) : void => {
         this.addNodeToLogicalGraph(null, newNodeId, Eagle.AddNodeMode.ContextMenu, (node: Node)=>{
-            const realSourceNode = RightClick.edgeDropSrcNode;
-            const realSourcePort = RightClick.edgeDropSrcPort;
-            const realDestNode = node;
+            const realSourceNode: Node = RightClick.edgeDropSrcNode;
+            const realSourcePort: Field = RightClick.edgeDropSrcPort;
+            const realDestNode: Node = node;
             let realDestPort = node.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
 
             // if no dest port was found, just use first input port on dest node
             if (realDestPort === null){
-                realDestPort = node.findPortOfAnyType(realSourcePort.getType());
+                realDestPort = node.findPortOfAnyType(true);
             }
 
             // create edge (in correct direction)

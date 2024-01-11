@@ -1,5 +1,6 @@
 import { Eagle } from './Eagle';
 import { Edge } from './Edge';
+import { Field } from './Field';
 import { GraphRenderer } from './GraphRenderer';
 import { Node } from './Node';
 import { Palette } from './Palette';
@@ -9,7 +10,7 @@ import { Setting } from './Setting';
 export class RightClick {
 
     static edgeDropSrcNode : Node
-    static edgeDropSrcPort : any
+    static edgeDropSrcPort : Field
     static edgeDropSrcIsInput : boolean
 
     constructor(){
