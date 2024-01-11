@@ -112,7 +112,7 @@
                             <!-- /ko -->
                             <!-- ko if: GraphRenderer.renderDraggingPortEdge -->
                                 <g data-bind="attr:{id:'draggingEdge'}">
-                                    <path data-bind="attr:{d: GraphRenderer.getPathDraggingEdge()},style:{'stroke':GraphRenderer.draggingEdgeGetStrokeColor()}, 'stroke-dasharray': function(viewmodel,event){return GraphRenderer.draggingEdgeGetStrokeType()}}"></path>
+                                    <path data-bind="attr:{d: GraphRenderer.getPathDraggingEdge()},style:{'stroke':GraphRenderer.draggingEdgeGetStrokeColor(), 'stroke-dasharray': function(viewmodel,event){return GraphRenderer.draggingEdgeGetStrokeType()}}"></path>
                                 </g>
                             <!-- /ko -->
                             <!-- ko if: true -->
