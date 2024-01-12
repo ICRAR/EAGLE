@@ -757,7 +757,6 @@ export class Eagle {
 
                 // center graph
                 GraphRenderer.translateLegacyGraph()
-                this.centerGraph();
 
                 // update the activeFileInfo with details of the repository the file was loaded from
                 if (fileFullPath !== ""){
@@ -1883,7 +1882,6 @@ export class Eagle {
 
         // center graph
         GraphRenderer.translateLegacyGraph()
-        this.centerGraph();
 
         // check graph
         this.checkGraph();

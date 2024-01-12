@@ -40,6 +40,7 @@ import { GraphUpdater } from "./GraphUpdater";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor, allBindings) {
+        const eagle : Eagle = Eagle.getInstance();
         const node: Node = ko.unwrap(valueAccessor())
 
         //overwriting css variables using colours from graphConfig.ts. I am using this for simple styling to avoid excessive css data binds in the node html files
@@ -58,6 +59,11 @@ ko.bindingHandlers.nodeRenderHandler = {
         if( node.isData()){
             $(element).find('.body').css('background-color:#575757','color:white')
         }
+
+        //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
+        setTimeout(function(){
+            eagle.centerGraph()
+        },50)
     },
     update: function (element:any, valueAccessor, allBindings, viewModel, bindingContext) {
         const eagle : Eagle = Eagle.getInstance();
