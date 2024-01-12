@@ -488,6 +488,13 @@ export class Eagle {
         const centroidX = minX + ((maxX - minX) / 2);
         const centroidY = minY + ((maxY - minY) / 2);
         
+
+        //calculating scale multipliers needed for each, height and width in order to fit the graph
+        const containerHeight = $('#logicalGraphParent').height()
+        const graphHeight = maxY-minY+200
+        const graphYScale = containerHeight/graphHeight
+        
+
         //we are taking into account the current widths of the left and right windows
         let leftWindow = 0
         if(that.leftWindow().shown()){
@@ -500,6 +507,8 @@ export class Eagle {
         }
 
         const containerWidth = $('#logicalGraphParent').width() - leftWindow - rightWindow
+        const graphWidth = maxX-minX+200
+        const graphXScale = containerWidth/graphWidth
 
         // reset scale to center the graph correctly
         that.globalScale(1)
@@ -511,6 +520,33 @@ export class Eagle {
         // translate display to center the graph centroid
         that.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
         that.globalOffsetY(Math.round(displayCenterY - centroidY));
+
+        //taking note of the screen center in graph space before zooming
+        const midpointx = $('#logicalGraphParent').width()/2
+        const midpointy = ($('#logicalGraphParent').height())/2
+        const xpb = midpointx/that.globalScale() - that.globalOffsetX();
+        const ypb = (midpointy)/that.globalScale() - that.globalOffsetY();
+
+        //applying the correct zoom
+        if(graphYScale>graphXScale){
+            that.globalScale(graphXScale);
+        }else if(graphYScale<graphXScale){
+            that.globalScale(graphYScale)
+        }else{
+            that.globalScale(1)
+        }
+        
+        //checking the screen center in graph space after zoom
+        const xpa = midpointx/that.globalScale() - that.globalOffsetX();
+        const ypa = (midpointy)/that.globalScale() - that.globalOffsetY();
+
+        //checking how far the center has moved
+        const movex = xpa-xpb
+        const movey = ypa-ypb
+
+        //correcting for the movement
+        that.globalOffsetX(that.globalOffsetX()+movex)
+        that.globalOffsetY(that.globalOffsetY()+movey)
     }
 
     getSelectedText = () : string => {
