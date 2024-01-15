@@ -591,6 +591,10 @@ export class Node {
         return this.categoryType();
     }
 
+    setCategoryType = (categoryType: Category.Type) : void => {
+        this.categoryType(categoryType);
+    }
+
     setRepositoryUrl = (url: string) : void => {
         this.repositoryUrl(url);
     }
@@ -2048,6 +2052,12 @@ export class Node {
     }
 
     static isValid = (eagle: Eagle, node: Node, selectedLocation: Eagle.FileType, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
+        // check that node has modern (not legacy) category
+        if (node.getCategory() === Category.Component){
+            const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has legacy category (" + node.getCategory() + ")", function(){Utils.showNode(eagle, selectedLocation, node.getId());}, function(){Utils.fixNodeCategory(eagle, node, Category.PythonApp, Category.Type.Application)}, "");
+            errorsWarnings.warnings.push(issue);
+        }
+
         // check that all port dataTypes have been defined
         for (const port of node.getInputPorts()){
             if (port.isType(Daliuge.DataType.Unknown)){
