@@ -1175,6 +1175,13 @@ export class Node {
         result.paletteDownloadUrl(this.paletteDownloadUrl());
         result.dataHash(this.dataHash());
         
+        if (this.hasInputApplication()){
+            result.inputApplication(this.inputApplication().clone());
+        }
+        if (this.hasOutputApplication()){
+            result.outputApplication(this.outputApplication().clone());
+        }
+
         return result;
     }
 
