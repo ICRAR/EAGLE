@@ -59,11 +59,6 @@ ko.bindingHandlers.nodeRenderHandler = {
         if( node.isData()){
             $(element).find('.body').css('background-color:#575757','color:white')
         }
-
-        //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
-        setTimeout(function(){
-            eagle.centerGraph()
-        },50)
     },
     update: function (element:any, valueAccessor, allBindings, viewModel, bindingContext) {
         const eagle : Eagle = Eagle.getInstance();

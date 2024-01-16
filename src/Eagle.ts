@@ -754,9 +754,16 @@ export class Eagle {
 
             this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                 this.logicalGraph(lg);
+                const eagle = this
 
                 // center graph
                 GraphRenderer.translateLegacyGraph()
+
+                //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
+                setTimeout(function(){
+                    eagle.centerGraph()
+                    console.log(eagle)
+                },50)
 
                 // update the activeFileInfo with details of the repository the file was loaded from
                 if (fileFullPath !== ""){
@@ -1873,6 +1880,7 @@ export class Eagle {
 
     _loadGraph = (dataObject: any, file: RepositoryFile) : void => {
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const eagle = this
 
         // load graph
         this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
@@ -1882,6 +1890,12 @@ export class Eagle {
 
         // center graph
         GraphRenderer.translateLegacyGraph()
+
+        //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
+        setTimeout(function(){
+            eagle.centerGraph()
+            console.log(eagle)
+        },50)
 
         // check graph
         this.checkGraph();
