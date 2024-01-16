@@ -1741,8 +1741,9 @@ export class Utils {
         }
     }
 
-    static fixNodeCategory(eagle: Eagle, node: Node, category: Category){
+    static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
+        node.setCategoryType(categoryType);
     }
 
     // NOTE: merges field1 into field0

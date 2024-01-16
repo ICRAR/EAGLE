@@ -84,6 +84,16 @@ export class LogicalGraph {
             const srcNode = graph.findNodeByKey(srcKey);
             const destNode = graph.findNodeByKey(destKey);
 
+            // if source and destination node could not be found, skip edge
+            if (srcNode === null){
+                console.warn("Could not find edge (", srcKey, "->", destKey, ") source node by key (", srcKey, "), skipping");
+                continue;
+            }
+            if (destNode === null){
+                console.warn("Could not find edge (", srcKey, "->", destKey, ") destination node by key (", destKey, "), skipping");
+                continue;
+            }
+
             // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
             if (srcNode.isEmbedded()){
                 srcKey = srcNode.getEmbedKey();
