@@ -153,10 +153,10 @@ export class Node {
         }
     }
 
-    getGraphNodeId = () :string => {
-        const x = Math.abs(this.getKey())-1
-        return 'node'+x
-    }
+    // getGraphNodeId = () :string => {
+    //     const x = Math.abs(this.getKey())-1
+    //     return 'node'+x
+    // }
 
     getName = () : string => {
         return this.name();

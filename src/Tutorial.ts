@@ -94,7 +94,9 @@ export class TutorialSystem {
 
     static initiateFindGraphNodeIdByNodeName = (name:string) : JQuery<HTMLElement> => {
         const eagle = Eagle.getInstance()
-        let x = $('#'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+' rect')
+        console.log(eagle.logicalGraph().findNodeGraphIdByNodeName(name))
+        let x = $('#logicalGraphD3Div #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
+        console.log(x)
         return x
     }
 
