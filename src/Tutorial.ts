@@ -96,7 +96,13 @@ export class TutorialSystem {
         const eagle = Eagle.getInstance()
         console.log(eagle.logicalGraph().findNodeGraphIdByNodeName(name))
         let x = $('#logicalGraphD3Div #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
-        console.log(x)
+        return x
+    }
+
+    static initiateSimpleFindGraphNodeIdByNodeName = (name:string) : string => {
+        const eagle = Eagle.getInstance()
+        console.log(eagle.logicalGraph().findNodeGraphIdByNodeName(name))
+        let x = eagle.logicalGraph().findNodeGraphIdByNodeName(name)
         return x
     }
 
