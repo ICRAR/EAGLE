@@ -4278,7 +4278,7 @@ export class Eagle {
         this.setNodeApplication("Output Application", "Choose an output application", (outputApplication: Node) => {
             const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
             const oldApp: Node = node.getOutputApplication();
-            const clone : Node = node.getOutputApplication().clone();
+            const clone : Node = outputApplication.clone();
 
             // remove all edges incident on the old output application
             if (oldApp !== null){
