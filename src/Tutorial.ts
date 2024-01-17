@@ -94,14 +94,12 @@ export class TutorialSystem {
 
     static initiateFindGraphNodeIdByNodeName = (name:string) : JQuery<HTMLElement> => {
         const eagle = Eagle.getInstance()
-        console.log(eagle.logicalGraph().findNodeGraphIdByNodeName(name))
         let x = $('#logicalGraphD3Div #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
         return x
     }
 
     static initiateSimpleFindGraphNodeIdByNodeName = (name:string) : string => {
         const eagle = Eagle.getInstance()
-        console.log(eagle.logicalGraph().findNodeGraphIdByNodeName(name))
         let x = eagle.logicalGraph().findNodeGraphIdByNodeName(name)
         return x
     }
@@ -347,8 +345,6 @@ export class Tutorial {
         if(TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc() != null){
             target = TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc()()
         }
-
-        console.log(target)
 
         //in order to darken the screen save the selection target, we must add divs on each side of the element.
         const coords = target.offset()
