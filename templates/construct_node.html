@@ -10,12 +10,12 @@
     </div>
 
     <!-- ko with: $data.getInputApplication() -->
-        <div class="constructInputApp" data-bind="graphRendererPortPosition:{data:$data,type:'inputApp'},nodeRenderHandler:$data">
+        <div class="constructInputApp" data-bind="graphRendererPortPosition:{n:$data,f:null,type:'inputApp'},nodeRenderHandler:$data">
             {% include 'basic_node.html' %}
         </div>
     <!-- /ko -->
     <!-- ko with: $data.getOutputApplication() -->
-        <div class="constructOutputApp" data-bind="graphRendererPortPosition:{data:$data,type:'outputApp'}, nodeRenderHandler:$data">
+        <div class="constructOutputApp" data-bind="graphRendererPortPosition:{n:$data,f:null,type:'outputApp'}, nodeRenderHandler:$data">
             {% include 'basic_node.html' %}
         </div>
     <!-- /ko -->

@@ -85,14 +85,14 @@
                             <!-- ko foreach: $root.logicalGraph().getAllNodes() -->
                                 <div data-bind="class:$data.getId()">
                                     <!-- ko foreach: $data.getInputPorts() -->
-                                        <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data,$parent)}(), match:$data.isPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:{data:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort($data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
+                                        <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data,$parent)}(), match:$data.isPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':GraphConfig.getColor('nodeInputPort')},graphRendererPortPosition:{n:$parent,f:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort($data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <div>
                                                 <div class="portTitle" data-bind="text:$data.displayText()"></div>
                                             </div>
                                         </div>
                                         <!-- /ko -->
                                     <!-- ko foreach: $data.getOutputPorts() -->
-                                        <div class="outputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data,$parent)}(), match:$data.isPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:{data:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'output')}, mouseenter:function(){GraphRenderer.mouseEnterPort($data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
+                                        <div class="outputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data,$parent)}(), match:$data.isPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':GraphConfig.getColor('nodeOutputPort')},graphRendererPortPosition:{n:$parent,f:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'output')}, mouseenter:function(){GraphRenderer.mouseEnterPort($data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <div>
                                                 <div class="portTitle" data-bind="text:$data.displayText()"></div>
                                             </div>

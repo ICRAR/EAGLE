@@ -88,7 +88,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
     update: function (element:any, valueAccessor) {
         //the update function is called initially and then whenever a change to a utilised observable occurs
         const eagle : Eagle = Eagle.getInstance();
-        const data = ko.utils.unwrapObservable(valueAccessor()).data;
+        const n: Node = ko.utils.unwrapObservable(valueAccessor()).n;
+        const f: Field = ko.utils.unwrapObservable(valueAccessor()).f;
         const dataType: string = ko.utils.unwrapObservable(valueAccessor()).type;
         const portOnEmbeddedApp = false //used to identify when we are calculating the port position for a port on an embedded application
 
@@ -99,8 +100,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
         switch(dataType){
             case 'inputApp':
                 // console.log(data.getName(), 'is input app')
-                node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
-                for(const port of data.getFields()){
+                node = eagle.logicalGraph().findNodeByKeyQuiet(n.getEmbedKey())
+                for(const port of n.getFields()){
                     if (port.isInputPort()){
                         field = port
                     }
@@ -108,8 +109,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 break;
             case 'outputApp':
                 // console.log(data.getName(), 'is output app')
-                node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
-                for(const port of data.getFields()){
+                node = eagle.logicalGraph().findNodeByKeyQuiet(n.getEmbedKey())
+                for(const port of n.getFields()){
                     if (port.isOutputPort()){
                         field = port
                     }
@@ -117,11 +118,11 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 break;
             case 'inputPort':
             case 'outputPort':
-                node = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey())
-                field = data
+                node = eagle.logicalGraph().findNodeByKeyQuiet(f.getNodeKey())
+                field = f
                 break;
             case 'comment':
-                node = data
+                node = f
                 field = null
                 break;
         }
@@ -135,10 +136,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         switch(dataType){
             case 'comment':
-                const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(data.getSubjectKey());
+                const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(n.getSubjectKey());
 
                 if (adjacentNode === null){
-                    console.warn("Could not find adjacentNode for comment with subjectKey", data.getSubjectKey());
+                    console.warn("Could not find adjacentNode for comment with subjectKey", n.getSubjectKey());
                     return;
                 }
 
@@ -174,7 +175,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let nodeRadius = node.getRadius()
         if(portOnEmbeddedApp){
             // if we are working with ports of an embedded app, we need to use the parent construct to calculate the angle, but we want to use the radius of the embedded app to place the port
-            nodeRadius = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey()).getRadius()
+            nodeRadius = eagle.logicalGraph().findNodeByKeyQuiet(f.getNodeKey()).getRadius()
         }
 
         // determine port position
@@ -234,7 +235,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         if (dataType === 'inputApp' || dataType === 'outputApp'){
             //we are saving the embedded application's position data here using the offset we calculated
             const newPos = {x: node.getPosition().x-nodeRadius+portPosition.x, y:node.getPosition().y-nodeRadius+portPosition.y}
-            data.setPosition(newPos.x,newPos.y)
+            n.setPosition(newPos.x,newPos.y)
             portPosition = {x:portPosition.x-nodeRadius,y:portPosition.y-nodeRadius}
             x = portPosition.x
             y = portPosition.y

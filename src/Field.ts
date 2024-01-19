@@ -23,12 +23,17 @@ export class Field {
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
-    //graph related things
+    // graph related attributes
     private inputX : number;
     private inputY : number;
     private outputX : number;
     private outputY : number;
     private peek : ko.Observable<boolean>;
+
+    private idealInputAngle : number;
+    private actualInputAngle: ko.Observable<number>;
+    private idealOutputAngle : number;
+    private actualOutputAngle: ko.Observable<number>;
 
     constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
@@ -54,6 +59,11 @@ export class Field {
         this.outputX = 0;
         this.outputY = 0;
         this.peek = ko.observable(false);
+
+        this.idealInputAngle = 0;
+        this.actualInputAngle = ko.observable(0);
+        this.idealOutputAngle = 0;
+        this.actualOutputAngle = ko.observable(0);
     }
 
     getId = () : string => {
@@ -290,6 +300,48 @@ export class Field {
 
     setNodeKey = (key : number) : void => {
         this.nodeKey(key);
+    }
+
+    setIdealAngle = (angle: number, dataType: string): void => {
+        switch (dataType){
+            case "inputPort":
+                this.setIdealInputAngle(angle);
+                break;
+            case "outputPort":
+                this.setIdealOutputAngle(angle);
+                break;
+            default:
+                this.setIdealInputAngle(angle);
+                this.setIdealOutputAngle(angle);
+                break;
+        }
+    }
+
+    getIdealAngle = (dataType: string): number => {
+        switch (dataType){
+            case "inputPort":
+                return this.getIdealInputAngle();
+            case "outputPort":
+                return this.getIdealOutputAngle();
+            default:
+                return this.getIdealInputAngle();
+        }
+    }
+
+    setIdealInputAngle = (angle: number): void => {
+        this.idealInputAngle = angle;
+    }
+
+    getIdealInputAngle = (): number => {
+        return this.idealInputAngle;
+    }
+
+    setIdealOutputAngle = (angle: number): void => {
+        this.idealOutputAngle = angle;
+    }
+
+    getIdealOutputAngle = (): number => {
+        return this.idealOutputAngle;
     }
 
     clear = () : void => {
