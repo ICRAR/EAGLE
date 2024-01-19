@@ -77,6 +77,9 @@ ko.bindingHandlers.nodeRenderHandler = {
         if(node.isScatter()){
             $(element).children().children().children('.body').css({'border-style':'double','border-width':'7px'})
         }
+        if(node.isExclusiveForceNode()){
+            $(element).children().children().children('.body').css({'background-color':'white'})
+        }
 
         if(node.isGroup()|| node.getParentKey() != null){
             GraphRenderer.resizeConstruct(node,false)

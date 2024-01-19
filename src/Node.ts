@@ -631,6 +631,10 @@ export class Node {
         return this.category() === Category.Scatter;
     }
 
+    isExclusiveForceNode = () : boolean => {
+        return this.category() === Category.ExclusiveForceNode;
+    }
+
     isComment = () : boolean => {
         return this.category() === Category.Comment;
     }
