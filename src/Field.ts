@@ -3,6 +3,7 @@ import * as ko from "knockout";
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import {Daliuge} from './Daliuge';
+import { NumberValue } from "d3";
 
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
@@ -30,6 +31,11 @@ export class Field {
     private outputY : number;
     private peek : ko.Observable<boolean>;
 
+    private idealInputAngle : number;
+    private actualInputAngle: ko.Observable<number>;
+    private idealOutputAngle : number;
+    private actualOutputAngle: ko.Observable<number>;
+
     constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
         this.value = ko.observable(value);
@@ -54,6 +60,11 @@ export class Field {
         this.outputX = 0;
         this.outputY = 0;
         this.peek = ko.observable(false);
+
+        this.idealInputAngle = 0;
+        this.actualInputAngle = ko.observable(0);
+        this.idealOutputAngle = 0;
+        this.actualOutputAngle = ko.observable(0);
     }
 
     getId = () : string => {
@@ -103,24 +114,6 @@ export class Field {
     getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
         return this.description() == "" ? "No description available" + " (" + this.type() + ", default value:'" + this.defaultValue() + "')" : this.description() + " (" + this.type() + ", default value:'" + this.defaultValue() + "')";
     }, this);
-
-    getInputPosition = () : {x:number, y:number} => {
-        return {x: this.inputX, y: this.inputY};
-    }
-
-    getOutputPosition = () : {x:number, y:number} => {
-        return {x: this.outputX, y: this.outputY};
-    }
-
-    setInputPosition = (x: number, y: number) : void => {
-        this.inputX = x;
-        this.inputY = y;
-    }
-
-    setOutputPosition = (x: number, y: number) : void => {
-        this.outputX = x;
-        this.outputY = y;
-    }
 
     isReadonly = () : boolean => {
         return this.readonly();
@@ -290,6 +283,48 @@ export class Field {
 
     setNodeKey = (key : number) : void => {
         this.nodeKey(key);
+    }
+
+    setIdealAngle = (angle: number, dataType: string): void => {
+        switch (dataType){
+            case "inputPort":
+                this.setIdealInputAngle(angle);
+                break;
+            case "outputPort":
+                this.setIdealOutputAngle(angle);
+                break;
+            default:
+                this.setIdealInputAngle(angle);
+                this.setIdealOutputAngle(angle);
+                break;
+        }
+    }
+
+    getIdealAngle = (dataType: string): number => {
+        switch (dataType){
+            case "inputPort":
+                return this.getIdealInputAngle();
+            case "outputPort":
+                return this.getIdealOutputAngle();
+            default:
+                return this.getIdealInputAngle();
+        }
+    }
+
+    setIdealInputAngle = (angle: number): void => {
+        this.idealInputAngle = angle;
+    }
+
+    getIdealInputAngle = (): number => {
+        return this.idealInputAngle;
+    }
+
+    setIdealOutputAngle = (angle: number): void => {
+        this.idealOutputAngle = angle;
+    }
+
+    getIdealOutputAngle = (): number => {
+        return this.idealOutputAngle;
     }
 
     clear = () : void => {
