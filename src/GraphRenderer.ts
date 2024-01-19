@@ -59,11 +59,6 @@ ko.bindingHandlers.nodeRenderHandler = {
         if( node.isData()){
             $(element).find('.body').css('background-color:#575757','color:white')
         }
-
-        //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
-        setTimeout(function(){
-            eagle.centerGraph()
-        },50)
     },
     update: function (element:any, valueAccessor, allBindings, viewModel, bindingContext) {
         const eagle : Eagle = Eagle.getInstance();
@@ -83,7 +78,7 @@ ko.bindingHandlers.nodeRenderHandler = {
             $(element).children().children().children('.body').css({'border-style':'double','border-width':'7px'})
         }
 
-        if(node.isConstruct()|| node.getParentKey() != null){
+        if(node.isGroup()|| node.getParentKey() != null){
             GraphRenderer.resizeConstruct(node,false)
         }
     },
@@ -638,7 +633,7 @@ export class GraphRenderer {
             }
 
             //check for alt clicking, if so, add the target node and its children to the selection
-            if(event.altKey&&node.isConstruct()||GraphRenderer.dragSelectionDoubleClick&&node.isConstruct()){
+            if(event.altKey&&node.isGroup()||GraphRenderer.dragSelectionDoubleClick&&node.isGroup()){
                 GraphRenderer.dragSelectionHandled = true
                 //if shift is not clicked, we first clear the selection
                 if(!event.shiftKey){
@@ -659,7 +654,7 @@ export class GraphRenderer {
                             if(obj.getParentKey()===construct.getKey()){
                                 eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
     
-                                if(obj.isConstruct()){
+                                if(obj.isGroup()){
                                     constructFound = true
                                     constructs.push(obj)
                                 }
@@ -783,7 +778,7 @@ export class GraphRenderer {
         const constructsList : Node[]=[]
         if(construct === null){
             graphNodes.forEach(function(node){
-                if(node.isConstruct()){
+                if(node.isGroup()){
                     constructsList.push(node)
                 }
             })
@@ -859,7 +854,7 @@ export class GraphRenderer {
         if(GraphRenderer.legacyGraph){
             //we need to calculate the construct radius in relation to it's children
             eagle.logicalGraph().getNodes().forEach(function(node){
-                if(!node.isConstruct()&&!node.isEmbedded()){
+                if(!node.isGroup()&&!node.isEmbedded()){
                     node.setPosition(node.getPosition().x+node.getRadius()/2,node.getPosition().y + node.getRadius()/2,false)
                 }
             })
@@ -957,7 +952,7 @@ export class GraphRenderer {
         maxDistance = Math.max(maxDistance, GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
 
         //console.log("Resize", construct.getName(), "radius to", maxDistance, "to contain", numChildren, "children");
-        if(construct.isConstruct()){
+        if(construct.isGroup()){
             construct.setRadius(maxDistance);
         }
     }

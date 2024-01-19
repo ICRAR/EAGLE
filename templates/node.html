@@ -1,11 +1,11 @@
 <div class="node" data-bind="attr:{id:$data.getId()},nodeRenderHandler:$data, style: {left: $data.x(), top: $data.y()}">
-    <!-- ko if:!$data.isConstruct() && !$data.isBranch() && !$data.isComment() -->
+    <!-- ko if:!$data.isGroup() && !$data.isBranch() && !$data.isComment() -->
         {% include 'basic_node.html' %}
     <!-- /ko -->
     <!-- ko if:$data.isBranch() -->
         {% include 'branch_node.html' %}
     <!-- /ko -->
-    <!-- ko if:$data.isConstruct() -->
+    <!-- ko if:$data.isGroup() -->
         {% include 'construct_node.html' %}
     <!-- /ko -->
     <!-- ko if:$data.isComment() -->

@@ -447,7 +447,7 @@ export class LogicalGraph {
         let graphNodeId:string
         eagle.logicalGraph().getNodes().forEach(function(node){
             if(node.getName() === name){
-                graphNodeId = node.getGraphNodeId()
+                graphNodeId = node.getId()
             }
         })
         return graphNodeId

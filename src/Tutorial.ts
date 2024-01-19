@@ -94,7 +94,13 @@ export class TutorialSystem {
 
     static initiateFindGraphNodeIdByNodeName = (name:string) : JQuery<HTMLElement> => {
         const eagle = Eagle.getInstance()
-        let x = $('#'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+' rect')
+        let x = $('#logicalGraphD3Div #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
+        return x
+    }
+
+    static initiateSimpleFindGraphNodeIdByNodeName = (name:string) : string => {
+        const eagle = Eagle.getInstance()
+        let x = eagle.logicalGraph().findNodeGraphIdByNodeName(name)
         return x
     }
 
@@ -335,6 +341,7 @@ export class Tutorial {
     }
 
     highlightStepTarget = (target: JQuery<HTMLElement>): void => {
+        const eagle = Eagle.getInstance()
         if(TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc() != null){
             target = TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc()()
         }
@@ -343,10 +350,16 @@ export class Tutorial {
         const coords = target.offset()
         const docWidth = window.innerWidth
         const top_actual = Math.round(coords.top)//distance of the top of the element from the top of the document
-        const right = coords.left + $(target).outerWidth() 
+        let right = coords.left + $(target).outerWidth() 
         const left = docWidth - coords.left
-        const targetHeight = Math.round($(target).outerHeight())
-        const bottom_actual = Math.round(coords.top + targetHeight) //distance from the bottom of the target element to the bottom of the document
+        let targetHeight = Math.round($(target).outerHeight())
+        let bottom_actual = Math.round(coords.top + targetHeight) //distance from the bottom of the target element to the bottom of the document
+
+        if(target.parents('#logicalGraphParent').length){
+            targetHeight = Math.round(targetHeight*eagle.globalScale())
+            right = coords.left+$(target).outerWidth() *eagle.globalScale()
+            bottom_actual = Math.round(coords.top + targetHeight)
+        }
 
         //i am appending these once if they dont exist. they are then adjusted for each step. and finally removed when exiting the tutorial
         if ($('.tutorialHighlight').length === 0) {
