@@ -84,6 +84,159 @@ ko.bindingHandlers.nodeRenderHandler = {
     },
 };
 
+
+
+ko.bindingHandlers.embeddedAppPosition = {
+    update: function (element:any, valueAccessor) {
+        //the update function is called initially and then whenever a change to a utilised observable occurs
+        const eagle : Eagle = Eagle.getInstance();
+        const applicationNode: Node = ko.utils.unwrapObservable(valueAccessor()).applicationNode;
+        const input: boolean = ko.utils.unwrapObservable(valueAccessor()).input;
+
+        // debug
+        const n: Node = applicationNode;
+        const f: Field = null;
+        const dataType: string = input ? 'inputApp' : 'outputApp';
+
+        // determine the 'node' and 'field' attributes (for this way of using this binding)
+        let node : Node 
+        let field : Field
+
+        if (input){
+            // console.log(data.getName(), 'is input app')
+            node = eagle.logicalGraph().findNodeByKeyQuiet(n.getEmbedKey())
+            for(const port of n.getFields()){
+                if (port.isInputPort()){
+                    field = port
+                }
+            }
+        } else {
+            // console.log(data.getName(), 'is output app')
+            node = eagle.logicalGraph().findNodeByKeyQuiet(n.getEmbedKey())
+            for(const port of n.getFields()){
+                if (port.isOutputPort()){
+                    field = port
+                }
+            }
+        }
+
+        // clearing the saved port angles array
+        node.resetPortAngles()
+
+        // determine all the adjacent nodes
+        const adjacentNodes: Node[] = [];
+        let connectedField:boolean=false;
+
+        if (input){
+            for(const edge of eagle.logicalGraph().getEdges()){
+                if(field != null && field.getId()===edge.getDestPortId()){
+                    const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey());
+                    connectedField=true
+                    adjacentNodes.push(adjacentNode);
+                    continue;
+                }
+            }
+        } else {
+            for(const edge of eagle.logicalGraph().getEdges()){
+                if(field.getId()===edge.getSrcPortId()){
+                    const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey());
+                    connectedField=true
+                    adjacentNodes.push(adjacentNode);
+                    continue;
+                }
+            }
+        }
+
+        //for branch nodes the ports are inset from the outer radius a little bit in their design
+        const nodeRadius = node.getRadius();
+
+        // determine port position
+        const currentNodePos = node.getPosition();
+        let portPosition;
+        let averageAngle
+
+        if(connectedField || dataType === 'comment'){
+
+            // calculate angles to all adjacent nodes
+            const angles: number[] = [];
+            for (const adjacentNode of adjacentNodes){
+                const adjacentNodePos = adjacentNode.getPosition()
+                const edgeAngle = GraphRenderer.calculateConnectionAngle(currentNodePos, adjacentNodePos)
+                angles.push(edgeAngle);
+            }
+
+            // average the angles
+            averageAngle = GraphRenderer.averageAngles(angles);
+
+            node.addPortAngle(averageAngle);
+            portPosition = GraphRenderer.calculatePortPos(averageAngle, nodeRadius, nodeRadius)
+        }else{
+            // find a default position for the port when not connected
+            switch (dataType){
+                case 'inputApp':
+                case 'inputPort':
+                    portPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
+                    averageAngle = 3.14159
+                    break;
+                case 'outputApp':
+                case 'outputPort':
+                    portPosition=GraphRenderer.calculatePortPos(0, nodeRadius, nodeRadius)
+                    averageAngle = 0
+                    break;
+                default:
+                    console.warn("disconnected field with dataType:", dataType);
+                    portPosition=GraphRenderer.calculatePortPos(Math.PI/2, nodeRadius, nodeRadius)
+                    break;
+            }
+        }
+
+        //a little 1px reduction is needed to center ports for some reason
+        if(!node.isBranch()){
+            portPosition = {x:portPosition.x-1,y:portPosition.y-1}
+        }
+
+        if (dataType === 'inputPort'){
+            field.setInputPosition(portPosition.x, portPosition.y);
+        } else if (dataType === 'outputPort'){
+            field.setOutputPosition(portPosition.x, portPosition.y);
+        }
+        
+        let x
+        let y
+
+        if (dataType === 'inputApp' || dataType === 'outputApp'){
+            //we are saving the embedded application's position data here using the offset we calculated
+            const newPos = {x: node.getPosition().x-nodeRadius+portPosition.x, y:node.getPosition().y-nodeRadius+portPosition.y}
+            n.setPosition(newPos.x,newPos.y)
+            portPosition = {x:portPosition.x-nodeRadius,y:portPosition.y-nodeRadius}
+            x = portPosition.x
+            y = portPosition.y
+        }else{
+            x = portPosition.x + currentNodePos.x  - nodeRadius
+            y = portPosition.y + currentNodePos.y  - nodeRadius
+
+            //align the port titles to the correct side of the node, depending on node angle
+            //clear style since it doesnt seem to overwrite
+            $(element).find(".portTitle").removeAttr( "style" )
+
+            //convert negative radian angles to positive
+            if(averageAngle<0){
+                averageAngle= averageAngle+2*Math.PI
+            }
+
+            //apply the correct css
+            if(averageAngle>1.5708 && averageAngle<4.71239){
+                $(element).find(".portTitle").css({'text-align':'right','left':-5+'px','transform':'translateX(-100%)'})
+            }else{
+                $(element).find(".portTitle").css({'text-align':'left','right':-5+'px','transform':'translateX(100%)'})
+            }
+        }
+
+        //applying the offset to the element
+        $(element).css({'top':y+'px','left':x+'px'})
+    }
+};
+
 ko.bindingHandlers.graphRendererPortPosition = {
     update: function (element:any, valueAccessor) {
         //the update function is called initially and then whenever a change to a utilised observable occurs
