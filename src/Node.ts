@@ -659,12 +659,8 @@ export class Node {
         return this.category() === Category.Service;
     }
 
-    isResizable = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).isResizable;
-    }
-
     isGroup = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).canContainComponents;
+        return CategoryData.getCategoryData(this.category()).isGroup;
     }
 
     canHaveInputs = () : boolean => {

@@ -3237,7 +3237,7 @@ export class Eagle {
         }
 
         // if node is a construct, set width and height a little larger
-        if (CategoryData.getCategoryData(node.getCategory()).canContainComponents){
+        if (node.isGroup()){
             node.setRadius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
         }
 
