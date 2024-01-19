@@ -122,7 +122,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 field = f
                 break;
             case 'comment':
-                node = f
+                node = n
                 field = null
                 break;
         }
@@ -1168,7 +1168,7 @@ export class GraphRenderer {
         }
     }
 
-    static showPort(field:Field,node:Node) :boolean {
+    static showPort(node: Node, field: Field) :boolean {
         const eagle = Eagle.getInstance();
         if(node.isPeek()){
             return true
