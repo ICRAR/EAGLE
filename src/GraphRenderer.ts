@@ -153,6 +153,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 for(const edge of eagle.logicalGraph().getEdges()){
                     if(field != null && field.getId()===edge.getDestPortId()){
                         const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey());
+                        
+                        if (adjacentNode === null){
+                            console.warn("Could not find adjacentNode for inputPort or inputApp with SrcNodeKey", edge.getSrcNodeKey());
+                            return;
+                        }
+
                         connectedField=true
                         adjacentNodes.push(adjacentNode);
                         continue;
@@ -165,6 +171,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 for(const edge of eagle.logicalGraph().getEdges()){
                     if(field.getId()===edge.getSrcPortId()){
                         const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey());
+
+                        if (adjacentNode === null){
+                            console.warn("Could not find adjacentNode for  outputPort or outputApp with DestNodeKey", edge.getDestNodeKey());
+                            return;
+                        }
+
                         connectedField=true
                         adjacentNodes.push(adjacentNode);
                         continue;
@@ -497,7 +509,9 @@ export class GraphRenderer {
 
         const srcNode: Node = lg.findNodeByKeyQuiet(edge.getSrcNodeKey());
         const destNode: Node = lg.findNodeByKeyQuiet(edge.getDestNodeKey());
-
+        if(srcNode===null||destNode===null){
+            return ''
+        }
         const srcField: Field = srcNode.findFieldById(edge.getSrcPortId());
         const destField: Field = destNode.findFieldById(edge.getDestPortId());
 
