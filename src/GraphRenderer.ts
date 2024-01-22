@@ -96,6 +96,7 @@ ko.bindingHandlers.embeddedAppPosition = {
         const parentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(applicationNode.getEmbedKey());
 
         // find a single port of the correct type to consider when looking for adjacentNodes
+        // TODO: why do we select a single port here, why not consider all ports (if multiple exist)?
         let field : Field;
         for(const port of applicationNode.getFields()){
             if (input && port.isInputPort()){
@@ -112,6 +113,7 @@ ko.bindingHandlers.embeddedAppPosition = {
         parentNode.resetPortAngles()
 
         // determine all the adjacent nodes
+        // TODO: earlier abort if field is null
         const adjacentNodes: Node[] = [];
         let connectedField:boolean=false;
 
@@ -139,44 +141,51 @@ ko.bindingHandlers.embeddedAppPosition = {
         const parentNodeRadius = parentNode.getRadius();
 
         // determine port position
-        const parentNodePos = parentNode.getPosition();
+        const parentNodePosition = parentNode.getPosition();
         let portPosition;
-        let averageAngle
 
         if(connectedField){
             // calculate angles to all adjacent nodes
             const angles: number[] = [];
             for (const adjacentNode of adjacentNodes){
                 const adjacentNodePos = adjacentNode.getPosition()
-                const edgeAngle = GraphRenderer.calculateConnectionAngle(parentNodePos, adjacentNodePos)
+                const edgeAngle = GraphRenderer.calculateConnectionAngle(parentNodePosition, adjacentNodePos)
                 angles.push(edgeAngle);
             }
 
             // average the angles
-            averageAngle = GraphRenderer.averageAngles(angles);
-
-            parentNode.addPortAngle(averageAngle);
+            const averageAngle = GraphRenderer.averageAngles(angles);
             portPosition = GraphRenderer.calculatePortPos(averageAngle, parentNodeRadius, parentNodeRadius)
+
+            // set port angle
+            // TODO: add comment to explain why this is only necessary in the connectedField === true case!
+            parentNode.addPortAngle(averageAngle);
         }else{
             // find a default position for the port when not connected
             if (input){
                 portPosition=GraphRenderer.calculatePortPos(Math.PI, parentNodeRadius, parentNodeRadius)
-                averageAngle = Math.PI;
             } else {
                 portPosition=GraphRenderer.calculatePortPos(0, parentNodeRadius, parentNodeRadius)
-                averageAngle = 0;
             }
         }
 
         // we are saving the embedded application's position data here using the offset we calculated
-        const newPos = {x: parentNodePos.x-parentNodeRadius+portPosition.x, y:parentNodePos.y-parentNodeRadius+portPosition.y}
+        const newPos = {
+            x: parentNodePosition.x - parentNodeRadius + portPosition.x,
+            y: parentNodePosition.y - parentNodeRadius + portPosition.y
+        }
         applicationNode.setPosition(newPos.x,newPos.y)
-        portPosition = {x:portPosition.x-parentNodeRadius,y:portPosition.y-parentNodeRadius}
-        const x = portPosition.x
-        const y = portPosition.y
+
+        portPosition = {
+            x: portPosition.x - parentNodeRadius,
+            y: portPosition.y - parentNodeRadius
+        }
 
         // applying the offset to the element
-        $(element).css({'top':y+'px','left':x+'px'})
+        $(element).css({
+            'top': portPosition.y+'px',
+            'left':portPosition.x+'px'
+        });
     }
 };
 
