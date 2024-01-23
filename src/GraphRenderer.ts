@@ -693,7 +693,10 @@ export class GraphRenderer {
             if(event.shiftKey){
                 //drag selection region handler
                 GraphRenderer.isDraggingSelectionRegion = true
-                GraphRenderer.selectionRegionStart = {x:this.mousePosX(),y:this.mousePosY()}
+                GraphRenderer.selectionRegionStart = {x:event.pageX,y:event.pageY}
+                $('#selectionRectangle').show()
+                $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','top':GraphRenderer.selectionRegionStart.y+'px'})
+                console.log('started draggin selection region', GraphRenderer.selectionRegionStart)
             }else{
                 //if node is null, the empty canvas has been clicked. clear the selection
                 eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
@@ -768,7 +771,9 @@ export class GraphRenderer {
                 }
 
             } else if(GraphRenderer.isDraggingSelectionRegion){
-                GraphRenderer.selectionRegionEnd = {x:this.mousePosX(),y:this.mousePosY()}
+                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.dragCurrentPosition.x, y:GraphRenderer.dragCurrentPosition.y}
+                $('#selectionRectangle').css({'right':GraphRenderer.selectionRegionEnd.x+'px','bottom':GraphRenderer.selectionRegionEnd.y+'px'})
+                console.log(GraphRenderer.isDraggingSelectionRegion,GraphRenderer.selectionRegionEnd,'dragging the selction region')
             }else{
                 // move background
                 eagle.globalOffsetX(eagle.globalOffsetX() + mouseEvent.movementX/eagle.globalScale());
@@ -789,6 +794,8 @@ export class GraphRenderer {
         eagle.isDragging(false);
         eagle.draggingNode(null)
         GraphRenderer.isDraggingSelectionRegion = false;
+        $('#selectionRectangle').hide()
+        console.log('finished drags',GraphRenderer.isDraggingSelectionRegion,GraphRenderer.selectionRegionEnd)
         
         if(node != null){
             if(!GraphRenderer.dragSelectionHandled){
