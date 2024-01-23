@@ -306,6 +306,11 @@ export class GraphRenderer {
     static dragSelectionHandled : any = false
     static dragSelectionDoubleClick :boolean = false;
 
+    //drag selection region globals
+    static isDraggingSelectionRegion :boolean = false;
+    static selectionRegionStart = {x:0, y:0};
+    static selectionRegionEnd = {x:0, y:0};
+
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
     static legacyGraph : boolean = false; //used for marking a graph when its nodes don't have a radius set. in this case we will do some conversion
@@ -685,8 +690,15 @@ export class GraphRenderer {
                 }
             }
         }else{
-            //if node is null, the empty canvas has been clicked. clear the selection
-            eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
+            if(event.shiftKey){
+                //drag selection region handler
+                GraphRenderer.isDraggingSelectionRegion = true
+                GraphRenderer.selectionRegionStart = {x:this.mousePosX(),y:this.mousePosY()}
+            }else{
+                //if node is null, the empty canvas has been clicked. clear the selection
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
+
+            }
         }
 
         //this is the timeout for the double click that is used to select the children of constructs
@@ -755,7 +767,9 @@ export class GraphRenderer {
                     $('#'+parent.getId()).removeClass('transition')
                 }
 
-            } else {
+            } else if(GraphRenderer.isDraggingSelectionRegion){
+                GraphRenderer.selectionRegionEnd = {x:this.mousePosX(),y:this.mousePosY()}
+            }else{
                 // move background
                 eagle.globalOffsetX(eagle.globalOffsetX() + mouseEvent.movementX/eagle.globalScale());
                 eagle.globalOffsetY(eagle.globalOffsetY() + mouseEvent.movementY/eagle.globalScale());
@@ -773,7 +787,8 @@ export class GraphRenderer {
 
         //console.log("endDrag", node ? node.getName() : node)
         eagle.isDragging(false);
-        eagle.draggingNode(null);
+        eagle.draggingNode(null)
+        GraphRenderer.isDraggingSelectionRegion = false;
         
         if(node != null){
             if(!GraphRenderer.dragSelectionHandled){
