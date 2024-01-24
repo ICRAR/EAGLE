@@ -693,7 +693,7 @@ export class GraphRenderer {
             if(event.shiftKey){
                 //drag selection region handler
                 GraphRenderer.isDraggingSelectionRegion = true
-                GraphRenderer.selectionRegionStart = {x:event.pageX,y:event.pageY}
+                GraphRenderer.selectionRegionStart = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y()}
                 $('#selectionRectangle').show()
                 $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','top':GraphRenderer.selectionRegionStart.y+'px'})
                 console.log('started draggin selection region', GraphRenderer.selectionRegionStart)
@@ -771,8 +771,13 @@ export class GraphRenderer {
                 }
 
             } else if(GraphRenderer.isDraggingSelectionRegion){
-                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.dragCurrentPosition.x, y:GraphRenderer.dragCurrentPosition.y}
-                $('#selectionRectangle').css({'right':GraphRenderer.selectionRegionEnd.x+'px','bottom':GraphRenderer.selectionRegionEnd.y+'px'})
+                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(), y:this.SCREEN_TO_GRAPH_POSITION_Y()}
+                const containerWidth = $('#logicalGraphD3Div').width()
+                const containerHeight = $('#logicalGraphD3Div').height()
+                const selectionBottomOffset = containerHeight - GraphRenderer.selectionRegionEnd.y
+                const selectionRightOffset = containerWidth - GraphRenderer.selectionRegionEnd.x
+
+                $('#selectionRectangle').css({'right':selectionRightOffset+'px','bottom':selectionBottomOffset+'px'})
                 console.log(GraphRenderer.isDraggingSelectionRegion,GraphRenderer.selectionRegionEnd,'dragging the selction region')
             }else{
                 // move background
