@@ -691,7 +691,6 @@ export class GraphRenderer {
             }
         }else{
             if(event.shiftKey){
-                console.log('shift key start handled')
                 //drag selection region handler
                 GraphRenderer.isDraggingSelectionRegion = true
                 GraphRenderer.selectionRegionStart = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y()}
@@ -781,15 +780,22 @@ export class GraphRenderer {
                 }
 
             } else if(GraphRenderer.isDraggingSelectionRegion){
-                console.log('shift key move handled')
                 GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(), y:this.SCREEN_TO_GRAPH_POSITION_Y()}
                 const containerWidth = $('#logicalGraphD3Div').width()
                 const containerHeight = $('#logicalGraphD3Div').height()
-                const selectionBottomOffset = containerHeight - GraphRenderer.selectionRegionEnd.y
-                const selectionRightOffset = containerWidth - GraphRenderer.selectionRegionEnd.x
 
-                $('#selectionRectangle').css({'right':selectionRightOffset+'px','bottom':selectionBottomOffset+'px'})
-                // console.log(GraphRenderer.isDraggingSelectionRegion,GraphRenderer.selectionRegionEnd,'dragging the selction region')
+                if(GraphRenderer.selectionRegionEnd.x>GraphRenderer.selectionRegionStart.x){
+                    $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','right':containerWidth - GraphRenderer.selectionRegionEnd.x+'px'})
+                }else{
+                    $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionEnd.x+'px','right':containerWidth - GraphRenderer.selectionRegionStart.x+'px'})
+                }
+
+                if(GraphRenderer.selectionRegionEnd.y>GraphRenderer.selectionRegionStart.y){
+                    $('#selectionRectangle').css({'top':GraphRenderer.selectionRegionStart.y+'px','bottom':containerHeight - GraphRenderer.selectionRegionEnd.y+'px'})
+                }else{
+                    $('#selectionRectangle').css({'top':GraphRenderer.selectionRegionEnd.y+'px','bottom':containerHeight - GraphRenderer.selectionRegionStart.y+'px'})
+                }
+
             }else{
                 // move background
                 eagle.globalOffsetX(eagle.globalOffsetX() + mouseEvent.movementX/eagle.globalScale());
@@ -806,12 +812,10 @@ export class GraphRenderer {
     static endDrag = (node: Node, event: any) : void => {
         const eagle = Eagle.getInstance();
 
-        //console.log("endDrag", node ? node.getName() : node)
         eagle.isDragging(false);
         eagle.draggingNode(null)
         GraphRenderer.isDraggingSelectionRegion = false;
         $('#selectionRectangle').hide()
-        // console.log('finished drags',GraphRenderer.isDraggingSelectionRegion,GraphRenderer.selectionRegionEnd)
         
         if(node != null){
             if(!GraphRenderer.dragSelectionHandled){
