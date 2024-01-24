@@ -811,26 +811,197 @@ export class GraphRenderer {
 
     static endDrag = (node: Node, event: any) : void => {
         const eagle = Eagle.getInstance();
+        
+        // if we dragged a selection region
+        if (GraphRenderer.isDraggingSelectionRegion){
+            const nodes: Node[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
 
-        eagle.isDragging(false);
-        eagle.draggingNode(null)
-        GraphRenderer.isDraggingSelectionRegion = false;
-        $('#selectionRectangle').hide()
-        
-        if(node != null){
-            if(!GraphRenderer.dragSelectionHandled){
-                const distanceMovedX = Math.abs(GraphRenderer.dragStartPosition.x-GraphRenderer.dragCurrentPosition.x)
-                const distanceMovedY = Math.abs(GraphRenderer.dragStartPosition.y-GraphRenderer.dragCurrentPosition.y)
-        
-                if(distanceMovedX<5 || distanceMovedY<5){
-                    eagle.setSelection(null, node,Eagle.FileType.Graph)
+            //checking if there was no drag distance, if so we are clicking a single object and we will toggle its seletion
+            if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
+                    eagle.editSelection(Eagle.RightWindowMode.Inspector, node,Eagle.FileType.Graph);
+            }else{
+                const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
+                console.log("Found", nodes.length, "nodes and", edges.length, "edges in region");
+                const objects: (Node | Edge)[] = [];
+    
+                // only add those objects which are not already selected
+                for (const node of nodes){
+                    if (!eagle.objectIsSelected(node)){
+                        objects.push(node);
+                    }
                 }
+                for (const edge of edges){
+                    if (!eagle.objectIsSelected(edge)){
+                        objects.push(edge);
+                    }
+                }
+    
+                objects.forEach(function(element){
+                    eagle.editSelection(Eagle.RightWindowMode.Hierarchy, element, Eagle.FileType.Graph )
+                })
+            }
+
+
+            // if (isDraggingWithAlt){
+            //     for (const node of nodes){
+            //         node.setCollapsed(false);
+            //     }
+            // }
+
+            GraphRenderer.selectionRegionStart.x = 0;
+            GraphRenderer.selectionRegionStart.y = 0;
+            GraphRenderer.selectionRegionEnd.x = 0;
+            GraphRenderer.selectionRegionEnd.y = 0;
+
+            // finish selecting a region
+            GraphRenderer.isDraggingSelectionRegion = false;
+
+            //hide the selection rectangle
+            $('#selectionRectangle').hide()
+
+            // necessary to make uncollapsed nodes show up
+            eagle.logicalGraph.valueHasMutated();
+        }else{
+            if(node != null){
+                if(!GraphRenderer.dragSelectionHandled){
+                    const distanceMovedX = Math.abs(GraphRenderer.dragStartPosition.x-GraphRenderer.dragCurrentPosition.x)
+                    const distanceMovedY = Math.abs(GraphRenderer.dragStartPosition.y-GraphRenderer.dragCurrentPosition.y)
+            
+                    if(distanceMovedX<5 || distanceMovedY<5){
+                        eagle.setSelection(null, node,Eagle.FileType.Graph)
+                    }
+                }
+            }
+    
+            if (node != null && node.getParentKey() != null){
+                const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
             }
         }
 
-        if (node != null && node.getParentKey() != null){
-            const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
+        eagle.isDragging(false);
+        eagle.draggingNode(null)
+        
+    }
+
+    static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
+        const eagle = Eagle.getInstance();
+        const result: Node[] = [];
+        const nodeData : Node[] = GraphRenderer.depthFirstTraversalOfNodes(eagle.logicalGraph(), eagle.showDataNodes());
+
+        // re-assign left, right, top, bottom in case selection region was not dragged in the typical NW->SE direction
+        const realLeft = left <= right ? left : right;
+        const realRight = left <= right ? right : left;
+        const realTop = top <= bottom ? top : bottom;
+        const realBottom = top <= bottom ? bottom : top;
+
+        for (let i = nodeData.length - 1; i >= 0 ; i--){
+            const node : Node = nodeData[i];
+
+            // use center of node as position
+            const centerX : number = node.getPosition().x
+            const centerY : number = node.getPosition().y
+
+            if (centerX >= realLeft && realRight >= centerX && centerY >= realTop && realBottom >= centerY){
+                result.push(node);
+            }
         }
+
+        return result;
+    }
+
+    
+
+    static getEdges(graph: LogicalGraph, showDataNodes: boolean): Edge[]{
+        if (showDataNodes){
+            return graph.getEdges();
+        } else {
+            //return [graph.getEdges()[0]];
+            const edges: Edge[] = [];
+
+            for (const edge of graph.getEdges()){
+                let srcHasConnectedInput: boolean = false;
+                let destHasConnectedOutput: boolean = false;
+
+                for (const e of graph.getEdges()){
+                    if (e.getDestNodeKey() === edge.getSrcNodeKey()){
+                        srcHasConnectedInput = true;
+                    }
+                    if (e.getSrcNodeKey() === edge.getDestNodeKey()){
+                        destHasConnectedOutput = true;
+                    }
+                }
+
+                const srcIsDataNode: boolean = GraphRenderer.findNodeWithKey(edge.getSrcNodeKey(), graph.getNodes()).isData();
+                const destIsDataNode: boolean = GraphRenderer.findNodeWithKey(edge.getDestNodeKey(), graph.getNodes()).isData();
+                //console.log("edge", edge.getId(), "srcIsDataNode", srcIsDataNode, "srcHasConnectedInput", srcHasConnectedInput, "destIsDataNode", destIsDataNode, "destHasConnectedOutput", destHasConnectedOutput);
+
+                if (destIsDataNode){
+                    if (!destHasConnectedOutput){
+                        // draw edge as normal
+                        edges.push(edge);
+                    }
+                    continue;
+                }
+
+                if (srcIsDataNode){
+                    if (srcHasConnectedInput){
+                        // build a new edge
+                        const newSrc = GraphRenderer.findInputToDataNode(graph.getEdges(), edge.getSrcNodeKey());
+                        edges.push(new Edge(newSrc.nodeKey, newSrc.portId, edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false));
+                    } else {
+                        // draw edge as normal
+                        edges.push(edge);
+                    }
+                }
+            }
+
+            return edges;
+        }
+    }
+
+    static findEdgesContainedByNodes(edges: Edge[], nodes: Node[]): Edge[]{
+        const result: Edge[] = [];
+
+        for (const edge of edges){
+            const srcKey = edge.getSrcNodeKey();
+            const destKey = edge.getDestNodeKey();
+            let srcFound = false;
+            let destFound = false;
+
+            for (const node of nodes){
+                if ((node.getKey() === srcKey) ||
+                    (node.hasInputApplication() && node.getInputApplication().getKey() === srcKey) ||
+                    (node.hasOutputApplication() && node.getOutputApplication().getKey() === srcKey)){
+                    srcFound = true;
+                }
+
+                if ((node.getKey() === destKey) ||
+                    (node.hasInputApplication() && node.getInputApplication().getKey() === destKey) ||
+                    (node.hasOutputApplication() && node.getOutputApplication().getKey() === destKey)){
+                    destFound = true;
+                }
+            }
+
+            if (srcFound && destFound){
+                result.push(edge);
+            }
+        }
+
+        return result;
+    }
+
+
+    static findInputToDataNode(edges: Edge[], nodeKey: number) : {nodeKey:number, portId: string}{
+        for (const edge of edges){
+            if (edge.getDestNodeKey() === nodeKey){
+                return {
+                    nodeKey: edge.getSrcNodeKey(),
+                    portId: edge.getSrcPortId()
+                };
+            }
+        }
+
+        return null;
     }
 
     static centerConstructs = (construct:Node, graphNodes:Node[]) :void => {
