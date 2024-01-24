@@ -900,8 +900,10 @@ export class GraphRenderer {
             // use center of node as position
             const centerX : number = node.getPosition().x
             const centerY : number = node.getPosition().y
+            const nodeRadius : number = node.getRadius()
 
-            if (centerX >= realLeft && realRight >= centerX && centerY >= realTop && realBottom >= centerY){
+            //checking if the node is fully inside the selection box
+            if (centerX+-nodeRadius >= realLeft && realRight+-nodeRadius >= centerX && centerY+-nodeRadius >= realTop && realBottom+-nodeRadiusw >= centerY){
                 result.push(node);
             }
         }
