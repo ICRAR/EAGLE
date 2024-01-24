@@ -307,6 +307,8 @@ export class GraphRenderer {
     static dragSelectionDoubleClick :boolean = false;
 
     //drag selection region globals
+    static altSelect : boolean = false;
+    static shiftSelect : boolean = false;
     static isDraggingSelectionRegion :boolean = false;
     static selectionRegionStart = {x:0, y:0};
     static selectionRegionEnd = {x:0, y:0};
@@ -621,6 +623,9 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         //resetting the shift event
         GraphRenderer.dragSelectionHandled = false
+        //these  two are needed to keep track of these modifiers for the mouse move and release event
+        GraphRenderer.altSelect = event.altKey
+        GraphRenderer.shiftSelect = event.shiftKey
 
         if(node === null || event.which === 2){
             //if no node is selected or we are dragging using middle mouse, we are dragging the background
@@ -640,12 +645,11 @@ export class GraphRenderer {
                 $('#'+parentNode.getId()).removeClass('transition')
                 GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
             }
-        }else{
-            GraphRenderer.dragSelectionHandled = true
         }
 
         //select handlers
         if(node !== null && event.which != 2 && !event.shiftKey){
+
             // check if shift key is down, if so, add or remove selected node to/from current selection | keycode 2 is the middle mouse button
             if (node !== null && event.shiftKey && !event.altKey){
                 GraphRenderer.dragSelectionHandled = true
@@ -656,38 +660,7 @@ export class GraphRenderer {
 
             //check for alt clicking, if so, add the target node and its children to the selection
             if(event.altKey&&node.isGroup()||GraphRenderer.dragSelectionDoubleClick&&node.isGroup()){
-                GraphRenderer.dragSelectionHandled = true
-                //if shift is not clicked, we first clear the selection
-                if(!event.shiftKey){
-                    eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
-                    eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
-                }
-
-                //getting all children, including children of child constructs etc..
-                let childIsConstruct = true
-                const constructs : Node[] = [node];
-                
-                while(childIsConstruct){
-                    let constructFound = false
-                    let i = -1
-                    constructs.forEach(function(construct){
-                        i++
-                        eagle.logicalGraph().getNodes().forEach(function(obj){
-                            if(obj.getParentKey()===construct.getKey()){
-                                eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
-    
-                                if(obj.isGroup()){
-                                    constructFound = true
-                                    constructs.push(obj)
-                                }
-                            }
-                        })
-                        constructs.splice(i,1)
-                    })
-                    if(!constructFound){
-                        childIsConstruct = false
-                    }
-                }
+                GraphRenderer.selectNodeAndChildren(node,this.shiftSelect)
             }
         }else{
             if(event.shiftKey){
@@ -700,9 +673,10 @@ export class GraphRenderer {
 
                 //setting start and end region to current mouse co-ordinates
                 $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','top':GraphRenderer.selectionRegionStart.y+'px'})
-                
                 const containerWidth = $('#logicalGraphD3Div').width()
                 const containerHeight = $('#logicalGraphD3Div').height()
+
+                //turning the graph coordinates into a distance from bottom/right for css inset before applying
                 const selectionBottomOffset = containerHeight - GraphRenderer.selectionRegionEnd.y
                 const selectionRightOffset = containerWidth - GraphRenderer.selectionRegionEnd.x
                 $('#selectionRectangle').css({'right':selectionRightOffset+'px','bottom':selectionBottomOffset+'px'})
@@ -818,10 +792,12 @@ export class GraphRenderer {
 
             //checking if there was no drag distance, if so we are clicking a single object and we will toggle its seletion
             if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
-                    eagle.editSelection(Eagle.RightWindowMode.Inspector, node,Eagle.FileType.Graph);
+                if(GraphRenderer.altSelect){
+                    GraphRenderer.selectNodeAndChildren(node,this.shiftSelect)
+                }
+                eagle.editSelection(Eagle.RightWindowMode.Inspector, node,Eagle.FileType.Graph);
             }else{
                 const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
-                console.log("Found", nodes.length, "nodes and", edges.length, "edges in region");
                 const objects: (Node | Edge)[] = [];
     
                 // only add those objects which are not already selected
@@ -841,13 +817,6 @@ export class GraphRenderer {
                 })
             }
 
-
-            // if (isDraggingWithAlt){
-            //     for (const node of nodes){
-            //         node.setCollapsed(false);
-            //     }
-            // }
-
             GraphRenderer.selectionRegionStart.x = 0;
             GraphRenderer.selectionRegionStart.y = 0;
             GraphRenderer.selectionRegionEnd.x = 0;
@@ -861,21 +830,6 @@ export class GraphRenderer {
 
             // necessary to make uncollapsed nodes show up
             eagle.logicalGraph.valueHasMutated();
-        }else{
-            if(node != null){
-                if(!GraphRenderer.dragSelectionHandled){
-                    const distanceMovedX = Math.abs(GraphRenderer.dragStartPosition.x-GraphRenderer.dragCurrentPosition.x)
-                    const distanceMovedY = Math.abs(GraphRenderer.dragStartPosition.y-GraphRenderer.dragCurrentPosition.y)
-            
-                    if(distanceMovedX<5 || distanceMovedY<5){
-                        eagle.setSelection(null, node,Eagle.FileType.Graph)
-                    }
-                }
-            }
-    
-            if (node != null && node.getParentKey() != null){
-                const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
-            }
         }
 
         eagle.isDragging(false);
@@ -911,7 +865,41 @@ export class GraphRenderer {
         return result;
     }
 
+    static selectNodeAndChildren(node:Node,addative:boolean) : void {
+        const eagle = Eagle.getInstance();
+        GraphRenderer.dragSelectionHandled = true
+                //if shift is not clicked, we first clear the selection
+                if(!addative){
+                    eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
+                    eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+                }
+
+                //getting all children, including children of child constructs etc..
+                let childIsConstruct = true
+                const constructs : Node[] = [node];
+                
+                while(childIsConstruct){
+                    let constructFound = false
+                    let i = -1
+                    constructs.forEach(function(construct){
+                        i++
+                        eagle.logicalGraph().getNodes().forEach(function(obj){
+                            if(obj.getParentKey()===construct.getKey()){
+                                eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
     
+                                if(obj.isGroup()){
+                                    constructFound = true
+                                    constructs.push(obj)
+                                }
+                            }
+                        })
+                        constructs.splice(i,1)
+                    })
+                    if(!constructFound){
+                        childIsConstruct = false
+                    }
+                }
+    }
 
     static getEdges(graph: LogicalGraph, showDataNodes: boolean): Edge[]{
         if (showDataNodes){
