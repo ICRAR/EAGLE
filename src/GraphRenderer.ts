@@ -903,7 +903,7 @@ export class GraphRenderer {
             const nodeRadius : number = node.getRadius()
 
             //checking if the node is fully inside the selection box
-            if (centerX+-nodeRadius >= realLeft && realRight+-nodeRadius >= centerX && centerY+-nodeRadius >= realTop && realBottom+-nodeRadiusw >= centerY){
+            if (centerX+-nodeRadius >= realLeft && realRight+-nodeRadius >= centerX && centerY+-nodeRadius >= realTop && realBottom+-nodeRadius >= centerY){
                 result.push(node);
             }
         }
