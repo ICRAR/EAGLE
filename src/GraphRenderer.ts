@@ -645,8 +645,8 @@ export class GraphRenderer {
         }
 
         //select handlers
-        if(node !== null && event.which != 2){
-            // check if shift key is down, if so, add or remove selected node to/from current selection
+        if(node !== null && event.which != 2 && !event.shiftKey){
+            // check if shift key is down, if so, add or remove selected node to/from current selection | keycode 2 is the middle mouse button
             if (node !== null && event.shiftKey && !event.altKey){
                 GraphRenderer.dragSelectionHandled = true
                 eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
@@ -691,12 +691,22 @@ export class GraphRenderer {
             }
         }else{
             if(event.shiftKey){
+                console.log('shift key start handled')
                 //drag selection region handler
                 GraphRenderer.isDraggingSelectionRegion = true
                 GraphRenderer.selectionRegionStart = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y()}
+                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y()}
+                //making the selection box visible
                 $('#selectionRectangle').show()
+
+                //setting start and end region to current mouse co-ordinates
                 $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','top':GraphRenderer.selectionRegionStart.y+'px'})
-                console.log('started draggin selection region', GraphRenderer.selectionRegionStart)
+                
+                const containerWidth = $('#logicalGraphD3Div').width()
+                const containerHeight = $('#logicalGraphD3Div').height()
+                const selectionBottomOffset = containerHeight - GraphRenderer.selectionRegionEnd.y
+                const selectionRightOffset = containerWidth - GraphRenderer.selectionRegionEnd.x
+                $('#selectionRectangle').css({'right':selectionRightOffset+'px','bottom':selectionBottomOffset+'px'})
             }else{
                 //if node is null, the empty canvas has been clicked. clear the selection
                 eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
@@ -715,7 +725,7 @@ export class GraphRenderer {
         const mouseEvent: MouseEvent = <MouseEvent>event.originalEvent;
         GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
         if (eagle.isDragging()){
-            if (eagle.draggingNode() !== null){
+            if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
                 const node:Node = eagle.draggingNode()
                 $('.node.transition').removeClass('transition')
 
@@ -771,6 +781,7 @@ export class GraphRenderer {
                 }
 
             } else if(GraphRenderer.isDraggingSelectionRegion){
+                console.log('shift key move handled')
                 GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(), y:this.SCREEN_TO_GRAPH_POSITION_Y()}
                 const containerWidth = $('#logicalGraphD3Div').width()
                 const containerHeight = $('#logicalGraphD3Div').height()
@@ -778,7 +789,7 @@ export class GraphRenderer {
                 const selectionRightOffset = containerWidth - GraphRenderer.selectionRegionEnd.x
 
                 $('#selectionRectangle').css({'right':selectionRightOffset+'px','bottom':selectionBottomOffset+'px'})
-                console.log(GraphRenderer.isDraggingSelectionRegion,GraphRenderer.selectionRegionEnd,'dragging the selction region')
+                // console.log(GraphRenderer.isDraggingSelectionRegion,GraphRenderer.selectionRegionEnd,'dragging the selction region')
             }else{
                 // move background
                 eagle.globalOffsetX(eagle.globalOffsetX() + mouseEvent.movementX/eagle.globalScale());
@@ -800,7 +811,7 @@ export class GraphRenderer {
         eagle.draggingNode(null)
         GraphRenderer.isDraggingSelectionRegion = false;
         $('#selectionRectangle').hide()
-        console.log('finished drags',GraphRenderer.isDraggingSelectionRegion,GraphRenderer.selectionRegionEnd)
+        // console.log('finished drags',GraphRenderer.isDraggingSelectionRegion,GraphRenderer.selectionRegionEnd)
         
         if(node != null){
             if(!GraphRenderer.dragSelectionHandled){
