@@ -691,7 +691,7 @@ export class GraphRenderer {
         GraphRenderer.dragSelectionDoubleClick = true
         setTimeout(function () {
             GraphRenderer.dragSelectionDoubleClick = false
-        }, 500)
+        }, 200)
     }
 
     static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
