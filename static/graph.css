@@ -19,6 +19,12 @@
     -webkit-transform-origin: 0 0;
 }
 
+#selectionRectangle{
+    border:1px black solid;
+    position: absolute;
+    display: none;
+}
+
 #logicalGraphD3Div svg{
     position:absolute;   
     z-index: 2;
@@ -49,7 +55,6 @@
    z-index: 3;
    pointer-events: all;
 }
-
 
 .node .container, .constructOutputApp, .constructInputApp{
     z-index: 5;
