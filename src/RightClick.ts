@@ -406,15 +406,10 @@ export class RightClick {
         $('#customContextMenu').css('left',mouseX+'px')
 
         if(passedObjectClass != 'edgeDropCreate'){
-            //in change of calculating the right click location as the location where to place the node
-            const offset = $(targetElement).offset();
-            let x = mouseX - offset.left;
-            let y = mouseY - offset.top;
-
-            // transform display coords into real coords
-            x = (x - eagle.globalOffsetX())/eagle.globalScale();
-            y = (y - eagle.globalOffsetY())/eagle.globalScale();
-
+            //here we are grabbing the on graph location of the mouse cursor, this is where we wilkl palce the node when right clicking on the empty graph
+            let x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X()
+            let y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y()
+            console.log('new mouse location')
             Eagle.selectedRightClickPosition = {x:x, y:y};
         }
         
