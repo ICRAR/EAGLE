@@ -407,9 +407,8 @@ export class RightClick {
 
         if(passedObjectClass != 'edgeDropCreate'){
             //here we are grabbing the on graph location of the mouse cursor, this is where we wilkl palce the node when right clicking on the empty graph
-            let x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X()
-            let y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y()
-            console.log('new mouse location')
+            let x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
+            let y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)
             Eagle.selectedRightClickPosition = {x:x, y:y};
         }
         
