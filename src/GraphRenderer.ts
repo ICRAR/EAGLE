@@ -34,13 +34,11 @@ import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Utils } from './Utils';
 import { CategoryData} from './CategoryData';
-import {Setting, SettingsGroup} from './Setting';
+import { Setting } from './Setting';
 import { RightClick } from "./RightClick";
-import { GraphUpdater } from "./GraphUpdater";
 
 ko.bindingHandlers.nodeRenderHandler = {
-    init: function(element:any, valueAccessor, allBindings) {
-        const eagle : Eagle = Eagle.getInstance();
+    init: function(element:any, valueAccessor) {
         const node: Node = ko.unwrap(valueAccessor())
 
         //overwriting css variables using colours from graphConfig.ts. I am using this for simple styling to avoid excessive css data binds in the node html files
@@ -60,9 +58,7 @@ ko.bindingHandlers.nodeRenderHandler = {
             $(element).find('.body').css('background-color:#575757','color:white')
         }
     },
-    update: function (element:any, valueAccessor, allBindings, viewModel, bindingContext) {
-        const eagle : Eagle = Eagle.getInstance();
-
+    update: function (element:any, valueAccessor) {
         const node: Node = ko.unwrap(valueAccessor());
 
         // set size
@@ -783,7 +779,7 @@ export class GraphRenderer {
         
     }
 
-    static endDrag = (node: Node, event: any) : void => {
+    static endDrag = (node: Node) : void => {
         const eagle = Eagle.getInstance();
         
         // if we dragged a selection region
@@ -828,7 +824,7 @@ export class GraphRenderer {
             //hide the selection rectangle
             $('#selectionRectangle').hide()
 
-            // necessary to make uncollapsed nodes show up
+            // necessary to make un-collapsed nodes show up
             eagle.logicalGraph.valueHasMutated();
         }
 
