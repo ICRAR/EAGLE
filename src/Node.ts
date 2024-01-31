@@ -75,7 +75,7 @@ export class Node {
     private collapsed : ko.Observable<boolean>;    // indicates whether the node is shown collapsed in the graph display
     private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
     private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
-    private peek : ko.Observable<boolean>;     // true if we are temporarily showing the ports based on the users mouse position
+    private peek : ko.Observable<boolean>;     // true if we are temporarily showing the port titles based on the users mouse position
     private portAngles : number[]
     private radius : ko.Observable<number>;
     
