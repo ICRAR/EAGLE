@@ -599,8 +599,8 @@ export class GraphRenderer {
         const wheelDelta = e.deltaY;
         const zoomDivisor = Setting.findValue(Setting.GRAPH_ZOOM_DIVISOR);
 
-        const xsb = this.SCREEN_TO_GRAPH_POSITION_X()
-        const ysb = this.SCREEN_TO_GRAPH_POSITION_Y()
+        const xsb = this.SCREEN_TO_GRAPH_POSITION_X(null)
+        const ysb = this.SCREEN_TO_GRAPH_POSITION_Y(null)
 
         eagle.globalScale(eagle.globalScale()*(1-(wheelDelta/zoomDivisor)));
 
@@ -609,8 +609,8 @@ export class GraphRenderer {
             eagle.globalScale(Math.abs(eagle.globalScale()))
         }
 
-        const xsa = this.SCREEN_TO_GRAPH_POSITION_X()
-        const ysa = this.SCREEN_TO_GRAPH_POSITION_Y()
+        const xsa = this.SCREEN_TO_GRAPH_POSITION_X(null)
+        const ysa = this.SCREEN_TO_GRAPH_POSITION_Y(null)
 
         const movex = xsa-xsb
         const movey = ysa-ysb
@@ -666,8 +666,8 @@ export class GraphRenderer {
             if(event.shiftKey){
                 //drag selection region handler
                 GraphRenderer.isDraggingSelectionRegion = true
-                GraphRenderer.selectionRegionStart = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y()}
-                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y()}
+                GraphRenderer.selectionRegionStart = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
+                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
                 //making the selection box visible
                 $('#selectionRectangle').show()
 
@@ -754,7 +754,7 @@ export class GraphRenderer {
                 }
 
             } else if(GraphRenderer.isDraggingSelectionRegion){
-                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(), y:this.SCREEN_TO_GRAPH_POSITION_Y()}
+                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null), y:this.SCREEN_TO_GRAPH_POSITION_Y(null)}
                 const containerWidth = $('#logicalGraphD3Div').width()
                 const containerHeight = $('#logicalGraphD3Div').height()
 
@@ -1182,8 +1182,8 @@ export class GraphRenderer {
         const d3DivOffset = $('#logicalGraphD3Div').offset();
         const mouseX = (<any>event).pageX - d3DivOffset.left;
         const mouseY = (<any>event).pageY - d3DivOffset.top;
-        GraphRenderer.mousePosX(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X());
-        GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y());
+        GraphRenderer.mousePosX(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null));
+        GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null));
     }
 
     static portDragStart = (port:Field, usage:string) : void => {
@@ -1400,14 +1400,20 @@ export class GraphRenderer {
         }
     }
     
-    static SCREEN_TO_GRAPH_POSITION_X() : number {
+    static SCREEN_TO_GRAPH_POSITION_X(x:number) : number {
         const eagle = Eagle.getInstance();
-        return GraphRenderer.dragCurrentPosition.x/eagle.globalScale() - eagle.globalOffsetX();
+        if(x===null){
+            x = GraphRenderer.dragCurrentPosition.x
+        }
+        return x/eagle.globalScale() - eagle.globalOffsetX();
     }
 
-    static SCREEN_TO_GRAPH_POSITION_Y() : number {
+    static SCREEN_TO_GRAPH_POSITION_Y(y:number) : number {
         const eagle = Eagle.getInstance();
-        return (GraphRenderer.dragCurrentPosition.y-83.77)/eagle.globalScale() -eagle.globalOffsetY();
+        if(y===null){
+            y = GraphRenderer.dragCurrentPosition.y
+        }
+        return (y-83.77)/eagle.globalScale() -eagle.globalOffsetY();
     }
 
     static SCREEN_TO_GRAPH_SCALE(n: number) : number {
