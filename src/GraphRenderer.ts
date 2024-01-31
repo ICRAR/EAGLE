@@ -1268,6 +1268,10 @@ export class GraphRenderer {
                 const destPort: Field = GraphRenderer.destinationPort;
 
                 this.createEdge(srcNode, srcPort, destNode, destPort);
+
+                // we can stop rendering the dragging edge
+                GraphRenderer.renderDraggingPortEdge(false);
+                GraphRenderer.clearEdgeVars();
             }
         }
 
