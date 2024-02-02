@@ -4158,6 +4158,7 @@ export class Eagle {
             const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update process
             clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
+            $(clickTarget).select()
 
             $("#parameterTableModal .modal-body").animate({
                 scrollTop: (fieldIndex*30)

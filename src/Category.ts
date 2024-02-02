@@ -83,7 +83,7 @@ export namespace Category {
         Data = "#2c2c2c",
         Description = "rgb(157 43 96)",
         Error = "#FF66CC",
-        Group = "rgb(211 165 0)",
+        Group = "rgb(227 189 100)",
         Object = "#00bfa6",
         Service = "purple"
     }
