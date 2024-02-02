@@ -23,7 +23,6 @@
 */
 
 import { Category } from './Category';
-import { CategoryData } from './CategoryData';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
 import { LogicalGraph } from './LogicalGraph';

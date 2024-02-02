@@ -2995,12 +2995,12 @@ export class Eagle {
     }
 
     // TODO: requestMode param here is spelt incorrectly, should be an enum? 
-    deleteSelection = (requstMode:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
+    deleteSelection = (requestMode:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
         let mode: string; // TODO: should be an enum?
         let data: any = []; // TODO: declare type
 
         // if no objects selected, warn user
-        if (requstMode === ''){
+        if (requestMode === ''){
             data = this.selectedObjects()
             mode = 'normal'
         }else{
@@ -3744,7 +3744,7 @@ export class Eagle {
                 continue;
             }
 
-            //this index only counts up if the above doesnt filter out the choice
+            // this index only counts up if the above doesn't filter out the choice
             validChoiceIndex++
 
             // if this node is already the parent, note its index, so that we can preselect this parent node in the modal dialog
@@ -4783,13 +4783,13 @@ $( document ).ready(function() {
         $("#editFieldModal textarea").attr('style','')
         $("#errorsModalAccordion").parent().parent().attr('style','')
 
-        //reset parameter table selecction
+        //reset parameter table selection
         ParameterTable.resetSelection()
     }); 
 
     $('.modal').on('shown.bs.modal',function(){
         // modal draggables
-        //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
+        // the any type is required so we don't have an error when building. at runtime on eagle this actually functions without it.
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
         });
