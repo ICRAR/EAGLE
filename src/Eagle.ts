@@ -3640,6 +3640,7 @@ export class Eagle {
 
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
             clickTarget.focus() // used to focus the field allowing the user to immediately start typing
+            $(clickTarget).select()
 
             //scroll to new row
             $("#parameterTableModal .modal-body").animate({
