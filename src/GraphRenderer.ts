@@ -1025,42 +1025,47 @@ export class GraphRenderer {
         })
 
         orderedConstructList.forEach(function(constr){
-            let childCount = 0
+            GraphRenderer.centerConstruct(constr,graphNodes)
+        })
+    }
 
-            let minX : number = Number.MAX_VALUE;
-            let minY : number = Number.MAX_VALUE;
-            let maxX : number = -Number.MAX_VALUE;
-            let maxY : number = -Number.MAX_VALUE;
-            for (const node of graphNodes){
-                
-                if (!node.isEmbedded() && node.getParentKey() === constr.getKey()){
-                    childCount++
-                    if (node.getPosition().x - node.getRadius() < minX){
-                        minX = node.getPosition().x - node.getRadius();
-                    }
-                    if (node.getPosition().y - node.getRadius() < minY){
-                        minY = node.getPosition().y - node.getRadius();
-                    }
-                    if (node.getPosition().x + node.getRadius() > maxX){
-                        maxX = node.getPosition().x + node.getRadius();
-                    }
-                    if (node.getPosition().y + node.getRadius() > maxY){
-                        maxY = node.getPosition().y + node.getRadius();
-                    }
+    static centerConstruct = (construct:Node,graphNodes:Node[]) : void => {
+        console.log('centering construct', construct.getName(),graphNodes)
+        let childCount = 0
+
+        let minX : number = Number.MAX_VALUE;
+        let minY : number = Number.MAX_VALUE;
+        let maxX : number = -Number.MAX_VALUE;
+        let maxY : number = -Number.MAX_VALUE;
+        for (const node of graphNodes){
+            
+            if (!node.isEmbedded() && node.getParentKey() === construct.getKey()){
+                childCount++
+                if (node.getPosition().x - node.getRadius() < minX){
+                    minX = node.getPosition().x - node.getRadius();
+                }
+                if (node.getPosition().y - node.getRadius() < minY){
+                    minY = node.getPosition().y - node.getRadius();
+                }
+                if (node.getPosition().x + node.getRadius() > maxX){
+                    maxX = node.getPosition().x + node.getRadius();
+                }
+                if (node.getPosition().y + node.getRadius() > maxY){
+                    maxY = node.getPosition().y + node.getRadius();
                 }
             }
+        }
+        
+        if(childCount === 0){
+            return
+        }
 
-            if(childCount === 0){
-                return
-            }
+        // determine the centroid of the contruct
+        const centroidX = minX + ((maxX - minX) / 2);
+        const centroidY = minY + ((maxY - minY) / 2);
 
-            // determine the centroid of the graph
-            const centroidX = minX + ((maxX - minX) / 2);
-            const centroidY = minY + ((maxY - minY) / 2);
-
-            constr.setPosition(centroidX,centroidY)
-            GraphRenderer.resizeConstruct(constr)
-        })
+        construct.setPosition(centroidX,centroidY)
+        GraphRenderer.resizeConstruct(construct)
     }
 
     static translateLegacyGraph = () : void =>{
