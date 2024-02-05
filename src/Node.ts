@@ -1387,7 +1387,7 @@ export class Node {
             node.description(nodeData.description);
         }
 
-        if(nodeData.radius === undefined){
+        if(!isPaletteNode && nodeData.radius === undefined){
             GraphRenderer.legacyGraph = true
         }
         
