@@ -83,44 +83,99 @@ ko.bindingHandlers.nodeRenderHandler = {
     },
 };
 
+
+
+ko.bindingHandlers.embeddedAppPosition = {
+    update: function (element:any, valueAccessor) {
+        const eagle : Eagle = Eagle.getInstance();
+        const applicationNode: Node = ko.utils.unwrapObservable(valueAccessor()).applicationNode;
+        const input: boolean = ko.utils.unwrapObservable(valueAccessor()).input;
+
+        // find the node in which the applicationNode has been embedded
+        const parentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(applicationNode.getEmbedKey());
+
+        // clearing the saved port angles array
+        // TODO: add comment: we're calculating the new position for a single embedded app, why reset all other angles?
+        parentNode.resetPortAngles()
+
+        // determine all the adjacent nodes
+        // TODO: earlier abort if field is null
+        const adjacentNodes: Node[] = GraphRenderer.getAdjacentNodes(applicationNode, input);
+        const connectedField: boolean = adjacentNodes.length > 0;
+
+        // for branch nodes the ports are inset from the outer radius a little bit in their design
+        const parentNodeRadius = parentNode.getRadius();
+
+        // determine port position
+        const parentNodePosition = parentNode.getPosition();
+        let portPosition;
+
+        if(connectedField){
+            // calculate angles to all adjacent nodes
+            const angles: number[] = [];
+            for (const adjacentNode of adjacentNodes){
+                const adjacentNodePos = adjacentNode.getPosition()
+                const edgeAngle = GraphRenderer.calculateConnectionAngle(parentNodePosition, adjacentNodePos)
+                angles.push(edgeAngle);
+            }
+
+            // average the angles
+            const averageAngle = GraphRenderer.averageAngles(angles);
+            portPosition = GraphRenderer.calculatePortPos(averageAngle, parentNodeRadius, parentNodeRadius)
+
+            // set port angle
+            // TODO: add comment to explain why this is only necessary in the connectedField === true case!
+            // TODO: we should actually make this explicit, we're not setting the port angle, we're setting the embedded app angle
+            parentNode.addPortAngle(averageAngle);
+        }else{
+            // find a default position for the port when not connected
+            if (input){
+                portPosition=GraphRenderer.calculatePortPos(Math.PI, parentNodeRadius, parentNodeRadius)
+            } else {
+                portPosition=GraphRenderer.calculatePortPos(0, parentNodeRadius, parentNodeRadius)
+            }
+        }
+
+        // we are saving the embedded application's position data here using the offset we calculated
+        const newPos = {
+            x: parentNodePosition.x - parentNodeRadius + portPosition.x,
+            y: parentNodePosition.y - parentNodeRadius + portPosition.y
+        }
+        applicationNode.setPosition(newPos.x,newPos.y)
+
+        portPosition = {
+            x: portPosition.x - parentNodeRadius,
+            y: portPosition.y - parentNodeRadius
+        }
+
+        // applying the offset to the element
+        $(element).css({
+            'top': portPosition.y+'px',
+            'left':portPosition.x+'px'
+        });
+    }
+};
+
 ko.bindingHandlers.graphRendererPortPosition = {
     update: function (element:any, valueAccessor) {
         //the update function is called initially and then whenever a change to a utilised observable occurs
         const eagle : Eagle = Eagle.getInstance();
-        const data = ko.utils.unwrapObservable(valueAccessor()).data;
+        const n: Node = ko.utils.unwrapObservable(valueAccessor()).n;
+        const f: Field = ko.utils.unwrapObservable(valueAccessor()).f;
         const dataType: string = ko.utils.unwrapObservable(valueAccessor()).type;
-        const portOnEmbeddedApp = false //used to identify when we are calculating the port position for a port on an embedded application
 
         // determine the 'node' and 'field' attributes (for this way of using this binding)
         let node : Node 
         let field : Field
 
         switch(dataType){
-            case 'inputApp':
-                // console.log(data.getName(), 'is input app')
-                node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
-                for(const port of data.getFields()){
-                    if (port.isInputPort()){
-                        field = port
-                    }
-                }
-                break;
-            case 'outputApp':
-                // console.log(data.getName(), 'is output app')
-                node = eagle.logicalGraph().findNodeByKeyQuiet(data.getEmbedKey())
-                for(const port of data.getFields()){
-                    if (port.isOutputPort()){
-                        field = port
-                    }
-                }
-                break;
             case 'inputPort':
             case 'outputPort':
-                node = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey())
-                field = data
+                node = eagle.logicalGraph().findNodeByKeyQuiet(f.getNodeKey())
+                field = f
                 break;
             case 'comment':
-                node = data
+                node = n
                 field = null
                 break;
         }
@@ -134,17 +189,16 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         switch(dataType){
             case 'comment':
-                const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(data.getSubjectKey());
+                const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(n.getSubjectKey());
 
                 if (adjacentNode === null){
-                    console.warn("Could not find adjacentNode for comment with subjectKey", data.getSubjectKey());
+                    console.warn("Could not find adjacentNode for comment with subjectKey", n.getSubjectKey());
                     return;
                 }
 
                 adjacentNodes.push(adjacentNode);
                 break;
 
-            case 'inputApp':
             case 'inputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
                     if(field != null && field.getId()===edge.getDestPortId()){
@@ -162,7 +216,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 }
                 break;
 
-            case 'outputApp':
             case 'outputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
                     if(field.getId()===edge.getSrcPortId()){
@@ -181,12 +234,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 break;
         }
 
-        //for branch nodes the ports are inset from the outer radius a little bit in their design
-        let nodeRadius = node.getRadius()
-        if(portOnEmbeddedApp){
-            // if we are working with ports of an embedded app, we need to use the parent construct to calculate the angle, but we want to use the radius of the embedded app to place the port
-            nodeRadius = eagle.logicalGraph().findNodeByKeyQuiet(data.getNodeKey()).getRadius()
-        }
+        // get node radius
+        const nodeRadius = node.getRadius()
 
         // determine port position
         const currentNodePos = node.getPosition();
@@ -211,12 +260,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }else{
             // find a default position for the port when not connected
             switch (dataType){
-                case 'inputApp':
                 case 'inputPort':
                     portPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
                     averageAngle = 3.14159
                     break;
-                case 'outputApp':
                 case 'outputPort':
                     portPosition=GraphRenderer.calculatePortPos(0, nodeRadius, nodeRadius)
                     averageAngle = 0
@@ -239,35 +286,23 @@ ko.bindingHandlers.graphRendererPortPosition = {
             field.setOutputPosition(portPosition.x, portPosition.y);
         }
         
-        let x
-        let y
+        const x = portPosition.x + currentNodePos.x - nodeRadius
+        const y = portPosition.y + currentNodePos.y - nodeRadius
 
-        if (dataType === 'inputApp' || dataType === 'outputApp'){
-            //we are saving the embedded application's position data here using the offset we calculated
-            const newPos = {x: node.getPosition().x-nodeRadius+portPosition.x, y:node.getPosition().y-nodeRadius+portPosition.y}
-            data.setPosition(newPos.x,newPos.y)
-            portPosition = {x:portPosition.x-nodeRadius,y:portPosition.y-nodeRadius}
-            x = portPosition.x
-            y = portPosition.y
+        //align the port titles to the correct side of the node, depending on node angle
+        //clear style since it doesnt seem to overwrite
+        $(element).find(".portTitle").removeAttr( "style" )
+
+        //convert negative radian angles to positive
+        if(averageAngle<0){
+            averageAngle= averageAngle+2*Math.PI
+        }
+
+        //apply the correct css
+        if(averageAngle>1.5708 && averageAngle<4.71239){
+            $(element).find(".portTitle").css({'text-align':'right','left':-5+'px','transform':'translateX(-100%)'})
         }else{
-            x = portPosition.x + currentNodePos.x  - nodeRadius
-            y = portPosition.y + currentNodePos.y  - nodeRadius
-
-            //align the port titles to the correct side of the node, depending on node angle
-            //clear style since it doesnt seem to overwrite
-            $(element).find(".portTitle").removeAttr( "style" )
-
-            //convert negative radian angles to positive
-            if(averageAngle<0){
-                averageAngle= averageAngle+2*Math.PI
-            }
-
-            //apply the correct css
-            if(averageAngle>1.5708 && averageAngle<4.71239){
-                $(element).find(".portTitle").css({'text-align':'right','left':-5+'px','transform':'translateX(-100%)'})
-            }else{
-                $(element).find(".portTitle").css({'text-align':'left','right':-5+'px','transform':'translateX(100%)'})
-            }
+            $(element).find(".portTitle").css({'text-align':'left','right':-5+'px','transform':'translateX(100%)'})
         }
 
         //applying the offset to the element
@@ -325,6 +360,48 @@ export class GraphRenderer {
         }
 
         return Math.atan2(y, x);
+    }
+
+    static getAdjacentNodes(node: Node, input: boolean): Node[] {
+        const eagle: Eagle = Eagle.getInstance();
+
+        // find a single port of the correct type to consider when looking for adjacentNodes
+        // TODO: why do we select a single port here, why not consider all ports (if multiple exist)?
+        let field : Field;
+        for(const port of node.getFields()){
+            if (input && port.isInputPort()){
+                field = port;
+                break;
+            }
+            if (!input && port.isOutputPort()){
+                field = port;
+                break;
+            }
+        }
+
+        // determine all the adjacent nodes
+        // TODO: earlier abort if field is null
+        const adjacentNodes: Node[] = [];
+
+        if (input){
+            for(const edge of eagle.logicalGraph().getEdges()){
+                if(field != null && field.getId()===edge.getDestPortId()){
+                    const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey());
+                    adjacentNodes.push(adjacentNode);
+                    continue;
+                }
+            }
+        } else {
+            for(const edge of eagle.logicalGraph().getEdges()){
+                if(field.getId()===edge.getSrcPortId()){
+                    const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey());
+                    adjacentNodes.push(adjacentNode);
+                    continue;
+                }
+            }
+        }
+
+        return adjacentNodes;
     }
 
     static directionOffset(x: boolean, direction: Eagle.Direction){
@@ -1392,7 +1469,7 @@ export class GraphRenderer {
         }
     }
 
-    static showPort(field:Field,node:Node) :boolean {
+    static showPort(node: Node, field: Field) :boolean {
         const eagle = Eagle.getInstance();
         if(node.isPeek()){
             return true

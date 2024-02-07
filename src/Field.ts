@@ -23,7 +23,7 @@ export class Field {
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
-    //graph related things
+    // graph related attributes
     private inputX : number;
     private inputY : number;
     private outputX : number;
