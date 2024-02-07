@@ -406,15 +406,9 @@ export class RightClick {
         $('#customContextMenu').css('left',mouseX+'px')
 
         if(passedObjectClass != 'edgeDropCreate'){
-            //in change of calculating the right click location as the location where to place the node
-            const offset = $(targetElement).offset();
-            let x = mouseX - offset.left;
-            let y = mouseY - offset.top;
-
-            // transform display coords into real coords
-            x = (x - eagle.globalOffsetX())/eagle.globalScale();
-            y = (y - eagle.globalOffsetY())/eagle.globalScale();
-
+            //here we are grabbing the on graph location of the mouse cursor, this is where we wilkl palce the node when right clicking on the empty graph
+            let x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
+            let y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)
             Eagle.selectedRightClickPosition = {x:x, y:y};
         }
         
@@ -515,6 +509,7 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
                 if (data.isConstruct()){
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,true)>Delete All</a>')
+                    $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
                 }
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')

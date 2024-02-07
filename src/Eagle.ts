@@ -2995,12 +2995,12 @@ export class Eagle {
     }
 
     // TODO: requestMode param here is spelt incorrectly, should be an enum? 
-    deleteSelection = (requstMode:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
+    deleteSelection = (requestMode:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
         let mode: string; // TODO: should be an enum?
         let data: any = []; // TODO: declare type
 
         // if no objects selected, warn user
-        if (requstMode === ''){
+        if (requestMode === ''){
             data = this.selectedObjects()
             mode = 'normal'
         }else{
@@ -3279,7 +3279,7 @@ export class Eagle {
                 const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
 
                 // add node to LogicalGraph
-                const OBJECT_OFFSET_X = 300;
+                const OBJECT_OFFSET_X = 0;
                 const OBJECT_OFFSET_Y = 0;
                 this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
                     // set parent to same as PythonMemberFunction
@@ -3640,6 +3640,7 @@ export class Eagle {
 
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
             clickTarget.focus() // used to focus the field allowing the user to immediately start typing
+            $(clickTarget).select()
 
             //scroll to new row
             $("#parameterTableModal .modal-body").animate({
@@ -3744,7 +3745,7 @@ export class Eagle {
                 continue;
             }
 
-            //this index only counts up if the above doesnt filter out the choice
+            // this index only counts up if the above doesn't filter out the choice
             validChoiceIndex++
 
             // if this node is already the parent, note its index, so that we can preselect this parent node in the modal dialog
@@ -3906,7 +3907,7 @@ export class Eagle {
 
     nodeDropLogicalGraph = (eagle : Eagle, e : JQueryEventObject) : void => {
         // keep track of the drop location
-        Eagle.nodeDropLocation = this.getNodeDropLocation(e);
+        Eagle.nodeDropLocation = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(e.pageX),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(e.pageY)}
 
         // determine dropped node
         const sourceComponents : Node[] = [];
@@ -4157,6 +4158,7 @@ export class Eagle {
             const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update process
             clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
+            $(clickTarget).select()
 
             $("#parameterTableModal .modal-body").animate({
                 scrollTop: (fieldIndex*30)
@@ -4318,19 +4320,19 @@ export class Eagle {
 
     getNewNodePosition = (width: number, height: number) : {x:number, y:number} => {
         const MARGIN = 100; // buffer to keep new nodes away from the maxX and maxY sides of the LG display area
+        const navBarHeight = 84
         let suitablePositionFound = false;
         let numIterations = 0;
         const MAX_ITERATIONS = 100;
         let x;
         let y;
-
+        
         while (!suitablePositionFound && numIterations <= MAX_ITERATIONS){
             // get visible screen size
-            const minX = this.leftWindow().shown() ? this.leftWindow().width(): 0;
-            const maxX = this.rightWindow().shown() ? $('#logicalGraphD3Div').width() - this.rightWindow().width() - width - MARGIN : $('#logicalGraphD3Div').width() - width - MARGIN;
-            const minY = 0;
-            const maxY = $('#logicalGraphD3Div').height() - height - MARGIN;
-
+            const minX = this.leftWindow().shown() ? this.leftWindow().width()+MARGIN: 0+MARGIN;
+            const maxX = this.rightWindow().shown() ? $('#logicalGraphParent').width() - this.rightWindow().width() - width - MARGIN : $('#logicalGraphParent').width() - width - MARGIN;
+            const minY = 0 + navBarHeight + MARGIN;
+            const maxY = $('#logicalGraphParent').height() - height - MARGIN + navBarHeight;
             // choose random position within minimums and maximums determined above
             const randomX = Math.floor(Math.random() * (maxX - minX + 1) + minX);
             const randomY = Math.floor(Math.random() * (maxY - minY + 1) + minY);
@@ -4338,14 +4340,9 @@ export class Eagle {
             x = randomX;
             y = randomY;
 
-            // modify random positions using current translation of viewport
-            x -= this.globalOffsetX();
-            y -= this.globalOffsetY();
-
-            x /= this.globalScale();
-            y /= this.globalScale();
-
-            //console.log("Candidate Position", numIterations, ":", x, ",", y, "X:", minX, "-", maxX, "Y:", minY, "-", maxY);
+            //translate the chosen arandomised position into graph co-ordinates
+            x= GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(x)
+            y=GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(y)
 
             // check position is suitable, doesn't collide with any existing nodes
             const collision = this.logicalGraph().checkForNodeAt(x, y, width, height, null);
@@ -4788,13 +4785,13 @@ $( document ).ready(function() {
         $("#editFieldModal textarea").attr('style','')
         $("#errorsModalAccordion").parent().parent().attr('style','')
 
-        //reset parameter table selecction
+        //reset parameter table selection
         ParameterTable.resetSelection()
     }); 
 
     $('.modal').on('shown.bs.modal',function(){
         // modal draggables
-        //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
+        // the any type is required so we don't have an error when building. at runtime on eagle this actually functions without it.
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
         });

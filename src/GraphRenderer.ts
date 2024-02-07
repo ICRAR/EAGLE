@@ -34,13 +34,11 @@ import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Utils } from './Utils';
 import { CategoryData} from './CategoryData';
-import {Setting, SettingsGroup} from './Setting';
+import { Setting } from './Setting';
 import { RightClick } from "./RightClick";
-import { GraphUpdater } from "./GraphUpdater";
 
 ko.bindingHandlers.nodeRenderHandler = {
-    init: function(element:any, valueAccessor, allBindings) {
-        const eagle : Eagle = Eagle.getInstance();
+    init: function(element:any, valueAccessor) {
         const node: Node = ko.unwrap(valueAccessor())
 
         //overwriting css variables using colours from graphConfig.ts. I am using this for simple styling to avoid excessive css data binds in the node html files
@@ -60,9 +58,7 @@ ko.bindingHandlers.nodeRenderHandler = {
             $(element).find('.body').css('background-color:#575757','color:white')
         }
     },
-    update: function (element:any, valueAccessor, allBindings, viewModel, bindingContext) {
-        const eagle : Eagle = Eagle.getInstance();
-
+    update: function (element:any, valueAccessor) {
         const node: Node = ko.unwrap(valueAccessor());
 
         // set size
@@ -76,6 +72,9 @@ ko.bindingHandlers.nodeRenderHandler = {
         }
         if(node.isScatter()){
             $(element).children().children().children('.body').css({'border-style':'double','border-width':'7px'})
+        }
+        if(node.isExclusiveForceNode()){
+            $(element).children().children().children('.body').css({'background-color':'white'})
         }
 
         if(node.isGroup()|| node.getParentKey() != null){
@@ -204,6 +203,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 for(const edge of eagle.logicalGraph().getEdges()){
                     if(field != null && field.getId()===edge.getDestPortId()){
                         const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey());
+                        
+                        if (adjacentNode === null){
+                            console.warn("Could not find adjacentNode for inputPort or inputApp with SrcNodeKey", edge.getSrcNodeKey());
+                            return;
+                        }
+
                         connectedField=true
                         adjacentNodes.push(adjacentNode);
                         continue;
@@ -215,6 +220,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 for(const edge of eagle.logicalGraph().getEdges()){
                     if(field.getId()===edge.getSrcPortId()){
                         const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey());
+
+                        if (adjacentNode === null){
+                            console.warn("Could not find adjacentNode for  outputPort or outputApp with DestNodeKey", edge.getDestNodeKey());
+                            return;
+                        }
+
                         connectedField=true
                         adjacentNodes.push(adjacentNode);
                         continue;
@@ -325,6 +336,13 @@ export class GraphRenderer {
     static dragCurrentPosition : any = null
     static dragSelectionHandled : any = false
     static dragSelectionDoubleClick :boolean = false;
+
+    //drag selection region globals
+    static altSelect : boolean = false;
+    static shiftSelect : boolean = false;
+    static isDraggingSelectionRegion :boolean = false;
+    static selectionRegionStart = {x:0, y:0};
+    static selectionRegionEnd = {x:0, y:0};
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
@@ -571,7 +589,9 @@ export class GraphRenderer {
 
         const srcNode: Node = lg.findNodeByKeyQuiet(edge.getSrcNodeKey());
         const destNode: Node = lg.findNodeByKeyQuiet(edge.getDestNodeKey());
-
+        if(srcNode===null||destNode===null){
+            return ''
+        }
         const srcField: Field = srcNode.findFieldById(edge.getSrcPortId());
         const destField: Field = destNode.findFieldById(edge.getDestPortId());
 
@@ -652,8 +672,8 @@ export class GraphRenderer {
         const wheelDelta = e.deltaY;
         const zoomDivisor = Setting.findValue(Setting.GRAPH_ZOOM_DIVISOR);
 
-        const xsb = this.SCREEN_TO_GRAPH_POSITION_X()
-        const ysb = this.SCREEN_TO_GRAPH_POSITION_Y()
+        const xsb = this.SCREEN_TO_GRAPH_POSITION_X(null)
+        const ysb = this.SCREEN_TO_GRAPH_POSITION_Y(null)
 
         eagle.globalScale(eagle.globalScale()*(1-(wheelDelta/zoomDivisor)));
 
@@ -662,8 +682,8 @@ export class GraphRenderer {
             eagle.globalScale(Math.abs(eagle.globalScale()))
         }
 
-        const xsa = this.SCREEN_TO_GRAPH_POSITION_X()
-        const ysa = this.SCREEN_TO_GRAPH_POSITION_Y()
+        const xsa = this.SCREEN_TO_GRAPH_POSITION_X(null)
+        const ysa = this.SCREEN_TO_GRAPH_POSITION_Y(null)
 
         const movex = xsa-xsb
         const movey = ysa-ysb
@@ -676,6 +696,9 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         //resetting the shift event
         GraphRenderer.dragSelectionHandled = false
+        //these  two are needed to keep track of these modifiers for the mouse move and release event
+        GraphRenderer.altSelect = event.altKey
+        GraphRenderer.shiftSelect = event.shiftKey
 
         if(node === null || event.which === 2){
             //if no node is selected or we are dragging using middle mouse, we are dragging the background
@@ -695,13 +718,12 @@ export class GraphRenderer {
                 $('#'+parentNode.getId()).removeClass('transition')
                 GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
             }
-        }else{
-            GraphRenderer.dragSelectionHandled = true
         }
 
         //select handlers
-        if(node !== null && event.which != 2){
-            // check if shift key is down, if so, add or remove selected node to/from current selection
+        if(node !== null && event.which != 2 && !event.shiftKey){
+
+            // check if shift key is down, if so, add or remove selected node to/from current selection | keycode 2 is the middle mouse button
             if (node !== null && event.shiftKey && !event.altKey){
                 GraphRenderer.dragSelectionHandled = true
                 eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
@@ -711,56 +733,45 @@ export class GraphRenderer {
 
             //check for alt clicking, if so, add the target node and its children to the selection
             if(event.altKey&&node.isGroup()||GraphRenderer.dragSelectionDoubleClick&&node.isGroup()){
-                GraphRenderer.dragSelectionHandled = true
-                //if shift is not clicked, we first clear the selection
-                if(!event.shiftKey){
-                    eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
-                    eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
-                }
-
-                //getting all children, including children of child constructs etc..
-                let childIsConstruct = true
-                const constructs : Node[] = [node];
-                
-                while(childIsConstruct){
-                    let constructFound = false
-                    let i = -1
-                    constructs.forEach(function(construct){
-                        i++
-                        eagle.logicalGraph().getNodes().forEach(function(obj){
-                            if(obj.getParentKey()===construct.getKey()){
-                                eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
-    
-                                if(obj.isGroup()){
-                                    constructFound = true
-                                    constructs.push(obj)
-                                }
-                            }
-                        })
-                        constructs.splice(i,1)
-                    })
-                    if(!constructFound){
-                        childIsConstruct = false
-                    }
-                }
+                GraphRenderer.selectNodeAndChildren(node,this.shiftSelect)
             }
         }else{
-            //if node is null, the empty canvas has been clicked. clear the selection
-            eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
+            if(event.shiftKey){
+                //drag selection region handler
+                GraphRenderer.isDraggingSelectionRegion = true
+                GraphRenderer.selectionRegionStart = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
+                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
+                //making the selection box visible
+                $('#selectionRectangle').show()
+
+                //setting start and end region to current mouse co-ordinates
+                $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','top':GraphRenderer.selectionRegionStart.y+'px'})
+                const containerWidth = $('#logicalGraphD3Div').width()
+                const containerHeight = $('#logicalGraphD3Div').height()
+
+                //turning the graph coordinates into a distance from bottom/right for css inset before applying
+                const selectionBottomOffset = containerHeight - GraphRenderer.selectionRegionEnd.y
+                const selectionRightOffset = containerWidth - GraphRenderer.selectionRegionEnd.x
+                $('#selectionRectangle').css({'right':selectionRightOffset+'px','bottom':selectionBottomOffset+'px'})
+            }else{
+                //if node is null, the empty canvas has been clicked. clear the selection
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
+
+            }
         }
 
         //this is the timeout for the double click that is used to select the children of constructs
         GraphRenderer.dragSelectionDoubleClick = true
         setTimeout(function () {
             GraphRenderer.dragSelectionDoubleClick = false
-        }, 500)
+        }, 200)
     }
 
     static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
         const mouseEvent: MouseEvent = <MouseEvent>event.originalEvent;
         GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
         if (eagle.isDragging()){
-            if (eagle.draggingNode() !== null){
+            if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
                 const node:Node = eagle.draggingNode()
                 $('.node.transition').removeClass('transition')
 
@@ -815,7 +826,24 @@ export class GraphRenderer {
                     $('#'+parent.getId()).removeClass('transition')
                 }
 
-            } else {
+            } else if(GraphRenderer.isDraggingSelectionRegion){
+                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null), y:this.SCREEN_TO_GRAPH_POSITION_Y(null)}
+                const containerWidth = $('#logicalGraphD3Div').width()
+                const containerHeight = $('#logicalGraphD3Div').height()
+
+                if(GraphRenderer.selectionRegionEnd.x>GraphRenderer.selectionRegionStart.x){
+                    $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','right':containerWidth - GraphRenderer.selectionRegionEnd.x+'px'})
+                }else{
+                    $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionEnd.x+'px','right':containerWidth - GraphRenderer.selectionRegionStart.x+'px'})
+                }
+
+                if(GraphRenderer.selectionRegionEnd.y>GraphRenderer.selectionRegionStart.y){
+                    $('#selectionRectangle').css({'top':GraphRenderer.selectionRegionStart.y+'px','bottom':containerHeight - GraphRenderer.selectionRegionEnd.y+'px'})
+                }else{
+                    $('#selectionRectangle').css({'top':GraphRenderer.selectionRegionEnd.y+'px','bottom':containerHeight - GraphRenderer.selectionRegionStart.y+'px'})
+                }
+
+            }else{
                 // move background
                 eagle.globalOffsetX(eagle.globalOffsetX() + mouseEvent.movementX/eagle.globalScale());
                 eagle.globalOffsetY(eagle.globalOffsetY() + mouseEvent.movementY/eagle.globalScale());
@@ -828,27 +856,215 @@ export class GraphRenderer {
         
     }
 
-    static endDrag = (node: Node, event: any) : void => {
+    static endDrag = (node: Node) : void => {
         const eagle = Eagle.getInstance();
+        
+        // if we dragged a selection region
+        if (GraphRenderer.isDraggingSelectionRegion){
+            const nodes: Node[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
 
-        //console.log("endDrag", node ? node.getName() : node)
-        eagle.isDragging(false);
-        eagle.draggingNode(null);
-        
-        if(node != null){
-            if(!GraphRenderer.dragSelectionHandled){
-                const distanceMovedX = Math.abs(GraphRenderer.dragStartPosition.x-GraphRenderer.dragCurrentPosition.x)
-                const distanceMovedY = Math.abs(GraphRenderer.dragStartPosition.y-GraphRenderer.dragCurrentPosition.y)
-        
-                if(distanceMovedX<5 || distanceMovedY<5){
-                    eagle.setSelection(null, node,Eagle.FileType.Graph)
+            //checking if there was no drag distance, if so we are clicking a single object and we will toggle its seletion
+            if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
+                if(GraphRenderer.altSelect){
+                    GraphRenderer.selectNodeAndChildren(node,this.shiftSelect)
                 }
+                eagle.editSelection(Eagle.RightWindowMode.Inspector, node,Eagle.FileType.Graph);
+            }else{
+                const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
+                const objects: (Node | Edge)[] = [];
+    
+                // only add those objects which are not already selected
+                for (const node of nodes){
+                    if (!eagle.objectIsSelected(node)){
+                        objects.push(node);
+                    }
+                }
+                for (const edge of edges){
+                    if (!eagle.objectIsSelected(edge)){
+                        objects.push(edge);
+                    }
+                }
+    
+                objects.forEach(function(element){
+                    eagle.editSelection(Eagle.RightWindowMode.Hierarchy, element, Eagle.FileType.Graph )
+                })
+            }
+
+            GraphRenderer.selectionRegionStart.x = 0;
+            GraphRenderer.selectionRegionStart.y = 0;
+            GraphRenderer.selectionRegionEnd.x = 0;
+            GraphRenderer.selectionRegionEnd.y = 0;
+
+            // finish selecting a region
+            GraphRenderer.isDraggingSelectionRegion = false;
+
+            //hide the selection rectangle
+            $('#selectionRectangle').hide()
+
+            // necessary to make un-collapsed nodes show up
+            eagle.logicalGraph.valueHasMutated();
+        }
+
+        eagle.isDragging(false);
+        eagle.draggingNode(null)
+        
+    }
+
+    static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
+        const eagle = Eagle.getInstance();
+        const result: Node[] = [];
+        const nodeData : Node[] = GraphRenderer.depthFirstTraversalOfNodes(eagle.logicalGraph(), eagle.showDataNodes());
+
+        // re-assign left, right, top, bottom in case selection region was not dragged in the typical NW->SE direction
+        const realLeft = left <= right ? left : right;
+        const realRight = left <= right ? right : left;
+        const realTop = top <= bottom ? top : bottom;
+        const realBottom = top <= bottom ? bottom : top;
+
+        for (let i = nodeData.length - 1; i >= 0 ; i--){
+            const node : Node = nodeData[i];
+
+            // use center of node as position
+            const centerX : number = node.getPosition().x
+            const centerY : number = node.getPosition().y
+            const nodeRadius : number = node.getRadius()
+
+            //checking if the node is fully inside the selection box
+            if (centerX+-nodeRadius >= realLeft && realRight+-nodeRadius >= centerX && centerY+-nodeRadius >= realTop && realBottom+-nodeRadius >= centerY){
+                result.push(node);
             }
         }
 
-        if (node != null && node.getParentKey() != null){
-            const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
+        return result;
+    }
+
+    static selectNodeAndChildren(node:Node,addative:boolean) : void {
+        const eagle = Eagle.getInstance();
+        GraphRenderer.dragSelectionHandled = true
+                //if shift is not clicked, we first clear the selection
+                if(!addative){
+                    eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
+                    eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+                }
+
+                //getting all children, including children of child constructs etc..
+                let childIsConstruct = true
+                const constructs : Node[] = [node];
+                
+                while(childIsConstruct){
+                    let constructFound = false
+                    let i = -1
+                    constructs.forEach(function(construct){
+                        i++
+                        eagle.logicalGraph().getNodes().forEach(function(obj){
+                            if(obj.getParentKey()===construct.getKey()){
+                                eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
+    
+                                if(obj.isGroup()){
+                                    constructFound = true
+                                    constructs.push(obj)
+                                }
+                            }
+                        })
+                        constructs.splice(i,1)
+                    })
+                    if(!constructFound){
+                        childIsConstruct = false
+                    }
+                }
+    }
+
+    static getEdges(graph: LogicalGraph, showDataNodes: boolean): Edge[]{
+        if (showDataNodes){
+            return graph.getEdges();
+        } else {
+            //return [graph.getEdges()[0]];
+            const edges: Edge[] = [];
+
+            for (const edge of graph.getEdges()){
+                let srcHasConnectedInput: boolean = false;
+                let destHasConnectedOutput: boolean = false;
+
+                for (const e of graph.getEdges()){
+                    if (e.getDestNodeKey() === edge.getSrcNodeKey()){
+                        srcHasConnectedInput = true;
+                    }
+                    if (e.getSrcNodeKey() === edge.getDestNodeKey()){
+                        destHasConnectedOutput = true;
+                    }
+                }
+
+                const srcIsDataNode: boolean = GraphRenderer.findNodeWithKey(edge.getSrcNodeKey(), graph.getNodes()).isData();
+                const destIsDataNode: boolean = GraphRenderer.findNodeWithKey(edge.getDestNodeKey(), graph.getNodes()).isData();
+                //console.log("edge", edge.getId(), "srcIsDataNode", srcIsDataNode, "srcHasConnectedInput", srcHasConnectedInput, "destIsDataNode", destIsDataNode, "destHasConnectedOutput", destHasConnectedOutput);
+
+                if (destIsDataNode){
+                    if (!destHasConnectedOutput){
+                        // draw edge as normal
+                        edges.push(edge);
+                    }
+                    continue;
+                }
+
+                if (srcIsDataNode){
+                    if (srcHasConnectedInput){
+                        // build a new edge
+                        const newSrc = GraphRenderer.findInputToDataNode(graph.getEdges(), edge.getSrcNodeKey());
+                        edges.push(new Edge(newSrc.nodeKey, newSrc.portId, edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false));
+                    } else {
+                        // draw edge as normal
+                        edges.push(edge);
+                    }
+                }
+            }
+
+            return edges;
         }
+    }
+
+    static findEdgesContainedByNodes(edges: Edge[], nodes: Node[]): Edge[]{
+        const result: Edge[] = [];
+
+        for (const edge of edges){
+            const srcKey = edge.getSrcNodeKey();
+            const destKey = edge.getDestNodeKey();
+            let srcFound = false;
+            let destFound = false;
+
+            for (const node of nodes){
+                if ((node.getKey() === srcKey) ||
+                    (node.hasInputApplication() && node.getInputApplication().getKey() === srcKey) ||
+                    (node.hasOutputApplication() && node.getOutputApplication().getKey() === srcKey)){
+                    srcFound = true;
+                }
+
+                if ((node.getKey() === destKey) ||
+                    (node.hasInputApplication() && node.getInputApplication().getKey() === destKey) ||
+                    (node.hasOutputApplication() && node.getOutputApplication().getKey() === destKey)){
+                    destFound = true;
+                }
+            }
+
+            if (srcFound && destFound){
+                result.push(edge);
+            }
+        }
+
+        return result;
+    }
+
+
+    static findInputToDataNode(edges: Edge[], nodeKey: number) : {nodeKey:number, portId: string}{
+        for (const edge of edges){
+            if (edge.getDestNodeKey() === nodeKey){
+                return {
+                    nodeKey: edge.getSrcNodeKey(),
+                    portId: edge.getSrcPortId()
+                };
+            }
+        }
+
+        return null;
     }
 
     static centerConstructs = (construct:Node, graphNodes:Node[]) :void => {
@@ -886,42 +1102,47 @@ export class GraphRenderer {
         })
 
         orderedConstructList.forEach(function(constr){
-            let childCount = 0
+            GraphRenderer.centerConstruct(constr,graphNodes)
+        })
+    }
 
-            let minX : number = Number.MAX_VALUE;
-            let minY : number = Number.MAX_VALUE;
-            let maxX : number = -Number.MAX_VALUE;
-            let maxY : number = -Number.MAX_VALUE;
-            for (const node of graphNodes){
-                
-                if (!node.isEmbedded() && node.getParentKey() === constr.getKey()){
-                    childCount++
-                    if (node.getPosition().x - node.getRadius() < minX){
-                        minX = node.getPosition().x - node.getRadius();
-                    }
-                    if (node.getPosition().y - node.getRadius() < minY){
-                        minY = node.getPosition().y - node.getRadius();
-                    }
-                    if (node.getPosition().x + node.getRadius() > maxX){
-                        maxX = node.getPosition().x + node.getRadius();
-                    }
-                    if (node.getPosition().y + node.getRadius() > maxY){
-                        maxY = node.getPosition().y + node.getRadius();
-                    }
+    static centerConstruct = (construct:Node,graphNodes:Node[]) : void => {
+        console.log('centering construct', construct.getName(),graphNodes)
+        let childCount = 0
+
+        let minX : number = Number.MAX_VALUE;
+        let minY : number = Number.MAX_VALUE;
+        let maxX : number = -Number.MAX_VALUE;
+        let maxY : number = -Number.MAX_VALUE;
+        for (const node of graphNodes){
+            
+            if (!node.isEmbedded() && node.getParentKey() === construct.getKey()){
+                childCount++
+                if (node.getPosition().x - node.getRadius() < minX){
+                    minX = node.getPosition().x - node.getRadius();
+                }
+                if (node.getPosition().y - node.getRadius() < minY){
+                    minY = node.getPosition().y - node.getRadius();
+                }
+                if (node.getPosition().x + node.getRadius() > maxX){
+                    maxX = node.getPosition().x + node.getRadius();
+                }
+                if (node.getPosition().y + node.getRadius() > maxY){
+                    maxY = node.getPosition().y + node.getRadius();
                 }
             }
+        }
+        
+        if(childCount === 0){
+            return
+        }
 
-            if(childCount === 0){
-                return
-            }
+        // determine the centroid of the contruct
+        const centroidX = minX + ((maxX - minX) / 2);
+        const centroidY = minY + ((maxY - minY) / 2);
 
-            // determine the centroid of the graph
-            const centroidX = minX + ((maxX - minX) / 2);
-            const centroidY = minY + ((maxY - minY) / 2);
-
-            constr.setPosition(centroidX,centroidY)
-            GraphRenderer.resizeConstruct(constr)
-        })
+        construct.setPosition(centroidX,centroidY)
+        GraphRenderer.resizeConstruct(construct)
     }
 
     static translateLegacyGraph = () : void =>{
@@ -1039,8 +1260,8 @@ export class GraphRenderer {
         const d3DivOffset = $('#logicalGraphD3Div').offset();
         const mouseX = (<any>event).pageX - d3DivOffset.left;
         const mouseY = (<any>event).pageY - d3DivOffset.top;
-        GraphRenderer.mousePosX(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X());
-        GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y());
+        GraphRenderer.mousePosX(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null));
+        GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null));
     }
 
     static portDragStart = (port:Field, usage:string) : void => {
@@ -1125,6 +1346,10 @@ export class GraphRenderer {
                 const destPort: Field = GraphRenderer.destinationPort;
 
                 this.createEdge(srcNode, srcPort, destNode, destPort);
+
+                // we can stop rendering the dragging edge
+                GraphRenderer.renderDraggingPortEdge(false);
+                GraphRenderer.clearEdgeVars();
             }
         }
 
@@ -1257,14 +1482,20 @@ export class GraphRenderer {
         }
     }
     
-    static SCREEN_TO_GRAPH_POSITION_X() : number {
+    static SCREEN_TO_GRAPH_POSITION_X(x:number) : number {
         const eagle = Eagle.getInstance();
-        return GraphRenderer.dragCurrentPosition.x/eagle.globalScale() - eagle.globalOffsetX();
+        if(x===null){
+            x = GraphRenderer.dragCurrentPosition.x
+        }
+        return x/eagle.globalScale() - eagle.globalOffsetX();
     }
 
-    static SCREEN_TO_GRAPH_POSITION_Y() : number {
+    static SCREEN_TO_GRAPH_POSITION_Y(y:number) : number {
         const eagle = Eagle.getInstance();
-        return (GraphRenderer.dragCurrentPosition.y-83.77)/eagle.globalScale() -eagle.globalOffsetY();
+        if(y===null){
+            y = GraphRenderer.dragCurrentPosition.y
+        }
+        return (y-83.77)/eagle.globalScale() -eagle.globalOffsetY();
     }
 
     static SCREEN_TO_GRAPH_SCALE(n: number) : number {

@@ -19,6 +19,12 @@
     -webkit-transform-origin: 0 0;
 }
 
+#selectionRectangle{
+    border:1px black solid;
+    position: absolute;
+    display: none;
+}
+
 #logicalGraphD3Div svg{
     position:absolute;   
     z-index: 2;
@@ -50,7 +56,6 @@
    pointer-events: all;
 }
 
-
 .node .container, .constructOutputApp, .constructInputApp{
     z-index: 5;
     pointer-events: all;
@@ -74,6 +79,16 @@
 #portContainer {
     position: relative;
     z-index: 10;
+}
+
+#portContainer i {
+    height: 100%;
+    width: 100%;
+    font-size: 14px;
+    transform: translate(-1px,-1.5px);
+    pointer-events: none;
+    color: #2e3192;
+    position: absolute;
 }
 
 .node {
@@ -233,6 +248,10 @@
 
 .node .construct_node .container.selected .body {
     outline: solid 5px var(--nodeBorder);
+}
+
+.node .construct_node .constructInputApp .container.selected .body, .node .construct_node .constructOutputApp .container.selected .body {
+    outline: solid 2px var(--nodeBorder);
 }
 
 .node .branch_node .container.selected .outerRing {

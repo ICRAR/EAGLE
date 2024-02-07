@@ -631,6 +631,10 @@ export class Node {
         return this.category() === Category.Scatter;
     }
 
+    isExclusiveForceNode = () : boolean => {
+        return this.category() === Category.ExclusiveForceNode;
+    }
+
     isComment = () : boolean => {
         return this.category() === Category.Comment;
     }
@@ -1383,7 +1387,7 @@ export class Node {
             node.description(nodeData.description);
         }
 
-        if(nodeData.radius === undefined){
+        if(!isPaletteNode && nodeData.radius === undefined){
             GraphRenderer.legacyGraph = true
         }
         
