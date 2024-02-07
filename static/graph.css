@@ -81,6 +81,15 @@
     z-index: 10;
 }
 
+#portContainer i {
+    height: 100%;
+    width: 100%;
+    font-size: 14px;
+    transform: translate(-1px,-52%);
+    pointer-events: none;
+    color: #2e3192;
+}
+
 .node {
     position: absolute;
     height: 60px;
