@@ -250,6 +250,10 @@
     outline: solid 5px var(--nodeBorder);
 }
 
+.node .construct_node .constructInputApp .container.selected .body, .node .construct_node .constructOutputApp .container.selected .body {
+    outline: solid 2px var(--nodeBorder);
+}
+
 .node .branch_node .container.selected .outerRing {
     outline: solid 2px var(--nodeBorder);
     outline-offset: 0px;
