@@ -475,7 +475,6 @@ export class GraphRenderer {
     }
 
     static createBezier(edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field, sourcePortIsInput: boolean) : string {
-        //console.log("createBezier", srcNodePosition, destNodePosition);
 
         //since the svg parent is translated -50% to center our working area, we need to add half of its width to correct the positions
         // TODO: remove magic numbers here (5000)
@@ -652,10 +651,6 @@ export class GraphRenderer {
 
         const srcNodeRadius = srcNode.getRadius()
         const destNodeRadius = destNode.getRadius()
-
-        // get offset and scale
-        // const offsetX: number = eagle.globalOffsetX();
-        // const offsetY: number = eagle.globalOffsetY();
 
         // we subtract node radius from all these numbers to account for the transform translate(-50%, -50%) css on the nodes
         const srcX = srcNode.getPosition().x -srcNodeRadius;
@@ -1442,8 +1437,6 @@ export class GraphRenderer {
             })
         }
         
-        // console.log("Found", eligibleComponents.length, "eligible automatically suggested components that have a " + (sourcePortIsInput ? "output" : "input") + " port of type:", sourcePort.getType());
-
         // check we found at least one eligible component
         if (eligibleComponents.length === 0){
             Utils.showNotification("Not Found", "No eligible components found for connection to port of this type (" + GraphRenderer.portDragSourcePort().getType() + ")", "info");

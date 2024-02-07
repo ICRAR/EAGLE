@@ -24,10 +24,10 @@ export class Field {
     private nodeKey : ko.Observable<number>;
 
     // graph related attributes
-    private inputX : number;
-    private inputY : number;
-    private outputX : number;
-    private outputY : number;
+    private inputX : ko.Observable<number>;
+    private inputY : ko.Observable<number>;
+    private outputX : ko.Observable<number>;
+    private outputY : ko.Observable<number>;
     private peek : ko.Observable<boolean>;
 
     constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
@@ -49,10 +49,10 @@ export class Field {
         this.nodeKey = ko.observable(0);
 
         //graph related things
-        this.inputX = 0;
-        this.inputY = 0;
-        this.outputX = 0;
-        this.outputY = 0;
+        this.inputX = ko.observable(0);
+        this.inputY = ko.observable(0);
+        this.outputX = ko.observable(0);
+        this.outputY = ko.observable(0);
         this.peek = ko.observable(false);
     }
 
@@ -105,21 +105,21 @@ export class Field {
     }, this);
 
     getInputPosition = () : {x:number, y:number} => {
-        return {x: this.inputX, y: this.inputY};
+        return {x: this.inputX(), y: this.inputY()};
     }
 
     getOutputPosition = () : {x:number, y:number} => {
-        return {x: this.outputX, y: this.outputY};
+        return {x: this.outputX(), y: this.outputY()};
     }
 
     setInputPosition = (x: number, y: number) : void => {
-        this.inputX = x;
-        this.inputY = y;
+        this.inputX(x);
+        this.inputY(y);
     }
 
     setOutputPosition = (x: number, y: number) : void => {
-        this.outputX = x;
-        this.outputY = y;
+        this.outputX(x);
+        this.outputY(y);
     }
 
     isReadonly = () : boolean => {
