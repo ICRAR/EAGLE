@@ -85,9 +85,10 @@
     height: 100%;
     width: 100%;
     font-size: 14px;
-    transform: translate(-1px,-52%);
+    transform: translate(-1px,-1.5px);
     pointer-events: none;
     color: #2e3192;
+    position: absolute;
 }
 
 .node {
