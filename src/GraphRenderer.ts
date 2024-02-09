@@ -83,7 +83,23 @@ ko.bindingHandlers.nodeRenderHandler = {
     },
 };
 
+//port html elements will have a data bind to the port position saved on the field - This is an observable
 
+//save the calculated connection angle on the field (this is the ideal position)
+//then check if this is abvailable using a node.getfields.getangle Loop
+//if so, write it into the port position, this will trigger the html data-bind to draw/redraw the port
+//if not available we add a set amount to the closest port's position, repeating until we find an available spot, saving each port we are colliding with
+//this set amount is a dinstance we need to keep. we will have to calculate an angle based on the radius of a node to keep this distance
+//we then do the same but subtracting the set amount
+//use the lower distance
+//figure out the mean angle of this 'port group' and center them. update all of their port positions
+
+//first dangling port, check for biggest gap
+//check if half of the biggest gap is still bigger than the second biggest gap
+//if so use the center of half of the biggest gap in input ports left bound, output right
+//place the dangling port
+//if another dangling port is updated, check if a dangling port of the same type has already been placed(input of output)
+//if so have them share the space, if not enough space is available, find another spot
 
 ko.bindingHandlers.embeddedAppPosition = {
     update: function (element:any, valueAccessor) {
@@ -163,7 +179,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         const n: Node = ko.utils.unwrapObservable(valueAccessor()).n;
         const f: Field = ko.utils.unwrapObservable(valueAccessor()).f;
         const dataType: string = ko.utils.unwrapObservable(valueAccessor()).type;
-
+        console.log(n)
         // determine the 'node' and 'field' attributes (for this way of using this binding)
         let node : Node 
         let field : Field
@@ -257,6 +273,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
             node.addPortAngle(averageAngle);
             portPosition = GraphRenderer.calculatePortPos(averageAngle, nodeRadius, nodeRadius)
+
+            if (dataType === 'inputPort'){
+                field.setInputAngle(averageAngle)
+            } else if (dataType === 'outputPort'){
+                field.setInputAngle(averageAngle)
+            }
         }else{
             // find a default position for the port when not connected
             switch (dataType){
@@ -280,14 +302,23 @@ ko.bindingHandlers.graphRendererPortPosition = {
             portPosition = {x:portPosition.x-1,y:portPosition.y-1}
         }
 
+        const collidingPorts : Field[] = []
+
+        node.getFields().forEach(function(nodeField){
+            if(field === nodeField){
+                console.log('same field detected, skipping ',nodeField.getDisplayText(),field.getDisplayText())
+                return
+            }
+
+            console.log(nodeField.getInputAngle(),nodeField.getOutputAngle())
+            // if(nodeField.getInputAngle() +- .2 === field.getInputAngle())
+        })
+
         if (dataType === 'inputPort'){
             field.setInputPosition(portPosition.x, portPosition.y);
         } else if (dataType === 'outputPort'){
             field.setOutputPosition(portPosition.x, portPosition.y);
         }
-        
-        const x = portPosition.x + currentNodePos.x - nodeRadius
-        const y = portPosition.y + currentNodePos.y - nodeRadius
 
         //align the port titles to the correct side of the node, depending on node angle
         //clear style since it doesnt seem to overwrite
@@ -306,7 +337,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
 
         //applying the offset to the element
-        $(element).css({'top':y+'px','left':x+'px'})
+        // $(element).css({'top':y+'px','left':x+'px'})
     }
 };
 
@@ -360,6 +391,32 @@ export class GraphRenderer {
         }
 
         return Math.atan2(y, x);
+    }
+
+    static calculatePortPositionX (mode : string, field : Field, node : Node) : number {
+        
+        let portPosX :number
+        if(mode==='input'){
+            portPosX = field.getInputPosition().x
+        }else{
+            portPosX = field.getOutputPosition().x
+        }
+        
+        const x = portPosX + node.getPosition().x - node.getRadius()
+        return x
+    }
+
+    static calculatePortPositionY (mode:string, field : Field, node : Node) {
+        
+        let portPosY :number
+        if(mode==='input'){
+            portPosY = field.getInputPosition().y
+        }else{
+            portPosY = field.getOutputPosition().y
+        }
+        
+        const y = portPosY + node.getPosition().y - node.getRadius()
+        return y
     }
 
     static getAdjacentNodes(node: Node, input: boolean): Node[] {

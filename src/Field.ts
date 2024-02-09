@@ -29,6 +29,8 @@ export class Field {
     private outputX : ko.Observable<number>;
     private outputY : ko.Observable<number>;
     private peek : ko.Observable<boolean>;
+    private inputAngle : number;
+    private outputAngle : number;
 
     constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
@@ -54,6 +56,8 @@ export class Field {
         this.outputX = ko.observable(0);
         this.outputY = ko.observable(0);
         this.peek = ko.observable(false);
+        this.inputAngle = 0;
+        this.outputAngle = 0;
     }
 
     getId = () : string => {
@@ -120,6 +124,22 @@ export class Field {
     setOutputPosition = (x: number, y: number) : void => {
         this.outputX(x);
         this.outputY(y);
+    }
+
+    setInputAngle = (angle:number) : void => {
+        this.inputAngle = angle
+    }
+
+    getInputAngle = () : number => {
+        return this.inputAngle
+    }
+
+    setOutputAngle = (angle:number) :void => {
+        this.outputAngle = angle
+    }
+
+    getOutputAngle = () : number => {
+        return this.outputAngle
     }
 
     isReadonly = () : boolean => {
