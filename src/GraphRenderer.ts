@@ -319,9 +319,9 @@ ko.bindingHandlers.graphRendererPortPosition = {
             if(field.isInputPort() && field.isOutputPort() && field.getInputAngle() +- minimumPortDistance === field.getOutputAngle()){
                 console.log('field has an inputOutput port and the two prots collide')
 
-                const collidingPortAngle = GraphRenderer.checkForPortUsingAngle(node,field.getInputAngle()+minimumPortDistance,minimumPortDistance, field)
+                const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field)
 
-                field.setOutputAngle(field.getInputAngle()+minimumPortDistance)
+                field.setOutputAngle(newOutputPortAngle)
 
 
                 inputCollidingPorts.push({field:field,angle:field.getInputAngle(),mode:'input'})
@@ -339,7 +339,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
                 console.log(node.getName(), nodeField.getInputAngle(),nodeField.getOutputAngle(),field.getInputAngle(),field.getOutputAngle())
                 if(nodeField.getInputAngle() +- minimumPortDistance === field.getInputAngle()){
-                    collidingPorts.push(field)
+                    // collidingPorts.push(field)
                     console.log('colling port found',field.getDisplayText(),node.getName())
                 }
             })
@@ -450,7 +450,7 @@ export class GraphRenderer {
         return y
     }
 
-    static checkForPortUsingAngle (node:Node, angle:Number, minPortDistance:number, activeField:Field) : Number {
+    static checkForPortUsingAngle (node:Node, angle:number, minPortDistance:number, activeField:Field) : number {
         //we check if there are any ports within range of the desired angle. if there are we will return the angle of the port we collided with
         let result = 0
 
@@ -469,16 +469,49 @@ export class GraphRenderer {
         return result
     }
 
-    static findClosestMatchingAngle (node:Node, angle:Number, minPortDistance:number) : Number {
+    static findClosestMatchingAngle (node:Node, angle:number, minPortDistance:number,field:Field) : number {
         let result = 0
+        let minAngle
+        let maxAngle
 
-        node.getFields().forEach(function(field){
-            if(field.getInputAngle() +- minPortDistance === angle){
-                result = field.getInputAngle()
-            }else if (field.getOutputAngle() +- minPortDistance === angle){
-                result = field.getOutputAngle()
+        let currentAngle = angle
+        let noMatch = true
+        let cicles = 0
+
+        //checking max angle
+        while(noMatch && cicles<10){
+            const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field)
+            if(collidingPortAngle === 0){
+                maxAngle = currentAngle //weve found our closest gap when adding to our angle
+                currentAngle = angle //reset the angle to its original
+            }else{
+                currentAngle = collidingPortAngle + minPortDistance
+                cicles++
             }
-        })
+        }
+        
+        //resetting runtime vars
+        noMatch = true
+        cicles = 0
+
+        //checking min angle
+        while(noMatch && cicles<10){
+            const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field)
+            if(collidingPortAngle === 0){
+                minAngle = currentAngle //weve found our closest gap when adding to our angle
+                currentAngle = angle //reset the angle to its original
+                noMatch = false
+            }else{
+                currentAngle = collidingPortAngle - minPortDistance
+                cicles++
+            }
+        }
+        
+        if(minAngle>maxAngle){
+            result = maxAngle
+        }else{
+            result = minAngle
+        }
 
         return result
     }
