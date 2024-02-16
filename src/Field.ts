@@ -127,6 +127,13 @@ export class Field {
     }
 
     setInputAngle = (angle:number) : void => {
+
+        // angle = Math.abs(angle)
+        // if(angle>2){
+        //     const x = Math.trunc(angle/2)
+        //     angle = angle - x
+        // }
+
         this.inputAngle = angle
     }
 
