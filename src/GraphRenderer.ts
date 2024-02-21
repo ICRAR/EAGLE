@@ -311,16 +311,16 @@ ko.bindingHandlers.graphRendererPortPosition = {
             const outputCollidingPorts : any[] = [{field:Field,angle:Number,mode:String}]
             
             //check if the field is an inputoutput port, if so, check if it's input and output ports are colliding, if they are we will just be using the inputCollidingPorts as a group
-            if(field.isInputPort() && field.isOutputPort()){
-                // console.log('field has an inputOutput port and the two prots collide')
-                console.log('OG OUTPUT ANGLES:', field.getOutputAngle())
-                const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'input')
-                console.log('newoutputangle',field.getInputAngle(),newOutputPortAngle,field.getInputAngle()-newOutputPortAngle)
-                field.setOutputAngle(newOutputPortAngle)
+            // if(field.isInputPort() && field.isOutputPort()){
+            //     // console.log('field has an inputOutput port and the two prots collide')
+            //     console.log('OG OUTPUT ANGLES:', field.getOutputAngle())
+            //     const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'input')
+            //     console.log('newoutputangle',field.getInputAngle(),newOutputPortAngle,field.getInputAngle()-newOutputPortAngle)
+            //     field.setOutputAngle(newOutputPortAngle)
 
 
-                inputCollidingPorts.push({field:field,angle:field.getInputAngle(),mode:'both'})
-            }
+            //     inputCollidingPorts.push({field:field,angle:field.getInputAngle(),mode:'both'})
+            // }
 
             // node.getFields().forEach(function(nodeField){
             //     if(field === nodeField){
@@ -468,7 +468,7 @@ export class GraphRenderer {
     static checkForPortUsingAngle (node:Node, angle:number, minPortDistance:number, activeField:Field,mode:string) : number {
         //we check if there are any ports within range of the desired angle. if there are we will return the angle of the port we collided with
         let result = 0
-        // console.log('checking  for issues on Node:'+node.getName()+' and field: '+activeField.getDisplayText())
+        console.log('checking  for issues on Node:'+node.getName()+' and field: '+activeField.getDisplayText())
         node.getFields().forEach(function(field){
             if(!field.isInputPort() && !field.isOutputPort()){
                 return
@@ -560,7 +560,7 @@ export class GraphRenderer {
         }else{
             result = minAngle
         }
-        // console.log('the result of this function is: ', minAngle,maxAngle, result)
+        console.log('the result of this function is: ', minAngle,maxAngle, result)
 
         return result
     }
