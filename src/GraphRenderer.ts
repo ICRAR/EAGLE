@@ -194,6 +194,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 field = null
                 break;
         }
+        console.log('update function for: ',node.getName(), field.getDisplayText())
 
         // clearing the saved port angles array
         node.resetPortAngles()
@@ -298,40 +299,38 @@ ko.bindingHandlers.graphRendererPortPosition = {
             }
         }
 
-        //checking for port collisions
+        //checking for port colisions if connected
         if(!node.isComment()){
             const minimumPortDistance:number = Number(Math.asin(GraphConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
+            const portIsLinked = eagle.logicalGraph().portIsLinked(node.getKey(),field.getId())
+            console.log('port is linked',portIsLinked)
 
-            let inputCollisionDetected = false
-            let outputCollisionDetected = false
-            let activeFieldInputAndOutputCollide = false //this is a special case when the current field is inputOutput and the input and output ports collide
-
-            //we need to keep track of the collisions with input and output ports seperately, because they could be seperate 'port groups'
-            const inputCollidingPorts : any[] = [{field:Field,angle:Number,mode:String}]
-            const outputCollidingPorts : any[] = [{field:Field,angle:Number,mode:String}]
-    
-            let mode = ''
-
-            if(field.isInputPort() && field.isOutputPort()){
-                mode = 'inputOutput'
+            if(portIsLinked.input === true||portIsLinked.output===true){
+                if(field.isInputPort() && !field.isOutputPort()){//for input ports
+                    const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'')
+                    field.setInputAngle(newInputPortAngle)
+                }
+                if(field.isOutputPort() && !field.isInputPort()){//for output ports
+                    const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'')
+                    field.setOutputAngle(newOutputPortAngle)
+                }
             }
 
-            if(field.isInputPort() && mode===''){
-                const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,mode)
-                field.setInputAngle(newInputPortAngle)
-            }
-            if(field.isOutputPort() && mode===''){
-                const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,mode)
-                field.setOutputAngle(newOutputPortAngle)
-            }else if (mode==='inputOutput'){
-                const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'output')
-                field.setOutputAngle(newOutputPortAngle)
-                
-                const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'input')
-                field.setInputAngle(newInputPortAngle)
+            //for inputoutput ports
+            if (field.isInputPort() && field.isOutputPort()){
+                if(portIsLinked.output === true){
+                    const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'output')
+                    field.setOutputAngle(newOutputPortAngle)
+                }
+
+                if(portIsLinked.input === true){
+                    const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'input')
+                    field.setInputAngle(newInputPortAngle)
+                }
             }
         }
-
+        
+        console.log('node: ',node.getName(), 'field: ',field.getDisplayText(),field.getInputAngle(),field.getOutputAngle())
 
         if (dataType === 'inputPort'){
             portPosition = GraphRenderer.calculatePortPos(field.getInputAngle(), nodeRadius, nodeRadius)      
