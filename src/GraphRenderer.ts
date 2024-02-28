@@ -297,7 +297,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
                     break;
             }
         }
-
+        console.log('testing')
         //checking for port colisions if connected
         if(!node.isComment()){
             const minimumPortDistance:number = Number(Math.asin(GraphConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
@@ -307,12 +307,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
             console.log('port is linked',portIsLinked)
 
             if(portIsLinked.input === true||portIsLinked.output===true){
-                if(field.isInputPort() && !field.isOutputPort()){//for input ports
-                    const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'')
+                if(field.isInputPort()){//for input ports
+                    const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'input')
                     field.setInputAngle(newInputPortAngle)
                 }
-                if(field.isOutputPort() && !field.isInputPort()){//for output ports
-                    const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'')
+                if(field.isOutputPort()){//for output ports
+                    const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'output')
                     field.setOutputAngle(newOutputPortAngle)
                 }
             }
@@ -331,7 +331,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
             // }
         }
         
-        console.log('node: ',node.getName(), 'field: ',field.getDisplayText(),field.getInputAngle(),field.getOutputAngle())
+        console.log('node: ',node.getName(), 'field: ',field.getDisplayText(),'inputAngle',field.getInputAngle(),'outputangle',field.getOutputAngle())
 
         if (dataType === 'inputPort'){
             portPosition = GraphRenderer.calculatePortPos(field.getInputAngle(), nodeRadius, nodeRadius)      
@@ -492,13 +492,17 @@ export class GraphRenderer {
                 cicles++
             }
         }
+
+        if(minAngle<0){
+            minAngle = 2*Math.PI - Math.abs(minAngle)
+        }
         
         if(Math.abs(minAngle-angle)>Math.abs(maxAngle-angle)){
             result = maxAngle
         }else{
             result = minAngle
         }
-        console.log('the result of this function is: ', minAngle,maxAngle, result)
+        console.log('the result of this function is: ','angle',angle, 'min-angle: ',minAngle, ',max-angle', maxAngle,'result', result)
 
         return result
     }
@@ -511,10 +515,10 @@ export class GraphRenderer {
             if(!field.isInputPort() && !field.isOutputPort()){
                 return
             }
-            if (field.getId() === activeField.getId() && mode === ''){
-                // console.log('normal field is active field leaving...')
-                return
-            }else{
+            // if (field.getId() === activeField.getId() && mode === ''){
+            //     // console.log('normal field is active field leaving...')
+            //     // return
+            // }else{
                 // // console.log('checking ',field.getDisplayText())
                 // if(field.getInputConnected() || field.getOutputConnected()){
                 //     if(mode === 'input'){
@@ -543,18 +547,49 @@ export class GraphRenderer {
                 //         }
                 //     }
                 // }
-                if(field.getInputConnected() || field.getOutputConnected()){
-                    if(mode === 'input'){
-                        if(field.getInputAngle()-angle > -minPortDistance && field.getInputAngle()-angle < minPortDistance){
-                            //             // console.log('is colliding: ',field.getInputAngle())
+                
+
+                if(field.getInputConnected()){
+                    
+                    let fieldAngle = field.getInputAngle()
+                            
+                    if(fieldAngle - minPortDistance<0){
+                        fieldAngle = 2 * Math.PI + fieldAngle
+                    }else if(fieldAngle + minPortDistance>2 * Math.PI){
+                        fieldAngle = 2*Math.PI - fieldAngle + minPortDistance
+                    }
+
+                    if(field.getId() === activeField.getId() && mode === 'input'){
+                        console.log('nothing: ',activeField.getDisplayText(),mode)
+                    }else{
+                        if(fieldAngle-angle > -minPortDistance && fieldAngle-angle < minPortDistance || field.getInputAngle()-angle > -minPortDistance && field.getInputAngle()-angle < minPortDistance){
+                            console.log('is colliding: ',activeField.getDisplayText(),angle,field.getInputAngle())
                             result = field.getInputAngle()
                         }
                     }
-                
+                }
+                if(field.getOutputConnected()){
+                    
+                    let fieldAngle = field.getOutputAngle()
+                            
+                    if(fieldAngle - minPortDistance<0){
+                        fieldAngle = 2 * Math.PI + fieldAngle
+                    }else if(fieldAngle + minPortDistance>2 * Math.PI){
+                        fieldAngle = 2*Math.PI - fieldAngle + minPortDistance
+                    }
+
+                    if(field.getId() === activeField.getId() && mode === 'output'){
+                        console.log('nothing output')
+                    }else{
+                        if(fieldAngle-angle > -minPortDistance && fieldAngle-angle < minPortDistance || field.getOutputAngle()-angle > -minPortDistance && field.getOutputAngle()-angle < minPortDistance){
+                            console.log('is colliding: ',activeField.getDisplayText(),angle,field.getOutputAngle())
+                            result = field.getOutputAngle()
+                        }
+                    }
                 }
 
                 
-            }
+            // }
         })
 
         return result
