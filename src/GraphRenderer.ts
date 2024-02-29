@@ -504,16 +504,9 @@ export class GraphRenderer {
         }
 
 
-        // if(minAngle<0){
-        //     minAngle = 2*Math.PI - Math.abs(minAngle)
-        // }
-
-        // if(maxAngle<0){
-        //     maxAngle = 2*Math.PI - Math.abs(maxAngle)
-        // }
         console.log('pre adjust: ',minAngle,angle,maxAngle)
         if(minAngle + minPortDistance> 2*Math.PI && angle - minPortDistance < 0){
-            minAngle = 2*Math.PI - minAngle
+            minAngle =  minAngle - 2*Math.PI
         }
 
         if(maxAngle - minPortDistance < 0 && angle + minPortDistance > 2*Math.PI){
@@ -525,6 +518,15 @@ export class GraphRenderer {
             result = maxAngle
         }else{
             result = minAngle
+        }
+
+        
+        if(minAngle<0){
+            minAngle = 2*Math.PI - Math.abs(minAngle)
+        }
+
+        if(maxAngle>2*Math.PI){
+            maxAngle = maxAngle - 2*Math.PI 
         }
         
         console.log('the result of this function is: ','angle',angle, 'min-angle: ',minAngle, ',max-angle', maxAngle,'result', result)
