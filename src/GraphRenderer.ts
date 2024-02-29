@@ -297,7 +297,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
                     break;
             }
         }
-        console.log('testing')
         //checking for port colisions if connected
         if(!node.isComment()){
             const minimumPortDistance:number = Number(Math.asin(GraphConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
@@ -305,6 +304,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
             field.setInputConnected(portIsLinked.input)
             field.setOutputConnected(portIsLinked.output)
             console.log('port is linked',portIsLinked)
+            console.log('min port distance: ',minimumPortDistance)
 
             if(portIsLinked.input === true||portIsLinked.output===true){
                 if(field.isInputPort()){//for input ports
@@ -471,6 +471,11 @@ export class GraphRenderer {
                 // console.log('angle is taken, adding to max distance',currentAngle,collidingPortAngle,minPortDistance)
                 // console.log(collidingPortAngle-minPortDistance)
                 currentAngle = collidingPortAngle + minPortDistance
+                
+                if(currentAngle<0){
+                    currentAngle = 2*Math.PI - Math.abs(currentAngle)
+                }
+
                 cicles++
             }
         }
@@ -489,19 +494,39 @@ export class GraphRenderer {
                 noMatch = false
             }else{
                 currentAngle = collidingPortAngle - minPortDistance
+                
+                if(currentAngle<0){
+                    currentAngle = 2*Math.PI - Math.abs(currentAngle)
+                }
+
                 cicles++
             }
         }
 
-        if(minAngle<0){
-            minAngle = 2*Math.PI - Math.abs(minAngle)
+
+        // if(minAngle<0){
+        //     minAngle = 2*Math.PI - Math.abs(minAngle)
+        // }
+
+        // if(maxAngle<0){
+        //     maxAngle = 2*Math.PI - Math.abs(maxAngle)
+        // }
+        console.log('pre adjust: ',minAngle,angle,maxAngle)
+        if(minAngle + minPortDistance> 2*Math.PI && angle - minPortDistance < 0){
+            minAngle = 2*Math.PI - minAngle
         }
+
+        if(maxAngle - minPortDistance < 0 && angle + minPortDistance > 2*Math.PI){
+            maxAngle = 2*Math.PI - maxAngle
+        }
+        console.log('post adjust: ',minAngle,angle,maxAngle)
         
         if(Math.abs(minAngle-angle)>Math.abs(maxAngle-angle)){
             result = maxAngle
         }else{
             result = minAngle
         }
+        
         console.log('the result of this function is: ','angle',angle, 'min-angle: ',minAngle, ',max-angle', maxAngle,'result', result)
 
         return result
@@ -513,6 +538,10 @@ export class GraphRenderer {
         console.log('checking  for issues on Node:'+node.getName()+' and field: '+activeField.getDisplayText(),' with mode: ',mode)
         node.getFields().forEach(function(field){
             if(!field.isInputPort() && !field.isOutputPort()){
+                return
+            }
+
+            if( result != 0){
                 return
             }
             // if (field.getId() === activeField.getId() && mode === ''){
@@ -553,18 +582,20 @@ export class GraphRenderer {
                     
                     let fieldAngle = field.getInputAngle()
                             
-                    if(fieldAngle - minPortDistance<0){
+                    if(fieldAngle - minPortDistance<0 && angle + minPortDistance>2 * Math.PI){
                         fieldAngle = 2 * Math.PI + fieldAngle
-                    }else if(fieldAngle + minPortDistance>2 * Math.PI){
+                    }else if(fieldAngle + minPortDistance>2 * Math.PI && angle - minPortDistance<0){
                         fieldAngle = 2*Math.PI - fieldAngle + minPortDistance
                     }
+                    console.log('comparison between input: ',activeField.getDisplayText(),angle,field.getDisplayText(), fieldAngle)
 
                     if(field.getId() === activeField.getId() && mode === 'input'){
                         console.log('nothing: ',activeField.getDisplayText(),mode)
                     }else{
                         if(fieldAngle-angle > -minPortDistance && fieldAngle-angle < minPortDistance || field.getInputAngle()-angle > -minPortDistance && field.getInputAngle()-angle < minPortDistance){
-                            console.log('is colliding: ',activeField.getDisplayText(),angle,field.getInputAngle())
+                            console.log('is colliding with input: ',activeField.getDisplayText(),angle,field.getDisplayText(),fieldAngle, field.getInputAngle())
                             result = field.getInputAngle()
+                            return
                         }
                     }
                 }
@@ -572,18 +603,20 @@ export class GraphRenderer {
                     
                     let fieldAngle = field.getOutputAngle()
                             
-                    if(fieldAngle - minPortDistance<0){
+                    if(fieldAngle - minPortDistance<0 && angle + minPortDistance>2 * Math.PI){
                         fieldAngle = 2 * Math.PI + fieldAngle
-                    }else if(fieldAngle + minPortDistance>2 * Math.PI){
+                    }else if(fieldAngle + minPortDistance>2 * Math.PI && angle - minPortDistance<0){
                         fieldAngle = 2*Math.PI - fieldAngle + minPortDistance
                     }
+                    console.log('comparison between output: ',activeField.getDisplayText(),angle,field.getDisplayText(), fieldAngle)
 
                     if(field.getId() === activeField.getId() && mode === 'output'){
                         console.log('nothing output')
                     }else{
                         if(fieldAngle-angle > -minPortDistance && fieldAngle-angle < minPortDistance || field.getOutputAngle()-angle > -minPortDistance && field.getOutputAngle()-angle < minPortDistance){
-                            console.log('is colliding: ',activeField.getDisplayText(),angle,field.getOutputAngle())
+                            console.log('is colliding with output: ',activeField.getDisplayText(),angle,field.getDisplayText(),fieldAngle,field.getOutputAngle())
                             result = field.getOutputAngle()
+                            return
                         }
                     }
                 }
