@@ -589,7 +589,7 @@ export class GraphRenderer {
                     }else if(fieldAngle + minPortDistance>2 * Math.PI && angle - minPortDistance<0){
                         fieldAngle = 2*Math.PI - fieldAngle + minPortDistance
                     }
-                    console.log('comparison between input: ',activeField.getDisplayText(),angle,field.getDisplayText(), fieldAngle)
+                    console.log('comparison between input: ',activeField.getDisplayText(),angle,field.getDisplayText(), field.getInputAngle(),fieldAngle)
 
                     if(field.getId() === activeField.getId() && mode === 'input'){
                         console.log('nothing: ',activeField.getDisplayText(),mode)
@@ -608,9 +608,9 @@ export class GraphRenderer {
                     if(fieldAngle - minPortDistance<0 && angle + minPortDistance>2 * Math.PI){
                         fieldAngle = 2 * Math.PI + fieldAngle
                     }else if(fieldAngle + minPortDistance>2 * Math.PI && angle - minPortDistance<0){
-                        fieldAngle = 2*Math.PI - fieldAngle + minPortDistance
+                        fieldAngle = 2*Math.PI - fieldAngle
                     }
-                    console.log('comparison between output: ',activeField.getDisplayText(),angle,field.getDisplayText(), fieldAngle)
+                    console.log('comparison between output: ',activeField.getDisplayText(),angle,field.getDisplayText(), field.getOutputAngle(), fieldAngle)
 
                     if(field.getId() === activeField.getId() && mode === 'output'){
                         console.log('nothing output')
