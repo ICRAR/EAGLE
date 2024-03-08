@@ -36,6 +36,7 @@ import { Utils } from './Utils';
 import { CategoryData} from './CategoryData';
 import { Setting } from './Setting';
 import { RightClick } from "./RightClick";
+import { active } from "d3";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor) {
@@ -303,31 +304,25 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
         //checking for port colisions if connected
         if(!node.isComment()){
+            //calculating the minimum port distance as an angle. we save this min distance as a pixel distance between ports
             const minimumPortDistance:number = Number(Math.asin(GraphConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
+
+            //checking if the ports are linked 
             const portIsLinked = eagle.logicalGraph().portIsLinked(node.getKey(),field.getId())
             field.setInputConnected(portIsLinked.input)
             field.setOutputConnected(portIsLinked.output)
-            console.log('port is linked',portIsLinked)
-            console.log('min port distance: ',minimumPortDistance)
 
-            // if(portIsLinked.input === true && dataType === 'inputPort' ||  portIsLinked.output===true && dataType === 'outputPort'){
-                if(dataType === 'outputPort'){//for output ports
-                    const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'output')
-                    console.log('settingnow: ',field.getOutputAngle(),newOutputPortAngle)
-                    field.setOutputAngle(newOutputPortAngle)
-                }else if(dataType === 'inputPort'){//for input ports
-                    const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'input')
-                    console.log('settingnow: ',field.getInputAngle(),newInputPortAngle)
-                    field.setInputAngle(newInputPortAngle)
-                }
-            // }else{
-            //     console.log('portNot linked', field.getDisplayText())
-
-            // }
+            if(dataType === 'inputPort'){//for input ports
+                const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'input')
+                field.setInputAngle(newInputPortAngle)
+            }
+            
+            if(dataType === 'outputPort'){//for output ports
+                const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'output')
+                field.setOutputAngle(newOutputPortAngle)
+            }
         }
         
-        console.log('node: ',node.getName(), 'field: ',field.getDisplayText(),'inputAngle',field.getInputAngle(),'outputangle',field.getOutputAngle())
-
         if (dataType === 'inputPort'){
             portPosition = GraphRenderer.calculatePortPos(field.getInputAngle(), nodeRadius, nodeRadius)      
 
@@ -358,7 +353,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
 
         //apply the correct css
-        if(averageAngle>1.5708 && averageAngle<4.71239){
+        if(averageAngle>1.5708 && averageAngle<4.7123){
             $(element).find(".portTitle").css({'text-align':'right','left':-5+'px','transform':'translateX(-100%)'})
         }else{
             $(element).find(".portTitle").css({'text-align':'left','right':-5+'px','transform':'translateX(100%)'})
@@ -455,18 +450,14 @@ export class GraphRenderer {
 
         //checking max angle
         while(noMatch && cicles<10){
-            console.log('max-cycle:',cicles)
-            // console.log('using: ', currentAngle)
             const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
-            // console.log('cycle: '+cicles,currentAngle,collidingPortAngle,minPortDistance)
             if(collidingPortAngle === 0){
                 maxAngle = currentAngle //weve found our closest gap when adding to our angle
                 noMatch = false
-                // console.log('no issues.. proceed sire')
             }else{
-                // console.log('angle is taken, adding to max distance',currentAngle,collidingPortAngle,minPortDistance)
-                // console.log(collidingPortAngle-minPortDistance)
-                currentAngle = collidingPortAngle + minPortDistance
+                //if the colliding angle is not 0, that means the checkForPortUsingAngle function has found and returned the angle of a port we are colliding with
+                //we will use this colliding port angle and add the minimum port distance as well as a little extra to prevent math errors when comparing
+                currentAngle = collidingPortAngle + minPortDistance + 0.01
                 
                 if(currentAngle<0){
                     currentAngle = 2*Math.PI - Math.abs(currentAngle)
@@ -476,7 +467,6 @@ export class GraphRenderer {
             }
         }
         
-        // console.log('resetting vars')
         //resetting runtime vars
         noMatch = true
         cicles = 0
@@ -484,13 +474,14 @@ export class GraphRenderer {
 
         //checking min angle
         while(noMatch && cicles<10){
-            console.log('min-cycle:',cicles)
             const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
             if(collidingPortAngle === 0){
                 minAngle = currentAngle //weve found our closest gap when adding to our angle
                 noMatch = false
             }else{
-                currentAngle = collidingPortAngle - minPortDistance
+                //if the colliding angle is not 0, that means the checkForPortUsingAngle function has found and returned the angle of a port we are colliding with
+                //we will use this colliding port angle and subtract the minimum port distance as well as a little extra to prevent math errors when comparing
+                currentAngle = collidingPortAngle - minPortDistance - 0.01
                 
                 if(currentAngle<0){
                     currentAngle = 2*Math.PI - Math.abs(currentAngle)
@@ -500,88 +491,98 @@ export class GraphRenderer {
             }
         }
 
-
-        console.log('pre adjust: ',minAngle,angle,maxAngle)
+        //maxing sure min and max angles are on the same side of the 0 point eg. if max angle is 0.2 and min angle is 5.8 we need to convert the min angle to be a negative number in order to compare them by subtracting 2*PI
         if(minAngle + minPortDistance> 2*Math.PI && angle - minPortDistance < 0){
             minAngle =  minAngle - 2*Math.PI
         }
-
         if(maxAngle - minPortDistance < 0 && angle + minPortDistance > 2*Math.PI){
             maxAngle = 2*Math.PI - maxAngle
         }
-        console.log('post adjust: ',minAngle,angle,maxAngle)
         
+        //checking if the min or max angle is closer to the port's preferred location
         if(Math.abs(minAngle-angle)>Math.abs(maxAngle-angle)){
             result = maxAngle
         }else{
             result = minAngle
         }
-
         
+        //making sure the angle is within the 0 - 2*PI range
         if(minAngle<0){
             minAngle = 2*Math.PI - Math.abs(minAngle)
         }
-
         if(maxAngle>2*Math.PI){
             maxAngle = maxAngle - 2*Math.PI 
         }
         
-        console.log('the result of this function is: ','angle',angle, 'min-angle: ',minAngle, ',max-angle', maxAngle,'result', result)
-
         return result
     }
 
     static checkForPortUsingAngle (node:Node, angle:number, minPortDistance:number, activeField:Field,mode:string) : number {
         //we check if there are any ports within range of the desired angle. if there are we will return the angle of the port we collided with
         let result = 0
-        console.log('checking  for issues on Node:'+node.getName()+' and field: '+activeField.getDisplayText(),' with mode: ',mode)
+
+        //dangling ports will collide with all other ports including other dandling ports, connected ports take priority and will push dangling ones out of the way
+        let danglingActivePort = false
+        if(mode === "input"){
+            danglingActivePort = !activeField.getInputConnected()
+        }
+        if( mode === "output"){
+            danglingActivePort = !activeField.getOutputConnected()
+        }
+
         node.getFields().forEach(function(field){
+            //going through all fields on the node to check for taken angles
+
+            //making sure the field we are looking at is a port
             if(!field.isInputPort() && !field.isOutputPort()){
                 return
             }
 
+            //if the result is not 0 that means we are colliding with a port, there is no reason to continue checking
             if( result != 0){
                 return
             }
                 
-            if(field.getOutputConnected()){
-                
+            //either comparing with other connected ports || if the active port is dangling, compare with all other ports
+            if(field.getOutputConnected() || danglingActivePort){
                 let fieldAngle = field.getOutputAngle()
                         
+                //doing some converting if the ports we are comparing are on either side of the 0 point eg. 0.2 and 6.1 are too close to each other, we convert 6.1 - 2* PI = roughly -0.18. now we can compare them
                 if(fieldAngle - minPortDistance<0 && angle + minPortDistance>2 * Math.PI){
                     fieldAngle = 2 * Math.PI + fieldAngle
                 }else if(fieldAngle + minPortDistance>2 * Math.PI && angle - minPortDistance<0){
                     fieldAngle = fieldAngle - 2*Math.PI
                 }
-                console.log('comparison between: ',mode,activeField.getDisplayText(),angle,field.getDisplayText(),'"output"', field.getOutputAngle(), fieldAngle)
 
                 if(field.getId() === activeField.getId() && mode === 'output'){
-                    console.log('same port... output')
+                    //this is the same exact port, dont compare!
+                    return
                 }else{
                     if(fieldAngle-angle > -minPortDistance && fieldAngle-angle < minPortDistance || field.getOutputAngle()-angle > -minPortDistance && field.getOutputAngle()-angle < minPortDistance){
-                        console.log('is colliding with output: ',activeField.getDisplayText(),angle,field.getDisplayText(),fieldAngle,field.getOutputAngle())
+                        //we have found a port that is within the minimum port dinstance, return the angle of the port we are colliding with
                         result = field.getOutputAngle()
                         return
                     }
                 }
             }
             
-            if(field.getInputConnected()){
-                
+            if(field.getInputConnected() || danglingActivePort){
                 let fieldAngle = field.getInputAngle()
                         
+                //doing some converting if the ports we are comparing are on either side of the 0 point eg. 0.2 and 6.1 are too close to each other, we convert 6.1 - 2* PI = roughly -0.18. now we can compare them
                 if(fieldAngle - minPortDistance<0 && angle + minPortDistance>2 * Math.PI){
                     fieldAngle = 2 * Math.PI + fieldAngle
                 }else if(fieldAngle + minPortDistance>2 * Math.PI && angle - minPortDistance<0){
                     fieldAngle = fieldAngle - 2*Math.PI
                 }
-                console.log('comparison between: ',mode,activeField.getDisplayText(),angle,field.getDisplayText(),'"input"', field.getInputAngle(),fieldAngle)
+
 
                 if(field.getId() === activeField.getId() && mode === 'input'){
-                    console.log('same port... input ',activeField.getDisplayText(),mode)
+                    //this is the same exact port, dont compare!
+                    return
                 }else{
                     if(fieldAngle-angle > -minPortDistance && fieldAngle-angle < minPortDistance || field.getInputAngle()-angle > -minPortDistance && field.getInputAngle()-angle < minPortDistance){
-                        console.log('is colliding with input: ',activeField.getDisplayText(),angle,field.getDisplayText(),fieldAngle, field.getInputAngle())
+                        //we have found a port that is within the minimum port dinstance, return the angle of the port we are colliding with
                         result = field.getInputAngle()
                         return
                     }
