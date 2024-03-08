@@ -308,7 +308,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
             console.log('port is linked',portIsLinked)
             console.log('min port distance: ',minimumPortDistance)
 
-            if(portIsLinked.input === true||portIsLinked.output===true){
+            if(portIsLinked.input === true && dataType === 'inputPort' ||  portIsLinked.output===true && dataType === 'outputPort'){
                 if(dataType === 'outputPort'){//for output ports
                     const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'output')
                     console.log('settingnow: ',field.getOutputAngle(),newOutputPortAngle)
@@ -318,20 +318,9 @@ ko.bindingHandlers.graphRendererPortPosition = {
                     console.log('settingnow: ',field.getInputAngle(),newInputPortAngle)
                     field.setInputAngle(newInputPortAngle)
                 }
+            }else{
+                console.log('portNot linked', field.getDisplayText())
             }
-
-            //for inputoutput ports
-            // if (field.isInputPort() && field.isOutputPort()){
-            //     if(portIsLinked.output === true){
-            //         const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'output')
-            //         field.setOutputAngle(newOutputPortAngle)
-            //     }
-
-            //     if(portIsLinked.input === true){
-            //         const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'input')
-            //         field.setInputAngle(newInputPortAngle)
-            //     }
-            // }
         }
         
         console.log('node: ',node.getName(), 'field: ',field.getDisplayText(),'inputAngle',field.getInputAngle(),'outputangle',field.getOutputAngle())
