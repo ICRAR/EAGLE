@@ -175,7 +175,7 @@ ko.bindingHandlers.embeddedAppPosition = {
 ko.bindingHandlers.graphRendererPortPosition = {
     update: function (element:any, valueAccessor) {
         //this handler is for a PORT position, meaning it will run twice for a field that has both input and output ports
-        
+
         //the update function is called initially and then whenever a change to a utilised observable occurs
         const eagle : Eagle = Eagle.getInstance();
         const n: Node = ko.utils.unwrapObservable(valueAccessor()).n;
@@ -309,12 +309,11 @@ ko.bindingHandlers.graphRendererPortPosition = {
             console.log('min port distance: ',minimumPortDistance)
 
             if(portIsLinked.input === true||portIsLinked.output===true){
-                if(field.isOutputPort()){//for output ports
+                if(dataType === 'outputPort'){//for output ports
                     const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'output')
                     console.log('settingnow: ',field.getOutputAngle(),newOutputPortAngle)
                     field.setOutputAngle(newOutputPortAngle)
-                }
-                if(field.isInputPort()){//for input ports
+                }else if(dataType === 'inputPort'){//for input ports
                     const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'input')
                     console.log('settingnow: ',field.getInputAngle(),newInputPortAngle)
                     field.setInputAngle(newInputPortAngle)
