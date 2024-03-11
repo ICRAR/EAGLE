@@ -138,6 +138,10 @@ export class Field {
         return this.inputAngle
     }
 
+    flagInputAngleMutated = () : void => {
+        this.displayText.valueHasMutated()
+    }
+
     setOutputAngle = (angle:number) :void => {
         this.outputAngle = angle
     }

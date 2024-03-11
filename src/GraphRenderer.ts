@@ -325,14 +325,14 @@ ko.bindingHandlers.graphRendererPortPosition = {
         
         if (dataType === 'inputPort'){
             portPosition = GraphRenderer.calculatePortPos(field.getInputAngle(), nodeRadius, nodeRadius)      
-
             //a little 1px reduction is needed to center ports for some reason
             if(!node.isBranch()){
                 portPosition = {x:portPosition.x-1,y:portPosition.y-1}
             }  
 
             field.setInputPosition(portPosition.x, portPosition.y);
-        } else if (dataType === 'outputPort'){
+        } 
+        if (dataType === 'outputPort'){
             portPosition = GraphRenderer.calculatePortPos(field.getOutputAngle(), nodeRadius, nodeRadius)
 
             //a little 1px reduction is needed to center ports for some reason
@@ -451,7 +451,7 @@ export class GraphRenderer {
         //checking max angle
         while(noMatch && cicles<10){
             const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
-            if(collidingPortAngle === 0){
+            if(collidingPortAngle === null){
                 maxAngle = currentAngle //weve found our closest gap when adding to our angle
                 noMatch = false
             }else{
@@ -475,7 +475,7 @@ export class GraphRenderer {
         //checking min angle
         while(noMatch && cicles<10){
             const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
-            if(collidingPortAngle === 0){
+            if(collidingPortAngle === null){
                 minAngle = currentAngle //weve found our closest gap when adding to our angle
                 noMatch = false
             }else{
@@ -519,7 +519,7 @@ export class GraphRenderer {
 
     static checkForPortUsingAngle (node:Node, angle:number, minPortDistance:number, activeField:Field,mode:string) : number {
         //we check if there are any ports within range of the desired angle. if there are we will return the angle of the port we collided with
-        let result = 0
+        let result:number = null
 
         //dangling ports will collide with all other ports including other dandling ports, connected ports take priority and will push dangling ones out of the way
         let danglingActivePort = false
@@ -538,11 +538,11 @@ export class GraphRenderer {
                 return
             }
 
-            //if the result is not 0 that means we are colliding with a port, there is no reason to continue checking
-            if( result != 0){
+            //if the result is not null that means we are colliding with a port, there is no reason to continue checking
+            if( result != null){
                 return
             }
-                
+
             //either comparing with other connected ports || if the active port is dangling, compare with all other ports
             if(field.getOutputConnected() || danglingActivePort){
                 let fieldAngle = field.getOutputAngle()
@@ -561,6 +561,10 @@ export class GraphRenderer {
                     if(fieldAngle-angle > -minPortDistance && fieldAngle-angle < minPortDistance || field.getOutputAngle()-angle > -minPortDistance && field.getOutputAngle()-angle < minPortDistance){
                         //we have found a port that is within the minimum port dinstance, return the angle of the port we are colliding with
                         result = field.getOutputAngle()
+                        if(!danglingActivePort && field.getInputConnected() === false){
+                            console.log('dangling field marked mutated',field.getDisplayText)
+                            field.flagInputAngleMutated()
+                        }
                         return
                     }
                 }
@@ -584,6 +588,9 @@ export class GraphRenderer {
                     if(fieldAngle-angle > -minPortDistance && fieldAngle-angle < minPortDistance || field.getInputAngle()-angle > -minPortDistance && field.getInputAngle()-angle < minPortDistance){
                         //we have found a port that is within the minimum port dinstance, return the angle of the port we are colliding with
                         result = field.getInputAngle()
+                        if(!danglingActivePort){
+                            field.flagInputAngleMutated()
+                        }
                         return
                     }
                 }
