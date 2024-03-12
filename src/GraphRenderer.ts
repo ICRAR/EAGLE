@@ -197,7 +197,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 field = null
                 break;
         }
-        console.log('update function for: ',node.getName(), field.getDisplayText(),dataType)
 
         // clearing the saved port angles array
         node.resetPortAngles()
@@ -543,10 +542,10 @@ export class GraphRenderer {
                 return
             }
 
+
             //either comparing with other connected ports || if the active port is dangling, compare with all other ports
             if(field.getOutputConnected() || danglingActivePort){
                 let fieldAngle = field.getOutputAngle()
-                        
                 //doing some converting if the ports we are comparing are on either side of the 0 point eg. 0.2 and 6.1 are too close to each other, we convert 6.1 - 2* PI = roughly -0.18. now we can compare them
                 if(fieldAngle - minPortDistance<0 && angle + minPortDistance>2 * Math.PI){
                     fieldAngle = 2 * Math.PI + fieldAngle
@@ -556,13 +555,11 @@ export class GraphRenderer {
 
                 if(field.getId() === activeField.getId() && mode === 'output'){
                     //this is the same exact port, dont compare!
-                    return
                 }else{
                     if(fieldAngle-angle > -minPortDistance && fieldAngle-angle < minPortDistance || field.getOutputAngle()-angle > -minPortDistance && field.getOutputAngle()-angle < minPortDistance){
                         //we have found a port that is within the minimum port dinstance, return the angle of the port we are colliding with
                         result = field.getOutputAngle()
                         if(!danglingActivePort && field.getInputConnected() === false){
-                            console.log('dangling field marked mutated',field.getDisplayText)
                             field.flagInputAngleMutated()
                         }
                         return
@@ -572,7 +569,6 @@ export class GraphRenderer {
             
             if(field.getInputConnected() || danglingActivePort){
                 let fieldAngle = field.getInputAngle()
-                        
                 //doing some converting if the ports we are comparing are on either side of the 0 point eg. 0.2 and 6.1 are too close to each other, we convert 6.1 - 2* PI = roughly -0.18. now we can compare them
                 if(fieldAngle - minPortDistance<0 && angle + minPortDistance>2 * Math.PI){
                     fieldAngle = 2 * Math.PI + fieldAngle
@@ -580,10 +576,8 @@ export class GraphRenderer {
                     fieldAngle = fieldAngle - 2*Math.PI
                 }
 
-
                 if(field.getId() === activeField.getId() && mode === 'input'){
                     //this is the same exact port, dont compare!
-                    return
                 }else{
                     if(fieldAngle-angle > -minPortDistance && fieldAngle-angle < minPortDistance || field.getInputAngle()-angle > -minPortDistance && field.getInputAngle()-angle < minPortDistance){
                         //we have found a port that is within the minimum port dinstance, return the angle of the port we are colliding with
