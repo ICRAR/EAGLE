@@ -36,6 +36,7 @@ import { Utils } from './Utils';
 import { CategoryData} from './CategoryData';
 import { Setting } from './Setting';
 import { RightClick } from "./RightClick";
+import { active } from "d3";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor) {
@@ -110,10 +111,6 @@ ko.bindingHandlers.embeddedAppPosition = {
         // find the node in which the applicationNode has been embedded
         const parentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(applicationNode.getEmbedKey());
 
-        // clearing the saved port angles array
-        // TODO: add comment: we're calculating the new position for a single embedded app, why reset all other angles?
-        parentNode.resetPortAngles()
-
         // determine all the adjacent nodes
         // TODO: earlier abort if field is null
         const adjacentNodes: Node[] = GraphRenderer.getAdjacentNodes(applicationNode, input);
@@ -138,11 +135,6 @@ ko.bindingHandlers.embeddedAppPosition = {
             // average the angles
             const averageAngle = GraphRenderer.averageAngles(angles);
             portPosition = GraphRenderer.calculatePortPos(averageAngle, parentNodeRadius, parentNodeRadius)
-
-            // set port angle
-            // TODO: add comment to explain why this is only necessary in the connectedField === true case!
-            // TODO: we should actually make this explicit, we're not setting the port angle, we're setting the embedded app angle
-            parentNode.addPortAngle(averageAngle);
         }else{
             // find a default position for the port when not connected
             if (input){
@@ -174,12 +166,13 @@ ko.bindingHandlers.embeddedAppPosition = {
 
 ko.bindingHandlers.graphRendererPortPosition = {
     update: function (element:any, valueAccessor) {
+        //this handler is for a PORT position, meaning it will run twice for a field that has both input and output ports
+
         //the update function is called initially and then whenever a change to a utilised observable occurs
         const eagle : Eagle = Eagle.getInstance();
         const n: Node = ko.utils.unwrapObservable(valueAccessor()).n;
         const f: Field = ko.utils.unwrapObservable(valueAccessor()).f;
         const dataType: string = ko.utils.unwrapObservable(valueAccessor()).type;
-        console.log(n)
         // determine the 'node' and 'field' attributes (for this way of using this binding)
         let node : Node 
         let field : Field
@@ -195,9 +188,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 field = null
                 break;
         }
-
-        // clearing the saved port angles array
-        node.resetPortAngles()
 
         // determine all the adjacent nodes
         const adjacentNodes: Node[] = [];
@@ -252,7 +242,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         // get node radius
         const nodeRadius = node.getRadius()
-
         // determine port position
         const currentNodePos = node.getPosition();
         let portPosition;
@@ -270,25 +259,27 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
             // average the angles
             averageAngle = GraphRenderer.averageAngles(angles);
-
-            node.addPortAngle(averageAngle);
-            portPosition = GraphRenderer.calculatePortPos(averageAngle, nodeRadius, nodeRadius)
+            if(averageAngle<0){
+                averageAngle = Math.PI*2 - Math.abs(averageAngle)
+            }
 
             if (dataType === 'inputPort'){
                 field.setInputAngle(averageAngle)
             } else if (dataType === 'outputPort'){
-                field.setInputAngle(averageAngle)
+                field.setOutputAngle(averageAngle)
             }
         }else{
             // find a default position for the port when not connected
             switch (dataType){
                 case 'inputPort':
-                    portPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
+                    // portPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
                     averageAngle = 3.14159
+                    field.setInputAngle(averageAngle)
                     break;
                 case 'outputPort':
-                    portPosition=GraphRenderer.calculatePortPos(0, nodeRadius, nodeRadius)
+                    // portPosition=GraphRenderer.calculatePortPos(0, nodeRadius, nodeRadius)
                     averageAngle = 0
+                    field.setOutputAngle(averageAngle)
                     break;
                 default:
                     console.warn("disconnected field with dataType:", dataType);
@@ -296,27 +287,44 @@ ko.bindingHandlers.graphRendererPortPosition = {
                     break;
             }
         }
+        //checking for port colisions if connected
+        if(!node.isComment()){
+            //calculating the minimum port distance as an angle. we save this min distance as a pixel distance between ports
+            const minimumPortDistance:number = Number(Math.asin(GraphConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
 
-        //a little 1px reduction is needed to center ports for some reason
-        if(!node.isBranch()){
-            portPosition = {x:portPosition.x-1,y:portPosition.y-1}
+            //checking if the ports are linked 
+            const portIsLinked = eagle.logicalGraph().portIsLinked(node.getKey(),field.getId())
+            field.setInputConnected(portIsLinked.input)
+            field.setOutputConnected(portIsLinked.output)
+
+            if(dataType === 'inputPort'){//for input ports
+                const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'input')
+                field.setInputAngle(newInputPortAngle)
+            }
+            
+            if(dataType === 'outputPort'){//for output ports
+                const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'output')
+                field.setOutputAngle(newOutputPortAngle)
+            }
         }
+        
+        if (dataType === 'inputPort'){
+            portPosition = GraphRenderer.calculatePortPos(field.getInputAngle(), nodeRadius, nodeRadius)      
+            //a little 1px reduction is needed to center ports for some reason
+            if(!node.isBranch()){
+                portPosition = {x:portPosition.x-1,y:portPosition.y-1}
+            }  
 
-        const collidingPorts : Field[] = []
+            field.setInputPosition(portPosition.x, portPosition.y);
+        } 
+        if (dataType === 'outputPort'){
+            portPosition = GraphRenderer.calculatePortPos(field.getOutputAngle(), nodeRadius, nodeRadius)
 
-        node.getFields().forEach(function(nodeField){
-            if(field === nodeField){
-                console.log('same field detected, skipping ',nodeField.getDisplayText(),field.getDisplayText())
-                return
+            //a little 1px reduction is needed to center ports for some reason
+            if(!node.isBranch()){
+                portPosition = {x:portPosition.x-1,y:portPosition.y-1}
             }
 
-            console.log(nodeField.getInputAngle(),nodeField.getOutputAngle())
-            // if(nodeField.getInputAngle() +- .2 === field.getInputAngle())
-        })
-
-        if (dataType === 'inputPort'){
-            field.setInputPosition(portPosition.x, portPosition.y);
-        } else if (dataType === 'outputPort'){
             field.setOutputPosition(portPosition.x, portPosition.y);
         }
 
@@ -330,14 +338,11 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
 
         //apply the correct css
-        if(averageAngle>1.5708 && averageAngle<4.71239){
+        if(averageAngle>1.5708 && averageAngle<4.7123){
             $(element).find(".portTitle").css({'text-align':'right','left':-5+'px','transform':'translateX(-100%)'})
         }else{
             $(element).find(".portTitle").css({'text-align':'left','right':-5+'px','transform':'translateX(100%)'})
         }
-
-        //applying the offset to the element
-        // $(element).css({'top':y+'px','left':x+'px'})
     }
 };
 
@@ -417,6 +422,162 @@ export class GraphRenderer {
         
         const y = portPosY + node.getPosition().y - node.getRadius()
         return y
+    }
+
+    static findClosestMatchingAngle (node:Node, angle:number, minPortDistance:number,field:Field,mode:string) : number {
+        let result = 0
+        let minAngle 
+        let maxAngle
+
+        let currentAngle = angle
+        let noMatch = true
+        let cicles = 0
+
+        //checking max angle
+        while(noMatch && cicles<10){
+            const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
+            if(collidingPortAngle === null){
+                maxAngle = currentAngle //weve found our closest gap when adding to our angle
+                noMatch = false
+            }else{
+                //if the colliding angle is not 0, that means the checkForPortUsingAngle function has found and returned the angle of a port we are colliding with
+                //we will use this colliding port angle and add the minimum port distance as well as a little extra to prevent math errors when comparing
+                currentAngle = collidingPortAngle + minPortDistance + 0.01
+                
+                if(currentAngle<0){
+                    currentAngle = 2*Math.PI - Math.abs(currentAngle)
+                }
+
+                cicles++
+            }
+        }
+        
+        //resetting runtime vars
+        noMatch = true
+        cicles = 0
+        currentAngle = angle
+
+        //checking min angle
+        while(noMatch && cicles<10){
+            const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
+            if(collidingPortAngle === null){
+                minAngle = currentAngle //weve found our closest gap when adding to our angle
+                noMatch = false
+            }else{
+                //if the colliding angle is not 0, that means the checkForPortUsingAngle function has found and returned the angle of a port we are colliding with
+                //we will use this colliding port angle and subtract the minimum port distance as well as a little extra to prevent math errors when comparing
+                currentAngle = collidingPortAngle - minPortDistance - 0.01
+                
+                if(currentAngle<0){
+                    currentAngle = 2*Math.PI - Math.abs(currentAngle)
+                }
+
+                cicles++
+            }
+        }
+
+        //maxing sure min and max angles are on the same side of the 0 point eg. if max angle is 0.2 and min angle is 5.8 we need to convert the min angle to be a negative number in order to compare them by subtracting 2*PI
+        if(minAngle + minPortDistance> 2*Math.PI && angle - minPortDistance < 0){
+            minAngle =  minAngle - 2*Math.PI
+        }
+        if(maxAngle - minPortDistance < 0 && angle + minPortDistance > 2*Math.PI){
+            maxAngle = 2*Math.PI - maxAngle
+        }
+        
+        //checking if the min or max angle is closer to the port's preferred location
+        if(Math.abs(minAngle-angle)>Math.abs(maxAngle-angle)){
+            result = maxAngle
+        }else{
+            result = minAngle
+        }
+        
+        //making sure the angle is within the 0 - 2*PI range
+        if(minAngle<0){
+            minAngle = 2*Math.PI - Math.abs(minAngle)
+        }
+        if(maxAngle>2*Math.PI){
+            maxAngle = maxAngle - 2*Math.PI 
+        }
+        
+        return result
+    }
+
+    static checkForPortUsingAngle (node:Node, angle:number, minPortDistance:number, activeField:Field,mode:string) : number {
+        //we check if there are any ports within range of the desired angle. if there are we will return the angle of the port we collided with
+        let result:number = null
+
+        //dangling ports will collide with all other ports including other dandling ports, connected ports take priority and will push dangling ones out of the way
+        let danglingActivePort = false
+        if(mode === "input"){
+            danglingActivePort = !activeField.getInputConnected()
+        }
+        if( mode === "output"){
+            danglingActivePort = !activeField.getOutputConnected()
+        }
+
+        node.getFields().forEach(function(field){
+            //going through all fields on the node to check for taken angles
+
+            //making sure the field we are looking at is a port
+            if(!field.isInputPort() && !field.isOutputPort()){
+                return
+            }
+
+            //if the result is not null that means we are colliding with a port, there is no reason to continue checking
+            if( result != null){
+                return
+            }
+
+
+            //either comparing with other connected ports || if the active port is dangling, compare with all other ports
+            if(field.getOutputConnected() || danglingActivePort){
+                let fieldAngle = field.getOutputAngle()
+                //doing some converting if the ports we are comparing are on either side of the 0 point eg. 0.2 and 6.1 are too close to each other, we convert 6.1 - 2* PI = roughly -0.18. now we can compare them
+                if(fieldAngle - minPortDistance<0 && angle + minPortDistance>2 * Math.PI){
+                    fieldAngle = 2 * Math.PI + fieldAngle
+                }else if(fieldAngle + minPortDistance>2 * Math.PI && angle - minPortDistance<0){
+                    fieldAngle = fieldAngle - 2*Math.PI
+                }
+
+                if(field.getId() === activeField.getId() && mode === 'output'){
+                    //this is the same exact port, dont compare!
+                }else{
+                    if(fieldAngle-angle > -minPortDistance && fieldAngle-angle < minPortDistance || field.getOutputAngle()-angle > -minPortDistance && field.getOutputAngle()-angle < minPortDistance){
+                        //we have found a port that is within the minimum port dinstance, return the angle of the port we are colliding with
+                        result = field.getOutputAngle()
+                        if(!danglingActivePort && field.getInputConnected() === false){
+                            field.flagInputAngleMutated()
+                        }
+                        return
+                    }
+                }
+            }
+            
+            if(field.getInputConnected() || danglingActivePort){
+                let fieldAngle = field.getInputAngle()
+                //doing some converting if the ports we are comparing are on either side of the 0 point eg. 0.2 and 6.1 are too close to each other, we convert 6.1 - 2* PI = roughly -0.18. now we can compare them
+                if(fieldAngle - minPortDistance<0 && angle + minPortDistance>2 * Math.PI){
+                    fieldAngle = 2 * Math.PI + fieldAngle
+                }else if(fieldAngle + minPortDistance>2 * Math.PI && angle - minPortDistance<0){
+                    fieldAngle = fieldAngle - 2*Math.PI
+                }
+
+                if(field.getId() === activeField.getId() && mode === 'input'){
+                    //this is the same exact port, dont compare!
+                }else{
+                    if(fieldAngle-angle > -minPortDistance && fieldAngle-angle < minPortDistance || field.getInputAngle()-angle > -minPortDistance && field.getInputAngle()-angle < minPortDistance){
+                        //we have found a port that is within the minimum port dinstance, return the angle of the port we are colliding with
+                        result = field.getInputAngle()
+                        if(!danglingActivePort){
+                            field.flagInputAngleMutated()
+                        }
+                        return
+                    }
+                }
+            }
+        })
+
+        return result
     }
 
     static getAdjacentNodes(node: Node, input: boolean): Node[] {

@@ -88,6 +88,7 @@ export class GraphConfig {
     // graph behaviour
     public static readonly NODE_SUGGESTION_RADIUS = 300
     public static readonly NODE_SUGGESTION_SNAP_RADIUS = 150
+    public static readonly PORT_MINIMUM_DISTANCE = 18
     
     //node settings
     // TODO: could move to CategoryData?

@@ -552,15 +552,21 @@ export class LogicalGraph {
         }
     }
 
-    portIsLinked = (nodeKey : number, portId : string) : boolean => {
+    portIsLinked = (nodeKey : number, portId : string) : any => {
+        let result:{input:boolean,output:boolean} = {'input':false,'output':false}
+        let input = false
+        let output = false
         for (const edge of this.edges()){
-            if (edge.getSrcNodeKey() === nodeKey && edge.getSrcPortId() === portId ||
-                edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
-                return true;
+            if(edge.getSrcNodeKey() === nodeKey && edge.getSrcPortId() === portId){
+                output = true
+            }
+            if(edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
+                input = true
             }
         }
+        result= {'input':input,'output':output}
 
-        return false;
+        return result ;
     }
 
     // TODO: shrinkNode and normaliseNodes seem to share some common code, maybe factor out or combine?

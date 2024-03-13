@@ -29,6 +29,8 @@ export class Field {
     private outputX : ko.Observable<number>;
     private outputY : ko.Observable<number>;
     private peek : ko.Observable<boolean>;
+    private inputConnected : ko.Observable<boolean>
+    private outputConnected : ko.Observable<boolean>
     private inputAngle : number;
     private outputAngle : number;
 
@@ -56,6 +58,8 @@ export class Field {
         this.outputX = ko.observable(0);
         this.outputY = ko.observable(0);
         this.peek = ko.observable(false);
+        this.inputConnected = ko.observable(false)
+        this.outputConnected = ko.observable(false)
         this.inputAngle = 0;
         this.outputAngle = 0;
     }
@@ -132,6 +136,10 @@ export class Field {
 
     getInputAngle = () : number => {
         return this.inputAngle
+    }
+
+    flagInputAngleMutated = () : void => {
+        this.displayText.valueHasMutated()
     }
 
     setOutputAngle = (angle:number) :void => {
@@ -520,6 +528,22 @@ export class Field {
 
     setPeek = (value:boolean) : void => {
         this.peek(value);
+    }
+
+    getInputConnected = () :boolean => {
+        return this.inputConnected()
+    }
+
+    setInputConnected = (value:boolean) : void => {
+        this.inputConnected(value)
+    }
+
+    getOutputConnected = () :boolean => {
+        return this.outputConnected()
+    }
+
+    setOutputConnected = (value:boolean) : void => {
+        this.outputConnected(value)
     }
 
     // used to transform the value attribute of a field into a variable with the correct type
