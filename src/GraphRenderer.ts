@@ -111,10 +111,6 @@ ko.bindingHandlers.embeddedAppPosition = {
         // find the node in which the applicationNode has been embedded
         const parentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(applicationNode.getEmbedKey());
 
-        // clearing the saved port angles array
-        // TODO: add comment: we're calculating the new position for a single embedded app, why reset all other angles?
-        parentNode.resetPortAngles()
-
         // determine all the adjacent nodes
         // TODO: earlier abort if field is null
         const adjacentNodes: Node[] = GraphRenderer.getAdjacentNodes(applicationNode, input);
@@ -139,11 +135,6 @@ ko.bindingHandlers.embeddedAppPosition = {
             // average the angles
             const averageAngle = GraphRenderer.averageAngles(angles);
             portPosition = GraphRenderer.calculatePortPos(averageAngle, parentNodeRadius, parentNodeRadius)
-
-            // set port angle
-            // TODO: add comment to explain why this is only necessary in the connectedField === true case!
-            // TODO: we should actually make this explicit, we're not setting the port angle, we're setting the embedded app angle
-            parentNode.addPortAngle(averageAngle);
         }else{
             // find a default position for the port when not connected
             if (input){
@@ -197,9 +188,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 field = null
                 break;
         }
-
-        // clearing the saved port angles array
-        node.resetPortAngles()
 
         // determine all the adjacent nodes
         const adjacentNodes: Node[] = [];
@@ -274,8 +262,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
             if(averageAngle<0){
                 averageAngle = Math.PI*2 - Math.abs(averageAngle)
             }
-
-            node.addPortAngle(averageAngle);
 
             if (dataType === 'inputPort'){
                 field.setInputAngle(averageAngle)

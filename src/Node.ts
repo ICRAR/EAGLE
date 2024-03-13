@@ -76,7 +76,6 @@ export class Node {
     private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
     private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
     private peek : ko.Observable<boolean>;     // true if we are temporarily showing the ports based on the users mouse position
-    private portAngles : number[]
     private radius : ko.Observable<number>;
     
     private color : ko.Observable<string>;
@@ -119,8 +118,6 @@ export class Node {
         this.dataHash = ko.observable("");
 
         //graph related things
-
-        this.portAngles = []
 
         this.expanded = ko.observable(true);
         this.keepExpanded = ko.observable(false);
@@ -206,18 +203,6 @@ export class Node {
 
     getRealPosition = () : {x:number, y:number} => {
         return {x: this.realX, y: this.realY};
-    }
-
-    getPortAngles = () : number[] => {
-        return this.portAngles
-    }
-
-    addPortAngle = (angle:number) : void => {
-        this.portAngles.push(angle)
-    }
-
-    resetPortAngles = () :void => {
-        this.portAngles = []
     }
 
     setPosition = (x: number, y: number, allowSnap: boolean = true) : void => {
