@@ -1894,7 +1894,6 @@ export class Eagle {
         //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
         setTimeout(function(){
             eagle.centerGraph()
-            console.log(eagle)
         },50)
 
         // check graph

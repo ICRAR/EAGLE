@@ -1320,7 +1320,6 @@ export class GraphRenderer {
     }
 
     static centerConstruct = (construct:Node,graphNodes:Node[]) : void => {
-        console.log('centering construct', construct.getName(),graphNodes)
         let childCount = 0
 
         let minX : number = Number.MAX_VALUE;
@@ -1360,7 +1359,6 @@ export class GraphRenderer {
 
     static translateLegacyGraph = () : void =>{
         const eagle = Eagle.getInstance();
-        console.log('starting',GraphRenderer.legacyGraph)
         //we are moving each node by half its radius to counter the fact that the new graph renderer treats the node's visual center as node position, previously the node position was in its top left.
         if(GraphRenderer.legacyGraph){
             //we need to calculate the construct radius in relation to it's children
@@ -1372,7 +1370,6 @@ export class GraphRenderer {
             GraphRenderer.centerConstructs(null,eagle.logicalGraph().getNodes())
         }
         GraphRenderer.legacyGraph = false
-        console.log(GraphRenderer.legacyGraph)
     }
 
     static moveChildNodes = (node: Node, deltax : number, deltay : number) : void => {
