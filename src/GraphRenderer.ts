@@ -370,7 +370,7 @@ export class GraphRenderer {
     static nodeDragNode : Node = null
     static dragStartPosition : any = null
     static dragCurrentPosition : any = null
-    static dragSelectionHandled : any = false
+    static dragSelectionHandled : any = ko.observable(true)
     static dragSelectionDoubleClick :boolean = false;
 
     //drag selection region globals
@@ -793,6 +793,7 @@ export class GraphRenderer {
 
 
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
+        // return "M " + x1 + " " + y1 +  ", " + x2 + " " + y2; //straighten edges
     }
 
     static getCoordinateOnBezier(t:number,p1:number,p2:number,p3:number,p4:number) : number {
@@ -908,14 +909,14 @@ export class GraphRenderer {
     static startDrag = (node: Node, event: MouseEvent) : void => {
         const eagle = Eagle.getInstance();
         //resetting the shift event
-        GraphRenderer.dragSelectionHandled = false
+        GraphRenderer.dragSelectionHandled(false)
         //these  two are needed to keep track of these modifiers for the mouse move and release event
         GraphRenderer.altSelect = event.altKey
         GraphRenderer.shiftSelect = event.shiftKey
 
         if(node === null || event.which === 2){
             //if no node is selected or we are dragging using middle mouse, we are dragging the background
-            GraphRenderer.dragSelectionHandled = true
+            GraphRenderer.dragSelectionHandled(true)
             eagle.isDragging(true);
         } else if(!node.isEmbedded()){
            //embedded nodes, aka input and output applications of constructs, cant be dragged
@@ -938,7 +939,7 @@ export class GraphRenderer {
 
             // check if shift key is down, if so, add or remove selected node to/from current selection | keycode 2 is the middle mouse button
             if (node !== null && event.shiftKey && !event.altKey){
-                GraphRenderer.dragSelectionHandled = true
+                GraphRenderer.dragSelectionHandled(true)
                 eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
             } else if(!eagle.objectIsSelected(node)) {
                 eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
@@ -1118,6 +1119,7 @@ export class GraphRenderer {
             eagle.logicalGraph.valueHasMutated();
         }
 
+        GraphRenderer.dragSelectionHandled(true)
         eagle.isDragging(false);
         eagle.draggingNode(null)
         
@@ -1153,7 +1155,7 @@ export class GraphRenderer {
 
     static selectNodeAndChildren(node:Node,addative:boolean) : void {
         const eagle = Eagle.getInstance();
-        GraphRenderer.dragSelectionHandled = true
+        GraphRenderer.dragSelectionHandled(true)
                 //if shift is not clicked, we first clear the selection
                 if(!addative){
                     eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
@@ -1679,7 +1681,9 @@ export class GraphRenderer {
 
     static showPort(node: Node, field: Field) :boolean {
         const eagle = Eagle.getInstance();
-        if(node.isPeek()){
+        if(!GraphRenderer.dragSelectionHandled()){
+            return false
+        }else if(node.isPeek()){
             return true
         }else if(eagle.objectIsSelected(node)){
             return true
