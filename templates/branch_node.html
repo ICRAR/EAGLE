@@ -4,7 +4,7 @@
             <div class="header-name" data-bind="html: $data.name"></div>
         </div>
     
-        <div class="body" data-bind="eagleRightClick: {data:$data,type:'rightClick_graphNode'}, event: {mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(object,event){GraphRenderer.endDrag(object,event);}}, mousedownBubble: false, mouseupBubble: false">
+        <div class="body" data-bind="eagleRightClick: {data:$data,type:'rightClick_graphNode'}, event: {mouseenter: function(){$data.setPeek(true)},mouseleave:function(){$data.setPeek(false)},mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(object,event){GraphRenderer.endDrag(object,event);}}, mousedownBubble: false, mouseupBubble: false">
             <div class="innerRing"></div>
             <div class="outerRing"></div>
                 <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
