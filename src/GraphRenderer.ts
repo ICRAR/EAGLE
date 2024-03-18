@@ -2078,7 +2078,6 @@ export class GraphRenderer {
 
     static selectEdge(edge : Edge,event:any){
         const eagle = Eagle.getInstance();
-
         if (edge !== null){
             if (event.shiftKey){
                 eagle.editSelection(Eagle.RightWindowMode.Inspector, edge, Eagle.FileType.Graph);
@@ -2086,6 +2085,37 @@ export class GraphRenderer {
                 eagle.setSelection(Eagle.RightWindowMode.Inspector, edge, Eagle.FileType.Graph);
             }
         }
+    }
+
+    static clearPortPeek() : void {
+        const eagle = Eagle.getInstance();
+        eagle.logicalGraph().getNodes().forEach(function(node){
+            if(node.isConstruct()){
+                if(node.getInputApplication() != null){
+                    node.getInputApplication().getFields().forEach(function(inputAppField){
+                       inputAppField.setPeek(false) 
+                    })
+                }
+                if(node.getOutputApplication() != null){
+                    node.getOutputApplication().getFields().forEach(function(outputAppField){
+                        outputAppField.setPeek(false) 
+                    })
+                }
+            }
+
+            node.getFields().forEach(function(field){
+                field.setPeek(false)
+            })  
+        })  
+    }
+
+    static setPortPeekForEdge(edge:Edge, value:boolean) : void {
+        const eagle = Eagle.getInstance();
+        const inputPort = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey()).findFieldById(edge.getSrcPortId())
+        const outputPort = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey()).findFieldById(edge.getDestPortId())
+        
+        inputPort.setPeek(value)
+        outputPort.setPeek(value)
     }
 
     static edgeGetStrokeColor(edge: Edge, event: any) : string {

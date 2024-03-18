@@ -619,11 +619,17 @@ export class Eagle {
 
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
         Eagle.selectedLocation(selectedLocation);
+        GraphRenderer.clearPortPeek()
         if (selection === null){
             this.selectedObjects([]);
             this.rightWindow().mode(rightWindowMode);
         } else {
             this.selectedObjects([selection]);
+
+            //show the title of the port on either seide of the edge we are selecting
+            if(selection instanceof Edge){
+                GraphRenderer.setPortPeekForEdge(selection,true)
+            }
 
             //special case if we are selecting multiple things in a palette
             if(selectedLocation === Eagle.FileType.Palette){
@@ -670,9 +676,14 @@ export class Eagle {
         if (alreadySelected){
             // remove
             this.selectedObjects.splice(index,1);
+
         } else {
             // add
             this.selectedObjects.push(selection);
+        }
+
+        if( selection instanceof Edge){
+            GraphRenderer.setPortPeekForEdge(selection,!alreadySelected)
         }
 
         //special case if we are selecting multiple things in a palette
