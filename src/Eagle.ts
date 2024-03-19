@@ -4635,7 +4635,7 @@ export class Eagle {
         // copy node
         const newNode : Node = node.clone();
 
-        // // set appropriate key for node (one that is not already in use)
+        // set appropriate key for node (one that is not already in use)
         newNode.setId(Utils.uuidv4());
         newNode.setKey(Utils.newKey(this.logicalGraph().getNodes()));
         newNode.setPosition(x, y);
@@ -4694,6 +4694,19 @@ export class Eagle {
         // flag that the logical graph has been modified
         this.logicalGraph().fileInfo().modified = true;
         this.logicalGraph().fileInfo.valueHasMutated();
+
+        // check if node was added to an empty graph, if so prompt user to specify graph name
+        if (this.logicalGraph().fileInfo().name === ""){
+            console.log("Node added to Graph with no name, requesting name from user");
+
+            this.newDiagram(Eagle.FileType.Graph, (name: string) => {
+                this.logicalGraph().fileInfo().name = name;
+                this.checkGraph();
+                this.undo().pushSnapshot(this, "Named Logical Graph");
+                this.logicalGraph.valueHasMutated();
+                Utils.showNotification("Graph named", name, "success");
+            });
+        }
 
         if (callback !== null) callback(newNode);
     }
