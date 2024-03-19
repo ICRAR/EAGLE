@@ -289,23 +289,26 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
         //checking for port colisions if connected
         if(!node.isComment()){
-            //calculating the minimum port distance as an angle. we save this min distance as a pixel distance between ports
-            const minimumPortDistance:number = Number(Math.asin(GraphConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
+            // //calculating the minimum port distance as an angle. we save this min distance as a pixel distance between ports
+            // const minimumPortDistance:number = Number(Math.asin(GraphConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
 
             //checking if the ports are linked 
             const portIsLinked = eagle.logicalGraph().portIsLinked(node.getKey(),field.getId())
             field.setInputConnected(portIsLinked.input)
             field.setOutputConnected(portIsLinked.output)
 
-            if(dataType === 'inputPort'){//for input ports
-                const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'input')
-                field.setInputAngle(newInputPortAngle)
-            }
+
+            GraphRenderer.sortAndOrganizePorts(node)
+
+            // if(dataType === 'inputPort'){//for input ports
+            //     const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'input')
+            //     field.setInputAngle(newInputPortAngle)
+            // }
             
-            if(dataType === 'outputPort'){//for output ports
-                const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'output')
-                field.setOutputAngle(newOutputPortAngle)
-            }
+            // if(dataType === 'outputPort'){//for output ports
+            //     const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'output')
+            //     field.setOutputAngle(newOutputPortAngle)
+            // }
         }
         
         if (dataType === 'inputPort'){
@@ -422,6 +425,60 @@ export class GraphRenderer {
         
         const y = portPosY + node.getPosition().y - node.getRadius()
         return y
+    }
+
+    static sortAndOrganizePorts (node:Node) : void {
+        const eagle : Eagle = Eagle.getInstance();
+        
+        //calculating the minimum port distance as an angle. we save this min distance as a pixel distance between ports
+        const minimumPortDistance:number = Number(Math.asin(GraphConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
+        
+        const connectedFields : {angle:number, field:Field,mode:string}[] = []
+        const danglingPorts : {field:Field, mode:string}[] = []
+
+        //building a list of connected and not connected ports on the node in question
+        node.getFields().forEach(function(field){
+
+            //making sure the field we are looking at is a port
+            if(!field.isInputPort() && !field.isOutputPort()){
+                return
+            }
+
+            //checking and adding to connected ports list
+            if (field.getInputConnected()){
+                let i = 0
+                for(const connectedField of connectedFields){
+                    i++
+                    if(connectedField.angle<field.getInputAngle() || connectedFields.length != 0){
+                        connectedFields.splice(i,0,{angle:field.getInputAngle(),field:field,mode:'input'})
+                    }
+                }
+
+            }
+            
+            if (field.getOutputConnected()){
+                let i = 0
+                for(const connectedField of connectedFields){
+                    i++
+                    if(connectedField.angle<field.getInputAngle() || connectedFields.length != 0){
+                        connectedFields.splice(i,0,{angle:field.getOutputAngle(),field:field,mode:'output'})
+                    }
+                }
+            }
+
+            //otherwise adding to dangling ports list
+            if(!field.getInputConnected() && field.isInputPort()){
+                danglingPorts.push({field:field,mode:'input'})
+            }
+
+            if(!field.getOutputConnected() && field.isOutputPort()){
+                danglingPorts.push({field:field,mode:'output'})
+            }
+        })
+        console.log(node.getName(), 'arrays', connectedFields, danglingPorts)
+
+        
+        
     }
 
     static findClosestMatchingAngle (node:Node, angle:number, minPortDistance:number,field:Field,mode:string) : number {
