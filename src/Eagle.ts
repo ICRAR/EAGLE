@@ -1392,7 +1392,10 @@ export class Eagle {
      */
     newDiagram = (fileType : Eagle.FileType, callbackAction : (name : string) => void ) : void => {
         console.log("newDiagram()", fileType);
-        Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", "", false, (completed : boolean, userString : string) : void => {
+
+        const defaultName: string = Utils.generateGraphName();
+
+        Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false, (completed : boolean, userString : string) : void => {
             if (!completed)
             {   // Cancelling action.
                 return;
@@ -2175,12 +2178,11 @@ export class Eagle {
             return;
         }
 
-        let fileName = graph.fileInfo().name;
-
         // generate filename if necessary
-        if (fileName === "") {
-            fileName = "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(Eagle.FileType.Graph);
-            graph.fileInfo().name = fileName;
+        if (graph.fileInfo().name === "") {
+            // abort and notify user
+            Utils.showNotification("Unable to save Graph with no name", "Please name the graph before saving", "danger");
+            return;
         }
 
         // clone the logical graph and remove github info ready for local save
