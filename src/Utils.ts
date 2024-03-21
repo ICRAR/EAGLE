@@ -93,6 +93,10 @@ export class Utils {
         return now.getFullYear() + "-" + Utils.padStart(now.getMonth() + 1, 2) + "-" + Utils.padStart(now.getDate(), 2) + "-" + Utils.padStart(now.getHours(), 2) + "-" + Utils.padStart(now.getMinutes(), 2) + "-" + Utils.padStart(now.getSeconds(), 2);
     }
 
+    static generateGraphName(): string {
+        return "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(Eagle.FileType.Graph);
+    }
+
     static findNewKey(usedKeys : number[]): number {
         for (let i = -1 ; ; i--){
             let found = false;
