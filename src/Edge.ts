@@ -30,6 +30,7 @@ import { Node } from './Node';
 import { Field } from './Field';
 import { Utils } from './Utils';
 import { Errors } from './Errors';
+import * as ko from "knockout";
 
 export class Edge {
     private _id : string
@@ -41,6 +42,7 @@ export class Edge {
     private loopAware : boolean; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
     private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
     private selectionRelative : boolean // indicates if the edge is either selected or attached to a selected node
+    private isShortEdge : ko.Observable<boolean>;
 
     constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
         this._id = Utils.uuidv4();
@@ -54,6 +56,7 @@ export class Edge {
         this.loopAware = loopAware;
         this.closesLoop = closesLoop;
         this.selectionRelative = selectionRelative;
+        this.isShortEdge = ko.observable(false)
     }
 
     getId = () : string => {
@@ -138,6 +141,22 @@ export class Edge {
 
     toggleSelectionRelative = () : void => {
         this.selectionRelative = !this.selectionRelative;
+    }
+
+    setIsShortEdge = (value:boolean) : void => {
+        this.isShortEdge(value)
+    }
+
+    getIsShortEdge = () : boolean => {
+        return this.isShortEdge()
+    }
+
+    getArrowVisibility = () : string => {
+        if (this.isShortEdge()){
+            return 'hidden' 
+        }else{
+            return 'visible'
+        }
     }
 
     clear = () : void => {

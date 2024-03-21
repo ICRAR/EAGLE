@@ -701,7 +701,10 @@ export class GraphRenderer {
 
         // determine if the edge falls below a certain length threshold
         const edgeLength = Math.sqrt((destNodePosition.x - srcNodePosition.x)**2 + (destNodePosition.y - srcNodePosition.y)**2);
-        const isShortEdge: boolean = edgeLength < srcNodeRadius * 3;
+
+        //determining if the edge's length is below a certain threshhold. if it is we will draw the edge straight and remove the arrow
+        const isShortEdge: boolean = edgeLength < srcNodeRadius * GraphConfig.SWITCH_TO_STRAIGHT_EDGE_MULTIPLIER;
+        edge.setIsShortEdge(isShortEdge) 
 
         // calculate the length from the src and dest nodes at which the control points will be placed
         const lengthToControlPoints = edgeLength * 0.4;
@@ -995,7 +998,7 @@ export class GraphRenderer {
                 // move node
                 eagle.selectedObjects().forEach(function(obj){
                     if(obj instanceof Node){
-                        obj.changePosition(mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
+                        obj.setPosition(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(event.pageX),GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(event.pageY),false)
                         // GraphRenderer.moveChildNodes(obj, mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
                     }
                 })
