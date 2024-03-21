@@ -2210,7 +2210,7 @@ export class Eagle {
                 return;
             }
 
-            Utils.downloadFile(error, data, fileName);
+            Utils.downloadFile(error, data, graph.fileInfo().name);
 
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
