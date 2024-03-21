@@ -1392,7 +1392,10 @@ export class Eagle {
      */
     newDiagram = (fileType : Eagle.FileType, callbackAction : (name : string) => void ) : void => {
         console.log("newDiagram()", fileType);
-        Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", "", false, (completed : boolean, userString : string) : void => {
+
+        const defaultName: string = Utils.generateGraphName();
+
+        Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false, (completed : boolean, userString : string) : void => {
             if (!completed)
             {   // Cancelling action.
                 return;
@@ -2175,12 +2178,11 @@ export class Eagle {
             return;
         }
 
-        let fileName = graph.fileInfo().name;
-
         // generate filename if necessary
-        if (fileName === "") {
-            fileName = "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(Eagle.FileType.Graph);
-            graph.fileInfo().name = fileName;
+        if (graph.fileInfo().name === "") {
+            // abort and notify user
+            Utils.showNotification("Unable to save Graph with no name", "Please name the graph before saving", "danger");
+            return;
         }
 
         // clone the logical graph and remove github info ready for local save
@@ -4635,7 +4637,7 @@ export class Eagle {
         // copy node
         const newNode : Node = node.clone();
 
-        // // set appropriate key for node (one that is not already in use)
+        // set appropriate key for node (one that is not already in use)
         newNode.setId(Utils.uuidv4());
         newNode.setKey(Utils.newKey(this.logicalGraph().getNodes()));
         newNode.setPosition(x, y);
@@ -4694,6 +4696,19 @@ export class Eagle {
         // flag that the logical graph has been modified
         this.logicalGraph().fileInfo().modified = true;
         this.logicalGraph().fileInfo.valueHasMutated();
+
+        // check if node was added to an empty graph, if so prompt user to specify graph name
+        if (this.logicalGraph().fileInfo().name === ""){
+            console.log("Node added to Graph with no name, requesting name from user");
+
+            this.newDiagram(Eagle.FileType.Graph, (name: string) => {
+                this.logicalGraph().fileInfo().name = name;
+                this.checkGraph();
+                this.undo().pushSnapshot(this, "Named Logical Graph");
+                this.logicalGraph.valueHasMutated();
+                Utils.showNotification("Graph named", name, "success");
+            });
+        }
 
         if (callback !== null) callback(newNode);
     }
