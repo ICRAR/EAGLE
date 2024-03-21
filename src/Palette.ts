@@ -39,7 +39,7 @@ export class Palette {
     private searchExclude : ko.Observable<boolean>;
 
     public static readonly DYNAMIC_PALETTE_NAME: string = "Component Templates";
-    public static readonly BUILTIN_PALETTE_NAME: string = "Built-in Palette";
+    public static readonly BUILTIN_PALETTE_NAME: string = "Builtin Components";
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
@@ -232,6 +232,15 @@ export class Palette {
                 this.nodes.splice(i, 1);
             }
         }
+    }
+
+    findNodeByNameAndCategory = (nameAndCategory: Category) : Node => {
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getName() === nameAndCategory && this.nodes()[i].getCategory() === nameAndCategory){
+                return this.nodes()[i];
+            }
+        }
+        return null;
     }
 
     replaceNode = (index : number, newNode : Node) : void => {
