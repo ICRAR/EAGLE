@@ -1744,16 +1744,7 @@ export class Eagle {
         }
 
         // validate json
-        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, fileType);
-            if (!validatorResult.valid){
-                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                console.error(message, validatorResult.errors);
-                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                //return;
-            }
-        }
+        Utils.validateJSON(jsonString, fileType);
 
         const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
         this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
@@ -2134,16 +2125,7 @@ export class Eagle {
         const jsonString: string = Palette.toOJSJsonString(p_clone);
 
         // validate json
-        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, Eagle.FileType.Palette);
-            if (!validatorResult.valid){
-                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                console.error(message, validatorResult.errors);
-                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                //return;
-            }
-        }
+        Utils.validateJSON(jsonString, Eagle.FileType.Palette);
 
         Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
             if (error != null){
@@ -2192,16 +2174,7 @@ export class Eagle {
         const jsonString : string = LogicalGraph.toOJSJsonString(lg_clone, false);
 
         // validate json
-        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, Eagle.FileType.Graph);
-            if (!validatorResult.valid){
-                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                console.error(message, validatorResult.errors);
-                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                //return;
-            }
-        }
+        Utils.validateJSON(jsonString, Eagle.FileType.Graph);
 
         Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
             if (error != null){
