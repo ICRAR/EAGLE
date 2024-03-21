@@ -160,7 +160,6 @@ export class Eagle {
         Eagle.tutorials = tutorialArray
         this.tutorial = ko.observable(Eagle.tutorials[0]);
 
-        
         Eagle.nodeDragPaletteIndex = null;
         Eagle.nodeDragComponentIndex = null;
 
