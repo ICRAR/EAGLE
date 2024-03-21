@@ -101,31 +101,31 @@
 
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" data-bind=" eagleTooltip: Setting.find(Setting.TRANSLATOR_URL).getDescription()" data-bs-placement="left">Translator url</span>
+                                <span class="input-group-text" data-bind="eagleTooltip: Setting.find(Setting.TRANSLATOR_URL).getDescription()" data-bs-placement="left">Translator url</span>
                             </div>
                             <input type="text" class="form-control" disabled data-bind="value: Setting.findValue(Setting.TRANSLATOR_URL)">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" data-bind="  eagleTooltip: Setting.find(Setting.GITHUB_ACCESS_TOKEN_KEY).getDescription()" data-bs-placement="left">GitHub Access Token</span>
+                                <span class="input-group-text" data-bind="eagleTooltip: Setting.find(Setting.GITHUB_ACCESS_TOKEN_KEY).getDescription()" data-bs-placement="left">GitHub Access Token</span>
                             </div>
                             <input type="password" class="form-control" disabled data-bind="value: Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY)">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" data-bind="  eagleTooltip: Setting.find(Setting.GITLAB_ACCESS_TOKEN_KEY).getDescription()" data-bs-placement="left">GitLab Access Token</span>
+                                <span class="input-group-text" data-bind="eagleTooltip: Setting.find(Setting.GITLAB_ACCESS_TOKEN_KEY).getDescription()" data-bs-placement="left">GitLab Access Token</span>
                             </div>
                             <input type="password" class="form-control" disabled data-bind="value: Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY)">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" data-bind="  eagleTooltip: Setting.find(Setting.DOCKER_HUB_USERNAME).getDescription()" data-bs-placement="left">Docker Hub Username</span>
+                                <span class="input-group-text" data-bind="eagleTooltip: Setting.find(Setting.DOCKER_HUB_USERNAME).getDescription()" data-bs-placement="left">Docker Hub Username</span>
                             </div>
                             <input type="text" class="form-control" disabled data-bind="value: Setting.findValue(Setting.DOCKER_HUB_USERNAME)">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" data-bind=" eagleTooltip: Setting.find(Setting.EXPLORE_PALETTES_REPOSITORY).getDescription()" data-bs-placement="left">Explore Palettes Repository</span>
+                                <span class="input-group-text" data-bind="eagleTooltip: Setting.find(Setting.EXPLORE_PALETTES_REPOSITORY).getDescription()" data-bs-placement="left">Explore Palettes Repository</span>
                             </div>
                             <input type="text" class="form-control" disabled data-bind="value: Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY)">
                         </div>
@@ -134,7 +134,7 @@
             </div>
             <!-- ko ifnot: Setting.findValue( Setting.STUDENT_SETTINGS_MODE) -->
                 <div class="modal-footer">
-                    <button class="btn btn-danger" id="resetSettingsDefaults" type="button" data-bind="click: Setting.resetDefaults">Reset Defaults</button>
+                    <button class="btn btn-danger" id="resetSettingsDefaults" type="button" data-bind="click: Setting.resetDefaults, eagleTooltip: 'Reset Defaults for this UIMode ONLY, and excluding External Services and Developer settings.'">Reset Defaults</button>
                     <button type="button" class="btn btn-secondary" id="settingsModalNegativeButton" data-bs-dismiss="modal"><span id="settingsModalNegativeAnswer">Cancel</span></button>
                     <button type="button" class="btn btn-primary" id="settingsModalAffirmativeButton" data-bs-dismiss="modal"><span id="settingsModalAffirmativeAnswer">OK</span></button>
                 </div>

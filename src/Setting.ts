@@ -201,12 +201,29 @@ export class Setting {
     }
 
     resetDefault = () : void => {
-        let value = this.graphDefaultValue
-        if(UiModeSystem.getActiveUiMode().getName()==='Minimal'){
-            value = this.minimalDefaultValue
-        }else if(UiModeSystem.getActiveUiMode().getName()==='Expert'){
-            value = this.expertDefaultValue
+        const activeUIModeName: string = UiModeSystem.getActiveUiMode().getName();
+        let value: any = this.graphDefaultValue;
+
+        switch (activeUIModeName){
+            case "Student":
+                value = this.studentDefaultValue;
+                break;
+            case "Minimal":
+                value = this.minimalDefaultValue;
+                break;
+            case "Graph":
+                value = this.graphDefaultValue;
+                break;
+            case "Component":
+                value = this.componentDefaultValue;
+                break;
+            case "Expert":
+                value = this.expertDefaultValue;
+                break;
+            default:
+                console.warn("Unknown active UI mode name:", activeUIModeName, ", using default value for ", this.name, " setting");
         }
+
         this.value(value);
     }
 
@@ -369,7 +386,7 @@ const settings : SettingsGroup[] = [
         "Advanced Editing",
         () => {return true;},
         [
-            new Setting(true,"Allow Invalid edges", Setting.ALLOW_INVALID_EDGES, "Allow the user to create edges even if they would normally be determined invalid.", false, Setting.Type.Boolean, false, false, false, false, true),
+            new Setting(true, "Allow Invalid edges", Setting.ALLOW_INVALID_EDGES, "Allow the user to create edges even if they would normally be determined invalid.", false, Setting.Type.Boolean, false, false, false, false, true),
             new Setting(true, "Allow Component Editing", Setting.ALLOW_COMPONENT_EDITING, "Allow the user to add/remove ports and parameters from components.",false, Setting.Type.Boolean,false, false, false, true,true),
             new Setting(true, "Allow Set Key Parameter", Setting.ALLOW_SET_KEY_PARAMETER, "Allow the user to add/remove key parameter flags from parameters.", false, Setting.Type.Boolean,false, true, true, true,true),
             new Setting(true, "Allow Graph Editing", Setting.ALLOW_GRAPH_EDITING, "Allow the user to edit and create graphs.", false, Setting.Type.Boolean, false, false, true, true, true),
