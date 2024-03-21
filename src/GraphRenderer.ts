@@ -370,6 +370,7 @@ export class GraphRenderer {
     static nodeDragNode : Node = null
     static dragStartPosition : any = null
     static dragCurrentPosition : any = null
+    static dragOffset = {x:0, y:0}; //used on start drag hen dragging a node to prevent the node from hopping to the exact cursor position
     static dragSelectionHandled : any = ko.observable(true)
     static dragSelectionDoubleClick :boolean = false;
 
@@ -929,6 +930,8 @@ export class GraphRenderer {
             GraphRenderer.nodeDragNode = node
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
+            
+            GraphRenderer.dragOffset = {x : node.getPosition().x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(event.pageX),y: node.getPosition().y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(event.pageY)}
 
             if(node.getParentKey() != null){
                 const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
@@ -998,7 +1001,7 @@ export class GraphRenderer {
                 // move node
                 eagle.selectedObjects().forEach(function(obj){
                     if(obj instanceof Node){
-                        obj.setPosition(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(event.pageX),GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(event.pageY),false)
+                        obj.setPosition(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(event.pageX+GraphRenderer.dragOffset.x),GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(event.pageY+GraphRenderer.dragOffset.y),false)
                         // GraphRenderer.moveChildNodes(obj, mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
                     }
                 })
