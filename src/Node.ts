@@ -44,8 +44,8 @@ export class Node {
 
     private x : ko.Observable<number>;
     private y : ko.Observable<number>;
-    private realX : number; // underlying position (pre snap-to-grid)
-    private realY : number;
+    // private realX : number; // underlying position (pre snap-to-grid)
+    // private realY : number;
 
     private parentKey : ko.Observable<number>;
     private embedKey : ko.Observable<number>;
@@ -92,8 +92,8 @@ export class Node {
         this.x = ko.observable(0);
         this.y = ko.observable(0);
         // display position
-        this.realX = 0;
-        this.realY = 0;
+        // this.realX = 0;
+        // this.realY = 0;
         
         this.key = ko.observable(key);
         this.name = ko.observable(name);
@@ -201,46 +201,50 @@ export class Node {
         return {x: this.x(), y: this.y()};
     }
 
-    getRealPosition = () : {x:number, y:number} => {
-        return {x: this.realX, y: this.realY};
-    }
+    // getRealPosition = () : {x:number, y:number} => {
+    //     return {x: this.realX, y: this.realY};
+    // }
 
     setPosition = (x: number, y: number, allowSnap: boolean = true) : void => {
-        this.realX = x;
-        this.realY = y;
+        // this.realX = x;
+        // this.realY = y;
 
-        if (Eagle.getInstance().snapToGrid() && allowSnap){
-            this.x(Utils.snapToGrid(this.realX, this.getDisplayRadius()));
-            this.y(Utils.snapToGrid(this.realY, this.getDisplayRadius()));
-        } else {
-            this.x(this.realX);
-            this.y(this.realY);
-        }
+        // if (Eagle.getInstance().snapToGrid() && allowSnap){
+        //     this.x(Utils.snapToGrid(this.realX, this.getDisplayRadius()));
+        //     this.y(Utils.snapToGrid(this.realY, this.getDisplayRadius()));
+        // } else {
+            // this.x(this.realX);
+            // this.y(this.realY);
+        // }
+        this.x(x)
+        this.y(y)
     }
 
-    changePosition = (dx : number, dy : number, allowSnap: boolean = true) : {dx:number, dy:number} => {
-        this.realX += dx;
-        this.realY += dy;
+    changePosition = (dx : number, dy : number, allowSnap: boolean = true) : void => {
+        // this.realX += dx;
+        // this.realY += dy;
 
-        const beforePos = {x:this.x(), y:this.y()};
+        // const beforePos = {x:this.x(), y:this.y()};
 
-        if (Eagle.getInstance().snapToGrid() && allowSnap){
-            this.x(Utils.snapToGrid(this.realX, this.getDisplayRadius()));
-            this.y(Utils.snapToGrid(this.realY, this.getDisplayRadius()));
+        // if (Eagle.getInstance().snapToGrid() && allowSnap){
+        //     this.x(Utils.snapToGrid(this.realX, this.getDisplayRadius()));
+        //     this.y(Utils.snapToGrid(this.realY, this.getDisplayRadius()));
 
-            return {dx:this.x() - beforePos.x, dy:this.y() - beforePos.y};
-        } else {
-            this.x(this.realX);
-            this.y(this.realY);
+        //     return {dx:this.x() - beforePos.x, dy:this.y() - beforePos.y};
+        // } else {
+            // this.x(this.realX);
+            // this.y(this.realY);
             
-            return {dx:dx, dy:dy};
-        }
+            // return {dx:dx, dy:dy};
+        // }
+        this.x(this.x()+dx)
+        this.y(this.y()+dy)
     }
 
-    resetReal = () : void => {
-        this.realX = this.x();
-        this.realY = this.y();
-    }
+    // resetReal = () : void => {
+    //     this.realX = this.x();
+    //     this.realY = this.y();
+    // }
 
     getRadius = () : number => {
         return this.radius();
