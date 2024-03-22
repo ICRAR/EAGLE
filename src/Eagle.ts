@@ -2278,7 +2278,7 @@ export class Eagle {
     }
 
     saveAsPNG = () : void => {
-        Utils.saveAsPNG('#logicalGraphD3Div svg', this.logicalGraph().fileInfo().name);
+        Utils.saveAsPNG('#logicalGraph svg', this.logicalGraph().fileInfo().name);
     };
 
     toggleCollapseAllGroups = () : void => {
