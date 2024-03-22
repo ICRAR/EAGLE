@@ -704,7 +704,10 @@ export class GraphRenderer {
 
         //determining if the edge's length is below a certain threshhold. if it is we will draw the edge straight and remove the arrow
         const isShortEdge: boolean = edgeLength < srcNodeRadius * GraphConfig.SWITCH_TO_STRAIGHT_EDGE_MULTIPLIER;
-        edge.setIsShortEdge(isShortEdge) 
+
+        if (edge !== null){
+            edge.setIsShortEdge(isShortEdge)
+        }
 
         // calculate the length from the src and dest nodes at which the control points will be placed
         const lengthToControlPoints = edgeLength * 0.4;
