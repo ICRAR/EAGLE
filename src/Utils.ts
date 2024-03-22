@@ -93,6 +93,10 @@ export class Utils {
         return now.getFullYear() + "-" + Utils.padStart(now.getMonth() + 1, 2) + "-" + Utils.padStart(now.getDate(), 2) + "-" + Utils.padStart(now.getHours(), 2) + "-" + Utils.padStart(now.getMinutes(), 2) + "-" + Utils.padStart(now.getSeconds(), 2);
     }
 
+    static generateGraphName(): string {
+        return "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(Eagle.FileType.Graph);
+    }
+
     static findNewKey(usedKeys : number[]): number {
         for (let i = -1 ; ; i--){
             let found = false;
@@ -1482,7 +1486,23 @@ export class Utils {
         return errorsWarnings;
     }
 
-    static validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
+    // validate json
+    static validateJSON(jsonString: string, fileType: Eagle.FileType){
+        // if validation disabled, just return true
+        if (Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
+            return;
+        }
+
+        const jsonObject = JSON.parse(jsonString);
+        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, fileType);
+        if (!validatorResult.valid){
+            const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+            console.error(message, validatorResult.errors);
+            Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
+        }
+    }
+
+    static _validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
         // console.log("validateJSON(): version:", version, " fileType:", fileType);
 
         const ajv = new Ajv();
@@ -1991,7 +2011,8 @@ export class Utils {
         }
 
         if (errorsWarnings.errors.length !== 0){
-            return Eagle.LinkValid.Invalid;
+            // TODO: this actually has no way of knowing whether the errors are of type Invalid or Impossible
+            return Eagle.LinkValid.Impossible;
         }
 
         return Eagle.LinkValid.Warning;
@@ -2026,10 +2047,11 @@ export class Utils {
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
                 "expanded":node.getExpanded(),
+                "peek":node.isPeek(),
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
-                "realX":node.getRealPosition().x,
-                "realY":node.getRealPosition().y,
+                // "realX":node.getRealPosition().x,
+                // "realY":node.getRealPosition().y,
                 "radius":node.getRadius(),
                 "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
                 "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),

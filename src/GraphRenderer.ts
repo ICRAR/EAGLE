@@ -758,7 +758,13 @@ export class GraphRenderer {
 
         // determine if the edge falls below a certain length threshold
         const edgeLength = Math.sqrt((destNodePosition.x - srcNodePosition.x)**2 + (destNodePosition.y - srcNodePosition.y)**2);
-        const isShortEdge: boolean = edgeLength < srcNodeRadius * 3;
+
+        //determining if the edge's length is below a certain threshhold. if it is we will draw the edge straight and remove the arrow
+        const isShortEdge: boolean = edgeLength < srcNodeRadius * GraphConfig.SWITCH_TO_STRAIGHT_EDGE_MULTIPLIER;
+
+        if (edge !== null){
+            edge.setIsShortEdge(isShortEdge)
+        }
 
         // calculate the length from the src and dest nodes at which the control points will be placed
         const lengthToControlPoints = edgeLength * 0.4;
@@ -983,7 +989,7 @@ export class GraphRenderer {
             GraphRenderer.nodeDragNode = node
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
-
+            
             if(node.getParentKey() != null){
                 const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
                 $('#'+parentNode.getId()).removeClass('transition')
@@ -1053,7 +1059,6 @@ export class GraphRenderer {
                 eagle.selectedObjects().forEach(function(obj){
                     if(obj instanceof Node){
                         obj.changePosition(mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
-                        // GraphRenderer.moveChildNodes(obj, mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
                     }
                 })
 
@@ -1174,6 +1179,14 @@ export class GraphRenderer {
 
             // necessary to make un-collapsed nodes show up
             eagle.logicalGraph.valueHasMutated();
+        }
+
+        // if we dragged a node
+        if (!GraphRenderer.isDraggingSelectionRegion){
+            // check if moving whole graph, or just a single node
+            if (node !== null){
+                eagle.undo().pushSnapshot(eagle, "Move '" + node.getName() + "' node");
+            }
         }
 
         GraphRenderer.dragSelectionHandled(true)
@@ -1651,7 +1664,7 @@ export class GraphRenderer {
         const linkValid : Eagle.LinkValid = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), realSourcePort.getType(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
-        if (Setting.findValue(Setting.ALLOW_INVALID_EDGES) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
+        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Eagle.LinkValid.Invalid) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
             if (linkValid === Eagle.LinkValid.Warning){
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
@@ -2084,6 +2097,7 @@ export class GraphRenderer {
         switch (GraphRenderer.isDraggingPortValid()){
             case Eagle.LinkValid.Unknown:
                 return "black";
+            case Eagle.LinkValid.Impossible:
             case Eagle.LinkValid.Invalid:
                 return GraphConfig.getColor("edgeInvalid");
             case Eagle.LinkValid.Warning:
@@ -2196,7 +2210,7 @@ export class GraphRenderer {
         // check if link has a warning or is invalid
         const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
 
-        if (linkValid === Eagle.LinkValid.Invalid){
+        if (linkValid === Eagle.LinkValid.Invalid || linkValid === Eagle.LinkValid.Impossible){
             normalColor = GraphConfig.getColor('edgeInvalid');
             selectedColor = GraphConfig.getColor('edgeInvalidSelected');
         }

@@ -137,8 +137,7 @@ export namespace Daliuge {
         {
             categoryTypes: [
                 Category.Type.Application,
-                Category.Type.Data,
-                Category.Type.Construct
+                Category.Type.Data
             ],
             fields: [
                 Daliuge.dropClassField
