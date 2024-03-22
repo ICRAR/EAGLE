@@ -783,6 +783,7 @@ export class Eagle {
 
                 // check graph
                 this.checkGraph();
+                this.undo().clear();
                 this.undo().pushSnapshot(this, "Loaded " + fileFullPath);
             });
         });
@@ -1232,6 +1233,7 @@ export class Eagle {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
             this.checkGraph();
+            this.undo().clear();
             this.undo().pushSnapshot(this, "New Logical Graph");
             this.logicalGraph.valueHasMutated();
             Utils.showNotification("New Graph Created",name, "success");
@@ -1903,6 +1905,7 @@ export class Eagle {
 
         // check graph
         this.checkGraph();
+        this.undo().clear();
         this.undo().pushSnapshot(this, "Loaded " + file.name);
 
         // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
