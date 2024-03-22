@@ -2046,6 +2046,7 @@ export class Utils {
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
                 "expanded":node.getExpanded(),
+                "peek":node.isPeek(),
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
                 // "realX":node.getRealPosition().x,
