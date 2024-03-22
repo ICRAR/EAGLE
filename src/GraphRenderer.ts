@@ -1607,7 +1607,7 @@ export class GraphRenderer {
         const linkValid : Eagle.LinkValid = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), realSourcePort.getType(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
-        if (Setting.findValue(Setting.ALLOW_INVALID_EDGES) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
+        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Eagle.LinkValid.Invalid) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
             if (linkValid === Eagle.LinkValid.Warning){
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
@@ -2040,6 +2040,7 @@ export class GraphRenderer {
         switch (GraphRenderer.isDraggingPortValid()){
             case Eagle.LinkValid.Unknown:
                 return "black";
+            case Eagle.LinkValid.Impossible:
             case Eagle.LinkValid.Invalid:
                 return GraphConfig.getColor("edgeInvalid");
             case Eagle.LinkValid.Warning:
@@ -2152,7 +2153,7 @@ export class GraphRenderer {
         // check if link has a warning or is invalid
         const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
 
-        if (linkValid === Eagle.LinkValid.Invalid){
+        if (linkValid === Eagle.LinkValid.Invalid || linkValid === Eagle.LinkValid.Impossible){
             normalColor = GraphConfig.getColor('edgeInvalid');
             selectedColor = GraphConfig.getColor('edgeInvalidSelected');
         }

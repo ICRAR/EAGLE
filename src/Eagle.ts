@@ -2579,7 +2579,7 @@ export class Eagle {
 
             // validate edge
             const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-            if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
+            if (isValid === Eagle.LinkValid.Impossible || isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
@@ -2624,7 +2624,7 @@ export class Eagle {
 
             // validate edge
             const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-            if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
+            if (isValid === Eagle.LinkValid.Impossible || isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
@@ -4744,10 +4744,11 @@ export namespace Eagle
     }
 
     export enum LinkValid {
-        Unknown = "Unknown",
-        Invalid = "Invalid",
-        Warning = "Warning",
-        Valid = "Valid"
+        Unknown = "Unknown",        // validity of the edge is unknown
+        Impossible = "Impossible",  // never useful or valid
+        Invalid = "Invalid",        // invalid, but possibly useful for expert users?
+        Warning = "Warning",        // valid, but some issue that the user should be aware of
+        Valid = "Valid"             // fine
     }
 
     export enum ModalType {
