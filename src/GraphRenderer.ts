@@ -1121,6 +1121,11 @@ export class GraphRenderer {
             eagle.logicalGraph.valueHasMutated();
         }
 
+        // if we dragged a node
+        if (!GraphRenderer.isDraggingSelectionRegion){
+            eagle.undo().pushSnapshot(eagle, "Move '" + node.getName() + "' node");
+        }
+
         GraphRenderer.dragSelectionHandled(true)
         eagle.isDragging(false);
         eagle.draggingNode(null)
