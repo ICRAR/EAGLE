@@ -2011,7 +2011,8 @@ export class Utils {
         }
 
         if (errorsWarnings.errors.length !== 0){
-            return Eagle.LinkValid.Invalid;
+            // TODO: this actually has no way of knowing whether the errors are of type Invalid or Impossible
+            return Eagle.LinkValid.Impossible;
         }
 
         return Eagle.LinkValid.Warning;
