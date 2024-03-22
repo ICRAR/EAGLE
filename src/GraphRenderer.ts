@@ -1123,7 +1123,10 @@ export class GraphRenderer {
 
         // if we dragged a node
         if (!GraphRenderer.isDraggingSelectionRegion){
-            eagle.undo().pushSnapshot(eagle, "Move '" + node.getName() + "' node");
+            // check if moving whole graph, or just a single node
+            if (node !== null){
+                eagle.undo().pushSnapshot(eagle, "Move '" + node.getName() + "' node");
+            }
         }
 
         GraphRenderer.dragSelectionHandled(true)
