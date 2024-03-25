@@ -3191,12 +3191,16 @@ export class Eagle {
                 this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false,null);
 
                 // name new node according to source port
-                node.setName(realSourcePort.getDisplayText());
+                const newName = realSourcePort.getDisplayText();
+                node.setName(newName);
+                realDestPort.setDisplayText(newName);
             } else {
                 this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, null);
 
                 // name new node according to destination port
-                node.setName(realDestPort.getDisplayText());
+                const newName = realDestPort.getDisplayText();
+                node.setName(newName);
+                realSourcePort.setDisplayText(newName);
             }
         });
     }
