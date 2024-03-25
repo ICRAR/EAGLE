@@ -3267,8 +3267,8 @@ export class Eagle {
                 const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
 
                 // add node to LogicalGraph
-                const OBJECT_OFFSET_X = 0;
-                const OBJECT_OFFSET_Y = 0;
+                const OBJECT_OFFSET_X = 100;
+                const OBJECT_OFFSET_Y = 100;
                 this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
                     // set parent to same as PythonMemberFunction
                     pythonObjectNode.setParentKey(newNode.getParentKey());
@@ -3281,6 +3281,9 @@ export class Eagle {
                     } else {
                         Utils.showNotification("Python Object", "Unable to set " + Daliuge.FieldName.BASENAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
                     }
+
+                    // copy all fields from a "Memory" node in the palette
+                    Utils.copyFieldsFromPrototype(newNode, Palette.BUILTIN_PALETTE_NAME, Category.Memory);
 
                     // find the "self" port on the PythonMemberFunction
                     const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);
