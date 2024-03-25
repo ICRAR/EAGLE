@@ -130,7 +130,7 @@ $(function(){
     // load the default palette
     if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
         eagle.loadPalettes([
-            {name:"Builtin Components", filename:Daliuge.PALETTE_URL, readonly:true},
+            {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true}
         ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
             const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
