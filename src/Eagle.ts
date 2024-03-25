@@ -783,6 +783,7 @@ export class Eagle {
 
                 // check graph
                 this.checkGraph();
+                this.undo().clear();
                 this.undo().pushSnapshot(this, "Loaded " + fileFullPath);
             });
         });
@@ -1232,6 +1233,7 @@ export class Eagle {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
             this.checkGraph();
+            this.undo().clear();
             this.undo().pushSnapshot(this, "New Logical Graph");
             this.logicalGraph.valueHasMutated();
             Utils.showNotification("New Graph Created",name, "success");
@@ -1744,16 +1746,7 @@ export class Eagle {
         }
 
         // validate json
-        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, fileType);
-            if (!validatorResult.valid){
-                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                console.error(message, validatorResult.errors);
-                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                //return;
-            }
-        }
+        Utils.validateJSON(jsonString, fileType);
 
         const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
         this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
@@ -1912,6 +1905,7 @@ export class Eagle {
 
         // check graph
         this.checkGraph();
+        this.undo().clear();
         this.undo().pushSnapshot(this, "Loaded " + file.name);
 
         // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
@@ -2134,16 +2128,7 @@ export class Eagle {
         const jsonString: string = Palette.toOJSJsonString(p_clone);
 
         // validate json
-        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, Eagle.FileType.Palette);
-            if (!validatorResult.valid){
-                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                console.error(message, validatorResult.errors);
-                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                //return;
-            }
-        }
+        Utils.validateJSON(jsonString, Eagle.FileType.Palette);
 
         Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
             if (error != null){
@@ -2192,16 +2177,7 @@ export class Eagle {
         const jsonString : string = LogicalGraph.toOJSJsonString(lg_clone, false);
 
         // validate json
-        if (!Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
-            const jsonObject = JSON.parse(jsonString);
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, Eagle.FileType.Graph);
-            if (!validatorResult.valid){
-                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                console.error(message, validatorResult.errors);
-                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                //return;
-            }
-        }
+        Utils.validateJSON(jsonString, Eagle.FileType.Graph);
 
         Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
             if (error != null){
@@ -2210,7 +2186,7 @@ export class Eagle {
                 return;
             }
 
-            Utils.downloadFile(error, data, fileName);
+            Utils.downloadFile(error, data, graph.fileInfo().name);
 
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
@@ -2302,7 +2278,7 @@ export class Eagle {
     }
 
     saveAsPNG = () : void => {
-        Utils.saveAsPNG('#logicalGraphD3Div svg', this.logicalGraph().fileInfo().name);
+        Utils.saveAsPNG('#logicalGraph svg', this.logicalGraph().fileInfo().name);
     };
 
     toggleCollapseAllGroups = () : void => {
@@ -2603,7 +2579,7 @@ export class Eagle {
 
             // validate edge
             const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-            if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
+            if (isValid === Eagle.LinkValid.Impossible || isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
@@ -2648,7 +2624,7 @@ export class Eagle {
 
             // validate edge
             const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-            if (isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
+            if (isValid === Eagle.LinkValid.Impossible || isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
@@ -4787,10 +4763,11 @@ export namespace Eagle
     }
 
     export enum LinkValid {
-        Unknown = "Unknown",
-        Invalid = "Invalid",
-        Warning = "Warning",
-        Valid = "Valid"
+        Unknown = "Unknown",        // validity of the edge is unknown
+        Impossible = "Impossible",  // never useful or valid
+        Invalid = "Invalid",        // invalid, but possibly useful for expert users?
+        Warning = "Warning",        // valid, but some issue that the user should be aware of
+        Valid = "Valid"             // fine
     }
 
     export enum ModalType {

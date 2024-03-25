@@ -175,10 +175,6 @@ $(function(){
     document.onkeydown = KeyboardShortcut.processKey;
     document.onkeyup = KeyboardShortcut.processKey;
 
-    // HACK: without this global wheel event handler, d3 does not receive zoom events
-    //       not sure why, this wasn't always the case
-    document.onwheel = () => {return;};
-
     // auto load the file
     autoLoad(eagle);
 
@@ -281,7 +277,7 @@ $(function(){
 
     
     //initiating all the eagle ui when the graph is ready
-    $('#logicalGraphD3Div').show(200)
+    $('#logicalGraph').show(200)
     $('.leftWindow').show(200)
     $('.rightWindow').show(200)
     $('#graphNameWrapper').show(200)

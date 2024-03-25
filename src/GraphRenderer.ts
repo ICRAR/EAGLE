@@ -36,7 +36,6 @@ import { Utils } from './Utils';
 import { CategoryData} from './CategoryData';
 import { Setting } from './Setting';
 import { RightClick } from "./RightClick";
-import { active } from "d3";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor) {
@@ -370,7 +369,6 @@ export class GraphRenderer {
     static nodeDragNode : Node = null
     static dragStartPosition : any = null
     static dragCurrentPosition : any = null
-    static dragOffset = {x:0, y:0}; //used on start drag hen dragging a node to prevent the node from hopping to the exact cursor position
     static dragSelectionHandled : any = ko.observable(true)
     static dragSelectionDoubleClick :boolean = false;
 
@@ -705,7 +703,10 @@ export class GraphRenderer {
 
         //determining if the edge's length is below a certain threshhold. if it is we will draw the edge straight and remove the arrow
         const isShortEdge: boolean = edgeLength < srcNodeRadius * GraphConfig.SWITCH_TO_STRAIGHT_EDGE_MULTIPLIER;
-        edge.setIsShortEdge(isShortEdge) 
+
+        if (edge !== null){
+            edge.setIsShortEdge(isShortEdge)
+        }
 
         // calculate the length from the src and dest nodes at which the control points will be placed
         const lengthToControlPoints = edgeLength * 0.4;
@@ -931,8 +932,6 @@ export class GraphRenderer {
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
-            GraphRenderer.dragOffset = {x : node.getPosition().x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(event.pageX),y: node.getPosition().y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(event.pageY)}
-
             if(node.getParentKey() != null){
                 const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
                 $('#'+parentNode.getId()).removeClass('transition')
@@ -966,8 +965,8 @@ export class GraphRenderer {
 
                 //setting start and end region to current mouse co-ordinates
                 $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','top':GraphRenderer.selectionRegionStart.y+'px'})
-                const containerWidth = $('#logicalGraphD3Div').width()
-                const containerHeight = $('#logicalGraphD3Div').height()
+                const containerWidth = $('#logicalGraph').width()
+                const containerHeight = $('#logicalGraph').height()
 
                 //turning the graph coordinates into a distance from bottom/right for css inset before applying
                 const selectionBottomOffset = containerHeight - GraphRenderer.selectionRegionEnd.y
@@ -1001,8 +1000,7 @@ export class GraphRenderer {
                 // move node
                 eagle.selectedObjects().forEach(function(obj){
                     if(obj instanceof Node){
-                        obj.setPosition(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(event.pageX+GraphRenderer.dragOffset.x),GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(event.pageY+GraphRenderer.dragOffset.y),false)
-                        // GraphRenderer.moveChildNodes(obj, mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
+                        obj.changePosition(mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
                     }
                 })
 
@@ -1048,8 +1046,8 @@ export class GraphRenderer {
 
             } else if(GraphRenderer.isDraggingSelectionRegion){
                 GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null), y:this.SCREEN_TO_GRAPH_POSITION_Y(null)}
-                const containerWidth = $('#logicalGraphD3Div').width()
-                const containerHeight = $('#logicalGraphD3Div').height()
+                const containerWidth = $('#logicalGraph').width()
+                const containerHeight = $('#logicalGraph').height()
 
                 if(GraphRenderer.selectionRegionEnd.x>GraphRenderer.selectionRegionStart.x){
                     $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','right':containerWidth - GraphRenderer.selectionRegionEnd.x+'px'})
@@ -1123,6 +1121,14 @@ export class GraphRenderer {
 
             // necessary to make un-collapsed nodes show up
             eagle.logicalGraph.valueHasMutated();
+        }
+
+        // if we dragged a node
+        if (!GraphRenderer.isDraggingSelectionRegion){
+            // check if moving whole graph, or just a single node
+            if (node !== null){
+                eagle.undo().pushSnapshot(eagle, "Move '" + node.getName() + "' node");
+            }
         }
 
         GraphRenderer.dragSelectionHandled(true)
@@ -1475,9 +1481,9 @@ export class GraphRenderer {
 
     static updateMousePos = (): void => {
         // grab and convert mouse position to graph coordinates
-        const d3DivOffset = $('#logicalGraphD3Div').offset();
-        const mouseX = (<any>event).pageX - d3DivOffset.left;
-        const mouseY = (<any>event).pageY - d3DivOffset.top;
+        const divOffset = $('#logicalGraph').offset();
+        const mouseX = (<any>event).pageX - divOffset.left;
+        const mouseY = (<any>event).pageY - divOffset.top;
         GraphRenderer.mousePosX(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null));
         GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null));
     }
@@ -1600,7 +1606,7 @@ export class GraphRenderer {
         const linkValid : Eagle.LinkValid = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), realSourcePort.getType(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
-        if (Setting.findValue(Setting.ALLOW_INVALID_EDGES) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
+        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Eagle.LinkValid.Invalid) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
             if (linkValid === Eagle.LinkValid.Warning){
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
@@ -2033,6 +2039,7 @@ export class GraphRenderer {
         switch (GraphRenderer.isDraggingPortValid()){
             case Eagle.LinkValid.Unknown:
                 return "black";
+            case Eagle.LinkValid.Impossible:
             case Eagle.LinkValid.Invalid:
                 return GraphConfig.getColor("edgeInvalid");
             case Eagle.LinkValid.Warning:
@@ -2145,7 +2152,7 @@ export class GraphRenderer {
         // check if link has a warning or is invalid
         const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
 
-        if (linkValid === Eagle.LinkValid.Invalid){
+        if (linkValid === Eagle.LinkValid.Invalid || linkValid === Eagle.LinkValid.Impossible){
             normalColor = GraphConfig.getColor('edgeInvalid');
             selectedColor = GraphConfig.getColor('edgeInvalidSelected');
         }

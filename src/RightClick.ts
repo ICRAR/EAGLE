@@ -360,7 +360,7 @@ export class RightClick {
     }
 
     static initiateContextMenu = (data:any, eventTarget:any) : void => {
-        //graph node specific context menu intitating function, we cannot use ko bindings within the d3 svg 
+        //graph node specific context menu intitating function
 
         let passedObjectClass
         if(data instanceof Node){

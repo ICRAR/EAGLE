@@ -1874,18 +1874,11 @@ select.form-control{
     height: 100%;
 }
 
-#logicalGraphD3Div {
+#logicalGraph {
     position: relative;
     width: 100%;
     height: 100%;
     background-color: white;
-}
-
-#paletteD3Div {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background-color: #dddddd;
 }
 
 .navbar-btn i.material-icons.md-18 {

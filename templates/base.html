@@ -76,7 +76,7 @@
             <!-- /ko -->
 
             <div id="logicalGraphParent" class="rightClick_logicalGraph" data-bind="event: { dragover:SideWindow.nodeDragOver, drop: nodeDropLogicalGraph, mousemove: GraphRenderer.mouseMove, mousedown: function(object, event){GraphRenderer.startDrag(null, event);}, mouseup: function(){GraphRenderer.endDrag(null);}, wheel: GraphRenderer.scrollZoom }, eagleRightClick: {data:$data,type:'rightClick_logicalGraph'}">
-                <div id="logicalGraphD3Div" data-bind="style: {transform: 'scale('+eagle.globalScale()+')translate('+eagle.globalOffsetX()+'px,'+eagle.globalOffsetY()+'px)'}">
+                <div id="logicalGraph" data-bind="style: {transform: 'scale('+eagle.globalScale()+')translate('+eagle.globalOffsetX()+'px,'+eagle.globalOffsetY()+'px)'}">
                     <!-- ko if: $root.logicalGraph() !== null && logicalGraph().getNodes().length != 0-->
                         <!-- ko foreach: $root.logicalGraph().getNodesDrawOrdered() -->
                             {% include 'node.html' %}

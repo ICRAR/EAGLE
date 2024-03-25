@@ -9,7 +9,6 @@ require.config({
         "jqueryui": "./static/externals/jquery-ui.min",
         "bootstrap": "./static/externals/bootstrap.bundle.min",
         "bootstrap-notify": "./static/externals/bootstrap-notify.min",
-        "d3": "./static/externals/d3.v5.min",
         "ajv": "./static/externals/ajv.min",
         "showdown": "./static/externals/showdown.min",
         "bindingHandlers/readonly":"./static/built/bindingHandlers/readonly",
