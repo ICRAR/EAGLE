@@ -3189,8 +3189,14 @@ export class Eagle {
             // create edge (in correct direction)
             if (!RightClick.edgeDropSrcIsInput){
                 this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false,null);
-            } else {    
+
+                // name new node according to source port
+                node.setName(realSourcePort.getDisplayText());
+            } else {
                 this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, null);
+
+                // name new node according to destination port
+                node.setName(realDestPort.getDisplayText());
             }
         });
     }
