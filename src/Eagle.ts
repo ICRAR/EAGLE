@@ -3274,22 +3274,25 @@ export class Eagle {
                     pythonObjectNode.setParentKey(newNode.getParentKey());
 
                     // copy all fields from a "Memory" node in the palette
-                    Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.Memory);
+                    Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
 
                     // find the "self" port on the PythonMemberFunction
-                    const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);
+                    const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.OBJECT, false, false);
 
-                    // make sure node has input/output "self" port
-                    const inputOutputPort = new Field(Utils.uuidv4(), "self", "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput, false);
+                    // make sure we can find a "object" port on the PythonMemberFunction
+                    if (sourcePort === null){
+                        Utils.showNotification("Edge Error", "Unable to connect edge between PythonMemberFunction and new PythonObject. The PythonMemberFunction does not have a '" + Daliuge.FieldName.OBJECT + "' port.", "danger");
+                        return;
+                    }
+
+                    // create a new input/output "object" port on the PythonObject
+                    const inputOutputPort = new Field(Utils.uuidv4(), Daliuge.FieldName.OBJECT, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput, false);
                     pythonObjectNode.addField(inputOutputPort);
 
 
                     // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
-                    if (sourcePort !== null){
-                        this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, null);
-                    } else {
-                        Utils.showNotification("Edge Error", "Unable to connect edge between PythonMemberFunction and new PythonObject. The PythonMemberFunction does not have a 'self' port.", "danger");
-                    }
+                    this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, null);
+
                 });
             }
 

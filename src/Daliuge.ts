@@ -56,9 +56,8 @@ export namespace Daliuge {
         K = "k",
         N = "n",
     
-        BASENAME = "basename", // used in PythonMemberFunction components to specify base Python class
-        SELF = "self", // also PythonMemberFunction
-    
+        OBJECT = "object", // used in PythonMemberFunction/PythonObject as the port for the object itself
+
         // docker
         IMAGE = "image",
         TAG = "tag",
