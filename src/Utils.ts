@@ -1081,9 +1081,21 @@ export class Utils {
     }
 
     static getCategoriesWithInputsAndOutputs(categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
+        const eagle = Eagle.getInstance();
+
+        // get a reference to the builtin palette
+        const builtinPalette: Palette = eagle.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
+        if (builtinPalette === null){
+            console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
+            return null;
+        }
+
+        const matchingNodes = builtinPalette.getNodesByCategory(categoryType)
+
+        console.log(matchingNodes)
+
         const result: Category[] = [];
         for (const [categoryName, categoryData] of Object.entries(CategoryData.cData)){
-
 
             if(!Setting.findValue(Setting.SHOW_ALL_CATEGORY_OPTIONS)){
                 

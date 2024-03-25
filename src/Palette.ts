@@ -243,6 +243,18 @@ export class Palette {
         return null;
     }
 
+    getNodesByCategory = (categoryType: Category.Type) : Node[] => {
+        const result : Node[] = []
+
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getCategoryType() === categoryType){
+                result.push(this.nodes()[i])
+            }
+        }
+
+        return result;
+    }
+
     replaceNode = (index : number, newNode : Node) : void => {
         this.nodes.splice(index, 1, newNode);
     }
