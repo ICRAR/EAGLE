@@ -95,6 +95,10 @@ export class Utils {
         return now.getFullYear() + "-" + Utils.padStart(now.getMonth() + 1, 2) + "-" + Utils.padStart(now.getDate(), 2) + "-" + Utils.padStart(now.getHours(), 2) + "-" + Utils.padStart(now.getMinutes(), 2) + "-" + Utils.padStart(now.getSeconds(), 2);
     }
 
+    static generateGraphName(): string {
+        return "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(Eagle.FileType.Graph);
+    }
+
     static findNewKey(usedKeys : number[]): number {
         for (let i = -1 ; ; i--){
             let found = false;
@@ -144,9 +148,9 @@ export class Utils {
         return usedKeys;
     }
 
-    static newKey(nodes: Node[]): number {
-        const usedKeys = Utils.getUsedKeys(nodes);
-        return Utils.findNewKey(usedKeys);
+    static newKey(nodes: Node[],usedKeys:number[] = []): number {
+        const allUsedKeys = Utils.getUsedKeys(nodes).concat(usedKeys);
+        return Utils.findNewKey(allUsedKeys);
     }
 
     static setEmbeddedApplicationNodeKeys(lg: LogicalGraph): void {
@@ -598,7 +602,6 @@ export class Utils {
                 }else{
                     $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
                 }
-                console.log($('#confirmModalDontShowAgain button').text())
             })
         }
         
@@ -1088,19 +1091,24 @@ export class Utils {
         const result: Category[] = [];
         for (const [categoryName, categoryData] of Object.entries(CategoryData.cData)){
 
-            if (categoryData.categoryType !== categoryType){
-                continue;
-            }
 
-            // if input ports required, skip nodes with too few
-            if (numRequiredInputs > categoryData.maxInputs){
-                continue;
-            }
+            if(!Setting.findValue(Setting.SHOW_ALL_CATEGORY_OPTIONS)){
+                
+                if (categoryData.categoryType !== categoryType){
+                    continue;
+                }
+                
+                // if input ports required, skip nodes with too few
+                if (numRequiredInputs > categoryData.maxInputs){
+                    continue;
+                }
 
-            // if output ports required, skip nodes with too few
-            if (numRequiredOutputs > categoryData.maxOutputs){
-                continue;
+                // if output ports required, skip nodes with too few
+                if (numRequiredOutputs > categoryData.maxOutputs){
+                    continue;
+                }
             }
+            
             result.push(categoryName as Category);
         }
 
@@ -1319,16 +1327,6 @@ export class Utils {
         return result;
     }
 
-    static giveNodePortsNewIds(node: Node) : void {
-        // set new ids for any ports in this node
-        for (const port of node.getInputPorts()){
-            port.setId(Utils.uuidv4());
-        }
-        for (const port of node.getOutputPorts()){
-            port.setId(Utils.uuidv4());
-        }
-    }
-
     static determineFileType(data: any): Eagle.FileType {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.fileType !== 'undefined'){
@@ -1449,7 +1447,23 @@ export class Utils {
         return errors;
     }
 
-    static validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
+    // validate json
+    static validateJSON(jsonString: string, fileType: Eagle.FileType){
+        // if validation disabled, just return true
+        if (Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
+            return;
+        }
+
+        const jsonObject = JSON.parse(jsonString);
+        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, fileType);
+        if (!validatorResult.valid){
+            const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+            console.error(message, validatorResult.errors);
+            Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
+        }
+    }
+
+    static _validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
         // console.log("validateJSON(): version:", version, " fileType:", fileType);
 
         const ajv = new Ajv();
@@ -1528,32 +1542,13 @@ export class Utils {
         link.click();
     }
 
-    // https://noonat.github.io/intersect/#aabb-vs-aabb
-    static nodesOverlap(n0x: number, n0y: number, n0width: number, n0height: number, n1x: number, n1y: number, n1width: number, n1height: number) : boolean {
-        const n0pos = {x:n0x + n0width/2, y:n0y + n0height/2};
-        const n1pos = {x:n1x + n1width/2, y:n1y + n1height/2};
-        const n0half = {x:n0width/2, y:n0height/2};
-        const n1half = {x:n1width/2, y:n1height/2};
 
-        //console.log("compare", n0x, n0y, n0width, n0height, n1x, n1y, n1width, n1height);
+    static nodesOverlap(n0x: number, n0y: number, n0radius: number, n1x: number, n1y: number, n1radius: number) : boolean {
+        const dx = n0x - n1x;
+        const dy = n0y - n1y;
+        const distance = Math.sqrt(dx*dx + dy*dy);
 
-        const dx = n0pos.x - n1pos.x;
-        const px = (n0half.x + n1half.x) - Math.abs(dx);
-        if (px <= 0) {
-            //console.log("compare OK");
-            return false;
-        }
-
-        const dy = n0pos.y - n1pos.y;
-        const py = (n0half.y + n1half.y) - Math.abs(dy);
-        if (py <= 0) {
-            //console.log("compare OK");
-            return false;
-        }
-
-        //console.log("compares HIT");
-
-        return true;
+        return distance <= (n0radius + n1radius);
     }
 
     static table2CSV(table: any[]) : string {
@@ -1573,16 +1568,15 @@ export class Utils {
         return s;
     }
 
-    // https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point
     static positionToNodeDistance(positionX: number, positionY: number, node: Node): number {
-        const rectMinX = node.getPosition().x;
-        const rectMaxX = node.getPosition().x + node.getWidth();
-        const rectMinY = node.getPosition().y;
-        const rectMaxY = node.getPosition().y + node.getHeight();
+        // first determine the distance between the position and node center
+        const dx = node.getPosition().x - positionX;
+        const dy = node.getPosition().y - positionY;
+        let distance = Math.sqrt(dx*dx + dy*dy);
 
-        const dx = Math.max(rectMinX - positionX, 0, positionX - rectMaxX);
-        const dy = Math.max(rectMinY - positionY, 0, positionY - rectMaxY);
-        return Math.sqrt(dx*dx + dy*dy);
+        // then subtract the radius, limit to zero
+        distance = Math.max(distance - node.getRadius(), 0);
+        return distance;
     }
 
 
@@ -1727,8 +1721,9 @@ export class Utils {
         }
     }
 
-    static fixNodeCategory(node: Node, category: Category){
+    static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
+        node.setCategoryType(categoryType);
     }
 
     // NOTE: merges field1 into field0
@@ -1876,10 +1871,14 @@ export class Utils {
         field.setType(Daliuge.DataType.Object + "." + field.getType());
     }
 
-    static fixMoveEdgeToEmbeddedApplication(logicalGraph: LogicalGraph, edgeId: string){
-        const edge = logicalGraph.findEdgeById(edgeId);
-        const srcNode = logicalGraph.findNodeByKey(edge.getSrcNodeKey());
-        const destNode = logicalGraph.findNodeByKey(edge.getDestNodeKey());
+    static fixFieldKey(eagle: Eagle, node: Node, field: Field){
+        field.setNodeKey(node.getKey());
+    }
+
+    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){
+        const edge = eagle.logicalGraph().findEdgeById(edgeId);
+        const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        const destNode = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
 
         // if the SOURCE node is a construct, find the port within the embedded apps, and modify the edge with a new source node
         if (srcNode.getCategoryType() === Category.Type.Construct){
@@ -1909,6 +1908,18 @@ export class Utils {
         field.setParameterType(newType);
     }
 
+    static postFixFunc(eagle: Eagle){
+        eagle.selectedObjects.valueHasMutated();
+        eagle.logicalGraph().fileInfo().modified = true;
+
+        eagle.graphChecker().check();
+        eagle.undo().pushSnapshot(eagle, "Fix");
+    }
+
+    static newId(object: Node | Edge | Field): void {
+        object.setId(Utils.uuidv4());
+    }
+    
     static showEdge(edgeId: string): void {
         const eagle: Eagle = Eagle.getInstance();
 
@@ -1955,6 +1966,25 @@ export class Utils {
         eagle.setSelection(Eagle.RightWindowMode.Inspector, n, location);
     }
 
+    // only update result if it is worse that current result
+    static worstEdgeError(errors: ActionMessage[]) : Eagle.LinkValid {
+        if (errors === null){
+            console.warn("errors is null");
+            return Eagle.LinkValid.Valid;
+        }
+
+        if (errors.length === 0){
+            return Eagle.LinkValid.Valid;
+        }
+
+        if (errors.length !== 0){
+            // TODO: loop through the errors and find the worst
+            return Eagle.LinkValid.Impossible;
+        }
+
+        return Eagle.LinkValid.Warning;
+    }
+
     static printCategories = () : void => {
         const tableData : any[] = [];
 
@@ -1984,12 +2014,12 @@ export class Utils {
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
                 "expanded":node.getExpanded(),
+                "peek":node.isPeek(),
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
-                "realX":node.getRealPosition().x,
-                "realY":node.getRealPosition().y,
-                "width":node.getWidth(),
-                "height":node.getHeight(),
+                // "realX":node.getRealPosition().x,
+                // "realY":node.getRealPosition().y,
+                "radius":node.getRadius(),
                 "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
                 "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
                 "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
@@ -2160,4 +2190,5 @@ export class Utils {
     static openRemoteFileFromUrl(file: RepositoryFile, callback: (error : string, data : string) => void ) : void {
         Utils.httpGet(file.path, callback);
     }
+
 }

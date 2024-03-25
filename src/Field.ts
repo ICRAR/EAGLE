@@ -23,6 +23,17 @@ export class Field {
     private isEvent : ko.Observable<boolean>;
     private nodeKey : ko.Observable<number>;
 
+    // graph related attributes
+    private inputX : ko.Observable<number>;
+    private inputY : ko.Observable<number>;
+    private outputX : ko.Observable<number>;
+    private outputY : ko.Observable<number>;
+    private peek : ko.Observable<boolean>;
+    private inputConnected : ko.Observable<boolean>
+    private outputConnected : ko.Observable<boolean>
+    private inputAngle : number;
+    private outputAngle : number;
+
     constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
         this.value = ko.observable(value);
@@ -40,6 +51,17 @@ export class Field {
         this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
         this.nodeKey = ko.observable(0);
+
+        //graph related things
+        this.inputX = ko.observable(0);
+        this.inputY = ko.observable(0);
+        this.outputX = ko.observable(0);
+        this.outputY = ko.observable(0);
+        this.peek = ko.observable(false);
+        this.inputConnected = ko.observable(false)
+        this.outputConnected = ko.observable(false)
+        this.inputAngle = 0;
+        this.outputAngle = 0;
     }
 
     getId = () : string => {
@@ -89,6 +111,44 @@ export class Field {
     getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
         return this.description() == "" ? "No description available" + " (" + this.type() + ", default value:'" + this.defaultValue() + "')" : this.description() + " (" + this.type() + ", default value:'" + this.defaultValue() + "')";
     }, this);
+
+    getInputPosition = () : {x:number, y:number} => {
+        return {x: this.inputX(), y: this.inputY()};
+    }
+
+    getOutputPosition = () : {x:number, y:number} => {
+        return {x: this.outputX(), y: this.outputY()};
+    }
+
+    setInputPosition = (x: number, y: number) : void => {
+        this.inputX(x);
+        this.inputY(y);
+    }
+
+    setOutputPosition = (x: number, y: number) : void => {
+        this.outputX(x);
+        this.outputY(y);
+    }
+
+    setInputAngle = (angle:number) : void => {
+        this.inputAngle = angle
+    }
+
+    getInputAngle = () : number => {
+        return this.inputAngle
+    }
+
+    flagInputAngleMutated = () : void => {
+        this.displayText.valueHasMutated()
+    }
+
+    setOutputAngle = (angle:number) :void => {
+        this.outputAngle = angle
+    }
+
+    getOutputAngle = () : number => {
+        return this.outputAngle
+    }
 
     isReadonly = () : boolean => {
         return this.readonly();
@@ -287,6 +347,7 @@ export class Field {
 
         const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
         f.setIsEvent(this.isEvent());
+        f.setNodeKey(this.nodeKey());
         return f;
     }
 
@@ -456,6 +517,35 @@ export class Field {
         return "";
     }
 
+    getHelpHtml= () : string => {
+        return "###"+ this.getDisplayText() + "\n" + this.getDescription();
+
+    }
+
+    isPeek = () : boolean => {
+        return this.peek()
+    }
+
+    setPeek = (value:boolean) : void => {
+        this.peek(value);
+    }
+
+    getInputConnected = () :boolean => {
+        return this.inputConnected()
+    }
+
+    setInputConnected = (value:boolean) : void => {
+        this.inputConnected(value)
+    }
+
+    getOutputConnected = () :boolean => {
+        return this.outputConnected()
+    }
+
+    setOutputConnected = (value:boolean) : void => {
+        this.outputConnected(value)
+    }
+
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
     static stringAsType = (value: string, type: string) : any => {
@@ -570,12 +660,20 @@ export class Field {
         // handle legacy fieldType
         if (typeof data.fieldType !== 'undefined'){
             switch (data.fieldType){
+                case "ApplicationArgument":
+                    parameterType = Daliuge.FieldType.ApplicationArgument;
+                    usage = Daliuge.FieldUsage.NoPort;
+                    break;
                 case "ComponentParameter":
                     parameterType = Daliuge.FieldType.ComponentParameter;
                     usage = Daliuge.FieldUsage.NoPort;
                     break;
-                case "ApplicationArgument":
-                    parameterType = Daliuge.FieldType.ApplicationArgument;
+                case "ConstraintParameter":
+                    parameterType = Daliuge.FieldType.ConstraintParameter;
+                    usage = Daliuge.FieldUsage.NoPort;
+                    break;
+                case "ConstructParameter":
+                    parameterType = Daliuge.FieldType.ConstructParameter;
                     usage = Daliuge.FieldUsage.NoPort;
                     break;
                 case "InputPort":
@@ -585,14 +683,6 @@ export class Field {
                 case "OutputPort":
                     parameterType = Daliuge.FieldType.ApplicationArgument;
                     usage = Daliuge.FieldUsage.OutputPort;
-                    break;
-                case "ConstructParameter":
-                    parameterType = Daliuge.FieldType.ConstructParameter;
-                    usage = Daliuge.FieldUsage.NoPort;
-                    break;
-                case "ConstructParameter":
-                    parameterType = Daliuge.FieldType.ConstructParameter;
-                    usage = Daliuge.FieldUsage.NoPort;
                     break;
                 default:
                     console.warn("Unhandled fieldType", data.fieldType);

@@ -37,7 +37,11 @@ import {Daliuge} from './Daliuge';
 import {Eagle} from './Eagle';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
+<<<<<<< HEAD
 import { GraphChecker } from "./GraphChecker";
+=======
+import { GraphRenderer } from "./GraphRenderer";
+>>>>>>> html-graph-renderer
 import {Hierarchy} from './Hierarchy';
 import {RightClick} from './RightClick';
 import {QuickActions} from './QuickActions';
@@ -54,6 +58,7 @@ import {RepositoryFile} from './RepositoryFile';
 import {ParameterTable} from "./ParameterTable";
 import {SideWindow} from "./SideWindow";
 import {TutorialSystem} from "./Tutorial";
+import {GraphConfig} from "./graphConfig";
 
 import * as quickStart from './tutorials/quickStart'
 import * as graphBuilding from './tutorials/graphBuilding'
@@ -83,12 +88,17 @@ $(function(){
     (<any>window).Setting = Setting;
     (<any>window).SideWindow = SideWindow;
     (<any>window).TutorialSystem = TutorialSystem;
+<<<<<<< HEAD
     (<any>window).ActionMessage = ActionMessage;
+=======
+    (<any>window).GraphRenderer = GraphRenderer;
+>>>>>>> html-graph-renderer
     (<any>window).UiModeSystem = UiModeSystem;
     (<any>window).Utils = Utils;
     (<any>window).KeyboardShortcut = KeyboardShortcut;
     (<any>window).QuickActions = QuickActions;
     (<any>window).Modals = Modals;
+    (<any>window).GraphConfig = GraphConfig;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
@@ -210,9 +220,14 @@ $(function(){
     document.onkeydown = KeyboardShortcut.processKey;
     document.onkeyup = KeyboardShortcut.processKey;
 
+<<<<<<< HEAD
     // HACK: without this global wheel event handler, d3 does not receive zoom events
     //       not sure why, this wasn't always the case
     document.onwheel = () => {return;};
+=======
+    // auto load the file
+    autoLoad(eagle);
+>>>>>>> html-graph-renderer
 
     // auto load a tutorial, if specified on the url
     parseUrlAutoTutorial();
@@ -310,6 +325,14 @@ $(function(){
             break;
         }
     }
+
+    
+    //initiating all the eagle ui when the graph is ready
+    $('#logicalGraph').show(200)
+    $('.leftWindow').show(200)
+    $('.rightWindow').show(200)
+    $('#graphNameWrapper').show(200)
+    $('nav.navbar').show(200).css('display', 'flex');
 });
 
 function parseUrlAutoLoad(): RepositoryFile {

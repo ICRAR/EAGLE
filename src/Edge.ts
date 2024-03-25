@@ -31,6 +31,7 @@ import { Field } from './Field';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Utils } from './Utils';
+import * as ko from "knockout";
 
 export class Edge {
     private _id : string
@@ -42,6 +43,7 @@ export class Edge {
     private loopAware : boolean; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
     private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
     private selectionRelative : boolean // indicates if the edge is either selected or attached to a selected node
+    private isShortEdge : ko.Observable<boolean>;
 
     constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, dataType : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
         this._id = Utils.uuidv4();
@@ -55,10 +57,15 @@ export class Edge {
         this.loopAware = loopAware;
         this.closesLoop = closesLoop;
         this.selectionRelative = selectionRelative;
+        this.isShortEdge = ko.observable(false)
     }
 
     getId = () : string => {
         return this._id;
+    }
+
+    setId = (id: string) : void => {
+        this._id = id;
     }
 
     getSrcNodeKey = () : number => {
@@ -135,6 +142,22 @@ export class Edge {
 
     toggleSelectionRelative = () : void => {
         this.selectionRelative = !this.selectionRelative;
+    }
+
+    setIsShortEdge = (value:boolean) : void => {
+        this.isShortEdge(value)
+    }
+
+    getIsShortEdge = () : boolean => {
+        return this.isShortEdge()
+    }
+
+    getArrowVisibility = () : string => {
+        if (this.isShortEdge()){
+            return 'hidden' 
+        }else{
+            return 'visible'
+        }
     }
 
     clear = () : void => {
@@ -335,7 +358,8 @@ export class Edge {
 
         // check that we are not connecting two ports within the same node
         if (sourceNodeKey === destinationNodeKey){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "sourceNodeKey and destinationNodeKey are the same", function(){Utils.showEdge(edgeId);}), showNotification, showConsole, errors);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Impossible, ActionMessage.Show(ActionMessage.Level.Error, "sourceNodeKey and destinationNodeKey are the same", function(){Utils.showEdge(edgeId);}), showNotification, showConsole, errors);
+            return Eagle.LinkValid.Impossible;
         }
 
         // if source node is a memory, and destination is a BashShellApp, OR
@@ -353,29 +377,32 @@ export class Edge {
 
         // check if source port was found
         if (sourcePort === null) {
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port doesn't exist on source node", function(){Utils.showEdge(edgeId);}), showNotification, showConsole, errors);
-            return Eagle.LinkValid.Invalid;
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Impossible, ActionMessage.Show(ActionMessage.Level.Error, "Source port doesn't exist on source node", function(){Utils.showEdge(edgeId);}), showNotification, showConsole, errors);
+            return Eagle.LinkValid.Impossible;
         }
 
         // check if destination port was found
         if (destinationPort === null){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Destination port doesn't exist on destination node", function(){Utils.showEdge(edgeId);}), showNotification, showConsole, errors);
-            return Eagle.LinkValid.Invalid;
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Impossible, ActionMessage.Show(ActionMessage.Level.Error, "Destination port doesn't exist on destination node", function(){Utils.showEdge(edgeId);}), showNotification, showConsole, errors);
+            return Eagle.LinkValid.Impossible;
         }
 
         // check that we are not connecting a port to itself
         if (sourcePortId === destinationPortId){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port and destination port are the same", function(){Utils.showEdge(edgeId);}), showNotification, showConsole, errors);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Impossible, ActionMessage.Show(ActionMessage.Level.Error, "Source port and destination port are the same", function(){Utils.showEdge(edgeId);}), showNotification, showConsole, errors);
+            return Eagle.LinkValid.Impossible;
         }
 
         // check that source is output
         if (!sourcePort.isOutputPort()){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Source port is not output port (" + sourcePort.getUsage() + ")", function(){Utils.showEdge(edgeId);}), showNotification, showConsole, errors);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Impossible, ActionMessage.Show(ActionMessage.Level.Error, "Source port is not output port (" + sourcePort.getUsage() + ")", function(){Utils.showEdge(edgeId);}), showNotification, showConsole, errors);
+            return Eagle.LinkValid.Impossible;
         }
 
         // check that destination in input
         if (!destinationPort.isInputPort()){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, ActionMessage.Show(ActionMessage.Level.Error, "Destination port is not input port (" + destinationPort.getUsage() + ")", function(){Utils.showEdge(edgeId);}), showNotification, showConsole, errors);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Impossible, ActionMessage.Show(ActionMessage.Level.Error, "Destination port is not input port (" + destinationPort.getUsage() + ")", function(){Utils.showEdge(edgeId);}), showNotification, showConsole, errors);
+            return Eagle.LinkValid.Impossible;
         }
 
         if (sourcePort !== null && destinationPort !== null){
@@ -502,13 +529,17 @@ export class Edge {
 
         switch (linkValid){
             case Eagle.LinkValid.Warning:
-            title = "Edge Warning";
-            level = ActionMessage.Level.Warning;
-            break;
+                title = "Edge Warning";
+                level = ActionMessage.Level.Warning;
+                break;
+            case Eagle.LinkValid.Impossible:
+                title = "Edge Impossible";
+                level = ActionMessage.Level.Error;
+                break;
             case Eagle.LinkValid.Invalid:
-            title = "Edge Invalid";
-            level = ActionMessage.Level.Error;
-            break;
+                title = "Edge Invalid";
+                level = ActionMessage.Level.Error;
+                break;
         }
 
         // add edge id to message, if id is known

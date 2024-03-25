@@ -195,13 +195,14 @@ color: #00bb00;}
 
 .rightWindow {
     background-color: rgba(214, 219, 239, 0.95);
-    z-index: 1;
+    z-index: 10;
     position:absolute;
     top: 0px;
     right: -300px;
     height: 100%;
     transition: right 0.25s linear;
     border-left: 2px solid rgba(0, 36, 74, 0.95);
+    display: none;
 }
 
 .rightWindow.show {
@@ -527,6 +528,12 @@ td:first-child input {
 
 .rightWindow #inspectorNodeDescriptionWrapper ::-webkit-scrollbar-track, #parameterTableModal ::-webkit-scrollbar-track{
     background: white;
+}
+
+.inspectorApplicationBackground .prepend-icon span i{
+    font-size: 18px;
+    position: relative;
+    top: 2px;
 }
 
 #parameterTableVisibilityContainer .dropdown-menu{
@@ -939,6 +946,7 @@ td:first-child input {
     height: 100%;
     transition: left 0.25s linear;
     padding:0px 2px 0px 6px;
+    display: none;
 }
 
 /* width */
@@ -1866,18 +1874,11 @@ select.form-control{
     height: 100%;
 }
 
-#logicalGraphD3Div {
+#logicalGraph {
     position: relative;
     width: 100%;
     height: 100%;
     background-color: white;
-}
-
-#paletteD3Div {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background-color: #dddddd;
 }
 
 .navbar-btn i.material-icons.md-18 {
@@ -2064,6 +2065,7 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     padding-left:10px;
     background: rgb(0,64,133);
     background: linear-gradient(90deg, rgba(0,64,133,1) 0%, rgba(0,52,107,1) 20%, rgba(0,35,73,1) 100%);
+    display:none;
 }
 
 .navbar a{
@@ -2094,6 +2096,11 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
      position: absolute;
      color: rgb(170, 170, 170);
      white-space: pre;
+ }
+
+ #eagleAndVersion sup{
+    font-family: 'EB Garamond', serif;
+    font-size: 1em;
  }
 
  #brandEagleIcon{
@@ -2356,7 +2363,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 #graphNameWrapper{
     top: 56px;
-    display: block;
+    display: none;
     width: 100%;
     height:26px;
     background-color: #002349;
@@ -2655,7 +2662,7 @@ palette-component input.form-control.selected {
 }
 
 .tooltip-inner h3 {
-    font-size: 1.2rem;
+    font-size: 18px;
     font-weight: 600;
     margin: 0px;
 }
@@ -2686,7 +2693,7 @@ palette-component input.form-control.selected {
     transition: 0s visibility;
     visibility: visible;
     max-height: 400px;
-    max-width:300px;
+    max-width: 300px;
     overflow: auto;
     text-align: left;
 }

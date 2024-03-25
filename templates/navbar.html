@@ -5,6 +5,7 @@
     <div id="eagleAndVersion">
         <a class="navbar-brand inactiveLink" href="#" disabled >
             EAGLE
+            <sup>π</sup>
         </a>
         <span>{{version}}</span>
     </div>
@@ -36,31 +37,39 @@
                 <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, , eagleTooltip: 'Center Graph ' + Utils.getKeyboardShortcutTextByKey('center_graph', true)" >
                     <i class="material-icons md-18">filter_center_focus</i>
                 </button>
+                <!--
                 <button id="zoomOut" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomOut, eagleTooltip: 'Zoom Out ' + Utils.getKeyboardShortcutTextByKey('zoom_out', true)" >
                     <i class="material-icons md-18">zoom_out</i>
                 </button>
                 <button id="zoomIn" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: zoomIn, eagleTooltip: 'Zoom In '  + Utils.getKeyboardShortcutTextByKey('zoom_in', true)" >
                     <i class="material-icons md-18">zoom_in</i>
                 </button>
+                -->
                 <span class="navBarToolBarTitle">View</span>
+                <!--
                 <button id="toggleDataNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleShowDataNodes, eagleTooltip: 'Toggle Display of Data Nodes ' + Utils.getKeyboardShortcutTextByKey('toggle_show_data_nodes', true), css: { 'navbar-btn-active': showDataNodes() === false }">
                     <i class="md-18 icon-hideDataNode"></i>
                 </button>
+                -->
+                <!--
                 <button id="toggleCollapseAllGroups" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllGroups, eagleTooltip: 'Collapse/Expand All Groups'" >
                     <i class="material-icons md-18">tab_unselected</i>
                 </button>
                 <button id="toggleCollapseAllNodes" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleCollapseAllNodes, eagleTooltip: 'Collapse/Expand All Nodes'" >
                     <i class="md-18 icon-collapseComponent"></i>
                 </button>
+                -->
             </div>
 
             <!-- navbar category -->
             <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example">
                 <span class="navBarToolBarTitle">Editing</span>
                 <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
+                    <!--
                     <button id="toggleSnapToGrid" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: toggleSnapToGrid, eagleTooltip: 'Toggle Snap-to-Grid ' + Utils.getKeyboardShortcutTextByKey('toggle_snap_to_grid', true), css: { 'navbar-btn-active': snapToGrid() }" >
                         <i class="md-18 icon-snapToGrid"></i>
                     </button>
+                    -->
                 <!-- /ko -->
                 <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                     <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: 'Add Graph Nodes to Palette ' + Utils.getKeyboardShortcutTextByKey('add_graph_nodes_to_palette', true)" >

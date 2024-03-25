@@ -29,40 +29,26 @@ import { ActionMessage } from "./Action";
 import { Category } from './Category';
 import { CategoryData } from './CategoryData';
 import { Daliuge } from './Daliuge';
-
 import { Eagle } from './Eagle';
 import { Field } from './Field';
-
+import { GraphRenderer } from "./GraphRenderer";
 import { Setting } from './Setting';
 import { Utils } from './Utils';
+import { GraphConfig } from "./graphConfig";
 
 export class Node {
-    private _id : string
+    private _id : ko.Observable<string>;
     private key : ko.Observable<number>;
     private name : ko.Observable<string>;
     private description : ko.Observable<string>;
 
-    private x : number; // display position
-    private y : number;
-    private realX : number; // underlying position (pre snap-to-grid)
-    private realY : number;
-    
-    
-    private width : number;
-    private height : number;
-    private color : ko.Observable<string>;
-    private drawOrderHint : ko.Observable<number>; // a secondary sorting hint when ordering the nodes for drawing
-                                                   // (primary method is using parent-child relationships)
-                                                   // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
+    private x : ko.Observable<number>;
+    private y : ko.Observable<number>;
+    // private realX : number; // underlying position (pre snap-to-grid)
+    // private realY : number;
 
     private parentKey : ko.Observable<number>;
     private embedKey : ko.Observable<number>;
-    private collapsed : ko.Observable<boolean>;    // indicates whether the node is shown collapsed in the graph display
-    private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
-    private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
-
-    private peek : boolean;                        // true if we are temporarily showing the ports based on the users mouse position
-    private flipPorts : ko.Observable<boolean>;
 
     private inputApplication : ko.Observable<Node>;
     private outputApplication : ko.Observable<Node>;
@@ -79,78 +65,76 @@ export class Node {
     private paletteDownloadUrl : ko.Observable<string>;
     private dataHash : ko.Observable<string>;
 
-    public static readonly DEFAULT_WIDTH : number = 200;
-    public static readonly DEFAULT_HEIGHT : number = 72;
-    public static readonly MINIMUM_WIDTH : number = 200;
-    public static readonly MINIMUM_HEIGHT : number = 72;
+
     public static readonly DEFAULT_COLOR : string = "ffffff";
 
-    public static readonly GROUP_DEFAULT_WIDTH : number = 400;
-    public static readonly GROUP_DEFAULT_HEIGHT : number = 200;
-    public static readonly GROUP_COLLAPSED_WIDTH : number = 128;
-    public static readonly GROUP_COLLAPSED_HEIGHT : number = 128;
-    public static readonly DATA_COMPONENT_WIDTH : number = 48;
-    public static readonly DATA_COMPONENT_HEIGHT : number = 48;
+    public static readonly NO_APP_STRING : string = "-no app-";
+    public static readonly NO_APP_NAME_STRING : string = "-no name-";
 
-    public static readonly NO_APP_STRING : string = "<no app>";
-
-    // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
-    // this is the default margin that should be left on each side
-    public static readonly CONSTRUCT_MARGIN_LEFT: number = 24;
-    public static readonly CONSTRUCT_MARGIN_RIGHT: number = 24;
-    public static readonly CONSTRUCT_MARGIN_TOP: number = 72;
-    public static readonly CONSTRUCT_MARGIN_BOTTOM: number = 16;
+    //graph related things
+    private collapsed : ko.Observable<boolean>;    // indicates whether the node is shown collapsed in the graph display
+    private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
+    private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
+    private peek : ko.Observable<boolean>;     // true if we are temporarily showing the ports based on the users mouse position
+    private radius : ko.Observable<number>;
+    
+    private color : ko.Observable<string>;
+    private drawOrderHint : ko.Observable<number>; // a secondary sorting hint when ordering the nodes for drawing
+                                                   // (primary method is using parent-child relationships)
+                                                   // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
 
     constructor(key : number, name : string, description : string, category : Category){
-        this._id = Utils.uuidv4();
+        this._id = ko.observable(Utils.uuidv4());
         this.key = ko.observable(key);
         this.name = ko.observable(name);
         this.description = ko.observable(description);
-        
-        // display position
-        this.x = 0;
-        this.y = 0;
-        this.realX = 0;
-        this.realY = 0;
 
-        this.width = Node.DEFAULT_WIDTH;
-        this.height = Node.DEFAULT_HEIGHT;
-        this.color = ko.observable(Utils.getColorForNode(category));
-        this.drawOrderHint = ko.observable(0);
+        this.x = ko.observable(0);
+        this.y = ko.observable(0);
+        // display position
+        // this.realX = 0;
+        // this.realY = 0;
+        
+        this.key = ko.observable(key);
+        this.name = ko.observable(name);
+        this.description = ko.observable(description);
 
         this.parentKey = ko.observable(null);
         this.embedKey = ko.observable(null);
-        this.collapsed = ko.observable(true);
-        this.peek = false;
-        this.flipPorts = ko.observable(false);
 
         this.inputApplication = ko.observable(null);
         this.outputApplication = ko.observable(null);
 
         this.fields = ko.observableArray([]);
-
         this.category = ko.observable(category);
 
         // lookup correct categoryType based on category
         this.categoryType = ko.observable(CategoryData.getCategoryData(category).categoryType);
-
         this.subject = ko.observable(null);
-
-        this.expanded = ko.observable(true);
-        this.keepExpanded = ko.observable(false);
 
         this.repositoryUrl = ko.observable("");
         this.commitHash = ko.observable("");
         this.paletteDownloadUrl = ko.observable("");
         this.dataHash = ko.observable("");
+
+        //graph related things
+
+        this.expanded = ko.observable(true);
+        this.keepExpanded = ko.observable(false);
+        this.collapsed = ko.observable(true);
+        this.peek = ko.observable(false);
+
+        this.color = ko.observable(Utils.getColorForNode(category));
+        this.drawOrderHint = ko.observable(0);
+        this.radius = ko.observable(0);
     }
 
     getId = () : string => {
-        return this._id;
+        return this._id();
     }
 
     setId = (id: string) : void => {
-        this._id = id;
+        this._id(id);
     }
 
     getKey = () : number => {
@@ -166,6 +150,7 @@ export class Node {
         }
     }
 
+    // TODO: remove/comment-out if unused
     getGraphNodeId = () : string => {
         return 'node' + (Math.abs(this.getKey())-1).toString();
     }
@@ -213,64 +198,60 @@ export class Node {
     }
 
     getPosition = () : {x:number, y:number} => {
-        return {x: this.x, y: this.y};
+        return {x: this.x(), y: this.y()};
     }
 
-    getRealPosition = () : {x:number, y:number} => {
-        return {x: this.realX, y: this.realY};
-    }
+    // getRealPosition = () : {x:number, y:number} => {
+    //     return {x: this.realX, y: this.realY};
+    // }
 
     setPosition = (x: number, y: number, allowSnap: boolean = true) : void => {
-        this.realX = x;
-        this.realY = y;
+        // this.realX = x;
+        // this.realY = y;
 
-        if (Eagle.getInstance().snapToGrid() && allowSnap){
-            this.x = Utils.snapToGrid(this.realX, this.getDisplayWidth());
-            this.y = Utils.snapToGrid(this.realY, this.getDisplayHeight());
-        } else {
-            this.x = this.realX;
-            this.y = this.realY;
-        }
+        // if (Eagle.getInstance().snapToGrid() && allowSnap){
+        //     this.x(Utils.snapToGrid(this.realX, this.getDisplayRadius()));
+        //     this.y(Utils.snapToGrid(this.realY, this.getDisplayRadius()));
+        // } else {
+            // this.x(this.realX);
+            // this.y(this.realY);
+        // }
+        this.x(x)
+        this.y(y)
     }
 
-    changePosition = (dx : number, dy : number, allowSnap: boolean = true) : {dx:number, dy:number} => {
-        this.realX += dx;
-        this.realY += dy;
+    changePosition = (dx : number, dy : number, allowSnap: boolean = true) : void => {
+        // this.realX += dx;
+        // this.realY += dy;
 
-        const beforePos = {x:this.x, y:this.y};
+        // const beforePos = {x:this.x(), y:this.y()};
 
-        if (Eagle.getInstance().snapToGrid() && allowSnap){
-            this.x = Utils.snapToGrid(this.realX, this.getDisplayWidth());
-            this.y = Utils.snapToGrid(this.realY, this.getDisplayHeight());
+        // if (Eagle.getInstance().snapToGrid() && allowSnap){
+        //     this.x(Utils.snapToGrid(this.realX, this.getDisplayRadius()));
+        //     this.y(Utils.snapToGrid(this.realY, this.getDisplayRadius()));
 
-            return {dx:this.x - beforePos.x, dy:this.y - beforePos.y};
-        } else {
-            this.x = this.realX;
-            this.y = this.realY;
+        //     return {dx:this.x() - beforePos.x, dy:this.y() - beforePos.y};
+        // } else {
+            // this.x(this.realX);
+            // this.y(this.realY);
             
-            return {dx:dx, dy:dy};
-        }
+            // return {dx:dx, dy:dy};
+        // }
+        this.x(this.x()+dx)
+        this.y(this.y()+dy)
     }
 
-    resetReal = () : void => {
-        this.realX = this.x;
-        this.realY = this.y;
+    // resetReal = () : void => {
+    //     this.realX = this.x();
+    //     this.realY = this.y();
+    // }
+
+    getRadius = () : number => {
+        return this.radius();
     }
 
-    getWidth = () : number => {
-        return this.width;
-    }
-
-    setWidth = (width : number) : void => {
-        this.width = width;
-    }
-
-    getHeight = () : number => {
-        return this.height;
-    }
-
-    setHeight = (height : number) : void => {
-        this.height = height;
+    setRadius = (radius : number) : void => {
+        this.radius(radius);
     }
 
     getColor = () : string => {
@@ -358,23 +339,15 @@ export class Node {
     }
 
     isPeek = () : boolean => {
-        return this.peek;
+        return this.peek();
     }
 
     setPeek = (value : boolean) : void => {
-        this.peek = value;
+        this.peek(value);
     }
 
-    isFlipPorts = () : boolean => {
-        return this.flipPorts();
-    }
-
-    setFlipPorts = (value : boolean) : void => {
-        this.flipPorts(value);
-    }
-
-    toggleFlipPorts = () : void => {
-        this.flipPorts(!this.flipPorts());
+    togglePeek = () : void => {
+        this.setPeek(!this.peek());
     }
 
     isLocked : ko.PureComputed<boolean> = ko.pureComputed(() => {
@@ -409,6 +382,21 @@ export class Node {
         }
 
         return result;
+    }
+
+    getPorts = () : Field[] => {
+        const results: Field[] = this.getInputPorts()
+        this.getOutputPorts().forEach(function(outputPort){
+            for (const result of results){
+                if(result.getId() === outputPort.getId()){
+                    continue
+                }else{
+                    results.push(outputPort)
+                }
+            }
+        })
+
+        return results;
     }
 
     getInputApplicationInputPorts = () : Field[] => {
@@ -467,6 +455,16 @@ export class Node {
     getFieldByDisplayText = (displayText : string) : Field | null => {
         for (const field of this.fields()){
             if (field.getDisplayText() === displayText){
+                return field;
+            }
+        }
+
+        return null;
+    }
+
+    getFieldById = (id : string) : Field | null => {
+        for (const field of this.fields()){
+            if (field.getId() === id){
                 return field;
             }
         }
@@ -582,6 +580,10 @@ export class Node {
         return this.categoryType();
     }
 
+    setCategoryType = (categoryType: Category.Type) : void => {
+        this.categoryType(categoryType);
+    }
+
     setRepositoryUrl = (url: string) : void => {
         this.repositoryUrl(url);
     }
@@ -618,6 +620,18 @@ export class Node {
         return this.category() === Category.Scatter;
     }
 
+    isExclusiveForceNode = () : boolean => {
+        return this.category() === Category.ExclusiveForceNode;
+    }
+
+    isComment = () : boolean => {
+        return this.category() === Category.Comment;
+    }
+
+    isDescription = () : boolean => {
+        return this.category() === Category.Description;
+    }
+
     isGather = () : boolean => {
         return this.category() === Category.Gather;
     }
@@ -638,12 +652,8 @@ export class Node {
         return this.category() === Category.Service;
     }
 
-    isResizable = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).isResizable;
-    }
-
     isGroup = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).canContainComponents;
+        return CategoryData.getCategoryData(this.category()).isGroup;
     }
 
     canHaveInputs = () : boolean => {
@@ -769,14 +779,13 @@ export class Node {
     }
 
     clear = () : void => {
-        this._id = "";
+        this._id("");
         this.key(0);
         this.name("");
         this.description("");
-        this.x = 0;
-        this.y = 0;
-        this.width = Node.DEFAULT_WIDTH;
-        this.height = Node.DEFAULT_HEIGHT;
+        this.x(0);
+        this.y(0);
+        this.radius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
         this.color(Node.DEFAULT_COLOR);
         this.drawOrderHint(0);
 
@@ -803,59 +812,22 @@ export class Node {
         this.dataHash("");
     }
 
-    getDisplayWidth = () : number => {
+    getDisplayRadius = () : number => {
         if (this.isGroup() && this.isCollapsed()){
-            return Node.GROUP_COLLAPSED_WIDTH;
+            return GraphConfig.MINIMUM_CONSTRUCT_RADIUS;
         }
 
         if (!this.isGroup() && !this.isCollapsed()){
-            return this.width;
+            return this.radius();
         }
 
+        /*
         if (this.isData() && !this.isCollapsed() && !this.isPeek()){
             return Node.DATA_COMPONENT_WIDTH;
         }
+        */
 
-        return this.width;
-    }
-
-    getDisplayHeight = () : number => {
-        if (this.isResizable()){
-            if (this.isCollapsed()){
-                return Node.GROUP_COLLAPSED_HEIGHT;
-            } else {
-                return this.height;
-            }
-        }
-
-        if (!this.isGroup() && this.isCollapsed() && !this.isPeek()){
-            return 32;
-        }
-
-        if (this.isData() && this.isCollapsed() && !this.isPeek()){
-            return Node.DATA_COMPONENT_HEIGHT;
-        }
-
-        if (this.getCategory() === Category.Service){
-            // NOTE: Service nodes can't have input ports, or input application output ports!
-            return (2 * 30) +
-                (this.getInputApplicationInputPorts().length * 24) +
-                (this.getInputApplicationOutputPorts().length * 24) +
-                8;
-        }
-
-        const leftHeight = (
-            this.getInputPorts().length +
-            this.getInputApplicationInputPorts().length +
-            this.getInputApplicationOutputPorts().length +
-            2) * 24;
-        const rightHeight = (
-            this.getOutputPorts().length +
-            this.getOutputApplicationInputPorts().length +
-            this.getOutputApplicationOutputPorts().length +
-            2) * 24;
-
-        return Math.max(leftHeight, rightHeight);
+        return this.radius();
     }
 
     getGitHTML : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -1135,30 +1107,42 @@ export class Node {
         }
     }
 
+    // removes all InputPort ports, and changes all InputOutput ports to be OutputPort
     removeAllInputPorts = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getUsage() === Daliuge.FieldUsage.InputPort){
+            const field: Field = this.fields()[i];
+
+            if (field.getUsage() === Daliuge.FieldUsage.InputPort){
                 this.fields.splice(i, 1);
+            }
+            if (field.getUsage() === Daliuge.FieldUsage.InputOutput){
+                field.setUsage(Daliuge.FieldUsage.OutputPort);
             }
         }
     }
 
+    // removes all OutputPort ports, and changes all InputOutput ports to be InputPort
     removeAllOutputPorts = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getUsage() === Daliuge.FieldUsage.OutputPort){
+            const field: Field = this.fields()[i];
+
+            if (field.getUsage() === Daliuge.FieldUsage.OutputPort){
                 this.fields.splice(i, 1);
+            }
+            if (field.getUsage() === Daliuge.FieldUsage.InputOutput){
+                field.setUsage(Daliuge.FieldUsage.InputPort);
             }
         }
     }
 
     clone = () : Node => {
+
         const result : Node = new Node(this.key(), this.name(), this.description(), this.category());
 
-        result._id = this._id;
-        result.x = this.x;
-        result.y = this.y;
-        result.width = this.width;
-        result.height = this.height;
+        result._id(this._id());
+        result.x(this.x());
+        result.y(this.y());
+        result.radius(this.radius());
         result.categoryType(this.categoryType());
         result.color(this.color());
         result.drawOrderHint(this.drawOrderHint());
@@ -1170,22 +1154,9 @@ export class Node {
         result.expanded(this.expanded());
         result.keepExpanded(this.expanded());
 
-        result.peek = this.peek;
-        result.flipPorts(this.flipPorts());
+        result.peek(this.peek());
 
-        // copy input,output and exit applications
-        if (this.inputApplication() === null){
-            result.inputApplication(null);
-        } else {
-            result.inputApplication(this.inputApplication().clone());
-        }
-        if (this.outputApplication() === null){
-            result.outputApplication(null);
-        } else {
-            result.outputApplication(this.outputApplication().clone());
-        }
-
-        result.subject = this.subject;
+        result.subject(this.subject());
 
         // clone fields
         for (const field of this.fields()){
@@ -1196,6 +1167,13 @@ export class Node {
         result.commitHash(this.commitHash());
         result.paletteDownloadUrl(this.paletteDownloadUrl());
         result.dataHash(this.dataHash());
+        
+        if (this.hasInputApplication()){
+            result.inputApplication(this.inputApplication().clone());
+        }
+        if (this.hasOutputApplication()){
+            result.outputApplication(this.outputApplication().clone());
+        }
 
         return result;
     }
@@ -1390,9 +1368,13 @@ export class Node {
             node.description(nodeData.description);
         }
 
+        if(!isPaletteNode && nodeData.radius === undefined){
+            GraphRenderer.legacyGraph = true
+        }
+        
         // get size (if exists)
-        let width = Node.DEFAULT_WIDTH;
-        let height = Node.DEFAULT_HEIGHT;
+        let width = GraphConfig.NORMAL_NODE_RADIUS;
+        let height = GraphConfig.NORMAL_NODE_RADIUS;
         if (typeof nodeData.desiredSize !== 'undefined'){
             width = nodeData.desiredSize.width;
             height = nodeData.desiredSize.height;
@@ -1403,18 +1385,15 @@ export class Node {
         if (typeof nodeData.height !== 'undefined'){
             height = nodeData.height;
         }
-        node.width = width;
-        node.height = height;
 
-        // if node is not a group or comment/description, make its width/height the default values
-        if (!CategoryData.getCategoryData(node.getCategory()).isResizable){
-            node.width = Node.DEFAULT_WIDTH;
-            node.height = Node.DEFAULT_HEIGHT;
-        }
-
-        // flipPorts
-        if (typeof nodeData.flipPorts !== 'undefined'){
-            node.flipPorts(nodeData.flipPorts);
+        if (node.isGroup()){
+            node.radius(Math.max(width, height));
+        } else {
+            if (node.isBranch()){
+                node.radius(GraphConfig.BRANCH_NODE_RADIUS);
+            } else {
+                node.radius(GraphConfig.NORMAL_NODE_RADIUS);
+            }
         }
 
         // expanded
@@ -1901,12 +1880,10 @@ export class Node {
         result.key = node.key();
         result.name = node.name();
         result.description = node.description();
-        result.x = node.x;
-        result.y = node.y;
-        result.width = node.width;
-        result.height = node.height;
+        result.x = node.x();
+        result.y = node.y();
+        result.radius = node.radius();
         result.collapsed = node.collapsed();
-        result.flipPorts = node.flipPorts();
         result.subject = node.subject();
         result.expanded = node.expanded();
         result.repositoryUrl = node.repositoryUrl();
@@ -1972,137 +1949,96 @@ export class Node {
         return result;
     }
 
-    /*
-    // display/visualisation data
-    static toV3NodeJson = (node : Node, index : number) : object => {
-        const result : any = {};
-
-        result.categoryType = node.categoryType();
-        result.componentKey = index.toString();
-
-        result.color = node.color();
-        result.drawOrderHint = node.drawOrderHint();
-
-        result.x = node.x;
-        result.y = node.y;
-        result.width = node.width;
-        result.height = node.height;
-        result.collapsed = node.collapsed();
-        result.flipPorts = node.flipPorts();
-
-        result.expanded = node.expanded();
-
-        result.repositoryUrl = node.repositoryUrl();
-        result.commitHash = node.commitHash();
-        result.paletteDownloadUrl = node.paletteDownloadUrl();
-        result.dataHash = node.dataHash();
-
-        return result;
-    }
-
-    static fromV3NodeJson = (nodeData : any, key: string, errors: ActionMessage[]) : Node => {
-        const result = new Node(parseInt(key, 10), "", "", Category.Unknown);
-
-        result.categoryType(nodeData.categoryType);
-        result.color(nodeData.color);
-        result.drawOrderHint(nodeData.drawOrderHint);
-
-        result.x = nodeData.x;
-        result.y = nodeData.y;
-        result.width = nodeData.width;
-        result.height = nodeData.height;
-        result.collapsed(nodeData.collapsed);
-        result.flipPorts(nodeData.flipPorts);
-
-        result.expanded(nodeData.expanded);
-
-        result.repositoryUrl(nodeData.repositoryUrl);
-        result.commitHash(nodeData.commitHash);
-        result.paletteDownloadUrl(nodeData.paletteDownloadUrl);
-        result.dataHash(nodeData.dataHash);
-
-        return result;
-    }
-    */
-
-    // graph data
-    // "name" and "description" are considered part of the structure of the graph, it would be hard to add them to the display part (parameters would have to be treated the same way)
-    /*
-    static toV3ComponentJson = (node : Node) : object => {
-        const result : any = {};
-        const useNewCategories : boolean = Setting.findValue(Utils.TRANSLATE_WITH_NEW_CATEGORIES);
-
-        result.category = useNewCategories ? GraphUpdater.translateNewCategory(node.category()) : node.category();
-
-        result.name = node.name();
-        result.description = node.description();
-
-        result.streaming = node.streaming();
-        result.precious = node.precious();
-        result.subject = node.subject(); // TODO: not sure if this should be here or in Node JSON
-
-
-        result.parentKey = node.parentKey();
-        result.embedKey = node.embedKey();
-
-        result.inputApplicationKey = -1;
-        result.outputApplicationKey = -1;
-
-        // add input ports
-        result.inputPorts = {};
-        for (const inputPort of node.getInputPorts()){
-            result.inputPorts[inputPort.getId()] = Port.toV3Json(inputPort);
-        }
-
-        // add output ports
-        result.outputPorts = {};
-        for (const outputPort of node.getOutputPorts()){
-            result.outputPorts[outputPort.getId()] = Port.toV3Json(outputPort);
-        }
-
-        // add component parameters
-        result.componentParameters = {};
-        for (let i = 0 ; i < node.fields().length ; i++){
-            const field = node.fields()[i];
-            result.componentParameters[i] = Field.toV3Json(field);
-        }
-
-        // add Application Arguments
-        result.applicationParameters = {};
-        for (let i = 0 ; i < node.applicationArgs().length ; i++){
-            const field = node.applicationArgs()[i];
-            result.applicationParameters[i] = Field.toV3Json(field);
-        }
-
-        return result;
-    }
-    */
-
-    /*
-    static fromV3ComponentJson = (nodeData: any, node: Node, errors: Eagle.ErrorsWarnings): void => {
-        node.category(nodeData.category);
-        node.name(nodeData.name);
-        node.description(nodeData.description);
-
-        node.streaming(nodeData.streaming);
-        node.precious(nodeData.precious);
-        node.subject(nodeData.subject);
-
-        node.parentKey(nodeData.parentKey);
-        node.embedKey(nodeData.embedKey);
-    }
-    */
-
     static createEmbeddedApplicationNode = (key: number, name : string, category: Category, description: string, embedKey: number) : Node => {
         console.assert(CategoryData.getCategoryData(category).categoryType === Category.Type.Application);
 
         const node = new Node(key, name, description, category);
         node.setEmbedKey(embedKey);
+        node.setRadius(GraphConfig.NORMAL_NODE_RADIUS);
         return node;
     }
 
-    // TODO: should be possible to check a node without it being part of a logicalGraph (logicalGraph === null)
+    getInputAppText = () : string => {
+        if (!Node.canHaveInputApp(this)){
+            return "";
+        }
+
+        const inputApplication : Node = this.getInputApplication();
+
+        if (typeof inputApplication === "undefined" || inputApplication === null){
+            return Node.NO_APP_STRING;
+        }
+
+        return inputApplication.getName() === "" ? Node.NO_APP_NAME_STRING : inputApplication.getName();
+    }
+
+    getOutputAppText = () : string => {
+        if (!Node.canHaveOutputApp(this)){
+            return "";
+        }
+
+        const outputApplication : Node = this.getOutputApplication();
+
+        if (typeof outputApplication === "undefined" || outputApplication === null){
+            return Node.NO_APP_STRING;
+        }
+
+        return outputApplication.getName() === "" ? Node.NO_APP_NAME_STRING : outputApplication.getName()
+    }
+
+    getInputAppColor = () : string => {
+        if (!Node.canHaveInputApp(this)){
+            return "white";
+        }
+
+        const inputApplication : Node = this.getInputApplication();
+
+        if (typeof inputApplication === "undefined" || inputApplication === null){
+            return "white";
+        }
+
+        return inputApplication.getColor();
+    }
+
+    getOutputAppColor = () : string => {
+        if (!Node.canHaveOutputApp(this)){
+            return "white";
+        }
+
+        const outputApplication : Node = this.getOutputApplication();
+
+        if (typeof outputApplication === "undefined" || outputApplication === null){
+            return "white";
+        }
+
+        return outputApplication.getColor();
+    }
+
+    getDataIcon = () : string => {
+        switch (this.getCategory()){
+            case Category.File:
+                return "/static/assets/svg/hard-drive.svg";
+            case Category.Memory:
+                return "/static/assets/svg/memory.svg";
+            case Category.S3:
+                return "/static/assets/svg/s3_bucket.svg";
+            case Category.NGAS:
+                return "/static/assets/svg/ngas.svg";
+            case Category.Plasma:
+                return "/static/assets/svg/plasma.svg";
+            default:
+                console.warn("No icon available for node category", this.getCategory());
+                return "";
+        }
+    }
+
     static isValid = (eagle: Eagle, node: Node, selectedLocation: Eagle.FileType, showNotification : boolean, showConsole : boolean, errors: ActionMessage[]) : Eagle.LinkValid => {
+        // check that node has modern (not legacy) category
+        if (node.getCategory() === Category.Component){
+            const issue: ActionMessage = ActionMessage.ShowFix(ActionMessage.Level.Warning, "Node " + node.getKey() + " (" + node.getName() + ") has legacy category (" + node.getCategory() + ")", function(){Utils.showNode(eagle, selectedLocation, node.getId());}, function(){Utils.fixNodeCategory(eagle, node, Category.PythonApp, Category.Type.Application)}, "");
+            errors.push(issue);
+        }
+
         // check that all port dataTypes have been defined
         for (const port of node.getInputPorts()){
             if (port.isType(Daliuge.DataType.Unknown)){
@@ -2165,6 +2101,14 @@ export class Node {
         for (const field of node.getFields()){
             if (!Utils.validateType(field.getType())) {
                 const issue: ActionMessage = ActionMessage.ShowFix(ActionMessage.Level.Warning, "Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose type (" + field.getType() + ") is unknown", function(){Utils.showNode(eagle, selectedLocation, node.getId())}, function(){Utils.fixFieldType(field)}, "Prepend existing type (" + field.getType() + ") with 'Object.'");
+                errors.push(issue);
+            }
+        }
+
+        // check that all fields "key" attribute is the same as the key of the node they belong to
+        for (const field of node.getFields()){
+            if (field.getNodeKey() !== node.getKey()) {
+                const issue: ActionMessage = ActionMessage.ShowFix(ActionMessage.Level.Error, "Node " + node.getKey() + " (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose key (" + field.getNodeKey() + ") doesn't match the node (" + node.getKey() + ")", function(){Utils.showNode(eagle, selectedLocation, node.getId())}, function(){Utils.fixFieldKey(eagle, node, field)}, "Set field node key correctly");
                 errors.push(issue);
             }
         }

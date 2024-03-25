@@ -28,17 +28,15 @@ import { ActionMessage } from "./Action";
 import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
-import {Repository} from './Repository';
-import {RepositoryFile} from './RepositoryFile';
 import {Setting} from './Setting';
 import {Utils} from './Utils';
 
 
 class Snapshot {
     description: ko.Observable<string>;
-    data : ko.Observable<string>; // TODO: can we store the data as an object, must we go to JSON?
+    data : ko.Observable<LogicalGraph>;
 
-    constructor(description: string, data: string){
+    constructor(description: string, data: LogicalGraph){
         this.description = ko.observable(description);
         this.data = ko.observable(data);
     }
@@ -74,7 +72,7 @@ export class Undo {
     pushSnapshot = (eagle: Eagle, description: string) : void => {
         const previousIndex = (this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
         const previousSnapshot : Snapshot = this.memory()[previousIndex];
-        const newContent : string = LogicalGraph.toOJSJsonString(eagle.logicalGraph(), false);
+        const newContent : LogicalGraph = eagle.logicalGraph().clone();
 
         // check if newContent matches old content, if so, no need to push
         // TODO: maybe speed this up with checksums? or maybe not required
@@ -175,11 +173,8 @@ export class Undo {
             return;
         }
 
-        const dataObject = JSON.parse(snapshot.data());
-        const errors: ActionMessage[] = [];
-        const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", "");
-
-        eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errors));
+        const dataObject: LogicalGraph = snapshot.data();
+        eagle.logicalGraph(dataObject);
     }
 
     static printTable = () : void => {
