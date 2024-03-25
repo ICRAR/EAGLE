@@ -243,7 +243,7 @@ export class Palette {
         return null;
     }
 
-    getNodesByCategory = (categoryType: Category.Type) : Node[] => {
+    getNodesByCategoryType = (categoryType: Category.Type) : Node[] => {
         const result : Node[] = []
 
         for (let i = this.nodes().length - 1; i >= 0 ; i--){

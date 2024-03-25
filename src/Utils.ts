@@ -1090,34 +1090,19 @@ export class Utils {
             return null;
         }
 
-        const matchingNodes = builtinPalette.getNodesByCategory(categoryType)
+        const matchingNodes = builtinPalette.getNodesByCategoryType(categoryType)
+        const matchingCategories : Category[] = []
 
-        console.log(matchingNodes)
-
-        const result: Category[] = [];
-        for (const [categoryName, categoryData] of Object.entries(CategoryData.cData)){
-
-            if(!Setting.findValue(Setting.SHOW_ALL_CATEGORY_OPTIONS)){
-                
-                if (categoryData.categoryType !== categoryType){
-                    continue;
-                }
-                
-                // if input ports required, skip nodes with too few
-                if (numRequiredInputs > categoryData.maxInputs){
-                    continue;
-                }
-
-                // if output ports required, skip nodes with too few
-                if (numRequiredOutputs > categoryData.maxOutputs){
-                    continue;
+        matchingNodes.forEach(function(node){
+            for(const x of matchingCategories){
+                if(node.getCategory() === x){
+                    continue
                 }
             }
-            
-            result.push(categoryName as Category);
-        }
+            matchingCategories.push(node.getCategory())
+        })
 
-        return result;
+        return matchingCategories;
     }
 
     static getDataComponentMemory(palettes: Palette[]) : Node {
