@@ -3273,17 +3273,8 @@ export class Eagle {
                     // set parent to same as PythonMemberFunction
                     pythonObjectNode.setParentKey(newNode.getParentKey());
 
-                    // copy PythonMemberFunction node's 'basename' field to the PythonObject node
-                    const basenameField: Field = newNode.findFieldByDisplayText(Daliuge.FieldName.BASENAME, Daliuge.FieldType.ApplicationArgument);
-                    if (basenameField !== null){
-                        pythonObjectNode.setName(basenameField.getValue());
-                        pythonObjectNode.addField(basenameField.clone());
-                    } else {
-                        Utils.showNotification("Python Object", "Unable to set " + Daliuge.FieldName.BASENAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
-                    }
-
                     // copy all fields from a "Memory" node in the palette
-                    Utils.copyFieldsFromPrototype(newNode, Palette.BUILTIN_PALETTE_NAME, Category.Memory);
+                    Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.Memory);
 
                     // find the "self" port on the PythonMemberFunction
                     const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);

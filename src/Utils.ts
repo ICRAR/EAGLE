@@ -2230,7 +2230,7 @@ export class Utils {
         // get a reference to the builtin palette
         const palette: Palette = eagle.findPalette(paletteName, false);
         if (palette === null){
-            console.warn("Could not find builtin palette", paletteName);
+            console.warn("Could not find palette", paletteName);
             return;
         }
 
@@ -2246,6 +2246,10 @@ export class Utils {
         // copy fields from new category to old node
         for (let i = 0 ; i < newCategoryPrototype.getFields().length ; i++){
             const field: Field = newCategoryPrototype.getFields()[i];
+
+            if (field.isInputPort() || field.isOutputPort()){
+                continue;
+            }
 
             // try to find field in old node that matches by displayText AND parameterType
             let destField = node.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
