@@ -161,14 +161,16 @@
             <!-- ko if: Setting.showInspectorErrorsWarnings() -->
                 <div class="card pt-2" id="nodeInspectorErrorsCard">
                     <div class="card-body">
-                        <!-- ko with: $data.getErrorsWarnings($root) -->
-                            <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) != Setting.ShowErrorsMode.None -->
-                                <!-- ko foreach: errors -->
+                        <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) != Setting.ShowErrorsMode.None -->
+                            <!-- ko foreach: $data.getErrorsWarnings($root) -->
+                                <!-- ko if: $data.level === ActionMessage.Level.Error -->
                                     <fix params="data: $data, isError: true"></fix>
                                 <!-- /ko -->
                             <!-- /ko -->
-                            <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings -->
-                                <!-- ko foreach: warnings -->
+                        <!-- /ko -->
+                        <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings -->
+                            <!-- ko foreach: $data.getErrorsWarnings($root) -->
+                                <!-- ko if: $data.level === ActionMessage.Level.Warning -->
                                     <fix params="data: $data, isError: false"></fix>
                                 <!-- /ko -->
                             <!-- /ko -->

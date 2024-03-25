@@ -1,0 +1,103 @@
+<!-- Action List Modal -->
+<div class="modal fade" id="actionListModal" tabindex="-1" role="dialog" aria-labelledby="actionListModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="actionListModalTitle">Title</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class='accordion' id='actionListModalAccordion'>
+
+                    <div class="accordion-item" id="actionListModalErrorsAccordionItem">
+                        <h2 class="accordion-header" id="actionListAccordionHeadingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#actionListAccordionCollapseOne" aria-expanded="true" aria-controls="actionListAccordionCollapseOne"> Errors&nbsp;<span id="actionListModalErrorCount" data-bind="text: '[' + actionList().getNumErrors() + ']'"></span></button>
+                        </h2>
+                        <div id="actionListAccordionCollapseOne" class="accordion-collapse collapse show" aria-labelledby="actionListAccordionHeadingOne">
+                            <div class="accordion-body" id="actionListModalErrorsAccordionBody">
+                                <ul class="list-group">
+                                <!-- ko foreach: actionList().messages -->
+                                    <!-- ko if: $data.level === ActionMessage.Level.Error -->
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span data-bind="text: $data.message"></span>
+                                            <div>
+                                            <!-- ko if: $data.show !== null -->
+                                                <button class="btn btn-secondary btn-sm" data-bind="click: $data.show, eagleTooltip: 'Show object to investigate error'">Show</button>
+                                            <!-- /ko -->
+                                            <!-- ko if: $data.fix !== null -->
+                                                <button class="btn btn-primary btn-sm" data-bind="click: function(){ActionList.perform($index());}, eagleTooltip: $data.fixDescription">Fix</button>
+                                            <!-- /ko -->
+                                            </div>
+                                        </li>
+                                    <!-- /ko -->
+                                <!-- /ko -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" id="actionListModalWarningsAccordionItem">
+                        <h2 class="accordion-header" id="actionListAccordionHeadingTwo">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#actionListAccordionCollapseTwo" aria-expanded="true" aria-controls="actionListAccordionCollapseTwo"> Warnings&nbsp;<span id="actionListModalWarningCount" data-bind="text: '[' + actionList().getNumWarnings() + ']'"></span></button>
+                        </h2>
+                        <div id="actionListAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="actionListAccordionHeadingTwo">
+                            <div class="accordion-body" id="actionListModalWarningsAccordionBody">
+                                <ul class="list-group">
+                                <!-- ko foreach: actionList().messages -->
+                                    <!-- ko if: $data.level === ActionMessage.Level.Warning -->
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span data-bind="text: $data.message"></span>
+                                            <div>
+                                            <!-- ko if: $data.show !== null -->
+                                                <button class="btn btn-secondary btn-sm" data-bind="click: function($data){$root.showError($data)}, eagleTooltip: 'Show object to investigate warning'">Show</button>
+                                            <!-- /ko -->
+                                            <!-- ko if: $data.fix !== null -->
+                                                <button class="btn btn-primary btn-sm" data-bind="click: function(){ActionList.perform($index());}, eagleTooltip: $data.fixDescription">Fix</button>
+                                            <!-- /ko -->
+                                            </div>
+                                        </li>
+                                    <!-- /ko -->
+                                <!-- /ko -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" id="actionListModalInfoAccordionItem">
+                        <h2 class="accordion-header" id="actionListAccordionHeadingThree">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#actionListAccordionCollapseThree" aria-expanded="true" aria-controls="actionListAccordionCollapseThree"> Info&nbsp;<span id="actionListModalInfoCount" data-bind="text: '[' + actionList().getNumInfo() + ']'"></span></button>
+                        </h2>
+                        <div id="actionListAccordionCollapseThree" class="accordion-collapse collapse show" aria-labelledby="actionListAccordionHeadingThree">
+                            <div class="accordion-body" id="actionListModalInfoAccordionBody">
+                                <ul class="list-group">
+                                <!-- ko foreach: actionList().messages -->
+                                    <!-- ko if: $data.level === ActionMessage.Level.Info -->
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span data-bind="text: $data.message"></span>
+                                            <div>
+                                            <!-- ko if: $data.show !== null -->
+                                                <button class="btn btn-secondary btn-sm" data-bind="click: function($data){$root.showError($data)}, eagleTooltip: 'Show object to investigate info'">Show</button>
+                                            <!-- /ko -->
+                                            <!-- ko if: $data.fix !== null -->
+                                                <button class="btn btn-primary btn-sm" data-bind="click: function(){ActionList.perform($index());}, eagleTooltip: $data.fixDescription">Fix</button>
+                                            <!-- /ko -->
+                                            </div>
+                                        </li>
+                                    <!-- /ko -->
+                                <!-- /ko -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <button id="actionListModalPerformAll" class="btn btn-primary" data-bind="click: ActionList.performAll, eagleTooltip: actionList().getNumPerformableActions() + ' fix(es) available', enable: actionList().getNumPerformableActions() > 0">
+                    Perform All
+                </button>
+                <button id="actionListModalOK" type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>

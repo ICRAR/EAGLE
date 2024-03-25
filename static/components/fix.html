@@ -3,7 +3,7 @@
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <span data-bind="text: $data.message"></span>
         <!-- ko if: fix !== null -->
-            <button class="btn btn-danger btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
+            <button class="btn btn-danger btn-sm" data-bind="click: function(){GraphChecker.fix($index());}, eagleTooltip: $data.fixDescription">Fix</button>
         <!-- /ko -->
     </div>
 </div>
@@ -13,7 +13,7 @@
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <span data-bind="text: $data.message"></span>
         <!-- ko if: fix !== null -->
-            <button class="btn btn-warning btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
+            <button class="btn btn-warning btn-sm" data-bind="click: function(){GraphChecker.fix(index());}, eagleTooltip: $data.fixDescription">Fix</button>
         <!-- /ko -->
     </div>
 </div>

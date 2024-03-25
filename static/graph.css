@@ -1,0 +1,326 @@
+#logicalGraphParent{
+    /* declaring custom variables used in css set via ts later from the graph config variables */
+    --selectedBg : red;
+    --selectedConstructBg:red;
+    --nodeBorder : red;
+    --nodeBg:red;
+    --graphText:red;
+    --branchBg:red;
+    --constructBg:red;
+    --embeddedApp:red;
+    --constructIcon:red;
+    --edgeColor:red;
+    --commentEdgeColor:red;
+    --matchingEdgeColor:red;
+}
+
+#logicalGraph {
+    display: none;
+    -webkit-transform-origin: 0 0;
+}
+
+#selectionRectangle{
+    border:1px black solid;
+    position: absolute;
+    display: none;
+}
+
+#logicalGraph svg{
+    position:absolute;   
+    z-index: 2;
+    pointer-events: none;
+    width: 10000px; 
+    height: 10000px;
+    transform: translate(-50%,-50%);
+}
+
+#logicalGraph svg path {
+    stroke-width:4;
+    fill:transparent; 
+    stroke:var(--edgeColor);
+    pointer-events: all;
+}
+
+#logicalGraph svg path.commentEdge{
+    stroke:var(--commentEdgeColor);
+    stroke-width: 2;
+}
+
+#logicalGraph svg path.edgeClickTarget{
+    stroke-width: 10px;
+    stroke:transparent;
+}
+
+.container, .header{
+   z-index: 3;
+   pointer-events: all;
+}
+
+.node .container, .constructOutputApp, .constructInputApp{
+    z-index: 5;
+    pointer-events: all;
+}
+
+.node .container .body{
+    z-index: 3;
+    pointer-events: all;
+}
+
+.construct_node .container{
+    z-index: 1;
+    max-width: none;
+}
+
+.construct_node .container .basic_node .body{
+    z-index: 3;
+    pointer-events: all;
+}
+
+#portContainer {
+    position: relative;
+    z-index: 10;
+}
+
+#portContainer i {
+    height: 100%;
+    width: 100%;
+    font-size: 14px;
+    transform: translate(-1px,-1.5px);
+    pointer-events: none;
+    color: #2e3192;
+    position: absolute;
+}
+
+.node {
+    position: absolute;
+    height: 60px;
+    pointer-events: none;
+    width: 60px;
+}
+
+.node .nodeContent {
+    width: 100%;
+    height: 100%;
+}
+
+.node .container{
+    position: relative;
+    height: 100%;
+    width: 100%;
+    padding:0px;
+    transform: translate(-50%,-50%);
+    pointer-events: none;
+    max-width: unset;
+}
+
+.node .construct_node .basic_node .container{
+    transform: none;
+}
+
+.node .construct_node .basic_node .header-name{
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.node .body {
+    position: relative;
+    background-color: var(--nodeBg);
+    border-radius: 50%;
+    border: 1.5px solid var(--nodeBorder);
+    width: 100%;
+    height: 100%;
+    box-shadow: -2px 5px 5px -4px #555555;
+    pointer-events: all;
+}
+
+.node .comment_node .body {
+    border: none;
+}
+
+.node .innerRing {
+    background-color: var(--nodeBg);
+    border-radius: 50%;
+    border: 1.5px solid var(--nodeBorder);
+    position: absolute;
+    inset: 6px 6px 6px 6px;
+    z-index: 2;
+}
+
+.node .outerRing {
+    border-radius: 50%;
+    border: 1.5px solid var(--nodeBorder);
+    position: absolute;
+    background-color: var(--branchBg);
+    inset: -7px -7px -7px -7px;
+    box-shadow: -2px 5px 5px -4px #555555;
+}
+
+.node .body span, .node .construct_node .basic_node span{
+    width: 100%;
+    height: 100%;
+    font-size: 75px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
+}
+
+.node .branch_node .body {
+    border-radius: 50%;
+    border: none !important;
+    width: 100%;
+    height: 100%;
+}
+
+.node .construct_node .body {
+    background-color: var(--constructBg);
+}
+
+.node .construct_node .basic_node .body {
+    background-color: var(--embeddedApp);
+}
+
+.node .construct_node span {
+    font-size: 150px;
+    color: var(--constructIcon);
+}
+
+.node .construct_node .constructInputApp, .node .construct_node .constructOutputApp{
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.node .branch_node .body span{
+    font-size: 100px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
+}
+
+.node .body span::before{
+    font-size: .35em; /* em is like using % for font sizes. it is a % relative to the font-size of the parent, in this case the span itself */
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    z-index: 5;
+    pointer-events: none;
+}
+
+#portContainer .port{
+    width: 12px;
+    height: 12px;
+    position: absolute;
+    border-radius: 50%;
+    background-color: red;
+    transform: translate(-50%,-50%);
+    top: 50%;
+    left: 100%;
+}
+
+#portContainer div{
+    position: relative;
+}
+
+#portContainer div .portTitle{
+    position: absolute;
+    font-size: 12px;
+    top: -1px;
+    width: 100px;
+    pointer-events: none;
+    display: none;
+
+    /* white outer border, a bit ugle but the only way i found to do it */
+    text-shadow:
+    -0.8px -0.8px 0 #ffffff,
+     0   -0.8px 0 #ffffff,
+     0.8px -0.8px 0 #ffffff,
+     0.8px  0   0 #ffffff,
+     0.8px  0.8px 0 #ffffff,
+     0    0.8px 0 #ffffff,
+    -0.8px  0.8px 0 #ffffff,
+    -0.8px  0   0 #ffffff;
+}
+
+#portContainer .selected div .portTitle{
+    display: block;
+}
+
+.node .container.selected .body {
+    outline: solid 2px var(--nodeBorder);
+    outline-offset: 0px;
+    background-color: var(--selectedBg);
+    /* box-shadow: 0 8px 6px -6px black; */
+}
+
+.node .construct_node .container.selected .body {
+    outline: solid 5px var(--nodeBorder);
+}
+
+.node .construct_node .constructInputApp .container.selected .body, .node .construct_node .constructOutputApp .container.selected .body {
+    outline: solid 2px var(--nodeBorder);
+}
+
+.node .branch_node .container.selected .outerRing {
+    outline: solid 2px var(--nodeBorder);
+    outline-offset: 0px;
+}
+
+.node .branch_node .container.selected .innerRing {
+    background-color:  var(--selectedBg) !important;
+}
+
+.node .construct_node .container.selected .body {
+    background-color: var(--selectedConstructBg);
+}
+
+.node .construct_node .basic_node .container.selected .body {
+    background-color: var(--selectedBg);
+}
+
+#portContainer .port.match.selected {
+    outline: 2px solid var(--matchingEdgeColor);
+}
+
+.node .header-name {
+    color:var(--graphText)
+}
+
+.node .container.selected .header-name {
+    font-weight: 500;
+    color:var(--graphText)
+}
+
+.node .header {
+    position: absolute;
+    overflow: hidden;
+    text-align: center;
+    bottom:calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 150px;
+}
+
+.node .branch_node .header{
+    bottom:calc(100% + 20px);
+}
+
+.node .header .header-name, .node .body .contents .app-name {
+    padding: 4px;
+    user-select: none;
+    line-height: 14px;
+    
+    /* white outer border, a bit ugle but the only way i found to do it */
+    text-shadow:
+    -1px -1px 0 #ffffff,
+     0   -1px 0 #ffffff,
+     1px -1px 0 #ffffff,
+     1px  0   0 #ffffff,
+     1px  1px 0 #ffffff,
+     0    1px 0 #ffffff,
+    -1px  1px 0 #ffffff,
+    -1px  0   0 #ffffff;
+}
+
+.construct_node .header-name{
+    font-size: 20px;
+    font-weight: 650;
+}
+
+.node.transition{
+    transition: width .2s cubic-bezier(0.68, 2.15, 0.5, 0.75), height .2s cubic-bezier(0.68, 2.15, 0.5, 0.75);
+    
+}

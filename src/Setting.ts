@@ -1,8 +1,10 @@
 import * as ko from "knockout";
 
+import { ActionMessage } from "./Action";
 import {Eagle} from './Eagle';
 import {Utils} from './Utils';
 import {UiMode, UiModeSystem, SettingData} from './UiModes';
+
 export class SettingsGroup {
     private name : string;
     private displayFunc : (eagle: Eagle) => boolean;
@@ -201,12 +203,29 @@ export class Setting {
     }
 
     resetDefault = () : void => {
-        let value = this.graphDefaultValue
-        if(UiModeSystem.getActiveUiMode().getName()==='Minimal'){
-            value = this.minimalDefaultValue
-        }else if(UiModeSystem.getActiveUiMode().getName()==='Expert'){
-            value = this.expertDefaultValue
+        const activeUIModeName: string = UiModeSystem.getActiveUiMode().getName();
+        let value: any = this.graphDefaultValue;
+
+        switch (activeUIModeName){
+            case "Student":
+                value = this.studentDefaultValue;
+                break;
+            case "Minimal":
+                value = this.minimalDefaultValue;
+                break;
+            case "Graph":
+                value = this.graphDefaultValue;
+                break;
+            case "Component":
+                value = this.componentDefaultValue;
+                break;
+            case "Expert":
+                value = this.expertDefaultValue;
+                break;
+            default:
+                console.warn("Unknown active UI mode name:", activeUIModeName, ", using default value for ", this.name, " setting");
         }
+
         this.value(value);
     }
 
@@ -227,19 +246,7 @@ export class Setting {
     }
 
     static showInspectorErrorsWarnings = () : boolean => {
-        const eagle = Eagle.getInstance();
-            
-        switch (Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS)){
-            case Setting.ShowErrorsMode.Warnings:
-                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length + eagle.selectedNode().getErrorsWarnings(eagle).warnings.length > 0;
-                break;
-            case Setting.ShowErrorsMode.Errors:
-                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length > 0;
-                break;
-            case Setting.ShowErrorsMode.None:
-            default:
-                return false;
-        }
+        return Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) != Setting.ShowErrorsMode.None;
     }
 
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
@@ -250,7 +257,7 @@ export class Setting {
     static readonly ACTION_CONFIRMATIONS : string = "ActionConfirmations";
     static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
     static readonly CONFIRM_NODE_CATEGORY_CHANGES : string = "ConfirmNodeCategoryChanges";
-    static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
+    static readonly CONFIRM_REMOVE_REPOSITORIES : string = "ConfirmRemoveRepositories";
     static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
     static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
 
@@ -340,9 +347,8 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Reset Action Confirmations", Setting.ACTION_CONFIRMATIONS, "Enable all action confirmation prompts",false, Setting.Type.Button, '', '','','','',[],'$root.resetActionConfirmations()'),
             new Setting(false, "Confirm Discard Changes", Setting.CONFIRM_DISCARD_CHANGES, "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.",false, Setting.Type.Boolean, true, true,true,true,true),
             new Setting(false, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.",false, Setting.Type.Boolean, true, true,true,true,true),
-            new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORES, "Prompt user to confirm removing a repository from the list of known repositories.",false , Setting.Type.Boolean, true,true,true,true,true),
+            new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORIES, "Prompt user to confirm removing a repository from the list of known repositories.",false , Setting.Type.Boolean, true,true,true,true,true),
             new Setting(false, "Confirm Reload Palettes", Setting.CONFIRM_RELOAD_PALETTES, "Prompt user to confirm when loading a palette that is already loaded.",false , Setting.Type.Boolean,true,true,true,true,true),
-            new Setting(false, "Confirm Delete", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
             new Setting(false, "Confirm Delete", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
             new Setting(true, "Open Default Palette on Startup", Setting.OPEN_DEFAULT_PALETTE, "Open a default palette on startup. The palette contains an example of all known node categories", false, Setting.Type.Boolean, false,false,true,true,true),
             new Setting(true, "Disable JSON Validation", Setting.DISABLE_JSON_VALIDATION, "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", false, Setting.Type.Boolean, false,false,false,false,false),
@@ -356,10 +362,10 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Show non key parameters", Setting.SHOW_NON_KEY_PARAMETERS, "Show additional parameters that are not marked as key parameters for the current graph",false, Setting.Type.Boolean, false,true,true,true,true),
             new Setting(true, "Display Node Keys", Setting.DISPLAY_NODE_KEYS, "Display Node Keys", false, Setting.Type.Boolean,false,false,false,true,true),
             new Setting(false, "Show Developer Tab", Setting.SHOW_DEVELOPER_TAB, "Reveals the developer tab in the settings menu", false, Setting.Type.Boolean, false,false,false,false,true),
-            new Setting(true, "Translator Mode", Setting.USER_TRANSLATOR_MODE, "Configue the translator mode", false, Setting.Type.Select, Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Expert, Object.values(Setting.TranslatorMode)),
+            new Setting(true, "Translator Mode", Setting.USER_TRANSLATOR_MODE, "Configure the translator mode", false, Setting.Type.Select, Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Expert, Object.values(Setting.TranslatorMode)),
             new Setting(true, "Graph Zoom Divisor", Setting.GRAPH_ZOOM_DIVISOR, "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", false, Setting.Type.Number,1000,1000,1000,1000,1000),
             new Setting(false, "Snap To Grid", Setting.SNAP_TO_GRID, "Align positions of nodes in graph to a grid", false, Setting.Type.Boolean,false,false,false,false,false),
-            new Setting(true, "Snap To Grid Size", Setting.SNAP_TO_GRID_SIZE, "Size of grid used when aligning positions of nodes in graph (pixels)", false, Setting.Type.Number, 50, 50, 50, 50, 50),
+            new Setting(false, "Snap To Grid Size", Setting.SNAP_TO_GRID_SIZE, "Size of grid used when aligning positions of nodes in graph (pixels)", false, Setting.Type.Number, 50, 50, 50, 50, 50),
             new Setting(true, "Show edge/node errors/warnings in inspector", Setting.SHOW_INSPECTOR_WARNINGS, "Show the errors/warnings found for the selected node/edge in the inspector", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
             new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_WIDTH_KEY, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
             new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH_KEY, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
@@ -369,14 +375,14 @@ const settings : SettingsGroup[] = [
         "Advanced Editing",
         () => {return true;},
         [
-            new Setting(true,"Allow Invalid edges", Setting.ALLOW_INVALID_EDGES, "Allow the user to create edges even if they would normally be determined invalid.", false, Setting.Type.Boolean, false, false, false, false, true),
+            new Setting(true, "Allow Invalid edges", Setting.ALLOW_INVALID_EDGES, "Allow the user to create edges even if they would normally be determined invalid.", false, Setting.Type.Boolean, false, false, false, false, true),
             new Setting(true, "Allow Component Editing", Setting.ALLOW_COMPONENT_EDITING, "Allow the user to add/remove ports and parameters from components.",false, Setting.Type.Boolean,false, false, false, true,true),
             new Setting(true, "Allow Set Key Parameter", Setting.ALLOW_SET_KEY_PARAMETER, "Allow the user to add/remove key parameter flags from parameters.", false, Setting.Type.Boolean,false, true, true, true,true),
             new Setting(true, "Allow Graph Editing", Setting.ALLOW_GRAPH_EDITING, "Allow the user to edit and create graphs.", false, Setting.Type.Boolean, false, false, true, true, true),
             new Setting(true, "Allow Palette Editing", Setting.ALLOW_PALETTE_EDITING, "Allow the user to edit palettes.", false, Setting.Type.Boolean, false, false, false, true, true),
             new Setting(true, "Allow Readonly Palette Editing", Setting.ALLOW_READONLY_PALETTE_EDITING, "Allow the user to modify palettes that would otherwise be readonly.", false, Setting.Type.Boolean,false,false,false,false,true),
             new Setting(true, "Allow Edge Editing", Setting.ALLOW_EDGE_EDITING, "Allow the user to edit edge attributes.", false, Setting.Type.Boolean, false, false,false, false, true),
-            new Setting(true, "Filter Node Suggestions", Setting.FILTER_NODE_SUGGESTIONS, "Filter Node Options When Drawing Edges Into Empty Space", false, Setting.Type.Boolean,true,true,true,true,true),
+            new Setting(true, "Filter Node Suggestions", Setting.FILTER_NODE_SUGGESTIONS, "Filter Node Options When Drawing Edges Into Empty Space", false, Setting.Type.Boolean,true,true,true,true,false),
             new Setting(false, "STUDENT_SETTINGS_MODE", Setting.STUDENT_SETTINGS_MODE, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
             new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, Setting.Type.Select, Setting.valueEditingPerms.KeyOnly,Setting.valueEditingPerms.Normal,Setting.valueEditingPerms.Normal,Setting.valueEditingPerms.ReadOnly,Setting.valueEditingPerms.ReadOnly, Object.values(Setting.valueEditingPerms)),
         ]

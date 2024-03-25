@@ -24,6 +24,7 @@
 
 import * as ko from "knockout";
 
+import { ActionMessage } from "./Action";
 import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
@@ -122,7 +123,7 @@ export class Undo {
             Undo.printTable();
         }
 
-        eagle.checkGraph();
+        eagle.graphChecker().check();
     }
 
     nextSnapshot = (eagle: Eagle) : void => {
@@ -139,7 +140,7 @@ export class Undo {
             Undo.printTable();
         }
 
-        eagle.checkGraph();
+        eagle.graphChecker().check();
     }
 
     toString = () : string => {
@@ -173,7 +174,6 @@ export class Undo {
         }
 
         const dataObject: LogicalGraph = snapshot.data();
-
         eagle.logicalGraph(dataObject);
     }
 

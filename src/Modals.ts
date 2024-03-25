@@ -335,14 +335,14 @@ export class Modals {
             // otherwise, check the current project, and load all selected palettes
             for (const ep of eagle.explorePalettes().getProject().palettes()){
                 if (ep.isSelected()){
-                    eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name));
+                    eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name), null);
                 }
             }
         });
 
         $('#parameterTableModal').on('hidden.bs.modal', function(){
             eagle.showTableModal(false)
-            eagle.checkGraph();
+            eagle.graphChecker().check();
         });
 
         $('#parameterTableModal').on('shown.bs.modal', function(){        

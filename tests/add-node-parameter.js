@@ -36,6 +36,9 @@ test('Add node parameter with usage InputPort', async t =>{
 
         .wait(1000)
 
+        //confirm creating new graph
+        .click('#inputModal .affermativeBtn')
+
     
     const numInputPortsBefore = await getNumInputPorts();
 

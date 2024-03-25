@@ -26,13 +26,14 @@ import * as Ajv from "ajv";
 import * as Showdown from "showdown";
 import * as ko from "knockout";
 
+import { ActionList } from "./ActionList";
+import { ActionMessage } from "./Action";
 import {Category} from './Category';
 import {CategoryData} from "./CategoryData";
-import {Config} from './Config';
+import { ComponentUpdater } from "./ComponentUpdater";
 import {Daliuge} from './Daliuge';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
-import {Errors} from './Errors';
 import {Field} from './Field';
 import {KeyboardShortcut} from './KeyboardShortcut';
 import {LogicalGraph} from './LogicalGraph';
@@ -42,6 +43,7 @@ import {PaletteInfo} from './PaletteInfo';
 import {Repository} from './Repository';
 import {Setting} from './Setting';
 import {FileInfo} from "./FileInfo";
+import { RepositoryFile } from "./RepositoryFile";
 import { UiModeSystem } from "./UiModes";
 
 export class Utils {
@@ -93,6 +95,10 @@ export class Utils {
         return now.getFullYear() + "-" + Utils.padStart(now.getMonth() + 1, 2) + "-" + Utils.padStart(now.getDate(), 2) + "-" + Utils.padStart(now.getHours(), 2) + "-" + Utils.padStart(now.getMinutes(), 2) + "-" + Utils.padStart(now.getSeconds(), 2);
     }
 
+    static generateGraphName(): string {
+        return "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(Eagle.FileType.Graph);
+    }
+
     static findNewKey(usedKeys : number[]): number {
         for (let i = -1 ; ; i--){
             let found = false;
@@ -142,9 +148,9 @@ export class Utils {
         return usedKeys;
     }
 
-    static newKey(nodes: Node[]): number {
-        const usedKeys = Utils.getUsedKeys(nodes);
-        return Utils.findNewKey(usedKeys);
+    static newKey(nodes: Node[],usedKeys:number[] = []): number {
+        const allUsedKeys = Utils.getUsedKeys(nodes).concat(usedKeys);
+        return Utils.findNewKey(allUsedKeys);
     }
 
     static setEmbeddedApplicationNodeKeys(lg: LogicalGraph): void {
@@ -438,24 +444,29 @@ export class Utils {
         }
     }
 
-    static showErrorsModal(title: string){
-        const errors: Errors.Issue[] = Errors.getErrors();
-        const warnings: Errors.Issue[] = Errors.getWarnings();
+    static showActionListModal(title: string, mode: ActionList.Mode, combinedMessages: {source: string, messages: ActionMessage[]}[]){
+        const flatMessages: ActionMessage[] = [];
+        for (const load of combinedMessages){
+            for (const am of load.messages){
+                flatMessages.push(new ActionMessage(am.level, load.source + ": " + am.message, am.show, am.fix, am.fixDescription));
+            }
+        }
 
-        console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.actionList().mode(mode);
+        eagle.actionList().messages(flatMessages);
 
-        $('#errorsModalTitle').text(title);
+        $('#actionListModalTitle').text(title);
 
         // hide whole errors or warnings sections if none are found
-        $('#errorsModalErrorsAccordionItem').toggle(errors.length > 0);
-        $('#errorsModalWarningsAccordionItem').toggle(warnings.length > 0);
+        $('#actionListModalMessagesAccordionItem').toggle(flatMessages.length > 0);
 
-        $('#errorsModal').modal("toggle");
+        $('#actionListModal').modal("toggle");
     }
 
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
         $.notify({
-            title:title + ":",
+            title:title + ":<br/>",
             message:message
         }, {
             type: type,
@@ -591,7 +602,6 @@ export class Utils {
                 }else{
                     $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
                 }
-                console.log($('#confirmModalDontShowAgain button').text())
             })
         }
         
@@ -732,8 +742,8 @@ export class Utils {
         $('#shortcutsModal').modal("hide");
     }
 
-    static closeErrorsModal() : void {
-        $('#errorsModal').modal("hide");
+    static closeCheckGraphModal() : void {
+        $('#checkGraphModal').modal("hide");
     }
 
     static showPalettesModal(eagle: Eagle) : void {
@@ -1395,9 +1405,9 @@ export class Utils {
         return type0 === type1;
     }
 
-    static checkPalette(palette: Palette): Errors.ErrorsWarnings {
+    static checkPalette(palette: Palette): ActionMessage[] {
         const eagle: Eagle = Eagle.getInstance();
-        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
+        const errors: ActionMessage[] = [];
 
         // check for duplicate keys
         const keys: number[] = [];
@@ -1405,7 +1415,7 @@ export class Utils {
         for (const node of palette.getNodes()){
             // check existing keys
             if (keys.indexOf(node.getKey()) !== -1){
-                errorsWarnings.errors.push(Errors.Message("Key " + node.getKey() + " used by multiple components in palette."));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Key " + node.getKey() + " used by multiple components in palette."));
             } else {
                 keys.push(node.getKey());
             }
@@ -1413,77 +1423,47 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of palette.getNodes()){
-            Node.isValid(eagle, node, Eagle.FileType.Palette, false, false, errorsWarnings);
+            Node.isValid(eagle, node, Eagle.FileType.Palette, false, false, errors);
         }
 
-        return errorsWarnings;
+        return errors;
     }
 
-    static checkGraph(eagle: Eagle): Errors.ErrorsWarnings {
-        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
+    static checkGraph(eagle: Eagle): ActionMessage[] {
+        const errors: ActionMessage[] = [];
 
         const graph: LogicalGraph = eagle.logicalGraph();
 
         // check all nodes are valid
         for (const node of graph.getNodes()){
-            Node.isValid(eagle, node, Eagle.FileType.Graph, false, false, errorsWarnings);
+            Node.isValid(eagle, node, Eagle.FileType.Graph, false, false, errors);
         }
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
+            Edge.isValid(graph, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errors);
         }
 
-        // check that all node, edge, field ids are unique
-        {
-            const ids : string[] = [];
-
-            // loop over graph nodes
-            for (const node of graph.getNodes()){
-                if (ids.includes(node.getId())){
-                    const issue: Errors.Issue = Errors.ShowFix(
-                        "Node (" + node.getName() + ") does not have a unique id",
-                        function(){Utils.showNode(eagle, Eagle.FileType.Graph, node.getId())},
-                        function(){Utils.newId(node)},
-                        "Assign node a new id"
-                    );
-                    errorsWarnings.errors.push(issue);
-                }
-                ids.push(node.getId());
-
-                for (const field of node.getFields()){
-                    if (ids.includes(field.getId())){
-                        const issue: Errors.Issue = Errors.ShowFix(
-                            "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
-                            function(){Utils.showNode(eagle, Eagle.FileType.Graph, node.getId())},
-                            function(){Utils.newId(field)},
-                            "Assign field a new id"
-                        );
-                        errorsWarnings.errors.push(issue);
-                    }
-                    ids.push(field.getId());
-                }
-            }
-
-            // loop over graph edges
-            for (const edge of graph.getEdges()){
-                if (ids.includes(edge.getId())){
-                    const issue: Errors.Issue = Errors.ShowFix(
-                        "Edge (" + edge.getId() + ") does not have a unique id",
-                        function(){Utils.showEdge(eagle, edge.getId())},
-                        function(){Utils.newId(edge)},
-                        "Assign edge a new id"
-                    );
-                    errorsWarnings.errors.push(issue);
-                }
-                ids.push(edge.getId());
-            }
-        }
-
-        return errorsWarnings;
+        return errors;
     }
 
-    static validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
+    // validate json
+    static validateJSON(jsonString: string, fileType: Eagle.FileType){
+        // if validation disabled, just return true
+        if (Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
+            return;
+        }
+
+        const jsonObject = JSON.parse(jsonString);
+        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, fileType);
+        if (!validatorResult.valid){
+            const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+            console.error(message, validatorResult.errors);
+            Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
+        }
+    }
+
+    static _validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
         // console.log("validateJSON(): version:", version, " fileType:", fileType);
 
         const ajv = new Ajv();
@@ -1562,32 +1542,13 @@ export class Utils {
         link.click();
     }
 
-    // https://noonat.github.io/intersect/#aabb-vs-aabb
-    static nodesOverlap(n0x: number, n0y: number, n0width: number, n0height: number, n1x: number, n1y: number, n1width: number, n1height: number) : boolean {
-        const n0pos = {x:n0x + n0width/2, y:n0y + n0height/2};
-        const n1pos = {x:n1x + n1width/2, y:n1y + n1height/2};
-        const n0half = {x:n0width/2, y:n0height/2};
-        const n1half = {x:n1width/2, y:n1height/2};
 
-        //console.log("compare", n0x, n0y, n0width, n0height, n1x, n1y, n1width, n1height);
+    static nodesOverlap(n0x: number, n0y: number, n0radius: number, n1x: number, n1y: number, n1radius: number) : boolean {
+        const dx = n0x - n1x;
+        const dy = n0y - n1y;
+        const distance = Math.sqrt(dx*dx + dy*dy);
 
-        const dx = n0pos.x - n1pos.x;
-        const px = (n0half.x + n1half.x) - Math.abs(dx);
-        if (px <= 0) {
-            //console.log("compare OK");
-            return false;
-        }
-
-        const dy = n0pos.y - n1pos.y;
-        const py = (n0half.y + n1half.y) - Math.abs(dy);
-        if (py <= 0) {
-            //console.log("compare OK");
-            return false;
-        }
-
-        //console.log("compares HIT");
-
-        return true;
+        return distance <= (n0radius + n1radius);
     }
 
     static table2CSV(table: any[]) : string {
@@ -1607,16 +1568,15 @@ export class Utils {
         return s;
     }
 
-    // https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point
     static positionToNodeDistance(positionX: number, positionY: number, node: Node): number {
-        const rectMinX = node.getPosition().x;
-        const rectMaxX = node.getPosition().x + node.getWidth();
-        const rectMinY = node.getPosition().y;
-        const rectMaxY = node.getPosition().y + node.getHeight();
+        // first determine the distance between the position and node center
+        const dx = node.getPosition().x - positionX;
+        const dy = node.getPosition().y - positionY;
+        let distance = Math.sqrt(dx*dx + dy*dy);
 
-        const dx = Math.max(rectMinX - positionX, 0, positionX - rectMaxX);
-        const dy = Math.max(rectMinY - positionY, 0, positionY - rectMaxY);
-        return Math.sqrt(dx*dx + dy*dy);
+        // then subtract the radius, limit to zero
+        distance = Math.max(distance - node.getRadius(), 0);
+        return distance;
     }
 
 
@@ -1651,7 +1611,7 @@ export class Utils {
 
     static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
         const displayShortcuts : {description:string, shortcut : string, function : any} []=[];
-        const eagle = (<any>window).eagle;
+        const eagle: Eagle = Eagle.getInstance();
 
         for (const object of Eagle.shortcuts){
             // skip if shortcut should not be displayed
@@ -1726,9 +1686,7 @@ export class Utils {
         return value.toLowerCase() === "true";
     }
 
-    static fixEdgeType(eagle: Eagle, edgeId: string, newType: string) : void {
-        const edge = eagle.logicalGraph().findEdgeById(edgeId);
-
+    static fixEdgeType(edge: Edge, newType: string) : void {
         if (edge === null){
             return;
         }
@@ -1736,19 +1694,20 @@ export class Utils {
         edge.setDataType(newType);
     }
 
-    static fixDeleteEdge(eagle: Eagle, edgeId: string): void {
-        eagle.logicalGraph().removeEdgeById(edgeId);
+    static fixDeleteEdge(logicalGraph: LogicalGraph, edgeId: string): void {
+        logicalGraph.removeEdgeById(edgeId);
     }
 
-    static fixPortType(eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
+    static fixPortType(sourcePort: Field, destinationPort: Field): void {
         destinationPort.setType(sourcePort.getType());
     }
 
-    static fixNodeAddField(eagle: Eagle, node: Node, field: Field){
+    static fixNodeAddField(node: Node, field: Field){
         node.addField(field);
     }
 
-    static fixNodeFieldIds(eagle: Eagle, nodeKey: number){
+    static fixNodeFieldIds(nodeKey: number){
+        const eagle: Eagle = Eagle.getInstance();
         const node: Node = eagle.logicalGraph().findNodeByKey(nodeKey);
 
         if (node === null){
@@ -1762,12 +1721,13 @@ export class Utils {
         }
     }
 
-    static fixNodeCategory(eagle: Eagle, node: Node, category: Category){
+    static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
+        node.setCategoryType(categoryType);
     }
 
     // NOTE: merges field1 into field0
-    static fixNodeMergeFieldsByIndex(eagle: Eagle, node: Node, field0Index: number, field1Index: number){
+    static fixNodeMergeFieldsByIndex(eagle: Eagle, location: Eagle.FileType, node: Node, field0Index: number, field1Index: number){
         //console.log("fixNodeMergeFieldsByIndex()", node.getName(), field0Index, field1Index);
 
         // abort if one or more of the fields is not found
@@ -1790,11 +1750,13 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(eagle, field1.getId(), field0.getId());
+        if (location === Eagle.FileType.Graph){
+            this._mergeEdges(eagle.logicalGraph(), field1.getId(), field0.getId());
+        }
     }
 
     // NOTE: merges field1 into field0
-    static fixNodeMergeFields(eagle: Eagle, node: Node, field0: Field, field1: Field){
+    static fixNodeMergeFields(eagle: Eagle, location: Eagle.FileType, node: Node, field0: Field, field1: Field){
         //console.log("fixNodeMergeFieldsById()", node.getName(), field0.getDisplayText(), field1.getDisplayText());
 
         // abort if one or more of the fields is not found
@@ -1817,7 +1779,9 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(eagle, field1.getId(), field0.getId());
+        if (location === Eagle.FileType.Graph){
+            this._mergeEdges(eagle.logicalGraph(), field1.getId(), field0.getId());
+        }
     }
 
     static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
@@ -1839,9 +1803,9 @@ export class Utils {
         return result;
     }
 
-    static _mergeEdges(eagle: Eagle, oldFieldId: string, newFieldId: string){
+    static _mergeEdges(logicalGraph: LogicalGraph, oldFieldId: string, newFieldId: string){
         // update all edges to use new field
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (const edge of logicalGraph.getEdges()){
             // update src port
             if (edge.getSrcPortId() === oldFieldId){
                 edge.setSrcPortId(newFieldId);
@@ -1854,11 +1818,11 @@ export class Utils {
         }
     }
 
-    static fixFieldId(eagle: Eagle, field: Field){
+    static fixFieldId(field: Field){
         field.setId(Utils.uuidv4());
     }
 
-    static fixFieldValue(eagle: Eagle, node: Node, exampleField: Field, value: string){
+    static fixFieldValue(node: Node, exampleField: Field, value: string){
         let field : Field = node.getFieldByDisplayText(exampleField.getDisplayText());
 
         // if a field was not found, clone one from the example and add to node
@@ -1871,7 +1835,7 @@ export class Utils {
         field.setValue(value);
     }
 
-    static fixFieldDefaultValue(eagle: Eagle, field: Field){
+    static fixFieldDefaultValue(field: Field){
         // depends on the type
         switch(field.getType()){
             case Daliuge.DataType.Boolean:
@@ -1892,7 +1856,7 @@ export class Utils {
         }
     }
 
-    static fixFieldType(eagle: Eagle, field: Field){
+    static fixFieldType(field: Field){
         if (field.getType() === Daliuge.DataType.Unknown){
             field.setType(Daliuge.DataType.Object);
             return;
@@ -1944,16 +1908,11 @@ export class Utils {
         field.setParameterType(newType);
     }
 
-    static callFixFunc(eagle: Eagle, fixFunc: () => void){
-        fixFunc();
-        Utils.postFixFunc(eagle);
-    }
-
     static postFixFunc(eagle: Eagle){
         eagle.selectedObjects.valueHasMutated();
         eagle.logicalGraph().fileInfo().modified = true;
 
-        eagle.checkGraph();
+        eagle.graphChecker().check();
         eagle.undo().pushSnapshot(eagle, "Fix");
     }
 
@@ -1961,9 +1920,14 @@ export class Utils {
         object.setId(Utils.uuidv4());
     }
     
-    static showEdge(eagle: Eagle, edgeId: string): void {
+    static showEdge(edgeId: string): void {
+        const eagle: Eagle = Eagle.getInstance();
+
         // close errors modal if visible
-        $('#errorsModal').modal("hide");
+        $('#checkGraphModal').modal("hide");
+
+        // close action list modal if visible
+        $('#actionListModal').modal("hide");
 
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
@@ -1972,7 +1936,10 @@ export class Utils {
         console.log("showNode()", location, nodeId);
 
         // close errors modal if visible
-        $('#errorsModal').modal("hide");
+        $('#checkGraphModal').modal("hide");
+
+        // close action list modal if visible
+        $('#actionListModal').modal("hide");
 
         // find node from nodeKey
         let n: Node = null;
@@ -2000,18 +1967,19 @@ export class Utils {
     }
 
     // only update result if it is worse that current result
-    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid {
-        if (errorsWarnings === null){
-            console.warn("errorsWarnings is null");
+    static worstEdgeError(errors: ActionMessage[]) : Eagle.LinkValid {
+        if (errors === null){
+            console.warn("errors is null");
             return Eagle.LinkValid.Valid;
         }
 
-        if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
+        if (errors.length === 0){
             return Eagle.LinkValid.Valid;
         }
 
-        if (errorsWarnings.errors.length !== 0){
-            return Eagle.LinkValid.Invalid;
+        if (errors.length !== 0){
+            // TODO: loop through the errors and find the worst
+            return Eagle.LinkValid.Impossible;
         }
 
         return Eagle.LinkValid.Warning;
@@ -2046,12 +2014,12 @@ export class Utils {
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
                 "expanded":node.getExpanded(),
+                "peek":node.isPeek(),
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
-                "realX":node.getRealPosition().x,
-                "realY":node.getRealPosition().y,
-                "width":node.getWidth(),
-                "height":node.getHeight(),
+                // "realX":node.getRealPosition().x,
+                // "realY":node.getRealPosition().y,
+                "radius":node.getRadius(),
                 "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
                 "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
                 "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
@@ -2219,7 +2187,8 @@ export class Utils {
         return result;
     }
 
-    static openRemoteFileFromUrl(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        Utils.httpGet(fileName, callback);
+    static openRemoteFileFromUrl(file: RepositoryFile, callback: (error : string, data : string) => void ) : void {
+        Utils.httpGet(file.path, callback);
     }
+
 }

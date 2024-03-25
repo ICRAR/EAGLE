@@ -35,6 +35,11 @@ test('Change destination port used by edge', async t =>{
         // add File component to graph
         .click('#addPaletteNodeFile')
 
+        .wait(1000)
+
+        //confirm creating new graph
+        .click('#inputModal .affermativeBtn')
+
         // add CopyApp component to graph
         .click('#addPaletteNodeCopyApp')
 

@@ -66,7 +66,10 @@ export namespace Daliuge {
 
         // branch
         YES = "yes",
-        NO = "no"
+        NO = "no",
+
+        // dummy
+        DUMMY = "dummy"
     }
 
     export enum DataType {
@@ -110,6 +113,18 @@ export namespace Daliuge {
         OJS = "OJS",
     }
 
+    export enum ReproducibilityMode {
+        Nothing = 0,
+        All = -1,
+        Rerun = 1,
+        Repeat = 2,
+        Recompute = 4,
+        Reproduce = 5,
+        Replicate_Sci = 6,
+        Replicate_Comp = 7,
+        Replicate_Totally = 8
+    }
+
     // These are the canonical example definition of each field
     export const groupStartField = new Field("", FieldName.GROUP_START, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
     export const groupEndField = new Field("", FieldName.GROUP_END, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
@@ -134,8 +149,7 @@ export namespace Daliuge {
         {
             categoryTypes: [
                 Category.Type.Application,
-                Category.Type.Data,
-                Category.Type.Construct
+                Category.Type.Data
             ],
             fields: [
                 Daliuge.dropClassField

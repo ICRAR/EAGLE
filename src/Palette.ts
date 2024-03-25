@@ -24,14 +24,15 @@
 
 import * as ko from "knockout";
 
-import {Utils} from './Utils';
-import {Eagle} from './Eagle';
-import {Node} from './Node';
-import {FileInfo} from './FileInfo';
-import {RepositoryFile} from './RepositoryFile';
-import {Errors} from './Errors';
-import {Category} from './Category';
-import {CategoryData} from './CategoryData';
+import { ActionMessage } from "./Action";
+import { Category } from './Category';
+import { CategoryData } from './CategoryData';
+import { Eagle } from './Eagle';
+import { FileInfo } from './FileInfo';
+import { Node } from './Node';
+import { RepositoryFile } from './RepositoryFile';
+import { Utils } from './Utils';
+
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
@@ -48,27 +49,25 @@ export class Palette {
         this.searchExclude = ko.observable(false);
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette => {
-        // parse the JSON first
-        const dataObject : any = JSON.parse(data);
+    static fromOJSJson = (dataObject: any, file : RepositoryFile, errors: ActionMessage[]) : Palette => {
         const result : Palette = new Palette();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
+        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errors));
 
         // add nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             const nodeData = dataObject.nodeDataArray[i];
 
             // read node
-            const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, true, (): number => {
+            const newNode : Node = Node.fromOJSJson(nodeData, errors, true, (): number => {
                 return Utils.newKey(result.nodes());
             });
 
             // check that node has no group
             if (newNode.getParentKey() !== null){
                 const error : string = file.name + " Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
-                errorsWarnings.warnings.push(Errors.Message(error));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Warning, error));
 
                 newNode.setParentKey(null);
             }
@@ -76,7 +75,7 @@ export class Palette {
             // check that x, y, position is the default
             if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
                 const error : string = file.name + " Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
-                errorsWarnings.warnings.push(Errors.Message(error));
+                errors.push(ActionMessage.Message(ActionMessage.Level.Warning, error));
 
                 newNode.setPosition(0, 0);
             }
@@ -87,16 +86,15 @@ export class Palette {
 
         // check for missing name
         if (result.fileInfo().name === ""){
-            const error : string = file.name + " FileInfo.name is empty. Setting name to " + file.name;
-            errorsWarnings.warnings.push(Errors.Message(error));
+            const message : string = file.name + " FileInfo.name is empty. Setting name to " + file.name;
+            errors.push(ActionMessage.Message(ActionMessage.Level.Warning, message));
 
             result.fileInfo().name = file.name;
         }
 
         // check palette, and then add any resulting errors/warnings to the end of the errors/warnings list
         const checkResult = Utils.checkPalette(result);
-        errorsWarnings.errors.push(...checkResult.errors);
-        errorsWarnings.warnings.push(...checkResult.warnings);
+        errors.push(...checkResult);
 
         return result;
     }

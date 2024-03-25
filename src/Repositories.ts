@@ -34,7 +34,7 @@ export class Repositories {
     }
 
     static selectFile = (file : RepositoryFile) : void => {
-        // console.log("selectFile() service:", file.repository.service, "repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
+        console.log("selectFile() service:", file.repository.service, "repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
         const eagle: Eagle = Eagle.getInstance();
 
         // check if the current file has been modified
@@ -60,10 +60,10 @@ export class Repositories {
                     return;
                 }
 
-                eagle.openRemoteFile(file);
+                eagle.openRemoteFile(file, null);
             });
         } else {
-            eagle.openRemoteFile(file);
+            eagle.openRemoteFile(file, null);
         }
     }
 
@@ -107,13 +107,13 @@ export class Repositories {
 
     removeCustomRepository = (repository : Repository) : void => {
         // if settings dictates that we don't confirm with user, remove immediately
-        if (!Setting.findValue(Setting.CONFIRM_REMOVE_REPOSITORES)){
+        if (!Setting.findValue(Setting.CONFIRM_REMOVE_REPOSITORIES)){
             this._removeCustomRepository(repository);
             return;
         }
 
         // otherwise, check with user
-        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel",Setting.CONFIRM_REMOVE_REPOSITORES, (confirmed : boolean) =>{
+        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel",Setting.CONFIRM_REMOVE_REPOSITORIES, (confirmed : boolean) =>{
             if (!confirmed){
                 console.log("User aborted removeCustomRepository()");
                 return;

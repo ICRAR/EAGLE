@@ -71,7 +71,7 @@
                                 <!-- /ko -->
                             </div>
                         </div>
-                        <div class="accordion-button rightClick_paletteHeader" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="eagleRightClick: $data, attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
+                        <div class="accordion-button rightClick_paletteHeader" type="button" data-bs-toggle="collapse" aria-expanded="true" data-bind="eagleRightClick: {data:$data,type:'rightClick_paletteHeader'}, attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index()}">
                             <span>&nbsp;</span>
                             <h5 class="template-title" data-bs-placement="right" data-bind="text: fileInfo().nameAndModifiedIndicator(), eagleTooltip: fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())"></h5>
                         </div>

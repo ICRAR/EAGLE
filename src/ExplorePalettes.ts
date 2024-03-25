@@ -104,7 +104,7 @@ export class ExplorePalettes {
 
         if (typeof event === "undefined"){
             // load immediately
-            eagle.openRemoteFile(new RepositoryFile(new Repository(data.repositoryService, data.repositoryName, data.repositoryBranch, false), data.path, data.name));
+            eagle.openRemoteFile(new RepositoryFile(new Repository(data.repositoryService, data.repositoryName, data.repositoryBranch, false), data.path, data.name), null);
             $('#explorePalettesModal').modal('hide');
         } else {
             const newState = !data.isSelected()

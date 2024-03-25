@@ -1,52 +1,68 @@
-import {LogicalGraph} from './LogicalGraph';
-import {Palette} from './Palette';
-import {Node} from './Node';
-import {Utils} from './Utils';
-import {Errors} from './Errors';
+import { ActionMessage } from './Action';
+import { Eagle } from './Eagle';
+import { LogicalGraph } from './LogicalGraph';
+import { Node } from './Node';
+import { Palette } from './Palette';
+import { Utils } from './Utils';
+
 
 export class ComponentUpdater {
 
-    static update(palettes: Palette[], graph: LogicalGraph, callback : (errorsWarnings : Errors.ErrorsWarnings, updatedNodes : Node[]) => void) : void {
-        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
-        const updatedNodes: Node[] = [];
+    static nodeMatchesPrototype = (node: Node, prototype: Node) : boolean => {
+        return node.getRepositoryUrl() !== "" &&
+               prototype.getRepositoryUrl() !== "" &&
+               node.getRepositoryUrl() === prototype.getRepositoryUrl() &&
+               node.getName() === prototype.getName() &&
+               node.getCommitHash() !== prototype.getCommitHash();
+    }
+
+    static determineUpdates(palettes: Palette[], graph: LogicalGraph, callback : (errors: ActionMessage[], updates : ActionMessage[]) => void) : void {
+        const errors: ActionMessage[] = [];
+        const updates: ActionMessage[] = [];
 
         // check if any nodes to update
         if (graph.getNodes().length === 0){
             // TODO: don't showNotification here! instead add a warning to the errorsWarnings and callback()
-            errorsWarnings.errors.push(Errors.Message("Graph contains no components to update"));
-            callback(errorsWarnings, updatedNodes);
+            errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Graph contains no components to update"));
+            callback(errors, updates);
             return;
         }
 
         // make sure we have a palette available for each component in the graph
         for (let i = 0 ; i < graph.getNodes().length ; i++){
             const node: Node = graph.getNodes()[i];
-            let newVersion : Node = null;
+            let foundPrototype: boolean = false;
 
             for (const palette of palettes){
                 for (const paletteNode of palette.getNodes()){
-                    if (Node.requiresUpdate(node, paletteNode)){
-                        newVersion = paletteNode;
+                    
+                    if (!foundPrototype && ComponentUpdater.nodeMatchesPrototype(node, paletteNode)){
+                        foundPrototype = true;
+                        const nodeUpdates : ActionMessage[] = ComponentUpdater.nodeDetermineUpdates(node, paletteNode);
+                        updates.push(...nodeUpdates);
                     }
                 }
             }
 
-            if (newVersion === null){
-                console.log("No match for node", node.getName());
-                errorsWarnings.warnings.push(Errors.Message("Could not find appropriate palette for node " + node.getName() + " from repository " + node.getRepositoryUrl()));
+            if (!foundPrototype){
+                //console.log("No match for node", node.getName());
+                errors.push(ActionMessage.Message(ActionMessage.Level.Warning, "Could not find appropriate palette to use as prototype for " + node.getName() + " component."));
                 continue;
             }
 
             // update the node with a new definition
-            ComponentUpdater._replaceNode(node, newVersion);
-            updatedNodes.push(node);
+            //ComponentUpdater._replaceNode(node, newVersion);
+            //updatedNodes.push(node);
         }
 
-        callback(errorsWarnings, updatedNodes);
+        callback(errors, updates);
     }
 
     // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
-    static _replaceNode(dest:Node, src:Node){
+    static nodeDetermineUpdates(dest:Node, src:Node) : ActionMessage[] {
+        const eagle = Eagle.getInstance();
+        const updates: ActionMessage[] = [];
+
         for (let i = 0 ; i < src.getFields().length ; i++){
             const srcField = src.getFields()[i];
 
@@ -60,12 +76,36 @@ export class ComponentUpdater {
 
             // if dest field could not be found, then go ahead and add a NEW field to the dest node
             if (destField === null){
-                destField = srcField.clone();
-                dest.addField(destField);
+                const newField = srcField.clone();
+                //dest.addField(destField);
+                updates.push(
+                    ActionMessage.ShowFix(
+                        ActionMessage.Level.Info,
+                        dest.getName() + " (" + dest.getKey() + ") component is missing a '" + srcField.getDisplayText() + "' field",
+                        function(){Utils.showNode(eagle, Eagle.FileType.Graph, dest.getId())},
+                        function(){Utils.fixNodeAddField(dest, newField)},
+                        "Add '" + srcField.getDisplayText() + "' field to " + dest.getName() + " component"
+                    )
+                );
             }
-           
-            // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
-            destField.copyWithKeyAndId(srcField, destField.getNodeKey(), destField.getId());
+
+            if (destField !== null){
+                if (destField.getValue() !== srcField.getValue()){
+                    updates.push(
+                        ActionMessage.ShowFix(
+                            ActionMessage.Level.Info,
+                            dest.getName() + " (" + dest.getKey() + ") component '" + srcField.getDisplayText() + "' field has different value",
+                            function(){Utils.showNode(eagle, Eagle.FileType.Graph, dest.getId())},
+                            function(){Utils.fixFieldValue(dest, srcField, srcField.getValue())}, 
+                            "Update " + dest.getName() + " (" + dest.getKey() + ") field '" + srcField.getDisplayText() + "' from " + destField.getValue() + " to " + srcField.getValue()
+                        )
+                    );
+                }
+
+                // TODO: check other differences between the destField and srcField
+            }
         }
+
+        return updates;
     }
 }

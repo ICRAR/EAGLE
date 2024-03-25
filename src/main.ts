@@ -28,15 +28,20 @@ import "jqueryMigrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
-import {UiMode, UiModeSystem, SettingData} from './UiModes';
+import { ActionList } from "./ActionList";
+import { ActionMessage } from "./Action";
 import {Category} from './Category';
 import {CategoryData} from './CategoryData';
 import {Config} from './Config';
 import {Daliuge} from './Daliuge';
 import {Eagle} from './Eagle';
-import {Errors} from './Errors';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
+<<<<<<< HEAD
+import { GraphChecker } from "./GraphChecker";
+=======
+import { GraphRenderer } from "./GraphRenderer";
+>>>>>>> html-graph-renderer
 import {Hierarchy} from './Hierarchy';
 import {RightClick} from './RightClick';
 import {QuickActions} from './QuickActions';
@@ -45,6 +50,7 @@ import {LogicalGraph} from './LogicalGraph';
 import {Modals} from './Modals';
 import {Palette} from './Palette';
 import {Setting} from './Setting';
+import {UiMode, UiModeSystem, SettingData} from './UiModes';
 import {Utils} from './Utils';
 import {Repositories} from './Repositories';
 import {Repository} from './Repository';
@@ -52,6 +58,7 @@ import {RepositoryFile} from './RepositoryFile';
 import {ParameterTable} from "./ParameterTable";
 import {SideWindow} from "./SideWindow";
 import {TutorialSystem} from "./Tutorial";
+import {GraphConfig} from "./graphConfig";
 
 import * as quickStart from './tutorials/quickStart'
 import * as graphBuilding from './tutorials/graphBuilding'
@@ -68,11 +75,12 @@ $(function(){
     // add eagle to the window object, slightly hacky, but useful for debugging
     (<any>window).eagle = eagle;
 
+    (<any>window).ActionList = ActionList;
     (<any>window).Category = Category;
     (<any>window).Config = Config;
     (<any>window).Daliuge = Daliuge;
     (<any>window).Eagle = Eagle;
-    (<any>window).Errors = Errors;
+    (<any>window).GraphChecker = GraphChecker;
     (<any>window).Hierarchy = Hierarchy;
     (<any>window).ParameterTable = ParameterTable;
     (<any>window).Repositories = Repositories;
@@ -80,11 +88,17 @@ $(function(){
     (<any>window).Setting = Setting;
     (<any>window).SideWindow = SideWindow;
     (<any>window).TutorialSystem = TutorialSystem;
+<<<<<<< HEAD
+    (<any>window).ActionMessage = ActionMessage;
+=======
+    (<any>window).GraphRenderer = GraphRenderer;
+>>>>>>> html-graph-renderer
     (<any>window).UiModeSystem = UiModeSystem;
     (<any>window).Utils = Utils;
     (<any>window).KeyboardShortcut = KeyboardShortcut;
     (<any>window).QuickActions = QuickActions;
     (<any>window).Modals = Modals;
+    (<any>window).GraphConfig = GraphConfig;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
@@ -123,32 +137,67 @@ $(function(){
         GitLab.loadRepoList();
     }
 
-    // load the default palette
-    if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
-        eagle.loadPalettes([
-            {name:"Builtin Components", filename:Daliuge.PALETTE_URL, readonly:true},
-            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true}
-        ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
-            const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
+    // build list of auto-load files
+    const autoLoadFiles: RepositoryFile[] = [];
 
-            // display of errors if setting is true
-            if (showErrors && (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings))){
-                // add warnings/errors to the arrays
-                eagle.loadingErrors(errorsWarnings.errors);
-                eagle.loadingWarnings(errorsWarnings.warnings);
-
-                eagle.errorsMode(Setting.ErrorsMode.Loading);
-                Utils.showErrorsModal("Loading File");
-            }
-
-            for (const palette of palettes){
-                if (palette !== null){
-                    eagle.palettes.push(palette);
-                }
-            }
-            eagle.leftWindow().shown(true);
-        });
+    // if url contains file to auto-load, add to auto-load files list
+    const urlAutoLoadFile = parseUrlAutoLoad();
+    if (urlAutoLoadFile !== null){
+        autoLoadFiles.push(urlAutoLoadFile);
     }
+
+    // if 'load default palette' setting is set
+    if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
+        autoLoadFiles.push(new RepositoryFile(new Repository(Eagle.RepositoryService.Url, "", "", false), Daliuge.PALETTE_URL, "Builtin Components"));
+        autoLoadFiles.push(new RepositoryFile(new Repository(Eagle.RepositoryService.Url, "", "", false), Daliuge.TEMPLATE_URL, Palette.DYNAMIC_PALETTE_NAME));
+    }
+
+    // load the default palette
+    eagle.loadFiles(autoLoadFiles, (palettes: {file: RepositoryFile, palette: Palette, errors: ActionMessage[]}[], logicalGraphs: {file: RepositoryFile, logicalGraph: LogicalGraph, errors: ActionMessage[]}[]):void => {
+        const loads : {file: RepositoryFile, errors: ActionMessage[]}[] = [];
+
+        // handle palettes
+        for (const p of palettes){
+            loads.push({file:p.file, errors: p.errors});
+            if (p.palette !== null){
+                p.palette.fileInfo().name = p.file.name;
+                eagle.remotePaletteLoaded(p.file, p.palette);
+            }
+        }
+
+        // handle graphs
+        for (const g of logicalGraphs){
+            loads.push({file:g.file, errors: g.errors});
+            if (g.logicalGraph !== null){
+                eagle.remoteGraphLoaded(g.file, g.logicalGraph);
+            }
+        }
+
+        // handle errors
+        eagle.handleLoadingErrors(loads);
+
+        // show the left window if palettes were loaded
+        // TODO: is this required? try removing
+        if (palettes.length > 0){
+            eagle.leftWindow().shown(true);
+        }
+
+        if (logicalGraphs.length > 0){
+            // center graph
+            eagle.centerGraph();
+
+            // check graph
+            eagle.graphChecker().check();
+
+            // HACK: we assume the urlAutoLoadFile is the graph file, may not be the case!
+
+            // push undo snapshot
+            eagle.undo().pushSnapshot(eagle, "Loaded " + urlAutoLoadFile.name);
+
+            // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
+            eagle.updateLogicalGraphFileInfo(urlAutoLoadFile);
+        }
+    });
 
     // set other state based on settings values
     if (Setting.findValue(Setting.SNAP_TO_GRID)){
@@ -171,15 +220,17 @@ $(function(){
     document.onkeydown = KeyboardShortcut.processKey;
     document.onkeyup = KeyboardShortcut.processKey;
 
+<<<<<<< HEAD
     // HACK: without this global wheel event handler, d3 does not receive zoom events
     //       not sure why, this wasn't always the case
     document.onwheel = () => {return;};
-
+=======
     // auto load the file
     autoLoad(eagle);
+>>>>>>> html-graph-renderer
 
     // auto load a tutorial, if specified on the url
-    autoTutorial(eagle);
+    parseUrlAutoTutorial();
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").mouseleave(function(){
@@ -190,9 +241,9 @@ $(function(){
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
-        $("#errorsModalAccordion").parent().parent().attr('style','')
+        $("#checkGraphModalAccordion").parent().parent().attr('style','')
 
-        //reset parameter table selecction
+        //reset parameter table selection
         ParameterTable.resetSelection()
     });
 
@@ -274,9 +325,17 @@ $(function(){
             break;
         }
     }
+
+    
+    //initiating all the eagle ui when the graph is ready
+    $('#logicalGraph').show(200)
+    $('.leftWindow').show(200)
+    $('.rightWindow').show(200)
+    $('#graphNameWrapper').show(200)
+    $('nav.navbar').show(200).css('display', 'flex');
 });
 
-function autoLoad(eagle: Eagle) {
+function parseUrlAutoLoad(): RepositoryFile {
     const service    = (<any>window).auto_load_service;
     const repository = (<any>window).auto_load_repository;
     const branch     = (<any>window).auto_load_branch;
@@ -290,30 +349,30 @@ function autoLoad(eagle: Eagle) {
     // skip unknown services
     if (typeof realService === "undefined" || realService === Eagle.RepositoryService.Unknown){
         console.log("No auto load. Service Unknown");
-        return;
+        return null;
     }
 
     // skip empty strings
     if ([Eagle.RepositoryService.GitHub, Eagle.RepositoryService.GitLab].includes(realService) && (repository === "" || branch === "" || filename === "")){
         console.log("No auto load. Repository, branch or filename not specified");
-        return;
+        return null;
     }
 
     // skip url if url is not specified
     if (realService === Eagle.RepositoryService.Url && url === ""){
         console.log("No auto load. Url not specified");
-        return;
+        return null;
     }
 
     // load
     if (service === Eagle.RepositoryService.Url){
-        Repositories.selectFile(new RepositoryFile(new Repository(service, "", "", false), "", url));
+        return new RepositoryFile(new Repository(service, "", "", false), url, "");
     } else {
-        Repositories.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+        return new RepositoryFile(new Repository(service, repository, branch, false), path, filename);
     }
 }
 
-function autoTutorial(eagle: Eagle){
+function parseUrlAutoTutorial(){
     const urlParams = new URLSearchParams(window.location.search);
     const tutorialName = urlParams.get('tutorial');
 

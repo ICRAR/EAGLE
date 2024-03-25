@@ -87,20 +87,25 @@
                 </div>
                 <!-- /ko -->
             </div>
-            <!-- ko if: selectedEdge() != null -->
-                <div class="card-body">
-                    <!-- ko with: selectedEdge().getErrorsWarnings($root) -->
+            
+            <!-- ko if: Setting.showInspectorErrorsWarnings() -->
+                <div class="card pt-2" id="edgeInspectorErrorsCard">
+                    <div class="card-body">
                         <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) != Setting.ShowErrorsMode.None -->
-                            <!-- ko foreach: errors -->
-                                <fix params="data: $data, isError: true"></fix>
+                            <!-- ko foreach: selectedEdge().getErrorsWarnings($root) -->
+                                <!-- ko if: $data.level === ActionMessage.Level.Error -->
+                                    <fix params="data: $data, isError: true"></fix>
+                                <!-- /ko -->
                             <!-- /ko -->
                         <!-- /ko -->
                         <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings -->
-                            <!-- ko foreach: warnings -->
-                                <fix params="data: $data, isError: false"></fix>
+                            <!-- ko foreach: selectedEdge().getErrorsWarnings($root) -->
+                                <!-- ko if: $data.level === ActionMessage.Level.Error -->
+                                    <fix params="data: $data, isError: false"></fix>
+                                <!-- /ko -->
                             <!-- /ko -->
                         <!-- /ko -->
-                    <!-- /ko -->
+                    </div>
                 </div>
             <!-- /ko -->
         </div>

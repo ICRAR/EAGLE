@@ -1,8 +1,8 @@
 import * as ko from "knockout";
 
-import { Daliuge } from "./Daliuge";
+import { ActionMessage } from "./Action";
 import { Eagle } from './Eagle';
-import { Errors } from './Errors';
+import { Daliuge } from "./Daliuge";
 import { Utils } from './Utils';
 
 
@@ -425,7 +425,7 @@ export class FileInfo {
     }
 
     // TODO: use errors array if attributes cannot be found
-    static fromOJSJson = (modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo => {
+    static fromOJSJson = (modelData : any, errors: ActionMessage[]) : FileInfo => {
         const result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
@@ -463,7 +463,7 @@ export class FileInfo {
         // check that lastModifiedDatetime is a Number, if not correct
         if (typeof result.lastModifiedDatetime !== 'number'){
             result.lastModifiedDatetime = 0;
-            errorsWarnings.errors.push(Errors.Message("Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value."));
+            errors.push(ActionMessage.Message(ActionMessage.Level.Error, "Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value."));
         }
 
         result.numLGNodes = modelData.numLGNodes == undefined ? 0 : modelData.numLGNodes;

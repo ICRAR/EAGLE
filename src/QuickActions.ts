@@ -1,9 +1,3 @@
-import {Eagle} from './Eagle';
-import {Category} from './Category';
-import {Utils} from './Utils';
-import {Errors} from './Errors';
-import { Setting } from './Setting';
-import { ParameterTable } from './ParameterTable';
 import {KeyboardShortcut} from './KeyboardShortcut';
 
 let wordMatch:any[] = []
