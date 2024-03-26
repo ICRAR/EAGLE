@@ -2221,4 +2221,45 @@ export class Utils {
         Utils.httpGet(fileName, callback);
     }
 
+    static copyFieldsFromPrototype(node: Node, paletteName: string, category: Category) : void {
+        const eagle: Eagle = Eagle.getInstance();
+
+        // get a reference to the builtin palette
+        const palette: Palette = eagle.findPalette(paletteName, false);
+        if (palette === null){
+            console.warn("Could not find palette", paletteName);
+            return;
+        }
+
+        // find node with new type in builtinPalette
+        const newCategoryPrototype: Node = palette.findNodeByNameAndCategory(category);
+
+        // check that category was found
+        if (newCategoryPrototype === null){
+            console.warn("Prototypes for new category could not be found in palettes", category);
+            return;
+        }
+
+        // copy fields from new category to old node
+        for (let i = 0 ; i < newCategoryPrototype.getFields().length ; i++){
+            const field: Field = newCategoryPrototype.getFields()[i];
+
+            if (field.isInputPort() || field.isOutputPort()){
+                continue;
+            }
+
+            // try to find field in old node that matches by displayText AND parameterType
+            let destField = node.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
+
+            // if dest field could not be found, then go ahead and add a NEW field to the dest node
+            if (destField === null){
+                destField = field.clone();
+                node.addField(destField);
+            }
+
+            // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
+            destField.copyWithKeyAndId(field, destField.getNodeKey(), destField.getId());
+        }
+    }
+
 }

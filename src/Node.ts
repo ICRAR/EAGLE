@@ -126,7 +126,7 @@ export class Node {
 
         this.color = ko.observable(Utils.getColorForNode(category));
         this.drawOrderHint = ko.observable(0);
-        this.radius = ko.observable(0);
+        this.radius = ko.observable(GraphConfig.NORMAL_NODE_RADIUS);
     }
 
     getId = () : string => {

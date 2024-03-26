@@ -299,7 +299,7 @@ export class Palette {
         palette_url += "&path=" + encodeURI(fileInfo.path);
         palette_url += "&filename=" + encodeURI(fileInfo.name);
 
-        // copy to cliboard
+        // copy to clipboard
         navigator.clipboard.writeText(palette_url);
 
         // notification
