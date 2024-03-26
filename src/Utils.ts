@@ -1081,31 +1081,28 @@ export class Utils {
     }
 
     static getCategoriesWithInputsAndOutputs(categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
-        const result: Category[] = [];
-        for (const [categoryName, categoryData] of Object.entries(CategoryData.cData)){
+        const eagle = Eagle.getInstance();
 
-
-            if(!Setting.findValue(Setting.SHOW_ALL_CATEGORY_OPTIONS)){
-                
-                if (categoryData.categoryType !== categoryType){
-                    continue;
-                }
-                
-                // if input ports required, skip nodes with too few
-                if (numRequiredInputs > categoryData.maxInputs){
-                    continue;
-                }
-
-                // if output ports required, skip nodes with too few
-                if (numRequiredOutputs > categoryData.maxOutputs){
-                    continue;
-                }
-            }
-            
-            result.push(categoryName as Category);
+        // get a reference to the builtin palette
+        const builtinPalette: Palette = eagle.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
+        if (builtinPalette === null){
+            console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
+            return null;
         }
 
-        return result;
+        const matchingNodes = builtinPalette.getNodesByCategoryType(categoryType)
+        const matchingCategories : Category[] = []
+
+        matchingNodes.forEach(function(node){
+            for(const x of matchingCategories){
+                if(node.getCategory() === x){
+                    continue
+                }
+            }
+            matchingCategories.push(node.getCategory())
+        })
+
+        return matchingCategories;
     }
 
     static getDataComponentMemory(palettes: Palette[]) : Node {

@@ -243,6 +243,18 @@ export class Palette {
         return null;
     }
 
+    getNodesByCategoryType = (categoryType: Category.Type) : Node[] => {
+        const result : Node[] = []
+
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getCategoryType() === categoryType){
+                result.push(this.nodes()[i])
+            }
+        }
+
+        return result;
+    }
+
     replaceNode = (index : number, newNode : Node) : void => {
         this.nodes.splice(index, 1, newNode);
     }
@@ -287,7 +299,7 @@ export class Palette {
         palette_url += "&path=" + encodeURI(fileInfo.path);
         palette_url += "&filename=" + encodeURI(fileInfo.name);
 
-        // copy to cliboard
+        // copy to clipboard
         navigator.clipboard.writeText(palette_url);
 
         // notification

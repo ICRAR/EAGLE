@@ -2278,7 +2278,7 @@ export class Eagle {
     }
 
     saveAsPNG = () : void => {
-        Utils.saveAsPNG('#logicalGraphD3Div svg', this.logicalGraph().fileInfo().name);
+        Utils.saveAsPNG('#logicalGraph svg', this.logicalGraph().fileInfo().name);
     };
 
     toggleCollapseAllGroups = () : void => {
@@ -4556,48 +4556,67 @@ export class Eagle {
 
     inspectorChangeNodeCategory = (event:any) : void => {
         const newNodeCategory: Category = $(event.target).val() as Category
+        const oldNode = this.selectedNode();
 
-        this.selectedNode().setCategory(newNodeCategory)
-
-        // once the category is changed, some things about the node may no longer be valid
-        // for example, the node may contain ports, but no ports are allowed
-
-        // get category data
-        const categoryData = CategoryData.getCategoryData(newNodeCategory);
-
-        // delete parameters, if necessary
-        if (this.selectedNode().getComponentParameters().length > 0 && !categoryData.canHaveComponentParameters){
-            this.selectedNode().removeAllComponentParameters();
+        // get a reference to the builtin palette
+        const builtinPalette: Palette = this.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
+        if (builtinPalette === null){
+            console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
+            return;
         }
 
-        // delete application args, if necessary
-        if (this.selectedNode().getApplicationArguments().length > 0 && !categoryData.canHaveApplicationArguments){
-            this.selectedNode().removeAllApplicationArguments();
+        // find node with new type in builtinPalette
+        const oldCategoryPrototype: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
+        const newCategoryPrototype: Node = builtinPalette.findNodeByNameAndCategory(newNodeCategory);
+
+        // check that prototypes were found for old category and new category
+        if (oldCategoryPrototype === null || newCategoryPrototype === null){
+            console.warn("Prototypes for old and new categories could not be found in palettes", oldCategoryPrototype, newCategoryPrototype);
+            return;
         }
 
-        // delete extra input ports
-        if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
-            for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
-                this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
+        // delete non-ports from the old node (loop backwards since we are deleting from the array as we loop)
+        for (let i = oldNode.getFields().length - 1 ; i >= 0; i--){
+            const field: Field = oldNode.getFields()[i];
+
+            if (field.isInputPort() || field.isOutputPort()){
+                continue;
             }
+
+            oldNode.removeFieldById(field.getId());
         }
 
-        // delete extra output ports
-        if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
-            for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
-                this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
+        // copy non-ports from new category to old node
+        for (let i = 0 ; i < newCategoryPrototype.getFields().length ; i++){
+            const field: Field = newCategoryPrototype.getFields()[i];
+
+            if (field.isInputPort() || field.isOutputPort()){
+                continue;
             }
+
+            // try to find field in old node that matches by displayText AND parameterType
+            let destField = oldNode.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
+
+            // if dest field could not be found, then go ahead and add a NEW field to the dest node
+            if (destField === null){
+                destField = field.clone();
+                oldNode.addField(destField);
+            }
+           
+            // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
+            destField.copyWithKeyAndId(field, destField.getNodeKey(), destField.getId());
         }
 
-        // delete input application, if necessary
-        if (this.selectedNode().hasInputApplication() && !categoryData.canHaveInputApplication){
-            this.selectedNode().setInputApplication(null);
+        // copy name and description from new category to old node, if old node values are defaults
+        if (oldNode.getName() === oldCategoryPrototype.getName()){
+            oldNode.setName(newCategoryPrototype.getName());
+
+        }
+        if (oldNode.getDescription() === oldCategoryPrototype.getDescription()){
+            oldNode.setDescription(newCategoryPrototype.getDescription());
         }
 
-        // delete output application, if necessary
-        if (this.selectedNode().hasOutputApplication() && !categoryData.canHaveOutputApplication){
-            this.selectedNode().setOutputApplication(null);
-        }
+        this.selectedNode().setCategory(newNodeCategory);
 
         this.flagActiveFileModified();
         this.checkGraph();
