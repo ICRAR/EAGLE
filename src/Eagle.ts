@@ -3272,8 +3272,18 @@ export class Eagle {
 
             // if node is a PythonMemberFunction, then we should generate a new PythonObject node too
             if (newNode.getCategory() === Category.PythonMemberFunction){
+                // get name of the "base" class from the PythonMemberFunction node,
+                // if no "base_name" field exists, default to use the name "Object"
+                let baseName: string = Daliuge.FieldName.OBJECT;
+                const baseNameField = newNode.getFieldByDisplayText(Daliuge.FieldName.BASE_NAME);
+                if (baseNameField !== null){
+                    baseName = baseNameField.getValue();
+                } else {
+                    console.warn("Could not find 'base_name' port on PythonMemberFunction");
+                }
+
                 // create node
-                const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
+                const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), baseName, "Instance of " + baseName, Category.PythonObject);
 
                 // add node to LogicalGraph
                 const OBJECT_OFFSET_X = 100;
@@ -3282,10 +3292,10 @@ export class Eagle {
                     // set parent to same as PythonMemberFunction
                     pythonObjectNode.setParentKey(newNode.getParentKey());
 
-                    // copy all fields from a "Memory" node in the palette
+                    // copy all fields from a "PythonObject" node in the palette
                     Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
 
-                    // find the "self" port on the PythonMemberFunction
+                    // find the "object" port on the PythonMemberFunction
                     const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.OBJECT, false, false);
 
                     // make sure we can find a "object" port on the PythonMemberFunction
