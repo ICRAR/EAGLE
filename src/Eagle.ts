@@ -166,7 +166,6 @@ export class Eagle {
         Eagle.tutorials = tutorialArray
         this.tutorial = ko.observable(Eagle.tutorials[0]);
 
-        
         Eagle.nodeDragPaletteIndex = null;
         Eagle.nodeDragComponentIndex = null;
 
@@ -4738,6 +4737,18 @@ export class Eagle {
                 Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
             }
         });
+    }
+
+    findPaletteContainingNode = (nodeId: string): Palette => {
+        for (const palette of this.palettes()){
+            for (const node of palette.getNodes()){
+                if (node.getId() === nodeId){
+                    return palette;
+                }
+            }
+        }
+
+        return null;
     }
 }
 
