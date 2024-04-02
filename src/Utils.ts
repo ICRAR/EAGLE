@@ -43,6 +43,7 @@ import {Repository} from './Repository';
 import {Setting} from './Setting';
 import {FileInfo} from "./FileInfo";
 import { UiModeSystem } from "./UiModes";
+import { GraphRenderer } from "./GraphRenderer";
 
 export class Utils {
     // Allowed file extensions

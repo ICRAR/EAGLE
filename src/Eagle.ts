@@ -2432,6 +2432,7 @@ export class Eagle {
     }
 
     openParamsTableModal = (mode:string,selectType:string) : void => {
+        GraphRenderer.tableTimer = Math.floor(Date.now())
         if($('.modal.show').length>0){
             if($('.modal.show').attr('id')==='parameterTableModal'){
                 $('#parameterTableModal').modal('hide')
