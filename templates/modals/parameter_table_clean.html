@@ -11,12 +11,12 @@
                         <h5 class="modal-title" id="parameterTableModalTitle">Fields Table: <span data-bind="html: selectedNode().getName()"></span></h5>
                         <!-- ko if: selectedNode() != null -->
                             <!-- ko if: selectedNode().isLocked() -->
-                                <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: Utils.getReadOnlyText()">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false">
                                     <i class="material-icons md-20">lock</i>
                                 </button>
                             <!-- /ko -->
                             <!-- ko ifnot: selectedNode().isLocked() -->
-                                <button type="button" class="btn btn-secondary btn-sm" data-bind="eagleTooltip: 'readwrite'">
+                                <button type="button" class="btn btn-secondary btn-sm">
                                     <i class="material-icons md-20">lock_open</i>
                                 </button>
                             <!-- /ko -->
@@ -41,7 +41,7 @@
                         <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.tableSearchString,data,event)}">
                             <i class="material-icons md-18 searchBarIconClose">close</i>
                         </a>
-                        <input class="componentSearchBar" type="text" placeholder="Search: eg. app, string" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.tableSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}},eagleTooltip:`Search for names, types, anything really! You may enter several terms that should match seperated by a ','`">
+                        <input class="componentSearchBar" type="text" placeholder="Search: eg. app, string" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.tableSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}}">
                     </div>
                 </div>
                 <div class="modal-body">
@@ -53,64 +53,64 @@
                         <thead>
                             <tr>
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
-                                    <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'Toggle Field Key attribute state'" data-bs-placement="top"></th>
+                                    <th id="parameter_table_isKeyAttribute" data-bs-placement="top"></th>
                                 <!-- /ko -->
                                 <!-- ko if: $root.tableModalType() === 'keyParametersTableModal'-->
-                                    <th id="parameter_table_node_name" data-bind="eagleTooltip:`This Parameter's Parent Node Name`" data-bs-placement="top">
+                                    <th id="parameter_table_node_name"  data-bs-placement="top">
                                         Node Name
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_name') === true}"></div>
                                     </th>
                                     <!-- ko if: $root.displayNodeKeys() -->
-                                        <th id="parameter_table_node_key" data-bind="eagleTooltip:`This Parameter's Parent Node Key`" data-bs-placement="top">
+                                        <th id="parameter_table_node_key" data-bs-placement="top">
                                             Node Key
                                             <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_key') === true}"></div>
                                         </th>
-                                    <!-- /ko -->w
+                                    <!-- /ko -->
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
-                                    <th id="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">
+                                    <th id="parameter_table_text" data-bs-placement="top">
                                         Attribute Name
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_text') === true}"></div>
                                     </th>
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().fieldId() -->
-                                    <th id="parameter_table_id" data-bind="eagleTooltip:'backend id'" data-bs-placement="top">
+                                    <th id="parameter_table_id" data-bs-placement="top">
                                         Field ID
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_id') === true}"></div>
                                     </th>
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().value() -->
-                                    <th id="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">
+                                    <th id="parameter_table_value" data-bs-placement="top">
                                         Value
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_value') === true}"></div>
                                     </th>
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().defaultValue() -->
-                                    <th id="parameter_table_default_value" data-bind="eagleTooltip:'The default value of this parameter before user modifications'" data-bs-placement="top">
+                                    <th id="parameter_table_default_value" data-bs-placement="top">
                                         Default Value
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_default_value') === true}"></div>
                                     </th>
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
-                                    <th id="parameter_table_description" data-bind="eagleTooltip:'A description of the purpose of this parameter'" data-bs-placement="top">
+                                    <th id="parameter_table_description" data-bs-placement="top">
                                         Description
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_description') === true}"></div>
                                     </th>
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
-                                    <th id="parameter_table_type" data-bind="eagleTooltip:'The type of the data stored in this parameter (e.g. Integer, Float, String etc)'" data-bs-placement="top">Type</th>
+                                    <th id="parameter_table_type" data-bs-placement="top">Type</th>
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().flags() -->
-                                    <th id="parameter_table_flags" data-bind="eagleTooltip:'Parameter flags'" data-bs-placement="top">Flags</th>
+                                    <th id="parameter_table_flags" data-bs-placement="top">Flags</th>
                                     <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().parameterType() -->
-                                    <th id="parameter_table_parameter_type" data-bind="eagleTooltip:'The way this parameter will be used by the component. ComponentParameters are passed to the DALiuGE execution framework. ApplicationArguments are passed to the Application executed by this component.'" data-bs-placement="top">Parameter Type</th>
+                                    <th id="parameter_table_parameter_type" data-bs-placement="top">Parameter Type</th>
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
-                                    <th id="parameter_table_usage" data-bind="eagleTooltip:'InputPorts and OutputPorts are used to specify named inputs and outputs from this Component.'" data-bs-placement="top">Use As</th>
+                                    <th id="parameter_table_usage" data-bs-placement="top">Use As</th>
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
-                                    <th id="parameter_table_actions" data-bind="eagleTooltip:'Additional operations that are possible on this parameter (e.g. Delete, Duplicate etc)'" data-bs-placement="top">Actions</th>
+                                    <th id="parameter_table_actions" data-bs-placement="top">Actions</th>
                                 <!-- /ko -->
                             </tr>
                         </thead>
@@ -120,7 +120,7 @@
                                     <tr>
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
                                             <td class='columnCell column_KeyAttr'>
-                                                <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
+                                                <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
                                             </td>
                                         <!-- /ko -->
                                         <!-- ko if: $root.tableModalType() === 'keyParametersTableModal' -->
@@ -130,10 +130,10 @@
                                             <!-- /ko -->
                                         <!-- /ko -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
-                                            <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' },eagleTooltip:description"><input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
+                                            <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' }"><input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
                                         <!-- /ko -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().fieldId() -->
-                                            <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'fieldId' },eagleTooltip:id"><input class="tableParameter selectionTargets tableFieldFieldId" type="string" disabled data-bind="value: id, valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.fieldId(), 'fieldId', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.fieldId(), 'fieldId', true, $data, $index())}}"></td>
+                                            <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'fieldId' }"><input class="tableParameter selectionTargets tableFieldFieldId" type="string" disabled data-bind="value: id, valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.fieldId(), 'fieldId', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.fieldId(), 'fieldId', true, $data, $index())}}"></td>
                                         <!-- /ko -->
 
                                         <!-- value fields -->
@@ -201,7 +201,7 @@
                                         <!-- /ko -->
                                         
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
-                                            <td class='columnCell column_Description' onmouseenter="ParameterTable.showEditDescription()" onmouseleave="ParameterTable.hideEditDescription()" data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'description' }, eagleTooltip:description">
+                                            <td class='columnCell column_Description' onmouseenter="ParameterTable.showEditDescription()" onmouseleave="ParameterTable.hideEditDescription()" data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'description' }">
                                                 <input class="tableParameter" type="string" data-bind="value: description, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $root.parameterTable().getNodeLockedState($data), $data, $index())}}">
                                                 <button class="parameterTableDescriptionBtn icon-pencil" data-bind="click:function(data,event){ParameterTable.requestEditDescriptionInModal($data)}"></button>
                                             </td>
@@ -235,59 +235,59 @@
                                             <td class='columnCell column_Flags'>    
                                                 <!-- ko if: $root.parameterTable().getNodeLockedState($data) -->
                                                         <!-- ko if: $data.isReadonly() -->
-                                                        <button type="button" disabled data-bind="click: function(){$data.toggleReadOnly();},  eagleTooltip:Utils.getReadOnlyText()" data-bs-placement="left">
+                                                        <button type="button" disabled data-bind="click: function(){$data.toggleReadOnly();}" data-bs-placement="left">
                                                             <i class="material-icons">lock</i>
                                                         </button>
                                                     <!-- /ko -->
                                                     <!-- ko ifnot: $data.isReadonly() -->
-                                                        <button type="button" disabled data-bind="click: function(){$data.toggleReadOnly();},  eagleTooltip:Utils.getReadOnlyText()" data-bs-placement="left">
+                                                        <button type="button" disabled data-bind="click: function(){$data.toggleReadOnly();}" data-bs-placement="left">
                                                             <i class="material-icons-outlined">lock_open</i>
                                                         </button>
                                                     <!-- /ko -->
                                                 <!-- /ko -->
                                                 <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
                                                     <!-- ko if: $data.isReadonly() -->
-                                                        <button type="button" data-bind="click: function(){$data.toggleReadOnly();}, eagleTooltip: 'Parameter Value is read only<br/>Click to toggle'" data-bs-placement="left">
+                                                        <button type="button" data-bind="click: function(){$data.toggleReadOnly();}" data-bs-placement="left">
                                                             <i class="material-icons">lock</i>
                                                         </button>
                                                     <!-- /ko -->
                                                     <!-- ko ifnot: $data.isReadonly() -->
-                                                        <button  type="button" data-bind="click: function(){$data.toggleReadOnly();},  eagleTooltip: 'Parameter Value is not read only<br/>Click to toggle'" data-bs-placement="left">
+                                                        <button  type="button" data-bind="click: function(){$data.toggleReadOnly();}" data-bs-placement="left">
                                                             <i class="material-icons-outlined">lock_open</i>
                                                         </button>
                                                     <!-- /ko -->
                                                     <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
                                                         <!-- ko if: $data.isPrecious() -->
-                                                            <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Parameter is precious<br/>Click to toggle'" data-bs-placement="left">
+                                                            <button type="button" data-bind="click: $data.togglePrecious" data-bs-placement="left">
                                                                 <i class="material-icons">diamond</i>
                                                             </button>
                                                         <!-- /ko -->
                                                         <!-- ko ifnot: $data.isPrecious() -->
-                                                            <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Parameter is not precious<br/>Click to toggle'" data-bs-placement="left">
+                                                            <button type="button" data-bind="click: $data.togglePrecious" data-bs-placement="left">
                                                                 <i class="material-icons-outlined">diamond</i>
                                                             </button>
                                                         <!-- /ko -->
                                                     <!-- /ko -->
                                                     <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
                                                             <!-- ko if: $data.isPositionalArgument() -->
-                                                            <button type="button" data-bind="click: $data.togglePositionalArgument, eagleTooltip: 'Parameter is positional<br/>Click to toggle'" data-bs-placement="left">
+                                                            <button type="button" data-bind="click: $data.togglePositionalArgument" data-bs-placement="left">
                                                                 <i class="material-icons">location_on</i>
                                                             </button>
                                                         <!-- /ko -->
                                                         <!-- ko ifnot: $data.isPositionalArgument() -->
-                                                            <button type="button" data-bind="click: $data.togglePositionalArgument, eagleTooltip: 'Parameter is not positional<br/>Click to toggle'" data-bs-placement="left">
+                                                            <button type="button" data-bind="click: $data.togglePositionalArgument" data-bs-placement="left">
                                                                 <i class="material-icons-outlined">location_on</i>
                                                             </button>
                                                         <!-- /ko -->
                                                     <!-- /ko -->
                                                     <!-- ko ifnot: $data.usage() === Daliuge.FieldUsage.NoPort-->
                                                         <!-- ko if: $data.isEvent() -->
-                                                            <button type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is event port<br/>Click to toggle'" data-bs-placement="left">
+                                                            <button type="button" data-bind="click: function(){$data.toggleEvent();}" data-bs-placement="left">
                                                                 <i class="material-icons">alarm_on</i>
                                                             </button>
                                                         <!-- /ko -->
                                                         <!-- ko ifnot: $data.isEvent() -->
-                                                            <button type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is not event port<br/>Click to toggle'" data-bs-placement="left">
+                                                            <button type="button" data-bind="click: function(){$data.toggleEvent();}" data-bs-placement="left">
                                                                 <i class="material-icons">alarm_off</i>
                                                             </button>
                                                         <!-- /ko -->
@@ -313,11 +313,11 @@
                                         
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
                                             <td class="columnCell column_Actions">
-                                                <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
+                                                <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($data)"><i class="material-icons">upload_file</i></button>
                                                 <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->
-                                                    <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', $data.parameterType(), $data.usage(), $data.getId());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
-                                                    <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
-                                                    <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                                    <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', $data.parameterType(), $data.usage(), $data.getId());}, disabled: $root.getCurrentParamReadonly($data)"><i class="material-icons">edit</i></button>
+                                                    <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.parameterTable().getNodeLockedState($data)"><i class="material-icons">content_copy</i></button>
+                                                    <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: $root.parameterTable().getNodeLockedState($data)"><i class="material-icons md-24">delete</i></button>
                                                 <!-- /ko -->
                                             </td>
                                         <!-- /ko -->
