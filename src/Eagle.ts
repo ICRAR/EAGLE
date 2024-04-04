@@ -1392,8 +1392,6 @@ export class Eagle {
      * Create a new diagram (graph or palette).
      */
     newDiagram = (fileType : Eagle.FileType, callbackAction : (name : string) => void ) : void => {
-        console.log("newDiagram()", fileType);
-
         const defaultName: string = Utils.generateGraphName();
 
         Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false, (completed : boolean, userString : string) : void => {
@@ -4710,8 +4708,6 @@ export class Eagle {
 
         // check if node was added to an empty graph, if so prompt user to specify graph name
         if (this.logicalGraph().fileInfo().name === ""){
-            console.log("Node added to Graph with no name, requesting name from user");
-
             this.newDiagram(Eagle.FileType.Graph, (name: string) => {
                 this.logicalGraph().fileInfo().name = name;
                 this.checkGraph();
