@@ -46,8 +46,6 @@ ko.bindingHandlers.eagleTooltip = {
                 trigger : 'manual',
             });
 
-
-
             stillHovering=true
 
             //in manual trigger mode the delay attribute of the bootstrap tooltip no longer works, we need to do this ourselves
