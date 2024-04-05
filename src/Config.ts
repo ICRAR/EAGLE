@@ -34,6 +34,4 @@ export class Config {
 
     static readonly HIERARCHY_EDGE_SELECTED_COLOR : string = "rgb(47 22 213)";
     static readonly HIERARCHY_EDGE_DEFAULT_COLOR : string = "black";
-
-    static readonly SELECTED_NODE_COLOR : string = "rgb(47 22 213)";
 }

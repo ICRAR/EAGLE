@@ -82,7 +82,12 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'NOTE: changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category'" data-bs-placement="left">Category</span>
                     </div>
-                    <select class="form-control" id="nodeInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategoryRequest(event)}}, valueAllowUnset: true, disabled: $data.isLocked()"></select>
+                    <!-- ko if: $data.getCategoryType() === Category.Type.Data -->
+                        <select class="form-control" id="nodeInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategoryRequest(event)}}, valueAllowUnset: true, disabled: $data.isLocked()"></select>
+                    <!-- /ko -->
+                    <!-- ko if: $data.getCategoryType() !== Category.Type.Data -->
+                        <input type="text" class="form-control" id="nodeInspectorCategory" disabled aria-label="Category" aria-describedby="node-category" data-bind="value: $data.getCategory()">
+                    <!-- /ko -->
                 </div>
 
                 <!-- comment node subject -->

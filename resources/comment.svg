@@ -1,1 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <path class="cls-1" d="m0,0h24v24H0V0Z"/>
+    <path d="m23.52,2.77c0-1.27-1.03-2.31-2.3-2.31H2.77C1.5.47.47,1.5.47,2.77v13.84c0,1.27,1.04,2.31,2.31,2.31h16.15l4.61,4.61V2.77Zm-4.6,11.53H5.08v-2.31h13.84v2.31Zm0-3.46H5.08v-2.31h13.84v2.31Zm0-3.46H5.08v-2.31h13.84v2.31Z"/>
+  </g>
+</svg>

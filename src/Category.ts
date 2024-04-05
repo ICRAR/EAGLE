@@ -47,8 +47,7 @@ export namespace Category {
 
     export type CategoryData = {
         categoryType: Type,
-        isResizable:boolean,
-        canContainComponents:boolean,
+        isGroup:boolean,
         minInputs: number,
         maxInputs: number,
         minOutputs: number,
@@ -80,11 +79,11 @@ export namespace Category {
 
     export enum Color {
         Application = "#0059a5",
-        Control = "rgb(88 167 94)",
+        Control = "rgb(46 161 55)",
         Data = "#2c2c2c",
         Description = "rgb(157 43 96)",
         Error = "#FF66CC",
-        Group = "rgb(211 165 0)",
+        Group = "rgb(227 189 100)",
         Object = "#00bfa6",
         Service = "purple"
     }

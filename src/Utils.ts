@@ -43,6 +43,7 @@ import {Repository} from './Repository';
 import {Setting} from './Setting';
 import {FileInfo} from "./FileInfo";
 import { UiModeSystem } from "./UiModes";
+import { GraphRenderer } from "./GraphRenderer";
 
 export class Utils {
     // Allowed file extensions
@@ -91,6 +92,10 @@ export class Utils {
 
         // NOTE: JavaScript months are 0-based
         return now.getFullYear() + "-" + Utils.padStart(now.getMonth() + 1, 2) + "-" + Utils.padStart(now.getDate(), 2) + "-" + Utils.padStart(now.getHours(), 2) + "-" + Utils.padStart(now.getMinutes(), 2) + "-" + Utils.padStart(now.getSeconds(), 2);
+    }
+
+    static generateGraphName(): string {
+        return "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(Eagle.FileType.Graph);
     }
 
     static findNewKey(usedKeys : number[]): number {
@@ -142,9 +147,9 @@ export class Utils {
         return usedKeys;
     }
 
-    static newKey(nodes: Node[]): number {
-        const usedKeys = Utils.getUsedKeys(nodes);
-        return Utils.findNewKey(usedKeys);
+    static newKey(nodes: Node[],usedKeys:number[] = []): number {
+        const allUsedKeys = Utils.getUsedKeys(nodes).concat(usedKeys);
+        return Utils.findNewKey(allUsedKeys);
     }
 
     static setEmbeddedApplicationNodeKeys(lg: LogicalGraph): void {
@@ -591,7 +596,6 @@ export class Utils {
                 }else{
                     $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
                 }
-                console.log($('#confirmModalDontShowAgain button').text())
             })
         }
         
@@ -1078,31 +1082,28 @@ export class Utils {
     }
 
     static getCategoriesWithInputsAndOutputs(categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
-        const result: Category[] = [];
-        for (const [categoryName, categoryData] of Object.entries(CategoryData.cData)){
+        const eagle = Eagle.getInstance();
 
-
-            if(!Setting.findValue(Setting.SHOW_ALL_CATEGORY_OPTIONS)){
-                
-                if (categoryData.categoryType !== categoryType){
-                    continue;
-                }
-                
-                // if input ports required, skip nodes with too few
-                if (numRequiredInputs > categoryData.maxInputs){
-                    continue;
-                }
-
-                // if output ports required, skip nodes with too few
-                if (numRequiredOutputs > categoryData.maxOutputs){
-                    continue;
-                }
-            }
-            
-            result.push(categoryName as Category);
+        // get a reference to the builtin palette
+        const builtinPalette: Palette = eagle.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
+        if (builtinPalette === null){
+            console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
+            return null;
         }
 
-        return result;
+        const matchingNodes = builtinPalette.getNodesByCategoryType(categoryType)
+        const matchingCategories : Category[] = []
+
+        matchingNodes.forEach(function(node){
+            for(const x of matchingCategories){
+                if(node.getCategory() === x){
+                    continue
+                }
+            }
+            matchingCategories.push(node.getCategory())
+        })
+
+        return matchingCategories;
     }
 
     static getDataComponentMemory(palettes: Palette[]) : Node {
@@ -1483,7 +1484,23 @@ export class Utils {
         return errorsWarnings;
     }
 
-    static validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
+    // validate json
+    static validateJSON(jsonString: string, fileType: Eagle.FileType){
+        // if validation disabled, just return true
+        if (Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
+            return;
+        }
+
+        const jsonObject = JSON.parse(jsonString);
+        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, fileType);
+        if (!validatorResult.valid){
+            const message = "JSON Output failed validation against internal JSON schema, saving anyway";
+            console.error(message, validatorResult.errors);
+            Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
+        }
+    }
+
+    static _validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
         // console.log("validateJSON(): version:", version, " fileType:", fileType);
 
         const ajv = new Ajv();
@@ -1562,32 +1579,13 @@ export class Utils {
         link.click();
     }
 
-    // https://noonat.github.io/intersect/#aabb-vs-aabb
-    static nodesOverlap(n0x: number, n0y: number, n0width: number, n0height: number, n1x: number, n1y: number, n1width: number, n1height: number) : boolean {
-        const n0pos = {x:n0x + n0width/2, y:n0y + n0height/2};
-        const n1pos = {x:n1x + n1width/2, y:n1y + n1height/2};
-        const n0half = {x:n0width/2, y:n0height/2};
-        const n1half = {x:n1width/2, y:n1height/2};
 
-        //console.log("compare", n0x, n0y, n0width, n0height, n1x, n1y, n1width, n1height);
+    static nodesOverlap(n0x: number, n0y: number, n0radius: number, n1x: number, n1y: number, n1radius: number) : boolean {
+        const dx = n0x - n1x;
+        const dy = n0y - n1y;
+        const distance = Math.sqrt(dx*dx + dy*dy);
 
-        const dx = n0pos.x - n1pos.x;
-        const px = (n0half.x + n1half.x) - Math.abs(dx);
-        if (px <= 0) {
-            //console.log("compare OK");
-            return false;
-        }
-
-        const dy = n0pos.y - n1pos.y;
-        const py = (n0half.y + n1half.y) - Math.abs(dy);
-        if (py <= 0) {
-            //console.log("compare OK");
-            return false;
-        }
-
-        //console.log("compares HIT");
-
-        return true;
+        return distance <= (n0radius + n1radius);
     }
 
     static table2CSV(table: any[]) : string {
@@ -1607,16 +1605,15 @@ export class Utils {
         return s;
     }
 
-    // https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point
     static positionToNodeDistance(positionX: number, positionY: number, node: Node): number {
-        const rectMinX = node.getPosition().x;
-        const rectMaxX = node.getPosition().x + node.getWidth();
-        const rectMinY = node.getPosition().y;
-        const rectMaxY = node.getPosition().y + node.getHeight();
+        // first determine the distance between the position and node center
+        const dx = node.getPosition().x - positionX;
+        const dy = node.getPosition().y - positionY;
+        let distance = Math.sqrt(dx*dx + dy*dy);
 
-        const dx = Math.max(rectMinX - positionX, 0, positionX - rectMaxX);
-        const dy = Math.max(rectMinY - positionY, 0, positionY - rectMaxY);
-        return Math.sqrt(dx*dx + dy*dy);
+        // then subtract the radius, limit to zero
+        distance = Math.max(distance - node.getRadius(), 0);
+        return distance;
     }
 
 
@@ -1762,8 +1759,9 @@ export class Utils {
         }
     }
 
-    static fixNodeCategory(eagle: Eagle, node: Node, category: Category){
+    static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
+        node.setCategoryType(categoryType);
     }
 
     // NOTE: merges field1 into field0
@@ -2011,7 +2009,8 @@ export class Utils {
         }
 
         if (errorsWarnings.errors.length !== 0){
-            return Eagle.LinkValid.Invalid;
+            // TODO: this actually has no way of knowing whether the errors are of type Invalid or Impossible
+            return Eagle.LinkValid.Impossible;
         }
 
         return Eagle.LinkValid.Warning;
@@ -2046,12 +2045,12 @@ export class Utils {
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
                 "expanded":node.getExpanded(),
+                "peek":node.isPeek(),
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
-                "realX":node.getRealPosition().x,
-                "realY":node.getRealPosition().y,
-                "width":node.getWidth(),
-                "height":node.getHeight(),
+                // "realX":node.getRealPosition().x,
+                // "realY":node.getRealPosition().y,
+                "radius":node.getRadius(),
                 "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
                 "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
                 "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
@@ -2222,4 +2221,46 @@ export class Utils {
     static openRemoteFileFromUrl(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
         Utils.httpGet(fileName, callback);
     }
+
+    static copyFieldsFromPrototype(node: Node, paletteName: string, category: Category) : void {
+        const eagle: Eagle = Eagle.getInstance();
+
+        // get a reference to the builtin palette
+        const palette: Palette = eagle.findPalette(paletteName, false);
+        if (palette === null){
+            console.warn("Could not find palette", paletteName);
+            return;
+        }
+
+        // find node with new type in builtinPalette
+        const newCategoryPrototype: Node = palette.findNodeByNameAndCategory(category);
+
+        // check that category was found
+        if (newCategoryPrototype === null){
+            console.warn("Prototypes for new category could not be found in palettes", category);
+            return;
+        }
+
+        // copy fields from new category to old node
+        for (let i = 0 ; i < newCategoryPrototype.getFields().length ; i++){
+            const field: Field = newCategoryPrototype.getFields()[i];
+
+            if (field.isInputPort() || field.isOutputPort()){
+                continue;
+            }
+
+            // try to find field in old node that matches by displayText AND parameterType
+            let destField = node.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
+
+            // if dest field could not be found, then go ahead and add a NEW field to the dest node
+            if (destField === null){
+                destField = field.clone();
+                node.addField(destField);
+            }
+
+            // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
+            destField.copyWithKeyAndId(field, destField.getNodeKey(), destField.getId());
+        }
+    }
+
 }

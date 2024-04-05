@@ -5,16 +5,7 @@ import {Utils} from '../Utils';
 
 ko.bindingHandlers.eagleTooltip = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
-        const jQueryElement = $(element);
-
-        jQueryElement.attr("data-bs-toggle", "tooltip");
-        jQueryElement.attr("data-html", "true");
-
-        // optionally set data-bs-placement attribute to 'right', if not already set for this element
-        const placement = jQueryElement.attr("data-bs-placement");
-        if (typeof placement === 'undefined'){
-            jQueryElement.attr("data-bs-placement", "right");
-        }
+        
 
         ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
             // This will be called when the element is removed by Knockout or
@@ -32,20 +23,29 @@ ko.bindingHandlers.eagleTooltip = {
         });
     },
     update: function (element, valueAccessor) {
-        const jQueryElement = $(element);
-
-        jQueryElement.attr("data-bs-original-title", Utils.markdown2html(ko.unwrap(valueAccessor())));
-
-        jQueryElement.tooltip({
-            html : true,
-            boundary: document.body,
-            trigger : 'manual',
-        });
-
         
-        //manual tooltip open system to allow for hovering on the tooltips
+        const jQueryElement = $(element);
+        
+        // manual tooltip open system to allow for hovering on the tooltips
         let stillHovering = false
         jQueryElement.on('mouseenter', function () {
+
+            jQueryElement.attr("data-bs-toggle", "tooltip");
+            jQueryElement.attr("data-html", "true");
+    
+            // optionally set data-bs-placement attribute to 'right', if not already set for this element
+            const placement = jQueryElement.attr("data-bs-placement");
+            if (typeof placement === 'undefined'){
+                jQueryElement.attr("data-bs-placement", "right");
+            }
+            jQueryElement.attr("data-bs-original-title", Utils.markdown2html(ko.unwrap(valueAccessor())));
+
+            jQueryElement.tooltip({
+                html : true,
+                boundary: document.body,
+                trigger : 'manual',
+            });
+
             stillHovering=true
 
             //in manual trigger mode the delay attribute of the bootstrap tooltip no longer works, we need to do this ourselves

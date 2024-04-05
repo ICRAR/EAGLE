@@ -37,6 +37,7 @@ import {Eagle} from './Eagle';
 import {Errors} from './Errors';
 import {GitHub} from './GitHub';
 import {GitLab} from './GitLab';
+import { GraphRenderer } from "./GraphRenderer";
 import {Hierarchy} from './Hierarchy';
 import {RightClick} from './RightClick';
 import {QuickActions} from './QuickActions';
@@ -52,6 +53,7 @@ import {RepositoryFile} from './RepositoryFile';
 import {ParameterTable} from "./ParameterTable";
 import {SideWindow} from "./SideWindow";
 import {TutorialSystem} from "./Tutorial";
+import {GraphConfig} from "./graphConfig";
 
 import * as quickStart from './tutorials/quickStart'
 import * as graphBuilding from './tutorials/graphBuilding'
@@ -80,11 +82,13 @@ $(function(){
     (<any>window).Setting = Setting;
     (<any>window).SideWindow = SideWindow;
     (<any>window).TutorialSystem = TutorialSystem;
+    (<any>window).GraphRenderer = GraphRenderer;
     (<any>window).UiModeSystem = UiModeSystem;
     (<any>window).Utils = Utils;
     (<any>window).KeyboardShortcut = KeyboardShortcut;
     (<any>window).QuickActions = QuickActions;
     (<any>window).Modals = Modals;
+    (<any>window).GraphConfig = GraphConfig;
 
     ko.options.deferUpdates = true;
     ko.applyBindings(eagle);
@@ -126,7 +130,7 @@ $(function(){
     // load the default palette
     if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
         eagle.loadPalettes([
-            {name:"Builtin Components", filename:Daliuge.PALETTE_URL, readonly:true},
+            {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true}
         ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
             const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
@@ -170,10 +174,6 @@ $(function(){
     // keyboard shortcut event listener
     document.onkeydown = KeyboardShortcut.processKey;
     document.onkeyup = KeyboardShortcut.processKey;
-
-    // HACK: without this global wheel event handler, d3 does not receive zoom events
-    //       not sure why, this wasn't always the case
-    document.onwheel = () => {return;};
 
     // auto load the file
     autoLoad(eagle);
@@ -274,6 +274,14 @@ $(function(){
             break;
         }
     }
+
+    
+    //initiating all the eagle ui when the graph is ready
+    $('#logicalGraph').show(200)
+    $('.leftWindow').show(200)
+    $('.rightWindow').show(200)
+    $('#graphNameWrapper').show(200)
+    $('nav.navbar').show(200).css('display', 'flex');
 });
 
 function autoLoad(eagle: Eagle) {

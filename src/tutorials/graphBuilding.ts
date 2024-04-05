@@ -1,5 +1,6 @@
-import {Tutorial, TutorialStep, TutorialSystem} from '../Tutorial';
-import {Eagle} from '../Eagle';
+import { Eagle } from '../Eagle';
+import { RightClick } from '../RightClick';
+import { TutorialStep, TutorialSystem } from '../Tutorial';
 
 
 const newTut = TutorialSystem.newTutorial('Graph Building', 'An introduction to graph building.')
@@ -35,8 +36,8 @@ newTut.newTutStep("Creating a new graph", "<em>And 'Ok' to save!</em>", function
 
 newTut.newTutStep("Graph Model Data", "This button brings up the 'Graph Modal Data' which allows you to add a description for your graph. <em>Try clicking it now to try it out</em>", function(){return $("#openGraphModelDataModal")})
 .setType(TutorialStep.Type.Press)
-.setBackPreFunction(function(){$('.modal').modal("hide");}) //hiding open moddals
- 
+.setBackPreFunction(function(){$('.modal').modal("hide");}) //hiding open modals
+
 newTut.newTutStep("Editing Graph Descriptions", "You are able to enter a simple first glance and a more detailed decription in addition to description nodes in the graph, should you need it.", function(){return $("#modelDataDescription")})
 .setWaitType(TutorialStep.Wait.Modal)
 
@@ -60,7 +61,7 @@ newTut.newTutStep("Graph Nodes", "Once added into your graph, the component is i
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 
-newTut.newTutStep("Editing Components", "The inspector panel provides access to the complete set of specifications of a component. The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $("#rightWindowContainer")})        
+newTut.newTutStep("Editing Components", "The inspector panel provides access to the complete set of specifications of a component. The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $("#rightWindowContainer")})
 .setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector)})
 
 newTut.newTutStep("Click to open", "<em>Click to open the node fields table and continue.</em>", function(){return $("#openNodeFieldsTable")})
@@ -68,12 +69,12 @@ newTut.newTutStep("Click to open", "<em>Click to open the node fields table and 
 .setType(TutorialStep.Type.Press)
 .setBackPreFunction(function(){$('#parameterTableModal').modal('hide')})
 
-newTut.newTutStep("Enter a Name", "In case of this hello world app we can change who we are greeting. <em>Enter a name and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})  
+newTut.newTutStep("Enter a Name", "In case of this hello world app we can change who we are greeting. <em>Enter a name and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})
 .setType(TutorialStep.Type.Input)
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(700)
 
-newTut.newTutStep("Key Attributes", "You can flag important parameters and attributes of a graph as 'Key Attributes'. These are then all available for editing in one location. <em>Click on the heart to flag this argument as key attribute.</em>", function(){return $('.column_KeyAttr button').first()})  
+newTut.newTutStep("Key Attributes", "You can flag important parameters and attributes of a graph as 'Key Attributes'. These are then all available for editing in one location. <em>Click on the heart to flag this argument as key attribute.</em>", function(){return $('.column_KeyAttr button').first()})
 .setType(TutorialStep.Type.Press)
 .setBackPreFunction(function(){$('#openNodeFieldsTable').click()})
 .setWaitType(TutorialStep.Wait.Delay)
@@ -82,13 +83,13 @@ newTut.newTutStep("Key Attributes", "You can flag important parameters and attri
 newTut.newTutStep("Key Attributes", "You can view the key attributes of a graph by opening the key attributes table located here.", function(){return $("#openKeyParameterTable")})
 .setPreFunction(function(){$('#parameterTableModal').modal('hide')})
 
-newTut.newTutStep("Right Click to add nodes", "There are also various right click options available in EAGLE. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})  
+newTut.newTutStep("Right Click to add nodes", "There are also various right click options available in EAGLE. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(){ if($('#customContextMenu').length){return true}else{return false}})
 .setPreFunction(function(){$('.modal').modal("hide");}) //hiding open moddals
-.setBackPreFunction(function(){$("#customContextMenu").remove();})
+.setBackPreFunction(function(){RightClick.closeCustomContextMenu(true);})
 
-newTut.newTutStep("Graph Context menu", "all of your loaded palettes and their contents will appear here", function(){return $("#rightClickPaletteList")})  
+newTut.newTutStep("Graph Context menu", "all of your loaded palettes and their contents will appear here", function(){return $("#rightClickPaletteList")})
 .setPreFunction(function(){$("#customContextMenu").addClass('forceShow')})
 .setWaitType(TutorialStep.Wait.Element)
 .setBackSkip(true)
@@ -100,31 +101,30 @@ newTut.newTutStep("Quickly adding nodes", "If you already know what you want you
 
 newTut.newTutStep("Connecting nodes", "To save the output of the hello world app onto the file we need to draw an edge from the 'Hello World' node's output port to the 'File' node's input port.", function(){return $("#logicalGraphParent")})
 
-newTut.newTutStep("Node Ports", "This is the output port of the Hello world app, Output ports are always shown on the right side of the node.",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp').parent().find('.outputPorts').find('circle')})
+newTut.newTutStep("Node Ports", "This is the output port of the Hello world app, Output ports are always shown in orange and are initially on the right side of the node.",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('HelloWorldApp')+' .outputPort')})
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp')})
 .setWaitType(TutorialStep.Wait.Element)
 
-newTut.newTutStep("Node Ports", "And this is the input port for the file storage node, Iutput ports are always shown on the left side of the node.",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File').parent().find('.inputPorts').find('circle')})
+newTut.newTutStep("Node Ports", "And this is the input port for the file storage node, Iutput ports are always shown in green and are initially on the left side of the node.",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('File')+' .inputPort')})
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File')})
 .setWaitType(TutorialStep.Wait.Element)
 
-newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over to the file node's input port, then release.</em>",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp').parent().find('.outputPorts').find('circle')})
+newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over to the file node's input port, then release.</em>",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('HelloWorldApp')+' .outputPort')})
 .setType(TutorialStep.Type.Condition)
 .setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
 .setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getEdges().length != 0){return true}else{return false}}) //check if there are any edges present in the graph
 
-newTut.newTutStep("Graph Errors and warnings", "Notice that we have a few graph warnings detected. <em>Click here to view them</em>", function(){return $("#checkGraphWarnings")})
-.setType(TutorialStep.Type.Press)
+newTut.newTutStep("Graph Errors and warnings", "This is the error checking system, it is showing a checkmark, so we did everything correctly. If there are errors in the graph you are able to troubleshoot them by clicking here.", function(){return $("#checkGraphDone")})
 
-newTut.newTutStep("Graph Errors and warnings", "This modal may aid you in troubleshooting graphs. In this case these errors are all port type errors. Eagle can automatically fix errors such as these for you. To do this you can press 'F' in the graph or <em>click on 'Fix All'</em>", function(){return $("#errorModalFixAll")})
-.setType(TutorialStep.Type.Press)
-.setWaitType(TutorialStep.Wait.Modal)
-.setAlternateHighlightTargetFunc(function(){return $("#errorModalFixAll").parent().parent()})
-.setBackPreFunction(function(){$('#errorsModal').modal('show')})
+// newTut.newTutStep("Graph Errors and warnings", "This modal may aid you in troubleshooting graphs. In this case these errors are all port type errors. Eagle can automatically fix errors such as these for you. To do this you can press 'F' in the graph or <em>click on 'Fix All'</em>", function(){return $("#errorModalFixAll")})
+// .setType(TutorialStep.Type.Press)
+// .setWaitType(TutorialStep.Wait.Modal)
+// .setAlternateHighlightTargetFunc(function(){return $("#errorModalFixAll").parent().parent()})
+// .setBackPreFunction(function(){$('#errorsModal').modal('show')})
 
 newTut.newTutStep("Saving a Graph", "Options to save your graph are available in the graph menu <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
 .setType(TutorialStep.Type.Press)

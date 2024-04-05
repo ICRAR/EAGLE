@@ -9,12 +9,10 @@ require.config({
         "jqueryui": "./static/externals/jquery-ui.min",
         "bootstrap": "./static/externals/bootstrap.bundle.min",
         "bootstrap-notify": "./static/externals/bootstrap-notify.min",
-        "d3": "./static/externals/d3.v5.min",
         "ajv": "./static/externals/ajv.min",
         "showdown": "./static/externals/showdown.min",
         "bindingHandlers/readonly":"./static/built/bindingHandlers/readonly",
         "bindingHandlers/disabled":"./static/built/bindingHandlers/disabled",
-        "bindingHandlers/graphRenderer":"./static/built/bindingHandlers/graphRenderer",
         "bindingHandlers/eagleTooltip":"./static/built/bindingHandlers/eagleTooltip",
         "bindingHandlers/eagleRightClick":"./static/built/bindingHandlers/eagleRightClick",
         "components":"./static/built/components",
@@ -27,6 +25,7 @@ require.config({
         "Utils": "./static/built/Utils",
         "Modals": "./static/built/Modals",
         "GraphUpdater": "./static/built/GraphUpdater",
+        "GraphRenderer": "./static/built/GraphRenderer",
         "Repository": "./static/built/Repository",
         "RepositoryFolder": "./static/built/RepositoryFolder",
         "RepositoryFile": "./static/built/RepositoryFile",
@@ -56,7 +55,8 @@ require.config({
         "Hierarchy": "./static/built/Hierarchy",
         "RightClick": "./static/built/RightClick",
         "Repositories": "./static/built/Repositories",
-        "ParameterTable": "./static/built/ParameterTable"
+        "ParameterTable": "./static/built/ParameterTable",
+        "graphConfig": "./static/built/graphConfig"
     },
     shim: {
         "bootstrap": {
