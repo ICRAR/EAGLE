@@ -347,7 +347,7 @@ export class Modals {
         });
 
         $('#parameterTableModal').on('shown.bs.modal', function(){
-            console.log('time to open: ', Math.floor(Date.now()) - GraphRenderer.tableTimer)
+            eagle.hideEagleIsLoading()
             $('#parameterTableModal .componentSearchBar').focus()
             $('#parameterTableModal .componentSearchBar').select()
         });
