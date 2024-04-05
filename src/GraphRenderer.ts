@@ -385,6 +385,7 @@ export class GraphRenderer {
 
     static renderDraggingPortEdge : ko.Observable<boolean> = ko.observable(false);
 
+
     static averageAngles(angles: number[]) : number {
         let x: number = 0;
         let y: number = 0;

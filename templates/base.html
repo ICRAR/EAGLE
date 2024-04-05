@@ -235,6 +235,34 @@
         {% include 'modals.html' %} 
         {% include 'quickAction.html' %}
 
+        <!-- eagle loading pop up animation -->
+        <div id="loadingContainer">
+            <div class='wrapper'>
+                <div class='theSun center'></div>
+                <div class='center'>
+                    <div class='firstRing ring rotate1'>
+                        <div class='planet'>
+                            <div class='firstPlanet'></div>
+                        </div>
+                    </div>
+                </div>
+                <div class='center'>
+                    <div class='secondRing ring rotate2'>
+                        <div class='secondPlanet planet'></div>
+                    </div>
+                </div>
+                <div class='center'>
+                    <div class='thirdRing ring rotate3'>
+                        <div class='planet'>
+                            <div class='thirdPlanet counterRotate2'>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <span id="performance" data-bind="text: rendererFrameDisplay, visible: $root.showPerformanceDisplay"></span>
         <div id="htmlElementLog" style="display: none;"></div>
     </body>

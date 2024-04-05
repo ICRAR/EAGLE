@@ -828,7 +828,7 @@ export class Eagle {
 
     private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
-
+        this.hideEagleIsLoading()
         // show errors (if found)
         if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
             if (showErrors){
@@ -1825,6 +1825,7 @@ export class Eagle {
             if (error != null){
                 Utils.showUserMessage("Error", error);
                 console.error(error);
+                this.hideEagleIsLoading()
                 return;
             }
 
@@ -2429,31 +2430,48 @@ export class Eagle {
         }
     }
 
+    showEagleIsLoading = () : void => {
+        // document.getElementById("loadingContainer").style.display = "block";
+        $('#loadingContainer').show()
+    }
+
+    hideEagleIsLoading = () : void => {
+        // document.getElementById("loadingContainer").style.display = "none";
+        $('#loadingContainer').hide()
+    }
+
     openParamsTableModal = (mode:string,selectType:string) : void => {
-        if($('.modal.show').length>0){
-            if($('.modal.show').attr('id')==='parameterTableModal'){
-                $('#parameterTableModal').modal('hide')
-                this.showTableModal(false)
-            }else{
-                return
-            }
-        }
-        this.showTableModal(true)
-        if(selectType === 'rightClick'){
-            this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
+        console.log('show eagle is loadingg')
+        this.showEagleIsLoading()
+        const eagle = this
+        setTimeout(function(){
 
-            RightClick.closeCustomContextMenu(true);
-
-            setTimeout(function() {
-                Utils.showOpenParamsTableModal(mode);
-            }, 30);
-        }else{
-            if (mode==='inspectorTableModal' && !this.selectedNode()){
-                Utils.showNotification("Error", "No Node Is Selected", "warning");
-            }else{
-                Utils.showOpenParamsTableModal(mode);
+            if($('.modal.show').length>0){
+                if($('.modal.show').attr('id')==='parameterTableModal'){
+                    $('#parameterTableModal').modal('hide')
+                    eagle.showTableModal(false)
+                }else{
+                    return
+                }
             }
-        }
+            if(selectType === 'rightClick'){
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
+
+                RightClick.closeCustomContextMenu(true);
+
+                setTimeout(function() {
+                    Utils.showOpenParamsTableModal(mode);
+                }, 30);
+            }else{
+                if (mode==='inspectorTableModal' && !eagle.selectedNode()){
+                    Utils.showNotification("Error", "No Node Is Selected", "warning");
+                }else{
+                    Utils.showOpenParamsTableModal(mode);
+                }
+            }
+            eagle.showTableModal(true)
+
+        },100)
     }
 
     getCurrentParamReadonly = (field: Field) : boolean => {

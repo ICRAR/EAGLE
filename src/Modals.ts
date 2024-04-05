@@ -9,6 +9,7 @@ import { RepositoryFile } from './RepositoryFile';
 import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
+import { GraphRenderer } from "./GraphRenderer";
 
 export class Modals {
 
@@ -345,7 +346,8 @@ export class Modals {
             eagle.checkGraph();
         });
 
-        $('#parameterTableModal').on('shown.bs.modal', function(){        
+        $('#parameterTableModal').on('shown.bs.modal', function(){
+            eagle.hideEagleIsLoading()
             $('#parameterTableModal .componentSearchBar').focus()
             $('#parameterTableModal .componentSearchBar').select()
         });

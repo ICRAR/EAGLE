@@ -3071,3 +3071,133 @@ palette-component input.form-control.selected {
 .inputNoArrows[type=number] {
     -moz-appearance: textfield;
 }
+
+/* eagle loading animation pop up stuff */
+#loadingContainer{
+    position: absolute;
+    left: 50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    background-color: #002e5f;
+    border-radius: 20px;
+    padding: 20px;
+    display:none;
+}
+
+.wrapper{
+    width: 170px;
+    height:170px;
+    position:relative;
+  }
+  
+  .wrapper .center{
+    margin-top:50%;
+    margin-left:50%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    position:absolute;
+  }
+  
+  .wrapper .theSun{
+    background-color:#ffb709;
+    width:30px;
+    height:30px;
+  }
+  
+  .wrapper .firstRing{
+    width:80px;
+    height:80px;
+  }
+  
+  .wrapper .secondRing{
+    width:110px;
+    height:110px;
+  }
+  
+  .wrapper .thirdRing{
+    width:170px;
+    height:170px;
+  }
+  
+  .wrapper .ring{
+    border: 1px solid #d8ddf0;
+    display:inline-block;
+    border-radius:50%;
+  }
+  
+  .wrapper .planet{
+    border-radius:50%;
+    position:absolute;
+    left:0px;
+    top:50%;
+    transform:translate(-50%,-50%);
+  }
+  
+  .wrapper .firstPlanet{
+    width:15px;
+    height:15px;
+    border-radius:50%;
+    background-color:#55efff;
+  }
+  
+  .wrapper .secondPlanet{
+    width:8px;
+    height:8px;
+    background-color:#d8ddf0;
+  }
+  
+  .wrapper .thirdPlanet{
+    width:20px;
+    height:20px;
+    background-color:#db8361;
+    border-radius:50%;
+  }
+  
+  .wrapper .thirdPlanet div{
+    width:30px;
+    height:10px;
+    border:solid 1px #db8361;
+    top:50%;
+    left:50%;
+    position:absolute;
+    border-radius: 50%;
+    transform:translate(-50%,-50%) rotate(340deg);
+  }
+  
+  .rotate1{
+    animation: loading 2.7s linear infinite;
+  }
+  
+  .rotate2{
+    animation: loading 2s linear infinite;
+  }
+  
+  .rotate3{
+    animation: loading 5s linear infinite;
+  }
+  
+  @keyframes loading {
+    from { 
+      transform: rotate(0deg); 
+    }
+    to { 
+      transform: rotate(360deg);
+    }
+  }
+  
+  .counterRotate1{
+    animation:loading2 2.7s linear infinite;
+  }
+  
+  .counterRotate2{
+    animation:loading2 5s linear infinite;
+  }
+  
+  @keyframes loading2 {
+    from { 
+      transform: rotate(360deg); 
+    }
+    to { 
+      transform: rotate(0deg);
+    }
+  }
