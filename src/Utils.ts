@@ -1208,15 +1208,12 @@ export class Utils {
         // fetch svg CSS and place inline within serialized SVG
         $.get("/static/svg.css")
         .done(function(response){
-
             const svgElement : Element = document.querySelector(selector);
             let svgString : string = new XMLSerializer().serializeToString(svgElement);
 
             // create svgString with injected CSS stylesheet
             const CSS_ELEMENT = '<style type="text/css" ><![CDATA[' + response + ']]></style>';
-            //console.log("CSS_ELEMENT", CSS_ELEMENT);
             svgString = svgString.substring(0, svgString.indexOf(">") + 1) + CSS_ELEMENT + svgString.substring(svgString.indexOf(">") + 1);
-            //console.log("svgString", svgString);
 
             const canvas : HTMLCanvasElement = document.createElement("canvas");
             canvas.setAttribute("width", svgElement.clientWidth.toString());
@@ -1318,16 +1315,12 @@ export class Utils {
 
     // return true iff version0 is newer than version1
     static newerEagleVersion(version0: string, version1: string){
-        //console.log("version0", version0, "version1", version1);
-
         if (version0 === "Unknown" || version1 === "Unknown"){
             return false;
         }
 
         const v0 = version0.split('v')[1].split('.').map(Number);
         const v1 = version1.split('v')[1].split('.').map(Number);
-
-        //console.log("v0", v0, "v1", v1);
 
         return (
             v0[0] > v1[0] ||
@@ -1475,8 +1468,6 @@ export class Utils {
     }
 
     static _validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
-        // console.log("validateJSON(): version:", version, " fileType:", fileType);
-
         const ajv = new Ajv();
         let valid : boolean;
 
@@ -1740,12 +1731,10 @@ export class Utils {
 
     // NOTE: merges field1 into field0
     static fixNodeMergeFieldsByIndex(eagle: Eagle, node: Node, field0Index: number, field1Index: number){
-        //console.log("fixNodeMergeFieldsByIndex()", node.getName(), field0Index, field1Index);
-
         // abort if one or more of the fields is not found
         const field0 = node.getFields()[field0Index];
         const field1 = node.getFields()[field1Index];
-        //console.log("field0", field0, field0 ? field0.getId() : "", field0 ? field0.getUsage() : "", "field1", field1, field1 ? field1.getId() : "", field1 ? field1.getUsage() : "");
+
         if (typeof field0 === "undefined" || typeof field1 === "undefined"){
             return;
         }
@@ -1753,7 +1742,6 @@ export class Utils {
         const usage0 = field0.getUsage();
         const usage1 = field1.getUsage();
         const newUsage = this._mergeUsage(usage0, usage1);
-        //console.log("usage0", usage0, "usage1", usage1, "newUsage", newUsage);
 
         // remove field1
         node.removeFieldByIndex(field1Index);
@@ -1767,12 +1755,10 @@ export class Utils {
 
     // NOTE: merges field1 into field0
     static fixNodeMergeFields(eagle: Eagle, node: Node, field0: Field, field1: Field){
-        //console.log("fixNodeMergeFieldsById()", node.getName(), field0.getDisplayText(), field1.getDisplayText());
-
         // abort if one or more of the fields is not found
         const f0 = node.findFieldById(field0.getId());
         const f1 = node.findFieldById(field1.getId());
-        //console.log("f0", f0, f0 ? f0.getId() : "", f0 ? f0.getUsage() : "", "f1", f1, f1 ? f1.getId() : "", f1 ? f1.getUsage() : "");
+
         if (f0 === null || f1 === null){
             return;
         }
@@ -1780,7 +1766,6 @@ export class Utils {
         const usage0 = field0.getUsage();
         const usage1 = field1.getUsage();
         const newUsage = this._mergeUsage(usage0, usage1);
-        //console.log("usage0", usage0, "usage1", usage1, "newUsage", newUsage);
 
         // remove field1
         node.removeFieldById(field1.getId());

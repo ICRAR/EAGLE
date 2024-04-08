@@ -16,8 +16,5 @@ ko.bindingHandlers.eagleRightClick = {
             
             RightClick.requestCustomContextMenu(data,jQueryElement,type)
         })
-    },
-    update: function (element, valueAccessor) {
-        const data = ko.unwrap(valueAccessor());
     }
 };
