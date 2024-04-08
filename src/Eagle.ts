@@ -2464,6 +2464,7 @@ export class Eagle {
                 }, 30);
             }else{
                 if (mode==='inspectorTableModal' && !eagle.selectedNode()){
+                    eagle.hideEagleIsLoading()
                     Utils.showNotification("Error", "No Node Is Selected", "warning");
                 }else{
                     Utils.showOpenParamsTableModal(mode);
@@ -2471,7 +2472,7 @@ export class Eagle {
             }
             eagle.showTableModal(true)
 
-        },100)
+        },5)
     }
 
     getCurrentParamReadonly = (field: Field) : boolean => {
