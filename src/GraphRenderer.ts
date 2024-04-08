@@ -975,7 +975,7 @@ export class GraphRenderer {
                 $('#selectionRectangle').css({'right':selectionRightOffset+'px','bottom':selectionBottomOffset+'px'})
             }else{
                 //if node is null, the empty canvas has been clicked. clear the selection
-                eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
+                eagle.setSelection(Eagle.RightWindowMode.Hierarchy, null, Eagle.FileType.Graph);
 
             }
         }
