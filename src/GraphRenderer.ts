@@ -78,7 +78,7 @@ ko.bindingHandlers.nodeRenderHandler = {
         }
 
         if(node.isGroup()|| node.getParentKey() != null){
-            GraphRenderer.resizeConstruct(node,false)
+            GraphRenderer.resizeConstruct(node)
         }
     },
 };
@@ -604,7 +604,6 @@ export class GraphRenderer {
                 if(field != null && field.getId()===edge.getDestPortId()){
                     const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey());
                     adjacentNodes.push(adjacentNode);
-                    continue;
                 }
             }
         } else {
@@ -612,7 +611,6 @@ export class GraphRenderer {
                 if(field.getId()===edge.getSrcPortId()){
                     const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey());
                     adjacentNodes.push(adjacentNode);
-                    continue;
                 }
             }
         }
@@ -918,6 +916,7 @@ export class GraphRenderer {
         GraphRenderer.altSelect = event.altKey
         GraphRenderer.shiftSelect = event.shiftKey
 
+        // TODO: which is deprecated, use something else instead
         if(node === null || event.which === 2){
             //if no node is selected or we are dragging using middle mouse, we are dragging the background
             GraphRenderer.dragSelectionHandled(true)
@@ -1006,8 +1005,6 @@ export class GraphRenderer {
                 //construct resizing 
                 if(node.getParentKey() != null){
                     if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+GraphConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
-                        // GraphRenderer._updateNodeParent(node, null, false, allowGraphEditing);
-
                         oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag)
                     }
                 }
@@ -1035,10 +1032,8 @@ export class GraphRenderer {
                     // moved out of a construct
                     $('#'+oldParent.getId()).addClass('transition')
                 }
-                // recalculate size of parent (or oldParent)
-                if (parent === null){
-                    
-                } else {
+
+                if (parent !== null){
                     // moved into or within a construct
                     $('#'+parent.getId()).removeClass('transition')
                 }
@@ -1204,7 +1199,6 @@ export class GraphRenderer {
         if (showDataNodes){
             return graph.getEdges();
         } else {
-            //return [graph.getEdges()[0]];
             const edges: Edge[] = [];
 
             for (const edge of graph.getEdges()){
@@ -1222,8 +1216,7 @@ export class GraphRenderer {
 
                 const srcIsDataNode: boolean = GraphRenderer.findNodeWithKey(edge.getSrcNodeKey(), graph.getNodes()).isData();
                 const destIsDataNode: boolean = GraphRenderer.findNodeWithKey(edge.getDestNodeKey(), graph.getNodes()).isData();
-                //console.log("edge", edge.getId(), "srcIsDataNode", srcIsDataNode, "srcHasConnectedInput", srcHasConnectedInput, "destIsDataNode", destIsDataNode, "destHasConnectedOutput", destHasConnectedOutput);
-
+                
                 if (destIsDataNode){
                     if (!destHasConnectedOutput){
                         // draw edge as normal
@@ -1392,8 +1385,7 @@ export class GraphRenderer {
         const parentKey : number = node.getKey();
 
         // loop through all nodes, if they belong to the parent's group, move them too
-        for (let i = 0 ; i < eagle.logicalGraph().getNodes().length ; i++){
-            const node = eagle.logicalGraph().getNodes()[i];
+        for (const node of eagle.logicalGraph().getNodes()){
             if (node.getParentKey() === parentKey){
                 node.changePosition(deltax, deltay);
                 GraphRenderer.moveChildNodes(node, deltax, deltay);
@@ -1431,7 +1423,6 @@ export class GraphRenderer {
                 return false;
             }
 
-            //n = findNodeWithKey(newKey, nodeData);
             n = eagle.logicalGraph().findNodeByKey(newKey);
         }
     }
@@ -1450,7 +1441,7 @@ export class GraphRenderer {
 
     // resize a construct so that it contains its children
     // NOTE: does not move the construct
-    static resizeConstruct = (construct: Node, allowMovement: boolean = false): void => {
+    static resizeConstruct = (construct: Node): void => {
         const eagle = Eagle.getInstance();
         let maxDistance = 0;
 
@@ -1460,10 +1451,7 @@ export class GraphRenderer {
                 const dx = construct.getPosition().x - node.getPosition().x;
                 const dy = construct.getPosition().y - node.getPosition().y;
                 const distance = Math.sqrt(dx*dx + dy*dy);
-                //console.log("distance to", node.getName(), distance);
-
                 const paddedDistance = distance + node.getRadius() + GraphConfig.CONSTRUCT_MARGIN;
-                //console.log("paddedDistance to", node.getName(), paddedDistance, "(", node.getRadius(), ")");
 
                 maxDistance = Math.max(maxDistance, paddedDistance);
             }
@@ -1472,7 +1460,6 @@ export class GraphRenderer {
         // make sure constructs are never below minimum size
         maxDistance = Math.max(maxDistance, GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
 
-        //console.log("Resize", construct.getName(), "radius to", maxDistance, "to contain", numChildren, "children");
         if(construct.isGroup()){
             construct.setRadius(maxDistance);
         }
@@ -1480,9 +1467,6 @@ export class GraphRenderer {
 
     static updateMousePos = (): void => {
         // grab and convert mouse position to graph coordinates
-        const divOffset = $('#logicalGraph').offset();
-        const mouseX = (<any>event).pageX - divOffset.left;
-        const mouseY = (<any>event).pageY - divOffset.top;
         GraphRenderer.mousePosX(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null));
         GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null));
     }
@@ -1728,15 +1712,11 @@ export class GraphRenderer {
 
     static GRAPH_TO_SCREEN_POSITION_X(x: number) : number {
         const eagle = Eagle.getInstance();
-        // return (x * eagle.globalScale()) + eagle.globalOffsetX() ;
         return(x + eagle.globalOffsetX()) * eagle.globalScale()
-        // return (x + eagle.globalOffsetX())/eagle.globalScale();
     }
 
     static GRAPH_TO_SCREEN_POSITION_Y(y: number) : number {
         const eagle = Eagle.getInstance();
-        // return (y * eagle.globalScale()) + eagle.globalOffsetY();
-        // return (y + eagle.globalOffsetY())/eagle.globalScale();
         return (y+eagle.globalOffsetY())*eagle.globalScale()+83.77
     }
 
@@ -1744,28 +1724,26 @@ export class GraphRenderer {
         const result: Node[] = [];
         const nodeData : Node[] = GraphRenderer.nodeData
 
-        //console.log("findNodesInRange(): sourceNodeKey", sourceNodeKey);
-
-        for (let i = 0; i < nodeData.length; i++){
+        for (const node of nodeData){
             // skip the source node
-            if (nodeData[i].getKey() === sourceNodeKey){
+            if (node.getKey() === sourceNodeKey){
                 continue;
             }
 
             // fetch categoryData for the node
-            const categoryData = CategoryData.getCategoryData(nodeData[i].getCategory());
+            const categoryData = CategoryData.getCategoryData(node.getCategory());
             let possibleInputs = categoryData.maxInputs;
             let possibleOutputs = categoryData.maxOutputs;
 
             // add categoryData for embedded apps (if they exist)
-            if (nodeData[i].hasInputApplication()){
-                const inputApp = nodeData[i].getInputApplication();
+            if (node.hasInputApplication()){
+                const inputApp = node.getInputApplication();
                 const inputAppCategoryData = CategoryData.getCategoryData(inputApp.getCategory());
                 possibleInputs += inputAppCategoryData.maxInputs;
                 possibleOutputs += inputAppCategoryData.maxOutputs;
             }
-            if (nodeData[i].hasOutputApplication()){
-                const outputApp = nodeData[i].getOutputApplication();
+            if (node.hasOutputApplication()){
+                const outputApp = node.getOutputApplication();
                 const outputAppCategoryData = CategoryData.getCategoryData(outputApp.getCategory());
                 possibleInputs += outputAppCategoryData.maxInputs;
                 possibleOutputs += outputAppCategoryData.maxOutputs;
@@ -1776,13 +1754,7 @@ export class GraphRenderer {
                 continue;
             }
 
-            // determine distance from position to this node
-            // const distance = Utils.positionToNodeDistance(positionX, positionY, nodeData[i]);
-
-            // if (distance <= range){
-                //console.log("distance to", nodeData[i].getName(), nodeData[i].getKey(), "=", distance);
-                result.push(nodeData[i]);
-            // }
+            result.push(node);
         }
 
         return result;
@@ -1916,7 +1888,6 @@ export class GraphRenderer {
 
     
     static findMatchingPorts(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node, field: Field}[] {
-        //console.log("findNearestMatchingPort(), sourcePortIsInput", sourcePortIsInput);
         const eagle = Eagle.getInstance();
         const result :{field:Field, node:Node}[]= []
         for (const node of nearbyNodes){
