@@ -21,7 +21,7 @@ export class GraphConfig {
 
     static getColor = (name:string) : string => {
         let result = 'red'
-        for (var color of colors) {
+        for (const color of colors) {
             if(color.name === name){
                 result = color.color
             }else{

@@ -26,37 +26,36 @@
 
 import * as ko from "knockout";
 
-import {Utils} from './Utils';
-import {GitHub} from './GitHub';
-import {GitLab} from './GitLab';
-import {Repositories} from './Repositories';
-import {Repository} from './Repository';
-import {RepositoryFile} from './RepositoryFile';
-import {Translator} from './Translator';
-import {Category} from './Category';
-import {CategoryData} from './CategoryData';
-import {Daliuge} from './Daliuge';
+import { Category } from './Category';
+import { ComponentUpdater } from './ComponentUpdater';
+import { Daliuge } from './Daliuge';
+import { Edge } from './Edge';
+import { Errors } from './Errors';
+import { ExplorePalettes } from './ExplorePalettes';
+import { Field } from './Field';
+import { FileInfo } from './FileInfo';
+import { GitHub } from './GitHub';
+import { GitLab } from './GitLab';
 import { GraphConfig } from "./graphConfig";
-
-import {UiMode, UiModeSystem, SettingData} from './UiModes';
-import {LogicalGraph} from './LogicalGraph';
-import {Palette} from './Palette';
-import {Node} from './Node';
-import {Edge} from './Edge';
-import {Field} from './Field';
-import {FileInfo} from './FileInfo';
-import {Setting, SettingsGroup} from './Setting';
-import {Tutorial, TutorialStep, tutorialArray} from './Tutorial';
-import {KeyboardShortcut} from './KeyboardShortcut';
-import {SideWindow} from './SideWindow';
-import {ExplorePalettes} from './ExplorePalettes';
-import {Hierarchy} from './Hierarchy';
-import {Undo} from './Undo';
-import {Errors} from './Errors';
-import {ComponentUpdater} from './ComponentUpdater';
-import {ParameterTable} from './ParameterTable';
-import { RightClick } from "./RightClick";
 import { GraphRenderer } from "./GraphRenderer";
+import { Hierarchy } from './Hierarchy';
+import { KeyboardShortcut } from './KeyboardShortcut';
+import { LogicalGraph } from './LogicalGraph';
+import { Node } from './Node';
+import { Palette } from './Palette';
+import { ParameterTable } from './ParameterTable';
+import { Repositories } from './Repositories';
+import { Repository } from './Repository';
+import { RepositoryFile } from './RepositoryFile';
+import { RightClick } from "./RightClick";
+import { Setting, SettingsGroup } from './Setting';
+import { SideWindow } from './SideWindow';
+import { Translator } from './Translator';
+import { Tutorial, tutorialArray } from './Tutorial';
+import { Undo } from './Undo';
+import { UiModeSystem } from './UiModes';
+import { Utils } from './Utils';
+
 
 export class Eagle {
     static _instance : Eagle;
@@ -394,7 +393,7 @@ export class Eagle {
         return list;
     }
 
-    isTranslationDefault = (algorithmName:string) : Boolean => {
+    isTranslationDefault = (algorithmName:string) : boolean => {
         return algorithmName === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)
     }
 
@@ -1447,7 +1446,7 @@ export class Eagle {
             case Eagle.FileType.Graph:
                 this.saveGraphToDisk(this.logicalGraph());
                 break;
-            case Eagle.FileType.Palette:
+            case Eagle.FileType.Palette: {
                 // build a list of palette names
                 const paletteNames: string[] = this.buildReadablePaletteNamesList();
 
@@ -1464,6 +1463,7 @@ export class Eagle {
 
                 this.savePaletteToDisk(destinationPalette);
                 break;
+            }
             default:
                 Utils.showUserMessage("Not implemented", "Not sure which fileType right one to save locally :" + fileType);
                 break;
@@ -1845,13 +1845,12 @@ export class Eagle {
                 }
 
                 fileTypeLoaded = Utils.determineFileType(dataObject);
-                // console.log("fileTypeLoaded", fileTypeLoaded);
             } else {
                 fileTypeLoaded = Eagle.FileType.Markdown;
             }        
 
             switch (fileTypeLoaded){
-                case Eagle.FileType.Graph:
+                case Eagle.FileType.Graph: {
                     // attempt to determine schema version from FileInfo
                     const eagleVersion: string = Utils.determineEagleVersion(dataObject);
 
@@ -1866,7 +1865,7 @@ export class Eagle {
                         this._loadGraph(dataObject, file);
                     }
                     break;
-
+                }
                 case Eagle.FileType.Palette:
                     this._remotePaletteLoaded(file, data);
                     break;
@@ -2030,8 +2029,6 @@ export class Eagle {
     }
 
     private updateLogicalGraphFileInfo = (repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
-        // console.log("updateLogicalGraphFileInfo(): repositoryService:", repositoryService, "repositoryName:", repositoryName, "repositoryBranch:", repositoryBranch, "path:", path, "name:", name);
-
         // update the activeFileInfo with details of the repository the file was loaded from
         this.logicalGraph().fileInfo().repositoryName = repositoryName;
         this.logicalGraph().fileInfo().repositoryBranch = repositoryBranch;
@@ -2397,6 +2394,7 @@ export class Eagle {
 
     // TODO: move to Setting.ts?
     openSettings = () : void => {
+        // TODO: click() seems deprecated here, we should change tabs another way
         //if no tab is selected yet, default to the first tab
         if(!$(".settingCategoryActive").length){
             $(".settingsModalButton").first().click()
@@ -2423,6 +2421,7 @@ export class Eagle {
         }else{
             if(modal === 'settingsModal'){
                 if(!$(".settingCategoryActive").length){
+                    // TODO: click() seems deprecated here, we should change tabs another way
                     $(".settingsModalButton").first().click()
                 }
             }
@@ -2431,21 +2430,18 @@ export class Eagle {
     }
 
     showEagleIsLoading = () : void => {
-        // document.getElementById("loadingContainer").style.display = "block";
         $('#loadingContainer').show()
     }
 
     hideEagleIsLoading = () : void => {
-        // document.getElementById("loadingContainer").style.display = "none";
         $('#loadingContainer').hide()
     }
 
     openParamsTableModal = (mode:string,selectType:string) : void => {
-        console.log('show eagle is loadingg')
+        console.log('show eagle is loading')
         this.showEagleIsLoading()
         const eagle = this
         setTimeout(function(){
-
             if($('.modal.show').length>0){
                 if($('.modal.show').attr('id')==='parameterTableModal'){
                     $('#parameterTableModal').modal('hide')
@@ -2543,7 +2539,6 @@ export class Eagle {
             Eagle.shortcutModalCooldown = Date.now()
             Utils.showShortcutsModal();
         }
-        return
     }
 
     closeShortcuts = () : void => {
@@ -2873,9 +2868,7 @@ export class Eagle {
         this.insertGraph(nodes, edges, null, errorsWarnings);
 
         // display notification to user
-        if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
-
-        } else {
+        if (!Errors.hasErrors(errorsWarnings) && !Errors.hasWarnings(errorsWarnings)){
             Utils.showNotification("Pasted from clipboard", "Pasted " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
         }
 
@@ -3121,6 +3114,7 @@ export class Eagle {
         return children;
     }
 
+    // TODO: make mode an Enum here
     private _deleteSelection = (deleteChildren: boolean, data:any, mode:string) : void => {
         let location: Eagle.FileType = Eagle.FileType.Unknown;
 
@@ -3171,7 +3165,7 @@ export class Eagle {
             }
         }
 
-        if(mode = 'normal'){
+        if(mode === 'normal'){
             // empty the selected objects, should have all been deleted
             this.selectedObjects([]);
         }
@@ -3661,7 +3655,7 @@ export class Eagle {
 
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
             clickTarget.focus() // used to focus the field allowing the user to immediately start typing
-            $(clickTarget).select()
+            $(clickTarget).select() // TODO: select is deprecated here, use something else
 
             //scroll to new row
             $("#parameterTableModal .modal-body").animate({
@@ -3701,7 +3695,7 @@ export class Eagle {
             $("#"+modalID).addClass("nodeSelected");
             $("#"+modalID).removeClass("forceHide");   
             $(".modal-backdrop").removeClass("forceHide");
-            $("#"+submitBtnID).click()
+            $("#"+submitBtnID).click() // TODO: click is deprecated here, use something else
             this.hideDropDown(divID)
         }
     }
@@ -3713,6 +3707,7 @@ export class Eagle {
         }
 
         // NOTE: this changes the value (using val()), then triggers a change event, so that validation can be done
+        // TODO: change is deprecated here, use something else
         $('#editFieldModalTypeInput').val(newType).change();
     }
 
@@ -3753,9 +3748,7 @@ export class Eagle {
         let validChoiceIndex = 0
 
         // build list of nodes that are candidates to be the parent
-        for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
-            const node : Node = this.logicalGraph().getNodes()[i];
-
+        for (const node of this.logicalGraph().getNodes()){
             // a node can't be its own parent
             if (node.getKey() === selectedNode.getKey()){
                 continue;
@@ -4493,12 +4486,6 @@ export class Eagle {
             y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
         };
 
-        // if destination node is a BashShellApp, then the inserted data component may not be a Memory
-        const ineligibleCategories : Category[] = [];
-        if (destNode.getCategory() === Category.BashShellApp){
-            ineligibleCategories.push(Category.Memory);
-        }
-
         const memoryComponent = Utils.getDataComponentMemory(this.palettes());
 
         // if node not found, exit
@@ -4623,9 +4610,7 @@ export class Eagle {
         }
 
         // copy non-ports from new category to old node
-        for (let i = 0 ; i < newCategoryPrototype.getFields().length ; i++){
-            const field: Field = newCategoryPrototype.getFields()[i];
-
+        for (const field of newCategoryPrototype.getFields()){
             if (field.isInputPort() || field.isOutputPort()){
                 continue;
             }
@@ -4862,9 +4847,7 @@ $( document ).ready(function() {
     })
 
     $(".translationDefault").on("click",function(){
-        //sets all other translation methods to false
-        const translationMethods = []
-        translationMethods.push($('.translationDefault'))
+        // sets all other translation methods to false
         $('.translationDefault').each(function(){
             if($(this).is(':checked')){
                 $(this).prop('checked', false).change()

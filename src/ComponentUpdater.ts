@@ -1,7 +1,6 @@
 import {LogicalGraph} from './LogicalGraph';
 import {Palette} from './Palette';
 import {Node} from './Node';
-import {Utils} from './Utils';
 import {Errors} from './Errors';
 
 export class ComponentUpdater {
@@ -19,8 +18,7 @@ export class ComponentUpdater {
         }
 
         // make sure we have a palette available for each component in the graph
-        for (let i = 0 ; i < graph.getNodes().length ; i++){
-            const node: Node = graph.getNodes()[i];
+        for (const node of graph.getNodes()){
             let newVersion : Node = null;
 
             for (const palette of palettes){
@@ -47,9 +45,7 @@ export class ComponentUpdater {
 
     // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
     static _replaceNode(dest:Node, src:Node){
-        for (let i = 0 ; i < src.getFields().length ; i++){
-            const srcField = src.getFields()[i];
-
+        for (const srcField of src.getFields()){
             // try to find a field with the same name in the destination
             let destField = dest.findFieldById(srcField.getId());
 
