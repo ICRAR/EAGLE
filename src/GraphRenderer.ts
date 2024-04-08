@@ -193,7 +193,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let connectedField:boolean=false;
 
         switch(dataType){
-            case 'comment':
+            case 'comment': {
                 const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(n.getSubjectKey());
 
                 if (adjacentNode === null){
@@ -203,7 +203,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
                 adjacentNodes.push(adjacentNode);
                 break;
-
+            }
             case 'inputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
                     if(field != null && field.getId()===edge.getDestPortId()){

@@ -1519,7 +1519,7 @@ export class Eagle {
                 fileInfo = this.logicalGraph().fileInfo;
                 obj = this.logicalGraph();
                 break;
-            case Eagle.FileType.Palette:
+            case Eagle.FileType.Palette: {
                 const paletteNames: string[] = this.buildReadablePaletteNamesList();
                 const paletteName = await Utils.userChoosePalette(paletteNames);
                 const palette = this.findPalette(paletteName, false);
@@ -1529,6 +1529,7 @@ export class Eagle {
                 fileInfo = palette.fileInfo;
                 obj = palette;
                 break;
+            }
             default:
                 Utils.showUserMessage("Not implemented", "Not sure which fileType right one to commit :" + fileType);
                 break;
@@ -1590,7 +1591,7 @@ export class Eagle {
                 fileInfo = this.logicalGraph().fileInfo;
                 obj = this.logicalGraph();
                 break;
-            case Eagle.FileType.Palette:
+            case Eagle.FileType.Palette: {
                 // build a list of palettes, as user to choose the one to save, abort if no palette is chosen
                 const paletteNames: string[] = this.buildReadablePaletteNamesList();
                 const paletteName = await Utils.userChoosePalette(paletteNames);
@@ -1602,6 +1603,7 @@ export class Eagle {
                 fileInfo = palette.fileInfo;
                 obj = palette;
                 break;
+            }
             default:
                 Utils.showUserMessage("Not implemented", "Not sure which fileType right one to commit :" + fileType);
                 break;
@@ -3992,19 +3994,6 @@ export class Eagle {
         else
             this.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
     }
-
-    /*
-    selectedEdgeValid = () : Eagle.LinkValid => {
-        const selectedEdge = this.selectedEdge();
-
-        if (selectedEdge === null){
-            console.error("selectedEdgeValid check when no edge is selected");
-            return Eagle.LinkValid.Unknown;
-        }
-
-        return Edge.isValid(this, selectedEdge.getId(), selectedEdge.getSrcNodeKey(), selectedEdge.getSrcPortId(), selectedEdge.getDestNodeKey(), selectedEdge.getDestPortId(), selectedEdge.getDataType(), selectedEdge.isLoopAware(), selectedEdge.isClosesLoop(), false, true, null);
-    }
-    */
 
     selectInputApplicationNode = () : void => {
         this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getInputApplication(), Eagle.FileType.Graph);

@@ -9,13 +9,13 @@ export class TutorialSystem {
     static activeTutCurrentStepIndex: number = 0;  //index of the current step in the active tutorial
     static waitForElementTimer: number = null    //this houses the time out timer when waiting for a target element to appear
     static cooldown: boolean = false //boolean if the tutorial system is currently on cooldown
-    static conditionCheck:number = null //this hosues the condition interval function
+    static conditionCheck:number = null //this stores the condition interval function
 
     static initiateTutorial = (tutorialName: string): void => {
         Eagle.tutorials.forEach(function (tut) {
 
             if (tutorialName === tut.getName()) {
-                //this is the requsted tutorial
+                //this is the requested tutorial
                 TutorialSystem.activeTut = tut
                 TutorialSystem.activeTutNumSteps = tut.getTutorialSteps().length
                 TutorialSystem.activeTutCurrentStepIndex = 0
@@ -29,25 +29,15 @@ export class TutorialSystem {
         //these are the keyboard shortcuts for the tutorial system
         //by putting a .name after an even type, we are giving this specific listener a name. This allows us to remove or modify it later
         $("body").on('keydown.tutEventListener', function (e) {
-            if(TutorialSystem.activeTut===null){return} //catching a nieche error
+            if(TutorialSystem.activeTut===null){return} //catching a niche error
             switch (e.which) {
                 case 37: // left
-                    e.preventDefault()
-                    TutorialSystem.activeTut.tutButtonPrev()
-                    break;
-
                 case 38: // up
                     e.preventDefault()
                     TutorialSystem.activeTut.tutButtonPrev()
                     break;
 
                 case 39: // right
-                    e.preventDefault()
-                    if (TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Info) {
-                        TutorialSystem.activeTut.tutButtonNext()
-                    }
-                    break;
-
                 case 40: // down
                     e.preventDefault()
                     if (TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Info) {
@@ -82,7 +72,7 @@ export class TutorialSystem {
     }
 
     static newTutorial = (title:string, description:string) : Tutorial => {
-        let x = new Tutorial(
+        const x = new Tutorial(
             title,
             description,
             []
@@ -93,13 +83,13 @@ export class TutorialSystem {
 
     static initiateFindGraphNodeIdByNodeName = (name:string) : JQuery<HTMLElement> => {
         const eagle = Eagle.getInstance()
-        let x = $('#logicalGraph #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
+        const x = $('#logicalGraph #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
         return x
     }
 
     static initiateSimpleFindGraphNodeIdByNodeName = (name:string) : string => {
         const eagle = Eagle.getInstance()
-        let x = eagle.logicalGraph().findNodeGraphIdByNodeName(name)
+        const x = eagle.logicalGraph().findNodeGraphIdByNodeName(name)
         return x
     }
 
@@ -109,7 +99,7 @@ export class TutorialSystem {
         if(eagle.selectedObjects().length>1 || eagle.selectedObjects().length<1){
             return false
         }
-        if(name = eagle.selectedNode().getName()){
+        if(name === eagle.selectedNode().getName()){
             return true
         }else{
             return false
@@ -174,9 +164,9 @@ export class Tutorial {
         let preFunction
 
         if (direction === TutorialStep.Direction.Next) {
-            preFunction = tutStep.getPreFunct()
+            preFunction = tutStep.getPreFunc()
         } else if (direction === TutorialStep.Direction.Prev) {
-            preFunction = tutStep.getBackPreFunct()
+            preFunction = tutStep.getBackPreFunc()
         }
 
         if (preFunction != null) {
@@ -307,7 +297,7 @@ export class Tutorial {
         }, 510);
     }
 
-    //these are ground work for fufture tutorial system functionality
+    //these are ground work for future tutorial system functionality
     initiateInputStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
         if (alternateHighlightTarget != null) {
             this.highlightStepTarget(alternateHighlightTarget)
@@ -320,7 +310,7 @@ export class Tutorial {
             TutorialSystem.activeTut.openInfoPopUp()
         }, 510);
 
-        //attatching an input handler for checking input
+        //attaching an input handler for checking input
         tutStep.getTargetFunc()().on('keydown.tutInputCheckFunc',function(event:any){TutorialSystem.activeTut.tutInputCheckFunc(event,tutStep)})
     }
 
@@ -341,8 +331,8 @@ export class Tutorial {
 
     highlightStepTarget = (target: JQuery<HTMLElement>): void => {
         const eagle = Eagle.getInstance()
-        if(TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc() != null){
-            target = TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc()()
+        if(TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc() != null){
+            target = TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc()()
         }
 
         //in order to darken the screen save the selection target, we must add divs on each side of the element.
@@ -400,9 +390,8 @@ export class Tutorial {
         let orientation = 'tutorialRight'
 
         if (currentTarget.outerWidth() === docWidth || currentTarget.outerHeight() / docHeight > 0.7) {
-            //if this is the case then we are looking at an object that is set to 100% of the sceen 
+            //if this is the case then we are looking at an object that is set to 100% of the screen 
             //such as the navbar or canvas. we will then position the tutorial in the middle of the object
-            selectedLocationX = selectedLocationX
             if ((docHeight - currentTarget.outerHeight()) < 250) {
                 selectedLocationY = selectedLocationY - (currentTarget.height() / 2)
                 if (docWidth - selectedLocationX < 700) {
@@ -538,15 +527,12 @@ export class Tutorial {
 
     checkConditionFunction = (tutStep: TutorialStep): void => {
         const eagle = Eagle.getInstance()        
-        let conditionReturn:boolean
+        const conditionReturn: boolean = tutStep.getConditionFunction()(eagle)
 
-        conditionReturn = tutStep.getConditionFunction()(eagle)
         if(conditionReturn){
             clearTimeout(TutorialSystem.conditionCheck);
             TutorialSystem.conditionCheck = null;
             this.tutButtonNext()
-        }else{
-            return
         }
     }
 }
@@ -557,27 +543,32 @@ export class TutorialStep {
     private type: TutorialStep.Type;
     private waitType: TutorialStep.Wait;
     private delayAmount : number;
+    
     private targetFunc: () => void;
     private alternateHighlightTargetFunc: () => void;
-    private preFunction: (eagle: Eagle) => void;
-    private backPreFunction: (eagle: Eagle) => void;
+    private preFunc: (eagle: Eagle) => void;
+    private backPreFunc: (eagle: Eagle) => void;
+    private conditionFunc : (eagle: Eagle) => void;
+
     private backSkip : boolean;
     private expectedInput : string;
-    private conditionFunction : (eagle: Eagle) => void;
+    
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount:number, targetFunc: () => void, preFunction: (eagle: Eagle) => void, backPreFunction: (eagle: Eagle) => void, backSkip:boolean, expectedInput:string, conditionFunction:(eagle: Eagle) => boolean,alternateHighlightTargetFunc: () => void) {
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount:number, targetFunc: () => void, preFunc: (eagle: Eagle) => void, backPreFunc: (eagle: Eagle) => void, backSkip:boolean, expectedInput:string, conditionFunc:(eagle: Eagle) => boolean, alternateHighlightTargetFunc: () => void) {
         this.title = title;
         this.text = text;
         this.type = type;
         this.waitType = waitType;
-        this.delayAmount = delayAmount
+        this.delayAmount = delayAmount;
+
         this.targetFunc = targetFunc;
-        this.preFunction = preFunction;
-        this.backPreFunction = backPreFunction;
+        this.alternateHighlightTargetFunc = alternateHighlightTargetFunc;
+        this.preFunc = preFunc;
+        this.backPreFunc = backPreFunc;
+        this.conditionFunc = conditionFunc;
+        
         this.backSkip = backSkip
         this.expectedInput = expectedInput;
-        this.conditionFunction = conditionFunction;
-        this.alternateHighlightTargetFunc = alternateHighlightTargetFunc;
     }
 
     getTitle = (): string => {
@@ -604,12 +595,12 @@ export class TutorialStep {
         return this.targetFunc;
     }
 
-    getPreFunct = (): any => {
-        return this.preFunction;
+    getPreFunc = (): any => {
+        return this.preFunc;
     }
 
-    getBackPreFunct = (): any => {
-        return this.backPreFunction;
+    getBackPreFunc = (): any => {
+        return this.backPreFunc;
     }
 
     getBackSkip = (): boolean => {
@@ -621,10 +612,10 @@ export class TutorialStep {
     }
 
     getConditionFunction = (): any => {
-        return this.conditionFunction;
+        return this.conditionFunc;
     }
 
-    getAlternateHightlightTargetFunc = () : any => {
+    getAlternateHighlightTargetFunc = () : any => {
         return this.alternateHighlightTargetFunc;
     }
 
@@ -643,13 +634,13 @@ export class TutorialStep {
         return this
     }
 
-    setPreFunction = (newPreFunct:(eagle: Eagle) => void): TutorialStep =>{
-        this.preFunction = newPreFunct;
+    setPreFunction = (newPreFunc:(eagle: Eagle) => void): TutorialStep =>{
+        this.preFunc = newPreFunc;
         return this
     }
 
-    setBackPreFunction = (newBackPreFunct:(eagle: Eagle) => void): TutorialStep =>{
-        this.backPreFunction = newBackPreFunct;
+    setBackPreFunction = (newBackPreFunc:(eagle: Eagle) => void): TutorialStep =>{
+        this.backPreFunc = newBackPreFunc;
         return this
     }
 
@@ -664,7 +655,7 @@ export class TutorialStep {
     }
 
     setConditionFunction = (newConditionFunction:(eagle: Eagle) => void): TutorialStep =>{
-        this.conditionFunction = newConditionFunction;
+        this.conditionFunc = newConditionFunction;
         return this
     }
 

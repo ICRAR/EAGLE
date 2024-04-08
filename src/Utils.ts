@@ -326,7 +326,6 @@ export class Utils {
     }
 
     static httpGetJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
-        // console.log("httpGetJSON() : ", url);
         $.ajax({
             url : url,
             type : 'GET',
@@ -358,7 +357,6 @@ export class Utils {
     }
 
     static httpPostJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
-        // console.log("httpPostJSON() : ", url);
         $.ajax({
             url : url,
             type : 'POST',
@@ -378,7 +376,6 @@ export class Utils {
     }
 
     static httpPostJSONString(url : string, jsonString : string, callback : (error : string, data : string) => void) : void {
-        // console.log("httpPostJSONString() : ", url);
         $.ajax({
             url : url,
             type : 'POST',
@@ -398,8 +395,6 @@ export class Utils {
     }
 
     static httpPostForm(url : string, formData : FormData, callback : (error : string, data : string) => void) : void {
-        // console.log("httpPostForm() : ", url);
-
         $.ajax({
             url : url,
             type : 'POST',
@@ -431,8 +426,6 @@ export class Utils {
     }
 
     static showUserMessage (title : string, message : string) : void {
-        // console.log("showUserMessage()", title, message);
-
         $('#messageModalTitle').text(title);
         $('#messageModalMessage').html(message);
         $('#messageModal').modal("toggle");
@@ -481,8 +474,6 @@ export class Utils {
     }
 
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, callback : (completed : boolean, userString : string) => void ) : void {
-        // console.log("requestUserString()", title, message);
-
         $('#inputModalTitle').text(title);
         $('#inputModalMessage').html(message);
         $('#inputModalInput').attr('type', isPassword ? 'password' : 'text');
@@ -499,8 +490,6 @@ export class Utils {
     }
 
     static requestUserText(title : string, message : string, defaultText: string, callback : (completed : boolean, userText : string) => void) : void {
-        // console.log("requestUserText()", title, message);
-
         $('#inputTextModalTitle').text(title);
         $('#inputTextModalMessage').html(message);
 
@@ -515,8 +504,6 @@ export class Utils {
     }
 
     static requestUserNumber(title : string, message : string, defaultNumber: number, callback : (completed : boolean, userNumber : number) => void ) : void {
-        // console.log("requestUserNumber()", title, message);
-
         $('#inputModalTitle').text(title);
         $('#inputModalMessage').html(message);
         $('#inputModalInput').val(defaultNumber);
@@ -531,8 +518,6 @@ export class Utils {
     }
 
     static requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ) : void {
-        // console.log("requestUserChoice()", title, message, choices, selectedChoiceIndex, allowCustomChoice, customChoiceText);
-
         $('#choiceModalTitle').text(title);
         $('#choiceModalMessage').html(message);
         $('#choiceModalCustomChoiceText').text(customChoiceText);
@@ -576,8 +561,6 @@ export class Utils {
     }
 
     static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string,confirmSetting:string, callback : (confirmed : boolean) => void ) : void {
-        // console.log("requestUserConfirm()", title, message, affirmativeAnswer, negativeAnswer);
-
         $('#confirmModalTitle').text(title);
         $('#confirmModalMessage').html(message);
         $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
@@ -605,8 +588,6 @@ export class Utils {
     }
 
     static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
-        // console.log("requestUserGitCommit()");
-
         $('#gitCommitModal').data('completed', false);
         $('#gitCommitModal').data('callback', callback);
         $('#gitCommitModal').data('repositories', repositories);
@@ -640,18 +621,15 @@ export class Utils {
     }
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
-
         eagle.currentField(field)
 
         $('#editFieldModal').data('completed', false);
         $('#editFieldModal').data('callback', callback);
         $('#editFieldModal').data('choices', choices);
         $('#editFieldModal').modal("toggle");
-
     }
 
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void) : void {
-
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
         $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
@@ -1010,8 +988,6 @@ export class Utils {
     }
 
     static getDataComponentsWithPortTypeList(palettes: Palette[], ineligibleCategories: Category[]) : Node[] {
-        // console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
-
         const result: Node[] = [];
 
         // add all data components (except ineligible)
@@ -1042,8 +1018,6 @@ export class Utils {
     }
 
     static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
-        // console.log("getDataComponentsWithInputsAndOutputs");
-
         const result: Node[] = [];
 
         // add all data components (except ineligible)

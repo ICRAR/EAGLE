@@ -134,23 +134,6 @@ export class Translator {
         // set the schema version
         format = Daliuge.SchemaVersion.OJS;
 
-        /*
-        if (format === Eagle.DALiuGESchemaVersion.Unknown){
-            const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS];
-
-            // ask user to specify graph format to be sent to translator
-            Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number) => {
-                if (!completed){
-                    console.log("User aborted translation.");
-                    return;
-                }
-
-                this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, schemas[userChoiceIndex]);
-            });
-        } else {
-            this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, format);
-        }
-        */
         this._genPGT(eagle, translatorURL, algorithmName, testingMode, format);
     }
 
