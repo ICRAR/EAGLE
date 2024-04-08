@@ -2441,7 +2441,6 @@ export class Eagle {
     }
 
     openParamsTableModal = (mode:string,selectType:string) : void => {
-        console.log('show eagle is loadingg')
         this.showEagleIsLoading()
         const eagle = this
         setTimeout(function(){

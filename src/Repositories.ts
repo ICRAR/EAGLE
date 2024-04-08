@@ -34,11 +34,8 @@ export class Repositories {
     }
 
     static selectFile = (file : RepositoryFile) : void => {
-        // console.log("selectFile() service:", file.repository.service, "repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
         const eagle: Eagle = Eagle.getInstance();
-        eagle.showEagleIsLoading()
 
-        // console.log(file)
         if(file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.JSON){
             eagle.showEagleIsLoading()
         }
