@@ -341,8 +341,8 @@ export class Field {
 
     clone = () : Field => {
         const options : string[] = []
-        for (let i = 0 ; i < this.options().length ; i++){
-            options.push(this.options()[i]);
+        for (const option of this.options()){
+            options.push(option);
         }
 
         const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage(), this.keyAttribute());

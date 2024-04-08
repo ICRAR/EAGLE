@@ -216,7 +216,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
                         connectedField=true
                         adjacentNodes.push(adjacentNode);
-                        continue;
                     }
                 }
                 break;
@@ -233,7 +232,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
                         connectedField=true
                         adjacentNodes.push(adjacentNode);
-                        continue;
                     }
                 }
                 break;

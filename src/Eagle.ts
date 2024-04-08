@@ -1008,23 +1008,9 @@ export class Eagle {
                 if (node.hasInputApplication()){
                     const oldInputApplication : Node = node.getInputApplication();
                     const newInputApplication : Node = insertedNode.getInputApplication();
-                    console.log(insertedNode)
                    
-                    
                     keyMap.set(oldInputApplication.getKey(), newInputApplication);
 
-                    // insertedNode.setInputApplication(newInputApplication);
-
-                    // loop through ports, adding them to the port map
-                    // for (const inputPort of oldInputApplication.getInputPorts()){
-                    //     portMap.set(inputPort.getId(), newInputApplication);
-                    // }
-
-                    // for (const outputPort of inputApplication.getOutputPorts()){
-                    //     portMap.set(outputPort.getId(), outputPort);
-                    // }
-
-                    console.log(node.hasInputApplication(), oldInputApplication,newInputApplication)
                     // save mapping for input ports
                     for (let j = 0 ; j < oldInputApplication.getInputPorts().length; j++ ){
                         portMap.set(oldInputApplication.getInputPorts()[j].getId(), newInputApplication.getInputPorts()[j]);
@@ -1041,32 +1027,8 @@ export class Eagle {
                 if (node.hasOutputApplication()){
                     const oldOutputApplication : Node = node.getOutputApplication();
                     const newOutputApplication : Node = insertedNode.getOutputApplication();
-                    // const clone : Node = outputApplication.clone();
-                    // const newKey : number = Utils.newKey(this.logicalGraph().getNodes());
-                    // const newId : string = Utils.uuidv4();
-                    // clone.setKey(newKey);
-                    // clone.setId(newId);
-                    
-                    // if(clone.getFields() != null){
-                    //     // set new ids for any fields in this node
-                    //     for (const field of clone.getFields()){
-                    //         field.setId(Utils.uuidv4());
-                    //     }
-                    // }
                     
                     keyMap.set(oldOutputApplication.getKey(), newOutputApplication);
-
-
-                    // insertedNode.setOutputApplication(clone);
-
-                    // loop through ports, adding them to the port map
-                    // for (const inputPort of outputApplication.getInputPorts()){
-                    //     portMap.set(inputPort.getId(), inputPort);
-                    // }
-
-                    // for (const outputPort of outputApplication.getOutputPorts()){
-                    //     portMap.set(outputPort.getId(), outputPort);
-                    // }
                     
                     // save mapping for input ports
                     for (let j = 0 ; j < oldOutputApplication.getInputPorts().length; j++){
@@ -3271,13 +3233,11 @@ export class Eagle {
 
             // if a parent was found, update
             if (parent !== null && newNode.getParentKey() !== parent.getKey() && newNode.getKey() !== parent.getKey()){
-                //console.log("set parent", parent.getKey());
                 newNode.setParentKey(parent.getKey());
             }
 
             // if no parent found, update
             if (parent === null && newNode.getParentKey() !== null){
-                //console.log("set parent", null);
                 newNode.setParentKey(null);
             }
 
@@ -4056,8 +4016,6 @@ export class Eagle {
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
     editField = (node:Node, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, id: string) : void => {
-        // console.log("editField", modalType, parameterType, usage, id);
-
         // get field names list from the logical graph
         const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), parameterType);
         const allFieldNames: string[] = [];
@@ -4079,7 +4037,6 @@ export class Eagle {
 
             // show hide part of the UI appropriate for adding
             $("#addParameterWrapper").show();
-            // $("#customParameterOptionsWrapper").hide();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
             const field: Field = new Field(Utils.uuidv4(), "", "", "", "", false, Daliuge.DataType.Integer, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false);
@@ -4129,7 +4086,6 @@ export class Eagle {
             }
 
             $("#addParameterWrapper").hide();
-            // $("#customParameterOptionsWrapper").show();
 
             Utils.requestUserEditField(this, Eagle.ModalType.Edit, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
@@ -4820,6 +4776,7 @@ export namespace Eagle
     }
 }
 
+// TODO: ready is deprecated here, use something else
 $( document ).ready(function() {
     // jquery event listeners start here
 
@@ -4839,7 +4796,7 @@ $( document ).ready(function() {
     }); 
 
     $('.modal').on('shown.bs.modal',function(){
-        // modal draggables
+        // modal draggable
         // the any type is required so we don't have an error when building. at runtime on eagle this actually functions without it.
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
