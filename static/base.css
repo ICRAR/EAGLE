@@ -3137,26 +3137,37 @@ palette-component input.form-control.selected {
     width:15px;
     height:15px;
     border-radius:50%;
-    background-color:#55efff;
+    background-color:#49b3ff;
   }
   
   .wrapper .secondPlanet{
     width:8px;
     height:8px;
-    background-color:#d8ddf0;
+    background-color:#57f4b4;
   }
   
   .wrapper .thirdPlanet{
     width:20px;
     height:20px;
-    background-color:#db8361;
+    background-color:#f6daa8;
     border-radius:50%;
   }
   
-  .wrapper .thirdPlanet div{
-    width:30px;
-    height:10px;
-    border:solid 1px #db8361;
+  .wrapper .thirdPlanet div:nth-of-type(1){
+    width:26px;
+    height:7px;
+    border:solid 1px #f6daa8;
+    top:50%;
+    left:50%;
+    position:absolute;
+    border-radius: 50%;
+    transform:translate(-50%,-50%) rotate(340deg);
+  }
+
+  .wrapper .thirdPlanet div:nth-of-type(2){
+    width:34px;
+    height:13px;
+    border:solid 2px #f6daa8;
     top:50%;
     left:50%;
     position:absolute;
