@@ -31,7 +31,6 @@ import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { GraphRenderer } from "./GraphRenderer";
-import { GraphUpdater } from './GraphUpdater';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 import { GraphConfig } from "./graphConfig";
@@ -44,8 +43,6 @@ export class Node {
 
     private x : ko.Observable<number>;
     private y : ko.Observable<number>;
-    // private realX : number; // underlying position (pre snap-to-grid)
-    // private realY : number;
 
     private parentKey : ko.Observable<number>;
     private embedKey : ko.Observable<number>;
@@ -91,9 +88,6 @@ export class Node {
 
         this.x = ko.observable(0);
         this.y = ko.observable(0);
-        // display position
-        // this.realX = 0;
-        // this.realY = 0;
         
         this.key = ko.observable(key);
         this.name = ko.observable(name);
@@ -150,11 +144,6 @@ export class Node {
         }
     }
 
-    // getGraphNodeId = () :string => {
-    //     const x = Math.abs(this.getKey())-1
-    //     return 'node'+x
-    // }
-
     getName = () : string => {
         return this.name();
     }
@@ -201,50 +190,15 @@ export class Node {
         return {x: this.x(), y: this.y()};
     }
 
-    // getRealPosition = () : {x:number, y:number} => {
-    //     return {x: this.realX, y: this.realY};
-    // }
-
-    setPosition = (x: number, y: number, allowSnap: boolean = true) : void => {
-        // this.realX = x;
-        // this.realY = y;
-
-        // if (Eagle.getInstance().snapToGrid() && allowSnap){
-        //     this.x(Utils.snapToGrid(this.realX, this.getDisplayRadius()));
-        //     this.y(Utils.snapToGrid(this.realY, this.getDisplayRadius()));
-        // } else {
-            // this.x(this.realX);
-            // this.y(this.realY);
-        // }
+    setPosition = (x: number, y: number) : void => {
         this.x(x)
         this.y(y)
     }
 
-    changePosition = (dx : number, dy : number, allowSnap: boolean = true) : void => {
-        // this.realX += dx;
-        // this.realY += dy;
-
-        // const beforePos = {x:this.x(), y:this.y()};
-
-        // if (Eagle.getInstance().snapToGrid() && allowSnap){
-        //     this.x(Utils.snapToGrid(this.realX, this.getDisplayRadius()));
-        //     this.y(Utils.snapToGrid(this.realY, this.getDisplayRadius()));
-
-        //     return {dx:this.x() - beforePos.x, dy:this.y() - beforePos.y};
-        // } else {
-            // this.x(this.realX);
-            // this.y(this.realY);
-            
-            // return {dx:dx, dy:dy};
-        // }
+    changePosition = (dx : number, dy : number) : void => {
         this.x(this.x()+dx)
         this.y(this.y()+dy)
     }
-
-    // resetReal = () : void => {
-    //     this.realX = this.x();
-    //     this.realY = this.y();
-    // }
 
     getRadius = () : number => {
         return this.radius();
@@ -821,12 +775,6 @@ export class Node {
             return this.radius();
         }
 
-        /*
-        if (this.isData() && !this.isCollapsed() && !this.isPeek()){
-            return Node.DATA_COMPONENT_WIDTH;
-        }
-        */
-
         return this.radius();
     }
 
@@ -1366,7 +1314,7 @@ export class Node {
         const node : Node = new Node(key, name, "", category);
 
         // set position
-        node.setPosition(x, y, !isPaletteNode);
+        node.setPosition(x, y);
 
         // set categoryType based on the category
         node.categoryType(CategoryData.getCategoryData(category).categoryType);
@@ -1460,11 +1408,6 @@ export class Node {
         if (typeof nodeData.outputApplicationDescription !== 'undefined'){
             outputApplicationDescription = nodeData.outputApplicationDescription;
         }
-
-        // debug
-        //console.log("node", nodeData.text);
-        //console.log("inputAppName", nodeData.inputAppName, "inputApplicationName", nodeData.inputApplicationName, "inpuApplication", nodeData.inputApplication, "inputApplicationType", nodeData.inputApplicationType);
-        //console.log("outputAppName", nodeData.outputAppName, "outputApplicationName", nodeData.outputApplicationName, "outputApplication", nodeData.outputApplication, "outputApplicationType", nodeData.outputApplicationType);
 
         // these next six if statements are covering old versions of nodes, that
         // specified input and output applications using name strings rather than nested nodes.

@@ -1,10 +1,4 @@
-import {Eagle} from './Eagle';
-import {Category} from './Category';
-import {Utils} from './Utils';
-import {Errors} from './Errors';
-import { Setting } from './Setting';
-import { ParameterTable } from './ParameterTable';
-import {KeyboardShortcut} from './KeyboardShortcut';
+import { KeyboardShortcut } from './KeyboardShortcut';
 
 let wordMatch:any[] = []
 let tagMatch:any[] = []
@@ -39,7 +33,7 @@ export class QuickActions {
         const eagle = (<any>window).eagle;
         const searchTerm :string = eagle.quickActionSearchTerm().toLocaleLowerCase()
 
-        let resultsList:any[] = []
+        const resultsList: any[] = []
 
         wordMatch = []
         tagMatch = []
@@ -102,7 +96,7 @@ export class QuickActions {
 
     static matchAndSortFunction = (func:KeyboardShortcut,searchTerm:string) : any =>{
         let result:any = []
-        let funcElement :any[] = []
+        const funcElement: any[] = []
         let bestMatch : string = ''
         //checks if there is a match
         let match = false
@@ -125,8 +119,8 @@ export class QuickActions {
 
         //generating the result
         if(match){
-            let resultTitle:string = func.name;
-            let resultAction:any = func.run;
+            const resultTitle:string = func.name;
+            const resultAction:any = func.run;
             let resultShortcut:string;
             let resultIcon:string;
 
@@ -271,7 +265,7 @@ export class QuickActions {
     }
 
     static quickOpenDocsLink = (link:string) :void => {
-        var win = window.open(link, '_blank');
+        const win = window.open(link, '_blank');
         if (win) {
             //Browser has allowed it to be opened
             win.focus();

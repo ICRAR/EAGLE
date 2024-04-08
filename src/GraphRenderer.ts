@@ -1370,7 +1370,7 @@ export class GraphRenderer {
             //we need to calculate the construct radius in relation to it's children
             eagle.logicalGraph().getNodes().forEach(function(node){
                 if(!node.isGroup()&&!node.isEmbedded()){
-                    node.setPosition(node.getPosition().x+node.getRadius()/2,node.getPosition().y + node.getRadius()/2,false)
+                    node.setPosition(node.getPosition().x+node.getRadius()/2,node.getPosition().y + node.getRadius()/2)
                 }
             })
             GraphRenderer.centerConstructs(null,eagle.logicalGraph().getNodes())

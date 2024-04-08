@@ -70,7 +70,7 @@ export class ParameterTable {
         //if the table parameter search bar is selected
         if($('#parameterTableModal .componentSearchBar')[0] === event.target){
             const targetCell = $('#parameterTableModal td.column_Value').first().children().first()
-            targetCell.focus()
+            targetCell.focus() // TODO: focus is deprecated here, use something else instead
             $('.selectedTableParameter').removeClass('selectedTableParameter')
             targetCell.parent().addClass('selectedTableParameter')
         }else if (event.target.closest('.columnCell')){
@@ -178,8 +178,6 @@ export class ParameterTable {
     }
 
     static fieldUsageChanged = (field: Field) : void => {
-        //console.log("fieldUsageChanged", field.getUsage(), field.getNodeKey());
-        
         const eagle: Eagle = Eagle.getInstance();
         const edgesToRemove: string[] = [];
 
@@ -211,12 +209,10 @@ export class ParameterTable {
 
     // when a field value is modified in the parameter table, we need to flag the containing palette or logical graph as modified
     static fieldValueChanged = (field: Field) : void => {
-        //console.log("fieldValueChanged", field.getDisplayText(), field.getValue(), "node key", field.getNodeKey());
-
         const eagle = Eagle.getInstance();
 
         switch (Eagle.selectedLocation()){
-            case Eagle.FileType.Palette:
+            case Eagle.FileType.Palette: {
                 const paletteNode: Node | Edge = eagle.selectedObjects()[0];
                 console.assert(paletteNode instanceof Node)
 
@@ -224,6 +220,7 @@ export class ParameterTable {
 
                 containingPalette.fileInfo().modified = true;
                 break;
+            }
             case Eagle.FileType.Graph:
                 eagle.logicalGraph().fileInfo().modified = true;
                 break;

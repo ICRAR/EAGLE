@@ -37,7 +37,6 @@ import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
-import { GraphRenderer } from './GraphRenderer';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
@@ -318,28 +317,6 @@ export class LogicalGraph {
      * Opens a dialog for selecting a data component type.
      */
     addDataComponentDialog = (eligibleComponents : Node[], callback : (node: Node) => void) : void => {
-        /*
-        let eligibleTypes: Eagle.Category[] = [];
-
-        // build list of data categories
-        const dataCategories : Eagle.Category[] = Utils.buildComponentList((cData: Eagle.CategoryData) => {
-            return cData.isData;
-        });
-
-        // loop through dataCategories and store in eligibleTypes, except where category appears in ineligibleTypes
-        for (const dataCategory of dataCategories){
-            let ineligible : boolean = false;
-            for (const ineligibleType of ineligibleTypes){
-                if (dataCategory === ineligibleType){
-                    ineligible = true;
-                    break;
-                }
-            }
-            if (!ineligible){
-                eligibleTypes.push(dataCategory);
-            }
-        }
-        */
         const eligibleComponentNames: string[] = [];
         for (const component of eligibleComponents){
             eligibleComponentNames.push(component.getName());

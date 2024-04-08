@@ -75,13 +75,13 @@ export class Hierarchy {
 
         //an array of edges is used as we have to ensure there are no duplicate edges drawn.
         async function hierarchyDraw() {
-            await setNodeRelatives()
+            setNodeRelatives()
             hierarchyEdgesList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
                 Hierarchy.drawEdge(e.edge, e.use, e.edgeSelected)
             })   
         }
         
-        //handle expanding groups that nades get drawn to, and hadle adding nodeRelative
+        //handle expanding groups that nodes get drawn to, and handle adding nodeRelative
         function setNodeRelatives(){
             nodeRelative.forEach(function(element:Node){
                 let iterations = 0;
@@ -150,8 +150,6 @@ export class Hierarchy {
     static drawEdge = (edge:Edge, use:string, edgeSelected:boolean) : void =>{
         const srcKey = edge.getSrcNodeKey()
         const destKey = edge.getDestNodeKey()
-        //const srcEmbedKey = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey()).getEmbedKey()
-        //const destEmbedKey = this.logicalGraph().findNodeByKey(edge.getDestNodeKey()).getEmbedKey()
 
         const srcNodeElement = $('.hierarchyNode#'+ srcKey)[0];
         const destNodeElement = $('.hierarchyNode#'+ destKey)[0];
@@ -268,7 +266,6 @@ export class Hierarchy {
             console.warn("Unable to find node in hierarchy!");
             return;
         }
-        // node.toggleExpanded();
 
         if(!e.shiftKey){
             eagle.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);

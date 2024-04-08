@@ -9,7 +9,6 @@ import { RepositoryFile } from './RepositoryFile';
 import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
-import { GraphRenderer } from "./GraphRenderer";
 
 export class Modals {
 
@@ -22,14 +21,16 @@ export class Modals {
             const returnType = $('#inputModal').data('returnType');
 
             switch (returnType){
-                case "string":
+                case "string": {
                     const stringCallback : (completed : boolean, userString : string) => void = $('#inputModal').data('callback');
                     stringCallback($('#inputModal').data('completed'), $('#inputModalInput').val().toString());
                     break;
-                case "number":
+                }
+                case "number": {
                     const numberCallback : (completed : boolean, userNumber : number) => void = $('#inputModal').data('callback');
                     numberCallback($('#inputModal').data('completed'), parseInt($('#inputModalInput').val().toString(), 10));
                     break;
+                }
                 default:
                     console.error("Unknown return type for inputModal!");
             }
@@ -62,7 +63,7 @@ export class Modals {
             callback($('#inputTextModal').data('completed'), $('#inputTextModalInput').val().toString());
         });
         $('#inputTextModal').on('shown.bs.modal', function(){
-            $('#inputTextModalInput').focus();
+            $('#inputTextModalInput').focus(); // TODO: focus and which are deprecated here, use something else instead
         });
         $('#inputTextModalInput').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){

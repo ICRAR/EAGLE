@@ -20,44 +20,37 @@ export class Repositories {
     }
 
     refreshRepositoryList = () : void => {
-        // console.log("refreshRepositoryList()");
-
         GitHub.loadRepoList();
         GitLab.loadRepoList();
     };
 
     static selectFolder = (folder : RepositoryFolder) : void => {
-        // console.log("selectFolder()", folder.name);
-
         // toggle expanded state
         folder.expanded(!folder.expanded());
     }
 
     static selectFile = (file : RepositoryFile) : void => {
-        // console.log("selectFile() service:", file.repository.service, "repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
         const eagle: Eagle = Eagle.getInstance();
-        eagle.showEagleIsLoading()
 
-        // console.log(file)
         if(file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.JSON){
             eagle.showEagleIsLoading()
         }
+
         // check if the current file has been modified
         let isModified = false;
         switch (file.type){
             case Eagle.FileType.Graph:
                 isModified = eagle.logicalGraph().fileInfo().modified;
                 break;
-            case Eagle.FileType.Palette:
+            case Eagle.FileType.Palette: {
                 const palette: Palette = eagle.findPalette(file.name, false);
                 isModified = palette !== null && palette.fileInfo().modified;
                 break;
+            }
             case Eagle.FileType.JSON:
                 isModified = eagle.logicalGraph().fileInfo().modified;
                 break;
         }
-
-
 
         // if the file is modified, get the user to confirm they want to overwrite changes
         if (isModified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
@@ -174,8 +167,6 @@ export class Repositories {
     };
 
     static get = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
-        // console.log("getRepository()", service, name, branch);
-
         for (const repository of Repositories.repositories()){
             if (repository.service === service && repository.name === name && repository.branch === branch){
                 return repository;
