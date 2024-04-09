@@ -225,7 +225,7 @@ export class Eagle {
        
     }
 
-    static getInstance = () : Eagle => {
+    static getInstance() : Eagle {
         return Eagle._instance;
     }
 
@@ -244,7 +244,7 @@ export class Eagle {
         return false;
     }
 
-    static selectedNodePalette = () : Palette => {
+    static selectedNodePalette() : Palette {
         const eagle : Eagle = Eagle.getInstance();
 
         for (const palette of eagle.palettes()){
@@ -258,7 +258,9 @@ export class Eagle {
         return null;
     }
 
-    displayNodeKeys = () :boolean => {
+    // TODO: move to Setting.ts, or remove the custom function entirely and just use the general-purpose settings function
+    // TODO: could be static, doesn't seem to use any state from Eagle!
+    displayNodeKeys = () : boolean => {
         return Setting.findValue(Setting.DISPLAY_NODE_KEYS);
     }
 
