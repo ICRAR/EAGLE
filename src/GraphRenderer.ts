@@ -502,15 +502,14 @@ export class GraphRenderer {
         console.log('min port distance = ',minimumPortDistance, 'array length= ',connectedFields.length)
         for(const connectedField of connectedFields){
             console.log(i)
-            if(i === 0){
-                console.log('continuing')
-                i++
-                continue
+            if(i != 0){
+                console.log(connectedField.angle,connectedField.angle-minimumPortDistance,connectedFields[i-1].angle)
+                if(connectedField.angle - minimumPortDistance< connectedFields[i-1].angle || connectedField.angle<connectedFields[i-1].angle){
+                    connectedField.angle = connectedFields[i-1].angle+minimumPortDistance
+                }
             }
-            console.log(connectedField.angle,connectedField.angle-minimumPortDistance,connectedFields[i-1].angle)
-            if(connectedField.angle - minimumPortDistance< connectedFields[i-1].angle || connectedField.angle<connectedFields[i-1].angle){
-                connectedField.angle = connectedFields[i-1].angle+minimumPortDistance
-            }
+
+            //setting the spaced out connected ports' positions with the organised and spaced out ones
             let portPosition
             if (connectedField.mode === 'input'){
                 portPosition = GraphRenderer.calculatePortPos(connectedField.angle, nodeRadius, nodeRadius)      
@@ -535,9 +534,7 @@ export class GraphRenderer {
             i++
         }
         console.log(node.getName(), 'arrays after', connectedFields, danglingPorts)
-
-        
-        
+                
     }
 
     static findClosestMatchingAngle (node:Node, angle:number, minPortDistance:number,field:Field,mode:string) : number {
