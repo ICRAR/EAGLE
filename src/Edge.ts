@@ -186,7 +186,7 @@ export class Edge {
         return result;
     }
 
-    static toOJSJson = (edge : Edge) : object => {
+    static toOJSJson(edge : Edge) : object {
         return {
             from: edge.srcNodeKey,
             fromPort: edge.srcPortId,
@@ -198,7 +198,7 @@ export class Edge {
         };
     }
 
-    static fromOJSJson = (linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge => {
+    static fromOJSJson(linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge {
         // try to read source and destination nodes and ports
         let srcNodeKey : number = 0;
         let srcPortId : string = "";
@@ -250,7 +250,7 @@ export class Edge {
         return new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop, false);
     }
 
-    static toV3Json = (edge : Edge) : object => {
+    static toV3Json(edge : Edge) : object {
         return {
             srcNode: edge.srcNodeKey.toString(),
             srcPort: edge.srcPortId,
@@ -261,11 +261,11 @@ export class Edge {
         }
     }
 
-    static fromV3Json = (edgeData: any, errorsWarnings: Errors.ErrorsWarnings): Edge => {
+    static fromV3Json(edgeData: any, errorsWarnings: Errors.ErrorsWarnings): Edge {
         return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, "", edgeData.loop_aware === "1", edgeData.closesLoop, false);
     }
 
-    static toAppRefJson = (edge : Edge, lg: LogicalGraph) : object => {
+    static toAppRefJson(edge : Edge, lg: LogicalGraph) : object {
         const result : any = {
             from: edge.srcNodeKey,
             fromPort: edge.srcPortId,
@@ -291,11 +291,11 @@ export class Edge {
         return result;
     }
 
-    static fromAppRefJson = (edgeData: any, errorsWarnings: Errors.ErrorsWarnings): Edge => {
+    static fromAppRefJson(edgeData: any, errorsWarnings: Errors.ErrorsWarnings): Edge {
         return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.dataType, edgeData.loopAware, edgeData.closesLoop, false);
     }
 
-    static isValid = (eagle: Eagle, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, dataType: string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
+    static isValid(eagle: Eagle, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, dataType: string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid {
         // check for problems
         if (isNaN(sourceNodeKey)){
             return Eagle.LinkValid.Unknown;
@@ -509,7 +509,7 @@ export class Edge {
         return Utils.worstEdgeError(errorsWarnings);
     }
 
-    private static isValidLog = (edgeId : string, linkValid : Eagle.LinkValid, issue: Errors.Issue, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : void => {
+    private static isValidLog(edgeId : string, linkValid : Eagle.LinkValid, issue: Errors.Issue, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : void {
         // determine correct title
         let title = "Edge Valid";
         let type : "success" | "info" | "warning" | "danger" = "success";
