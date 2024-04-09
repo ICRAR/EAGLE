@@ -36,7 +36,6 @@ import { Utils } from './Utils';
 import { CategoryData} from './CategoryData';
 import { Setting } from './Setting';
 import { RightClick } from "./RightClick";
-import { active } from "d3";
 
 ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor) {
@@ -388,6 +387,7 @@ export class GraphRenderer {
     static legacyGraph : boolean = false; //used for marking a graph when its nodes don't have a radius set. in this case we will do some conversion
 
     static renderDraggingPortEdge : ko.Observable<boolean> = ko.observable(false);
+
 
     static averageAngles(angles: number[]) : number {
         let x: number = 0;
@@ -1023,8 +1023,8 @@ export class GraphRenderer {
 
                 //setting start and end region to current mouse co-ordinates
                 $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','top':GraphRenderer.selectionRegionStart.y+'px'})
-                const containerWidth = $('#logicalGraphD3Div').width()
-                const containerHeight = $('#logicalGraphD3Div').height()
+                const containerWidth = $('#logicalGraph').width()
+                const containerHeight = $('#logicalGraph').height()
 
                 //turning the graph coordinates into a distance from bottom/right for css inset before applying
                 const selectionBottomOffset = containerHeight - GraphRenderer.selectionRegionEnd.y
@@ -1032,7 +1032,7 @@ export class GraphRenderer {
                 $('#selectionRectangle').css({'right':selectionRightOffset+'px','bottom':selectionBottomOffset+'px'})
             }else{
                 //if node is null, the empty canvas has been clicked. clear the selection
-                eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
+                eagle.setSelection(Eagle.RightWindowMode.Hierarchy, null, Eagle.FileType.Graph);
 
             }
         }
@@ -1104,8 +1104,8 @@ export class GraphRenderer {
 
             } else if(GraphRenderer.isDraggingSelectionRegion){
                 GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null), y:this.SCREEN_TO_GRAPH_POSITION_Y(null)}
-                const containerWidth = $('#logicalGraphD3Div').width()
-                const containerHeight = $('#logicalGraphD3Div').height()
+                const containerWidth = $('#logicalGraph').width()
+                const containerHeight = $('#logicalGraph').height()
 
                 if(GraphRenderer.selectionRegionEnd.x>GraphRenderer.selectionRegionStart.x){
                     $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','right':containerWidth - GraphRenderer.selectionRegionEnd.x+'px'})
@@ -1539,9 +1539,9 @@ export class GraphRenderer {
 
     static updateMousePos = (): void => {
         // grab and convert mouse position to graph coordinates
-        const d3DivOffset = $('#logicalGraphD3Div').offset();
-        const mouseX = (<any>event).pageX - d3DivOffset.left;
-        const mouseY = (<any>event).pageY - d3DivOffset.top;
+        const divOffset = $('#logicalGraph').offset();
+        const mouseX = (<any>event).pageX - divOffset.left;
+        const mouseY = (<any>event).pageY - divOffset.top;
         GraphRenderer.mousePosX(GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null));
         GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null));
     }

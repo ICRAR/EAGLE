@@ -166,7 +166,6 @@ export class Eagle {
         Eagle.tutorials = tutorialArray
         this.tutorial = ko.observable(Eagle.tutorials[0]);
 
-        
         Eagle.nodeDragPaletteIndex = null;
         Eagle.nodeDragComponentIndex = null;
 
@@ -829,7 +828,7 @@ export class Eagle {
 
     private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
-
+        this.hideEagleIsLoading()
         // show errors (if found)
         if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
             if (showErrors){
@@ -1393,8 +1392,6 @@ export class Eagle {
      * Create a new diagram (graph or palette).
      */
     newDiagram = (fileType : Eagle.FileType, callbackAction : (name : string) => void ) : void => {
-        console.log("newDiagram()", fileType);
-
         const defaultName: string = Utils.generateGraphName();
 
         Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false, (completed : boolean, userString : string) : void => {
@@ -1828,6 +1825,7 @@ export class Eagle {
             if (error != null){
                 Utils.showUserMessage("Error", error);
                 console.error(error);
+                this.hideEagleIsLoading()
                 return;
             }
 
@@ -2278,7 +2276,7 @@ export class Eagle {
     }
 
     saveAsPNG = () : void => {
-        Utils.saveAsPNG('#logicalGraphD3Div svg', this.logicalGraph().fileInfo().name);
+        Utils.saveAsPNG('#logicalGraph svg', this.logicalGraph().fileInfo().name);
     };
 
     toggleCollapseAllGroups = () : void => {
@@ -2432,31 +2430,48 @@ export class Eagle {
         }
     }
 
+    showEagleIsLoading = () : void => {
+        // document.getElementById("loadingContainer").style.display = "block";
+        $('#loadingContainer').show()
+    }
+
+    hideEagleIsLoading = () : void => {
+        // document.getElementById("loadingContainer").style.display = "none";
+        $('#loadingContainer').hide()
+    }
+
     openParamsTableModal = (mode:string,selectType:string) : void => {
-        if($('.modal.show').length>0){
-            if($('.modal.show').attr('id')==='parameterTableModal'){
-                $('#parameterTableModal').modal('hide')
-                this.showTableModal(false)
-            }else{
-                return
-            }
-        }
-        this.showTableModal(true)
-        if(selectType === 'rightClick'){
-            this.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
+        this.showEagleIsLoading()
+        const eagle = this
+        setTimeout(function(){
 
-            RightClick.closeCustomContextMenu(true);
-
-            setTimeout(function() {
-                Utils.showOpenParamsTableModal(mode);
-            }, 30);
-        }else{
-            if (mode==='inspectorTableModal' && !this.selectedNode()){
-                Utils.showNotification("Error", "No Node Is Selected", "warning");
-            }else{
-                Utils.showOpenParamsTableModal(mode);
+            if($('.modal.show').length>0){
+                if($('.modal.show').attr('id')==='parameterTableModal'){
+                    $('#parameterTableModal').modal('hide')
+                    eagle.showTableModal(false)
+                }else{
+                    return
+                }
             }
-        }
+            if(selectType === 'rightClick'){
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
+
+                RightClick.closeCustomContextMenu(true);
+
+                setTimeout(function() {
+                    Utils.showOpenParamsTableModal(mode);
+                }, 30);
+            }else{
+                if (mode==='inspectorTableModal' && !eagle.selectedNode()){
+                    eagle.hideEagleIsLoading()
+                    Utils.showNotification("Error", "No Node Is Selected", "warning");
+                }else{
+                    Utils.showOpenParamsTableModal(mode);
+                }
+            }
+            eagle.showTableModal(true)
+
+        },5)
     }
 
     getCurrentParamReadonly = (field: Field) : boolean => {
@@ -3189,8 +3204,18 @@ export class Eagle {
             // create edge (in correct direction)
             if (!RightClick.edgeDropSrcIsInput){
                 this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false,null);
-            } else {    
+
+                // name new node according to source port
+                const newName = realSourcePort.getDisplayText();
+                node.setName(newName);
+                realDestPort.setDisplayText(newName);
+            } else {
                 this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, null);
+
+                // name new node according to destination port
+                const newName = realDestPort.getDisplayText();
+                node.setName(newName);
+                realSourcePort.setDisplayText(newName);
             }
         });
     }
@@ -3263,39 +3288,46 @@ export class Eagle {
 
             // if node is a PythonMemberFunction, then we should generate a new PythonObject node too
             if (newNode.getCategory() === Category.PythonMemberFunction){
+                // get name of the "base" class from the PythonMemberFunction node,
+                // if no "base_name" field exists, default to use the name "Object"
+                let baseName: string = Daliuge.FieldName.OBJECT;
+                const baseNameField = newNode.getFieldByDisplayText(Daliuge.FieldName.BASE_NAME);
+                if (baseNameField !== null){
+                    baseName = baseNameField.getValue();
+                } else {
+                    console.warn("Could not find 'base_name' port on PythonMemberFunction");
+                }
+
                 // create node
-                const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Object", "Instance of Object", Category.PythonObject);
+                const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), baseName, "Instance of " + baseName, Category.PythonObject);
 
                 // add node to LogicalGraph
-                const OBJECT_OFFSET_X = 0;
-                const OBJECT_OFFSET_Y = 0;
+                const OBJECT_OFFSET_X = 100;
+                const OBJECT_OFFSET_Y = 100;
                 this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
                     // set parent to same as PythonMemberFunction
                     pythonObjectNode.setParentKey(newNode.getParentKey());
 
-                    // copy PythonMemberFunction node's 'basename' field to the PythonObject node
-                    const basenameField: Field = newNode.findFieldByDisplayText(Daliuge.FieldName.BASENAME, Daliuge.FieldType.ApplicationArgument);
-                    if (basenameField !== null){
-                        pythonObjectNode.setName(basenameField.getValue());
-                        pythonObjectNode.addField(basenameField.clone());
-                    } else {
-                        Utils.showNotification("Python Object", "Unable to set " + Daliuge.FieldName.BASENAME + " field of PythonObject since a field with the same name was not found in the PythonMemberFunction", "danger");
+                    // copy all fields from a "PythonObject" node in the palette
+                    Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
+
+                    // find the "object" port on the PythonMemberFunction
+                    const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.OBJECT, false, false);
+
+                    // make sure we can find a "object" port on the PythonMemberFunction
+                    if (sourcePort === null){
+                        Utils.showNotification("Edge Error", "Unable to connect edge between PythonMemberFunction and new PythonObject. The PythonMemberFunction does not have a '" + Daliuge.FieldName.OBJECT + "' port.", "danger");
+                        return;
                     }
 
-                    // find the "self" port on the PythonMemberFunction
-                    const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);
-
-                    // make sure node has input/output "self" port
-                    const inputOutputPort = new Field(Utils.uuidv4(), "self", "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput, false);
+                    // create a new input/output "object" port on the PythonObject
+                    const inputOutputPort = new Field(Utils.uuidv4(), Daliuge.FieldName.OBJECT, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput, false);
                     pythonObjectNode.addField(inputOutputPort);
 
 
                     // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
-                    if (sourcePort !== null){
-                        this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, null);
-                    } else {
-                        Utils.showNotification("Edge Error", "Unable to connect edge between PythonMemberFunction and new PythonObject. The PythonMemberFunction does not have a 'self' port.", "danger");
-                    }
+                    this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, null);
+
                 });
             }
 
@@ -4559,48 +4591,67 @@ export class Eagle {
 
     inspectorChangeNodeCategory = (event:any) : void => {
         const newNodeCategory: Category = $(event.target).val() as Category
+        const oldNode = this.selectedNode();
 
-        this.selectedNode().setCategory(newNodeCategory)
-
-        // once the category is changed, some things about the node may no longer be valid
-        // for example, the node may contain ports, but no ports are allowed
-
-        // get category data
-        const categoryData = CategoryData.getCategoryData(newNodeCategory);
-
-        // delete parameters, if necessary
-        if (this.selectedNode().getComponentParameters().length > 0 && !categoryData.canHaveComponentParameters){
-            this.selectedNode().removeAllComponentParameters();
+        // get a reference to the builtin palette
+        const builtinPalette: Palette = this.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
+        if (builtinPalette === null){
+            console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
+            return;
         }
 
-        // delete application args, if necessary
-        if (this.selectedNode().getApplicationArguments().length > 0 && !categoryData.canHaveApplicationArguments){
-            this.selectedNode().removeAllApplicationArguments();
+        // find node with new type in builtinPalette
+        const oldCategoryPrototype: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
+        const newCategoryPrototype: Node = builtinPalette.findNodeByNameAndCategory(newNodeCategory);
+
+        // check that prototypes were found for old category and new category
+        if (oldCategoryPrototype === null || newCategoryPrototype === null){
+            console.warn("Prototypes for old and new categories could not be found in palettes", oldCategoryPrototype, newCategoryPrototype);
+            return;
         }
 
-        // delete extra input ports
-        if (this.selectedNode().getInputPorts().length > categoryData.maxInputs){
-            for (let i = this.selectedNode().getInputPorts().length - 1 ; i >= 0 ; i--){
-                this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
+        // delete non-ports from the old node (loop backwards since we are deleting from the array as we loop)
+        for (let i = oldNode.getFields().length - 1 ; i >= 0; i--){
+            const field: Field = oldNode.getFields()[i];
+
+            if (field.isInputPort() || field.isOutputPort()){
+                continue;
             }
+
+            oldNode.removeFieldById(field.getId());
         }
 
-        // delete extra output ports
-        if (this.selectedNode().getOutputPorts().length > categoryData.maxOutputs){
-            for (let i = this.selectedNode().getOutputPorts().length - 1 ; i >= 0 ; i--){
-                this.removeFieldFromNodeById(this.selectedNode(),this.selectedNode().getInputPorts()[i].getId());
+        // copy non-ports from new category to old node
+        for (let i = 0 ; i < newCategoryPrototype.getFields().length ; i++){
+            const field: Field = newCategoryPrototype.getFields()[i];
+
+            if (field.isInputPort() || field.isOutputPort()){
+                continue;
             }
+
+            // try to find field in old node that matches by displayText AND parameterType
+            let destField = oldNode.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
+
+            // if dest field could not be found, then go ahead and add a NEW field to the dest node
+            if (destField === null){
+                destField = field.clone();
+                oldNode.addField(destField);
+            }
+           
+            // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
+            destField.copyWithKeyAndId(field, destField.getNodeKey(), destField.getId());
         }
 
-        // delete input application, if necessary
-        if (this.selectedNode().hasInputApplication() && !categoryData.canHaveInputApplication){
-            this.selectedNode().setInputApplication(null);
+        // copy name and description from new category to old node, if old node values are defaults
+        if (oldNode.getName() === oldCategoryPrototype.getName()){
+            oldNode.setName(newCategoryPrototype.getName());
+
+        }
+        if (oldNode.getDescription() === oldCategoryPrototype.getDescription()){
+            oldNode.setDescription(newCategoryPrototype.getDescription());
         }
 
-        // delete output application, if necessary
-        if (this.selectedNode().hasOutputApplication() && !categoryData.canHaveOutputApplication){
-            this.selectedNode().setOutputApplication(null);
-        }
+        this.selectedNode().setCategory(newNodeCategory);
 
         this.flagActiveFileModified();
         this.checkGraph();
@@ -4675,8 +4726,6 @@ export class Eagle {
 
         // check if node was added to an empty graph, if so prompt user to specify graph name
         if (this.logicalGraph().fileInfo().name === ""){
-            console.log("Node added to Graph with no name, requesting name from user");
-
             this.newDiagram(Eagle.FileType.Graph, (name: string) => {
                 this.logicalGraph().fileInfo().name = name;
                 this.checkGraph();
@@ -4712,6 +4761,18 @@ export class Eagle {
                 Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
             }
         });
+    }
+
+    findPaletteContainingNode = (nodeId: string): Palette => {
+        for (const palette of this.palettes()){
+            for (const node of palette.getNodes()){
+                if (node.getId() === nodeId){
+                    return palette;
+                }
+            }
+        }
+
+        return null;
     }
 }
 

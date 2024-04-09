@@ -1,4 +1,3 @@
-import { active } from 'd3';
 import {Eagle} from './Eagle';
 
 
@@ -94,7 +93,7 @@ export class TutorialSystem {
 
     static initiateFindGraphNodeIdByNodeName = (name:string) : JQuery<HTMLElement> => {
         const eagle = Eagle.getInstance()
-        let x = $('#logicalGraphD3Div #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
+        let x = $('#logicalGraph #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
         return x
     }
 

@@ -43,6 +43,7 @@ import {Repository} from './Repository';
 import {Setting} from './Setting';
 import {FileInfo} from "./FileInfo";
 import { UiModeSystem } from "./UiModes";
+import { GraphRenderer } from "./GraphRenderer";
 
 export class Utils {
     // Allowed file extensions
@@ -1081,31 +1082,28 @@ export class Utils {
     }
 
     static getCategoriesWithInputsAndOutputs(categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
-        const result: Category[] = [];
-        for (const [categoryName, categoryData] of Object.entries(CategoryData.cData)){
+        const eagle = Eagle.getInstance();
 
-
-            if(!Setting.findValue(Setting.SHOW_ALL_CATEGORY_OPTIONS)){
-                
-                if (categoryData.categoryType !== categoryType){
-                    continue;
-                }
-                
-                // if input ports required, skip nodes with too few
-                if (numRequiredInputs > categoryData.maxInputs){
-                    continue;
-                }
-
-                // if output ports required, skip nodes with too few
-                if (numRequiredOutputs > categoryData.maxOutputs){
-                    continue;
-                }
-            }
-            
-            result.push(categoryName as Category);
+        // get a reference to the builtin palette
+        const builtinPalette: Palette = eagle.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
+        if (builtinPalette === null){
+            console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
+            return null;
         }
 
-        return result;
+        const matchingNodes = builtinPalette.getNodesByCategoryType(categoryType)
+        const matchingCategories : Category[] = []
+
+        matchingNodes.forEach(function(node){
+            for(const x of matchingCategories){
+                if(node.getCategory() === x){
+                    continue
+                }
+            }
+            matchingCategories.push(node.getCategory())
+        })
+
+        return matchingCategories;
     }
 
     static getDataComponentMemory(palettes: Palette[]) : Node {
@@ -2222,6 +2220,47 @@ export class Utils {
 
     static openRemoteFileFromUrl(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
         Utils.httpGet(fileName, callback);
+    }
+
+    static copyFieldsFromPrototype(node: Node, paletteName: string, category: Category) : void {
+        const eagle: Eagle = Eagle.getInstance();
+
+        // get a reference to the builtin palette
+        const palette: Palette = eagle.findPalette(paletteName, false);
+        if (palette === null){
+            console.warn("Could not find palette", paletteName);
+            return;
+        }
+
+        // find node with new type in builtinPalette
+        const newCategoryPrototype: Node = palette.findNodeByNameAndCategory(category);
+
+        // check that category was found
+        if (newCategoryPrototype === null){
+            console.warn("Prototypes for new category could not be found in palettes", category);
+            return;
+        }
+
+        // copy fields from new category to old node
+        for (let i = 0 ; i < newCategoryPrototype.getFields().length ; i++){
+            const field: Field = newCategoryPrototype.getFields()[i];
+
+            if (field.isInputPort() || field.isOutputPort()){
+                continue;
+            }
+
+            // try to find field in old node that matches by displayText AND parameterType
+            let destField = node.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
+
+            // if dest field could not be found, then go ahead and add a NEW field to the dest node
+            if (destField === null){
+                destField = field.clone();
+                node.addField(destField);
+            }
+
+            // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
+            destField.copyWithKeyAndId(field, destField.getNodeKey(), destField.getId());
+        }
     }
 
 }

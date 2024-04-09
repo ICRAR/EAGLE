@@ -126,7 +126,7 @@ export class Node {
 
         this.color = ko.observable(Utils.getColorForNode(category));
         this.drawOrderHint = ko.observable(0);
-        this.radius = ko.observable(0);
+        this.radius = ko.observable(GraphConfig.NORMAL_NODE_RADIUS);
     }
 
     getId = () : string => {
@@ -1154,9 +1154,9 @@ export class Node {
         result.expanded(this.expanded());
         result.keepExpanded(this.expanded());
 
-        result.peek = this.peek;
+        result.peek(this.peek());
 
-        result.subject = this.subject;
+        result.subject(this.subject());
 
         // clone fields
         for (const field of this.fields()){
