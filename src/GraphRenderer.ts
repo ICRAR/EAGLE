@@ -310,25 +310,25 @@ ko.bindingHandlers.graphRendererPortPosition = {
             // }
         }
         
-        if (dataType === 'inputPort'){
-            portPosition = GraphRenderer.calculatePortPos(field.getInputAngle(), nodeRadius, nodeRadius)      
-            //a little 1px reduction is needed to center ports for some reason
-            if(!node.isBranch()){
-                portPosition = {x:portPosition.x-1,y:portPosition.y-1}
-            }  
+        // if (dataType === 'inputPort'){
+        //     portPosition = GraphRenderer.calculatePortPos(field.getInputAngle(), nodeRadius, nodeRadius)      
+        //     //a little 1px reduction is needed to center ports for some reason
+        //     if(!node.isBranch()){
+        //         portPosition = {x:portPosition.x-1,y:portPosition.y-1}
+        //     }  
 
-            field.setInputPosition(portPosition.x, portPosition.y);
-        } 
-        if (dataType === 'outputPort'){
-            portPosition = GraphRenderer.calculatePortPos(field.getOutputAngle(), nodeRadius, nodeRadius)
+        //     field.setInputPosition(portPosition.x, portPosition.y);
+        // } 
+        // if (dataType === 'outputPort'){
+        //     portPosition = GraphRenderer.calculatePortPos(field.getOutputAngle(), nodeRadius, nodeRadius)
 
-            //a little 1px reduction is needed to center ports for some reason
-            if(!node.isBranch()){
-                portPosition = {x:portPosition.x-1,y:portPosition.y-1}
-            }
+        //     //a little 1px reduction is needed to center ports for some reason
+        //     if(!node.isBranch()){
+        //         portPosition = {x:portPosition.x-1,y:portPosition.y-1}
+        //     }
 
-            field.setOutputPosition(portPosition.x, portPosition.y);
-        }
+        //     field.setOutputPosition(portPosition.x, portPosition.y);
+        // }
 
         //align the port titles to the correct side of the node, depending on node angle
         //clear style since it doesnt seem to overwrite
@@ -435,6 +435,7 @@ export class GraphRenderer {
         
         const connectedFields : {angle:number, field:Field,mode:string}[] = []
         const danglingPorts : {field:Field, mode:string}[] = []
+        const nodeRadius = node.getRadius()
 
         //building a list of connected and not connected ports on the node in question
         node.getFields().forEach(function(field){
@@ -443,29 +444,48 @@ export class GraphRenderer {
             if(!field.isInputPort() && !field.isOutputPort()){
                 return
             }
+            
+            console.log(node.getName(), field.getDisplayText())
 
-            //checking and adding to connected ports list
+            //sorting the connected ports via angle into the connectedFields array
             if (field.getInputConnected()){
-                let i = 0
-                for(const connectedField of connectedFields){
-                    i++
-                    if(connectedField.angle<field.getInputAngle() || connectedFields.length != 0){
-                        connectedFields.splice(i,0,{angle:field.getInputAngle(),field:field,mode:'input'})
+
+                if(connectedFields.length === 0){
+                    connectedFields.push({angle:field.getInputAngle(),field:field,mode:'input'})
+                }else{
+                    let i = 0
+
+                    for(const connectedField of connectedFields){
+                        i++
+                        if(connectedField.angle>field.getInputAngle()){
+                            connectedFields.splice(i-1,0,{angle:field.getInputAngle(),field:field,mode:'input'})
+                            return
+                        }else if(connectedFields.length === i){
+                            connectedFields.push({angle:field.getInputAngle(),field:field,mode:'input'})
+                            return
+                        }
                     }
                 }
-
             }
             
             if (field.getOutputConnected()){
-                let i = 0
-                for(const connectedField of connectedFields){
-                    i++
-                    if(connectedField.angle<field.getInputAngle() || connectedFields.length != 0){
-                        connectedFields.splice(i,0,{angle:field.getOutputAngle(),field:field,mode:'output'})
+                if(connectedFields.length === 0){
+                    connectedFields.push({angle:field.getOutputAngle(),field:field,mode:'output'})
+                }else{
+                    let i = 0
+                    for(const connectedField of connectedFields){
+                        i++
+                        if(connectedField.angle>field.getOutputAngle()){
+                            connectedFields.splice(i-1,0,{angle:field.getOutputAngle(),field:field,mode:'output'})
+                            return
+                        }else if(connectedFields.length === i){
+                            connectedFields.push({angle:field.getOutputAngle(),field:field,mode:'output'})
+                            return
+                        }
                     }
                 }
             }
-
+            
             //otherwise adding to dangling ports list
             if(!field.getInputConnected() && field.isInputPort()){
                 danglingPorts.push({field:field,mode:'input'})
@@ -475,7 +495,46 @@ export class GraphRenderer {
                 danglingPorts.push({field:field,mode:'output'})
             }
         })
-        console.log(node.getName(), 'arrays', connectedFields, danglingPorts)
+        console.log(node.getName(), 'arrays before', connectedFields, danglingPorts)
+
+        //spacing out the connected ports
+        let i = 0
+        console.log('min port distance = ',minimumPortDistance, 'array length= ',connectedFields.length)
+        for(const connectedField of connectedFields){
+            console.log(i)
+            if(i === 0){
+                console.log('continuing')
+                i++
+                continue
+            }
+            console.log(connectedField.angle,connectedField.angle-minimumPortDistance,connectedFields[i-1].angle)
+            if(connectedField.angle - minimumPortDistance< connectedFields[i-1].angle || connectedField.angle<connectedFields[i-1].angle){
+                connectedField.angle = connectedFields[i-1].angle+minimumPortDistance
+            }
+            let portPosition
+            if (connectedField.mode === 'input'){
+                portPosition = GraphRenderer.calculatePortPos(connectedField.angle, nodeRadius, nodeRadius)      
+                //a little 1px reduction is needed to center ports for some reason
+                if(!node.isBranch()){
+                    portPosition = {x:portPosition.x-1,y:portPosition.y-1}
+                }  
+
+                connectedField.field.setInputPosition(portPosition.x, portPosition.y);
+            } 
+            if (connectedField.mode === 'output'){
+                portPosition = GraphRenderer.calculatePortPos(connectedField.angle, nodeRadius, nodeRadius)
+
+                //a little 1px reduction is needed to center ports for some reason
+                if(!node.isBranch()){
+                    portPosition = {x:portPosition.x-1,y:portPosition.y-1}
+                }
+
+                connectedField.field.setOutputPosition(portPosition.x, portPosition.y);
+            }
+
+            i++
+        }
+        console.log(node.getName(), 'arrays after', connectedFields, danglingPorts)
 
         
         
