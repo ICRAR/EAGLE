@@ -434,7 +434,7 @@ export class GraphRenderer {
         const minimumPortDistance:number = Number(Math.asin(GraphConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
         
         const connectedFields : {angle:number, field:Field,mode:string}[] = []
-        const danglingPorts : {field:Field, mode:string}[] = []
+        const danglingPorts : {angle:number, field:Field, mode:string}[] = []
         const nodeRadius = node.getRadius()
 
         //building a list of connected and not connected ports on the node in question
@@ -445,7 +445,6 @@ export class GraphRenderer {
                 return
             }
             
-            console.log(node.getName(), field.getDisplayText())
 
             //sorting the connected ports via angle into the connectedFields array
             if (field.getInputConnected()){
@@ -488,53 +487,63 @@ export class GraphRenderer {
             
             //otherwise adding to dangling ports list
             if(!field.getInputConnected() && field.isInputPort()){
-                danglingPorts.push({field:field,mode:'input'})
+                danglingPorts.push({angle:Math.PI, field:field, mode:'input'})
             }
 
             if(!field.getOutputConnected() && field.isOutputPort()){
-                danglingPorts.push({field:field,mode:'output'})
+                danglingPorts.push({angle:0, field:field, mode:'output'})
             }
         })
-        console.log(node.getName(), 'arrays before', connectedFields, danglingPorts)
 
         //spacing out the connected ports
         let i = 0
-        console.log('min port distance = ',minimumPortDistance, 'array length= ',connectedFields.length)
         for(const connectedField of connectedFields){
-            console.log(i)
             if(i != 0){
-                console.log(connectedField.angle,connectedField.angle-minimumPortDistance,connectedFields[i-1].angle)
                 if(connectedField.angle - minimumPortDistance< connectedFields[i-1].angle || connectedField.angle<connectedFields[i-1].angle){
                     connectedField.angle = connectedFields[i-1].angle+minimumPortDistance
                 }
             }
 
             //setting the spaced out connected ports' positions with the organised and spaced out ones
-            let portPosition
-            if (connectedField.mode === 'input'){
-                portPosition = GraphRenderer.calculatePortPos(connectedField.angle, nodeRadius, nodeRadius)      
-                //a little 1px reduction is needed to center ports for some reason
-                if(!node.isBranch()){
-                    portPosition = {x:portPosition.x-1,y:portPosition.y-1}
-                }  
-
-                connectedField.field.setInputPosition(portPosition.x, portPosition.y);
-            } 
-            if (connectedField.mode === 'output'){
-                portPosition = GraphRenderer.calculatePortPos(connectedField.angle, nodeRadius, nodeRadius)
-
-                //a little 1px reduction is needed to center ports for some reason
-                if(!node.isBranch()){
-                    portPosition = {x:portPosition.x-1,y:portPosition.y-1}
-                }
-
-                connectedField.field.setOutputPosition(portPosition.x, portPosition.y);
-            }
+            GraphRenderer.applyPortAngle(connectedField.mode,connectedField.angle,nodeRadius,node,connectedField.field)
 
             i++
         }
-        console.log(node.getName(), 'arrays after', connectedFields, danglingPorts)
-                
+
+        //looking for space where we can place the dangling ports
+        for (const danglingPort of danglingPorts){
+            const newAngle = GraphRenderer.findClosestMatchingAngle(node,danglingPort.angle,minimumPortDistance,danglingPort.field,danglingPort.mode)
+
+            GraphRenderer.applyPortAngle(danglingPort.mode,newAngle,nodeRadius,node,danglingPort.field)
+            if(danglingPort.mode === 'input'){
+                danglingPort.field.setInputAngle(newAngle)
+            }else{
+                danglingPort.field.setOutputAngle(newAngle)
+            }
+        }
+    }
+
+    static applyPortAngle (mode:string, angle:number, nodeRadius: number, node:Node, field:Field) : void {
+        let portPosition
+        if (mode === 'input'){
+            portPosition = GraphRenderer.calculatePortPos(angle, nodeRadius, nodeRadius)      
+            //a little 1px reduction is needed to center ports for some reason
+            if(!node.isBranch()){
+                portPosition = {x:portPosition.x-1,y:portPosition.y-1}
+            }  
+
+            field.setInputPosition(portPosition.x, portPosition.y);
+        } 
+        if (mode === 'output'){
+            portPosition = GraphRenderer.calculatePortPos(angle, nodeRadius, nodeRadius)
+
+            //a little 1px reduction is needed to center ports for some reason
+            if(!node.isBranch()){
+                portPosition = {x:portPosition.x-1,y:portPosition.y-1}
+            }
+
+            field.setOutputPosition(portPosition.x, portPosition.y);
+        }
     }
 
     static findClosestMatchingAngle (node:Node, angle:number, minPortDistance:number,field:Field,mode:string) : number {
