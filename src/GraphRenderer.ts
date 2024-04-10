@@ -241,6 +241,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         // get node radius
         const nodeRadius = node.getRadius()
+        
         // determine port position
         const currentNodePos = node.getPosition();
         let portPosition;
@@ -286,51 +287,19 @@ ko.bindingHandlers.graphRendererPortPosition = {
                     break;
             }
         }
+
         //checking for port colisions if connected
         if(!node.isComment()){
-            // //calculating the minimum port distance as an angle. we save this min distance as a pixel distance between ports
-            // const minimumPortDistance:number = Number(Math.asin(GraphConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
-
             //checking if the ports are linked 
             const portIsLinked = eagle.logicalGraph().portIsLinked(node.getKey(),field.getId())
             field.setInputConnected(portIsLinked.input)
             field.setOutputConnected(portIsLinked.output)
 
-
             GraphRenderer.sortAndOrganizePorts(node)
-
-            // if(dataType === 'inputPort'){//for input ports
-            //     const newInputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getInputAngle(),minimumPortDistance,field,'input')
-            //     field.setInputAngle(newInputPortAngle)
-            // }
-            
-            // if(dataType === 'outputPort'){//for output ports
-            //     const newOutputPortAngle = GraphRenderer.findClosestMatchingAngle(node,field.getOutputAngle(),minimumPortDistance,field,'output')
-            //     field.setOutputAngle(newOutputPortAngle)
-            // }
         }
-        
-        // if (dataType === 'inputPort'){
-        //     portPosition = GraphRenderer.calculatePortPos(field.getInputAngle(), nodeRadius, nodeRadius)      
-        //     //a little 1px reduction is needed to center ports for some reason
-        //     if(!node.isBranch()){
-        //         portPosition = {x:portPosition.x-1,y:portPosition.y-1}
-        //     }  
-
-        //     field.setInputPosition(portPosition.x, portPosition.y);
-        // } 
-        // if (dataType === 'outputPort'){
-        //     portPosition = GraphRenderer.calculatePortPos(field.getOutputAngle(), nodeRadius, nodeRadius)
-
-        //     //a little 1px reduction is needed to center ports for some reason
-        //     if(!node.isBranch()){
-        //         portPosition = {x:portPosition.x-1,y:portPosition.y-1}
-        //     }
-
-        //     field.setOutputPosition(portPosition.x, portPosition.y);
-        // }
 
         //align the port titles to the correct side of the node, depending on node angle
+
         //clear style since it doesnt seem to overwrite
         $(element).find(".portTitle").removeAttr( "style" )
 
