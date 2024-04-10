@@ -739,6 +739,16 @@ export class Eagle {
         return false;
     }
 
+    objectIsSelectedByKey = (key: number): boolean => {
+        for (const o of this.selectedObjects()){
+            if (o instanceof Node && o.getKey() === key){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * Uploads a file from a local file location.
      */
