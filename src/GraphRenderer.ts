@@ -59,7 +59,7 @@ ko.bindingHandlers.nodeRenderHandler = {
         }
     },
     update: function (element:any, valueAccessor) {
-        const node: Node = ko.unwrap(valueAccessor());
+        let node: Node = ko.unwrap(valueAccessor());
 
         // set size
         $(element).css({'height':node.getRadius()*2+'px','width':node.getRadius()*2+'px'});
@@ -77,9 +77,14 @@ ko.bindingHandlers.nodeRenderHandler = {
             $(element).children().children().children('.body').css({'background-color':'white'})
         }
 
-        if(node.isGroup()|| node.getParentKey() != null){
+        const pos = node.getPosition() // this line is needed because referencing position here causes this update funciton to run when the node position gets updated aka. when we are dragging a node on the graph
+        if(node.isGroup() || node.getParentKey() != null ){
+            if(!node.isConstruct()){
+                const eagle : Eagle = Eagle.getInstance();
+                node = eagle.logicalGraph().findNodeByKey(node.getParentKey())
+            }
             GraphRenderer.resizeConstruct(node,false)
-        }
+            }
     },
 };
 
@@ -350,6 +355,7 @@ export class GraphRenderer {
     static isDraggingSelectionRegion :boolean = false;
     static selectionRegionStart = {x:0, y:0};
     static selectionRegionEnd = {x:0, y:0};
+    static shiftDrag = false;
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
@@ -1089,6 +1095,8 @@ export class GraphRenderer {
                 // remember node parent from before things change
                 const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey());
 
+                this.shiftDrag = event.shiftKey;
+
                 // move node
                 eagle.selectedObjects().forEach(function(obj){
                     if(obj instanceof Node){
@@ -1169,6 +1177,8 @@ export class GraphRenderer {
     static endDrag = (node: Node) : void => {
         const eagle = Eagle.getInstance();
         
+        this.shiftDrag = false;
+
         // if we dragged a selection region
         if (GraphRenderer.isDraggingSelectionRegion){
             const nodes: Node[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
@@ -1544,19 +1554,21 @@ export class GraphRenderer {
     // resize a construct so that it contains its children
     // NOTE: does not move the construct
     static resizeConstruct = (construct: Node, allowMovement: boolean = false): void => {
+        
         const eagle = Eagle.getInstance();
         let maxDistance = 0;
 
         // loop through all children - find distance from center of construct
         for (const node of eagle.logicalGraph().getNodes()){
+            if(GraphRenderer.shiftDrag && eagle.objectIsSelected(node)){
+                continue
+            }
             if (node.getParentKey() === construct.getKey()){
                 const dx = construct.getPosition().x - node.getPosition().x;
                 const dy = construct.getPosition().y - node.getPosition().y;
                 const distance = Math.sqrt(dx*dx + dy*dy);
-                //console.log("distance to", node.getName(), distance);
 
                 const paddedDistance = distance + node.getRadius() + GraphConfig.CONSTRUCT_MARGIN;
-                //console.log("paddedDistance to", node.getName(), paddedDistance, "(", node.getRadius(), ")");
 
                 maxDistance = Math.max(maxDistance, paddedDistance);
             }
