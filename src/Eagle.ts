@@ -4466,6 +4466,9 @@ export class Eagle {
         if (!edgeConnectsTwoApplications || twoEventPorts){
             const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
+            setTimeout(() => {
+                this.setSelection(Eagle.RightWindowMode.Hierarchy, edge,Eagle.FileType.Graph)
+            }, 30);
             if (callback !== null) callback(edge);
             return;
         }
