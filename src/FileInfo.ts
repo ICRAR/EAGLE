@@ -393,7 +393,7 @@ export class FileInfo {
         return s;
     }
 
-    static toOJSJson = (fileInfo : FileInfo) : object => {
+    static toOJSJson(fileInfo : FileInfo) : object {
         return {
             // name and path variables are written together into fullPath
             filePath: fileInfo.fullPath(),
@@ -425,7 +425,7 @@ export class FileInfo {
     }
 
     // TODO: use errors array if attributes cannot be found
-    static fromOJSJson = (modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo => {
+    static fromOJSJson(modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo {
         const result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);

@@ -1184,27 +1184,6 @@ export class Node {
         return 1;
     }
 
-    getCustomData = () : string => {
-        if (this.fields().length === 0){
-            return "";
-        }
-
-        return this.fields()[0].getValue();
-    }
-
-    customDataChanged = (eagle : Eagle, event : JQueryEventObject) : void => {
-        const e : HTMLTextAreaElement = <HTMLTextAreaElement> event.originalEvent.target;
-
-        console.log("customDataChanged()", e.value);
-
-        // if no fields exist, create at least one, to store the custom data
-        if (this.fields().length === 0){
-            this.addField(new Field(Utils.uuidv4(), "", "", "", "", false, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false));
-        }
-
-        this.fields()[0].setValue(e.value);
-    }
-
     addEmptyField = (index:number) :void => {
         const newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false);
 

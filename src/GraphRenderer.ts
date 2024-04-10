@@ -882,14 +882,14 @@ export class GraphRenderer {
         return GraphRenderer.createBezier(edge, srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, false);
     }
 
-    static scrollZoom = (eagle: Eagle, event: JQueryEventObject) : void => {
-        const e: WheelEvent = <WheelEvent>event.originalEvent;
+    static scrollZoom(eagle: Eagle, event: Eagle.KOEvent) : void {
+        const e: WheelEvent = event.originalEvent as WheelEvent;
 
         const wheelDelta = e.deltaY;
         const zoomDivisor = Setting.findValue(Setting.GRAPH_ZOOM_DIVISOR);
 
-        const xsb = this.SCREEN_TO_GRAPH_POSITION_X(null)
-        const ysb = this.SCREEN_TO_GRAPH_POSITION_Y(null)
+        const xsb = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
+        const ysb = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)
 
         eagle.globalScale(eagle.globalScale()*(1-(wheelDelta/zoomDivisor)));
 
@@ -898,8 +898,8 @@ export class GraphRenderer {
             eagle.globalScale(Math.abs(eagle.globalScale()))
         }
 
-        const xsa = this.SCREEN_TO_GRAPH_POSITION_X(null)
-        const ysa = this.SCREEN_TO_GRAPH_POSITION_Y(null)
+        const xsa = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
+        const ysa = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)
 
         const movex = xsa-xsb
         const movey = ysa-ysb
@@ -984,9 +984,10 @@ export class GraphRenderer {
         }, 200)
     }
 
-    static mouseMove = (eagle: Eagle, event: JQueryEventObject) : void => {
-        const mouseEvent: MouseEvent = <MouseEvent>event.originalEvent;
-        GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
+    static mouseMove = (eagle: Eagle, event: Eagle.KOEvent) : void => {
+        const e: MouseEvent = event.originalEvent as MouseEvent;
+
+        GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
                 const node:Node = eagle.draggingNode()
@@ -998,7 +999,7 @@ export class GraphRenderer {
                 // move node
                 eagle.selectedObjects().forEach(function(obj){
                     if(obj instanceof Node){
-                        obj.changePosition(mouseEvent.movementX/eagle.globalScale(), mouseEvent.movementY/eagle.globalScale());
+                        obj.changePosition(e.movementX/eagle.globalScale(), e.movementY/eagle.globalScale());
                     }
                 })
 
@@ -1057,15 +1058,14 @@ export class GraphRenderer {
 
             }else{
                 // move background
-                eagle.globalOffsetX(eagle.globalOffsetX() + mouseEvent.movementX/eagle.globalScale());
-                eagle.globalOffsetY(eagle.globalOffsetY() + mouseEvent.movementY/eagle.globalScale());
+                eagle.globalOffsetX(eagle.globalOffsetX() + e.movementX/eagle.globalScale());
+                eagle.globalOffsetY(eagle.globalOffsetY() + e.movementY/eagle.globalScale());
             }
         }
 
         if(GraphRenderer.draggingPort){
             GraphRenderer.portDragging(event)
         }
-        
     }
 
     static endDrag = (node: Node) : void => {

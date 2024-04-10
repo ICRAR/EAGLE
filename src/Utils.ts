@@ -24,26 +24,23 @@
 
 import * as Ajv from "ajv";
 import * as Showdown from "showdown";
-import * as ko from "knockout";
 
-import {Category} from './Category';
-import {CategoryData} from "./CategoryData";
-import {Config} from './Config';
-import {Daliuge} from './Daliuge';
-import {Eagle} from './Eagle';
-import {Edge} from './Edge';
-import {Errors} from './Errors';
-import {Field} from './Field';
-import {KeyboardShortcut} from './KeyboardShortcut';
-import {LogicalGraph} from './LogicalGraph';
-import {Node} from './Node';
-import {Palette} from './Palette';
-import {PaletteInfo} from './PaletteInfo';
-import {Repository} from './Repository';
-import {Setting} from './Setting';
-import {FileInfo} from "./FileInfo";
+import { Category } from './Category';
+import { CategoryData } from "./CategoryData";
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+import { Edge } from './Edge';
+import { Errors } from './Errors';
+import { Field } from './Field';
+import { FileInfo } from "./FileInfo";
+import { KeyboardShortcut } from './KeyboardShortcut';
+import { LogicalGraph } from './LogicalGraph';
+import { Node } from './Node';
+import { Palette } from './Palette';
+import { PaletteInfo } from './PaletteInfo';
+import { Repository } from './Repository';
+import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
-import { GraphRenderer } from "./GraphRenderer";
 
 export class Utils {
     // Allowed file extensions
@@ -2221,5 +2218,4 @@ export class Utils {
             destField.copyWithKeyAndId(field, destField.getNodeKey(), destField.getId());
         }
     }
-
 }

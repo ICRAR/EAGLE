@@ -3883,7 +3883,9 @@ export class Eagle {
         this.selectedObjects.valueHasMutated();
     }
 
-    nodeDropLogicalGraph = (eagle : Eagle, e : JQueryEventObject) : void => {
+    nodeDropLogicalGraph = (eagle : Eagle, event: Eagle.KOEvent) : void => {
+        const e: DragEvent = event.originalEvent as DragEvent;
+
         // keep track of the drop location
         Eagle.nodeDropLocation = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(e.pageX),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(e.pageY)}
 
@@ -3922,8 +3924,9 @@ export class Eagle {
         Eagle.nodeDropLocation = {x:0, y:0};
     }
 
-    nodeDropPalette = (eagle: Eagle, e: JQueryEventObject) : void => {
+    nodeDropPalette = (eagle: Eagle, event: Eagle.KOEvent) : void => {
         const sourceComponents : Node[] = [];
+        const e: DragEvent = event.originalEvent as DragEvent;
 
         if(Eagle.nodeDragPaletteIndex === null || Eagle.nodeDragComponentIndex === null){
             return;
@@ -3945,7 +3948,7 @@ export class Eagle {
         }
 
         // determine destination palette
-        const destinationPaletteIndex : number = parseInt($(e.currentTarget)[0].getAttribute('data-palette-index'), 10);
+        const destinationPaletteIndex : number = parseInt((e.currentTarget as HTMLElement).getAttribute('data-palette-index'), 10);
         const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
 
         const allowReadonlyPaletteEditing = Setting.findValue(Setting.ALLOW_READONLY_PALETTE_EDITING);
@@ -3971,27 +3974,10 @@ export class Eagle {
         }
     }
 
-    getNodeDropLocation = (e : JQueryEventObject)  : {x:number, y:number} => {
-        let x = e.clientX;
-        let y = e.clientY;
+    paletteComponentClick = (node: Node, event: Eagle.KOEvent) : void => {
+        const e: PointerEvent = event.originalEvent as PointerEvent;
 
-        // clientX and clientY is the position relative to the document,
-        // which doesn't take the space occupied by the navbar into account,
-        // so here we get the "offset" of the svg rect.background
-        // and subtract from clientX/clientY
-        const offset = $(e.currentTarget).offset();
-        x = x - offset.left;
-        y = y - offset.top;
-
-        // transform display coords into real coords
-        x = (x - this.globalOffsetX())/this.globalScale();
-        y = (y - this.globalOffsetY())/this.globalScale();
-
-        return {x:x, y:y};
-    };
-
-    paletteComponentClick = (node: Node, event:JQueryEventObject) : void => {
-        if (event.shiftKey)
+        if (e.shiftKey)
             this.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
         else
             this.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
@@ -4764,6 +4750,10 @@ export namespace Eagle
         Down = "Down",
         Left = "Left",
         Right = "Right"
+    }
+
+    export type KOEvent = {
+        originalEvent: Event
     }
 }
 
