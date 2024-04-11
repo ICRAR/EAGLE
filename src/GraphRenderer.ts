@@ -433,10 +433,10 @@ export class GraphRenderer {
                         i++
                         if(connectedField.angle>field.getInputAngle()){
                             connectedFields.splice(i-1,0,{angle:field.getInputAngle(),field:field,mode:'input'})
-                            return
+                            break
                         }else if(connectedFields.length === i){
                             connectedFields.push({angle:field.getInputAngle(),field:field,mode:'input'})
-                            return
+                            break
                         }
                     }
                 }
@@ -451,15 +451,15 @@ export class GraphRenderer {
                         i++
                         if(connectedField.angle>field.getOutputAngle()){
                             connectedFields.splice(i-1,0,{angle:field.getOutputAngle(),field:field,mode:'output'})
-                            return
+                            break
                         }else if(connectedFields.length === i){
                             connectedFields.push({angle:field.getOutputAngle(),field:field,mode:'output'})
-                            return
+                            break
                         }
                     }
                 }
             }
-            
+
             //otherwise adding to dangling ports list
             if(!field.getInputConnected() && field.isInputPort()){
                 danglingPorts.push({angle:Math.PI, field:field, mode:'input'})
@@ -1560,7 +1560,7 @@ export class GraphRenderer {
 
         // loop through all children - find distance from center of construct
         for (const node of eagle.logicalGraph().getNodes()){
-            if(GraphRenderer.shiftDrag && eagle.objectIsSelected(node)&& !eagle.objectIsSelectedByKey(node.getParentKey())){
+            if(GraphRenderer.shiftDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelectedByKey(node.getParentKey())){
                 continue
             }
             if (node.getParentKey() === construct.getKey()){
