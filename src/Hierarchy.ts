@@ -5,7 +5,7 @@ import {Node} from './Node';
 
 export class Hierarchy {
 
-    static updateDisplay = () : void => {
+    static updateDisplay() : void {
         const eagle: Eagle = Eagle.getInstance();
 
         $("#hierarchyEdgesSvg").empty()
@@ -20,7 +20,7 @@ export class Hierarchy {
             return
         }
 
-        //reset allselection relatives to false
+        //reset all selection relatives to false
         $(".positionPointer").remove()
         eagle.logicalGraph().getEdges().forEach(function(element:Edge){
             element.setSelectionRelative(false)
@@ -38,7 +38,7 @@ export class Hierarchy {
             const elementsToProcess = [element]
 
             elementsToProcess.forEach(function(element){
-                //for selected nodes we must find the related egdes to draw
+                //for selected nodes we must find the related edges to draw
                 if (element instanceof Node){
                     const key = element.getKey()
 
@@ -122,7 +122,7 @@ export class Hierarchy {
     }
 
     // TODO: rename to remove "hierarchy" from name
-    static addUniqueHierarchyEdge = (edge:Edge, use:string, hierarchyEdgeList:{edge:Edge , use:string, edgeSelected:boolean}[],edgeSelected:boolean) : void => {
+    static addUniqueHierarchyEdge(edge:Edge, use:string, hierarchyEdgeList:{edge:Edge , use:string, edgeSelected:boolean}[],edgeSelected:boolean) : void {
         const eagle: Eagle = Eagle.getInstance();
 
         let unique = true
@@ -147,7 +147,7 @@ export class Hierarchy {
         }
     }
 
-    static drawEdge = (edge:Edge, use:string, edgeSelected:boolean) : void =>{
+    static drawEdge(edge:Edge, use:string, edgeSelected:boolean) : void {
         const srcKey = edge.getSrcNodeKey()
         const destKey = edge.getDestNodeKey()
 
@@ -237,7 +237,7 @@ export class Hierarchy {
         $("#hierarchyEdgesSvg")[0].appendChild(curveExtra)
     }
 
-    static isNodeSelected = (selectState:boolean) : string => {
+    static isNodeSelected(selectState:boolean) : string {
         let className : string = ""
         if(selectState){
             className = "hierarchyNodeIsSelected"
@@ -247,7 +247,7 @@ export class Hierarchy {
         return className
     }
 
-    static isApplicationSelected = (selectState:boolean) : string => {
+    static isApplicationSelected(selectState:boolean) : string {
         let className : string = ""
         if(selectState){
             className = "hierarchyApplicationIsSelected"
@@ -258,7 +258,7 @@ export class Hierarchy {
     
 
     // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
-    static selectNode = (nodeViewModel : any, e : any) : void => {
+    static selectNode(nodeViewModel : any, e : any) : void {
         const eagle: Eagle = Eagle.getInstance();
 
         const node : Node = eagle.logicalGraph().findNodeByKey(nodeViewModel.key());
@@ -277,7 +277,7 @@ export class Hierarchy {
         eagle.logicalGraph.valueHasMutated();
     }
 
-    static nodeIsHidden = (key:number) : string => {
+    static nodeIsHidden(key:number) : string {
         const eagle: Eagle = Eagle.getInstance();
 
         const node = eagle.logicalGraph().findNodeByKey(key);

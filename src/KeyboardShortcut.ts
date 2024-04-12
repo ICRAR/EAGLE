@@ -34,11 +34,11 @@ export class KeyboardShortcut {
         this.run = run;
     }
 
-    static nodeIsSelected = (eagle: Eagle) : boolean => {
+    static nodeIsSelected(eagle: Eagle) : boolean {
         return eagle.selectedNode() !== null;
     }
 
-    static changeShortcutKey = (eagle : Eagle, key:string, newShortcutKey:string, newModifier:KeyboardShortcut.Modifier) : void => {
+    static changeShortcutKey(eagle : Eagle, key:string, newShortcutKey:string, newModifier:KeyboardShortcut.Modifier) : void {
         for (const shortcut of Eagle.shortcuts){
             if (shortcut.key === key){
                 shortcut.keys = [newShortcutKey]
@@ -47,40 +47,40 @@ export class KeyboardShortcut {
         }
     } 
 
-    static commentNodeIsSelected = (eagle: Eagle) : boolean => {
+    static commentNodeIsSelected(eagle: Eagle) : boolean {
         const selectedNode = eagle.selectedNode();
         return selectedNode !== null && selectedNode.getCategory() === Category.Comment;
     }
 
-    static edgeIsSelected = (eagle: Eagle) : boolean => {
+    static edgeIsSelected(eagle: Eagle) : boolean {
         return eagle.selectedEdge() !== null;
     }
 
-    static somethingIsSelected = (eagle: Eagle) : boolean => {
+    static somethingIsSelected(eagle: Eagle) : boolean {
         return eagle.selectedObjects().length > 0;
     }
 
-    static true = (eagle: Eagle) : boolean => {
+    static true(eagle: Eagle) : boolean {
         return true;
     }
 
-    static false = (eagle: Eagle) : boolean => {
+    static false(eagle: Eagle) : boolean {
         return false;
     }
 
-    static allowPaletteEditing = (eagle: Eagle) : boolean => {
+    static allowPaletteEditing(eagle: Eagle) : boolean {
         return Setting.findValue(Setting.ALLOW_PALETTE_EDITING);
     }
 
-    static allowGraphEditing = (eagle: Eagle) : boolean => {
+    static allowGraphEditing(eagle: Eagle) : boolean {
         return Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
     }
 
-    static showTableModal = (eagle: Eagle) : boolean => {
+    static showTableModal(eagle: Eagle) : boolean {
         return eagle.showTableModal()
     }
 
-    static graphNotEmpty = (eagle: Eagle) : boolean => {
+    static graphNotEmpty(eagle: Eagle) : boolean {
         if (eagle.logicalGraph() === null){
             return false;
         }
@@ -88,7 +88,7 @@ export class KeyboardShortcut {
         return eagle.logicalGraph().getNumNodes() > 0;
     }
 
-    static processKey = (e:KeyboardEvent) => {
+    static processKey(e:KeyboardEvent) : void {
 
         // skip all repeat events, just process the initial keyup or keydown
         if (e.repeat){
@@ -171,7 +171,7 @@ export class KeyboardShortcut {
         }
     }
 
-    static getShortcuts = () : KeyboardShortcut[] => {
+    static getShortcuts() : KeyboardShortcut[] {
         return [
             new KeyboardShortcut("quick_action", "Quick Action", ["`"], "keydown", KeyboardShortcut.Modifier.quickAction, KeyboardShortcut.true, [''], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => { QuickActions.initiateQuickAction();}),
             new KeyboardShortcut("new_graph", "New Graph", ["n"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['create','canvas'], KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.newLogicalGraph();}),
@@ -231,7 +231,7 @@ export class KeyboardShortcut {
         ];
     }
 
-    static getQuickActions = () : KeyboardShortcut[] => {
+    static getQuickActions() : KeyboardShortcut[] {
         return [
             new KeyboardShortcut("collapse_all_nodes", "Collapse All Nodes", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['hide','show','expand'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.toggleCollapseAllNodes();}),
             new KeyboardShortcut("quickIntroTut", "Start UI Quick Intro Tutorial", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['ui','interface'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {TutorialSystem.initiateTutorial('Quick Start');}),

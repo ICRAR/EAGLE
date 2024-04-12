@@ -84,16 +84,16 @@ export class GraphUpdater {
         return true;
     }
 
-    static generateLogicalGraphsTable = () : any[] => {
+    static generateLogicalGraphsTable() : any[] {
         // check that all repos have been fetched
-        let foundUnfetched = false;
+        let foundNotFetched = false;
         for (const repo of Repositories.repositories()){
             if (!repo.fetched()){
-                foundUnfetched = true;
-                console.warn("Unfetched repo:" + repo.getNameAndBranch());
+                foundNotFetched = true;
+                console.warn("Not fetched repo:" + repo.getNameAndBranch());
             }
         }
-        if (foundUnfetched){
+        if (foundNotFetched){
             return [];
         }
 

@@ -441,7 +441,7 @@ export class Eagle {
     }
 
     zoomIn = () : void => {
-        //changed the equations to make the speec a curve and prevent the graph from inverting
+        // changed the equations to make the speed a curve and prevent the graph from inverting
         this.globalScale(Math.abs(this.globalScale() + this.globalScale()*0.2));
     }
 
@@ -522,10 +522,10 @@ export class Eagle {
         that.globalOffsetY(Math.round(displayCenterY - centroidY));
 
         //taking note of the screen center in graph space before zooming
-        const midpointx = $('#logicalGraphParent').width()/2
-        const midpointy = ($('#logicalGraphParent').height())/2
-        const xpb = midpointx/that.globalScale() - that.globalOffsetX();
-        const ypb = (midpointy)/that.globalScale() - that.globalOffsetY();
+        const midPointX = $('#logicalGraphParent').width()/2
+        const midPointY = ($('#logicalGraphParent').height())/2
+        const xpb = midPointX/that.globalScale() - that.globalOffsetX();
+        const ypb = (midPointY)/that.globalScale() - that.globalOffsetY();
 
         //applying the correct zoom
         if(graphYScale>graphXScale){
@@ -537,16 +537,16 @@ export class Eagle {
         }
         
         //checking the screen center in graph space after zoom
-        const xpa = midpointx/that.globalScale() - that.globalOffsetX();
-        const ypa = (midpointy)/that.globalScale() - that.globalOffsetY();
+        const xpa = midPointX/that.globalScale() - that.globalOffsetX();
+        const ypa = (midPointY)/that.globalScale() - that.globalOffsetY();
 
         //checking how far the center has moved
-        const movex = xpa-xpb
-        const movey = ypa-ypb
+        const moveX = xpa-xpb
+        const moveY = ypa-ypb
 
         //correcting for the movement
-        that.globalOffsetX(that.globalOffsetX()+movex)
-        that.globalOffsetY(that.globalOffsetY()+movey)
+        that.globalOffsetX(that.globalOffsetX()+moveX)
+        that.globalOffsetY(that.globalOffsetY()+moveY)
     }
 
     getSelectedText = () : string => {
@@ -626,7 +626,7 @@ export class Eagle {
         } else {
             this.selectedObjects([selection]);
 
-            //show the title of the port on either seide of the edge we are selecting
+            //show the title of the port on either side of the edge we are selecting
             if(selection instanceof Edge){
                 GraphRenderer.setPortPeekForEdge(selection,true)
             }
@@ -2067,7 +2067,7 @@ export class Eagle {
         Setting.setValue(Setting.CONFIRM_DISCARD_CHANGES,true)
         Setting.setValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES,true)
         Setting.setValue(Setting.CONFIRM_RELOAD_PALETTES,true)
-        Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORES,true)
+        Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORIES,true)
         Utils.showNotification("Success", "Confirmation message pop ups re-enabled", "success");
     }
 
@@ -2360,10 +2360,9 @@ export class Eagle {
 
     // TODO: move to Setting.ts?
     openSettings = () : void => {
-        // TODO: click() seems deprecated here, we should change tabs another way
         //if no tab is selected yet, default to the first tab
         if(!$(".settingCategoryActive").length){
-            $(".settingsModalButton").first().click()
+            $(".settingsModalButton").first().trigger("click")
         }
         Utils.showSettingsModal();
     }
@@ -2387,8 +2386,7 @@ export class Eagle {
         }else{
             if(modal === 'settingsModal'){
                 if(!$(".settingCategoryActive").length){
-                    // TODO: click() seems deprecated here, we should change tabs another way
-                    $(".settingsModalButton").first().click()
+                    $(".settingsModalButton").first().trigger("click")
                 }
             }
             $('#'+modal).modal('show')
@@ -3619,7 +3617,7 @@ export class Eagle {
 
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
             clickTarget.focus() // used to focus the field allowing the user to immediately start typing
-            $(clickTarget).select() // TODO: select is deprecated here, use something else
+            $(clickTarget).trigger("select")
 
             //scroll to new row
             $("#parameterTableModal .modal-body").animate({
@@ -3659,7 +3657,7 @@ export class Eagle {
             $("#"+modalID).addClass("nodeSelected");
             $("#"+modalID).removeClass("forceHide");   
             $(".modal-backdrop").removeClass("forceHide");
-            $("#"+submitBtnID).click() // TODO: click is deprecated here, use something else
+            $("#"+submitBtnID).trigger("click")
             this.hideDropDown(divID)
         }
     }
@@ -4105,7 +4103,7 @@ export class Eagle {
             const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update process
             clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
-            $(clickTarget).select()
+            $(clickTarget).trigger("select")
 
             $("#parameterTableModal .modal-body").animate({
                 scrollTop: (fieldIndex*30)
@@ -4280,6 +4278,7 @@ export class Eagle {
             const maxX = this.rightWindow().shown() ? $('#logicalGraphParent').width() - this.rightWindow().width() - width - MARGIN : $('#logicalGraphParent').width() - width - MARGIN;
             const minY = 0 + navBarHeight + MARGIN;
             const maxY = $('#logicalGraphParent').height() - height - MARGIN + navBarHeight;
+
             // choose random position within minimums and maximums determined above
             const randomX = Math.floor(Math.random() * (maxX - minX + 1) + minX);
             const randomY = Math.floor(Math.random() * (maxY - minY + 1) + minY);
@@ -4287,9 +4286,9 @@ export class Eagle {
             x = randomX;
             y = randomY;
 
-            //translate the chosen arandomised position into graph co-ordinates
-            x= GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(x)
-            y=GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(y)
+            // translate the chosen randomised position into graph co-ordinates
+            x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(x)
+            y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(y)
 
             // check position is suitable, doesn't collide with any existing nodes
             const collision = this.logicalGraph().checkForNodeAt(x, y, width, height, null);
@@ -4809,14 +4808,14 @@ $( document ).ready(function() {
     })
 
     //increased click bubble for edit modal flag booleans
-    $(".componentCheckbox").on("click",function(){
-        $(event.target).find("input").click()
+    $(".componentCheckbox").on("click",function(event){
+        $(event.target).find("input").trigger("click")
     })
 
     //removes focus from input and textareas when clicking the canvas
     $("#logicalGraphParent").on("mousedown", function(){
-        $("input").blur();
-        $("textarea").blur();
+        $("input").trigger("blur");
+        $("textarea").trigger("blur");
 
         //back up method of hiding the right click context menu in case it get stuck open
         RightClick.closeCustomContextMenu(true);
@@ -4830,9 +4829,9 @@ $( document ).ready(function() {
     $("#paletteList .componentSearchBar").on("keyup",function(){
         if ($("#paletteList .componentSearchBar").val() !== ""){
             $("#paletteList .accordion-button.collapsed").addClass("wasCollapsed")
-            $("#paletteList .accordion-button.collapsed").click()
+            $("#paletteList .accordion-button.collapsed").trigger("click")
         }else{
-            $("#paletteList .accordion-button.wasCollapsed").click()
+            $("#paletteList .accordion-button.wasCollapsed").trigger("click")
             $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
         }
     })

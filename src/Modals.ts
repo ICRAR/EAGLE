@@ -40,12 +40,11 @@ export class Modals {
         });
         $('#inputModalInput').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
-                if (e.which === 13){
+                if (e.key = "Enter"){
                     $('#inputModal').data('completed', true);
                     $('#inputModal').modal('hide');
                 }
             }
-           
         });
 
         // #inputTextModal - requestUserText()
@@ -67,7 +66,7 @@ export class Modals {
         });
         $('#inputTextModalInput').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
-                if (e.which === 13){
+                if (e.key = "Enter"){
                     $('#inputTextModal').data('completed', true);
                     $('#inputTextModal').modal('hide');
                 }
@@ -106,7 +105,7 @@ export class Modals {
         });
         $('#choiceModalString').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
-                if (e.which === 13){
+                if (e.key === "Enter"){
                     $('#choiceModal').data('completed', true);
                     $('#choiceModal').modal('hide');
                 }
@@ -241,17 +240,17 @@ export class Modals {
                 // if pressing enter in the setting modal save settings
                 if(TutorialSystem.activeTut===null){
                     event.preventDefault()
-                    $("#settingsModalAffirmativeButton").focus().click();
+                    $("#settingsModalAffirmativeButton").trigger("focus").trigger("click");
                 }
                 
-                //pressing excape cancels setting changes
+            // pressing escape cancels setting changes
             }else if(event.key === "Escape"){
-                $("#settingsModalNegativeButton").focus().click();
+                $("#settingsModalNegativeButton").trigger("focus").trigger("click");
             }
         });
 
         $('#editFieldModal').on('shown.bs.modal', function(){
-            $('#editFieldModalAffirmativeButton').focus();
+            $('#editFieldModalAffirmativeButton').trigger("focus");
         });
 
         $('#editFieldModal').on('hidden.bs.modal', function(){
@@ -266,7 +265,7 @@ export class Modals {
             $('#editEdgeModal').data('completed', false);
         });
         $('#editEdgeModal').on('shown.bs.modal', function(){
-            $('#editEdgeModalAffirmativeButton').focus();
+            $('#editEdgeModalAffirmativeButton').trigger("focus");
         });
         $('#editEdgeModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, edge: Edge) => void = $('#editEdgeModal').data('callback');
@@ -312,11 +311,11 @@ export class Modals {
 
         // #messageModal - showUserMessage()
         $('#messageModal').on('shown.bs.modal', function(){
-            $('#messageModal .modal-footer button').focus();
+            $('#messageModal .modal-footer button').trigger("focus");
         });
 
         $('#explorePalettesModal').on('shown.bs.modal', function(){
-            $('#explorePalettesModal .modal-footer button').focus();
+            $('#explorePalettesModal .modal-footer button').trigger("focus");
         });
         $('#explorePalettesModalAffirmativeButton').on('click', function(){
             $('#explorePalettesModal').data('completed', true);
@@ -349,8 +348,7 @@ export class Modals {
 
         $('#parameterTableModal').on('shown.bs.modal', function(){
             eagle.hideEagleIsLoading()
-            $('#parameterTableModal .componentSearchBar').focus()
-            $('#parameterTableModal .componentSearchBar').select()
+            $('#parameterTableModal .componentSearchBar').trigger("focus").trigger("select")
         });
     }
 
