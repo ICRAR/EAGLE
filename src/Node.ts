@@ -1220,7 +1220,7 @@ export class Node {
         this.keepExpanded(value);
     }
 
-    static match = (node0: Node, node1: Node) : boolean => {
+    static match(node0: Node, node1: Node) : boolean {
         // first just check if they have matching ids
         if (node0.getId() === node1.getId()){
             return true;
@@ -1233,7 +1233,7 @@ export class Node {
                node0.getCommitHash() === node1.getCommitHash();
     }
 
-    static requiresUpdate = (node0: Node, node1: Node) : boolean => {
+    static requiresUpdate(node0: Node, node1: Node) : boolean {
         return node0.getRepositoryUrl() !== "" &&
                node1.getRepositoryUrl() !== "" &&
                node0.getRepositoryUrl() === node1.getRepositoryUrl() &&
@@ -1241,15 +1241,15 @@ export class Node {
                node0.getCommitHash() !== node1.getCommitHash();
     }
 
-    static canHaveInputApp = (node : Node) : boolean => {
+    static canHaveInputApp(node : Node) : boolean {
         return CategoryData.getCategoryData(node.getCategory()).canHaveInputApplication;
     }
 
-    static canHaveOutputApp = (node : Node) : boolean => {
+    static canHaveOutputApp(node : Node) : boolean {
         return CategoryData.getCategoryData(node.getCategory()).canHaveOutputApplication;
     }
 
-    static fromOJSJson = (nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node => {
+    static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node {
         let name = "";
         if (typeof nodeData.name !== 'undefined'){
             name = nodeData.name;
@@ -1671,12 +1671,6 @@ export class Node {
         return node;
     }
 
-    private static copyPorts(src: Field[], dest: {}[]):void{
-        for (const port of src){
-            dest.push(Field.toOJSJsonPort(port));
-        }
-    }
-
     private static addPortToEmbeddedApplication(node: Node, port: Field, input: boolean, errorsWarnings: Errors.ErrorsWarnings, generateKeyFunc: () => number){
         // check that the node already has an appropriate embedded application, otherwise create it
         if (input){
@@ -1725,7 +1719,7 @@ export class Node {
         }
     }
 
-    static toOJSPaletteJson = (node : Node) : object => {
+    static toOJSPaletteJson(node : Node) : object {
         const result : any = {};
 
         result.category = node.category();
@@ -1797,7 +1791,7 @@ export class Node {
         return result;
     }
 
-    static toOJSGraphJson = (node : Node) : object => {
+    static toOJSGraphJson(node : Node) : object {
         const result : any = {};
 
         result.category = node.category();
@@ -1879,7 +1873,7 @@ export class Node {
         return result;
     }
 
-    static createEmbeddedApplicationNode = (key: number, name : string, category: Category, description: string, embedKey: number) : Node => {
+    static createEmbeddedApplicationNode(key: number, name : string, category: Category, description: string, embedKey: number) : Node {
         console.assert(CategoryData.getCategoryData(category).categoryType === Category.Type.Application);
 
         const node = new Node(key, name, description, category);
@@ -1962,7 +1956,7 @@ export class Node {
         }
     }
 
-    static isValid = (eagle: Eagle, node: Node, selectedLocation: Eagle.FileType, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid => {
+    static isValid(eagle: Eagle, node: Node, selectedLocation: Eagle.FileType, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid {
         // check that node has modern (not legacy) category
         if (node.getCategory() === Category.Component){
             const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has legacy category (" + node.getCategory() + ")", function(){Utils.showNode(eagle, selectedLocation, node.getId());}, function(){Utils.fixNodeCategory(eagle, node, Category.PythonApp, Category.Type.Application)}, "");
@@ -2173,7 +2167,7 @@ export class Node {
         return Utils.worstEdgeError(errorsWarnings);
     }
 
-    private static _checkForField = (eagle: Eagle, location: Eagle.FileType, node: Node, field: Field, errorsWarnings: Errors.ErrorsWarnings) : void => {
+    private static _checkForField(eagle: Eagle, location: Eagle.FileType, node: Node, field: Field, errorsWarnings: Errors.ErrorsWarnings) : void {
         // check if the node already has this field
         const existingField = node.getFieldByDisplayText(field.getDisplayText());
 
