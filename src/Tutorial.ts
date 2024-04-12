@@ -3,15 +3,15 @@ import {Eagle} from './Eagle';
 
 export class TutorialSystem {
 
-    static activeTut: Tutorial //current active tutorial
+    static activeTut: Tutorial = null //current active tutorial
     static activeTutCurrentStep: TutorialStep //current active tutorial step
     static activeTutNumSteps: number = 0;  //total number of steps in the active tutorial
     static activeTutCurrentStepIndex: number = 0;  //index of the current step in the active tutorial
     static waitForElementTimer: number = null    //this houses the time out timer when waiting for a target element to appear
-    static cooldown: boolean = false //boolean if the tutorial system is currently on cooldown
+    static onCoolDown: boolean = false //boolean if the tutorial system is currently on cool down
     static conditionCheck:number = null //this stores the condition interval function
 
-    static initiateTutorial = (tutorialName: string): void => {
+    static initiateTutorial(tutorialName: string): void {
         Eagle.tutorials.forEach(function (tut) {
 
             if (tutorialName === tut.getName()) {
@@ -25,7 +25,7 @@ export class TutorialSystem {
         })
     }
 
-    static addTutKeyboardShortcuts = (): void => {
+    static addTutKeyboardShortcuts(): void {
         //these are the keyboard shortcuts for the tutorial system
         //by putting a .name after an even type, we are giving this specific listener a name. This allows us to remove or modify it later
         $("body").on('keydown.tutEventListener', function (e) {
@@ -54,7 +54,7 @@ export class TutorialSystem {
                     e.preventDefault()
                     e.stopImmediatePropagation()
                     if(TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Press){
-                        $(':focus').click()
+                        $(':focus').trigger("click")
                     }
                     break;
 
@@ -63,15 +63,16 @@ export class TutorialSystem {
         })
     }
 
-    //cooldown function that prevents too many actions that would cause the tutorial steps to go out of whack
-    static startCooldown = (): void => {
-        TutorialSystem.cooldown = true
+    // cool-down function that prevents too many actions that would cause the tutorial steps to go out of whack
+    // TODO: magic number 700 here, define this a constant somewhere in the tutorial system
+    static startCoolDown(): void {
+        TutorialSystem.onCoolDown = true
         setTimeout(function () {
-            TutorialSystem.cooldown = false
+            TutorialSystem.onCoolDown = false
         }, 700)
     }
 
-    static newTutorial = (title:string, description:string) : Tutorial => {
+    static newTutorial(title:string, description:string) : Tutorial {
         const x = new Tutorial(
             title,
             description,
@@ -81,19 +82,19 @@ export class TutorialSystem {
         return x
     }
 
-    static initiateFindGraphNodeIdByNodeName = (name:string) : JQuery<HTMLElement> => {
+    static initiateFindGraphNodeIdByNodeName(name:string) : JQuery<HTMLElement> {
         const eagle = Eagle.getInstance()
         const x = $('#logicalGraph #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
         return x
     }
 
-    static initiateSimpleFindGraphNodeIdByNodeName = (name:string) : string => {
+    static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
         const eagle = Eagle.getInstance()
         const x = eagle.logicalGraph().findNodeGraphIdByNodeName(name)
         return x
     }
 
-    static isRequestedNodeSelected = (name:string) : boolean => {
+    static isRequestedNodeSelected(name:string) : boolean {
         //used when asking the user to select a specific node
         const eagle = Eagle.getInstance()
         if(eagle.selectedObjects().length>1 || eagle.selectedObjects().length<1){
@@ -194,7 +195,7 @@ export class Tutorial {
                     clearTimeout(TutorialSystem.waitForElementTimer);
                     TutorialSystem.waitForElementTimer = null;
                     console.warn('waiting for next tutorial step element timed out')
-                    TutorialSystem.cooldown = false
+                    TutorialSystem.onCoolDown = false
                     that.tutButtonPrev()
                 }
             }, 2000)
@@ -273,7 +274,9 @@ export class Tutorial {
         } else {
             this.highlightStepTarget(tutStep.getTargetFunc()())
         }
+
         //the little wait is waiting for the css animation of the highlighting system
+        // TODO: magic number here, move it to a constant somewhere in the tutorial system
         setTimeout(function () {
             TutorialSystem.activeTut.openInfoPopUp()
         }, 510);
@@ -292,6 +295,7 @@ export class Tutorial {
         targetElement.on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener')
 
         //the little wait is waiting for the css animation of the highlighting system
+        // TODO: magic number here!
         setTimeout(function () {
             TutorialSystem.activeTut.openInfoPopUp()
         }, 510);
@@ -452,12 +456,12 @@ export class Tutorial {
     }
 
     tutButtonNext = (): void => {
-        if (TutorialSystem.cooldown === false) {
+        if (TutorialSystem.onCoolDown === false) {
             if (TutorialSystem.activeTutCurrentStepIndex + 1 !== TutorialSystem.activeTutNumSteps) {
                 this.closeInfoPopUp()
                 TutorialSystem.activeTutCurrentStepIndex++
                 this.initiateTutStep(TutorialStep.Direction.Next)
-                TutorialSystem.startCooldown()
+                TutorialSystem.startCoolDown()
             } else {
                 this.tutButtonEnd()
             }
@@ -465,7 +469,7 @@ export class Tutorial {
     }
 
     tutButtonPrev = (): void => {
-        if (TutorialSystem.cooldown === false) {
+        if (TutorialSystem.onCoolDown === false) {
             if (TutorialSystem.activeTutCurrentStepIndex > 0) {
                 this.closeInfoPopUp()
                 TutorialSystem.activeTutCurrentStepIndex--
@@ -473,7 +477,7 @@ export class Tutorial {
                     this.tutButtonPrev()
                 }else{
                     this.initiateTutStep(TutorialStep.Direction.Prev)
-                    TutorialSystem.startCooldown()
+                    TutorialSystem.startCoolDown()
                 }
             }
         }
@@ -502,8 +506,8 @@ export class Tutorial {
     openSettingsSection = (tab: string): void => {
         const eagle = Eagle.getInstance()
         eagle.openSettings()
-        $(':focus').blur()
-        $(tab).click()
+        $(':focus').trigger("blur")
+        $(tab).trigger("click")
     }
 
     tutInputCheckFunc = (event:any,tutStep:TutorialStep):void => {
@@ -552,7 +556,6 @@ export class TutorialStep {
 
     private backSkip : boolean;
     private expectedInput : string;
-    
 
     constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount:number, targetFunc: () => void, preFunc: (eagle: Eagle) => void, backPreFunc: (eagle: Eagle) => void, backSkip:boolean, expectedInput:string, conditionFunc:(eagle: Eagle) => boolean, alternateHighlightTargetFunc: () => void) {
         this.title = title;
@@ -619,51 +622,50 @@ export class TutorialStep {
         return this.alternateHighlightTargetFunc;
     }
 
-    setType = (newType:TutorialStep.Type): TutorialStep =>{
+    setType = (newType:TutorialStep.Type): this => {
         this.type = newType;
         return this
     }
 
-    setWaitType = (newWaitType:TutorialStep.Wait): TutorialStep =>{
+    setWaitType = (newWaitType:TutorialStep.Wait): this => {
         this.waitType = newWaitType;
         return this
     }
 
-    setDelayAmount= (newDelayAmount:number): TutorialStep =>{
+    setDelayAmount = (newDelayAmount:number): this => {
         this.delayAmount = newDelayAmount;
         return this
     }
 
-    setPreFunction = (newPreFunc:(eagle: Eagle) => void): TutorialStep =>{
+    setPreFunction = (newPreFunc:(eagle: Eagle) => void): this => {
         this.preFunc = newPreFunc;
         return this
     }
 
-    setBackPreFunction = (newBackPreFunc:(eagle: Eagle) => void): TutorialStep =>{
+    setBackPreFunction = (newBackPreFunc:(eagle: Eagle) => void): this => {
         this.backPreFunc = newBackPreFunc;
         return this
     }
 
-    setBackSkip = (newBackSkip:boolean): TutorialStep =>{
+    setBackSkip = (newBackSkip:boolean): this => {
         this.backSkip = newBackSkip;
         return this
     }
 
-    setExpectedInput = (newExpectedInput:string): TutorialStep =>{
+    setExpectedInput = (newExpectedInput:string): this => {
         this.expectedInput = newExpectedInput;
         return this
     }
 
-    setConditionFunction = (newConditionFunction:(eagle: Eagle) => void): TutorialStep =>{
+    setConditionFunction = (newConditionFunction:(eagle: Eagle) => void): this => {
         this.conditionFunc = newConditionFunction;
         return this
     }
 
-    setAlternateHighlightTargetFunc = (newAlternateHighlightTargetFunc:() => void): TutorialStep =>{
+    setAlternateHighlightTargetFunc = (newAlternateHighlightTargetFunc:() => void): this => {
         this.alternateHighlightTargetFunc = newAlternateHighlightTargetFunc;
         return this
     }
-
 }
 
 export namespace TutorialStep {
@@ -687,5 +689,5 @@ export namespace TutorialStep {
     }
 }
 
-//getting the tutorials array ready for eagle
-export const tutorialArray:any = []
+// getting the tutorials array ready for eagle
+export const tutorialArray: Tutorial[] = []

@@ -177,7 +177,7 @@ export class Undo {
         eagle.logicalGraph(dataObject);
     }
 
-    static printTable = () : void => {
+    static printTable() : void {
         const eagle: Eagle = Eagle.getInstance();
         const tableData : any[] = [];
         const realCurrent: number = (eagle.undo().current() - 1 + Config.UNDO_MEMORY_SIZE) % Config.UNDO_MEMORY_SIZE;
