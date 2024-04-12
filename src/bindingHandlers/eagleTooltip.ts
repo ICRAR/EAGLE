@@ -1,12 +1,9 @@
 import * as ko from "knockout";
-import * as bootstrap from 'bootstrap';
 import {Utils} from '../Utils';
 
-
 ko.bindingHandlers.eagleTooltip = {
-    init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
+    init: function(element) {
         
-
         ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
             // This will be called when the element is removed by Knockout or
             // if some other part of your code calls ko.removeNode(element)
