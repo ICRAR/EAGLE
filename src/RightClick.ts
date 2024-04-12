@@ -19,7 +19,7 @@ export class RightClick {
         RightClick.edgeDropSrcIsInput = null;
     }
 
-    static rightClickReloadPalette = () : void => {
+    static rightClickReloadPalette() : void {
         const eagle: Eagle = Eagle.getInstance();
         let index = 0
         const palettes = eagle.palettes()
@@ -30,18 +30,19 @@ export class RightClick {
             }
             index++
         })
-
     }
 
-    static openSubMenu = () : void => {
+    // TODO: event!
+    static openSubMenu() : void {
         $(event.target).find('.contextMenuDropdown').show()
     }
 
-    static closeSubMenu = () : void => {
+    // TODO: event!
+    static closeSubMenu() : void {
         $(event.target).find('.contextMenuDropdown').hide()
     }
 
-    static checkSearchField = () : void => {
+    static checkSearchField() : void {
         const searchValue:string = $(event.target).val().toString().toLocaleLowerCase()
 
         let paletteNodesHtml = ''
@@ -82,27 +83,27 @@ export class RightClick {
         }
     }
 
-    static clearSearchField = () : void => {
+    static clearSearchField() : void {
         $('#rightClickSearchBar').val('')
         RightClick.checkSearchField()
     }
 
-    static rightClickDeletePalette = () : void => {
+    static rightClickDeletePalette() : void {
         const eagle: Eagle = Eagle.getInstance();
         eagle.closePalette(Eagle.selectedRightClickObject())
     }
 
-    static rightClickSavePaletteToDisk = () : void => {
+    static rightClickSavePaletteToDisk() : void {
         const eagle: Eagle = Eagle.getInstance();
         eagle.savePaletteToDisk(Eagle.selectedRightClickObject())
     }
 
-    static rightClickSavePaletteToGit = () : void => {
+    static rightClickSavePaletteToGit() : void {
         const eagle: Eagle = Eagle.getInstance();
         eagle.savePaletteToGit(Eagle.selectedRightClickObject())
     }
 
-    static rightClicktoggleSearchExclude = (bool:boolean) : void => {
+    static rightClicktoggleSearchExclude(bool:boolean) : void {
         Eagle.selectedRightClickObject().setSearchExclude(bool)
     }
 
@@ -110,7 +111,7 @@ export class RightClick {
         Eagle.selectedRightClickObject().copyUrl()
     }
 
-    static closeCustomContextMenu = (force:boolean) : void => {
+    static closeCustomContextMenu(force:boolean) : void {
         if(force){
             $("#customContextMenu").remove()
         }else {
@@ -128,7 +129,7 @@ export class RightClick {
         GraphRenderer.renderDraggingPortEdge(false);
     }
 
-    static createHtmlPaletteList = () : string => {
+    static createHtmlPaletteList() : string {
         const eagle: Eagle = Eagle.getInstance();
 
         let paletteList:string = ''
@@ -145,7 +146,7 @@ export class RightClick {
         return paletteList
     }
 
-    static createHtmlEdgeDragList = (compatibleNodesList:Node[]) : string => {
+    static createHtmlEdgeDragList(compatibleNodesList:Node[]) : string {
         const eagle: Eagle = Eagle.getInstance();
 
         let paletteList:string = ''
@@ -160,7 +161,7 @@ export class RightClick {
     }
 
 
-    static constructHtmlPaletteList = (collectionOfNodes:Node[], mode:string, compatibleNodesList:Node[],paletteName:string) : string => {
+    static constructHtmlPaletteList(collectionOfNodes:Node[], mode:string, compatibleNodesList:Node[],paletteName:string) : string {
         let nodesHtml = ''
         let nodeFound = false
         let htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu()' onmouseleave='RightClick.closeSubMenu()'>"+paletteName
@@ -241,7 +242,7 @@ export class RightClick {
     }
 
 
-    static getNodeDescriptionDropdown = () : string => {
+    static getNodeDescriptionDropdown() : string {
         const eagle: Eagle = Eagle.getInstance();
 
         const node = Eagle.selectedRightClickObject()
@@ -272,7 +273,7 @@ export class RightClick {
         return htmlNodeDescription
     }
 
-    static initiateQuickSelect = () : void => {
+    static initiateQuickSelect() : void {
         $("#customContextMenu").on('keydown',function(e){
             const current = $(".rightClickFocus")
 
@@ -341,7 +342,7 @@ export class RightClick {
 
                 if(current.hasClass('rightClickPaletteNode')){
                     e.preventDefault()
-                    current.click()
+                    current.trigger("click")
                 }else if (current.hasClass('contextmenuPalette')){
                     e.preventDefault()
 
@@ -350,7 +351,7 @@ export class RightClick {
                     current.find('.contextMenuDropdown').show()
                     current.find('.rightClickPaletteNode:first').addClass('rightClickFocus')
                 }else if ($('#rightClickSearchBar').val()!=='' && current.length === 0){
-                    $('#paletteNodesSearchResult .rightClickPaletteNode:first').click()
+                    $('#paletteNodesSearchResult .rightClickPaletteNode:first').trigger("click")
                 }
                 break;
         
@@ -383,6 +384,7 @@ export class RightClick {
         event.stopPropagation();
     }
 
+    // TODO: event
     static requestCustomContextMenu = (data:any, targetElement:JQuery, passedObjectClass:string) : void => {
         // getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
@@ -406,9 +408,9 @@ export class RightClick {
         $('#customContextMenu').css('left',mouseX+'px')
 
         if(passedObjectClass != 'edgeDropCreate'){
-            //here we are grabbing the on graph location of the mouse cursor, this is where we wilkl palce the node when right clicking on the empty graph
-            let x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
-            let y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)
+            // here we are grabbing the on graph location of the mouse cursor, this is where we will place the node when right clicking on the empty graph
+            const x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
+            const y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)
             Eagle.selectedRightClickPosition = {x:x, y:y};
         }
         

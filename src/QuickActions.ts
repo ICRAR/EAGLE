@@ -8,7 +8,7 @@ let anyMatch:any[] = []
 
 export class QuickActions {
 
-    static initiateQuickAction = () : void  =>{
+    static initiateQuickAction() : void {
         //function to both start and close the quick action menu
         const eagle = (<any>window).eagle;
         eagle.quickActionOpen(!eagle.quickActionOpen())
@@ -29,10 +29,9 @@ export class QuickActions {
         },50)
     }
 
-    static findQuickActionResults = () : any[]  =>{
+    static findQuickActionResults() : any[] {
         const eagle = (<any>window).eagle;
         const searchTerm :string = eagle.quickActionSearchTerm().toLocaleLowerCase()
-
         const resultsList: any[] = []
 
         wordMatch = []
@@ -79,7 +78,7 @@ export class QuickActions {
         return resultsList
     }
 
-    static pushResultUsingPriority = (result:any) : void =>{
+    static pushResultUsingPriority(result:any) : void {
         if(result.priority === 'wordMatch'){
             wordMatch.push(result.funcObject)
         }else if(result.priority === 'tagMatch'){
@@ -94,7 +93,7 @@ export class QuickActions {
     }
 
 
-    static matchAndSortFunction = (func:KeyboardShortcut,searchTerm:string) : any =>{
+    static matchAndSortFunction(func: KeyboardShortcut, searchTerm: string) : any {
         let result:any = []
         const funcElement: any[] = []
         let bestMatch : string = ''
@@ -188,13 +187,15 @@ export class QuickActions {
         return result
     }
 
-    static executeQuickAction = (data:any) : void  =>{
+    // TODO: types
+    static executeQuickAction(data:any) : void {
         const eagle = (<any>window).eagle;
         this.initiateQuickAction()
         data[1](eagle)
     }
 
-    static getQuickActionShortcutHtml = (data:any) : string => {
+    // TODO: types
+    static getQuickActionShortcutHtml(data:any) : string {
         if(data[2] != ''){
             return ' ['+data[2]+']'
         }else{
@@ -202,12 +203,14 @@ export class QuickActions {
         }
     }
 
-    static updateQuickActionSearchTerm = (obj:any, event:any ): void => {
+    // TODO: types
+    static updateQuickActionSearchTerm(obj:any, event:any ): void {
         const eagle = (<any>window).eagle;
         eagle.quickActionSearchTerm($(event.target).val())
     }
     
-    static initiateQuickActionQuickSelect = () : void => {
+    // TODO: event not passed as an argument here! (used as both 'e' and 'event'?)
+    static initiateQuickActionQuickSelect() : void {
         //unbinding then rebinding the event in case there was already one attached
         const that = this
         $('body').unbind('keydown.quickActions')
@@ -242,10 +245,10 @@ export class QuickActions {
                 case 13: //enter
                 if(current.length != 0){
                     e.preventDefault()
-                    current.click()
+                    current.trigger("click")
                 }else if( $('#quickActionResults a').length != 0){
                     e.preventDefault()
-                    $('#quickActionResults a:first').click()
+                    $('#quickActionResults a:first').trigger("click")
                 }
                 break;
 
@@ -253,8 +256,8 @@ export class QuickActions {
                 that.initiateQuickAction()
                 break;
 
-                default: //all other keypresses should be typing in this mode, so we should be focused on the input
-                $('#quickActionSearchbar').focus()
+                default: //all other key presses should be typing in this mode, so we should be focused on the input
+                $('#quickActionSearchbar').trigger("focus")
                 break;
             }
         })
@@ -264,7 +267,7 @@ export class QuickActions {
         })
     }
 
-    static quickOpenDocsLink = (link:string) :void => {
+    static quickOpenDocsLink(link: string) : void {
         const win = window.open(link, '_blank');
         if (win) {
             //Browser has allowed it to be opened

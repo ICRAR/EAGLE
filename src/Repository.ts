@@ -20,7 +20,7 @@ export class Repository {
     folders : ko.ObservableArray<RepositoryFolder>
 
     // NOTE: I think we should be able to use the Eagle.RepositoryService.Unknown enum here, but it causes a javascript error. Not sure why.
-    static DUMMY = new Repository(<Eagle.RepositoryService>"Unknown", "", "", false);
+    static readonly DUMMY = new Repository(<Eagle.RepositoryService>"Unknown", "", "", false);
 
     constructor(service : Eagle.RepositoryService, name : string, branch : string, isBuiltIn : boolean){
         this._id = Math.floor(Math.random() * 1000000000000);
@@ -111,7 +111,7 @@ export class Repository {
         return 0;
     }
 
-    public static fileSortFunc = (fileNameA: string, fileNameB: string) : number => {
+    public static fileSortFunc(fileNameA: string, fileNameB: string) : number {
         const aType : Eagle.FileType = Utils.getFileTypeFromFileName(fileNameA);
         const bType : Eagle.FileType = Utils.getFileTypeFromFileName(fileNameB);
 

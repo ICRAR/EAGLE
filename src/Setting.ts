@@ -1,8 +1,9 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
-import {UiMode, UiModeSystem, SettingData} from './UiModes';
+import { Eagle } from './Eagle';
+import { UiModeSystem } from './UiModes';
+import { Utils } from './Utils';
+
 export class SettingsGroup {
     private name : string;
     private displayFunc : (eagle: Eagle) => boolean;
@@ -67,7 +68,6 @@ export class Setting {
         this.oldValue = "";
         this.value = ko.observable(graphDefaultValue);
 
-        const that = this;
         this.value.subscribe(function(){
             UiModeSystem.setActiveSetting(this.getKey(), this.value())
         },this);
@@ -142,7 +142,7 @@ export class Setting {
         this.value(!this.value());
     }
 
-    static toggleByName = (settingName:string) : void => {
+    static toggleByName(settingName:string) : void {
         Setting.find(settingName).toggle()
     }
 
@@ -162,7 +162,7 @@ export class Setting {
         this.oldValue = this.value()
     }
 
-    static find = (key : string) : Setting => {
+    static find(key : string) : Setting {
         // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
         if (typeof Eagle.settings === 'undefined'){
             return null;
@@ -179,7 +179,7 @@ export class Setting {
         return null;
     }
 
-    static findValue = (key : string) : any => {
+    static findValue(key : string) : any {
         const setting = Setting.find(key);
 
         if (setting === null){
@@ -190,7 +190,7 @@ export class Setting {
         return setting.value();
     }
 
-    static setValue = (key : string, value : any) : void => {
+    static setValue(key : string, value : any) : void {
         const setting = Setting.find(key);
         if (setting === null){
             console.warn("No setting", key);
@@ -200,7 +200,7 @@ export class Setting {
         return setting.value(value);
     }
 
-    resetDefault = () : void => {
+    resetDefault() : void {
         const activeUIModeName: string = UiModeSystem.getActiveUiMode().getName();
         let value: any = this.graphDefaultValue;
 
@@ -227,7 +227,7 @@ export class Setting {
         this.value(value);
     }
 
-    static resetDefaults = () : void => {
+    static resetDefaults() : void {
         for (const group of Eagle.settings){
             if(group.getName() === "External Services"){
                 return  
@@ -239,11 +239,11 @@ export class Setting {
         }
     }
 
-    static getSettings = () : SettingsGroup[] => {
+    static getSettings() : SettingsGroup[] {
         return settings;
     }
 
-    static showInspectorErrorsWarnings = () : boolean => {
+    static showInspectorErrorsWarnings() : boolean {
         const eagle = Eagle.getInstance();
             
         switch (Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS)){
@@ -265,7 +265,7 @@ export class Setting {
     static readonly ACTION_CONFIRMATIONS : string = "ActionConfirmations";
     static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
     static readonly CONFIRM_NODE_CATEGORY_CHANGES : string = "ConfirmNodeCategoryChanges";
-    static readonly CONFIRM_REMOVE_REPOSITORES : string = "ConfirmRemoveRepositories";
+    static readonly CONFIRM_REMOVE_REPOSITORIES : string = "ConfirmRemoveRepositories";
     static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
     static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
 
@@ -355,7 +355,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Reset Action Confirmations", Setting.ACTION_CONFIRMATIONS, "Enable all action confirmation prompts",false, Setting.Type.Button, '', '','','','',[],'$root.resetActionConfirmations()'),
             new Setting(false, "Confirm Discard Changes", Setting.CONFIRM_DISCARD_CHANGES, "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.",false, Setting.Type.Boolean, true, true,true,true,true),
             new Setting(false, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.",false, Setting.Type.Boolean, true, true,true,true,true),
-            new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORES, "Prompt user to confirm removing a repository from the list of known repositories.",false , Setting.Type.Boolean, true,true,true,true,true),
+            new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORIES, "Prompt user to confirm removing a repository from the list of known repositories.",false , Setting.Type.Boolean, true,true,true,true,true),
             new Setting(false, "Confirm Reload Palettes", Setting.CONFIRM_RELOAD_PALETTES, "Prompt user to confirm when loading a palette that is already loaded.",false , Setting.Type.Boolean,true,true,true,true,true),
             new Setting(false, "Confirm Delete", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
             new Setting(false, "Confirm Delete", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
@@ -371,7 +371,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Show non key parameters", Setting.SHOW_NON_KEY_PARAMETERS, "Show additional parameters that are not marked as key parameters for the current graph",false, Setting.Type.Boolean, false,true,true,true,true),
             new Setting(true, "Display Node Keys", Setting.DISPLAY_NODE_KEYS, "Display Node Keys", false, Setting.Type.Boolean,false,false,false,true,true),
             new Setting(false, "Show Developer Tab", Setting.SHOW_DEVELOPER_TAB, "Reveals the developer tab in the settings menu", false, Setting.Type.Boolean, false,false,false,false,true),
-            new Setting(true, "Translator Mode", Setting.USER_TRANSLATOR_MODE, "Configue the translator mode", false, Setting.Type.Select, Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Expert, Object.values(Setting.TranslatorMode)),
+            new Setting(true, "Translator Mode", Setting.USER_TRANSLATOR_MODE, "Configure the translator mode", false, Setting.Type.Select, Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Expert, Object.values(Setting.TranslatorMode)),
             new Setting(true, "Graph Zoom Divisor", Setting.GRAPH_ZOOM_DIVISOR, "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", false, Setting.Type.Number,1000,1000,1000,1000,1000),
             new Setting(false, "Snap To Grid", Setting.SNAP_TO_GRID, "Align positions of nodes in graph to a grid", false, Setting.Type.Boolean,false,false,false,false,false),
             new Setting(false, "Snap To Grid Size", Setting.SNAP_TO_GRID_SIZE, "Size of grid used when aligning positions of nodes in graph (pixels)", false, Setting.Type.Number, 50, 50, 50, 50, 50),

@@ -24,12 +24,12 @@ export class Repositories {
         GitLab.loadRepoList();
     };
 
-    static selectFolder = (folder : RepositoryFolder) : void => {
+    static selectFolder(folder : RepositoryFolder) : void {
         // toggle expanded state
         folder.expanded(!folder.expanded());
     }
 
-    static selectFile = (file : RepositoryFile) : void => {
+    static selectFile(file : RepositoryFile) : void {
         const eagle: Eagle = Eagle.getInstance();
 
         if(file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.JSON){
@@ -107,13 +107,13 @@ export class Repositories {
 
     removeCustomRepository = (repository : Repository) : void => {
         // if settings dictates that we don't confirm with user, remove immediately
-        if (!Setting.findValue(Setting.CONFIRM_REMOVE_REPOSITORES)){
+        if (!Setting.findValue(Setting.CONFIRM_REMOVE_REPOSITORIES)){
             this._removeCustomRepository(repository);
             return;
         }
 
         // otherwise, check with user
-        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel",Setting.CONFIRM_REMOVE_REPOSITORES, (confirmed : boolean) =>{
+        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel",Setting.CONFIRM_REMOVE_REPOSITORIES, (confirmed : boolean) =>{
             if (!confirmed){
                 console.log("User aborted removeCustomRepository()");
                 return;
@@ -150,11 +150,11 @@ export class Repositories {
         }
     }
 
-    static sort = () : void => {
+    static sort() : void {
         Repositories.repositories.sort(Repository.repositoriesSortFunc);
     }
 
-    static getList = (service : Eagle.RepositoryService) : Repository[] => {
+    static getList(service : Eagle.RepositoryService) : Repository[]{
         const list : Repository[] = [];
 
         for (const repository of Repositories.repositories()){
@@ -164,9 +164,9 @@ export class Repositories {
         }
 
         return list;
-    };
+    }
 
-    static get = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
+    static get(service : Eagle.RepositoryService, name : string, branch : string) : Repository | null {
         for (const repository of Repositories.repositories()){
             if (repository.service === service && repository.name === name && repository.branch === branch){
                 return repository;
@@ -174,9 +174,9 @@ export class Repositories {
         }
         console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
         return null;
-    };
+    }
 
-    static fetchAll = () : void => {
+    static fetchAll() : void {
         for (const repository of Repositories.repositories()){
             if (!repository.fetched()){
                 repository.select();

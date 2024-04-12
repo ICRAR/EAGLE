@@ -177,7 +177,7 @@ export class ParameterTable {
         }
     }
 
-    static fieldUsageChanged = (field: Field) : void => {
+    static fieldUsageChanged(field: Field) : void {
         const eagle: Eagle = Eagle.getInstance();
         const edgesToRemove: string[] = [];
 
@@ -208,7 +208,7 @@ export class ParameterTable {
     }
 
     // when a field value is modified in the parameter table, we need to flag the containing palette or logical graph as modified
-    static fieldValueChanged = (field: Field) : void => {
+    static fieldValueChanged(field: Field) : void {
         const eagle = Eagle.getInstance();
 
         switch (Eagle.selectedLocation()){
@@ -229,7 +229,7 @@ export class ParameterTable {
         eagle.selectedObjects.valueHasMutated();
     }
 
-    static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void => {
+    static select(selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void {
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);
         ParameterTable.selectionParentIndex(selectionIndex);
@@ -237,12 +237,12 @@ export class ParameterTable {
         ParameterTable.selectionReadonly(readOnlyState);
     }
 
-    static resetSelection = ():void => {
+    static resetSelection() : void {
         ParameterTable.selectionParentIndex(-1);
         ParameterTable.selection(null);
     }
 
-    static hasSelection = () : boolean => {
+    static hasSelection() : boolean {
         return ParameterTable.selectionParentIndex() !== -1;
     }
 
@@ -252,15 +252,17 @@ export class ParameterTable {
         return true
     }
 
-    static showEditDescription = () => {
-            $(event.target).find('.parameterTableDescriptionBtn ').show()
+    // TODO: event!
+    static showEditDescription() : void {
+        $(event.target).find('.parameterTableDescriptionBtn ').show()
     }
 
-    static hideEditDescription = () => {
-            $(event.target).find('.parameterTableDescriptionBtn ').hide()
+    // TODO: event!
+    static hideEditDescription() : void {
+        $(event.target).find('.parameterTableDescriptionBtn ').hide()
     }
 
-    static requestEditDescriptionInModal = (currentField:Field) => {
+    static requestEditDescriptionInModal(currentField:Field) : void {
         const eagle: Eagle = Eagle.getInstance();
         const tableType = eagle.tableModalType()
         eagle.openParamsTableModal('','')
@@ -271,11 +273,10 @@ export class ParameterTable {
 
             currentField.setDescription(userText);
             eagle.openParamsTableModal(tableType,'')
-
         })
     }
 
-    static initiateResizableColumns = (upId:string) : void => {
+    static initiateResizableColumns(upId:string) : void {
         //need this oen initially to set the mousedown handler
             let upcol: HTMLElement = $('#'+upId)[0]
             let upresizer: JQuery<HTMLElement> = $(upcol).find('div')
