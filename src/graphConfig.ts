@@ -107,7 +107,7 @@ export class GraphConfig {
     public static readonly CONSTRUCT_MARGIN: number = 30;
     public static readonly CONSTRUCT_DRAG_OUT_DISTANCE: number = 200;
 
-    static getColor = (name:string) : string => {
+    static getColor(name:string) : string {
         let result = 'red'
         for (const color of colors) {
             if(color.name === name){

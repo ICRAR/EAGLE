@@ -1972,7 +1972,7 @@ export class Utils {
         return Eagle.LinkValid.Warning;
     }
 
-    static printCategories = () : void => {
+    static printCategories() : void {
         const tableData : any[] = [];
 
         for (const category in CategoryData.cData){
@@ -1987,7 +1987,7 @@ export class Utils {
         console.table(tableData);
     }
 
-    static printLogicalGraphNodesTable = () : void => {
+    static printLogicalGraphNodesTable() : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
@@ -2019,7 +2019,7 @@ export class Utils {
         console.table(tableData);
     }
 
-    static printLogicalGraphEdgesTable = () : void => {
+    static printLogicalGraphEdgesTable() : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
@@ -2040,7 +2040,7 @@ export class Utils {
         console.table(tableData);
     }
 
-    static printPalettesTable = () : void => {
+    static printPalettesTable() : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
@@ -2067,7 +2067,7 @@ export class Utils {
         console.table(tableData);
     }
 
-    static printNodeFieldsTable = (nodeIndex: number) : void => {
+    static printNodeFieldsTable(nodeIndex: number) : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
@@ -2096,8 +2096,8 @@ export class Utils {
         console.table(tableData);
     }
 
-    static getRmodeTooltip = () : string => {
-        let html = '**General**: Sets the standard for provenance tracking throughout graph translation and execution. Used to determine scientifically (high-level) changes to workflow behaviour. Signature files are stored alongside logfiles. Refer to the documentation for further explanation.<br>'
+    static getRmodeTooltip() : string {
+        let html = '**General**: Sets the standard for provenance tracking throughout graph translation and execution. Used to determine scientifically (high-level) changes to workflow behaviour. Signature files are stored alongside log files. Refer to the documentation for further explanation.<br>'
         html = html+'**Documentation link** <a href="https://daliuge.readthedocs.io/en/latest/architecture/reproducibility/reproducibility.html" target="_blank">daliuge.readthedocs</a><br>'
         html = html+'**NOTHING**: No provenance data is tracked at any stage.<br>'
         html = html+'**ALL**: Data for all subsequent levels is generated and stored together.<br>'
@@ -2112,11 +2112,11 @@ export class Utils {
         return html
     }
 
-    static copyInputTextModalInput = (): void => {
+    static copyInputTextModalInput(): void {
         navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
     }
 
-    static getReadOnlyText = () : string => {
+    static getReadOnlyText() : string {
         if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
             return "Read Only - Turn on 'Expert Mode' and 'Allow Component Editing' in the settings to unlock"
         }
@@ -2129,11 +2129,11 @@ export class Utils {
         return ''
     }
 
-    static isTypeNode = (object : any) : boolean => {
+    static isTypeNode(object : any) : boolean {
         return (object instanceof Node);
     }
 
-    static loadSchemas = () : void => {
+    static loadSchemas() : void {
         Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL, (error : string, data : string) => {
             if (error !== null){
                 console.error(error);
@@ -2148,7 +2148,7 @@ export class Utils {
         });
     }
 
-    static snapToGrid = (coord: number, offset: number) : number => {
+    static snapToGrid(coord: number, offset: number) : number {
         const gridSize = Setting.findValue(Setting.SNAP_TO_GRID_SIZE);
         return (gridSize * Math.round((coord + offset)/gridSize)) - offset;
     }
@@ -2157,7 +2157,7 @@ export class Utils {
         return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
     }
 
-    static createCommitJsonString = (jsonString: string, repository: Repository, token: string, fullFileName: string, commitMessage: string): string => {
+    static createCommitJsonString(jsonString: string, repository: Repository, token: string, fullFileName: string, commitMessage: string): string {
         // NOTE: we need to build the JSON manually here, since we want to enforce a particular ordering of attributes within the jsonData attribute (modelData first)
         let result = "";
 
