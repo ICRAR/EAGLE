@@ -4,4 +4,4 @@
 
 FROM icrar/eagle-base:latest
 COPY . .
-RUN cd /app ; ln -sf docker/prestart.dev.sh prestart.sh
+RUN cd /app ; python updateVersion.py ; ln -sf docker/prestart.dev.sh prestart.sh
