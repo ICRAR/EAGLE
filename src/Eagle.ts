@@ -4839,21 +4839,23 @@ $( document ).ready(function() {
 
     $(document).on('click', '.hierarchyEdgeExtra', function(event: Eagle.KOEvent){
         const e: MouseEvent = event.originalEvent as MouseEvent;
-        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(e.target).attr("id")))
+        const eagle: Eagle = Eagle.getInstance();
+        const selectEdge = eagle.logicalGraph().findEdgeById(($(e.target).attr("id")))
 
         if(!selectEdge){
             console.log("no edge found")
             return
         }
         if(!e.shiftKey){
-            (<any>window).eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+            eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
         }else{
-            (<any>window).eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+            eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
         }
     })
 
     $(".hierarchy").on("click", function(){
-        (<any>window).eagle.selectedObjects([]);
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.selectedObjects([]);
     })   
 
 });

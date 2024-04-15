@@ -1,3 +1,4 @@
+import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
 
 let wordMatch:any[] = []
@@ -10,7 +11,7 @@ export class QuickActions {
 
     static initiateQuickAction() : void {
         //function to both start and close the quick action menu
-        const eagle = (<any>window).eagle;
+        const eagle: Eagle = Eagle.getInstance();
         eagle.quickActionOpen(!eagle.quickActionOpen())
         $('#quickActionSearchbar').val('')
 
@@ -30,7 +31,7 @@ export class QuickActions {
     }
 
     static findQuickActionResults() : any[] {
-        const eagle = (<any>window).eagle;
+        const eagle: Eagle = Eagle.getInstance();
         const searchTerm :string = eagle.quickActionSearchTerm().toLocaleLowerCase()
         const resultsList: any[] = []
 
@@ -189,7 +190,7 @@ export class QuickActions {
 
     // TODO: types
     static executeQuickAction(data:any) : void {
-        const eagle = (<any>window).eagle;
+        const eagle: Eagle = Eagle.getInstance();
         this.initiateQuickAction()
         data[1](eagle)
     }
@@ -205,8 +206,8 @@ export class QuickActions {
 
     // TODO: types
     static updateQuickActionSearchTerm(obj:any, event:any ): void {
-        const eagle = (<any>window).eagle;
-        eagle.quickActionSearchTerm($(event.target).val())
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.quickActionSearchTerm($(event.target).val().toString())
     }
     
     // TODO: event not passed as an argument here! (used as both 'e' and 'event'?)

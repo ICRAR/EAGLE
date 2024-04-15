@@ -1,13 +1,14 @@
-import {Eagle} from './Eagle';
-import {Category} from './Category';
-import {Utils} from './Utils';
-import {Errors} from './Errors';
-import { Setting } from './Setting';
+import { Category } from './Category';
+import { Eagle } from './Eagle';
+import { Errors } from './Errors';
 import { ParameterTable } from './ParameterTable';
 import { QuickActions } from './QuickActions';
+import { Setting } from './Setting';
 import { TutorialSystem } from './Tutorial';
+import { Utils } from './Utils';
 
-let currentEvent:any  = null // this is used for keybord shortcut functions that need the event object to function
+
+let currentEvent:any  = null // this is used for keyboard shortcut functions that need the event object to function
 
 export class KeyboardShortcut {
     key: string;
@@ -89,16 +90,13 @@ export class KeyboardShortcut {
     }
 
     static processKey(e:KeyboardEvent) : void {
-
         // skip all repeat events, just process the initial keyup or keydown
         if (e.repeat){
             return;
         }
 
         // get reference to eagle
-        const eagle = (<any>window).eagle;
-
-
+        const eagle: Eagle = Eagle.getInstance();
 
         // loop through all the keyboard shortcuts here
         for (const shortcut of Eagle.shortcuts){

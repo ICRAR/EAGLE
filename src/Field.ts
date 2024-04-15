@@ -426,7 +426,7 @@ export class Field {
             return true;
         }
 
-        const eagle = (<any>window).eagle;
+        const eagle: Eagle = Eagle.getInstance();
         let searchTermNo : number = 0
         let searchTermTrueNo : number = 0
         const that = this

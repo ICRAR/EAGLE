@@ -68,6 +68,7 @@ $(function(){
     eagle = new Eagle();
 
     // add eagle to the window object, slightly hacky, but useful for debugging
+    // TODO: remove this when possible, use Eagle.getInstance() if we can
     (<any>window).eagle = eagle;
 
     (<any>window).Category = Category;
@@ -247,8 +248,8 @@ $(function(){
     })
 
     $(document).on('click', '.hierarchyEdgeExtra', function(event){
-        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
         const eagle: Eagle = Eagle.getInstance();
+        const selectEdge = eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
 
         if(!selectEdge){
             console.log("no edge found")
