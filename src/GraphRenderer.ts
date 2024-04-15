@@ -78,7 +78,7 @@ ko.bindingHandlers.nodeRenderHandler = {
         }
 
         const pos = node.getPosition() // this line is needed because referencing position here causes this update funciton to run when the node position gets updated aka. when we are dragging a node on the graph
-        if(node.isGroup() || node.getParentKey() != null ){
+        if(node.isConstruct() || node.getParentKey() != null ){
             if(!node.isConstruct()){
                 const eagle : Eagle = Eagle.getInstance();
                 node = eagle.logicalGraph().findNodeByKey(node.getParentKey())
