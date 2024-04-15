@@ -4837,14 +4837,15 @@ $( document ).ready(function() {
         }
     })
 
-    $(document).on('click', '.hierarchyEdgeExtra', function(){
-        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
+    $(document).on('click', '.hierarchyEdgeExtra', function(event: Eagle.KOEvent){
+        const e: MouseEvent = event.originalEvent as MouseEvent;
+        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(e.target).attr("id")))
 
         if(!selectEdge){
             console.log("no edge found")
             return
         }
-        if(!(<PointerEvent>event).shiftKey){
+        if(!e.shiftKey){
             (<any>window).eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
         }else{
             (<any>window).eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);

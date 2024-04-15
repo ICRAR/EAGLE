@@ -482,19 +482,19 @@ export class GraphRenderer {
             maxAngle = 2*Math.PI - maxAngle
         }
         
-        //checking if the min or max angle is closer to the port's preferred location
-        if(Math.abs(minAngle-angle)>Math.abs(maxAngle-angle)){
-            result = maxAngle
-        }else{
-            result = minAngle
-        }
-        
-        //making sure the angle is within the 0 - 2*PI range
+        // making sure the angle is within the 0 - 2*PI range
         if(minAngle<0){
             minAngle = 2*Math.PI - Math.abs(minAngle)
         }
         if(maxAngle>2*Math.PI){
             maxAngle = maxAngle - 2*Math.PI 
+        }
+
+        // checking if the min or max angle is closer to the port's preferred location
+        if(Math.abs(minAngle-angle)>Math.abs(maxAngle-angle)){
+            result = maxAngle
+        }else{
+            result = minAngle
         }
         
         return result
