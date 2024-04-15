@@ -1608,9 +1608,9 @@ export class Utils {
         });
     }
 
-    static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
-        const displayShortcuts : {description:string, shortcut : string, function : any} []=[];
-        const eagle = (<any>window).eagle;
+    static getShortcutDisplay = () : {description: string, shortcut: string, function: (eagle:Eagle) => void}[] => {
+        const displayShortcuts : {description: string, shortcut: string, function: (eagle: Eagle) => void} []=[];
+        const eagle: Eagle = Eagle.getInstance();
 
         for (const object of Eagle.shortcuts){
             // skip if shortcut should not be displayed
@@ -1618,8 +1618,12 @@ export class Utils {
                 continue;
             }
 
-            const shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false);
-            displayShortcuts.push({description: object.name, shortcut: shortcut,function:object.run});
+            const shortcut: string = Utils.getKeyboardShortcutTextByKey(object.key, false);
+            displayShortcuts.push({
+                description: object.name,
+                shortcut: shortcut,
+                function: object.run
+            });
         }
 
         return displayShortcuts;

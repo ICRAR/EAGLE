@@ -1096,10 +1096,10 @@ export class Eagle {
         }
     }
 
-    triggerShortcut = (shortcut:any) :void => {
-        const eagle = (<any>window).eagle;
+    triggerShortcut = (shortcut: (eagle: Eagle) => void) :void => {
+        const eagle: Eagle = Eagle.getInstance();
         $('#shortcutsModal').modal("hide");
-        shortcut(eagle)
+        shortcut(eagle);
     }
 
     /**
