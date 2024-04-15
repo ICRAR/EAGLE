@@ -4782,7 +4782,9 @@ $( document ).ready(function() {
         });
     })
 
-    $(".translationDefault").on("click",function(){
+    $(".translationDefault").on("click",function(event: Eagle.KOEvent){
+        const e: MouseEvent = event.originalEvent as MouseEvent;
+
         // sets all other translation methods to false
         $('.translationDefault').each(function(){
             if($(this).is(':checked')){
@@ -4792,7 +4794,7 @@ $( document ).ready(function() {
         })
 
         //toggle method on
-        const element = $(event.target)
+        const element = $(e.target)
         if(element.val() === "true"){
             element.val('false')
         }else{
