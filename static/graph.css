@@ -217,7 +217,7 @@
 
 #portContainer div .portTitle{
     position: absolute;
-    font-size: 12px;
+    font-size: 9px;
     top: -1px;
     width: 100px;
     pointer-events: none;
@@ -286,9 +286,8 @@
 
 .node .header {
     position: absolute;
-    overflow: hidden;
     text-align: center;
-    bottom:calc(100% + 10px);
+    bottom:calc(100% + 5px);
     left: 50%;
     transform: translateX(-50%);
     max-width: 150px;

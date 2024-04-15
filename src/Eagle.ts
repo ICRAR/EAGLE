@@ -456,6 +456,18 @@ export class Eagle {
         console.error("Not implemented!");
     }
 
+    getGraphTextScale = () : number => {
+        const scale = 1/this.globalScale()
+
+        if(scale<0.7){
+            return 0.6
+        }else if(scale>1.3){
+            return 1.3
+        }else{
+            return scale
+        }
+    }
+
     centerGraph = () : void => {
         const that = this
 
