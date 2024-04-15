@@ -3669,8 +3669,7 @@ export class Eagle {
         }
 
         // NOTE: this changes the value (using val()), then triggers a change event, so that validation can be done
-        // TODO: change is deprecated here, use something else
-        $('#editFieldModalTypeInput').val(newType).change();
+        $('#editFieldModalTypeInput').val(newType).trigger("change");
     }
 
     tableDropdownClick = (newType:string, field: Field) : void => {
@@ -4787,7 +4786,7 @@ $( document ).ready(function() {
         // sets all other translation methods to false
         $('.translationDefault').each(function(){
             if($(this).is(':checked')){
-                $(this).prop('checked', false).change()
+                $(this).prop('checked', false).trigger("change");
                 $(this).val('false')
             }
         })
@@ -4804,7 +4803,7 @@ $( document ).ready(function() {
         const translationId = element.closest('.accordion-item').attr('id')
         Setting.find(Setting.TRANSLATOR_ALGORITHM_DEFAULT).setValue(translationId)
         
-        $(this).prop('checked',true).change()
+        $(this).prop('checked',true).trigger("change");
     })
 
     //increased click bubble for edit modal flag booleans

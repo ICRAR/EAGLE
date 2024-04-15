@@ -70,7 +70,7 @@ export class ParameterTable {
         //if the table parameter search bar is selected
         if($('#parameterTableModal .componentSearchBar')[0] === event.target){
             const targetCell = $('#parameterTableModal td.column_Value').first().children().first()
-            targetCell.focus() // TODO: focus is deprecated here, use something else instead
+            targetCell.trigger("focus");
             $('.selectedTableParameter').removeClass('selectedTableParameter')
             targetCell.parent().addClass('selectedTableParameter')
         }else if (event.target.closest('.columnCell')){
@@ -98,7 +98,7 @@ export class ParameterTable {
                     if($(cell).children().first().hasClass('parameterTableTypeCustomSelect')){
                         return <void> null;
                     }else{
-                        $(cell).children().first().focus()
+                        $(cell).children().first().trigger("focus");
                     }
 
                     $('.selectedTableParameter').removeClass('selectedTableParameter')

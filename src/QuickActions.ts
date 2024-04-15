@@ -18,7 +18,7 @@ export class QuickActions {
             if(eagle.quickActionOpen()){
                 $('#quickActionContainer').show()
                 $('#quickActionBackground').show()
-                $('#quickActionSearchbar').focus()
+                $('#quickActionSearchbar').trigger("focus")
                 QuickActions.initiateQuickActionQuickSelect()
             }else{
                 $('#quickActionContainer').hide()

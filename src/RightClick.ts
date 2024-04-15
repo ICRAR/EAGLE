@@ -454,7 +454,7 @@ export class RightClick {
                     $('#rightClickPaletteList').append(paletteList)
     
                     Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
-                    $('#rightClickSearchBar').focus()
+                    $('#rightClickSearchBar').trigger("focus")
                     RightClick.initiateQuickSelect()
                 }else{
                     const message = '<span>Lacking graph editing permissions</span>'
@@ -477,7 +477,7 @@ export class RightClick {
                     $('#rightClickPaletteList').append(paletteList)
     
                     Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
-                    $('#rightClickSearchBar').focus()
+                    $('#rightClickSearchBar').trigger("focus")
                     RightClick.initiateQuickSelect()
                 }else{
                     const message = '<span>Lacking graph editing permissions</span>'

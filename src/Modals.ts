@@ -36,7 +36,7 @@ export class Modals {
             }
         });
         $('#inputModal').on('shown.bs.modal', function(){
-            $('#inputModalInput').focus();
+            $('#inputModalInput').trigger("focus");
         });
         $('#inputModalInput').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
@@ -62,7 +62,7 @@ export class Modals {
             callback($('#inputTextModal').data('completed'), $('#inputTextModalInput').val().toString());
         });
         $('#inputTextModal').on('shown.bs.modal', function(){
-            $('#inputTextModalInput').focus(); // TODO: focus and which are deprecated here, use something else instead
+            $('#inputTextModalInput').trigger("focus");
         });
         $('#inputTextModalInput').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
@@ -78,7 +78,7 @@ export class Modals {
             $('#choiceModal').data('completed', true);
         });
         $('#choiceModal').on('shown.bs.modal', function(){
-            $('#choiceModalAffirmativeButton').focus();
+            $('#choiceModalAffirmativeButton').trigger("focus");
         });
         $('#choiceModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => void = $('#choiceModal').data('callback');
@@ -131,7 +131,7 @@ export class Modals {
             callback(false);
         });
         $('#confirmModal').on('shown.bs.modal', function(){
-            $('#confirmModalAffirmativeButton').focus();
+            $('#confirmModalAffirmativeButton').trigger("focus");
         });
 
         // #gitCommitModal - requestUserGitCommit()
@@ -142,7 +142,7 @@ export class Modals {
             $('#gitCommitModal').data('completed', false);
         });
         $('#gitCommitModal').on('shown.bs.modal', function(){
-            $('#gitCommitModalAffirmativeButton').focus();
+            $('#gitCommitModalAffirmativeButton').trigger("focus");
         });
         $('#gitCommitModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
@@ -194,7 +194,7 @@ export class Modals {
             $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
 
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', true);
-            $('#gitCustomRepositoryModalAffirmativeButton').focus();
+            $('#gitCustomRepositoryModalAffirmativeButton').trigger("focus");
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
@@ -219,7 +219,7 @@ export class Modals {
             $('#settingsModal').data('completed', false);
             eagle.copyCurrentSettings()
             if(TutorialSystem.activeTut===null){
-                $('#settingsModalAffirmativeButton').focus();
+                $('#settingsModalAffirmativeButton').trigger("focus");
             }
         });
 
