@@ -4760,7 +4760,7 @@ $( document ).ready(function() {
     // jquery event listeners start here
 
     //hides the dropdown navbar elements when stopping hovering over the element
-    $(".dropdown-menu").mouseleave(function(){
+    $(".dropdown-menu").on("mouseleave", function(){
       $(".dropdown-toggle").removeClass("show")
       $(".dropdown-menu").removeClass("show")
     })
