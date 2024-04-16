@@ -237,7 +237,7 @@ export class QuickActions {
         //unbinding then rebinding the event in case there was already one attached
         const that = this
         $('body').off('keydown.quickActions')
-        $('body').on('keydown.quickActions',function(event: Eagle.KOEvent){
+        $('body').on('keydown.quickActions',function(event: JQuery.TriggeredEvent){
             const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
             
             const current = $(".quickActionsFocus")

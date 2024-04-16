@@ -974,7 +974,7 @@ export class GraphRenderer {
         return GraphRenderer.createBezier(edge, srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, false);
     }
 
-    static scrollZoom(eagle: Eagle, event: Eagle.KOEvent) : void {
+    static scrollZoom(eagle: Eagle, event: JQuery.TriggeredEvent) : void {
         const e: WheelEvent = event.originalEvent as WheelEvent;
 
         const wheelDelta = e.deltaY;
@@ -1076,7 +1076,7 @@ export class GraphRenderer {
         }, 200)
     }
 
-    static mouseMove(eagle: Eagle, event: Eagle.KOEvent) : void {
+    static mouseMove(eagle: Eagle, event: JQuery.TriggeredEvent) : void {
         const e: MouseEvent = event.originalEvent as MouseEvent;
 
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}

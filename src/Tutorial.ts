@@ -27,30 +27,33 @@ export class TutorialSystem {
 
     static addTutKeyboardShortcuts(): void {
         //these are the keyboard shortcuts for the tutorial system
-        //by putting a .name after an even type, we are giving this specific listener a name. This allows us to remove or modify it later
-        $("body").on('keydown.tutEventListener', function (e) {
+        //by putting a .name after an event type, we are giving this specific listener a name. This allows us to remove or modify it later
+        $("body").on('keydown.tutEventListener', function (event: JQuery.TriggeredEvent) {
+            const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
+
             if(TutorialSystem.activeTut===null){return} //catching a niche error
-            switch (e.which) {
-                case 37: // left
-                case 38: // up
+
+            switch (e.key) {
+                case "ArrowLeft":
+                case "ArrowUp":
                     e.preventDefault()
                     TutorialSystem.activeTut.tutButtonPrev()
                     break;
 
-                case 39: // right
-                case 40: // down
+                case "ArrowRight":
+                case "ArrowDown":
                     e.preventDefault()
                     if (TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Info) {
                         TutorialSystem.activeTut.tutButtonNext()
                     }
                     break;
 
-                case 27: //escape
+                case "Escape":
                     e.preventDefault()
                     TutorialSystem.activeTut.tutButtonEnd()
                     break;
 
-                case 13: //enter
+                case "Enter":
                     e.preventDefault()
                     e.stopImmediatePropagation()
                     if(TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Press){

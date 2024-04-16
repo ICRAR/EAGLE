@@ -3903,7 +3903,7 @@ export class Eagle {
         this.selectedObjects.valueHasMutated();
     }
 
-    nodeDropLogicalGraph = (eagle : Eagle, event: Eagle.KOEvent) : void => {
+    nodeDropLogicalGraph = (eagle : Eagle, event: JQuery.TriggeredEvent) : void => {
         const e: DragEvent = event.originalEvent as DragEvent;
 
         // keep track of the drop location
@@ -3944,7 +3944,7 @@ export class Eagle {
         Eagle.nodeDropLocation = {x:0, y:0};
     }
 
-    nodeDropPalette = (eagle: Eagle, event: Eagle.KOEvent) : void => {
+    nodeDropPalette = (eagle: Eagle, event: JQuery.TriggeredEvent) : void => {
         const sourceComponents : Node[] = [];
         const e: DragEvent = event.originalEvent as DragEvent;
 
@@ -3994,7 +3994,7 @@ export class Eagle {
         }
     }
 
-    paletteComponentClick = (node: Node, event: Eagle.KOEvent) : void => {
+    paletteComponentClick = (node: Node, event: JQuery.TriggeredEvent) : void => {
         const e: PointerEvent = event.originalEvent as PointerEvent;
 
         if (e.shiftKey)
@@ -4775,10 +4775,6 @@ export namespace Eagle
         Left = "Left",
         Right = "Right"
     }
-
-    export type KOEvent = {
-        originalEvent: Event
-    }
 }
 
 // TODO: ready is deprecated here, use something else
@@ -4787,8 +4783,8 @@ $( document ).ready(function() {
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").on("mouseleave", function(){
-      $(".dropdown-toggle").removeClass("show")
-      $(".dropdown-menu").removeClass("show")
+        $(".dropdown-toggle").removeClass("show")
+        $(".dropdown-menu").removeClass("show")
     })
 
     $('.modal').on('hidden.bs.modal', function () {
@@ -4808,7 +4804,7 @@ $( document ).ready(function() {
         });
     })
 
-    $(".translationDefault").on("click",function(event: Eagle.KOEvent){
+    $(".translationDefault").on("click",function(event: JQuery.TriggeredEvent){
         const e: MouseEvent = event.originalEvent as MouseEvent;
 
         // sets all other translation methods to false
@@ -4835,7 +4831,7 @@ $( document ).ready(function() {
     })
 
     //increased click bubble for edit modal flag booleans
-    $(".componentCheckbox").on("click",function(event){
+    $(".componentCheckbox").on("click", function(event: JQuery.TriggeredEvent){
         $(event.target).find("input").trigger("click")
     })
 
@@ -4863,7 +4859,7 @@ $( document ).ready(function() {
         }
     })
 
-    $(document).on('click', '.hierarchyEdgeExtra', function(event: Eagle.KOEvent){
+    $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const e: MouseEvent = event.originalEvent as MouseEvent;
         const eagle: Eagle = Eagle.getInstance();
         const selectEdge = eagle.logicalGraph().findEdgeById(($(e.target).attr("id")))

@@ -21,7 +21,7 @@ export class SideWindow {
         this.shown(!this.shown());
     }
 
-    // dragdrop
+    // drag drop
     static nodeDragStart = (node: Node, e : any) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
 
@@ -75,7 +75,7 @@ export class SideWindow {
         return false;
     }
 
-    static rightWindowAdjustStart(eagle: Eagle, event: Eagle.KOEvent) : boolean {
+    static rightWindowAdjustStart(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
 
         $(e.target).addClass('windowDragging')
@@ -87,7 +87,7 @@ export class SideWindow {
     }
 
     // workaround to avoid left or right window adjusting on any and all drag events
-    static sideWindowAdjustEnd = (eagle: Eagle, event: Eagle.KOEvent) : boolean => {
+    static sideWindowAdjustEnd = (eagle: Eagle, event: JQuery.TriggeredEvent) : boolean => {
         const e: DragEvent = event.originalEvent as DragEvent;
 
         $(e.target).removeClass('windowDragging')
@@ -97,7 +97,7 @@ export class SideWindow {
         return true;
     }
 
-    static sideWindowAdjust(eagle: Eagle, event: Eagle.KOEvent) : boolean {
+    static sideWindowAdjust(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
 
         // workaround to avoid final dragEvent at 0,0!
@@ -142,7 +142,7 @@ export class SideWindow {
         return true;
     }
 
-    static leftWindowAdjustStart(eagle : Eagle, event : Eagle.KOEvent) : boolean {
+    static leftWindowAdjustStart(eagle : Eagle, event : JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
 
         $(e.target).addClass('windowDragging')
