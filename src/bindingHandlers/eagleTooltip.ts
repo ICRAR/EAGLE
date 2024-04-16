@@ -2,6 +2,7 @@ import * as ko from "knockout";
 import * as bootstrap from 'bootstrap';
 import {Utils} from '../Utils';
 import { GraphRenderer } from "../GraphRenderer";
+import {Eagle} from '../Eagle';
 
 ko.bindingHandlers.eagleTooltip = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext : ko.BindingContext) {
@@ -23,7 +24,7 @@ ko.bindingHandlers.eagleTooltip = {
         });
     },
     update: function (element, valueAccessor) {
-        
+        const eagle: Eagle = Eagle.getInstance();
         const jQueryElement = $(element);
         
         // manual tooltip open system to allow for hovering on the tooltips
@@ -50,7 +51,7 @@ ko.bindingHandlers.eagleTooltip = {
 
             //in manual trigger mode the delay attribute of the bootstrap tooltip no longer works, we need to do this ourselves
             setTimeout(function(){
-                if(stillHovering && !GraphRenderer.draggingPort){
+                if(stillHovering && !GraphRenderer.draggingPort && !eagle.draggingPaletteNode){
                     jQueryElement.tooltip('show');
 
                     //leave listener on the tooltip itself, we attach this when the tooltip is shown
@@ -61,7 +62,7 @@ ko.bindingHandlers.eagleTooltip = {
                     
                     //enter listener on the tooltip itself, we attach this when the tooltip is shown
                     $('.tooltip').on('mouseenter', function () {
-                        if(GraphRenderer.draggingPort){
+                        if(GraphRenderer.draggingPort || eagle.draggingPaletteNode){
                             jQueryElement.tooltip('hide');
                         }
                         stillHovering = true
