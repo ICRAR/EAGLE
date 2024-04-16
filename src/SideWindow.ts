@@ -22,8 +22,12 @@ export class SideWindow {
     }
 
     // dragdrop
-    static nodeDragStart = (node: Node, e : JQueryEventObject) : boolean => {
+    static nodeDragStart = (node: Node, e : any) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
+
+        //for hiding any tooltips while dragging and preventing them from showing
+        eagle.draggingPaletteNode = true;
+        $(e.target).find('.input-group').tooltip('hide');
 
         // retrieve data about the node being dragged
         // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
@@ -56,6 +60,9 @@ export class SideWindow {
     }
 
     static nodeDragEnd() : boolean {
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.draggingPaletteNode = false;
+
         $(".rightWindow").removeClass("noDropTarget");
         $(".navbar").removeClass("noDropTarget");
         Eagle.nodeDragPaletteIndex = null;

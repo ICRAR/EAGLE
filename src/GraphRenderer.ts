@@ -171,7 +171,6 @@ ko.bindingHandlers.embeddedAppPosition = {
 ko.bindingHandlers.graphRendererPortPosition = {
     update: function (element:any, valueAccessor) {
         //this handler is for a PORT position, meaning it will run twice for a field that has both input and output ports
-
         //the update function is called initially and then whenever a change to a utilised observable occurs
         const eagle : Eagle = Eagle.getInstance();
         const n: Node = ko.utils.unwrapObservable(valueAccessor()).n;

@@ -97,6 +97,7 @@ export class Eagle {
     // TODO: move these to GraphRenderer.ts
     isDragging : ko.Observable<boolean>;
     draggingNode : ko.Observable<Node>;
+    draggingPaletteNode : boolean;
 
     errorsMode : ko.Observable<Setting.ErrorsMode>;
     graphWarnings : ko.ObservableArray<Errors.Issue>;
@@ -184,6 +185,7 @@ export class Eagle {
 
         this.isDragging = ko.observable(false);
         this.draggingNode = ko.observable(null);
+        this.draggingPaletteNode = false;
         this.errorsMode = ko.observable(Setting.ErrorsMode.Loading);
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);
