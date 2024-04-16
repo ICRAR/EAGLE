@@ -3123,6 +3123,7 @@ palette-component input.form-control.selected {
     border: 1px solid #d8ddf0;
     display:inline-block;
     border-radius:50%;
+    margin-top: 5px;
   }
   
   .wrapper .planet{
@@ -3143,7 +3144,7 @@ palette-component input.form-control.selected {
   .wrapper .secondPlanet{
     width:6px;
     height:6px;
-    background-color:#57f4b4;
+    background-color:#ff5f20;
   }
   
   .wrapper .thirdPlanet{
@@ -3176,11 +3177,11 @@ palette-component input.form-control.selected {
   }
   
   .rotate1{
-    animation: loading 2.7s linear infinite;
+    animation: loading 2s linear infinite;
   }
   
   .rotate2{
-    animation: loading 2s linear infinite;
+    animation: loading 3s linear infinite;
   }
   
   .rotate3{
@@ -3194,10 +3195,6 @@ palette-component input.form-control.selected {
     to { 
       transform: rotate(360deg);
     }
-  }
-  
-  .counterRotate1{
-    animation:loading2 2.7s linear infinite;
   }
   
   .counterRotate2{

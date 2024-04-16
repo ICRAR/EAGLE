@@ -1995,8 +1995,21 @@ export class Utils {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
+        const nodesList :Node[] = []
+
+        eagle.logicalGraph().getNodes().forEach(function(node){
+            nodesList.push(node)
+            if(node.hasInputApplication()){
+                nodesList.push(node.getInputApplication())
+            }
+            if(node.hasOutputApplication()){
+                nodesList.push(node.getOutputApplication())
+            }
+
+        })
+
         // add logical graph nodes to table
-        for (const node of eagle.logicalGraph().getNodes()){
+        for (const node of nodesList){
             tableData.push({
                 "name":node.getName(),
                 "key":node.getKey(),

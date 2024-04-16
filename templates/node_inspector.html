@@ -113,6 +113,13 @@
                         </div>
                         <input type="text" class="form-control" disabled id="nodeInspectorKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $data.getKey()">
                     </div>
+
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The Key of the component within the graph'" data-bs-placement="left">Parent Key</span>
+                        </div>
+                        <input type="text" class="form-control" disabled id="nodeInspectorParentKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $data.getParentKey()">
+                    </div>
                 <!-- /ko -->
 
                 <!-- node port multiplicity -->

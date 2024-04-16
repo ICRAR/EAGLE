@@ -457,6 +457,18 @@ export class Eagle {
         console.error("Not implemented!");
     }
 
+    getGraphTextScale = () : number => {
+        const scale = 1/this.globalScale()
+
+        if(scale<0.7){
+            return 0.6
+        }else if(scale>1.3){
+            return 1.3
+        }else{
+            return scale
+        }
+    }
+
     centerGraph = () : void => {
         const that = this
 
@@ -733,6 +745,16 @@ export class Eagle {
             }
 
             if (o instanceof Edge && o.getId() === id){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    objectIsSelectedByKey = (key: number): boolean => {
+        for (const o of this.selectedObjects()){
+            if (o instanceof Node && o.getKey() === key){
                 return true;
             }
         }
@@ -2402,7 +2424,6 @@ export class Eagle {
     }
 
     openParamsTableModal = (mode:string,selectType:string) : void => {
-        console.log('show eagle is loading')
         this.showEagleIsLoading()
         const eagle = this
         setTimeout(function(){
@@ -4391,6 +4412,9 @@ export class Eagle {
         if (!edgeConnectsTwoApplications || twoEventPorts){
             const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
+            setTimeout(() => {
+                this.setSelection(Eagle.RightWindowMode.Hierarchy, edge,Eagle.FileType.Graph)
+            }, 30);
             if (callback !== null) callback(edge);
             return;
         }

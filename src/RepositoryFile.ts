@@ -18,13 +18,12 @@ export class RepositoryFile {
         this.name = name;
         this.path = path;
         this.isFetching = ko.observable(false);
-        this.type = Eagle.FileType.Unknown;
+        this.type = Utils.getFileTypeFromFileName(this.name);
     }
 
     getIconUrl : ko.PureComputed<string> = ko.pureComputed(() => {
-        const fileType: Eagle.FileType = Utils.getFileTypeFromFileName(this.name);
 
-        switch (fileType){
+        switch (this.type){
             case Eagle.FileType.Graph:
                 return "device_hub";
             case Eagle.FileType.Palette:
