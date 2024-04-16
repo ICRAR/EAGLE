@@ -758,7 +758,7 @@ export class Utils {
         });
     }
 
-    static showModelDataModal = (title: string, fileInfo: FileInfo) : void => {
+    static showModelDataModal(title: string, fileInfo: FileInfo) : void {
         const eagle = Eagle.getInstance();
         eagle.currentFileInfoTitle(title);
         eagle.currentFileInfo(fileInfo);
@@ -908,7 +908,7 @@ export class Utils {
     /**
      * Returns a list of unique port names (except event ports)
      */
-    static getUniquePortsList = (palettes : Palette[], graph: LogicalGraph) : Field[] => {
+    static getUniquePortsList(palettes : Palette[], graph: LogicalGraph) : Field[] {
         const uniquePorts : Field[] = [];
 
         // build a list from all palettes
@@ -1110,7 +1110,7 @@ export class Utils {
         return result;
     }
 
-    static checkForMatches = (nodes:Node[], input: boolean, type: string, dataEligible: boolean) : Node[] => {
+    static checkForMatches(nodes:Node[], input: boolean, type: string, dataEligible: boolean) : Node[] {
         const result: Node[] = [];
 
         for (const node of nodes){
@@ -1137,7 +1137,7 @@ export class Utils {
         return result
     }
 
-    static addTypeIfUnique = (types: string[], newType: string) : void => {
+    static addTypeIfUnique(types: string[], newType: string) : void {
         for (const t of types){
             if (t === newType){
                 return;
@@ -1149,7 +1149,7 @@ export class Utils {
     /**
      * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFields = (diagram : Palette | LogicalGraph) : Field[] => {
+    static getUniqueFields(diagram : Palette | LogicalGraph) : Field[] {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
@@ -1165,7 +1165,7 @@ export class Utils {
     /**
      * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, parameterType: Daliuge.FieldType) : Field[] => {
+    static getUniqueFieldsOfType(diagram : Palette | LogicalGraph, parameterType: Daliuge.FieldType) : Field[] {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
@@ -1608,7 +1608,7 @@ export class Utils {
         });
     }
 
-    static getShortcutDisplay = () : {description: string, shortcut: string, function: (eagle:Eagle) => void}[] => {
+    static getShortcutDisplay() : {description: string, shortcut: string, function: (eagle:Eagle) => void}[] {
         const displayShortcuts : {description: string, shortcut: string, function: (eagle: Eagle) => void} []=[];
         const eagle: Eagle = Eagle.getInstance();
 
@@ -1629,7 +1629,7 @@ export class Utils {
         return displayShortcuts;
     }
 
-    static getKeyboardShortcutTextByKey = (key: string, addBrackets: boolean) : string => {
+    static getKeyboardShortcutTextByKey(key: string, addBrackets: boolean) : string {
         for (const shortcut of Eagle.shortcuts){
             if (shortcut.key === key){
                 const ks = [];
@@ -1639,13 +1639,13 @@ export class Utils {
                         //if the return should have brackets they are added here
                         //the first letter of the string returned is also capitalised
                         if (addBrackets){
-                            ks.push("["+k.charAt(0).toUpperCase() + k.slice(1)+"]");
+                            ks.push("[" + k.charAt(0).toUpperCase() + k.slice(1) + "]");
                         } else {
                             ks.push(k.charAt(0).toUpperCase() + k.slice(1));
                         }
                     } else {
                         if (addBrackets){
-                            ks.push("["+shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1)+"]");
+                            ks.push("[" + shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1) + "]");
                         } else {
                             ks.push(shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1));
                         }
