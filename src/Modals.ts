@@ -369,7 +369,7 @@ export class Modals {
         Modals._setValidClasses($(event.target), isValid);
     }
 
-    static _setValidClasses(target: any, isValid: boolean){
+    static _setValidClasses(target: JQuery<EventTarget>, isValid: boolean){
         if (isValid){
             target.addClass('is-valid');
             target.removeClass('is-invalid');
