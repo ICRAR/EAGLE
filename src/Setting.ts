@@ -48,9 +48,9 @@ export class Setting {
     private expertDefaultValue : any;
     private oldValue : any;
     private options : string[];
-    private buttonFunc : string;
+    private buttonFunc : () => void;
 
-    constructor(display: boolean, name : string, key:string, description : string,perpetual:boolean, type : Setting.Type, studentDefaultValue : any, minimalDefaultValue : any,graphDefaultValue : any,componentDefaultValue : any,expertDefaultValue : any, options?: string[], buttonFunc?: string){
+    constructor(display: boolean, name : string, key:string, description : string,perpetual:boolean, type : Setting.Type, studentDefaultValue : any, minimalDefaultValue : any,graphDefaultValue : any,componentDefaultValue : any,expertDefaultValue : any, options?: string[], buttonFunc?: () => void){
         this.display = display;
         this.name = name;
         this.key = key;
@@ -142,10 +142,6 @@ export class Setting {
         this.value(!this.value());
     }
 
-    static toggleByName(settingName:string) : void {
-        Setting.find(settingName).toggle()
-    }
-
     copy = () : void => {
         navigator.clipboard.writeText(this.value().toString()).then(function() {
             Utils.showNotification("Success", "Copying to clipboard was successful!", "success");
@@ -160,6 +156,14 @@ export class Setting {
 
     copyCurrentSettings = () : void => {
         this.oldValue = this.value()
+    }
+
+    run = () : void => {
+        this.buttonFunc();
+    }
+
+    static toggleByName(settingName:string) : void {
+        Setting.find(settingName).toggle()
     }
 
     static find(key : string) : Setting {
@@ -352,7 +356,7 @@ const settings : SettingsGroup[] = [
         "User Options",
         () => {return true;},
         [
-            new Setting(true, "Reset Action Confirmations", Setting.ACTION_CONFIRMATIONS, "Enable all action confirmation prompts",false, Setting.Type.Button, '', '','','','',[],'$root.resetActionConfirmations()'),
+            new Setting(true, "Reset Action Confirmations", Setting.ACTION_CONFIRMATIONS, "Enable all action confirmation prompts",false, Setting.Type.Button, '', '','','','',[], function(){console.log("test rac");Eagle.getInstance().resetActionConfirmations()}),
             new Setting(false, "Confirm Discard Changes", Setting.CONFIRM_DISCARD_CHANGES, "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.",false, Setting.Type.Boolean, true, true,true,true,true),
             new Setting(false, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.",false, Setting.Type.Boolean, true, true,true,true,true),
             new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORIES, "Prompt user to confirm removing a repository from the list of known repositories.",false , Setting.Type.Boolean, true,true,true,true,true),
