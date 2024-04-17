@@ -1,10 +1,14 @@
 {
     "compilerOptions": {
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
         "outDir": "./static/built",
         "sourceMap": true,
         "noImplicitAny": true,
         "noImplicitReturns": true,
+        "noImplicitThis": false,  // TODO: make true when possible
         "noFallthroughCasesInSwitch": true,
+        "noUnusedLocals": false,
         "module": "umd",
         "strictNullChecks" : false,
         "moduleResolution": "node",
