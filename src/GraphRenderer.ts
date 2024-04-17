@@ -2159,7 +2159,7 @@ export class GraphRenderer {
         GraphRenderer.portDragSuggestedField(null)
     }
 
-    static selectEdge(edge : Edge,event:any){
+    static selectEdge(edge: Edge, event: MouseEvent){
         const eagle = Eagle.getInstance();
         if (edge !== null){
             if (event.shiftKey){

@@ -4516,7 +4516,7 @@ export class Eagle {
         return Utils.getCategoriesWithInputsAndOutputs(categoryType, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
     }, this)
 
-    inspectorChangeNodeCategoryRequest = (event:any) : void => {
+    inspectorChangeNodeCategoryRequest = (event: Event) : void => {
 
         if (Setting.findValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES)){
 
@@ -4534,7 +4534,7 @@ export class Eagle {
         }
     }
 
-    inspectorChangeNodeCategory = (event:any) : void => {
+    inspectorChangeNodeCategory = (event: Event) : void => {
         const newNodeCategory: Category = $(event.target).val() as Category
         const oldNode = this.selectedNode();
 

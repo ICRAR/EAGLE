@@ -96,7 +96,7 @@ export class ExplorePalettes {
         return text;
     }
 
-    clickHelper = (eagle: Eagle, data: PaletteInfo, event:any): void => {
+    clickHelper = (eagle: Eagle, data: PaletteInfo, event: Event): void => {
         if (data === null){
             console.warn("No paletteinfo supplied to clickHelper");
             return;

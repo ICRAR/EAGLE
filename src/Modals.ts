@@ -235,7 +235,7 @@ export class Modals {
             }
         })
 
-        $('#settingsModal').on("keydown", function (event) {
+        $('#settingsModal').on("keydown", function (event: JQuery.TriggeredEvent) {
             if (event.key === "Enter") {
                 // if pressing enter in the setting modal save settings
                 if(TutorialSystem.activeTut===null){
@@ -352,7 +352,7 @@ export class Modals {
         });
     }
 
-    static validateFieldModalValueInputText(data:Field, event:any){
+    static validateFieldModalValueInputText(data: Field, event: Event){
         const type: string = data.getType()
         const value: any = $(event.target).val();
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
