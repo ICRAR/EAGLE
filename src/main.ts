@@ -206,23 +206,23 @@ $(function(){
     })
 
     //increased click bubble for edit modal flag booleans
-    $(".componentCheckbox").on("click",function(event){
+    $(".componentCheckbox").on("click",function(event: JQuery.TriggeredEvent){
         $(event.target).find("input").trigger("click")
     })
 
-    $('#editFieldModalValueInputCheckbox').on("change",function(event){
+    $('#editFieldModalValueInputCheckbox').on("change",function(event: JQuery.TriggeredEvent){
         $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
 
-    $('#editFieldModalDefaultValueInputCheckbox').on("change",function(){
+    $('#editFieldModalDefaultValueInputCheckbox').on("change",function(event: JQuery.TriggeredEvent){
         $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
 
-    $('#componentDefaultValueCheckbox').on('click',function(){
+    $('#componentDefaultValueCheckbox').on('click',function(event: JQuery.TriggeredEvent){
         $((event.target)).find('input').trigger("click")
     })
 
-    $('#componentValueCheckbox').on('click',function(){
+    $('#componentValueCheckbox').on('click',function(event: JQuery.TriggeredEvent){
         $((event.target)).find('input').trigger("click")
     })
 
@@ -247,7 +247,7 @@ $(function(){
         }
     })
 
-    $(document).on('click', '.hierarchyEdgeExtra', function(event){
+    $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const eagle: Eagle = Eagle.getInstance();
         const selectEdge = eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
 
