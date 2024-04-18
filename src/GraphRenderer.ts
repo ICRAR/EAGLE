@@ -1270,37 +1270,29 @@ export class GraphRenderer {
     static selectNodeAndChildren(node:Node,addative:boolean) : void {
         const eagle = Eagle.getInstance();
         GraphRenderer.dragSelectionHandled(true)
-                //if shift is not clicked, we first clear the selection
-                if(!addative){
-                    eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
-                    eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
-                }
+            //if shift is not clicked, we first clear the selection
+            if(!addative){
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
+                eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+            }
 
-                //getting all children, including children of child constructs etc..
-                let childIsConstruct = true
-                const constructs : Node[] = [node];
-                
-                while(childIsConstruct){
-                    let constructFound = false
-                    let i = -1
-                    constructs.forEach(function(construct){
-                        i++
-                        eagle.logicalGraph().getNodes().forEach(function(obj){
-                            if(obj.getParentKey()===construct.getKey()){
-                                eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
-    
-                                if(obj.isGroup()){
-                                    constructFound = true
-                                    constructs.push(obj)
-                                }
-                            }
-                        })
-                        constructs.splice(i,1)
-                    })
-                    if(!constructFound){
-                        childIsConstruct = false
+            //getting all children, including children of child constructs etc..
+            const constructs : Node[] = [node];
+            let i = 0
+            
+            while(constructs.length > i){
+                const construct = constructs[i]
+                eagle.logicalGraph().getNodes().forEach(function(obj){
+                    if(obj.getParentKey()===construct.getKey()){
+                        eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
+
+                        if(obj.isGroup()){
+                            constructs.push(obj)
+                        }
                     }
-                }
+                })
+                i++
+            }
     }
 
     static getEdges(graph: LogicalGraph, showDataNodes: boolean): Edge[]{
