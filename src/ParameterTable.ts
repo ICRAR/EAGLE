@@ -65,7 +65,7 @@ export class ParameterTable {
         return ParameterTable.selection();
     }
 
-    static tableEnterShortcut = (event:any) : void => {
+    static tableEnterShortcut = (event: Event) : void => {
 
         //if the table parameter search bar is selected
         if($('#parameterTableModal .componentSearchBar')[0] === event.target){
@@ -73,12 +73,12 @@ export class ParameterTable {
             targetCell.trigger("focus");
             $('.selectedTableParameter').removeClass('selectedTableParameter')
             targetCell.parent().addClass('selectedTableParameter')
-        }else if (event.target.closest('.columnCell')){
+        }else if ($(event.target).closest('.columnCell')){
 
         //if a cell in the table is currently selected, enter will select the next cell down
 
             //we are getting the class name of the current column's cell eg. column_Description
-            const classes = $(event.target.closest('.columnCell')).attr('class').split(' ')
+            const classes = $(event.target).closest('.columnCell').attr('class').split(' ')
             let cellTypeClass
             for(const className of classes){
                 if(className.includes('column_')){
@@ -252,14 +252,12 @@ export class ParameterTable {
         return true
     }
 
-    // TODO: event!
-    static showEditDescription() : void {
-        $(event.target).find('.parameterTableDescriptionBtn ').show()
+    static showEditDescription(description: HTMLElement) : void {
+        $(description).find('.parameterTableDescriptionBtn').show()
     }
 
-    // TODO: event!
-    static hideEditDescription() : void {
-        $(event.target).find('.parameterTableDescriptionBtn ').hide()
+    static hideEditDescription(description: HTMLElement) : void {
+        $(description).find('.parameterTableDescriptionBtn').hide()
     }
 
     static requestEditDescriptionInModal(currentField:Field) : void {
