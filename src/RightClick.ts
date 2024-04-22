@@ -32,14 +32,12 @@ export class RightClick {
         })
     }
 
-    // TODO: event!
-    static openSubMenu() : void {
-        $(event.target).find('.contextMenuDropdown').show()
+    static openSubMenu(menuElement: HTMLElement) : void {
+        $(menuElement).find('.contextMenuDropdown').show()
     }
 
-    // TODO: event!
-    static closeSubMenu() : void {
-        $(event.target).find('.contextMenuDropdown').hide()
+    static closeSubMenu(menuElement: HTMLElement) : void {
+        $(menuElement).find('.contextMenuDropdown').hide()
     }
 
     static checkSearchField() : void {
@@ -164,7 +162,7 @@ export class RightClick {
     static constructHtmlPaletteList(collectionOfNodes:Node[], mode:string, compatibleNodesList:Node[],paletteName:string) : string {
         let nodesHtml = ''
         let nodeFound = false
-        let htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu()' onmouseleave='RightClick.closeSubMenu()'>"+paletteName
+        let htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu(this)' onmouseleave='RightClick.closeSubMenu(this)'>"+paletteName
         htmlPalette = htmlPalette + '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
         htmlPalette = htmlPalette + '<div class="contextMenuDropdown">'
         let dataHtml = '<h5 class="rightClickDropdownDividerTitle" tabindex="-1">Data Nodes</h5>'
@@ -247,7 +245,7 @@ export class RightClick {
 
         const node = Eagle.selectedRightClickObject()
 
-        let htmlNodeDescription = "<span class='contextmenuNodeDescription' onmouseover='RightClick.openSubMenu()' onmouseleave='RightClick.closeSubMenu()'> Node Info"
+        let htmlNodeDescription = "<span class='contextmenuNodeDescription' onmouseover='RightClick.openSubMenu(this)' onmouseleave='RightClick.closeSubMenu(this)'> Node Info"
             htmlNodeDescription = htmlNodeDescription + '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
 
             htmlNodeDescription = htmlNodeDescription + '<div class="contextMenuDropdown">'

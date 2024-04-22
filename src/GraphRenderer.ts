@@ -38,6 +38,7 @@ import { Setting } from './Setting';
 import { RightClick } from "./RightClick";
 
 ko.bindingHandlers.nodeRenderHandler = {
+    // TODO: element any (more around)
     init: function(element:any, valueAccessor) {
         const node: Node = ko.unwrap(valueAccessor())
 
