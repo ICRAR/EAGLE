@@ -313,12 +313,16 @@ export class Tutorial {
         }
 
         //the little wait is waiting for the css animation of the highlighting system
+        // TODO: magic number (510) here!
         setTimeout(function () {
             TutorialSystem.activeTut.openInfoPopUp()
         }, 510);
 
         //attaching an input handler for checking input
-        tutStep.getTargetFunc()().on('keydown.tutInputCheckFunc',function(event:any){TutorialSystem.activeTut.tutInputCheckFunc(event,tutStep)})
+        tutStep.getTargetFunc()().on('keydown.tutInputCheckFunc',function(event: JQuery.TriggeredEvent){
+            const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
+            TutorialSystem.activeTut.tutInputCheckFunc(e, tutStep)
+        })
     }
 
     initiateConditionStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
@@ -513,12 +517,17 @@ export class Tutorial {
         $(tab).trigger("click")
     }
 
-    tutInputCheckFunc = (event:any,tutStep:TutorialStep):void => {
-        if(event.which === 37||event.which === 38||event.which === 39||event.which === 40||event.which === 8){
+    tutInputCheckFunc = (event: KeyboardEvent, tutStep:TutorialStep):void => {
+        if( event.key === "ArrowLeft" ||
+            event.key === "ArrowUp" ||
+            event.key === "ArrowRight" ||
+            event.key === "ArrowDown" ||
+            event.key === "Backspace"){
             return
         }
+
         if(tutStep.getExpectedInput() === ''||tutStep.getExpectedInput() === null){
-            if(event.which === 13){
+            if(event.key === "Enter"){
                 event.preventDefault()
                 event.stopImmediatePropagation()
                 TutorialSystem.activeTut.tutButtonNext()
