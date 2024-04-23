@@ -1097,6 +1097,39 @@ export class GraphRenderer {
                 //WHEN dragging an object into a construct and without dropping it, try to pull it back out, the distance for it to let go is much farther than if you drop then drag it back out.
                 //we have a bug here where only the drag target gets parented when dragging a multi selection into a construct
 
+
+                //creating an array that contains all of the outermost nodes in the selected array
+                const outermostNodes : Node[] = []
+                const selectedNodes = eagle.selectedObjects()
+
+                selectedNodes.forEach(function(object){
+                    if(object instanceof Node){
+                        if(object.getParentKey() !== null){
+                            let thisParentIsSelected = true
+                            let thisObject = object
+                            while (thisParentIsSelected){
+                                const thisParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(thisObject.getParentKey());
+                                thisParentIsSelected = eagle.objectIsSelectedById(thisParent.getId())
+                                if(thisParentIsSelected){
+                                    thisObject = thisParent
+                                }else{
+                                    let alreadyAdded = false
+                                    for(const x of outermostNodes){
+                                        if(x===thisObject){
+                                            alreadyAdded= true
+                                            break
+                                        }
+                                    }
+                                    if(!alreadyAdded){
+                                        outermostNodes.push(thisObject)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+
+
                 const node:Node = eagle.draggingNode()
                 $('.node.transition').removeClass('transition')
                 console.log(node.getName())
