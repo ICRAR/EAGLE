@@ -1030,8 +1030,10 @@ export class GraphRenderer {
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
             if(node.getParentKey() != null){
+                console.log('drag parent not null')
                 const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
                 $('#'+parentNode.getId()).removeClass('transition')
+                console.log(parentNode.getName(),parentNode.getId())
                 GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
             }
         }
@@ -1052,7 +1054,7 @@ export class GraphRenderer {
                 GraphRenderer.selectNodeAndChildren(node,this.shiftSelect)
             }
         }else{
-            if(event.shiftKey){
+            if(event.shiftKey && event.button === 0){
                 //drag selection region handler
                 GraphRenderer.isDraggingSelectionRegion = true
                 GraphRenderer.selectionRegionStart = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
@@ -1089,9 +1091,15 @@ export class GraphRenderer {
 
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
+
+                //TODO need ot make sure the node here is the top most node in a chain of selected constructs, currently it is always the click target
+                //WHEN dragging a construct that has another construct inside, you cannot parent it into a third construct and resizing is messy
+                //WHEN dragging an object into a construct and without dropping it, try to pull it back out, the distance for it to let go is much farther than if you drop then drag it back out.
+                //we have a bug here where only the drag target gets parented when dragging a multi selection into a construct
+
                 const node:Node = eagle.draggingNode()
                 $('.node.transition').removeClass('transition')
-
+                console.log(node.getName())
                 // remember node parent from before things change
                 const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey());
 
@@ -1104,24 +1112,27 @@ export class GraphRenderer {
                     }
                 })
 
+                // keep track of whether we would update any node parents
+                const updated = {parent: false};
+                const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
                 //construct resizing 
                 if(node.getParentKey() != null){
+                    console.log(oldParent.getRadius(),GraphRenderer.NodeParentRadiusPreDrag)
                     if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+GraphConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
-                        // GraphRenderer._updateNodeParent(node, null, false, allowGraphEditing);
-
+                        // GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
+                        console.log('true, setting to old size')
                         oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag)
+                        node.setParentKey(null)
                     }
                 }
 
                 // check for nodes underneath the node we dropped
+                //HERE??
                 const parent: Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getRadius(), node.getKey(), true);
 
                 // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
                 const ancestorOfParent = GraphRenderer.isAncestor(parent, node);
 
-                // keep track of whether we would update any node parents
-                const updated = {parent: false};
-                const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
 
                 // if a parent was found, update
                 if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && !ancestorOfParent && !node.isEmbedded()){
@@ -1132,10 +1143,12 @@ export class GraphRenderer {
                 if (parent === null && node.getParentKey() !== null && !node.isEmbedded()){
                     GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
                 }
+
                 if (oldParent !== null){
                     // moved out of a construct
                     $('#'+oldParent.getId()).addClass('transition')
                 }
+
                 // recalculate size of parent (or oldParent)
                 if (parent === null){
                     
