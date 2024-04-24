@@ -1765,7 +1765,7 @@ export class GraphRenderer {
 
             Eagle.selectedRightClickPosition = {x:GraphRenderer.mousePosX(), y:GraphRenderer.mousePosY()};
 
-            RightClick.edgeDropCreateNode(eligibleComponents, null)
+            RightClick.edgeDropCreateNode(eligibleComponents)
         }
     }
 

@@ -358,17 +358,19 @@ export class RightClick {
         })
     }
 
-    static edgeDropCreateNode = (data:any, eventTarget:any) : void => {
-                    
-        RightClick.requestCustomContextMenu(data, eventTarget, 'edgeDropCreate')
+    // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
+    static edgeDropCreateNode = (data: Node[]) : void => {
+        RightClick.requestCustomContextMenu(data, 'edgeDropCreate')
 
         // prevent bubbling events
         event.stopPropagation();
     }
 
-    // TODO: event
-    // data can be a Edge, Node, Palette, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
-    static requestCustomContextMenu = (data: any, targetElement:JQuery, passedObjectClass:string) : void => {
+    // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
+    // TODO: perhaps break this function up into a top-level handler, that uses 'passedObjectClass' to call one of several sub-functions
+    // TODO: make the passedObjectClass an enumerated type
+    // data can be a Edge, Node, Palette?, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
+    static requestCustomContextMenu = (data: any, passedObjectClass:string) : void => {
         // getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
 
@@ -404,7 +406,6 @@ export class RightClick {
             eagle.selectedObjects().forEach(function(selectedObject){
                 if (selectedObject === data){
                     rightClickObjectInSelection = true
-                   
                 }
             })
         }
@@ -500,7 +501,7 @@ export class RightClick {
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
                 }
                     $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
-    
+
             }else if(passedObjectClass === 'rightClick_graphEdge'){
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
     
@@ -525,11 +526,9 @@ export class RightClick {
                 if(data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown && data.fileInfo().repositoryService !== Eagle.RepositoryService.File){
                     $('#customContextMenu').append('<a onclick="RightClick.rightClickCopyPaletteUrl()"><span>Copy Palette URL</span></a>')
                 }
-    
             }
         }
         // adding a listener to function options that closes the menu if an option is clicked
         $('#customContextMenu a').on('click',function(){if($(event.target).parents('.searchBarContainer').length){return}RightClick.closeCustomContextMenu(true)})
     }
-
 }
