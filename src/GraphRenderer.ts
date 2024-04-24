@@ -1122,7 +1122,8 @@ export class GraphRenderer {
                     if(outerMostNode.getParentKey() != null){
                         if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+GraphConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
                             // GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
-                            oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag)
+                            console.log('set rad to: ',oldParent.getName(), GraphRenderer.NodeParentRadiusPreDrag)
+                            oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag) //HERE
                             outerMostNode.setParentKey(null)
                         }
                     }
