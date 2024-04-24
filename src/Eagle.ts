@@ -3337,7 +3337,7 @@ export class Eagle {
             newNode.setCollapsed(false);
 
             // set parent (if the node was dropped on something)
-            const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), newNode.getKey(), true);
+            const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), false);
 
             // if a parent was found, update
             if (parent !== null && newNode.getParentKey() !== parent.getKey() && newNode.getKey() !== parent.getKey()){
@@ -4430,7 +4430,7 @@ export class Eagle {
             y=GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(y)
 
             // check position is suitable, doesn't collide with any existing nodes
-            const collision = this.logicalGraph().checkForNodeAt(x, y, width, height, null);
+            const collision = this.logicalGraph().checkForNodeAt(x, y, width, false);
             suitablePositionFound = collision === null;
 
             numIterations += 1;

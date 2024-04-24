@@ -251,7 +251,6 @@ export class Node {
     }
 
     setRadius = (radius : number) : void => {
-        console.log('setting radius', this.getName())
         this.radius(radius);
     }
 

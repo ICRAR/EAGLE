@@ -1030,10 +1030,8 @@ export class GraphRenderer {
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
             if(node.getParentKey() != null){
-                console.log('drag parent not null')
                 const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
                 $('#'+parentNode.getId()).removeClass('transition')
-                console.log(parentNode.getName(),parentNode.getId())
                 GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
             }
         }
@@ -1100,11 +1098,9 @@ export class GraphRenderer {
 
                 //creating an array that contains all of the outermost nodes in the selected array
                 const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
-                console.log('number of outermost nodes: ',outermostNodes.length)
 
                 const node:Node = eagle.draggingNode()
                 $('.node.transition').removeClass('transition') //this is for the bubble jump effect which we dont want here
-                console.log(node.getName())
 
                 this.shiftDrag = event.shiftKey;
 
@@ -1116,7 +1112,6 @@ export class GraphRenderer {
                 })
 
                 outermostNodes.forEach(function(outerMostNode){
-                    console.log('setting node parenting for: ',outerMostNode.getName())
                     // remember node parent from before things change
                     const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(outerMostNode.getParentKey());
 
@@ -1125,19 +1120,15 @@ export class GraphRenderer {
                     const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
                     //construct resizing 
                     if(outerMostNode.getParentKey() != null){
-                        console.log(oldParent.getRadius(),GraphRenderer.NodeParentRadiusPreDrag)
                         if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+GraphConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
                             // GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
-                            console.log('true, setting to old size')
                             oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag)
                             outerMostNode.setParentKey(null)
                         }
                     }
 
                     // check for nodes underneath the node we dropped
-                    //HERE??
-
-                    const parent: Node = eagle.logicalGraph().checkForNodeAt(outerMostNode.getPosition().x, outerMostNode.getPosition().y, outerMostNode.getRadius(), outerMostNode.getKey(), true);
+                    const parent: Node = eagle.logicalGraph().checkForNodeAt(outerMostNode.getPosition().x, outerMostNode.getPosition().y, outerMostNode.getRadius(), true);
 
                     // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
                     const ancestorOfParent = GraphRenderer.isAncestor(parent, outerMostNode);
