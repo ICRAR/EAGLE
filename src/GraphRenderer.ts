@@ -1258,7 +1258,7 @@ export class GraphRenderer {
 
     static selectNodeAndChildren(node:Node, additive:boolean) : void {
         const eagle = Eagle.getInstance();
-        GraphRenderer.dragSelectionHandled(true);
+        GraphRenderer.dragSelectionHandled(true)
 
         //if shift is not clicked, we first clear the selection
         if(!additive){
@@ -1267,29 +1267,21 @@ export class GraphRenderer {
         }
 
         //getting all children, including children of child constructs etc..
-        let childIsConstruct = true
         const constructs : Node[] = [node];
+        let i = 0
         
-        while(childIsConstruct){
-            let constructFound = false
-            let i = -1
-            constructs.forEach(function(construct){
-                i++
-                eagle.logicalGraph().getNodes().forEach(function(obj){
-                    if(obj.getParentKey()===construct.getKey()){
-                        eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
+        while(constructs.length > i){
+            const construct = constructs[i]
+            eagle.logicalGraph().getNodes().forEach(function(obj){
+                if(obj.getParentKey()===construct.getKey()){
+                    eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
 
-                        if(obj.isGroup()){
-                            constructFound = true
-                            constructs.push(obj)
-                        }
+                    if(obj.isGroup()){
+                        constructs.push(obj)
                     }
-                })
-                constructs.splice(i,1)
+                }
             })
-            if(!constructFound){
-                childIsConstruct = false
-            }
+            i++
         }
     }
 

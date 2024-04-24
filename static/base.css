@@ -3181,15 +3181,15 @@ palette-component input.form-control.selected {
   }
   
   .rotate1{
-    animation: loading 2s linear infinite;
+    animation: loading 3.65s linear infinite;
   }
   
   .rotate2{
-    animation: loading 3s linear infinite;
+    animation: loading 6.86s linear infinite;
   }
   
   .rotate3{
-    animation: loading 5s linear infinite;
+    animation: loading 107.5s linear infinite;
   }
   
   @keyframes loading {
@@ -3202,7 +3202,7 @@ palette-component input.form-control.selected {
   }
   
   .counterRotate2{
-    animation:loading2 5s linear infinite;
+    animation:loading2 107.5s linear infinite;
   }
   
   @keyframes loading2 {

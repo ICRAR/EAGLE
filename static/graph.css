@@ -290,7 +290,7 @@
     bottom:calc(100% + 5px);
     left: 50%;
     transform: translateX(-50%);
-    max-width: 150px;
+    /* max-width: 150px; */
 }
 
 .node .branch_node .header{
