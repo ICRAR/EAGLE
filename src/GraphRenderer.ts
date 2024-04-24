@@ -1758,12 +1758,6 @@ export class GraphRenderer {
             GraphRenderer.renderDraggingPortEdge(false);
         } else {
 
-            // get list of strings from list of eligible components
-            const eligibleComponentNames : Node[] = [];
-            for (const c of eligibleComponents){
-                eligibleComponentNames.push(c);
-            }
-
             // NOTE: create copy in right click ts because we are using the right click menus to handle the node selection
             RightClick.edgeDropSrcNode = GraphRenderer.portDragSourceNode();
             RightClick.edgeDropSrcPort = GraphRenderer.portDragSourcePort();
@@ -1771,7 +1765,7 @@ export class GraphRenderer {
 
             Eagle.selectedRightClickPosition = {x:GraphRenderer.mousePosX(), y:GraphRenderer.mousePosY()};
 
-            RightClick.edgeDropCreateNode(eligibleComponentNames, null)
+            RightClick.edgeDropCreateNode(eligibleComponents, null)
         }
     }
 

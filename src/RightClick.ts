@@ -101,7 +101,7 @@ export class RightClick {
         eagle.savePaletteToGit(Eagle.selectedRightClickObject())
     }
 
-    static rightClicktoggleSearchExclude(bool:boolean) : void {
+    static rightClickToggleSearchExclude(bool:boolean) : void {
         Eagle.selectedRightClickObject().setSearchExclude(bool)
     }
 
@@ -358,22 +358,6 @@ export class RightClick {
         })
     }
 
-    static initiateContextMenu = (data:any, eventTarget:any) : void => {
-        //graph node specific context menu intitating function
-
-        let passedObjectClass
-        if(data instanceof Node){
-            passedObjectClass = 'rightClick_graphNode'
-        }else if(data instanceof Edge){
-            passedObjectClass = 'rightClick_graphEdge'
-        }
-                    
-        RightClick.requestCustomContextMenu(data, eventTarget, passedObjectClass)
-
-        // prevent bubbling events
-        event.stopPropagation();
-    }
-
     static edgeDropCreateNode = (data:any, eventTarget:any) : void => {
                     
         RightClick.requestCustomContextMenu(data, eventTarget, 'edgeDropCreate')
@@ -383,7 +367,8 @@ export class RightClick {
     }
 
     // TODO: event
-    static requestCustomContextMenu = (data:any, targetElement:JQuery, passedObjectClass:string) : void => {
+    // data can be a Edge, Node, Palette, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
+    static requestCustomContextMenu = (data: any, targetElement:JQuery, passedObjectClass:string) : void => {
         // getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
 
@@ -532,10 +517,10 @@ export class RightClick {
                     $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToGit()"><span>Save To Git</span></a>')
                 }
                 if(data.searchExclude()){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClicktoggleSearchExclude(false)"><span>Include In Search</span></a>')
+                    $('#customContextMenu').append('<a onclick="RightClick.rightClickToggleSearchExclude(false)"><span>Include In Search</span></a>')
                 }
                 if(!data.searchExclude()){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClicktoggleSearchExclude(true)"><span>Exclude From Search</span></a>')
+                    $('#customContextMenu').append('<a onclick="RightClick.rightClickToggleSearchExclude(true)"><span>Exclude From Search</span></a>')
                 }
                 if(data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown && data.fileInfo().repositoryService !== Eagle.RepositoryService.File){
                     $('#customContextMenu').append('<a onclick="RightClick.rightClickCopyPaletteUrl()"><span>Copy Palette URL</span></a>')
