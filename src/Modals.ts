@@ -40,7 +40,7 @@ export class Modals {
         });
         $('#inputModalInput').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
-                if (e.key = "Enter"){
+                if (e.key === "Enter"){
                     $('#inputModal').data('completed', true);
                     $('#inputModal').modal('hide');
                 }
@@ -66,7 +66,7 @@ export class Modals {
         });
         $('#inputTextModalInput').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
-                if (e.key = "Enter"){
+                if (e.key === "Enter"){
                     $('#inputTextModal').data('completed', true);
                     $('#inputTextModal').modal('hide');
                 }

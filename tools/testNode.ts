@@ -1,6 +1,5 @@
 import { Category } from '../src/Category';
 import { Daliuge } from '../src/Daliuge';
-import { Eagle } from '../src/Eagle';
 import { Errors } from '../src/Errors';
 import { Field } from '../src/Field';
 import { Node } from '../src/Node';

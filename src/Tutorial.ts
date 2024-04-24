@@ -146,7 +146,7 @@ export class Tutorial {
         return this.description;
     }
 
-    newTutStep = (title:string,description:string,selector:() => void) : TutorialStep =>{
+    newTutStep = (title:string, description:string, selector:() => JQuery<HTMLElement>) : TutorialStep =>{
         const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None,null, selector, null, null,false,null,null,null)
         this.tutorialSteps.push(x)
         return x
@@ -254,8 +254,8 @@ export class Tutorial {
 
     initiateStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
         const that = this;
-        $(':focus').blur()
-        tutStep.getTargetFunc()().focus()
+        $(':focus').trigger("blur");
+        tutStep.getTargetFunc()().trigger("focus");
 
         //call the correct function depending on which type of tutorial step this is
         if (tutStep.getType() === TutorialStep.Type.Info) {
@@ -560,16 +560,16 @@ export class TutorialStep {
     private waitType: TutorialStep.Wait;
     private delayAmount : number;
     
-    private targetFunc: () => void;
-    private alternateHighlightTargetFunc: () => void;
+    private targetFunc: () => JQuery<HTMLElement>;
+    private alternateHighlightTargetFunc: () => JQuery<HTMLElement>;
     private preFunc: (eagle: Eagle) => void;
     private backPreFunc: (eagle: Eagle) => void;
-    private conditionFunc : (eagle: Eagle) => void;
+    private conditionFunc : (eagle: Eagle) => boolean;
 
     private backSkip : boolean;
     private expectedInput : string;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount:number, targetFunc: () => void, preFunc: (eagle: Eagle) => void, backPreFunc: (eagle: Eagle) => void, backSkip:boolean, expectedInput:string, conditionFunc:(eagle: Eagle) => boolean, alternateHighlightTargetFunc: () => void) {
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount:number, targetFunc: () => JQuery<HTMLElement>, preFunc: (eagle: Eagle) => void, backPreFunc: (eagle: Eagle) => void, backSkip:boolean, expectedInput:string, conditionFunc:(eagle: Eagle) => boolean, alternateHighlightTargetFunc: () => JQuery<HTMLElement>) {
         this.title = title;
         this.text = text;
         this.type = type;
@@ -606,15 +606,15 @@ export class TutorialStep {
         return this.delayAmount;
     }
 
-    getTargetFunc = (): any => {
+    getTargetFunc = (): () => JQuery<HTMLElement> => {
         return this.targetFunc;
     }
 
-    getPreFunc = (): any => {
+    getPreFunc = (): (eagle: Eagle) => void => {
         return this.preFunc;
     }
 
-    getBackPreFunc = (): any => {
+    getBackPreFunc = (): (eagle: Eagle) => void => {
         return this.backPreFunc;
     }
 
@@ -622,15 +622,15 @@ export class TutorialStep {
         return this.backSkip;
     }
 
-    getExpectedInput = (): any => {
+    getExpectedInput = (): string => {
         return this.expectedInput;
     }
 
-    getConditionFunction = (): any => {
+    getConditionFunction = (): (eagle: Eagle) => boolean => {
         return this.conditionFunc;
     }
 
-    getAlternateHighlightTargetFunc = () : any => {
+    getAlternateHighlightTargetFunc = () : () => JQuery<HTMLElement> => {
         return this.alternateHighlightTargetFunc;
     }
 
@@ -669,12 +669,12 @@ export class TutorialStep {
         return this
     }
 
-    setConditionFunction = (newConditionFunction:(eagle: Eagle) => void): this => {
+    setConditionFunction = (newConditionFunction:(eagle: Eagle) => boolean): this => {
         this.conditionFunc = newConditionFunction;
         return this
     }
 
-    setAlternateHighlightTargetFunc = (newAlternateHighlightTargetFunc:() => void): this => {
+    setAlternateHighlightTargetFunc = (newAlternateHighlightTargetFunc:() => JQuery<HTMLElement>): this => {
         this.alternateHighlightTargetFunc = newAlternateHighlightTargetFunc;
         return this
     }

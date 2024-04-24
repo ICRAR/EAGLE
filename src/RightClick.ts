@@ -40,6 +40,7 @@ export class RightClick {
         $(menuElement).find('.contextMenuDropdown').hide()
     }
 
+    // TODO: global event
     static checkSearchField() : void {
         const searchValue:string = $(event.target).val().toString().toLocaleLowerCase()
 
@@ -272,11 +273,12 @@ export class RightClick {
     }
 
     static initiateQuickSelect() : void {
-        $("#customContextMenu").on('keydown',function(e){
+        $("#customContextMenu").on('keydown', function(event: JQuery.TriggeredEvent){
             const current = $(".rightClickFocus")
+            const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
 
-            switch(e.which) {
-                case 37: // left
+            switch(e.key) {
+                case "ArrowLeft":
                 if($('#rightClickSearchBar').val()===''){
                     e.preventDefault()
                     if(current.hasClass('rightClickPaletteNode')){
@@ -288,7 +290,7 @@ export class RightClick {
                 }
                 break;
         
-                case 38: // up
+                case "ArrowUp":
                 e.preventDefault()
                 if($('#rightClickSearchBar').val()!==''){   
                     if($(".rightClickFocus").length === 0){
@@ -307,7 +309,7 @@ export class RightClick {
                 }
                 break;
         
-                case 39: // right
+                case "ArrowRight":
                 if($('#rightClickSearchBar').val()===''){   
                     e.preventDefault()
                     current.addClass('rightClickFocusParent')
@@ -317,7 +319,7 @@ export class RightClick {
                 }
                 break;
         
-                case 40: // down
+                case "ArrowDown":
                 e.preventDefault()
                 if($('#rightClickSearchBar').val()!==''){   
                     if($(".rightClickFocus").length === 0){
@@ -336,7 +338,7 @@ export class RightClick {
                 }
                 break;
 
-                case 13: //enter
+                case "Enter":
 
                 if(current.hasClass('rightClickPaletteNode')){
                     e.preventDefault()

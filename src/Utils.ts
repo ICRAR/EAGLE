@@ -2215,9 +2215,7 @@ export class Utils {
         }
 
         // copy fields from new category to old node
-        for (let i = 0 ; i < newCategoryPrototype.getFields().length ; i++){
-            const field: Field = newCategoryPrototype.getFields()[i];
-
+        for (const field of newCategoryPrototype.getFields()){
             if (field.isInputPort() || field.isOutputPort()){
                 continue;
             }

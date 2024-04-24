@@ -264,14 +264,19 @@ export class ParameterTable {
         const eagle: Eagle = Eagle.getInstance();
         const tableType = eagle.tableModalType()
         eagle.openParamsTableModal('','')
-        Utils.requestUserText("Edit Field Description", "Please edit the description for: "+eagle.logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey())+' - '+currentField.getDisplayText(), currentField.getDescription(), (completed, userText) => {
-            if (!completed){
-                return;
-            }
+        Utils.requestUserText(
+            "Edit Field Description",
+            "Please edit the description for: " + eagle.logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey()).getName() + ' - ' + currentField.getDisplayText(),
+            currentField.getDescription(),
+            (completed, userText) => {
+                if (!completed){
+                    return;
+                }
 
-            currentField.setDescription(userText);
-            eagle.openParamsTableModal(tableType,'')
-        })
+                currentField.setDescription(userText);
+                eagle.openParamsTableModal(tableType,'')
+            }
+        )
     }
 
     static initiateResizableColumns(upId:string) : void {
@@ -376,7 +381,7 @@ export class ColumnVisibilities {
 
     }
 
-    getVisibilities = () : ColumnVisibilities => {
+    getVisibilities = () : this => {
         return this;
     }
 
