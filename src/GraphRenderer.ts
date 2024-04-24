@@ -84,7 +84,7 @@ ko.bindingHandlers.nodeRenderHandler = {
                 const eagle : Eagle = Eagle.getInstance();
                 node = eagle.logicalGraph().findNodeByKey(node.getParentKey())
             }
-            GraphRenderer.resizeConstruct(node, false)
+            GraphRenderer.resizeConstruct(node)
         }
     },
 };
@@ -241,13 +241,9 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 }
                 break;
         }
-
-        // get node radius
-        const nodeRadius = node.getRadius()
         
         // determine port position
         const currentNodePos = node.getPosition();
-        let portPosition;
         let averageAngle
 
         if(connectedField || dataType === 'comment'){
@@ -286,7 +282,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
                     break;
                 default:
                     console.warn("disconnected field with dataType:", dataType);
-                    portPosition=GraphRenderer.calculatePortPos(Math.PI/2, nodeRadius, nodeRadius)
                     break;
             }
         }
@@ -399,8 +394,6 @@ export class GraphRenderer {
     }
 
     static sortAndOrganizePorts (node:Node) : void {
-        const eagle : Eagle = Eagle.getInstance();
-        
         //calculating the minimum port distance as an angle. we save this min distance as a pixel distance between ports
         const minimumPortDistance:number = Number(Math.asin(GraphConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
         
@@ -897,8 +890,7 @@ export class GraphRenderer {
     }
 
     static getPath(edge: Edge) : string {
-        const eagle: Eagle = Eagle.getInstance();
-        const lg: LogicalGraph = eagle.logicalGraph();
+        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
 
         const srcNode: Node = lg.findNodeByKeyQuiet(edge.getSrcNodeKey());
         const destNode: Node = lg.findNodeByKeyQuiet(edge.getDestNodeKey());
@@ -908,17 +900,16 @@ export class GraphRenderer {
         const srcField: Field = srcNode.findFieldById(edge.getSrcPortId());
         const destField: Field = destNode.findFieldById(edge.getDestPortId());
 
-        return this._getPath(edge,srcNode, destNode, srcField, destField, eagle);
+        return this._getPath(edge,srcNode, destNode, srcField, destField);
     }
 
     static getPathComment(commentNode: Node) : string {
-        const eagle: Eagle = Eagle.getInstance();
-        const lg: LogicalGraph = eagle.logicalGraph();
+        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
 
         const srcNode: Node = commentNode;
         const destNode: Node = lg.findNodeByKeyQuiet(commentNode.getSubjectKey());
 
-        return this._getPath(null,srcNode, destNode, null, null, eagle);
+        return this._getPath(null,srcNode, destNode, null, null);
     }
 
     static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -957,7 +948,7 @@ export class GraphRenderer {
         return GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
     }, this);
 
-    static _getPath(edge:Edge, srcNode: Node, destNode: Node, srcField: Field, destField: Field, eagle: Eagle) : string {
+    static _getPath(edge:Edge, srcNode: Node, destNode: Node, srcField: Field, destField: Field) : string {
         if (srcNode === null || destNode === null){
             console.warn("Cannot getPath between null nodes. srcNode:", srcNode, "destNode:", destNode);
             return "";
@@ -1531,7 +1522,7 @@ export class GraphRenderer {
 
     // resize a construct so that it contains its children
     // NOTE: does not move the construct
-    static resizeConstruct = (construct: Node, allowMovement: boolean = false): void => {
+    static resizeConstruct = (construct: Node): void => {
         const eagle = Eagle.getInstance();
         let maxDistance = 0;
 
@@ -2188,6 +2179,7 @@ export class GraphRenderer {
         outputPort.setPeek(value)
     }
 
+    // TODO: can we remove the event parameter here?
     static edgeGetStrokeColor(edge: Edge, event: any) : string {
         const eagle = Eagle.getInstance();
 
@@ -2228,6 +2220,7 @@ export class GraphRenderer {
         return eagle.objectIsSelected(edge) ? selectedColor : normalColor;
     }
 
+    // TODO: can we remove the event param here?
     static edgeGetStrokeType(edge:Edge, event:any) : string {
         if(edge.isClosesLoop()){
             return ' 15, 8, 5, 8'
