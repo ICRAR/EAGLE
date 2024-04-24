@@ -1099,42 +1099,12 @@ export class GraphRenderer {
 
 
                 //creating an array that contains all of the outermost nodes in the selected array
-                const outermostNodes : Node[] = []
-                const selectedNodes = eagle.selectedObjects()
-
-                selectedNodes.forEach(function(object){
-                    if(object instanceof Node){
-                        if(object.getParentKey() !== null){
-                            let thisParentIsSelected = true
-                            let thisObject = object
-                            while (thisParentIsSelected){
-                                const thisParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(thisObject.getParentKey());
-                                thisParentIsSelected = eagle.objectIsSelectedById(thisParent.getId())
-                                if(thisParentIsSelected){
-                                    thisObject = thisParent
-                                }else{
-                                    let alreadyAdded = false
-                                    for(const x of outermostNodes){
-                                        if(x===thisObject){
-                                            alreadyAdded= true
-                                            break
-                                        }
-                                    }
-                                    if(!alreadyAdded){
-                                        outermostNodes.push(thisObject)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                })
-
+                const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
+                console.log('number of outermost nodes: ',outermostNodes.length)
 
                 const node:Node = eagle.draggingNode()
-                $('.node.transition').removeClass('transition')
+                $('.node.transition').removeClass('transition') //this is for the bubble jump effect which we dont want here
                 console.log(node.getName())
-                // remember node parent from before things change
-                const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey());
 
                 this.shiftDrag = event.shiftKey;
 
@@ -1145,50 +1115,57 @@ export class GraphRenderer {
                     }
                 })
 
-                // keep track of whether we would update any node parents
-                const updated = {parent: false};
-                const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
-                //construct resizing 
-                if(node.getParentKey() != null){
-                    console.log(oldParent.getRadius(),GraphRenderer.NodeParentRadiusPreDrag)
-                    if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+GraphConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
-                        // GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
-                        console.log('true, setting to old size')
-                        oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag)
-                        node.setParentKey(null)
+                outermostNodes.forEach(function(outerMostNode){
+                    console.log('setting node parenting for: ',outerMostNode.getName())
+                    // remember node parent from before things change
+                    const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(outerMostNode.getParentKey());
+
+                    // keep track of whether we would update any node parents
+                    const updated = {parent: false};
+                    const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+                    //construct resizing 
+                    if(outerMostNode.getParentKey() != null){
+                        console.log(oldParent.getRadius(),GraphRenderer.NodeParentRadiusPreDrag)
+                        if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+GraphConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
+                            // GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
+                            console.log('true, setting to old size')
+                            oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag)
+                            outerMostNode.setParentKey(null)
+                        }
                     }
-                }
 
-                // check for nodes underneath the node we dropped
-                //HERE??
-                const parent: Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getRadius(), node.getKey(), true);
+                    // check for nodes underneath the node we dropped
+                    //HERE??
 
-                // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
-                const ancestorOfParent = GraphRenderer.isAncestor(parent, node);
+                    const parent: Node = eagle.logicalGraph().checkForNodeAt(outerMostNode.getPosition().x, outerMostNode.getPosition().y, outerMostNode.getRadius(), outerMostNode.getKey(), true);
 
+                    // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
+                    const ancestorOfParent = GraphRenderer.isAncestor(parent, outerMostNode);
 
-                // if a parent was found, update
-                if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && !ancestorOfParent && !node.isEmbedded()){
-                    GraphRenderer._updateNodeParent(node, parent.getKey(), updated, allowGraphEditing);
-                }
+                    // if a parent was found, update
+                    if (parent !== null && outerMostNode.getParentKey() !== parent.getKey() && outerMostNode.getKey() !== parent.getKey() && !ancestorOfParent && !outerMostNode.isEmbedded()){
+                        GraphRenderer._updateNodeParent(outerMostNode, parent.getKey(), updated, allowGraphEditing);
+                    }
 
-                // if no parent found, update
-                if (parent === null && node.getParentKey() !== null && !node.isEmbedded()){
-                    GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
-                }
+                    // if no parent found, update
+                    if (parent === null && outerMostNode.getParentKey() !== null && !outerMostNode.isEmbedded()){
+                        GraphRenderer._updateNodeParent(outerMostNode, null, updated, allowGraphEditing);
+                    }
 
-                if (oldParent !== null){
-                    // moved out of a construct
-                    $('#'+oldParent.getId()).addClass('transition')
-                }
+                    if (oldParent !== null){
+                        // moved out of a construct
+                        $('#'+oldParent.getId()).addClass('transition')
+                    }
 
-                // recalculate size of parent (or oldParent)
-                if (parent === null){
-                    
-                } else {
-                    // moved into or within a construct
-                    $('#'+parent.getId()).removeClass('transition')
-                }
+                    // recalculate size of parent (or oldParent)
+                    if (parent === null){
+                        
+                    } else {
+                        // moved into or within a construct
+                        $('#'+parent.getId()).removeClass('transition')
+                    }
+                })
+
 
             } else if(GraphRenderer.isDraggingSelectionRegion){
                 GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null), y:this.SCREEN_TO_GRAPH_POSITION_Y(null)}
@@ -1281,8 +1258,7 @@ export class GraphRenderer {
 
         GraphRenderer.dragSelectionHandled(true)
         eagle.isDragging(false);
-        eagle.draggingNode(null)
-        
+        eagle.draggingNode(null);
     }
 
     static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
