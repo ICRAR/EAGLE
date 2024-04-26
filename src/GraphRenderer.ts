@@ -1233,7 +1233,6 @@ export class GraphRenderer {
         
         //this is a little hack to force affected constructs to update their size on mouse up its neccessary
         eagle.selectedObjects(eagle.selectedObjects())
-
     }
 
     static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
