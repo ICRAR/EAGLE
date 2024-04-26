@@ -1588,6 +1588,13 @@ export class Utils {
         return distance <= (n0radius + n1radius);
     }
 
+    static nodeCentroidOverlaps(constructX: number, constructY: number, constructRadius: number, nodeX: number, nodeY: number) : boolean {
+        const dx = constructX - nodeX;
+        const dy = constructY - nodeY;
+        const distance = Math.sqrt(dx*dx + dy*dy);
+        return distance <= constructRadius;
+    }
+
     static table2CSV(table: any[]) : string {
         let s = "";
 

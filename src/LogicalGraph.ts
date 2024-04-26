@@ -650,24 +650,47 @@ export class LogicalGraph {
         return result;
     }
 
-    checkForNodeAt = (x: number, y: number, radius: number, ignoreKey: number, groupsOnly: boolean = false) : Node => {
+    checkForNodeAt = (x: number, y: number, radius: number, findEligibleGroups: boolean = false) : Node => {
         const overlaps : Node[] = [];
+        const eagle = Eagle.getInstance();
 
         // find all the overlapping nodes
         for (const node of this.nodes()){
-            // abort if checking for self!
-            if (node.getKey() === ignoreKey){
-                continue;
+
+            if(findEligibleGroups){
+
+                let nodeIsSelected = false
+                
+                for(const object of eagle.selectedObjects()){
+                    // abort if checking for self!
+                    if (object instanceof Node && object.getKey() === node.getKey()){
+                        nodeIsSelected=true
+                        break
+                    }
+                }
+
+                if(nodeIsSelected){
+                    continue;
+                }
+                
             }
 
             // abort if node is not a group
-            if (groupsOnly && !node.isGroup()){
+            if (findEligibleGroups && !node.isGroup()){
                 continue;
             }
 
-            if (Utils.nodesOverlap(x, y, radius, node.getPosition().x, node.getPosition().y, node.getRadius())){
-                overlaps.push(node);
-            }
+            if(findEligibleGroups){
+                //when finding eligable parent groups for nodes, we want to know if the centroid of the node we are dragging has entered a constuct
+                if(Utils.nodeCentroidOverlaps(node.getPosition().x, node.getPosition().y,node.getRadius(), x,y)){
+                    overlaps.push(node);
+                }
+            }else{
+                //if we are adding nodes to the graph we want to know if two nodes are touching at all so we can space them out accordingly
+                if (Utils.nodesOverlap(x, y, radius, node.getPosition().x, node.getPosition().y, node.getRadius())){
+                    overlaps.push(node);
+                }
+            }   
         }
 
         // once found all the overlaps, we return the most-leaf (highest depth) node
@@ -682,6 +705,7 @@ export class LogicalGraph {
                 maxDepthOverlap = overlap;
             }
         }
+        // console.log('FINAL node at location: ', maxDepthOverlap.getName())
 
         return maxDepthOverlap;
     }

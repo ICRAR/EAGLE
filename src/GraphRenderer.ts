@@ -83,28 +83,11 @@ ko.bindingHandlers.nodeRenderHandler = {
                 const eagle : Eagle = Eagle.getInstance();
                 node = eagle.logicalGraph().findNodeByKey(node.getParentKey())
             }
+
             GraphRenderer.resizeConstruct(node,false)
-            }
+        }
     },
 };
-
-//port html elements will have a data bind to the port position saved on the field - This is an observable
-
-//save the calculated connection angle on the field (this is the ideal position)
-//then check if this is abvailable using a node.getfields.getangle Loop
-//if so, write it into the port position, this will trigger the html data-bind to draw/redraw the port
-//if not available we add a set amount to the closest port's position, repeating until we find an available spot, saving each port we are colliding with
-//this set amount is a dinstance we need to keep. we will have to calculate an angle based on the radius of a node to keep this distance
-//we then do the same but subtracting the set amount
-//use the lower distance
-//figure out the mean angle of this 'port group' and center them. update all of their port positions
-
-//first dangling port, check for biggest gap
-//check if half of the biggest gap is still bigger than the second biggest gap
-//if so use the center of half of the biggest gap in input ports left bound, output right
-//place the dangling port
-//if another dangling port is updated, check if a dangling port of the same type has already been placed(input of output)
-//if so have them share the space, if not enough space is available, find another spot
 
 ko.bindingHandlers.embeddedAppPosition = {
     update: function (element:any, valueAccessor) {
@@ -354,7 +337,7 @@ export class GraphRenderer {
     static isDraggingSelectionRegion :boolean = false;
     static selectionRegionStart = {x:0, y:0};
     static selectionRegionEnd = {x:0, y:0};
-    static shiftDrag = false;
+    static ctrlDrag = false;
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
@@ -1052,7 +1035,7 @@ export class GraphRenderer {
                 GraphRenderer.selectNodeAndChildren(node,this.shiftSelect)
             }
         }else{
-            if(event.shiftKey){
+            if(event.shiftKey && event.button === 0){
                 //drag selection region handler
                 GraphRenderer.isDraggingSelectionRegion = true
                 GraphRenderer.selectionRegionStart = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
@@ -1089,13 +1072,14 @@ export class GraphRenderer {
 
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
+
+                //creating an array that contains all of the outermost nodes in the selected array
+                const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
+
                 const node:Node = eagle.draggingNode()
-                $('.node.transition').removeClass('transition')
+                $('.node.transition').removeClass('transition') //this is for the bubble jump effect which we dont want here
 
-                // remember node parent from before things change
-                const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey());
-
-                this.shiftDrag = event.shiftKey;
+                this.ctrlDrag = event.ctrlKey;
 
                 // move node
                 eagle.selectedObjects().forEach(function(obj){
@@ -1104,45 +1088,52 @@ export class GraphRenderer {
                     }
                 })
 
-                //construct resizing 
-                if(node.getParentKey() != null){
-                    if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+GraphConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
-                        // GraphRenderer._updateNodeParent(node, null, false, allowGraphEditing);
+                outermostNodes.forEach(function(outerMostNode){
+                    // remember node parent from before things change
+                    const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(outerMostNode.getParentKey());
 
-                        oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag)
+                    // keep track of whether we would update any node parents
+                    const updated = {parent: false};
+                    const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+                    //construct resizing 
+                    if(outerMostNode.getParentKey() != null){
+                        if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+GraphConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
+                            oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag) //HERE
+                            outerMostNode.setParentKey(null)
+                        }
                     }
-                }
 
-                // check for nodes underneath the node we dropped
-                const parent: Node = eagle.logicalGraph().checkForNodeAt(node.getPosition().x, node.getPosition().y, node.getRadius(), node.getKey(), true);
+                    // check for nodes underneath the node we dropped
+                    const parent: Node = eagle.logicalGraph().checkForNodeAt(outerMostNode.getPosition().x, outerMostNode.getPosition().y, outerMostNode.getRadius(), true);
 
-                // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
-                const ancestorOfParent = GraphRenderer.isAncestor(parent, node);
+                    // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
+                    const ancestorOfParent = GraphRenderer.isAncestor(parent, outerMostNode);
 
-                // keep track of whether we would update any node parents
-                const updated = {parent: false};
-                const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+                    // if a parent was found, update
+                    if (parent !== null && outerMostNode.getParentKey() !== parent.getKey() && outerMostNode.getKey() !== parent.getKey() && !ancestorOfParent && !outerMostNode.isEmbedded()){
+                        GraphRenderer._updateNodeParent(outerMostNode, parent.getKey(), updated, allowGraphEditing);
+                        GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByKeyQuiet(parent.getKey()).getRadius()
+                    }
 
-                // if a parent was found, update
-                if (parent !== null && node.getParentKey() !== parent.getKey() && node.getKey() !== parent.getKey() && !ancestorOfParent && !node.isEmbedded()){
-                    GraphRenderer._updateNodeParent(node, parent.getKey(), updated, allowGraphEditing);
-                }
+                    // if no parent found, update
+                    if (parent === null && outerMostNode.getParentKey() !== null && !outerMostNode.isEmbedded()){
+                        GraphRenderer._updateNodeParent(outerMostNode, null, updated, allowGraphEditing);
+                    }
 
-                // if no parent found, update
-                if (parent === null && node.getParentKey() !== null && !node.isEmbedded()){
-                    GraphRenderer._updateNodeParent(node, null, updated, allowGraphEditing);
-                }
-                if (oldParent !== null){
-                    // moved out of a construct
-                    $('#'+oldParent.getId()).addClass('transition')
-                }
-                // recalculate size of parent (or oldParent)
-                if (parent === null){
-                    
-                } else {
-                    // moved into or within a construct
-                    $('#'+parent.getId()).removeClass('transition')
-                }
+                    if (oldParent !== null){
+                        // moved out of a construct
+                        $('#'+oldParent.getId()).addClass('transition')
+                    }
+
+                    // recalculate size of parent (or oldParent)
+                    if (parent === null){
+                        
+                    } else {
+                        // moved into or within a construct
+                        $('#'+parent.getId()).removeClass('transition')
+                    }
+                })
+
 
             } else if(GraphRenderer.isDraggingSelectionRegion){
                 GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null), y:this.SCREEN_TO_GRAPH_POSITION_Y(null)}
@@ -1171,13 +1162,12 @@ export class GraphRenderer {
         if(GraphRenderer.draggingPort){
             GraphRenderer.portDragging(event)
         }
-        
     }
 
     static endDrag = (node: Node) : void => {
         const eagle = Eagle.getInstance();
         
-        this.shiftDrag = false;
+        this.ctrlDrag = false;
 
         // if we dragged a selection region
         if (GraphRenderer.isDraggingSelectionRegion){
@@ -1235,8 +1225,10 @@ export class GraphRenderer {
 
         GraphRenderer.dragSelectionHandled(true)
         eagle.isDragging(false);
-        eagle.draggingNode(null)
+        eagle.draggingNode(null);
         
+        //this is to make affected constructs re calculate their size
+        eagle.selectedObjects.valueHasMutated()
     }
 
     static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
@@ -1552,7 +1544,7 @@ export class GraphRenderer {
 
         // loop through all children - find distance from center of construct
         for (const node of eagle.logicalGraph().getNodes()){
-            if(GraphRenderer.shiftDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelectedByKey(node.getParentKey())){
+            if(GraphRenderer.ctrlDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelectedByKey(node.getParentKey())){
                 continue
             }
             if (node.getParentKey() === construct.getKey()){
