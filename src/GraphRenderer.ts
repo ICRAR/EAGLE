@@ -2179,7 +2179,6 @@ export class GraphRenderer {
         outputPort.setPeek(value)
     }
 
-    // TODO: can we remove the event parameter here?
     static edgeGetStrokeColor(edge: Edge) : string {
         const eagle = Eagle.getInstance();
 
@@ -2220,7 +2219,6 @@ export class GraphRenderer {
         return eagle.objectIsSelected(edge) ? selectedColor : normalColor;
     }
 
-    // TODO: can we remove the event param here?
     static edgeGetStrokeType(edge:Edge) : string {
         if(edge.isClosesLoop()){
             return ' 15, 8, 5, 8'
