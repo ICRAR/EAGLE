@@ -18,7 +18,7 @@ export class Errors {
         return {message: message, show: show, fix: fix, fixDescription: fixDescription};
     }
 
-    static fixAll = () : void => {
+    static fixAll() : void {
         const eagle: Eagle = Eagle.getInstance();
         const initialNumWarnings = eagle.graphWarnings().length;
         const initialNumErrors = eagle.graphErrors().length;
@@ -57,11 +57,11 @@ export class Errors {
         Utils.postFixFunc(eagle);
     }
 
-    static hasWarnings = (errorsWarnings: Errors.ErrorsWarnings) : boolean => {
+    static hasWarnings(errorsWarnings: Errors.ErrorsWarnings) : boolean {
         return errorsWarnings.warnings.length > 0;
     }
 
-    static hasErrors = (errorsWarnings: Errors.ErrorsWarnings) : boolean => {
+    static hasErrors(errorsWarnings: Errors.ErrorsWarnings) : boolean {
         return errorsWarnings.errors.length > 0;
     }
 

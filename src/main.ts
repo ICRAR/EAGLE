@@ -28,32 +28,32 @@ import "jqueryMigrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
-import {UiMode, UiModeSystem, SettingData} from './UiModes';
-import {Category} from './Category';
-import {CategoryData} from './CategoryData';
-import {Config} from './Config';
-import {Daliuge} from './Daliuge';
-import {Eagle} from './Eagle';
-import {Errors} from './Errors';
-import {GitHub} from './GitHub';
-import {GitLab} from './GitLab';
+import { Category } from './Category';
+import { CategoryData } from './CategoryData';
+import { Config } from './Config';
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+import { Errors } from './Errors';
+import { GitHub } from './GitHub';
+import { GitLab } from './GitLab';
+import { GraphConfig } from "./graphConfig";
 import { GraphRenderer } from "./GraphRenderer";
-import {Hierarchy} from './Hierarchy';
-import {RightClick} from './RightClick';
-import {QuickActions} from './QuickActions';
-import {KeyboardShortcut} from './KeyboardShortcut';
-import {LogicalGraph} from './LogicalGraph';
-import {Modals} from './Modals';
-import {Palette} from './Palette';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
-import {Repositories} from './Repositories';
-import {Repository} from './Repository';
-import {RepositoryFile} from './RepositoryFile';
-import {ParameterTable} from "./ParameterTable";
-import {SideWindow} from "./SideWindow";
-import {TutorialSystem} from "./Tutorial";
-import {GraphConfig} from "./graphConfig";
+import { Hierarchy } from './Hierarchy';
+import { KeyboardShortcut } from './KeyboardShortcut';
+import { LogicalGraph } from './LogicalGraph';
+import { Modals } from './Modals';
+import { Palette } from './Palette';
+import { ParameterTable } from "./ParameterTable";
+import { QuickActions } from './QuickActions';
+import { Repositories } from './Repositories';
+import { Repository } from './Repository';
+import { RepositoryFile } from './RepositoryFile';
+import { RightClick } from './RightClick';
+import { Setting } from './Setting';
+import { SideWindow } from "./SideWindow";
+import { TutorialSystem } from "./Tutorial";
+import { UiModeSystem } from './UiModes';
+import { Utils } from './Utils';
 
 import * as quickStart from './tutorials/quickStart'
 import * as graphBuilding from './tutorials/graphBuilding'
@@ -68,6 +68,7 @@ $(function(){
     eagle = new Eagle();
 
     // add eagle to the window object, slightly hacky, but useful for debugging
+    // TODO: remove this when possible, use Eagle.getInstance() if we can
     (<any>window).eagle = eagle;
 
     (<any>window).Category = Category;
@@ -182,53 +183,53 @@ $(function(){
     autoTutorial(eagle);
 
     //hides the dropdown navbar elements when stopping hovering over the element
-    $(".dropdown-menu").mouseleave(function(){
+    $(".dropdown-menu").on("mouseleave", function(){
         $(".dropdown-toggle").removeClass("show")
         $(".dropdown-menu").removeClass("show")
-     })
+    })
   
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
         $("#errorsModalAccordion").parent().parent().attr('style','')
 
-        //reset parameter table selecction
+        //reset parameter table selection
         ParameterTable.resetSelection()
     });
 
     $('.modal').on('shown.bs.modal',function(){
         // modal draggables
-        //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
+        //the any type is required so we don't have an error when building. at runtime on eagle this actually functions without it.
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
         });
     })
 
     //increased click bubble for edit modal flag booleans
-    $(".componentCheckbox").on("click",function(){
-        $(event.target).find("input").click()
+    $(".componentCheckbox").on("click",function(event: JQuery.TriggeredEvent){
+        $(event.target).find("input").trigger("click")
     })
 
-    $('#editFieldModalValueInputCheckbox').on("change",function(){
+    $('#editFieldModalValueInputCheckbox').on("change",function(event: JQuery.TriggeredEvent){
         $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
 
-    $('#editFieldModalDefaultValueInputCheckbox').on("change",function(){
+    $('#editFieldModalDefaultValueInputCheckbox').on("change",function(event: JQuery.TriggeredEvent){
         $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
 
-    $('#componentDefaultValueCheckbox').on('click',function(){
-        $((event.target)).find('input').click()
+    $('#componentDefaultValueCheckbox').on('click',function(event: JQuery.TriggeredEvent){
+        $((event.target)).find('input').trigger("click")
     })
 
-    $('#componentValueCheckbox').on('click',function(){
-        $((event.target)).find('input').click()
+    $('#componentValueCheckbox').on('click',function(event: JQuery.TriggeredEvent){
+        $((event.target)).find('input').trigger("click")
     })
 
     //removes focus from input and textareas when using the canvas
     $("#logicalGraphParent").on("mousedown", function(){
-        $("input").blur();
-        $("textarea").blur();
+        $("input").trigger("blur");
+        $("textarea").trigger("blur");
     });
 
     $(".tableParameter").on("click", function(){
@@ -239,31 +240,31 @@ $(function(){
     $("#paletteList .componentSearchBar").on("keyup",function(){
         if ($("#paletteList .componentSearchBar").val() !== ""){
             $("#paletteList .accordion-button.collapsed").addClass("wasCollapsed")
-            $("#paletteList .accordion-button.collapsed").click()
+            $("#paletteList .accordion-button.collapsed").trigger("click")
         }else{
-            $("#paletteList .accordion-button.wasCollapsed").click()
+            $("#paletteList .accordion-button.wasCollapsed").trigger("click")
             $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
         }
     })
 
-    $(document).on('click', '.hierarchyEdgeExtra', function(){
-        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
+    $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
+        const eagle: Eagle = Eagle.getInstance();
+        const selectEdge = eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
 
         if(!selectEdge){
             console.log("no edge found")
             return
         }
-        if(!(<PointerEvent>event).shiftKey){
-            (<any>window).eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+        if(!event.shiftKey){
+            eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
         }else{
-            (<any>window).eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+            eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
         }
-
     })
+
     $(".hierarchy").on("click", function(){
-        (<any>window).eagle.selectedObjects([]);
+        Eagle.getInstance().selectedObjects([]);
     })
-
 
     // check that all categories have category data
     for (const category of Utils.enumKeys(Category)){

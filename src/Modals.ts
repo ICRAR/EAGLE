@@ -9,7 +9,6 @@ import { RepositoryFile } from './RepositoryFile';
 import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
-import { GraphRenderer } from "./GraphRenderer";
 
 export class Modals {
 
@@ -22,29 +21,30 @@ export class Modals {
             const returnType = $('#inputModal').data('returnType');
 
             switch (returnType){
-                case "string":
+                case "string": {
                     const stringCallback : (completed : boolean, userString : string) => void = $('#inputModal').data('callback');
                     stringCallback($('#inputModal').data('completed'), $('#inputModalInput').val().toString());
                     break;
-                case "number":
+                }
+                case "number": {
                     const numberCallback : (completed : boolean, userNumber : number) => void = $('#inputModal').data('callback');
                     numberCallback($('#inputModal').data('completed'), parseInt($('#inputModalInput').val().toString(), 10));
                     break;
+                }
                 default:
                     console.error("Unknown return type for inputModal!");
             }
         });
         $('#inputModal').on('shown.bs.modal', function(){
-            $('#inputModalInput').focus();
+            $('#inputModalInput').trigger("focus");
         });
         $('#inputModalInput').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
-                if (e.which === 13){
+                if (e.key === "Enter"){
                     $('#inputModal').data('completed', true);
                     $('#inputModal').modal('hide');
                 }
             }
-           
         });
 
         // #inputTextModal - requestUserText()
@@ -62,11 +62,11 @@ export class Modals {
             callback($('#inputTextModal').data('completed'), $('#inputTextModalInput').val().toString());
         });
         $('#inputTextModal').on('shown.bs.modal', function(){
-            $('#inputTextModalInput').focus();
+            $('#inputTextModalInput').trigger("focus");
         });
         $('#inputTextModalInput').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
-                if (e.which === 13){
+                if (e.key === "Enter"){
                     $('#inputTextModal').data('completed', true);
                     $('#inputTextModal').modal('hide');
                 }
@@ -78,7 +78,7 @@ export class Modals {
             $('#choiceModal').data('completed', true);
         });
         $('#choiceModal').on('shown.bs.modal', function(){
-            $('#choiceModalAffirmativeButton').focus();
+            $('#choiceModalAffirmativeButton').trigger("focus");
         });
         $('#choiceModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => void = $('#choiceModal').data('callback');
@@ -105,7 +105,7 @@ export class Modals {
         });
         $('#choiceModalString').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
-                if (e.which === 13){
+                if (e.key === "Enter"){
                     $('#choiceModal').data('completed', true);
                     $('#choiceModal').modal('hide');
                 }
@@ -131,7 +131,7 @@ export class Modals {
             callback(false);
         });
         $('#confirmModal').on('shown.bs.modal', function(){
-            $('#confirmModalAffirmativeButton').focus();
+            $('#confirmModalAffirmativeButton').trigger("focus");
         });
 
         // #gitCommitModal - requestUserGitCommit()
@@ -142,7 +142,7 @@ export class Modals {
             $('#gitCommitModal').data('completed', false);
         });
         $('#gitCommitModal').on('shown.bs.modal', function(){
-            $('#gitCommitModalAffirmativeButton').focus();
+            $('#gitCommitModalAffirmativeButton').trigger("focus");
         });
         $('#gitCommitModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
@@ -194,7 +194,7 @@ export class Modals {
             $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
 
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', true);
-            $('#gitCustomRepositoryModalAffirmativeButton').focus();
+            $('#gitCustomRepositoryModalAffirmativeButton').trigger("focus");
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
@@ -219,7 +219,7 @@ export class Modals {
             $('#settingsModal').data('completed', false);
             eagle.copyCurrentSettings()
             if(TutorialSystem.activeTut===null){
-                $('#settingsModalAffirmativeButton').focus();
+                $('#settingsModalAffirmativeButton').trigger("focus");
             }
         });
 
@@ -235,22 +235,22 @@ export class Modals {
             }
         })
 
-        $('#settingsModal').on("keydown", function (event) {
+        $('#settingsModal').on("keydown", function (event: JQuery.TriggeredEvent) {
             if (event.key === "Enter") {
                 // if pressing enter in the setting modal save settings
                 if(TutorialSystem.activeTut===null){
                     event.preventDefault()
-                    $("#settingsModalAffirmativeButton").focus().click();
+                    $("#settingsModalAffirmativeButton").trigger("focus").trigger("click");
                 }
                 
-                //pressing excape cancels setting changes
+            // pressing escape cancels setting changes
             }else if(event.key === "Escape"){
-                $("#settingsModalNegativeButton").focus().click();
+                $("#settingsModalNegativeButton").trigger("focus").trigger("click");
             }
         });
 
         $('#editFieldModal').on('shown.bs.modal', function(){
-            $('#editFieldModalAffirmativeButton').focus();
+            $('#editFieldModalAffirmativeButton').trigger("focus");
         });
 
         $('#editFieldModal').on('hidden.bs.modal', function(){
@@ -265,7 +265,7 @@ export class Modals {
             $('#editEdgeModal').data('completed', false);
         });
         $('#editEdgeModal').on('shown.bs.modal', function(){
-            $('#editEdgeModalAffirmativeButton').focus();
+            $('#editEdgeModalAffirmativeButton').trigger("focus");
         });
         $('#editEdgeModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, edge: Edge) => void = $('#editEdgeModal').data('callback');
@@ -311,11 +311,11 @@ export class Modals {
 
         // #messageModal - showUserMessage()
         $('#messageModal').on('shown.bs.modal', function(){
-            $('#messageModal .modal-footer button').focus();
+            $('#messageModal .modal-footer button').trigger("focus");
         });
 
         $('#explorePalettesModal').on('shown.bs.modal', function(){
-            $('#explorePalettesModal .modal-footer button').focus();
+            $('#explorePalettesModal .modal-footer button').trigger("focus");
         });
         $('#explorePalettesModalAffirmativeButton').on('click', function(){
             $('#explorePalettesModal').data('completed', true);
@@ -348,12 +348,11 @@ export class Modals {
 
         $('#parameterTableModal').on('shown.bs.modal', function(){
             eagle.hideEagleIsLoading()
-            $('#parameterTableModal .componentSearchBar').focus()
-            $('#parameterTableModal .componentSearchBar').select()
+            $('#parameterTableModal .componentSearchBar').trigger("focus").trigger("select")
         });
     }
 
-    static validateFieldModalValueInputText(data:Field, event:any){
+    static validateFieldModalValueInputText(data: Field, event: Event){
         const type: string = data.getType()
         const value: any = $(event.target).val();
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
@@ -370,7 +369,7 @@ export class Modals {
         Modals._setValidClasses($(event.target), isValid);
     }
 
-    static _setValidClasses(target: any, isValid: boolean){
+    static _setValidClasses(target: JQuery<EventTarget>, isValid: boolean){
         if (isValid){
             target.addClass('is-valid');
             target.removeClass('is-invalid');

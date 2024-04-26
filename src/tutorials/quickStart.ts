@@ -45,7 +45,7 @@ newTut.newTutStep("Click To Save Settings", "Press 'Ok' (or hit Enter) to save y
     .setType(TutorialStep.Type.Press)
     .setWaitType(TutorialStep.Wait.Modal)
     .setPreFunction(function(eagle){$('#settingsModalNegativeButton').on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener');})
-    .setBackPreFunction(function(eagle){eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); $('#settingsModalNegativeButton').on('click.tutButtonListener',eagle.tutorial().tutPressStepListener).addClass('tutButtonListener');$("#settingsModalAffirmativeButton").focus();})
+    .setBackPreFunction(function(eagle){eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); $('#settingsModalNegativeButton').on('click.tutButtonListener',eagle.tutorial().tutPressStepListener).addClass('tutButtonListener');$("#settingsModalAffirmativeButton").trigger("focus");})
 
 newTut.newTutStep("Help Menu", "This menu allows you view the various help and documentation options.", function(){return $("#navbarDropdownHelp")})
 

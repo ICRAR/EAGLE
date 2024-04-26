@@ -37,7 +37,6 @@ import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
-import { GraphRenderer } from './GraphRenderer';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
@@ -51,7 +50,7 @@ export class LogicalGraph {
         this.edges = ko.observableArray([]);
     }
 
-    static toOJSJson = (graph : LogicalGraph, forTranslation : boolean) : object => {
+    static toOJSJson(graph : LogicalGraph, forTranslation : boolean) : object {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
@@ -111,7 +110,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static toOJSJsonString = (graph : LogicalGraph, forTranslation : boolean) : string => {
+    static toOJSJsonString(graph : LogicalGraph, forTranslation : boolean) : string {
         let result: string = "";
 
         const json: any = this.toOJSJson(graph, forTranslation);
@@ -126,7 +125,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson = (dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph => {
+    static fromOJSJson(dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
@@ -216,7 +215,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static _findNodeDataWithKey = (nodeDataArray: any[], key: number): any => {
+    static _findNodeDataWithKey(nodeDataArray: any[], key: number): any {
         for (const nodeData of nodeDataArray){
             if (nodeData.key === key){
                 return nodeData;
@@ -318,33 +317,10 @@ export class LogicalGraph {
      * Opens a dialog for selecting a data component type.
      */
     addDataComponentDialog = (eligibleComponents : Node[], callback : (node: Node) => void) : void => {
-        /*
-        let eligibleTypes: Eagle.Category[] = [];
-
-        // build list of data categories
-        const dataCategories : Eagle.Category[] = Utils.buildComponentList((cData: Eagle.CategoryData) => {
-            return cData.isData;
-        });
-
-        // loop through dataCategories and store in eligibleTypes, except where category appears in ineligibleTypes
-        for (const dataCategory of dataCategories){
-            let ineligible : boolean = false;
-            for (const ineligibleType of ineligibleTypes){
-                if (dataCategory === ineligibleType){
-                    ineligible = true;
-                    break;
-                }
-            }
-            if (!ineligible){
-                eligibleTypes.push(dataCategory);
-            }
-        }
-        */
         const eligibleComponentNames: string[] = [];
         for (const component of eligibleComponents){
             eligibleComponentNames.push(component.getName());
         }
-
 
         // ask the user to choose from the eligibleTypes
         Utils.requestUserChoice("Add Data Component", "Select data component type", eligibleComponentNames, 0, false, "", (completed : boolean, userChoiceIndex : number) => {
@@ -773,7 +749,7 @@ export class LogicalGraph {
         return result;
     }, this);
 
-    static normaliseNodes = (nodes: Node[]) : {x: number, y: number} => {
+    static normaliseNodes(nodes: Node[]) : {x: number, y: number} {
         let minX = Number.MAX_SAFE_INTEGER;
         let maxX = Number.MIN_SAFE_INTEGER;
         let minY = Number.MAX_SAFE_INTEGER;

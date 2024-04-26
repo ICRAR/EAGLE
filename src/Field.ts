@@ -341,8 +341,8 @@ export class Field {
 
     clone = () : Field => {
         const options : string[] = []
-        for (let i = 0 ; i < this.options().length ; i++){
-            options.push(this.options()[i]);
+        for (const option of this.options()){
+            options.push(option);
         }
 
         const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
@@ -426,7 +426,7 @@ export class Field {
             return true;
         }
 
-        const eagle = (<any>window).eagle;
+        const eagle: Eagle = Eagle.getInstance();
         let searchTermNo : number = 0
         let searchTermTrueNo : number = 0
         const that = this
@@ -494,7 +494,7 @@ export class Field {
         }
     }
 
-    static getHtmlTitleText = (parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage) : string => {
+    static getHtmlTitleText(parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage) : string {
         if (usage === Daliuge.FieldUsage.NoPort){
             switch(parameterType){
                 case Daliuge.FieldType.ApplicationArgument:
@@ -548,7 +548,7 @@ export class Field {
 
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
-    static stringAsType = (value: string, type: string) : any => {
+    static stringAsType(value: string, type: string) : any {
         switch (type){
             case Daliuge.DataType.Boolean:
                 return Utils.asBool(value);
@@ -561,7 +561,7 @@ export class Field {
         }
     }
 
-    static toOJSJson = (field : Field) : object => {
+    static toOJSJson(field : Field) : object {
         const result : any = {
             name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
@@ -581,7 +581,7 @@ export class Field {
         return result;
     }
 
-    static toV3Json = (field : Field) : object => {
+    static toV3Json(field : Field) : object {
         const result : any =  {
             name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
@@ -601,7 +601,7 @@ export class Field {
         return result;
     }
 
-    static toOJSJsonPort = (field : Field) : object => {
+    static toOJSJsonPort(field : Field) : object {
         return {
             Id:field.id(),
             name:field.displayText(),
@@ -612,7 +612,7 @@ export class Field {
         };
     }
 
-    static fromOJSJson = (data : any) : Field => {
+    static fromOJSJson(data : any) : Field {
         let id: string = Utils.uuidv4();
         let name: string = "";
         let description: string = "";
@@ -694,7 +694,7 @@ export class Field {
         if (typeof data.usage !== 'undefined')
             usage = data.usage;
         if (typeof data.event !== 'undefined')
-            event = data.event;
+            isEvent = data.event;
         if (typeof data.keyAttribute !== 'undefined')
             keyAttribute = data.keyAttribute;
         const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage, keyAttribute);
@@ -702,7 +702,7 @@ export class Field {
         return result;
     }
 
-    static fromOJSJsonPort = (data : any) : Field => {
+    static fromOJSJsonPort(data : any) : Field {
         let name: string = "";
         let event: boolean = false;
         let type: string;
@@ -730,7 +730,7 @@ export class Field {
         return f;
     }
 
-    public static sortFunc = (a: Field, b: Field) : number => {
+    public static sortFunc(a: Field, b: Field) : number {
         if (a.displayText() < b.displayText())
             return -1;
 

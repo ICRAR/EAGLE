@@ -1,23 +1,21 @@
-import {Eagle} from './Eagle';
 import { ParameterTable } from './ParameterTable';
 import { Setting } from './Setting';
-import {Utils} from './Utils';
 import * as ko from "knockout";
 
 export class UiModeSystem {
     static activeUiMode : UiMode;
-    static localStorageUpdateCooldown : boolean = false;
+    static localStorageUpdateCoolDown : boolean = false;
 
-    static getUiModes = () :UiMode[] => {
+    static getUiModes(): UiMode[] {
         return UiModes;
     }
 
-    static getActiveUiMode = () : UiMode => {
+    static getActiveUiMode() : UiMode {
         return this.activeUiMode;
     }
 
-    static getUiModeNamesList = () : string[] => {
-        const uiModeNamesList : string[]= []
+    static getUiModeNamesList() : string[] {
+        const uiModeNamesList : string[] = []
         UiModeSystem.getUiModes().forEach(function(uiMode){
             if(uiMode.getName() === 'Student'){
                 //this generates the list of ui mode options the user can select in the settings modal, student mode is not added to this list of options as it is not meant for the normal user. 
@@ -25,12 +23,12 @@ export class UiModeSystem {
                 return
             }else{
                 uiModeNamesList.push(uiMode.getName())
-        }
+            }
         })
         return uiModeNamesList
     }
 
-    static getFullUiModeNamesList = () : string[] => {
+    static getFullUiModeNamesList() : string[] {
         const uiModeNamesList : string[]= []
         UiModeSystem.getUiModes().forEach(function(uiMode){
             uiModeNamesList.push(uiMode.getName())
@@ -38,7 +36,7 @@ export class UiModeSystem {
         return uiModeNamesList
     }
 
-    static getUiModeByName = (name:string) : UiMode => {
+    static getUiModeByName(name:string) : UiMode {
         let result = null
         this.getUiModes().forEach(function(uiMode){
             if(name === uiMode.getName()){
@@ -48,7 +46,7 @@ export class UiModeSystem {
         return result
     }
 
-    static setActiveUiMode = (newActiveUiMode:UiMode) : void => {
+    static setActiveUiMode(newActiveUiMode:UiMode) : void {
         this.activeUiMode = newActiveUiMode;
 
         //setting up the settings array with the selected ui mode
@@ -74,11 +72,11 @@ export class UiModeSystem {
         }
     }
 
-    static initialise = () : void => {
+    static initialise() : void {
         //setting cooldown for the update to local storage function to prevent uploads during eagle's initialisation
-        UiModeSystem.localStorageUpdateCooldown = true;
+        UiModeSystem.localStorageUpdateCoolDown = true;
         setTimeout(function () {
-            UiModeSystem.localStorageUpdateCooldown = false;
+            UiModeSystem.localStorageUpdateCoolDown = false;
         }, 2000)
 
         Setting.getSettings().forEach(function(settingsGroup){
@@ -99,13 +97,13 @@ export class UiModeSystem {
         }
     }
 
-    static saveToLocalStorage = () : void => {
+    static saveToLocalStorage() : void {
         //we are using a cooldown function here. this is to prevent rapid saving when many changes happen to the array at once, for example when loading eagle or changing ui modes.
         //essentially we wait for one second with the cooldown, then upload the accumulated changes and reset the cooldown.
         //the unwanted calls to save are due to the need to have the Settings class array and UiModes Class Array linked
         //this is because settings is essentially a copy of the active ui mode interacting with the ui and it has a subscribe function to keep the uimodes array in sync when it is changed by the user.
-        if(this.localStorageUpdateCooldown===false){
-            this.localStorageUpdateCooldown = true;
+        if(this.localStorageUpdateCoolDown===false){
+            this.localStorageUpdateCoolDown = true;
             setTimeout(function () {
                 const uiModesObj : any[] = []
                 UiModeSystem.getUiModes().forEach(function(uiMode:UiMode){
@@ -126,14 +124,14 @@ export class UiModeSystem {
 
                 localStorage.setItem('UiModes', JSON.stringify(uiModesObj));
                 localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
-                UiModeSystem.localStorageUpdateCooldown = false;
+                UiModeSystem.localStorageUpdateCoolDown = false;
             }, 1000)
         }else{
             return
         }
     }
 
-    static loadFromLocalStorage = () : void => {
+    static loadFromLocalStorage() : void {
         const uiModesObj : any[] = JSON.parse(localStorage.getItem('UiModes'))
 
         if(uiModesObj === null){
@@ -160,10 +158,10 @@ export class UiModeSystem {
         })
     }
 
-    static setActiveSetting = (settingName:string,newValue:any) : any => {
-        let activeSetting: SettingData  = null
+    static setActiveSetting(settingName:string,newValue:any) : void {
+        let activeSetting: SettingData = null
 
-        //if a setting is marked perpetual we will write the value to all ui modes, this means it stayes the same regardless of which ui  mode is active
+        //if a setting is marked perpetual we will write the value to all ui modes, this means it stays the same regardless of which ui mode is active
         UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
             if(setting.getKey() === settingName){
                 activeSetting = setting
@@ -189,7 +187,6 @@ export class UiModeSystem {
 
         UiModeSystem.saveToLocalStorage()
     }
-
 }
 
 export class UiMode {

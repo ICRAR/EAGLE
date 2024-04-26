@@ -1,22 +1,41 @@
-import {Eagle} from './Eagle';
-import {Category} from './Category';
-import {Utils} from './Utils';
-import {Errors} from './Errors';
-import { Setting } from './Setting';
-import { ParameterTable } from './ParameterTable';
-import {KeyboardShortcut} from './KeyboardShortcut';
+import { Eagle } from './Eagle';
+import { KeyboardShortcut } from './KeyboardShortcut';
 
-let wordMatch:any[] = []
-let tagMatch:any[] = []
-let startMatch:any[] = []
-let tagStartMatch:any[] = []
-let anyMatch:any[] = []
+// TODO: name and type are confusing here
+let wordMatch:     QuickActionsResult[] = []
+let tagMatch:      QuickActionsResult[] = []
+let startMatch:    QuickActionsResult[] = []
+let tagStartMatch: QuickActionsResult[] = []
+let anyMatch:      QuickActionsResult[] = []
+
+enum Priority {
+    Word = "wordMatch",
+    Tag = "tagMatch",
+    Start = "startMatch",
+    TagStart = "tagStartMatch",
+    Any = "anyMatch",
+
+    Unknown = "unknown"
+}
+
+type QuickActionsMatch = {
+    match: boolean,
+    funcObject: QuickActionsResult,
+    priority: Priority
+}
+
+type QuickActionsResult = {
+    title: string,
+    action: (eagle: Eagle) => void
+    shortcut: string,
+    icon: string
+}
 
 export class QuickActions {
 
-    static initiateQuickAction = () : void  =>{
+    static initiateQuickAction() : void {
         //function to both start and close the quick action menu
-        const eagle = (<any>window).eagle;
+        const eagle: Eagle = Eagle.getInstance();
         eagle.quickActionOpen(!eagle.quickActionOpen())
         $('#quickActionSearchbar').val('')
 
@@ -24,22 +43,21 @@ export class QuickActions {
             if(eagle.quickActionOpen()){
                 $('#quickActionContainer').show()
                 $('#quickActionBackground').show()
-                $('#quickActionSearchbar').focus()
+                $('#quickActionSearchbar').trigger("focus")
                 QuickActions.initiateQuickActionQuickSelect()
             }else{
                 $('#quickActionContainer').hide()
                 $('#quickActionBackground').hide()
-                $('body').unbind('keydown.quickActions')
-                $('#quickActionBackground').unbind('click.quickActionDismiss')
+                $('body').off('keydown.quickActions')
+                $('#quickActionBackground').off('click.quickActionDismiss')
             }
         },50)
     }
 
-    static findQuickActionResults = () : any[]  =>{
-        const eagle = (<any>window).eagle;
+    static findQuickActionResults() : QuickActionsResult[] {
+        const eagle: Eagle = Eagle.getInstance();
         const searchTerm :string = eagle.quickActionSearchTerm().toLocaleLowerCase()
-
-        let resultsList:any[] = []
+        const resultsList: QuickActionsResult[] = []
 
         wordMatch = []
         tagMatch = []
@@ -51,7 +69,7 @@ export class QuickActions {
 
             //processing the keyboard shortcuts array
             KeyboardShortcut.getShortcuts().forEach(function(shortcut:KeyboardShortcut){
-                const result = QuickActions.matchAndSortFunction(shortcut,searchTerm)
+                const result: QuickActionsMatch = QuickActions.matchAndSortFunction(shortcut,searchTerm)
                 if(result.match){
                     //pushing the results in order of priority
                     QuickActions.pushResultUsingPriority(result)
@@ -85,25 +103,25 @@ export class QuickActions {
         return resultsList
     }
 
-    static pushResultUsingPriority = (result:any) : void =>{
-        if(result.priority === 'wordMatch'){
+    static pushResultUsingPriority(result: QuickActionsMatch) : void {
+        if(result.priority === Priority.Word){
             wordMatch.push(result.funcObject)
-        }else if(result.priority === 'tagMatch'){
+        }else if(result.priority === Priority.Tag){
             tagMatch.push(result.funcObject)
-        }else if(result.priority === 'startMatch'){
+        }else if(result.priority === Priority.Start){
             startMatch.push(result.funcObject)
-        }else if(result.priority === 'tagStartMatch'){
+        }else if(result.priority === Priority.TagStart){
             tagStartMatch.push(result.funcObject)
         }else{
             // anyMatch.push(result.funcObject)
         }
     }
 
+    static matchAndSortFunction(func: KeyboardShortcut, searchTerm: string) : QuickActionsMatch {
+        let result: QuickActionsMatch;
+        let funcElement: QuickActionsResult;
+        let bestMatch: Priority = Priority.Unknown;
 
-    static matchAndSortFunction = (func:KeyboardShortcut,searchTerm:string) : any =>{
-        let result:any = []
-        let funcElement :any[] = []
-        let bestMatch : string = ''
         //checks if there is a match
         let match = false
 
@@ -118,30 +136,31 @@ export class QuickActions {
         })
 
         //booleans used for prioritising search results
-        let wordMatched :boolean= false
-        let tagMatched :boolean= false
-        let startMatched :boolean= false
-        let tagStartMatched :boolean= false
+        let wordMatched: boolean = false
+        let tagMatched: boolean = false
+        let startMatched: boolean = false
+        let tagStartMatched: boolean = false
 
         //generating the result
         if(match){
-            let resultTitle:string = func.name;
-            let resultAction:any = func.run;
-            let resultShortcut:string;
-            let resultIcon:string;
+            funcElement = {
+                title: func.name,
+                action: func.run,
+                shortcut: "",
+                icon: ""
+            };
 
             if(func.modifier != 'none'){
-                resultShortcut = func.modifier +" "+ func.keys
+                funcElement.shortcut = func.modifier + " " + func.keys
             }else{
-                resultShortcut = func.keys.toString()
+                funcElement.shortcut = func.keys.toString()
             }
 
             if(func.key.startsWith('docs_')){
-                resultIcon = 'icon-book'
+                funcElement.icon = 'icon-book'
             }else{
-                resultIcon = 'icon-build'
+                funcElement.icon = 'icon-build'
             }
-            funcElement.push(resultTitle,resultAction,resultShortcut,resultIcon)
      
             // adding priority to each search result, this affects the order in which the result appear
             const searchableArr = func.name.split(' ');
@@ -177,51 +196,54 @@ export class QuickActions {
                 }
             }
             if(wordMatched){
-                bestMatch = 'wordMatch'
+                bestMatch = Priority.Word
             }else if(tagMatched){
-                bestMatch = 'tagMatch'
+                bestMatch = Priority.Tag
             }else if(startMatched){
-                bestMatch = 'startMatch'
+                bestMatch = Priority.Start
             }else if(tagStartMatched){
-                bestMatch = 'tagStartMatch'
+                bestMatch = Priority.TagStart
             }else{
-                bestMatch = 'anyMatch'
+                bestMatch = Priority.Any
             }
-            result = {match:match, funcObject:funcElement,priority:bestMatch}
+            result = {match:match, funcObject:funcElement, priority:bestMatch}
         }else{
-            result = {match:match, funcObject:funcElement,priority:bestMatch}
+            result = {match:match, funcObject:funcElement, priority:bestMatch}
         }
         return result
     }
 
-    static executeQuickAction = (data:any) : void  =>{
-        const eagle = (<any>window).eagle;
+    static executeQuickAction(result: QuickActionsResult) : void {
+        const eagle: Eagle = Eagle.getInstance();
         this.initiateQuickAction()
-        data[1](eagle)
+        result.action(eagle)
     }
 
-    static getQuickActionShortcutHtml = (data:any) : string => {
-        if(data[2] != ''){
-            return ' ['+data[2]+']'
+    static getQuickActionShortcutHtml(result: QuickActionsResult) : string {
+        if(result.shortcut != ''){
+            return ' ['+result.shortcut+']'
         }else{
             return ''
         }
     }
 
-    static updateQuickActionSearchTerm = (obj:any, event:any ): void => {
-        const eagle = (<any>window).eagle;
-        eagle.quickActionSearchTerm($(event.target).val())
+    static updateQuickActionSearchTerm(eagle: Eagle, event: KeyboardEvent ): void {
+        const searchTerm: string = $(event.target).val().toString();
+        eagle.quickActionSearchTerm(searchTerm);
     }
     
-    static initiateQuickActionQuickSelect = () : void => {
+    // TODO: event not passed as an argument here! (used as both 'e' and 'event'?)
+    static initiateQuickActionQuickSelect() : void {
         //unbinding then rebinding the event in case there was already one attached
         const that = this
-        $('body').unbind('keydown.quickActions')
-        $('body').bind('keydown.quickActions',function(e){
+        $('body').off('keydown.quickActions')
+        $('body').on('keydown.quickActions',function(event: JQuery.TriggeredEvent){
+            const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
+            
             const current = $(".quickActionsFocus")
-            switch(e.which) {
+            switch(e.key) {
                 
-                case 38: // up
+                case "ArrowUp":
                 e.preventDefault()
                 if($('#quickActionSearchbar').val()!==''){   
                     if($(".quickActionsFocus").length === 0){
@@ -233,7 +255,7 @@ export class QuickActions {
                 }
                 break;
         
-                case 40: // down
+                case "ArrowDown":
                 e.preventDefault()
                 if($('#quickActionSearchbar').val()!==''){   
                     if($(".quickActionsFocus").length === 0){
@@ -245,33 +267,33 @@ export class QuickActions {
                 }
                 break;
 
-                case 13: //enter
+                case "Enter":
                 if(current.length != 0){
                     e.preventDefault()
-                    current.click()
+                    current.trigger("click")
                 }else if( $('#quickActionResults a').length != 0){
                     e.preventDefault()
-                    $('#quickActionResults a:first').click()
+                    $('#quickActionResults a:first').trigger("click")
                 }
                 break;
 
-                case 27: //escape
+                case "Escape":
                 that.initiateQuickAction()
                 break;
 
-                default: //all other keypresses should be typing in this mode, so we should be focused on the input
-                $('#quickActionSearchbar').focus()
+                default: //all other key presses should be typing in this mode, so we should be focused on the input
+                $('#quickActionSearchbar').trigger("focus")
                 break;
             }
         })
         
-        $('#quickActionBackground').bind('click.quickActionDismiss',function(event){
-            QuickActions.initiateQuickAction()
+        $('#quickActionBackground').on('click.quickActionDismiss', function(){
+            QuickActions.initiateQuickAction();
         })
     }
 
-    static quickOpenDocsLink = (link:string) :void => {
-        var win = window.open(link, '_blank');
+    static quickOpenDocsLink(link: string) : void {
+        const win = window.open(link, '_blank');
         if (win) {
             //Browser has allowed it to be opened
             win.focus();

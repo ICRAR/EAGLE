@@ -19,9 +19,9 @@ const branchNodeRadius = 90
 
 export class GraphConfig {
 
-    static getColor = (name:string) : string => {
+    static getColor(name:string) : string {
         let result = 'red'
-        for (var color of colors) {
+        for (const color of colors) {
             if(color.name === name){
                 result = color.color
             }else{
@@ -31,12 +31,11 @@ export class GraphConfig {
         return result
     }
 
-    static getNormalRadius = () : number => {
+    static getNormalRadius() : number {
         return normalNodeRadius
     }
 
-    static getBranchRadius = () : number => {
+    static getBranchRadius() : number {
         return branchNodeRadius
     }
-
 }

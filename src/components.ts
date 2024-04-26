@@ -1,7 +1,5 @@
 import * as ko from "knockout";
 
-import { Daliuge } from "./Daliuge";
-
 ko.components.register('repository-file', {
     viewModel: function(params : {data : any}){
         return params.data;

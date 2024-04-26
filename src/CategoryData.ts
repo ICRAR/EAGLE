@@ -51,7 +51,7 @@ export class CategoryData {
         
     };
 
-    static getCategoryData = (category : Category) : Category.CategoryData => {
+    static getCategoryData(category : Category) : Category.CategoryData {
         const c = CategoryData.cData[category];
 
         if (typeof c === 'undefined'){

@@ -393,7 +393,7 @@ export class FileInfo {
         return s;
     }
 
-    static toOJSJson = (fileInfo : FileInfo) : object => {
+    static toOJSJson(fileInfo : FileInfo) : object {
         return {
             // name and path variables are written together into fullPath
             filePath: fileInfo.fullPath(),
@@ -425,15 +425,15 @@ export class FileInfo {
     }
 
     // TODO: use errors array if attributes cannot be found
-    static fromOJSJson = (modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo => {
+    static fromOJSJson(modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo {
         const result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
         result.name = Utils.getFileNameFromFullPath(modelData.filePath);
         result.type = Utils.translateStringToFileType(modelData.fileType);
 
-        result.shortDescription = modelData.shortDescription == undefined ? "" : modelData.shortDescription;
-        result.detailedDescription = modelData.detailedDescription == undefined ? "" : modelData.detailedDescription;
+        result.shortDescription = modelData.shortDescription ?? "";
+        result.detailedDescription = modelData.detailedDescription ?? "";
 
         // if shortDescription is not set, and detailed description is set, then use first sentence of detailed as the short
         // NOTE: doesn't actually do any semantic analysis of text, just grabs everything before the first '.' in the detailed description
@@ -441,24 +441,24 @@ export class FileInfo {
             result.shortDescription = result.detailedDescription.split('. ', 1)[0];
         }
 
-        result.repositoryService = modelData.repoService == undefined ? Eagle.RepositoryService.Unknown : modelData.repoService;
-        result.repositoryBranch = modelData.repoBranch == undefined ? "" : modelData.repoBranch;
-        result.repositoryName = modelData.repo == undefined ? "" : modelData.repo;
+        result.repositoryService = modelData.repoService ?? Eagle.RepositoryService.Unknown;
+        result.repositoryBranch = modelData.repoBranch ?? "";
+        result.repositoryName = modelData.repo ?? "";
 
-        result.eagleVersion = modelData.eagleVersion == undefined ? "" : modelData.eagleVersion;
-        result.eagleCommitHash = modelData.eagleCommitHash == undefined ? "" : modelData.eagleCommitHash;
-        result.schemaVersion = modelData.schemaVersion == undefined ? "" : modelData.schemaVersion;
+        result.eagleVersion = modelData.eagleVersion ?? "";
+        result.eagleCommitHash = modelData.eagleCommitHash ?? "";
+        result.schemaVersion = modelData.schemaVersion ?? "";
 
-        result.readonly = modelData.readonly == undefined ? true : modelData.readonly;
+        result.readonly = modelData.readonly ?? true;
 
-        result.repositoryUrl = modelData.repositoryUrl == undefined ? "" : modelData.repositoryUrl;
-        result.commitHash = modelData.commitHash == undefined ? "" : modelData.commitHash;
-        result.downloadUrl = modelData.downloadUrl == undefined ? "" : modelData.downloadUrl;
-        result.signature = modelData.signature == undefined ? "" : modelData.signature;
+        result.repositoryUrl = modelData.repositoryUrl ?? "";
+        result.commitHash = modelData.commitHash ?? "";
+        result.downloadUrl = modelData.downloadUrl ?? "";
+        result.signature = modelData.signature ?? "";
 
-        result.lastModifiedName = modelData.lastModifiedName == undefined ? "" : modelData.lastModifiedName;
-        result.lastModifiedEmail = modelData.lastModifiedEmail == undefined ? "" : modelData.lastModifiedEmail;
-        result.lastModifiedDatetime = modelData.lastModifiedDatetime == undefined ? 0 : modelData.lastModifiedDatetime;
+        result.lastModifiedName = modelData.lastModifiedName ?? "";
+        result.lastModifiedEmail = modelData.lastModifiedEmail ?? "";
+        result.lastModifiedDatetime = modelData.lastModifiedDatetime ?? 0;
 
         // check that lastModifiedDatetime is a Number, if not correct
         if (typeof result.lastModifiedDatetime !== 'number'){
@@ -466,7 +466,7 @@ export class FileInfo {
             errorsWarnings.errors.push(Errors.Message("Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value."));
         }
 
-        result.numLGNodes = modelData.numLGNodes == undefined ? 0 : modelData.numLGNodes;
+        result.numLGNodes = modelData.numLGNodes ?? 0;
 
         return result;
     }

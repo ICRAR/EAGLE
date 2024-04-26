@@ -3,19 +3,19 @@ import {Eagle} from './Eagle';
 
 export class TutorialSystem {
 
-    static activeTut: Tutorial //current active tutorial
+    static activeTut: Tutorial = null //current active tutorial
     static activeTutCurrentStep: TutorialStep //current active tutorial step
     static activeTutNumSteps: number = 0;  //total number of steps in the active tutorial
     static activeTutCurrentStepIndex: number = 0;  //index of the current step in the active tutorial
     static waitForElementTimer: number = null    //this houses the time out timer when waiting for a target element to appear
-    static cooldown: boolean = false //boolean if the tutorial system is currently on cooldown
-    static conditionCheck:number = null //this hosues the condition interval function
+    static onCoolDown: boolean = false //boolean if the tutorial system is currently on cool down
+    static conditionCheck:number = null //this stores the condition interval function
 
-    static initiateTutorial = (tutorialName: string): void => {
+    static initiateTutorial(tutorialName: string): void {
         Eagle.tutorials.forEach(function (tut) {
 
             if (tutorialName === tut.getName()) {
-                //this is the requsted tutorial
+                //this is the requested tutorial
                 TutorialSystem.activeTut = tut
                 TutorialSystem.activeTutNumSteps = tut.getTutorialSteps().length
                 TutorialSystem.activeTutCurrentStepIndex = 0
@@ -25,46 +25,39 @@ export class TutorialSystem {
         })
     }
 
-    static addTutKeyboardShortcuts = (): void => {
+    static addTutKeyboardShortcuts(): void {
         //these are the keyboard shortcuts for the tutorial system
-        //by putting a .name after an even type, we are giving this specific listener a name. This allows us to remove or modify it later
-        $("body").on('keydown.tutEventListener', function (e) {
-            if(TutorialSystem.activeTut===null){return} //catching a nieche error
-            switch (e.which) {
-                case 37: // left
+        //by putting a .name after an event type, we are giving this specific listener a name. This allows us to remove or modify it later
+        $("body").on('keydown.tutEventListener', function (event: JQuery.TriggeredEvent) {
+            const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
+
+            if(TutorialSystem.activeTut===null){return} //catching a niche error
+
+            switch (e.key) {
+                case "ArrowLeft":
+                case "ArrowUp":
                     e.preventDefault()
                     TutorialSystem.activeTut.tutButtonPrev()
                     break;
 
-                case 38: // up
-                    e.preventDefault()
-                    TutorialSystem.activeTut.tutButtonPrev()
-                    break;
-
-                case 39: // right
+                case "ArrowRight":
+                case "ArrowDown":
                     e.preventDefault()
                     if (TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Info) {
                         TutorialSystem.activeTut.tutButtonNext()
                     }
                     break;
 
-                case 40: // down
-                    e.preventDefault()
-                    if (TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Info) {
-                        TutorialSystem.activeTut.tutButtonNext()
-                    }
-                    break;
-
-                case 27: //escape
+                case "Escape":
                     e.preventDefault()
                     TutorialSystem.activeTut.tutButtonEnd()
                     break;
 
-                case 13: //enter
+                case "Enter":
                     e.preventDefault()
                     e.stopImmediatePropagation()
                     if(TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Press){
-                        $(':focus').click()
+                        $(':focus').trigger("click")
                     }
                     break;
 
@@ -73,16 +66,17 @@ export class TutorialSystem {
         })
     }
 
-    //cooldown function that prevents too many actions that would cause the tutorial steps to go out of whack
-    static startCooldown = (): void => {
-        TutorialSystem.cooldown = true
+    // cool-down function that prevents too many actions that would cause the tutorial steps to go out of whack
+    // TODO: magic number 700 here, define this a constant somewhere in the tutorial system
+    static startCoolDown(): void {
+        TutorialSystem.onCoolDown = true
         setTimeout(function () {
-            TutorialSystem.cooldown = false
+            TutorialSystem.onCoolDown = false
         }, 700)
     }
 
-    static newTutorial = (title:string, description:string) : Tutorial => {
-        let x = new Tutorial(
+    static newTutorial(title:string, description:string) : Tutorial {
+        const x = new Tutorial(
             title,
             description,
             []
@@ -91,25 +85,25 @@ export class TutorialSystem {
         return x
     }
 
-    static initiateFindGraphNodeIdByNodeName = (name:string) : JQuery<HTMLElement> => {
+    static initiateFindGraphNodeIdByNodeName(name:string) : JQuery<HTMLElement> {
         const eagle = Eagle.getInstance()
-        let x = $('#logicalGraph #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
+        const x = $('#logicalGraph #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
         return x
     }
 
-    static initiateSimpleFindGraphNodeIdByNodeName = (name:string) : string => {
+    static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
         const eagle = Eagle.getInstance()
-        let x = eagle.logicalGraph().findNodeGraphIdByNodeName(name)
+        const x = eagle.logicalGraph().findNodeGraphIdByNodeName(name)
         return x
     }
 
-    static isRequestedNodeSelected = (name:string) : boolean => {
+    static isRequestedNodeSelected(name:string) : boolean {
         //used when asking the user to select a specific node
         const eagle = Eagle.getInstance()
         if(eagle.selectedObjects().length>1 || eagle.selectedObjects().length<1){
             return false
         }
-        if(name = eagle.selectedNode().getName()){
+        if(name === eagle.selectedNode().getName()){
             return true
         }else{
             return false
@@ -152,7 +146,7 @@ export class Tutorial {
         return this.description;
     }
 
-    newTutStep = (title:string,description:string,selector:() => void) : TutorialStep =>{
+    newTutStep = (title:string, description:string, selector:() => JQuery<HTMLElement>) : TutorialStep =>{
         const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None,null, selector, null, null,false,null,null,null)
         this.tutorialSteps.push(x)
         return x
@@ -174,9 +168,9 @@ export class Tutorial {
         let preFunction
 
         if (direction === TutorialStep.Direction.Next) {
-            preFunction = tutStep.getPreFunct()
+            preFunction = tutStep.getPreFunc()
         } else if (direction === TutorialStep.Direction.Prev) {
-            preFunction = tutStep.getBackPreFunct()
+            preFunction = tutStep.getBackPreFunc()
         }
 
         if (preFunction != null) {
@@ -204,7 +198,7 @@ export class Tutorial {
                     clearTimeout(TutorialSystem.waitForElementTimer);
                     TutorialSystem.waitForElementTimer = null;
                     console.warn('waiting for next tutorial step element timed out')
-                    TutorialSystem.cooldown = false
+                    TutorialSystem.onCoolDown = false
                     that.tutButtonPrev()
                 }
             }, 2000)
@@ -260,8 +254,8 @@ export class Tutorial {
 
     initiateStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
         const that = this;
-        $(':focus').blur()
-        tutStep.getTargetFunc()().focus()
+        $(':focus').trigger("blur");
+        tutStep.getTargetFunc()().trigger("focus");
 
         //call the correct function depending on which type of tutorial step this is
         if (tutStep.getType() === TutorialStep.Type.Info) {
@@ -283,7 +277,9 @@ export class Tutorial {
         } else {
             this.highlightStepTarget(tutStep.getTargetFunc()())
         }
+
         //the little wait is waiting for the css animation of the highlighting system
+        // TODO: magic number here, move it to a constant somewhere in the tutorial system
         setTimeout(function () {
             TutorialSystem.activeTut.openInfoPopUp()
         }, 510);
@@ -302,12 +298,13 @@ export class Tutorial {
         targetElement.on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener')
 
         //the little wait is waiting for the css animation of the highlighting system
+        // TODO: magic number here!
         setTimeout(function () {
             TutorialSystem.activeTut.openInfoPopUp()
         }, 510);
     }
 
-    //these are ground work for fufture tutorial system functionality
+    //these are ground work for future tutorial system functionality
     initiateInputStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
         if (alternateHighlightTarget != null) {
             this.highlightStepTarget(alternateHighlightTarget)
@@ -316,12 +313,16 @@ export class Tutorial {
         }
 
         //the little wait is waiting for the css animation of the highlighting system
+        // TODO: magic number (510) here!
         setTimeout(function () {
             TutorialSystem.activeTut.openInfoPopUp()
         }, 510);
 
-        //attatching an input handler for checking input
-        tutStep.getTargetFunc()().on('keydown.tutInputCheckFunc',function(event:any){TutorialSystem.activeTut.tutInputCheckFunc(event,tutStep)})
+        //attaching an input handler for checking input
+        tutStep.getTargetFunc()().on('keydown.tutInputCheckFunc',function(event: JQuery.TriggeredEvent){
+            const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
+            TutorialSystem.activeTut.tutInputCheckFunc(e, tutStep)
+        })
     }
 
     initiateConditionStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
@@ -341,8 +342,8 @@ export class Tutorial {
 
     highlightStepTarget = (target: JQuery<HTMLElement>): void => {
         const eagle = Eagle.getInstance()
-        if(TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc() != null){
-            target = TutorialSystem.activeTutCurrentStep.getAlternateHightlightTargetFunc()()
+        if(TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc() != null){
+            target = TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc()()
         }
 
         //in order to darken the screen save the selection target, we must add divs on each side of the element.
@@ -400,9 +401,8 @@ export class Tutorial {
         let orientation = 'tutorialRight'
 
         if (currentTarget.outerWidth() === docWidth || currentTarget.outerHeight() / docHeight > 0.7) {
-            //if this is the case then we are looking at an object that is set to 100% of the sceen 
+            //if this is the case then we are looking at an object that is set to 100% of the screen 
             //such as the navbar or canvas. we will then position the tutorial in the middle of the object
-            selectedLocationX = selectedLocationX
             if ((docHeight - currentTarget.outerHeight()) < 250) {
                 selectedLocationY = selectedLocationY - (currentTarget.height() / 2)
                 if (docWidth - selectedLocationX < 700) {
@@ -463,12 +463,12 @@ export class Tutorial {
     }
 
     tutButtonNext = (): void => {
-        if (TutorialSystem.cooldown === false) {
+        if (TutorialSystem.onCoolDown === false) {
             if (TutorialSystem.activeTutCurrentStepIndex + 1 !== TutorialSystem.activeTutNumSteps) {
                 this.closeInfoPopUp()
                 TutorialSystem.activeTutCurrentStepIndex++
                 this.initiateTutStep(TutorialStep.Direction.Next)
-                TutorialSystem.startCooldown()
+                TutorialSystem.startCoolDown()
             } else {
                 this.tutButtonEnd()
             }
@@ -476,7 +476,7 @@ export class Tutorial {
     }
 
     tutButtonPrev = (): void => {
-        if (TutorialSystem.cooldown === false) {
+        if (TutorialSystem.onCoolDown === false) {
             if (TutorialSystem.activeTutCurrentStepIndex > 0) {
                 this.closeInfoPopUp()
                 TutorialSystem.activeTutCurrentStepIndex--
@@ -484,7 +484,7 @@ export class Tutorial {
                     this.tutButtonPrev()
                 }else{
                     this.initiateTutStep(TutorialStep.Direction.Prev)
-                    TutorialSystem.startCooldown()
+                    TutorialSystem.startCoolDown()
                 }
             }
         }
@@ -513,16 +513,21 @@ export class Tutorial {
     openSettingsSection = (tab: string): void => {
         const eagle = Eagle.getInstance()
         eagle.openSettings()
-        $(':focus').blur()
-        $(tab).click()
+        $(':focus').trigger("blur")
+        $(tab).trigger("click")
     }
 
-    tutInputCheckFunc = (event:any,tutStep:TutorialStep):void => {
-        if(event.which === 37||event.which === 38||event.which === 39||event.which === 40||event.which === 8){
+    tutInputCheckFunc = (event: KeyboardEvent, tutStep:TutorialStep):void => {
+        if( event.key === "ArrowLeft" ||
+            event.key === "ArrowUp" ||
+            event.key === "ArrowRight" ||
+            event.key === "ArrowDown" ||
+            event.key === "Backspace"){
             return
         }
+
         if(tutStep.getExpectedInput() === ''||tutStep.getExpectedInput() === null){
-            if(event.which === 13){
+            if(event.key === "Enter"){
                 event.preventDefault()
                 event.stopImmediatePropagation()
                 TutorialSystem.activeTut.tutButtonNext()
@@ -538,15 +543,12 @@ export class Tutorial {
 
     checkConditionFunction = (tutStep: TutorialStep): void => {
         const eagle = Eagle.getInstance()        
-        let conditionReturn:boolean
+        const conditionReturn: boolean = tutStep.getConditionFunction()(eagle)
 
-        conditionReturn = tutStep.getConditionFunction()(eagle)
         if(conditionReturn){
             clearTimeout(TutorialSystem.conditionCheck);
             TutorialSystem.conditionCheck = null;
             this.tutButtonNext()
-        }else{
-            return
         }
     }
 }
@@ -557,27 +559,31 @@ export class TutorialStep {
     private type: TutorialStep.Type;
     private waitType: TutorialStep.Wait;
     private delayAmount : number;
-    private targetFunc: () => void;
-    private alternateHighlightTargetFunc: () => void;
-    private preFunction: (eagle: Eagle) => void;
-    private backPreFunction: (eagle: Eagle) => void;
+    
+    private targetFunc: () => JQuery<HTMLElement>;
+    private alternateHighlightTargetFunc: () => JQuery<HTMLElement>;
+    private preFunc: (eagle: Eagle) => void;
+    private backPreFunc: (eagle: Eagle) => void;
+    private conditionFunc : (eagle: Eagle) => boolean;
+
     private backSkip : boolean;
     private expectedInput : string;
-    private conditionFunction : (eagle: Eagle) => void;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount:number, targetFunc: () => void, preFunction: (eagle: Eagle) => void, backPreFunction: (eagle: Eagle) => void, backSkip:boolean, expectedInput:string, conditionFunction:(eagle: Eagle) => boolean,alternateHighlightTargetFunc: () => void) {
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount:number, targetFunc: () => JQuery<HTMLElement>, preFunc: (eagle: Eagle) => void, backPreFunc: (eagle: Eagle) => void, backSkip:boolean, expectedInput:string, conditionFunc:(eagle: Eagle) => boolean, alternateHighlightTargetFunc: () => JQuery<HTMLElement>) {
         this.title = title;
         this.text = text;
         this.type = type;
         this.waitType = waitType;
-        this.delayAmount = delayAmount
+        this.delayAmount = delayAmount;
+
         this.targetFunc = targetFunc;
-        this.preFunction = preFunction;
-        this.backPreFunction = backPreFunction;
+        this.alternateHighlightTargetFunc = alternateHighlightTargetFunc;
+        this.preFunc = preFunc;
+        this.backPreFunc = backPreFunc;
+        this.conditionFunc = conditionFunc;
+        
         this.backSkip = backSkip
         this.expectedInput = expectedInput;
-        this.conditionFunction = conditionFunction;
-        this.alternateHighlightTargetFunc = alternateHighlightTargetFunc;
     }
 
     getTitle = (): string => {
@@ -600,79 +606,78 @@ export class TutorialStep {
         return this.delayAmount;
     }
 
-    getTargetFunc = (): any => {
+    getTargetFunc = (): () => JQuery<HTMLElement> => {
         return this.targetFunc;
     }
 
-    getPreFunct = (): any => {
-        return this.preFunction;
+    getPreFunc = (): (eagle: Eagle) => void => {
+        return this.preFunc;
     }
 
-    getBackPreFunct = (): any => {
-        return this.backPreFunction;
+    getBackPreFunc = (): (eagle: Eagle) => void => {
+        return this.backPreFunc;
     }
 
     getBackSkip = (): boolean => {
         return this.backSkip;
     }
 
-    getExpectedInput = (): any => {
+    getExpectedInput = (): string => {
         return this.expectedInput;
     }
 
-    getConditionFunction = (): any => {
-        return this.conditionFunction;
+    getConditionFunction = (): (eagle: Eagle) => boolean => {
+        return this.conditionFunc;
     }
 
-    getAlternateHightlightTargetFunc = () : any => {
+    getAlternateHighlightTargetFunc = () : () => JQuery<HTMLElement> => {
         return this.alternateHighlightTargetFunc;
     }
 
-    setType = (newType:TutorialStep.Type): TutorialStep =>{
+    setType = (newType:TutorialStep.Type): this => {
         this.type = newType;
         return this
     }
 
-    setWaitType = (newWaitType:TutorialStep.Wait): TutorialStep =>{
+    setWaitType = (newWaitType:TutorialStep.Wait): this => {
         this.waitType = newWaitType;
         return this
     }
 
-    setDelayAmount= (newDelayAmount:number): TutorialStep =>{
+    setDelayAmount = (newDelayAmount:number): this => {
         this.delayAmount = newDelayAmount;
         return this
     }
 
-    setPreFunction = (newPreFunct:(eagle: Eagle) => void): TutorialStep =>{
-        this.preFunction = newPreFunct;
+    setPreFunction = (newPreFunc:(eagle: Eagle) => void): this => {
+        this.preFunc = newPreFunc;
         return this
     }
 
-    setBackPreFunction = (newBackPreFunct:(eagle: Eagle) => void): TutorialStep =>{
-        this.backPreFunction = newBackPreFunct;
+    setBackPreFunction = (newBackPreFunc:(eagle: Eagle) => void): this => {
+        this.backPreFunc = newBackPreFunc;
         return this
     }
 
-    setBackSkip = (newBackSkip:boolean): TutorialStep =>{
+    setBackSkip = (newBackSkip:boolean): this => {
         this.backSkip = newBackSkip;
         return this
     }
 
-    setExpectedInput = (newExpectedInput:string): TutorialStep =>{
+    setExpectedInput = (newExpectedInput:string): this => {
         this.expectedInput = newExpectedInput;
         return this
     }
 
-    setConditionFunction = (newConditionFunction:(eagle: Eagle) => void): TutorialStep =>{
-        this.conditionFunction = newConditionFunction;
+    setConditionFunction = (newConditionFunction:(eagle: Eagle) => boolean): this => {
+        this.conditionFunc = newConditionFunction;
         return this
     }
 
-    setAlternateHighlightTargetFunc = (newAlternateHighlightTargetFunc:() => void): TutorialStep =>{
+    setAlternateHighlightTargetFunc = (newAlternateHighlightTargetFunc:() => JQuery<HTMLElement>): this => {
         this.alternateHighlightTargetFunc = newAlternateHighlightTargetFunc;
         return this
     }
-
 }
 
 export namespace TutorialStep {
@@ -696,5 +701,5 @@ export namespace TutorialStep {
     }
 }
 
-//getting the tutorials array ready for eagle
-export const tutorialArray:any = []
+// getting the tutorials array ready for eagle
+export const tutorialArray: Tutorial[] = []

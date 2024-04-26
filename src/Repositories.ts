@@ -20,41 +20,37 @@ export class Repositories {
     }
 
     refreshRepositoryList = () : void => {
-        // console.log("refreshRepositoryList()");
-
         GitHub.loadRepoList();
         GitLab.loadRepoList();
     };
 
-    static selectFolder = (folder : RepositoryFolder) : void => {
-        // console.log("selectFolder()", folder.name);
-
+    static selectFolder(folder : RepositoryFolder) : void {
         // toggle expanded state
         folder.expanded(!folder.expanded());
     }
 
-    static selectFile = (file : RepositoryFile) : void => {
+    static selectFile(file : RepositoryFile) : void {
         const eagle: Eagle = Eagle.getInstance();
 
         if(file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.JSON){
             eagle.showEagleIsLoading()
         }
+
         // check if the current file has been modified
         let isModified = false;
         switch (file.type){
             case Eagle.FileType.Graph:
                 isModified = eagle.logicalGraph().fileInfo().modified;
                 break;
-            case Eagle.FileType.Palette:
+            case Eagle.FileType.Palette: {
                 const palette: Palette = eagle.findPalette(file.name, false);
                 isModified = palette !== null && palette.fileInfo().modified;
                 break;
+            }
             case Eagle.FileType.JSON:
                 isModified = eagle.logicalGraph().fileInfo().modified;
                 break;
         }
-
-
 
         // if the file is modified, get the user to confirm they want to overwrite changes
         if (isModified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
@@ -111,13 +107,13 @@ export class Repositories {
 
     removeCustomRepository = (repository : Repository) : void => {
         // if settings dictates that we don't confirm with user, remove immediately
-        if (!Setting.findValue(Setting.CONFIRM_REMOVE_REPOSITORES)){
+        if (!Setting.findValue(Setting.CONFIRM_REMOVE_REPOSITORIES)){
             this._removeCustomRepository(repository);
             return;
         }
 
         // otherwise, check with user
-        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel",Setting.CONFIRM_REMOVE_REPOSITORES, (confirmed : boolean) =>{
+        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel",Setting.CONFIRM_REMOVE_REPOSITORIES, (confirmed : boolean) =>{
             if (!confirmed){
                 console.log("User aborted removeCustomRepository()");
                 return;
@@ -154,11 +150,11 @@ export class Repositories {
         }
     }
 
-    static sort = () : void => {
+    static sort() : void {
         Repositories.repositories.sort(Repository.repositoriesSortFunc);
     }
 
-    static getList = (service : Eagle.RepositoryService) : Repository[] => {
+    static getList(service : Eagle.RepositoryService) : Repository[]{
         const list : Repository[] = [];
 
         for (const repository of Repositories.repositories()){
@@ -168,11 +164,9 @@ export class Repositories {
         }
 
         return list;
-    };
+    }
 
-    static get = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
-        // console.log("getRepository()", service, name, branch);
-
+    static get(service : Eagle.RepositoryService, name : string, branch : string) : Repository | null {
         for (const repository of Repositories.repositories()){
             if (repository.service === service && repository.name === name && repository.branch === branch){
                 return repository;
@@ -180,9 +174,9 @@ export class Repositories {
         }
         console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
         return null;
-    };
+    }
 
-    static fetchAll = () : void => {
+    static fetchAll() : void {
         for (const repository of Repositories.repositories()){
             if (!repository.fetched()){
                 repository.select();

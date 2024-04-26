@@ -65,20 +65,20 @@ export class ParameterTable {
         return ParameterTable.selection();
     }
 
-    static tableEnterShortcut = (event:any) : void => {
+    static tableEnterShortcut = (event: Event) : void => {
 
         //if the table parameter search bar is selected
         if($('#parameterTableModal .componentSearchBar')[0] === event.target){
             const targetCell = $('#parameterTableModal td.column_Value').first().children().first()
-            targetCell.focus()
+            targetCell.trigger("focus");
             $('.selectedTableParameter').removeClass('selectedTableParameter')
             targetCell.parent().addClass('selectedTableParameter')
-        }else if (event.target.closest('.columnCell')){
+        }else if ($(event.target).closest('.columnCell')){
 
         //if a cell in the table is currently selected, enter will select the next cell down
 
             //we are getting the class name of the current column's cell eg. column_Description
-            const classes = $(event.target.closest('.columnCell')).attr('class').split(' ')
+            const classes = $(event.target).closest('.columnCell').attr('class').split(' ')
             let cellTypeClass
             for(const className of classes){
                 if(className.includes('column_')){
@@ -98,7 +98,7 @@ export class ParameterTable {
                     if($(cell).children().first().hasClass('parameterTableTypeCustomSelect')){
                         return <void> null;
                     }else{
-                        $(cell).children().first().focus()
+                        $(cell).children().first().trigger("focus");
                     }
 
                     $('.selectedTableParameter').removeClass('selectedTableParameter')
@@ -177,9 +177,7 @@ export class ParameterTable {
         }
     }
 
-    static fieldUsageChanged = (field: Field) : void => {
-        //console.log("fieldUsageChanged", field.getUsage(), field.getNodeKey());
-        
+    static fieldUsageChanged(field: Field) : void {
         const eagle: Eagle = Eagle.getInstance();
         const edgesToRemove: string[] = [];
 
@@ -210,13 +208,11 @@ export class ParameterTable {
     }
 
     // when a field value is modified in the parameter table, we need to flag the containing palette or logical graph as modified
-    static fieldValueChanged = (field: Field) : void => {
-        //console.log("fieldValueChanged", field.getDisplayText(), field.getValue(), "node key", field.getNodeKey());
-
+    static fieldValueChanged(field: Field) : void {
         const eagle = Eagle.getInstance();
 
         switch (Eagle.selectedLocation()){
-            case Eagle.FileType.Palette:
+            case Eagle.FileType.Palette: {
                 const paletteNode: Node | Edge = eagle.selectedObjects()[0];
                 console.assert(paletteNode instanceof Node)
 
@@ -224,6 +220,7 @@ export class ParameterTable {
 
                 containingPalette.fileInfo().modified = true;
                 break;
+            }
             case Eagle.FileType.Graph:
                 eagle.logicalGraph().fileInfo().modified = true;
                 break;
@@ -232,7 +229,7 @@ export class ParameterTable {
         eagle.selectedObjects.valueHasMutated();
     }
 
-    static select = (selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void => {
+    static select(selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void {
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);
         ParameterTable.selectionParentIndex(selectionIndex);
@@ -240,12 +237,12 @@ export class ParameterTable {
         ParameterTable.selectionReadonly(readOnlyState);
     }
 
-    static resetSelection = ():void => {
+    static resetSelection() : void {
         ParameterTable.selectionParentIndex(-1);
         ParameterTable.selection(null);
     }
 
-    static hasSelection = () : boolean => {
+    static hasSelection() : boolean {
         return ParameterTable.selectionParentIndex() !== -1;
     }
 
@@ -255,30 +252,34 @@ export class ParameterTable {
         return true
     }
 
-    static showEditDescription = () => {
-            $(event.target).find('.parameterTableDescriptionBtn ').show()
+    static showEditDescription(description: HTMLElement) : void {
+        $(description).find('.parameterTableDescriptionBtn').show()
     }
 
-    static hideEditDescription = () => {
-            $(event.target).find('.parameterTableDescriptionBtn ').hide()
+    static hideEditDescription(description: HTMLElement) : void {
+        $(description).find('.parameterTableDescriptionBtn').hide()
     }
 
-    static requestEditDescriptionInModal = (currentField:Field) => {
+    static requestEditDescriptionInModal(currentField:Field) : void {
         const eagle: Eagle = Eagle.getInstance();
         const tableType = eagle.tableModalType()
         eagle.openParamsTableModal('','')
-        Utils.requestUserText("Edit Field Description", "Please edit the description for: "+eagle.logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey())+' - '+currentField.getDisplayText(), currentField.getDescription(), (completed, userText) => {
-            if (!completed){
-                return;
+        Utils.requestUserText(
+            "Edit Field Description",
+            "Please edit the description for: " + eagle.logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey()).getName() + ' - ' + currentField.getDisplayText(),
+            currentField.getDescription(),
+            (completed, userText) => {
+                if (!completed){
+                    return;
+                }
+
+                currentField.setDescription(userText);
+                eagle.openParamsTableModal(tableType,'')
             }
-
-            currentField.setDescription(userText);
-            eagle.openParamsTableModal(tableType,'')
-
-        })
+        )
     }
 
-    static initiateResizableColumns = (upId:string) : void => {
+    static initiateResizableColumns(upId:string) : void {
         //need this oen initially to set the mousedown handler
             let upcol: HTMLElement = $('#'+upId)[0]
             let upresizer: JQuery<HTMLElement> = $(upcol).find('div')
@@ -380,7 +381,7 @@ export class ColumnVisibilities {
 
     }
 
-    getVisibilities = () : ColumnVisibilities => {
+    getVisibilities = () : this => {
         return this;
     }
 

@@ -24,26 +24,23 @@
 
 import * as Ajv from "ajv";
 import * as Showdown from "showdown";
-import * as ko from "knockout";
 
-import {Category} from './Category';
-import {CategoryData} from "./CategoryData";
-import {Config} from './Config';
-import {Daliuge} from './Daliuge';
-import {Eagle} from './Eagle';
-import {Edge} from './Edge';
-import {Errors} from './Errors';
-import {Field} from './Field';
-import {KeyboardShortcut} from './KeyboardShortcut';
-import {LogicalGraph} from './LogicalGraph';
-import {Node} from './Node';
-import {Palette} from './Palette';
-import {PaletteInfo} from './PaletteInfo';
-import {Repository} from './Repository';
-import {Setting} from './Setting';
-import {FileInfo} from "./FileInfo";
+import { Category } from './Category';
+import { CategoryData } from "./CategoryData";
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+import { Edge } from './Edge';
+import { Errors } from './Errors';
+import { Field } from './Field';
+import { FileInfo } from "./FileInfo";
+import { KeyboardShortcut } from './KeyboardShortcut';
+import { LogicalGraph } from './LogicalGraph';
+import { Node } from './Node';
+import { Palette } from './Palette';
+import { PaletteInfo } from './PaletteInfo';
+import { Repository } from './Repository';
+import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
-import { GraphRenderer } from "./GraphRenderer";
 
 export class Utils {
     // Allowed file extensions
@@ -326,7 +323,6 @@ export class Utils {
     }
 
     static httpGetJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
-        // console.log("httpGetJSON() : ", url);
         $.ajax({
             url : url,
             type : 'GET',
@@ -358,7 +354,6 @@ export class Utils {
     }
 
     static httpPostJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
-        // console.log("httpPostJSON() : ", url);
         $.ajax({
             url : url,
             type : 'POST',
@@ -378,7 +373,6 @@ export class Utils {
     }
 
     static httpPostJSONString(url : string, jsonString : string, callback : (error : string, data : string) => void) : void {
-        // console.log("httpPostJSONString() : ", url);
         $.ajax({
             url : url,
             type : 'POST',
@@ -398,8 +392,6 @@ export class Utils {
     }
 
     static httpPostForm(url : string, formData : FormData, callback : (error : string, data : string) => void) : void {
-        // console.log("httpPostForm() : ", url);
-
         $.ajax({
             url : url,
             type : 'POST',
@@ -431,8 +423,6 @@ export class Utils {
     }
 
     static showUserMessage (title : string, message : string) : void {
-        // console.log("showUserMessage()", title, message);
-
         $('#messageModalTitle').text(title);
         $('#messageModalMessage').html(message);
         $('#messageModal').modal("toggle");
@@ -481,8 +471,6 @@ export class Utils {
     }
 
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, callback : (completed : boolean, userString : string) => void ) : void {
-        // console.log("requestUserString()", title, message);
-
         $('#inputModalTitle').text(title);
         $('#inputModalMessage').html(message);
         $('#inputModalInput').attr('type', isPassword ? 'password' : 'text');
@@ -499,8 +487,6 @@ export class Utils {
     }
 
     static requestUserText(title : string, message : string, defaultText: string, callback : (completed : boolean, userText : string) => void) : void {
-        // console.log("requestUserText()", title, message);
-
         $('#inputTextModalTitle').text(title);
         $('#inputTextModalMessage').html(message);
 
@@ -515,8 +501,6 @@ export class Utils {
     }
 
     static requestUserNumber(title : string, message : string, defaultNumber: number, callback : (completed : boolean, userNumber : number) => void ) : void {
-        // console.log("requestUserNumber()", title, message);
-
         $('#inputModalTitle').text(title);
         $('#inputModalMessage').html(message);
         $('#inputModalInput').val(defaultNumber);
@@ -531,8 +515,6 @@ export class Utils {
     }
 
     static requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ) : void {
-        // console.log("requestUserChoice()", title, message, choices, selectedChoiceIndex, allowCustomChoice, customChoiceText);
-
         $('#choiceModalTitle').text(title);
         $('#choiceModalMessage').html(message);
         $('#choiceModalCustomChoiceText').text(customChoiceText);
@@ -576,8 +558,6 @@ export class Utils {
     }
 
     static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string,confirmSetting:string, callback : (confirmed : boolean) => void ) : void {
-        // console.log("requestUserConfirm()", title, message, affirmativeAnswer, negativeAnswer);
-
         $('#confirmModalTitle').text(title);
         $('#confirmModalMessage').html(message);
         $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
@@ -605,8 +585,6 @@ export class Utils {
     }
 
     static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
-        // console.log("requestUserGitCommit()");
-
         $('#gitCommitModal').data('completed', false);
         $('#gitCommitModal').data('callback', callback);
         $('#gitCommitModal').data('repositories', repositories);
@@ -640,18 +618,15 @@ export class Utils {
     }
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
-
         eagle.currentField(field)
 
         $('#editFieldModal').data('completed', false);
         $('#editFieldModal').data('callback', callback);
         $('#editFieldModal').data('choices', choices);
         $('#editFieldModal').modal("toggle");
-
     }
 
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void) : void {
-
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
         $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
@@ -783,7 +758,7 @@ export class Utils {
         });
     }
 
-    static showModelDataModal = (title: string, fileInfo: FileInfo) : void => {
+    static showModelDataModal(title: string, fileInfo: FileInfo) : void {
         const eagle = Eagle.getInstance();
         eagle.currentFileInfoTitle(title);
         eagle.currentFileInfo(fileInfo);
@@ -933,7 +908,7 @@ export class Utils {
     /**
      * Returns a list of unique port names (except event ports)
      */
-    static getUniquePortsList = (palettes : Palette[], graph: LogicalGraph) : Field[] => {
+    static getUniquePortsList(palettes : Palette[], graph: LogicalGraph) : Field[] {
         const uniquePorts : Field[] = [];
 
         // build a list from all palettes
@@ -1010,8 +985,6 @@ export class Utils {
     }
 
     static getDataComponentsWithPortTypeList(palettes: Palette[], ineligibleCategories: Category[]) : Node[] {
-        // console.log("getDataComponentsWithPortTypeList", ineligibleCategories);
-
         const result: Node[] = [];
 
         // add all data components (except ineligible)
@@ -1042,8 +1015,6 @@ export class Utils {
     }
 
     static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
-        // console.log("getDataComponentsWithInputsAndOutputs");
-
         const result: Node[] = [];
 
         // add all data components (except ineligible)
@@ -1139,7 +1110,7 @@ export class Utils {
         return result;
     }
 
-    static checkForMatches = (nodes:Node[], input: boolean, type: string, dataEligible: boolean) : Node[] => {
+    static checkForMatches(nodes:Node[], input: boolean, type: string, dataEligible: boolean) : Node[] {
         const result: Node[] = [];
 
         for (const node of nodes){
@@ -1166,7 +1137,7 @@ export class Utils {
         return result
     }
 
-    static addTypeIfUnique = (types: string[], newType: string) : void => {
+    static addTypeIfUnique(types: string[], newType: string) : void {
         for (const t of types){
             if (t === newType){
                 return;
@@ -1178,7 +1149,7 @@ export class Utils {
     /**
      * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFields = (diagram : Palette | LogicalGraph) : Field[] => {
+    static getUniqueFields(diagram : Palette | LogicalGraph) : Field[] {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
@@ -1194,7 +1165,7 @@ export class Utils {
     /**
      * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFieldsOfType = (diagram : Palette | LogicalGraph, parameterType: Daliuge.FieldType) : Field[] => {
+    static getUniqueFieldsOfType(diagram : Palette | LogicalGraph, parameterType: Daliuge.FieldType) : Field[] {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
@@ -1234,15 +1205,12 @@ export class Utils {
         // fetch svg CSS and place inline within serialized SVG
         $.get("/static/svg.css")
         .done(function(response){
-
             const svgElement : Element = document.querySelector(selector);
             let svgString : string = new XMLSerializer().serializeToString(svgElement);
 
             // create svgString with injected CSS stylesheet
             const CSS_ELEMENT = '<style type="text/css" ><![CDATA[' + response + ']]></style>';
-            //console.log("CSS_ELEMENT", CSS_ELEMENT);
             svgString = svgString.substring(0, svgString.indexOf(">") + 1) + CSS_ELEMENT + svgString.substring(svgString.indexOf(">") + 1);
-            //console.log("svgString", svgString);
 
             const canvas : HTMLCanvasElement = document.createElement("canvas");
             canvas.setAttribute("width", svgElement.clientWidth.toString());
@@ -1344,16 +1312,12 @@ export class Utils {
 
     // return true iff version0 is newer than version1
     static newerEagleVersion(version0: string, version1: string){
-        //console.log("version0", version0, "version1", version1);
-
         if (version0 === "Unknown" || version1 === "Unknown"){
             return false;
         }
 
         const v0 = version0.split('v')[1].split('.').map(Number);
         const v1 = version1.split('v')[1].split('.').map(Number);
-
-        //console.log("v0", v0, "v1", v1);
 
         return (
             v0[0] > v1[0] ||
@@ -1501,8 +1465,6 @@ export class Utils {
     }
 
     static _validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
-        // console.log("validateJSON(): version:", version, " fileType:", fileType);
-
         const ajv = new Ajv();
         let valid : boolean;
 
@@ -1653,9 +1615,9 @@ export class Utils {
         });
     }
 
-    static getShortcutDisplay = () : {description:string, shortcut : string,function:string}[] => {
-        const displayShortcuts : {description:string, shortcut : string, function : any} []=[];
-        const eagle = (<any>window).eagle;
+    static getShortcutDisplay() : {description: string, shortcut: string, function: (eagle:Eagle) => void}[] {
+        const displayShortcuts : {description: string, shortcut: string, function: (eagle: Eagle) => void} []=[];
+        const eagle: Eagle = Eagle.getInstance();
 
         for (const object of Eagle.shortcuts){
             // skip if shortcut should not be displayed
@@ -1663,14 +1625,18 @@ export class Utils {
                 continue;
             }
 
-            const shortcut = Utils.getKeyboardShortcutTextByKey(object.key, false);
-            displayShortcuts.push({description: object.name, shortcut: shortcut,function:object.run});
+            const shortcut: string = Utils.getKeyboardShortcutTextByKey(object.key, false);
+            displayShortcuts.push({
+                description: object.name,
+                shortcut: shortcut,
+                function: object.run
+            });
         }
 
         return displayShortcuts;
     }
 
-    static getKeyboardShortcutTextByKey = (key: string, addBrackets: boolean) : string => {
+    static getKeyboardShortcutTextByKey(key: string, addBrackets: boolean) : string {
         for (const shortcut of Eagle.shortcuts){
             if (shortcut.key === key){
                 const ks = [];
@@ -1680,13 +1646,13 @@ export class Utils {
                         //if the return should have brackets they are added here
                         //the first letter of the string returned is also capitalised
                         if (addBrackets){
-                            ks.push("["+k.charAt(0).toUpperCase() + k.slice(1)+"]");
+                            ks.push("[" + k.charAt(0).toUpperCase() + k.slice(1) + "]");
                         } else {
                             ks.push(k.charAt(0).toUpperCase() + k.slice(1));
                         }
                     } else {
                         if (addBrackets){
-                            ks.push("["+shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1)+"]");
+                            ks.push("[" + shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1) + "]");
                         } else {
                             ks.push(shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1));
                         }
@@ -1773,12 +1739,10 @@ export class Utils {
 
     // NOTE: merges field1 into field0
     static fixNodeMergeFieldsByIndex(eagle: Eagle, node: Node, field0Index: number, field1Index: number){
-        //console.log("fixNodeMergeFieldsByIndex()", node.getName(), field0Index, field1Index);
-
         // abort if one or more of the fields is not found
         const field0 = node.getFields()[field0Index];
         const field1 = node.getFields()[field1Index];
-        //console.log("field0", field0, field0 ? field0.getId() : "", field0 ? field0.getUsage() : "", "field1", field1, field1 ? field1.getId() : "", field1 ? field1.getUsage() : "");
+
         if (typeof field0 === "undefined" || typeof field1 === "undefined"){
             return;
         }
@@ -1786,7 +1750,6 @@ export class Utils {
         const usage0 = field0.getUsage();
         const usage1 = field1.getUsage();
         const newUsage = this._mergeUsage(usage0, usage1);
-        //console.log("usage0", usage0, "usage1", usage1, "newUsage", newUsage);
 
         // remove field1
         node.removeFieldByIndex(field1Index);
@@ -1800,12 +1763,10 @@ export class Utils {
 
     // NOTE: merges field1 into field0
     static fixNodeMergeFields(eagle: Eagle, node: Node, field0: Field, field1: Field){
-        //console.log("fixNodeMergeFieldsById()", node.getName(), field0.getDisplayText(), field1.getDisplayText());
-
         // abort if one or more of the fields is not found
         const f0 = node.findFieldById(field0.getId());
         const f1 = node.findFieldById(field1.getId());
-        //console.log("f0", f0, f0 ? f0.getId() : "", f0 ? f0.getUsage() : "", "f1", f1, f1 ? f1.getId() : "", f1 ? f1.getUsage() : "");
+
         if (f0 === null || f1 === null){
             return;
         }
@@ -1813,7 +1774,6 @@ export class Utils {
         const usage0 = field0.getUsage();
         const usage1 = field1.getUsage();
         const newUsage = this._mergeUsage(usage0, usage1);
-        //console.log("usage0", usage0, "usage1", usage1, "newUsage", newUsage);
 
         // remove field1
         node.removeFieldById(field1.getId());
@@ -2023,7 +1983,7 @@ export class Utils {
         return Eagle.LinkValid.Warning;
     }
 
-    static printCategories = () : void => {
+    static printCategories() : void {
         const tableData : any[] = [];
 
         for (const category in CategoryData.cData){
@@ -2038,7 +1998,7 @@ export class Utils {
         console.table(tableData);
     }
 
-    static printLogicalGraphNodesTable = () : void => {
+    static printLogicalGraphNodesTable() : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
@@ -2083,7 +2043,7 @@ export class Utils {
         console.table(tableData);
     }
 
-    static printLogicalGraphEdgesTable = () : void => {
+    static printLogicalGraphEdgesTable() : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
@@ -2104,7 +2064,7 @@ export class Utils {
         console.table(tableData);
     }
 
-    static printPalettesTable = () : void => {
+    static printPalettesTable() : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
@@ -2131,7 +2091,7 @@ export class Utils {
         console.table(tableData);
     }
 
-    static printNodeFieldsTable = (nodeIndex: number) : void => {
+    static printNodeFieldsTable(nodeIndex: number) : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
@@ -2160,8 +2120,8 @@ export class Utils {
         console.table(tableData);
     }
 
-    static getRmodeTooltip = () : string => {
-        let html = '**General**: Sets the standard for provenance tracking throughout graph translation and execution. Used to determine scientifically (high-level) changes to workflow behaviour. Signature files are stored alongside logfiles. Refer to the documentation for further explanation.<br>'
+    static getRmodeTooltip() : string {
+        let html = '**General**: Sets the standard for provenance tracking throughout graph translation and execution. Used to determine scientifically (high-level) changes to workflow behaviour. Signature files are stored alongside log files. Refer to the documentation for further explanation.<br>'
         html = html+'**Documentation link** <a href="https://daliuge.readthedocs.io/en/latest/architecture/reproducibility/reproducibility.html" target="_blank">daliuge.readthedocs</a><br>'
         html = html+'**NOTHING**: No provenance data is tracked at any stage.<br>'
         html = html+'**ALL**: Data for all subsequent levels is generated and stored together.<br>'
@@ -2176,11 +2136,11 @@ export class Utils {
         return html
     }
 
-    static copyInputTextModalInput = (): void => {
+    static copyInputTextModalInput(): void {
         navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
     }
 
-    static getReadOnlyText = () : string => {
+    static getReadOnlyText() : string {
         if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
             return "Read Only - Turn on 'Expert Mode' and 'Allow Component Editing' in the settings to unlock"
         }
@@ -2193,11 +2153,11 @@ export class Utils {
         return ''
     }
 
-    static isTypeNode = (object : any) : boolean => {
+    static isTypeNode(object : any) : boolean {
         return (object instanceof Node);
     }
 
-    static loadSchemas = () : void => {
+    static loadSchemas() : void {
         Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL, (error : string, data : string) => {
             if (error !== null){
                 console.error(error);
@@ -2212,7 +2172,7 @@ export class Utils {
         });
     }
 
-    static snapToGrid = (coord: number, offset: number) : number => {
+    static snapToGrid(coord: number, offset: number) : number {
         const gridSize = Setting.findValue(Setting.SNAP_TO_GRID_SIZE);
         return (gridSize * Math.round((coord + offset)/gridSize)) - offset;
     }
@@ -2221,7 +2181,7 @@ export class Utils {
         return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
     }
 
-    static createCommitJsonString = (jsonString: string, repository: Repository, token: string, fullFileName: string, commitMessage: string): string => {
+    static createCommitJsonString(jsonString: string, repository: Repository, token: string, fullFileName: string, commitMessage: string): string {
         // NOTE: we need to build the JSON manually here, since we want to enforce a particular ordering of attributes within the jsonData attribute (modelData first)
         let result = "";
 
@@ -2262,9 +2222,7 @@ export class Utils {
         }
 
         // copy fields from new category to old node
-        for (let i = 0 ; i < newCategoryPrototype.getFields().length ; i++){
-            const field: Field = newCategoryPrototype.getFields()[i];
-
+        for (const field of newCategoryPrototype.getFields()){
             if (field.isInputPort() || field.isOutputPort()){
                 continue;
             }
@@ -2282,5 +2240,4 @@ export class Utils {
             destField.copyWithKeyAndId(field, destField.getNodeKey(), destField.getId());
         }
     }
-
 }

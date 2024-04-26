@@ -22,17 +22,16 @@
 #
 */
 
-import {Category} from './Category';
-import {Eagle} from './Eagle';
-import {Errors} from './Errors';
-import {GitHub} from './GitHub';
-import {GitLab} from './GitLab';
-import {LogicalGraph} from './LogicalGraph';
-import {Repositories} from './Repositories';
-import {Repository} from './Repository';
-import {RepositoryFolder} from './RepositoryFolder';
-import {RepositoryFile} from './RepositoryFile';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
+import { Errors } from './Errors';
+import { GitHub } from './GitHub';
+import { GitLab } from './GitLab';
+import { LogicalGraph } from './LogicalGraph';
+import { Repositories } from './Repositories';
+import { Repository } from './Repository';
+import { RepositoryFolder } from './RepositoryFolder';
+import { RepositoryFile } from './RepositoryFile';
+import { Utils } from './Utils';
 
 export class GraphUpdater {
 
@@ -85,16 +84,16 @@ export class GraphUpdater {
         return true;
     }
 
-    static generateLogicalGraphsTable = () : any[] => {
+    static generateLogicalGraphsTable() : any[] {
         // check that all repos have been fetched
-        let foundUnfetched = false;
+        let foundNotFetched = false;
         for (const repo of Repositories.repositories()){
             if (!repo.fetched()){
-                foundUnfetched = true;
-                console.warn("Unfetched repo:" + repo.getNameAndBranch());
+                foundNotFetched = true;
+                console.warn("Not fetched repo:" + repo.getNameAndBranch());
             }
         }
-        if (foundUnfetched){
+        if (foundNotFetched){
             return [];
         }
 

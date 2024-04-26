@@ -42,7 +42,6 @@ export class Translator {
     searchSpaceDimension : ko.Observable<number>;
     numberOfParallelTaskStreams : ko.Observable<number>;
     rmode : ko.Observable<number>;
-
     isTranslating: ko.Observable<boolean>
 
     constructor(){
@@ -61,7 +60,7 @@ export class Translator {
     }
 
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
-        // consult EAGLE settings to determine whether to open the transator in a new tab
+        // consult EAGLE settings to determine whether to open the translator in a new tab
         const translateInCurrentTab: boolean = Setting.findValue(Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB);
         const overwriteTranslationTab: boolean = Setting.findValue(Setting.OVERWRITE_TRANSLATION_TAB);
 
@@ -131,27 +130,8 @@ export class Translator {
         const translatorURL : string = Setting.findValue(Setting.TRANSLATOR_URL);
         console.log("Eagle.getPGT() : ", "algorithm name:", algorithmName, "translator URL", translatorURL);
 
-        // set the schema version
-        format = Daliuge.SchemaVersion.OJS;
-
-        /*
-        if (format === Eagle.DALiuGESchemaVersion.Unknown){
-            const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS];
-
-            // ask user to specify graph format to be sent to translator
-            Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number) => {
-                if (!completed){
-                    console.log("User aborted translation.");
-                    return;
-                }
-
-                this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, schemas[userChoiceIndex]);
-            });
-        } else {
-            this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, format);
-        }
-        */
-        this._genPGT(eagle, translatorURL, algorithmName, testingMode, format);
+        // NOTE: we always set the schema version to OJS here, we used to have multiple versions
+        this._genPGT(eagle, translatorURL, algorithmName, testingMode, Daliuge.SchemaVersion.OJS);
     }
 
     private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {

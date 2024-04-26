@@ -97,7 +97,7 @@ function readFileInfo(modelData : any, inputFilename : string) : FileInfo {
     result.gitUrl = modelData.git_url;
 
     // NOTE: if the incoming data (modelData) does not indicate the service, assume it is GitHub
-    result.repositoryService = modelData.repoService == undefined ? Eagle.RepositoryService.GitHub : modelData.repoService;
+    result.repositoryService = modelData.repoService ?? Eagle.RepositoryService.GitHub;
     result.repositoryName = modelData.repo;
     result.sha = modelData.sha;
 
@@ -263,7 +263,7 @@ function readNode(nodeData : any, index : number) : Node {
     // add inputAppFields
     if (typeof nodeData.inputAppFields !== 'undefined'){
         for (const fieldData of nodeData.inputAppFields){
-            const fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
+            const fieldDescription : string = fieldData.description ?? "";
             node.addAppField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription), true);
         }
     }
@@ -271,7 +271,7 @@ function readNode(nodeData : any, index : number) : Node {
     // add outputAppFields
     if (typeof nodeData.outputAppFields !== 'undefined'){
         for (const fieldData of nodeData.outputAppFields){
-            const fieldDescription : string = fieldData.description == undefined ? "" : fieldData.description;
+            const fieldDescription : string = fieldData.description ?? "";
             node.addAppField(new Field(fieldData.text, fieldData.name, fieldData.value, fieldDescription), false);
         }
     }

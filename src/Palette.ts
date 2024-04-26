@@ -48,7 +48,7 @@ export class Palette {
         this.searchExclude = ko.observable(false);
     }
 
-    static fromOJSJson = (data : string, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette => {
+    static fromOJSJson(data : string, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
         const result : Palette = new Palette();
@@ -101,7 +101,7 @@ export class Palette {
         return result;
     }
 
-    static toOJSJson = (palette: Palette) : object => {
+    static toOJSJson(palette: Palette) : object {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(palette.fileInfo());
@@ -119,7 +119,7 @@ export class Palette {
         return result;
     }
 
-    static toOJSJsonString = (palette: Palette) : string => {
+    static toOJSJsonString(palette: Palette) : string {
         let result: string = "";
 
         const json: any = this.toOJSJson(palette);
