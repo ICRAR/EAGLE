@@ -2180,7 +2180,7 @@ export class GraphRenderer {
     }
 
     // TODO: can we remove the event parameter here?
-    static edgeGetStrokeColor(edge: Edge, event: any) : string {
+    static edgeGetStrokeColor(edge: Edge) : string {
         const eagle = Eagle.getInstance();
 
         let normalColor: string = GraphConfig.getColor('edgeDefault');
@@ -2221,7 +2221,7 @@ export class GraphRenderer {
     }
 
     // TODO: can we remove the event param here?
-    static edgeGetStrokeType(edge:Edge, event:any) : string {
+    static edgeGetStrokeType(edge:Edge) : string {
         if(edge.isClosesLoop()){
             return ' 15, 8, 5, 8'
         }else{

@@ -110,9 +110,9 @@
                         <svg  xmlns="https://www.w3.org/2000/svg">
                             <!-- ko foreach: $root.logicalGraph().getEdges() -->
                                 <g data-bind="attr:{id:$data.getId()}">
-                                    <path data-bind="attr:{d: GraphRenderer.getPath($data)},style:{'stroke':function(viewmodel,event){return GraphRenderer.edgeGetStrokeColor($data,event)}, 'stroke-dasharray': function(viewmodel,event){return GraphRenderer.edgeGetStrokeType($data,event)}}"></path>
+                                    <path data-bind="attr:{d: GraphRenderer.getPath($data)},style:{'stroke':GraphRenderer.edgeGetStrokeColor($data), 'stroke-dasharray': GraphRenderer.edgeGetStrokeType($data)}"></path>
                                     <path class="edgeClickTarget" data-bind="attr:{d: GraphRenderer.getPath($data)},click:function(viewModel, event){GraphRenderer.selectEdge(viewModel, event)},eagleRightClick: {data:$data,type:'rightClick_graphEdge'}"></path>
-                                    <polygon data-bind="style:{'visibility': $data.getArrowVisibility(), 'fill':function(viewmodel,event){return GraphRenderer.edgeGetStrokeColor($data,event)}}"></polygon>
+                                    <polygon data-bind="style:{'visibility': $data.getArrowVisibility(), 'fill':GraphRenderer.edgeGetStrokeColor($data)}"></polygon>
                                 </g>
                             <!-- /ko -->
                             <!-- ko foreach: $root.logicalGraph().getCommentNodes() -->
@@ -120,12 +120,12 @@
                             <!-- /ko -->
                             <!-- ko if: GraphRenderer.renderDraggingPortEdge -->
                                 <g data-bind="attr:{id:'draggingEdge'}">
-                                    <path data-bind="attr:{d: GraphRenderer.getPathDraggingEdge()},style:{'stroke':GraphRenderer.draggingEdgeGetStrokeColor(), 'stroke-dasharray': function(viewmodel,event){return GraphRenderer.draggingEdgeGetStrokeType()}}"></path>
+                                    <path data-bind="attr:{d: GraphRenderer.getPathDraggingEdge()},style:{'stroke':GraphRenderer.draggingEdgeGetStrokeColor(), 'stroke-dasharray': GraphRenderer.draggingEdgeGetStrokeType}"></path>
                                 </g>
                             <!-- /ko -->
                             <!-- ko if: true -->
                                 <g data-bind="attr:{id:'suggestedEdge'}">
-                                    <path data-bind="attr:{d: GraphRenderer.getPathSuggestedEdge()},style:{'stroke':function(viewmodel,event){return GraphRenderer.suggestedEdgeGetStrokeColor()}, 'stroke-dasharray': function(viewmodel,event){return GraphRenderer.suggestedEdgeGetStrokeType()}}"></path>
+                                    <path data-bind="attr:{d: GraphRenderer.getPathSuggestedEdge()},style:{'stroke':function(viewmodel,event){return GraphRenderer.suggestedEdgeGetStrokeColor()}, 'stroke-dasharray': GraphRenderer.suggestedEdgeGetStrokeType}"></path>
                                 </g>
                             <!-- /ko -->
                         </svg>
