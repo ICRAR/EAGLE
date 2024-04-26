@@ -83,8 +83,9 @@ ko.bindingHandlers.nodeRenderHandler = {
                 const eagle : Eagle = Eagle.getInstance();
                 node = eagle.logicalGraph().findNodeByKey(node.getParentKey())
             }
-                GraphRenderer.resizeConstruct(node,false)
-            }
+
+            GraphRenderer.resizeConstruct(node,false)
+        }
     },
 };
 
@@ -1231,8 +1232,8 @@ export class GraphRenderer {
         eagle.isDragging(false);
         eagle.draggingNode(null);
         
-        //this is a little hack to force affected constructs to update their size on mouse up its neccessary
-        eagle.selectedObjects(eagle.selectedObjects())
+        //this is to make affected constructs re calculate their size
+        eagle.selectedObjects.valueHasMutated()
     }
 
     static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {

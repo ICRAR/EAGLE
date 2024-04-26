@@ -769,36 +769,38 @@ export class Eagle {
         const eagle = this
 
         selectedNodes.forEach(function(object){
-            if(object instanceof Node){
-                if(object.getParentKey() !== null){
-                    let thisParentIsSelected = true
-                    let thisObject = object
-                    while (thisParentIsSelected){
-                        const thisParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(thisObject.getParentKey());
-                        if(thisParent != null){
-                            thisParentIsSelected = eagle.objectIsSelectedById(thisParent.getId())
-                            if(thisParentIsSelected){
-                                thisObject = thisParent
-                            }else{
-                                let alreadyAdded = false
-                                for(const x of outermostNodes){
-                                    if(x===thisObject){
-                                        alreadyAdded= true
-                                        break
-                                    }
-                                }
-                                if(!alreadyAdded){
-                                    outermostNodes.push(thisObject)
+            if (!(object instanceof Node)){
+                return
+            }
+
+            if(object.getParentKey() !== null){
+                let thisParentIsSelected = true
+                let thisObject = object
+                while (thisParentIsSelected){
+                    const thisParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(thisObject.getParentKey());
+                    if(thisParent != null){
+                        thisParentIsSelected = eagle.objectIsSelectedById(thisParent.getId())
+                        if(thisParentIsSelected){
+                            thisObject = thisParent
+                        }else{
+                            let alreadyAdded = false
+                            for(const x of outermostNodes){
+                                if(x===thisObject){
+                                    alreadyAdded= true
+                                    break
                                 }
                             }
-                        }else{
-                            outermostNodes.push(thisObject)
-                            break
+                            if(!alreadyAdded){
+                                outermostNodes.push(thisObject)
+                            }
                         }
+                    }else{
+                        outermostNodes.push(thisObject)
+                        break
                     }
-                }else{
-                    outermostNodes.push(object)
                 }
+            }else{
+                outermostNodes.push(object)
             }
         })
         return outermostNodes

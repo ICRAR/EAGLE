@@ -697,8 +697,6 @@ export class LogicalGraph {
         let maxDepth: number = -1;
         let maxDepthOverlap: Node = null;
 
-        // console.log(overlaps)
-
         for (const overlap of overlaps){
             const depth = this.findDepthByKey(overlap.getKey());
 
