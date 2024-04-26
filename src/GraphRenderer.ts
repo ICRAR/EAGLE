@@ -83,28 +83,10 @@ ko.bindingHandlers.nodeRenderHandler = {
                 const eagle : Eagle = Eagle.getInstance();
                 node = eagle.logicalGraph().findNodeByKey(node.getParentKey())
             }
-            GraphRenderer.resizeConstruct(node,false)
+                GraphRenderer.resizeConstruct(node,false)
             }
     },
 };
-
-//port html elements will have a data bind to the port position saved on the field - This is an observable
-
-//save the calculated connection angle on the field (this is the ideal position)
-//then check if this is abvailable using a node.getfields.getangle Loop
-//if so, write it into the port position, this will trigger the html data-bind to draw/redraw the port
-//if not available we add a set amount to the closest port's position, repeating until we find an available spot, saving each port we are colliding with
-//this set amount is a dinstance we need to keep. we will have to calculate an angle based on the radius of a node to keep this distance
-//we then do the same but subtracting the set amount
-//use the lower distance
-//figure out the mean angle of this 'port group' and center them. update all of their port positions
-
-//first dangling port, check for biggest gap
-//check if half of the biggest gap is still bigger than the second biggest gap
-//if so use the center of half of the biggest gap in input ports left bound, output right
-//place the dangling port
-//if another dangling port is updated, check if a dangling port of the same type has already been placed(input of output)
-//if so have them share the space, if not enough space is available, find another spot
 
 ko.bindingHandlers.embeddedAppPosition = {
     update: function (element:any, valueAccessor) {
@@ -1248,6 +1230,10 @@ export class GraphRenderer {
         GraphRenderer.dragSelectionHandled(true)
         eagle.isDragging(false);
         eagle.draggingNode(null);
+        
+        //this is a little hack to force affected constructs to update their size on mouse up its neccessary
+        eagle.selectedObjects(eagle.selectedObjects())
+
     }
 
     static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
