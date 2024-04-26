@@ -337,7 +337,7 @@ export class GraphRenderer {
     static isDraggingSelectionRegion :boolean = false;
     static selectionRegionStart = {x:0, y:0};
     static selectionRegionEnd = {x:0, y:0};
-    static shiftDrag = false;
+    static ctrlDrag = false;
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
@@ -1073,18 +1073,13 @@ export class GraphRenderer {
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
 
-                //TODO need ot make sure the node here is the top most node in a chain of selected constructs, currently it is always the click target
-                //WHEN dragging a construct that has another construct inside, you cannot parent it into a third construct and resizing is messy
-                //WHEN dragging an object into a construct and without dropping it, try to pull it back out, the distance for it to let go is much farther than if you drop then drag it back out.
-                //we have a bug here where only the drag target gets parented when dragging a multi selection into a construct
-
                 //creating an array that contains all of the outermost nodes in the selected array
                 const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
 
                 const node:Node = eagle.draggingNode()
                 $('.node.transition').removeClass('transition') //this is for the bubble jump effect which we dont want here
 
-                this.shiftDrag = event.shiftKey;
+                this.ctrlDrag = event.ctrlKey;
 
                 // move node
                 eagle.selectedObjects().forEach(function(obj){
@@ -1172,7 +1167,7 @@ export class GraphRenderer {
     static endDrag = (node: Node) : void => {
         const eagle = Eagle.getInstance();
         
-        this.shiftDrag = false;
+        this.ctrlDrag = false;
 
         // if we dragged a selection region
         if (GraphRenderer.isDraggingSelectionRegion){
@@ -1549,7 +1544,7 @@ export class GraphRenderer {
 
         // loop through all children - find distance from center of construct
         for (const node of eagle.logicalGraph().getNodes()){
-            if(GraphRenderer.shiftDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelectedByKey(node.getParentKey())){
+            if(GraphRenderer.ctrlDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelectedByKey(node.getParentKey())){
                 continue
             }
             if (node.getParentKey() === construct.getKey()){
