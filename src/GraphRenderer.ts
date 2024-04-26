@@ -1095,7 +1095,6 @@ export class GraphRenderer {
                 //WHEN dragging an object into a construct and without dropping it, try to pull it back out, the distance for it to let go is much farther than if you drop then drag it back out.
                 //we have a bug here where only the drag target gets parented when dragging a multi selection into a construct
 
-
                 //creating an array that contains all of the outermost nodes in the selected array
                 const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
 
@@ -1137,6 +1136,7 @@ export class GraphRenderer {
                     // if a parent was found, update
                     if (parent !== null && outerMostNode.getParentKey() !== parent.getKey() && outerMostNode.getKey() !== parent.getKey() && !ancestorOfParent && !outerMostNode.isEmbedded()){
                         GraphRenderer._updateNodeParent(outerMostNode, parent.getKey(), updated, allowGraphEditing);
+                        GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByKeyQuiet(parent.getKey()).getRadius()
                     }
 
                     // if no parent found, update
@@ -1186,7 +1186,6 @@ export class GraphRenderer {
         if(GraphRenderer.draggingPort){
             GraphRenderer.portDragging(event)
         }
-        
     }
 
     static endDrag = (node: Node) : void => {
