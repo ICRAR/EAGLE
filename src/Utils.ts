@@ -1592,7 +1592,6 @@ export class Utils {
         const dx = constructX - nodeX;
         const dy = constructY - nodeY;
         const distance = Math.sqrt(dx*dx + dy*dy);
-        console.log(distance,constructRadius)
         return distance <= constructRadius;
     }
 
