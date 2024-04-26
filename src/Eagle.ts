@@ -764,6 +764,49 @@ export class Eagle {
         return false;
     }
 
+    getOutermostSelectedNodes = () : Node[] => {
+        const outermostNodes : Node[] = []
+        const selectedNodes = this.selectedObjects()
+        const eagle = this
+
+        selectedNodes.forEach(function(object){
+            if (!(object instanceof Node)){
+                return
+            }
+
+            if(object.getParentKey() !== null){
+                let thisParentIsSelected = true
+                let thisObject = object
+                while (thisParentIsSelected){
+                    const thisParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(thisObject.getParentKey());
+                    if(thisParent != null){
+                        thisParentIsSelected = eagle.objectIsSelectedById(thisParent.getId())
+                        if(thisParentIsSelected){
+                            thisObject = thisParent
+                        }else{
+                            let alreadyAdded = false
+                            for(const x of outermostNodes){
+                                if(x===thisObject){
+                                    alreadyAdded= true
+                                    break
+                                }
+                            }
+                            if(!alreadyAdded){
+                                outermostNodes.push(thisObject)
+                            }
+                        }
+                    }else{
+                        outermostNodes.push(thisObject)
+                        break
+                    }
+                }
+            }else{
+                outermostNodes.push(object)
+            }
+        })
+        return outermostNodes
+    }
+
     /**
      * Uploads a file from a local file location.
      */
@@ -3254,7 +3297,7 @@ export class Eagle {
             newNode.setCollapsed(false);
 
             // set parent (if the node was dropped on something)
-            const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), newNode.getKey(), true);
+            const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), false);
 
             // if a parent was found, update
             if (parent !== null && newNode.getParentKey() !== parent.getKey() && newNode.getKey() !== parent.getKey()){
@@ -4313,7 +4356,7 @@ export class Eagle {
             y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(y)
 
             // check position is suitable, doesn't collide with any existing nodes
-            const collision = this.logicalGraph().checkForNodeAt(x, y, width, height, null);
+            const collision = this.logicalGraph().checkForNodeAt(x, y, width, false);
             suitablePositionFound = collision === null;
 
             numIterations += 1;
