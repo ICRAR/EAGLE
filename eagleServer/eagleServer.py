@@ -132,21 +132,6 @@ def send_src(filename):
     return send_from_directory(srcdir, filename)
 
 
-@app.route("/uploadFile", methods=["POST"])
-def upload_file():
-    """
-    FLASK POST routing method for '/uploadFile'
-
-    Uploads a custom file from local computer.
-    """
-    f = request.files["file"]
-    buffer_ = list()
-    buffer_.append("Content-type: %s" % f.content_type)
-    result_string = f.stream.read()
-    buffer_.append("File content: %s" % f.stream.read())
-    return result_string
-
-
 @app.route("/saveFileToLocal", methods=["POST"])
 def save():
     """
