@@ -1787,6 +1787,27 @@ export class Eagle {
         const complete: boolean[] = [];
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
+        // if offline, try to load palettes from localStorage
+        if (!navigator.onLine){
+            for (let i = 0 ; i < paletteList.length ; i++){
+                const paletteData = localStorage.getItem(paletteList[i].filename);
+
+                if (paletteData === null){
+                    console.warn("EAGLE Offline: unable to fetch palette. Palette also unavailable from localStorage.");
+                } else {
+                    console.warn("EAGLE Offline: unable to fetch palette. Palette loaded from localStorage.");
+
+                    const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.DUMMY, "", paletteList[i].name), errorsWarnings);
+                    // TODO: do we need all the fileInfo() set here?
+                    results.push(palette);
+                }
+            }
+
+            callback(errorsWarnings, results);
+
+            return;
+        }
+
         for (let i = 0 ; i < paletteList.length ; i++){
             results.push(null);
             complete.push(false);
@@ -1812,6 +1833,9 @@ export class Eagle {
                     // sort palette and add to results
                     palette.sort();
                     results[index] = palette;
+
+                    // save to localStorage
+                    localStorage.setItem(paletteList[index].filename, data);
                 }
 
                 // check if all requests are now complete, then we can call the callback
