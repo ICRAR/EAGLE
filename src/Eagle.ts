@@ -865,38 +865,45 @@ export class Eagle {
      * Uploads a file from a local file location. File will be "insert"ed into the current graph
      */
     insertLocalGraphFile = () : void => {
-        const uploadedGraphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToInsert");
-        const fileFullPath : string = uploadedGraphFileToInsertInputElement.value;
+        const graphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToInsert");
+        const fileFullPath : string = graphFileToInsertInputElement.value;
         const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const eagle: Eagle = this;
 
         // abort if value is empty string
         if (fileFullPath === ""){
             return;
         }
 
-        // Gets the file from formdata.
-        const formData = new FormData();
-        formData.append('file', uploadedGraphFileToInsertInputElement.files[0]);
-        uploadedGraphFileToInsertInputElement.value = "";
+        // get reference to file from the html element
+        const file = graphFileToInsertInputElement.files[0];
 
-        Utils.httpPostForm('/uploadFile', formData, (error : string, data : string) : void => {
-            if (error !== null){
-                console.error(error);
-                return;
+        // read the file
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsText(file, "UTF-8");
+            reader.onload = function (evt) {
+                const data: string = evt.target.result.toString();
+
+                eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                    const parentNode: Node = new Node(Utils.newKey(eagle.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+    
+                    eagle.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
+    
+                    // TODO: handle errors and warnings
+    
+                    eagle.checkGraph();
+                    eagle.undo().pushSnapshot(eagle, "Insert Logical Graph");
+                    eagle.logicalGraph.valueHasMutated();
+                });
             }
+            reader.onerror = function (evt) {
+                console.error("error reading file", evt);
+            }
+        }
 
-            this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
-
-                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
-
-                // TODO: handle errors and warnings
-
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Insert Logical Graph");
-                this.logicalGraph.valueHasMutated();
-            });
-        });
+        // reset file selection element
+        graphFileToInsertInputElement.value = "";
     }
 
     private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
@@ -1252,11 +1259,11 @@ export class Eagle {
      }
 
      getGraphFileToInsert = () : void => {
-         document.getElementById("uploadedGraphFileToInsert").click();
+         document.getElementById("graphFileToInsert").click();
      }
 
     getPaletteFileToLoad = () : void => {
-        document.getElementById("uploadedPaletteFileToLoad").click();
+        document.getElementById("paletteFileToLoad").click();
     }
 
     /**
