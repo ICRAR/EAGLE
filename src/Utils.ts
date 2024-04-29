@@ -53,8 +53,6 @@ export class Utils {
     ];
 
     static ojsGraphSchema : object = {};
-    static v3GraphSchema : object = {};
-    static appRefGraphSchema : object = {};
 
     /**
      * Generates a UUID.
@@ -2158,6 +2156,21 @@ export class Utils {
     }
 
     static loadSchemas() : void {
+        // if offline, try to load schema from localStorage
+        if (!navigator.onLine){
+            const schema = localStorage.getItem('ojsGraphSchema');
+
+            if (schema === null){
+                console.warn("EAGLE Offline: unable to fetch graph schema. Schema also unavailable from localStorage.");
+            } else {
+                console.warn("EAGLE Offline: unable to fetch graph schema. Schema loaded from localStorage.");
+                Utils.ojsGraphSchema = JSON.parse(schema)
+            }
+
+            return;
+        }
+
+        // otherwise, if online, fetch the schema
         Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL, (error : string, data : string) => {
             if (error !== null){
                 console.error(error);
@@ -2166,9 +2179,8 @@ export class Utils {
 
             Utils.ojsGraphSchema = JSON.parse(data);
 
-            // NOTE: we don't have a schema for the V3 or appRef versions
-            Utils.v3GraphSchema = JSON.parse(data);
-            Utils.appRefGraphSchema = JSON.parse(data);
+            // write to localStorage
+            localStorage.setItem('ojsGraphSchema', data);
         });
     }
 
