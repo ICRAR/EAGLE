@@ -1185,30 +1185,37 @@ export class Eagle {
      * Loads a custom palette from a file.
      */
     loadLocalPaletteFile = () : void => {
-        const uploadedPaletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedPaletteFileToLoad");
-        const fileFullPath : string = uploadedPaletteFileInputElement.value;
+        const paletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("paletteFileToLoad");
+        const fileFullPath : string = paletteFileInputElement.value;
+        const eagle: Eagle = this;
 
         // abort if value is empty string
         if (fileFullPath === ""){
             return;
         }
 
-        // Get and load the specified configuration file.
-        const formData = new FormData();
-        formData.append('file', uploadedPaletteFileInputElement.files[0]);
-        uploadedPaletteFileInputElement.value = "";
+        // get a reference to the file in the html element
+        const file = paletteFileInputElement.files[0];
+        
+        // read the file
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsText(file, "UTF-8");
+            reader.onload = function (evt) {
+                const data: string = evt.target.result.toString();
 
-        Utils.httpPostForm('/uploadFile', formData, (error : string, data : string) : void => {
-            if (error !== null){
-                console.error(error);
-                return;
+                eagle._loadPaletteJSON(data, fileFullPath);
+
+                eagle.palettes()[0].fileInfo().repositoryService = Eagle.RepositoryService.File;
+                eagle.palettes()[0].fileInfo.valueHasMutated();
             }
-
-            this._loadPaletteJSON(data, fileFullPath);
-
-            this.palettes()[0].fileInfo().repositoryService = Eagle.RepositoryService.File;
-            this.palettes()[0].fileInfo.valueHasMutated();
-        });
+            reader.onerror = function (evt) {
+                console.error("error reading file", evt);
+            }
+        }
+        
+        // reset file selection element
+        paletteFileInputElement.value = "";
     }
 
     private _loadPaletteJSON = (data: string, fileFullPath: string) => {
