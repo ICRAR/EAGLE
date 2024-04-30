@@ -3297,9 +3297,14 @@ export class Eagle {
             newNode.setCollapsed(false);
 
             // set parent (if the node was dropped on something)
-            const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), false);
+            let parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), false);
 
-            // if a parent was found, update
+            // if parent is not a group
+            if (!parent.isGroup()){
+                parent = null;
+            }
+
+            // if a suitable parent was found, update
             if (parent !== null && newNode.getParentKey() !== parent.getKey() && newNode.getKey() !== parent.getKey()){
                 newNode.setParentKey(parent.getKey());
             }
