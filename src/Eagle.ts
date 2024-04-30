@@ -1055,7 +1055,7 @@ export class Eagle {
             parentNodePosition = this.getNewNodePosition(bbSize.x, bbSize.y);
 
             // set attributes of parentNode
-            parentNode.setPosition(parentNodePosition.x, parentNodePosition.y);
+            parentNode.setPosition(parentNodePosition.x+(bbSize.x/2), parentNodePosition.y+(bbSize.y/2));
             parentNode.setRadius(Math.max(bbSize.x, bbSize.y));
             parentNode.setCollapsed(true);
         } else {
