@@ -713,6 +713,19 @@ export class Utils {
         $('#errorsModal').modal("hide");
     }
 
+    static preparePalette(palette: Palette, paletteListItem: {name:string, filename:string, readonly:boolean}) : void {
+        palette.fileInfo().clear();
+        palette.fileInfo().name = paletteListItem.name;
+        palette.fileInfo().readonly = paletteListItem.readonly;
+        palette.fileInfo().builtIn = true;
+        palette.fileInfo().downloadUrl = paletteListItem.filename;
+        palette.fileInfo().type = Eagle.FileType.Palette;
+        palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
+
+        // sort palette and add to results
+        palette.sort();
+    }
+
     static showPalettesModal(eagle: Eagle) : void {
         const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 

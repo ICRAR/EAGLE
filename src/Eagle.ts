@@ -1793,12 +1793,13 @@ export class Eagle {
                 const paletteData = localStorage.getItem(paletteList[i].filename);
 
                 if (paletteData === null){
-                    console.warn("EAGLE Offline: unable to fetch palette. Palette also unavailable from localStorage.");
+                    console.warn("EAGLE Offline: unable to fetch palette '" + paletteList[i].name + "'. Palette also unavailable from localStorage.");
                 } else {
-                    console.warn("EAGLE Offline: unable to fetch palette. Palette loaded from localStorage.");
+                    console.warn("EAGLE Offline: unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
 
                     const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.DUMMY, "", paletteList[i].name), errorsWarnings);
-                    // TODO: do we need all the fileInfo() set here?
+                    Utils.preparePalette(palette, paletteList[i]);
+
                     results.push(palette);
                 }
             }
@@ -1822,16 +1823,9 @@ export class Eagle {
                     errorsWarnings.errors.push(Errors.Message(error));
                 } else {
                     const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
-                    palette.fileInfo().clear();
-                    palette.fileInfo().name = paletteList[index].name;
-                    palette.fileInfo().readonly = paletteList[index].readonly;
-                    palette.fileInfo().builtIn = true;
-                    palette.fileInfo().downloadUrl = paletteList[index].filename;
-                    palette.fileInfo().type = Eagle.FileType.Palette;
-                    palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
+                    Utils.preparePalette(palette, paletteList[index]);
 
-                    // sort palette and add to results
-                    palette.sort();
+                    // add to results
                     results[index] = palette;
 
                     // save to localStorage
