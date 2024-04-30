@@ -626,7 +626,7 @@ export class Utils {
         $('#editFieldModal').modal("toggle");
     }
 
-    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void) : void {
+    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) => void) : void {
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
         $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
@@ -1273,7 +1273,7 @@ export class Utils {
         return repositoryName+"|"+repositoryBranch;
     }
 
-    static buildComponentList(filter: (cData: CategoryData) => boolean) : Category[] {
+    static buildComponentList(filter: (cData: Category.CategoryData) => boolean) : Category[] {
         const result : Category[] = [];
 
         for (const category in CategoryData.cData){

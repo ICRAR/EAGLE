@@ -21,7 +21,7 @@ export class RepositoryFile {
         this.type = Utils.getFileTypeFromFileName(this.name);
     }
 
-    getIconUrl : ko.PureComputed<string> = ko.pureComputed(() => {
+    getIconUrl : ko.PureComputed<string> = ko.pureComputed(() : string => {
 
         switch (this.type){
             case Eagle.FileType.Graph:

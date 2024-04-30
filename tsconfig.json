@@ -8,9 +8,12 @@
         "noImplicitReturns": true,
         "noImplicitThis": false,  // TODO: make true when possible
         "noFallthroughCasesInSwitch": true,
-        "noUnusedLocals": false,
-        "module": "umd",
+        "noUnusedLocals": false, // NOTE: would like to set this to true, but sometimes functions are only used within knockout html
+        "noUnusedParameters": false,
         "strictNullChecks" : false,
+        "strictFunctionTypes": false,
+        "strictPropertyInitialization": false,
+        "module": "umd",
         "moduleResolution": "node",
         "target": "es5",
         "lib": ["es2021", "dom"],
