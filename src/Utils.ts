@@ -1749,7 +1749,7 @@ export class Utils {
 
         const usage0 = field0.getUsage();
         const usage1 = field1.getUsage();
-        const newUsage = this._mergeUsage(usage0, usage1);
+        const newUsage = Utils._mergeUsage(usage0, usage1);
 
         // remove field1
         node.removeFieldByIndex(field1Index);
@@ -1758,7 +1758,7 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(eagle, field1.getId(), field0.getId());
+        Utils._mergeEdges(eagle, field1.getId(), field0.getId());
     }
 
     // NOTE: merges field1 into field0
@@ -1773,7 +1773,7 @@ export class Utils {
 
         const usage0 = field0.getUsage();
         const usage1 = field1.getUsage();
-        const newUsage = this._mergeUsage(usage0, usage1);
+        const newUsage = Utils._mergeUsage(usage0, usage1);
 
         // remove field1
         node.removeFieldById(field1.getId());
@@ -1782,7 +1782,7 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(eagle, field1.getId(), field0.getId());
+        Utils._mergeEdges(eagle, field1.getId(), field0.getId());
     }
 
     static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {

@@ -328,7 +328,7 @@ export class GraphRenderer {
     static isDraggingSelectionRegion :boolean = false;
     static selectionRegionStart = {x:0, y:0};
     static selectionRegionEnd = {x:0, y:0};
-    static ctrlDrag = false;
+    static ctrlDrag:boolean = null;
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
@@ -882,7 +882,7 @@ export class GraphRenderer {
         const srcField: Field = srcNode.findFieldById(edge.getSrcPortId());
         const destField: Field = destNode.findFieldById(edge.getDestPortId());
 
-        return this._getPath(edge,srcNode, destNode, srcField, destField);
+        return GraphRenderer._getPath(edge,srcNode, destNode, srcField, destField);
     }
 
     static getPathComment(commentNode: Node) : string {
@@ -891,7 +891,7 @@ export class GraphRenderer {
         const srcNode: Node = commentNode;
         const destNode: Node = lg.findNodeByKeyQuiet(commentNode.getSubjectKey());
 
-        return this._getPath(null,srcNode, destNode, null, null);
+        return GraphRenderer._getPath(null,srcNode, destNode, null, null);
     }
 
     static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -1016,7 +1016,7 @@ export class GraphRenderer {
 
             //check for alt clicking, if so, add the target node and its children to the selection
             if(event.altKey&&node.isGroup()||GraphRenderer.dragSelectionDoubleClick&&node.isGroup()){
-                GraphRenderer.selectNodeAndChildren(node,this.shiftSelect)
+                GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
             }
         }else{
             if(event.shiftKey && event.button === 0){
@@ -1063,7 +1063,7 @@ export class GraphRenderer {
                 const node:Node = eagle.draggingNode()
                 $('.node.transition').removeClass('transition') //this is for the bubble jump effect which we dont want here
 
-                this.ctrlDrag = event.ctrlKey;
+                GraphRenderer.ctrlDrag = event.ctrlKey;
 
                 // move node
                 eagle.selectedObjects().forEach(function(obj){
@@ -1118,7 +1118,7 @@ export class GraphRenderer {
                     }
                 })
             } else if(GraphRenderer.isDraggingSelectionRegion){
-                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null), y:this.SCREEN_TO_GRAPH_POSITION_Y(null)}
+                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null), y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
                 const containerWidth = $('#logicalGraph').width()
                 const containerHeight = $('#logicalGraph').height()
 
@@ -1149,7 +1149,7 @@ export class GraphRenderer {
     static endDrag(node: Node) : void {
         const eagle = Eagle.getInstance();
         
-        this.ctrlDrag = false;
+        GraphRenderer.ctrlDrag = false;
 
         // if we dragged a selection region
         if (GraphRenderer.isDraggingSelectionRegion){
@@ -1158,7 +1158,7 @@ export class GraphRenderer {
             //checking if there was no drag distance, if so we are clicking a single object and we will toggle its selection
             if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
                 if(GraphRenderer.altSelect){
-                    GraphRenderer.selectNodeAndChildren(node,this.shiftSelect)
+                    GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
                 }
                 eagle.editSelection(Eagle.RightWindowMode.Inspector, node,Eagle.FileType.Graph);
             }else{
@@ -1615,14 +1615,14 @@ export class GraphRenderer {
                 destPort = GraphRenderer.portDragSuggestedField();
             }
 
-            this.createEdge(srcNode, srcPort, destNode, destPort);
+            GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
 
             // we can stop rendering the dragging edge
             GraphRenderer.renderDraggingPortEdge(false);
             GraphRenderer.clearEdgeVars();
         } else {
             if (GraphRenderer.destinationPort === null){
-                this.showUserNodeSelectionContextMenu();
+                GraphRenderer.showUserNodeSelectionContextMenu();
             } else {
                 // connect to destination port
                 const srcNode: Node = GraphRenderer.portDragSourceNode();
@@ -1630,7 +1630,7 @@ export class GraphRenderer {
                 const destNode: Node = GraphRenderer.destinationNode;
                 const destPort: Field = GraphRenderer.destinationPort;
 
-                this.createEdge(srcNode, srcPort, destNode, destPort);
+                GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
 
                 // we can stop rendering the dragging edge
                 GraphRenderer.renderDraggingPortEdge(false);

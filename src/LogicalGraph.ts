@@ -113,7 +113,7 @@ export class LogicalGraph {
     static toOJSJsonString(graph : LogicalGraph, forTranslation : boolean) : string {
         let result: string = "";
 
-        const json: any = this.toOJSJson(graph, forTranslation);
+        const json: any = LogicalGraph.toOJSJson(graph, forTranslation);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
