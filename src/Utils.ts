@@ -56,6 +56,9 @@ export class Utils {
     static v3GraphSchema : object = {};
     static appRefGraphSchema : object = {};
 
+
+    static ojsPaletteSchema : object = {};
+
     /**
      * Generates a UUID.
      * See https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
@@ -1472,8 +1475,10 @@ export class Utils {
             case Daliuge.SchemaVersion.OJS:
                 switch(fileType){
                     case Eagle.FileType.Graph:
-                    case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
+                        break;
+                    case Eagle.FileType.Palette:
+                        valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
                         break;
                     default:
                         console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
@@ -2165,6 +2170,12 @@ export class Utils {
             }
 
             Utils.ojsGraphSchema = JSON.parse(data);
+            Utils.ojsPaletteSchema = JSON.parse(data);
+
+            // HACK: we modify the palette schema from the graph schema!
+            for (const notRequired of ["isGroup", "color", "drawOrderHint", "x", "y", "collapsed", "subject", "expanded"]){
+                (<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required.splice((<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required.indexOf(notRequired), 1);
+            }
 
             // NOTE: we don't have a schema for the V3 or appRef versions
             Utils.v3GraphSchema = JSON.parse(data);
