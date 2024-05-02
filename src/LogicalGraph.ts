@@ -113,7 +113,7 @@ export class LogicalGraph {
     static toOJSJsonString(graph : LogicalGraph, forTranslation : boolean) : string {
         let result: string = "";
 
-        const json: any = this.toOJSJson(graph, forTranslation);
+        const json: any = LogicalGraph.toOJSJson(graph, forTranslation);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
@@ -749,7 +749,7 @@ export class LogicalGraph {
         return result;
     }, this);
 
-    static normaliseNodes(nodes: Node[]) : {x: number, y: number} {
+    static normaliseNodes(nodes: Node[]) : number {
         let minX = Number.MAX_SAFE_INTEGER;
         let maxX = Number.MIN_SAFE_INTEGER;
         let minY = Number.MAX_SAFE_INTEGER;
@@ -773,13 +773,15 @@ export class LogicalGraph {
                 maxY = node.getPosition().y + node.getRadius();
             }
         }
+        
+        const radius = Math.max(maxX - minX,maxY - minY)
 
         // move all nodes so that the top left corner of the graph starts at the origin 0,0
         for (const node of nodes){
             const pos = node.getPosition();
-            node.setPosition(pos.x - minX + GraphConfig.CONSTRUCT_MARGIN, pos.y - minY + GraphConfig.CONSTRUCT_MARGIN);
+            node.setPosition(pos.x - minX + GraphConfig.CONSTRUCT_MARGIN, pos.y - minY + GraphConfig.CONSTRUCT_MARGIN+(radius/4));
         }
 
-        return {x: maxX - minX + GraphConfig.CONSTRUCT_MARGIN + GraphConfig.CONSTRUCT_MARGIN, y: maxY - minY + GraphConfig.CONSTRUCT_MARGIN + GraphConfig.CONSTRUCT_MARGIN};
+        return radius;
     }
 }

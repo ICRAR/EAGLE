@@ -1052,11 +1052,11 @@ export class Eagle {
             const bbSize = LogicalGraph.normaliseNodes(nodes);
 
             // find a suitable position for the parent node
-            parentNodePosition = this.getNewNodePosition(bbSize.x, bbSize.y);
+            parentNodePosition = this.getNewNodePosition(bbSize);
 
             // set attributes of parentNode
-            parentNode.setPosition(parentNodePosition.x, parentNodePosition.y);
-            parentNode.setRadius(Math.max(bbSize.x, bbSize.y));
+            parentNode.setPosition(parentNodePosition.x+(bbSize/2), parentNodePosition.y+(bbSize/2));
+            parentNode.setRadius(bbSize);
             parentNode.setCollapsed(true);
         } else {
             parentNodePosition = {x: DUPLICATE_OFFSET, y: DUPLICATE_OFFSET};
@@ -3283,7 +3283,7 @@ export class Eagle {
         if(pos.x === 0 && pos.y === 0){
             // get new position for node
             if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
-                pos = this.getNewNodePosition(node.getRadius(), node.getRadius());
+                pos = this.getNewNodePosition(node.getRadius());
             } else {
                 pos = Eagle.nodeDropLocation;
             }
@@ -4328,7 +4328,7 @@ export class Eagle {
         });
     }
 
-    getNewNodePosition = (width: number, height: number) : {x:number, y:number} => {
+    getNewNodePosition = (radius: number) : {x:number, y:number} => {
         const MARGIN = 100; // buffer to keep new nodes away from the maxX and maxY sides of the LG display area
         const navBarHeight = 84
         let suitablePositionFound = false;
@@ -4340,9 +4340,9 @@ export class Eagle {
         while (!suitablePositionFound && numIterations <= MAX_ITERATIONS){
             // get visible screen size
             const minX = this.leftWindow().shown() ? this.leftWindow().width()+MARGIN: 0+MARGIN;
-            const maxX = this.rightWindow().shown() ? $('#logicalGraphParent').width() - this.rightWindow().width() - width - MARGIN : $('#logicalGraphParent').width() - width - MARGIN;
+            const maxX = this.rightWindow().shown() ? $('#logicalGraphParent').width() - this.rightWindow().width() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
             const minY = 0 + navBarHeight + MARGIN;
-            const maxY = $('#logicalGraphParent').height() - height - MARGIN + navBarHeight;
+            const maxY = $('#logicalGraphParent').height() - MARGIN + navBarHeight;
 
             // choose random position within minimums and maximums determined above
             const randomX = Math.floor(Math.random() * (maxX - minX + 1) + minX);
@@ -4356,7 +4356,7 @@ export class Eagle {
             y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(y)
 
             // check position is suitable, doesn't collide with any existing nodes
-            const collision = this.logicalGraph().checkForNodeAt(x, y, width, false);
+            const collision = this.logicalGraph().checkForNodeAt(x, y, radius, false);
             suitablePositionFound = collision === null;
 
             numIterations += 1;

@@ -11,7 +11,7 @@ export class UiModeSystem {
     }
 
     static getActiveUiMode() : UiMode {
-        return this.activeUiMode;
+        return UiModeSystem.activeUiMode;
     }
 
     static getUiModeNamesList() : string[] {
@@ -38,7 +38,7 @@ export class UiModeSystem {
 
     static getUiModeByName(name:string) : UiMode {
         let result = null
-        this.getUiModes().forEach(function(uiMode){
+        UiModeSystem.getUiModes().forEach(function(uiMode){
             if(name === uiMode.getName()){
                 result = uiMode
             }
@@ -47,7 +47,7 @@ export class UiModeSystem {
     }
 
     static setActiveUiMode(newActiveUiMode:UiMode) : void {
-        this.activeUiMode = newActiveUiMode;
+        UiModeSystem.activeUiMode = newActiveUiMode;
 
         //setting up the settings array with the selected ui mode
         UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
@@ -102,8 +102,8 @@ export class UiModeSystem {
         //essentially we wait for one second with the cooldown, then upload the accumulated changes and reset the cooldown.
         //the unwanted calls to save are due to the need to have the Settings class array and UiModes Class Array linked
         //this is because settings is essentially a copy of the active ui mode interacting with the ui and it has a subscribe function to keep the uimodes array in sync when it is changed by the user.
-        if(this.localStorageUpdateCoolDown===false){
-            this.localStorageUpdateCoolDown = true;
+        if(UiModeSystem.localStorageUpdateCoolDown===false){
+            UiModeSystem.localStorageUpdateCoolDown = true;
             setTimeout(function () {
                 const uiModesObj : any[] = []
                 UiModeSystem.getUiModes().forEach(function(uiMode:UiMode){
