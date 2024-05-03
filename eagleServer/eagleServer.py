@@ -649,7 +649,12 @@ def open_git_hub_file():
         filename = folder_name + "/" + filename
 
     g = github.Github(repo_token)
-    repo = g.get_repo(repo_name)
+    try:
+        repo = g.get_repo(repo_name)
+    except Exception as e:
+        print(e)
+        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+
 
     # get commits
     commits = repo.get_commits(sha=repo_branch, path=filename)
@@ -751,7 +756,12 @@ def open_git_lab_file():
 
     # get the data from gitlab
     gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
-    gl.auth()
+
+    try:
+        gl.auth()
+    except Exception as e:
+        print(e)
+        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
 
     project = gl.projects.get(repo_name)
 
@@ -817,7 +827,11 @@ def open_url_file():
     # download via http get
     import certifi
     import ssl
-    raw_data = urllib.request.urlopen(url, context=ssl.create_default_context(cafile=certifi.where())).read()
+    try:
+        raw_data = urllib.request.urlopen(url, context=ssl.create_default_context(cafile=certifi.where())).read()
+    except Exception as e:
+        print(e)
+        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
 
     # parse JSON
     graph = json.loads(raw_data)
