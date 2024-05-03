@@ -810,88 +810,100 @@ export class Eagle {
     /**
      * Uploads a file from a local file location.
      */
-    uploadGraphFile = () : void => {
-        const uploadedGraphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToLoad");
-        const fileFullPath : string = uploadedGraphFileToLoadInputElement.value;
+    loadLocalGraphFile = () : void => {
+        const graphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToLoad");
+        const fileFullPath : string = graphFileToLoadInputElement.value;
+        const eagle: Eagle = this;
 
         // abort if value is empty string
         if (fileFullPath === ""){
             return;
         }
 
-        // Gets the file from formdata.
-        const formData = new FormData();
-        formData.append('file', uploadedGraphFileToLoadInputElement.files[0]);
-        uploadedGraphFileToLoadInputElement.value = "";
+        // get reference to file from the html element
+        const file = graphFileToLoadInputElement.files[0];
 
-        Utils.httpPostForm('/uploadFile', formData, (error : string, data : string) : void => {
-            if (error !== null){
-                console.error(error);
-                return;
+        // read the file
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsText(file, "UTF-8");
+            reader.onload = function (evt) {
+                const data: string = evt.target.result.toString();
+
+                eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                    eagle.logicalGraph(lg);
+    
+                    // center graph
+                    GraphRenderer.translateLegacyGraph()
+    
+                    //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
+                    setTimeout(function(){
+                        eagle.centerGraph()
+                    },50);
+    
+                    // update the activeFileInfo with details of the repository the file was loaded from
+                    if (fileFullPath !== ""){
+                        eagle.updateLogicalGraphFileInfo(Eagle.RepositoryService.File, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+                    }
+    
+                    // check graph
+                    eagle.checkGraph();
+                    eagle.undo().clear();
+                    eagle.undo().pushSnapshot(eagle, "Loaded " + fileFullPath);
+                });
             }
+            reader.onerror = function (evt) {
+                console.error("error reading file", evt);
+            }
+        }
 
-            this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                this.logicalGraph(lg);
-                const eagle = this
-
-                // center graph
-                GraphRenderer.translateLegacyGraph()
-
-                //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
-                setTimeout(function(){
-                    eagle.centerGraph()
-                    console.log(eagle)
-                },50)
-
-                // update the activeFileInfo with details of the repository the file was loaded from
-                if (fileFullPath !== ""){
-                    this.updateLogicalGraphFileInfo(Eagle.RepositoryService.File, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
-                }
-
-                // check graph
-                this.checkGraph();
-                this.undo().clear();
-                this.undo().pushSnapshot(this, "Loaded " + fileFullPath);
-            });
-        });
+        // reset file selection element
+        graphFileToLoadInputElement.value = "";
     }
 
     /**
      * Uploads a file from a local file location. File will be "insert"ed into the current graph
      */
-    insertGraphFile = () : void => {
-        const uploadedGraphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedGraphFileToInsert");
-        const fileFullPath : string = uploadedGraphFileToInsertInputElement.value;
+    insertLocalGraphFile = () : void => {
+        const graphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToInsert");
+        const fileFullPath : string = graphFileToInsertInputElement.value;
         const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const eagle: Eagle = this;
 
         // abort if value is empty string
         if (fileFullPath === ""){
             return;
         }
 
-        // Gets the file from formdata.
-        const formData = new FormData();
-        formData.append('file', uploadedGraphFileToInsertInputElement.files[0]);
-        uploadedGraphFileToInsertInputElement.value = "";
+        // get reference to file from the html element
+        const file = graphFileToInsertInputElement.files[0];
 
-        Utils.httpPostForm('/uploadFile', formData, (error : string, data : string) : void => {
-            if (error !== null){
-                console.error(error);
-                return;
+        // read the file
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsText(file, "UTF-8");
+            reader.onload = function (evt) {
+                const data: string = evt.target.result.toString();
+
+                eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                    const parentNode: Node = new Node(Utils.newKey(eagle.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+    
+                    eagle.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
+    
+                    // TODO: handle errors and warnings
+    
+                    eagle.checkGraph();
+                    eagle.undo().pushSnapshot(eagle, "Insert Logical Graph");
+                    eagle.logicalGraph.valueHasMutated();
+                });
             }
+            reader.onerror = function (evt) {
+                console.error("error reading file", evt);
+            }
+        }
 
-            this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
-
-                this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
-
-                // TODO: handle errors and warnings
-
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Insert Logical Graph");
-                this.logicalGraph.valueHasMutated();
-            });
-        });
+        // reset file selection element
+        graphFileToInsertInputElement.value = "";
     }
 
     private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
@@ -1172,31 +1184,38 @@ export class Eagle {
     /**
      * Loads a custom palette from a file.
      */
-    uploadPaletteFile = () : void => {
-        const uploadedPaletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("uploadedPaletteFileToLoad");
-        const fileFullPath : string = uploadedPaletteFileInputElement.value;
+    loadLocalPaletteFile = () : void => {
+        const paletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("paletteFileToLoad");
+        const fileFullPath : string = paletteFileInputElement.value;
+        const eagle: Eagle = this;
 
         // abort if value is empty string
         if (fileFullPath === ""){
             return;
         }
 
-        // Get and load the specified configuration file.
-        const formData = new FormData();
-        formData.append('file', uploadedPaletteFileInputElement.files[0]);
-        uploadedPaletteFileInputElement.value = "";
+        // get a reference to the file in the html element
+        const file = paletteFileInputElement.files[0];
+        
+        // read the file
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsText(file, "UTF-8");
+            reader.onload = function (evt) {
+                const data: string = evt.target.result.toString();
 
-        Utils.httpPostForm('/uploadFile', formData, (error : string, data : string) : void => {
-            if (error !== null){
-                console.error(error);
-                return;
+                eagle._loadPaletteJSON(data, fileFullPath);
+
+                eagle.palettes()[0].fileInfo().repositoryService = Eagle.RepositoryService.File;
+                eagle.palettes()[0].fileInfo.valueHasMutated();
             }
-
-            this._loadPaletteJSON(data, fileFullPath);
-
-            this.palettes()[0].fileInfo().repositoryService = Eagle.RepositoryService.File;
-            this.palettes()[0].fileInfo.valueHasMutated();
-        });
+            reader.onerror = function (evt) {
+                console.error("error reading file", evt);
+            }
+        }
+        
+        // reset file selection element
+        paletteFileInputElement.value = "";
     }
 
     private _loadPaletteJSON = (data: string, fileFullPath: string) => {
@@ -1242,16 +1261,16 @@ export class Eagle {
      * The following two functions allows the file selectors to be hidden and let tags 'click' them
      */
      getGraphFileToLoad = () : void => {
-         document.getElementById("uploadedGraphFileToLoad").click();
+         document.getElementById("graphFileToLoad").click();
          this.resetEditor()
      }
 
      getGraphFileToInsert = () : void => {
-         document.getElementById("uploadedGraphFileToInsert").click();
+         document.getElementById("graphFileToInsert").click();
      }
 
     getPaletteFileToLoad = () : void => {
-        document.getElementById("uploadedPaletteFileToLoad").click();
+        document.getElementById("paletteFileToLoad").click();
     }
 
     /**
