@@ -2687,7 +2687,7 @@ export class Eagle {
     }
 
     duplicateSelection = (mode:string) : void => {
-        console.log("duplicateSelection()", this.selectedObjects().length, "objects");
+        // console.log("duplicateSelection()", this.selectedObjects().length, "objects");
 
         let location: string;
         let incomingNodes = []; // TODO: declare type
