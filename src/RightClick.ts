@@ -385,6 +385,10 @@ export class RightClick {
             Eagle.selectedRightClickObject(data)
         }
 
+        if(data instanceof Edge){
+            eagle.setSelection(Eagle.RightWindowMode.Inspector,data,Eagle.FileType.Graph)
+        }
+
         // close any existing context menu
         //RightClick.closeCustomContextMenu(true);
         $('#customContextMenu').remove();
@@ -505,6 +509,8 @@ export class RightClick {
                     $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
 
             }else if(passedObjectClass === 'rightClick_graphEdge'){
+                $('#customContextMenu').append('<a onclick=Eagle.selectedRightClickObject().toggleLoopAware()>Toggle Loop Aware</a>')
+                $('#customContextMenu').append('<a onclick=eagle.toggleEdgeClosesLoop()>Toggle Closes Loop</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
     
             }else if(passedObjectClass === 'rightClick_paletteHeader'){
