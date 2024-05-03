@@ -904,8 +904,6 @@ export class Utils {
                 }));
             }
         }
-
-        $('#editEdgeModalDataTypeInput').val(edge.getDataType());
     }
 
     /**
@@ -1399,7 +1397,7 @@ export class Utils {
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
+            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
         }
 
         // check that all node, edge, field ids are unique
@@ -1699,16 +1697,6 @@ export class Utils {
             return false
         }
         return value.toLowerCase() === "true";
-    }
-
-    static fixEdgeType(eagle: Eagle, edgeId: string, newType: string) : void {
-        const edge = eagle.logicalGraph().findEdgeById(edgeId);
-
-        if (edge === null){
-            return;
-        }
-
-        edge.setDataType(newType);
     }
 
     static fixDeleteEdge(eagle: Eagle, edgeId: string): void {
@@ -2033,8 +2021,6 @@ export class Utils {
                 "peek":node.isPeek(),
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
-                // "realX":node.getRealPosition().x,
-                // "realY":node.getRealPosition().y,
                 "radius":node.getRadius(),
                 "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
                 "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
@@ -2060,7 +2046,6 @@ export class Utils {
                 "sourcePortId":edge.getSrcPortId(),
                 "destNodeKey":edge.getDestNodeKey(),
                 "destPortId":edge.getDestPortId(),
-                "dataType":edge.getDataType(),
                 "loopAware":edge.isLoopAware(),
                 "isSelectionRelative":edge.getSelectionRelative()
             });

@@ -2629,7 +2629,7 @@ export class Eagle {
         }
 
         // if input edge is null, then we are creating a new edge here, so initialise it with some default values
-        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", "", false, false, false);
+        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", false, false, false);
 
         // display edge editing modal UI
         Utils.requestUserEditEdge(newEdge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
@@ -2639,7 +2639,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Eagle.LinkValid.Impossible || isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -2684,7 +2684,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.getDataType(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Eagle.LinkValid.Impossible || isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -3897,52 +3897,6 @@ export class Eagle {
         });
     }
 
-    changeEdgeDataType = (edge: Edge) : void => {
-        // get reference to selected Edge
-        const selectedEdge: Edge = this.selectedEdge();
-
-        if (selectedEdge === null){
-            console.error("Attempt to change edge data type when no edge selected");
-            return;
-        }
-
-        // set selectedIndex to the index of the current data type within the allTypes list
-        let selectedIndex = 0;
-        for (let i = 0 ; i < this.types().length ; i++){
-            if (this.types()[i] === selectedEdge.getDataType()){
-                selectedIndex = i;
-                break;
-            }
-        }
-
-        // launch modal
-        Utils.requestUserChoice("Change Edge Data Type", "NOTE: changing a edge's data type will also change the data type of the source and destination ports", this.types(), selectedIndex, false, "", (completed:boolean, userChoiceIndex: number, userCustomString: string) => {
-            if (!completed){
-                return;
-            }
-
-            // get user selection
-            const newType = this.types()[userChoiceIndex];
-
-            // get references to the source and destination ports of this edge
-            const sourceNode = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-            const sourcePort = sourceNode.findFieldById(edge.getSrcPortId());
-            const destinationNode = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-            const destinationPort = destinationNode.findFieldById(edge.getDestPortId());
-
-            // update the edge and ports
-            edge.setDataType(newType);
-            sourcePort.setType(newType);
-            destinationPort.setType(newType);
-
-            // flag changes
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Change Edge Data Type");
-            this.selectedObjects.valueHasMutated();
-            this.logicalGraph.valueHasMutated();
-        });
-    }
-
     removeFieldFromNodeById = (node : Node, id: string) : void => {
         console.log("removeFieldFromNodeById(): node", node.getName(), "id", id);
 
@@ -4479,7 +4433,7 @@ export class Eagle {
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
-            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
+            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
             setTimeout(() => {
                 this.setSelection(Eagle.RightWindowMode.Hierarchy, edge,Eagle.FileType.Graph)
@@ -4549,8 +4503,8 @@ export class Eagle {
         }
 
         // create TWO edges, one from src to data component, one from data component to dest
-        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputOutputPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
-        const secondEdge : Edge = new Edge(newNodeKey, newInputOutputPort.getId(), destNode.getKey(), destPort.getId(), srcPort.getType(), loopAware, closesLoop, false);
+        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputOutputPort.getId(), loopAware, closesLoop, false);
+        const secondEdge : Edge = new Edge(newNodeKey, newInputOutputPort.getId(), destNode.getKey(), destPort.getId(), loopAware, closesLoop, false);
 
         this.logicalGraph().addEdgeComplete(firstEdge);
         this.logicalGraph().addEdgeComplete(secondEdge);
