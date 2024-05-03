@@ -1549,6 +1549,7 @@ export class GraphRenderer {
         GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null));
     }
 
+    // TODO: can we use the Daliuge.FieldUsage type here for the 'usage' parameter?
     static portDragStart(port:Field, usage:string) : void {
         const eagle = Eagle.getInstance();
 
