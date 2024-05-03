@@ -3250,16 +3250,20 @@ export class Eagle {
             if (!RightClick.edgeDropSrcIsInput){
                 this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false,null);
 
-                // name new node according to source port
+                // if the new node is a Data node, name the new node according to source port
                 const newName = realSourcePort.getDisplayText();
-                node.setName(newName);
+                if (node.isData()){
+                    node.setName(newName);
+                }
                 realDestPort.setDisplayText(newName);
             } else {
                 this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, null);
 
-                // name new node according to destination port
+                // if the new node is a Data node, name the new node according to destination port
                 const newName = realDestPort.getDisplayText();
-                node.setName(newName);
+                if (node.isData()){
+                    node.setName(newName);
+                }
                 realSourcePort.setDisplayText(newName);
             }
         });
