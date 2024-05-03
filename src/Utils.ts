@@ -354,6 +354,7 @@ export class Utils {
         });
     }
 
+    // TODO: gradually we should move to using the function below (httpPostJSONWithErrorHandler)
     static httpPostJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
         $.ajax({
             url : url,
@@ -368,6 +369,25 @@ export class Utils {
                     callback(error, null);
                 } else {
                     callback(xhr.responseJSON.error, null);
+                }
+            }
+        });
+    }
+
+    static httpPostJSONWithErrorHandler(url : string, json : object, successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
+        $.ajax({
+            url : url,
+            type : 'POST',
+            data : JSON.stringify(json),
+            contentType : 'application/json',
+            success : function(data : string) {
+                successCallback(data);
+            },
+            error: function(xhr, status, error : string) {
+                if (typeof xhr.responseJSON === 'undefined'){
+                    errorCallback(error);
+                } else {
+                    errorCallback(xhr.responseJSON.error);
                 }
             }
         });

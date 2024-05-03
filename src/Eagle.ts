@@ -1806,41 +1806,31 @@ export class Eagle {
         const complete: boolean[] = [];
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
-        // if offline, try to load palettes from localStorage
-        if (!navigator.onLine){
-            for (let i = 0 ; i < paletteList.length ; i++){
-                const paletteData = localStorage.getItem(paletteList[i].filename);
-
-                if (paletteData === null){
-                    console.warn("EAGLE Offline: unable to fetch palette '" + paletteList[i].name + "'. Palette also unavailable from localStorage.");
-                } else {
-                    console.warn("EAGLE Offline: unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
-
-                    const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.DUMMY, "", paletteList[i].name), errorsWarnings);
-                    Utils.preparePalette(palette, paletteList[i]);
-
-                    results.push(palette);
+        // define a function to check if all requests are now complete, if so we can call the callback
+        function _checkAllPalettesComplete() : void {
+            let allComplete = true;
+            for (const requestComplete of complete){
+                if (!requestComplete){
+                    allComplete = false;
                 }
             }
-
-            callback(errorsWarnings, results);
-
-            return;
+            if (allComplete){
+                callback(errorsWarnings, results);
+            }
         }
 
+        // start trying to load the palettes
         for (let i = 0 ; i < paletteList.length ; i++){
             results.push(null);
             complete.push(false);
             const index = i;
             const data = {url: paletteList[i].filename};
 
-            Utils.httpPostJSON("/openRemoteUrlFile", data, (error: string, data: string) => {
-                complete[index] = true;
+            Utils.httpPostJSONWithErrorHandler("/openRemoteUrlFile", data,
+                (data: string) => {
+                    // palette fetched successfully
+                    complete[index] = true;
 
-                if  (error !== null){
-                    console.error(error);
-                    errorsWarnings.errors.push(Errors.Message(error));
-                } else {
                     const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
                     Utils.preparePalette(palette, paletteList[index]);
 
@@ -1849,19 +1839,32 @@ export class Eagle {
 
                     // save to localStorage
                     localStorage.setItem(paletteList[index].filename, data);
-                }
+                    
+                    _checkAllPalettesComplete();
+                },
+                (error: string) => {
+                    // an error occurred when fetching the palette
+                    complete[index] = true;
 
-                // check if all requests are now complete, then we can call the callback
-                let allComplete = true;
-                for (const requestComplete of complete){
-                    if (!requestComplete){
-                        allComplete = false;
+                    errorsWarnings.errors.push(Errors.Message(error));
+
+                    // try to load palette from localStorage
+                    const paletteData = localStorage.getItem(paletteList[i].filename);
+
+                    if (paletteData === null){
+                        console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette also unavailable from localStorage.");
+                    } else {
+                        console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
+
+                        const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.DUMMY, "", paletteList[i].name), errorsWarnings);
+                        Utils.preparePalette(palette, paletteList[i]);
+
+                        results[index] = palette;
                     }
+
+                    _checkAllPalettesComplete();
                 }
-                if (allComplete){
-                    callback(errorsWarnings, results);
-                }
-            });
+            );
         }
     }
 
