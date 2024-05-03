@@ -2252,7 +2252,7 @@ export class Utils {
     }
 
     static openRemoteFileFromUrl(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        Utils.httpGet(fileName, callback);
+        Utils.httpGet(fileName, (data: string) => {callback(null, data)}, (error: string) => {callback(error, null)});
     }
 
     static copyFieldsFromPrototype(node: Node, paletteName: string, category: Category) : void {
