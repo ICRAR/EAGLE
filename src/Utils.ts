@@ -311,14 +311,14 @@ export class Utils {
         return Daliuge.FieldUsage.NoPort;
     }
     
-    static httpGet(url : string, callback : (error : string, data : string) => void) : void {
+    static httpGet(url : string, successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
         $.ajax({
             url: url,
             success: function (data : string) {
-                callback(null, data);
+                successCallback(data);
             },
             error: function(xhr, status, error : string){
-                callback(error, null);
+                errorCallback(error);
             }
         });
     }
@@ -2194,38 +2194,35 @@ export class Utils {
     }
 
     static loadSchemas() : void {
-        // if offline, try to load schema from localStorage
-        if (!navigator.onLine){
-            const schema = localStorage.getItem('ojsGraphSchema');
-
-            if (schema === null){
-                console.warn("EAGLE Offline: unable to fetch graph schema. Schema also unavailable from localStorage.");
-            } else {
-                console.warn("EAGLE Offline: unable to fetch graph schema. Schema loaded from localStorage.");
-                Utils.ojsGraphSchema = JSON.parse(schema)
-            }
-
-            return;
-        }
-
-        // otherwise, if online, fetch the schema
-        Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL, (error : string, data : string) => {
-            if (error !== null){
-                console.error(error);
-                return;
-            }
-
-            Utils.ojsGraphSchema = JSON.parse(data);
-            Utils.ojsPaletteSchema = JSON.parse(data);
+        function _setSchemas(schema: object) : void {
+            Utils.ojsGraphSchema = schema;
+            Utils.ojsPaletteSchema = schema;
 
             // HACK: we modify the palette schema from the graph schema!
             for (const notRequired of ["isGroup", "color", "drawOrderHint", "x", "y", "collapsed", "subject", "expanded"]){
                 (<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required.splice((<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required.indexOf(notRequired), 1);
             }
+        }
 
-            // write to localStorage
-            localStorage.setItem('ojsGraphSchema', data);
-        });
+        // try to fetch the schema
+        Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL,
+            (data : string) => {
+                _setSchemas(JSON.parse(data));
+
+                // write to localStorage
+                localStorage.setItem('ojsGraphSchema', data);
+            },
+            (error : string) => {
+                const data = localStorage.getItem('ojsGraphSchema');
+
+                if (data === null){
+                    console.warn("Unable to fetch graph schema. Schema also unavailable from localStorage.");
+                } else {
+                    console.warn("Unable to fetch graph schema. Schema loaded from localStorage.");
+                    _setSchemas(JSON.parse(data));
+                }
+            }
+        );
     }
 
     static snapToGrid(coord: number, offset: number) : number {
