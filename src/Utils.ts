@@ -54,6 +54,9 @@ export class Utils {
 
     static ojsGraphSchema : object = {};
 
+
+    static ojsPaletteSchema : object = {};
+
     /**
      * Generates a UUID.
      * See https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
@@ -624,7 +627,7 @@ export class Utils {
         $('#editFieldModal').modal("toggle");
     }
 
-    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void) : void {
+    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) => void) : void {
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
         $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
@@ -1284,7 +1287,7 @@ export class Utils {
         return repositoryName+"|"+repositoryBranch;
     }
 
-    static buildComponentList(filter: (cData: CategoryData) => boolean) : Category[] {
+    static buildComponentList(filter: (cData: Category.CategoryData) => boolean) : Category[] {
         const result : Category[] = [];
 
         for (const category in CategoryData.cData){
@@ -1483,8 +1486,10 @@ export class Utils {
             case Daliuge.SchemaVersion.OJS:
                 switch(fileType){
                     case Eagle.FileType.Graph:
-                    case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
+                        break;
+                    case Eagle.FileType.Palette:
+                        valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
                         break;
                     default:
                         console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
@@ -1760,7 +1765,7 @@ export class Utils {
 
         const usage0 = field0.getUsage();
         const usage1 = field1.getUsage();
-        const newUsage = this._mergeUsage(usage0, usage1);
+        const newUsage = Utils._mergeUsage(usage0, usage1);
 
         // remove field1
         node.removeFieldByIndex(field1Index);
@@ -1769,7 +1774,7 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(eagle, field1.getId(), field0.getId());
+        Utils._mergeEdges(eagle, field1.getId(), field0.getId());
     }
 
     // NOTE: merges field1 into field0
@@ -1784,7 +1789,7 @@ export class Utils {
 
         const usage0 = field0.getUsage();
         const usage1 = field1.getUsage();
-        const newUsage = this._mergeUsage(usage0, usage1);
+        const newUsage = Utils._mergeUsage(usage0, usage1);
 
         // remove field1
         node.removeFieldById(field1.getId());
@@ -1793,7 +1798,7 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        this._mergeEdges(eagle, field1.getId(), field0.getId());
+        Utils._mergeEdges(eagle, field1.getId(), field0.getId());
     }
 
     static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
@@ -2191,6 +2196,12 @@ export class Utils {
             }
 
             Utils.ojsGraphSchema = JSON.parse(data);
+            Utils.ojsPaletteSchema = JSON.parse(data);
+
+            // HACK: we modify the palette schema from the graph schema!
+            for (const notRequired of ["isGroup", "color", "drawOrderHint", "x", "y", "collapsed", "subject", "expanded"]){
+                (<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required.splice((<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required.indexOf(notRequired), 1);
+            }
 
             // write to localStorage
             localStorage.setItem('ojsGraphSchema', data);

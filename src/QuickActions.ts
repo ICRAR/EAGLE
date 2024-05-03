@@ -215,7 +215,7 @@ export class QuickActions {
 
     static executeQuickAction(result: QuickActionsResult) : void {
         const eagle: Eagle = Eagle.getInstance();
-        this.initiateQuickAction()
+        QuickActions.initiateQuickAction()
         result.action(eagle)
     }
 

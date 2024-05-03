@@ -135,7 +135,7 @@ export class GraphUpdater {
     // recursive traversal through the folder structure to find all graph files
     private static _addGraphs = (repository: Repository, folder: RepositoryFolder, path: string, data: any[]) : void => {
         for (const subfolder of folder.folders()){
-            this._addGraphs(repository, subfolder, path + "/" + subfolder.name, data);
+            GraphUpdater._addGraphs(repository, subfolder, path + "/" + subfolder.name, data);
         }
 
         for (const file of folder.files()){

@@ -122,7 +122,7 @@ export class Palette {
     static toOJSJsonString(palette: Palette) : string {
         let result: string = "";
 
-        const json: any = this.toOJSJson(palette);
+        const json: any = Palette.toOJSJson(palette);
 
         // manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";

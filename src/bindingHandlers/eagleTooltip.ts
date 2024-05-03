@@ -36,7 +36,39 @@ ko.bindingHandlers.eagleTooltip = {
             if (typeof placement === 'undefined'){
                 jQueryElement.attr("data-bs-placement", "right");
             }
-            jQueryElement.attr("data-bs-original-title", Utils.markdown2html(ko.unwrap(valueAccessor())));
+
+            let html = ko.unwrap(valueAccessor())
+            let result = ''
+            let size = '300px'
+
+            //html can be either a string or a Object with a content string and size (in pixels)
+            if(html.content != undefined){
+                size = html.size
+                html=html.content
+            }
+
+            if(html.includes('|||')){
+                let x = html.split('|||')
+                for(let i = 0 ; i < x.length ; i++){
+                    if(i===0){
+                        if(x[i].length === 0){
+                            continue
+                        }
+                    }
+
+                    let y = ''
+                    if((i % 2) == 1){
+                        y = x[i]
+                    }else{
+                        y = Utils.markdown2html(x[i])
+                    }
+                    result += y
+                }
+            }else{
+                result = html
+            }
+
+            jQueryElement.attr("data-bs-original-title", result);
 
             jQueryElement.tooltip({
                 html : true,
@@ -50,6 +82,9 @@ ko.bindingHandlers.eagleTooltip = {
             setTimeout(function(){
                 if(stillHovering && !GraphRenderer.draggingPort && !eagle.draggingPaletteNode){
                     jQueryElement.tooltip('show');
+
+                    //adding our custom size if provided
+                    $('.tooltip-inner').css('max-width',size)
 
                     //leave listener on the tooltip itself, we attach this when the tooltip is shown
                     $('.tooltip').on('mouseleave', function () {
