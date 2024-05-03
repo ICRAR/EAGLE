@@ -1,6 +1,7 @@
 import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {Edge} from './Edge';
+import { GraphRenderer } from './GraphRenderer';
 import {Node} from './Node';
 
 export class Hierarchy {
@@ -267,9 +268,14 @@ export class Hierarchy {
             return;
         }
 
-        if(!e.shiftKey){
+        if(!e.shiftKey && !e.altKey){
             eagle.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
 
+        }else if (e.altKey && !e.shiftKey){
+            GraphRenderer.selectNodeAndChildren(node, e.shiftKey)
+        }else if(e.altKey && e.shiftKey){
+            GraphRenderer.selectNodeAndChildren(node, e.shiftKey)
+            eagle.editSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph)
         }else if(e.shiftKey){
             eagle.editSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph)
         }

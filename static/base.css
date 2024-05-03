@@ -2418,6 +2418,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 .hierarchyCollapseRotate{
     transform: rotate(90deg);
+    user-select: none;
 }
 
 .hierarchyCollapseDisabled{
