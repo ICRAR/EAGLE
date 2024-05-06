@@ -329,6 +329,7 @@ export class GraphRenderer {
     static selectionRegionStart = {x:0, y:0};
     static selectionRegionEnd = {x:0, y:0};
     static ctrlDrag:boolean = null;
+    static editNodeName:boolean = false;
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
@@ -974,7 +975,30 @@ export class GraphRenderer {
         eagle.globalOffsetY(eagle.globalOffsetY()+moveY)
     }
 
+    static editNodeTitleInGraph (data:Node,event: JQuery.TriggeredEvent) : void {
+        GraphRenderer.editNodeName = true //used to prevent other drag funcitons if this feature is active
+        const target = event.target
+        console.log('click detected', data.getName())
+        $(target).hide()
+        const input = $(target).parent().find('.header-input')
+        input.show().trigger('focus').addClass('changingHeader')
+
+        // const inputElement = '<input type="text" data-bind="value:$data.name, readonly: $data.isLocked"></intput>'
+        // $(target).parent().append(inputElement)
+
+    }
+
     static startDrag(node: Node, event: MouseEvent) : void {
+        if(GraphRenderer.editNodeName){
+            console.log('returning drag function')
+            if(!$(event.target).hasClass('changingHeader')){
+                GraphRenderer.editNodeName = false;
+                $('.changingHeader').hide()
+                $('.changingHeader').parent().find('.header-name').show()
+                $('.changingHeader').removeClass('changingHeader')
+            }
+            return
+        }
         const eagle = Eagle.getInstance();
         // resetting the shift event
         GraphRenderer.dragSelectionHandled(false)
@@ -982,6 +1006,7 @@ export class GraphRenderer {
         // these two are needed to keep track of these modifiers for the mouse move and release event
         GraphRenderer.altSelect = event.altKey
         GraphRenderer.shiftSelect = event.shiftKey
+
 
         // if no node is selected, or we are dragging using middle mouse, then we are dragging the background
         if(node === null || event.button === 1){

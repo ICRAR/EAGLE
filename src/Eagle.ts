@@ -550,6 +550,7 @@ export class Eagle {
         }else{
             that.globalScale(1)
         }
+<<<<<<< Updated upstream
         
         //checking the screen center in graph space after zoom
         const xpa = midPointX/that.globalScale() - that.globalOffsetX();
@@ -562,6 +563,11 @@ export class Eagle {
         //correcting for the movement
         that.globalOffsetX(that.globalOffsetX()+moveX)
         that.globalOffsetY(that.globalOffsetY()+moveY)
+=======
+        this.globalOffsetX(this.globalOffsetX()-$('#logicalGraphD3Div').width()/this.globalScale())
+        this.globalOffsetY(this.globalOffsetY()-$('#logicalGraphD3Div').height()/this.globalScale())
+
+>>>>>>> Stashed changes
     }
 
     getSelectedText = () : string => {
