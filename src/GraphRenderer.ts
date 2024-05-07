@@ -978,24 +978,30 @@ export class GraphRenderer {
     static editNodeTitleInGraph (data:Node,event: JQuery.TriggeredEvent) : void {
         GraphRenderer.editNodeName = true //used to prevent other drag funcitons if this feature is active
         const target = event.target
-        console.log('click detected', data.getName())
         $(target).hide()
         const input = $(target).parent().find('.header-input')
         input.show().trigger('focus').addClass('changingHeader')
+    }
 
-        // const inputElement = '<input type="text" data-bind="value:$data.name, readonly: $data.isLocked"></intput>'
-        // $(target).parent().append(inputElement)
+    static closeEditTitleInGraph () : void {
+        GraphRenderer.editNodeName = false;
+        $('.changingHeader').hide()
+        $('.changingHeader').parent().find('.header-name').show()
+        $('.changingHeader').removeClass('changingHeader')
+    }
 
+    static nodeNameEditKeybinds (data:Node,event: JQuery.TriggeredEvent) : void  {
+        if(event.key.toLowerCase() === 'enter' || event.key.toLowerCase() === 'escape'){
+            GraphRenderer.closeEditTitleInGraph()
+        }
     }
 
     static startDrag(node: Node, event: MouseEvent) : void {
-        if(GraphRenderer.editNodeName){
-            console.log('returning drag function')
+        if($(event.target).hasClass('changingHeader')){
+            return
+        }else if(GraphRenderer.editNodeName){
             if(!$(event.target).hasClass('changingHeader')){
-                GraphRenderer.editNodeName = false;
-                $('.changingHeader').hide()
-                $('.changingHeader').parent().find('.header-name').show()
-                $('.changingHeader').removeClass('changingHeader')
+                GraphRenderer.closeEditTitleInGraph()
             }
             return
         }

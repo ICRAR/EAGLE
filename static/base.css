@@ -2469,6 +2469,12 @@ ul.nav.navbar-nav .dropdown-item:hover{
     transform:translateY(-2px)
 }
 
+.node .changingHeader {
+    text-align: center;
+    line-height: 14px;
+    
+}
+
 .breakLine{
     border-top: solid 1px grey;
     margin-bottom: 5px;
