@@ -136,10 +136,16 @@
                         <button class="btn btn-secondary btn-sm openParamsTableBtn" data-bind="click: $root.editNodeDescription, clickBubble: false, eagleTooltip: 'Edit Description'">
                             <i class="material-icons md-18">edit</i>
                         </button>
+                        
+                        <span>Description</span>    
+                        <textarea data-bind="value:$data.description"></textarea>
                     <!-- /ko -->
-                    <span>Description</span>    
-                    <i class="material-icons inspectorDescriptionDragHnadle">drag_handle</i>
-                    <div data-bind="html: $data.getDescriptionHTML()"></div>
+                    <!-- ko if: $data.isLocked() || $data.getDescriptionReadonly() -->
+                        <span>Description</span>    
+                        <i class="material-icons inspectorDescriptionDragHnadle">drag_handle</i>
+                        <div data-bind="html: $data.getDescriptionHTML()"></div>
+                    <!-- /ko -->
+
                 </div>
                 
                 <!-- input application -->

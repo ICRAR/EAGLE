@@ -530,6 +530,17 @@ td:first-child input {
     background: white;
 }
 
+.rightWindow #inspectorNodeDescriptionWrapper textarea{
+    background-color: white;
+    padding: 5px;
+    resize: vertical;
+    min-height: 150px;
+    height: 14em;
+    overflow-y: auto;
+    width: 100%;
+    border: none;
+}
+
 .inspectorApplicationBackground .prepend-icon span i{
     font-size: 18px;
     position: relative;
