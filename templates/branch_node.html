@@ -1,7 +1,8 @@
 <div class="nodeContent branch_node">
     <div class="container" data-bind="css: {selected: $root.objectIsSelected($data)}">
         <div class="header" data-bind="eagleTooltip:$data.getHelpHTML()">
-            <div class="header-name" data-bind="html: $data.name"></div>
+            <div class="header-name" data-bind="html: $data.name,event: {click: GraphRenderer.editNodeTitleInGraph}"></div>
+            <input type="text" data-bind="value:$data.name, readonly: $data.isLocked, style:{display:'none'},event:{click:function(){$(event.target).focus()},keyup:GraphRenderer.nodeNameEditKeybinds}" class="header-input">
         </div>
     
         <div class="body" data-bind="eagleRightClick: {data:$data,type:'rightClick_graphNode'}, event: {mouseenter: function(){$data.setPeek(true)},mouseleave:function(){$data.setPeek(false)},mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(object,event){GraphRenderer.endDrag(object,event);}}, mousedownBubble: false, mouseupBubble: false">
