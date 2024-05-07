@@ -991,7 +991,7 @@ export class GraphRenderer {
     }
 
     static nodeNameEditKeybinds (data:Node,event: JQuery.TriggeredEvent) : void  {
-        if(event.key.toLowerCase() === 'enter' || event.key.toLowerCase() === 'escape'){
+        if(event.key === 'Enter' || event.key === 'Escape'){
             GraphRenderer.closeEditTitleInGraph()
         }
     }
