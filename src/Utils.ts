@@ -53,8 +53,6 @@ export class Utils {
     ];
 
     static ojsGraphSchema : object = {};
-    static v3GraphSchema : object = {};
-    static appRefGraphSchema : object = {};
 
 
     static ojsPaletteSchema : object = {};
@@ -313,14 +311,14 @@ export class Utils {
         return Daliuge.FieldUsage.NoPort;
     }
     
-    static httpGet(url : string, callback : (error : string, data : string) => void) : void {
+    static httpGet(url : string, successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
         $.ajax({
             url: url,
             success: function (data : string) {
-                callback(null, data);
+                successCallback(data);
             },
             error: function(xhr, status, error : string){
-                callback(error, null);
+                errorCallback(error);
             }
         });
     }
@@ -356,6 +354,7 @@ export class Utils {
         });
     }
 
+    // TODO: gradually we should move to using the function below (httpPostJSONWithErrorHandler)
     static httpPostJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
         $.ajax({
             url : url,
@@ -370,6 +369,25 @@ export class Utils {
                     callback(error, null);
                 } else {
                     callback(xhr.responseJSON.error, null);
+                }
+            }
+        });
+    }
+
+    static httpPostJSONWithErrorHandler(url : string, json : object, successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
+        $.ajax({
+            url : url,
+            type : 'POST',
+            data : JSON.stringify(json),
+            contentType : 'application/json',
+            success : function(data : string) {
+                successCallback(data);
+            },
+            error: function(xhr, status, error : string) {
+                if (typeof xhr.responseJSON === 'undefined'){
+                    errorCallback(error);
+                } else {
+                    errorCallback(xhr.responseJSON.error);
                 }
             }
         });
@@ -716,6 +734,19 @@ export class Utils {
 
     static closeErrorsModal() : void {
         $('#errorsModal').modal("hide");
+    }
+
+    static preparePalette(palette: Palette, paletteListItem: {name:string, filename:string, readonly:boolean}) : void {
+        palette.fileInfo().clear();
+        palette.fileInfo().name = paletteListItem.name;
+        palette.fileInfo().readonly = paletteListItem.readonly;
+        palette.fileInfo().builtIn = true;
+        palette.fileInfo().downloadUrl = paletteListItem.filename;
+        palette.fileInfo().type = Eagle.FileType.Palette;
+        palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
+
+        // sort palette and add to results
+        palette.sort();
     }
 
     static showPalettesModal(eagle: Eagle) : void {
@@ -2163,24 +2194,35 @@ export class Utils {
     }
 
     static loadSchemas() : void {
-        Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL, (error : string, data : string) => {
-            if (error !== null){
-                console.error(error);
-                return;
-            }
-
-            Utils.ojsGraphSchema = JSON.parse(data);
-            Utils.ojsPaletteSchema = JSON.parse(data);
+        function _setSchemas(schema: object) : void {
+            Utils.ojsGraphSchema = schema;
+            Utils.ojsPaletteSchema = schema;
 
             // HACK: we modify the palette schema from the graph schema!
             for (const notRequired of ["isGroup", "color", "drawOrderHint", "x", "y", "collapsed", "subject", "expanded"]){
                 (<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required.splice((<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required.indexOf(notRequired), 1);
             }
+        }
 
-            // NOTE: we don't have a schema for the V3 or appRef versions
-            Utils.v3GraphSchema = JSON.parse(data);
-            Utils.appRefGraphSchema = JSON.parse(data);
-        });
+        // try to fetch the schema
+        Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL,
+            (data : string) => {
+                _setSchemas(JSON.parse(data));
+
+                // write to localStorage
+                localStorage.setItem('ojsGraphSchema', data);
+            },
+            (error : string) => {
+                const data = localStorage.getItem('ojsGraphSchema');
+
+                if (data === null){
+                    console.warn("Unable to fetch graph schema. Schema also unavailable from localStorage.");
+                } else {
+                    console.warn("Unable to fetch graph schema. Schema loaded from localStorage.");
+                    _setSchemas(JSON.parse(data));
+                }
+            }
+        );
     }
 
     static snapToGrid(coord: number, offset: number) : number {
@@ -2210,7 +2252,7 @@ export class Utils {
     }
 
     static openRemoteFileFromUrl(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        Utils.httpGet(fileName, callback);
+        Utils.httpGet(fileName, (data: string) => {callback(null, data)}, (error: string) => {callback(error, null)});
     }
 
     static copyFieldsFromPrototype(node: Node, paletteName: string, category: Category) : void {

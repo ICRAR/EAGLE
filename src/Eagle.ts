@@ -1807,44 +1807,65 @@ export class Eagle {
         const complete: boolean[] = [];
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
+        // define a function to check if all requests are now complete, if so we can call the callback
+        function _checkAllPalettesComplete() : void {
+            let allComplete = true;
+            for (const requestComplete of complete){
+                if (!requestComplete){
+                    allComplete = false;
+                }
+            }
+            if (allComplete){
+                callback(errorsWarnings, results);
+            }
+        }
+
+        // start trying to load the palettes
         for (let i = 0 ; i < paletteList.length ; i++){
             results.push(null);
             complete.push(false);
             const index = i;
             const data = {url: paletteList[i].filename};
 
-            Utils.httpPostJSON("/openRemoteUrlFile", data, (error: string, data: string) => {
-                complete[index] = true;
+            Utils.httpPostJSONWithErrorHandler("/openRemoteUrlFile", data,
+                (data: string) => {
+                    // palette fetched successfully
+                    complete[index] = true;
 
-                if  (error !== null){
-                    console.error(error);
-                    errorsWarnings.errors.push(Errors.Message(error));
-                } else {
                     const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
-                    palette.fileInfo().clear();
-                    palette.fileInfo().name = paletteList[index].name;
-                    palette.fileInfo().readonly = paletteList[index].readonly;
-                    palette.fileInfo().builtIn = true;
-                    palette.fileInfo().downloadUrl = paletteList[index].filename;
-                    palette.fileInfo().type = Eagle.FileType.Palette;
-                    palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
+                    Utils.preparePalette(palette, paletteList[index]);
 
-                    // sort palette and add to results
-                    palette.sort();
+                    // add to results
                     results[index] = palette;
-                }
 
-                // check if all requests are now complete, then we can call the callback
-                let allComplete = true;
-                for (const requestComplete of complete){
-                    if (!requestComplete){
-                        allComplete = false;
+                    // save to localStorage
+                    localStorage.setItem(paletteList[index].filename, data);
+                    
+                    _checkAllPalettesComplete();
+                },
+                (error: string) => {
+                    // an error occurred when fetching the palette
+                    complete[index] = true;
+
+                    errorsWarnings.errors.push(Errors.Message(error));
+
+                    // try to load palette from localStorage
+                    const paletteData = localStorage.getItem(paletteList[i].filename);
+
+                    if (paletteData === null){
+                        console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette also unavailable from localStorage.");
+                    } else {
+                        console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
+
+                        const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.DUMMY, "", paletteList[i].name), errorsWarnings);
+                        Utils.preparePalette(palette, paletteList[i]);
+
+                        results[index] = palette;
                     }
+
+                    _checkAllPalettesComplete();
                 }
-                if (allComplete){
-                    callback(errorsWarnings, results);
-                }
-            });
+            );
         }
     }
 
@@ -1877,7 +1898,6 @@ export class Eagle {
             // display error if one occurred
             if (error != null){
                 Utils.showUserMessage("Error", error);
-                console.error(error);
                 this.hideEagleIsLoading()
                 return;
             }
