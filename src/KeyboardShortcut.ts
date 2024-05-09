@@ -6,6 +6,7 @@ import { QuickActions } from './QuickActions';
 import { Setting } from './Setting';
 import { TutorialSystem } from './Tutorial';
 import { Utils } from './Utils';
+import { GraphRenderer } from './GraphRenderer';
 
 
 let currentEvent:any  = null // this is used for keyboard shortcut functions that need the event object to function
@@ -193,6 +194,7 @@ export class KeyboardShortcut {
             new KeyboardShortcut("add_edge","Add Edge", ["e"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['create'], KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.addEdgeToLogicalGraph();}),
             new KeyboardShortcut("modify_selected_edge","Modify Selected Edge", ["m"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['edit'], KeyboardShortcut.allowGraphEditing, function(){return KeyboardShortcut.edgeIsSelected && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, (eagle): void => {eagle.editSelectedEdge();}),
             new KeyboardShortcut("center_graph", "Center graph", ["c"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['canvas','reset','controls'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}),
+            new KeyboardShortcut("center_construct_around_children", "Center Construct Around Children", ["c"], "keydown", KeyboardShortcut.Modifier.Alt, KeyboardShortcut.true, ['construct','center','fit'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())}),
             // NB: we need two entries for zoom_in here, the first handles '+' without shift (as found on the numpad), the second handles '+' with shift (as found sharing the '=' key)
             /*
             new KeyboardShortcut("zoom_in", "Zoom In", ["+"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['controls','canvas'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.zoomIn();}),

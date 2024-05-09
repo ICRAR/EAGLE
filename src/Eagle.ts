@@ -966,6 +966,12 @@ export class Eagle {
     createSubgraphFromSelection = () : void => {
         console.log("createSubgraphFromSelection()");
 
+        const eagle = Eagle.getInstance()
+        if(eagle.selectedObjects().length === 0){
+            Utils.showNotification('Error','At least one node must be selected!', 'warning')
+            return
+        }
+
         // create new subgraph
         const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Category.SubGraph);
 
@@ -1008,6 +1014,11 @@ export class Eagle {
 
     createConstructFromSelection = () : void => {
         console.log("createConstructFromSelection()");
+        const eagle = Eagle.getInstance()
+        if(eagle.selectedObjects().length === 0){
+            Utils.showNotification('Error','At least one node must be selected', 'warning')
+            return
+        }
 
         const constructs : string[] = Utils.buildComponentList((cData: Category.CategoryData) => {
             return cData.categoryType === Category.Type.Construct;
@@ -2684,7 +2695,7 @@ export class Eagle {
         const selectedEdge: Edge = this.selectedEdge();
 
         if (selectedEdge === null){
-            console.log("Unable to edit selected edge: No edge selected");
+            Utils.showNotification("Unable to edit selected edge:", "No edge selected", "warning");
             return;
         }
 
@@ -2729,6 +2740,11 @@ export class Eagle {
     duplicateSelection = (mode:string) : void => {
         // console.log("duplicateSelection()", this.selectedObjects().length, "objects");
 
+        if(this.selectedObjects().length === 0){
+            Utils.showNotification('Unable to duplicate selection','No nodes are selected','warning')
+            return
+        }
+        
         let location: string;
         let incomingNodes = []; // TODO: declare type
 
@@ -3802,7 +3818,7 @@ export class Eagle {
         const selectedNode: Node = this.selectedNode();
 
         if (selectedNode === null){
-            console.error("Attempt to add change parent node when no node selected");
+            Utils.showNotification("Unable to Change Node Parent", "Attempt to change parent node when no node selected", "warning");
             return;
         }
 
@@ -3874,7 +3890,7 @@ export class Eagle {
         const selectedNode: Node = this.selectedNode();
 
         if (selectedNode === null){
-            console.error("Attempt to change subject node when no node selected");
+            Utils.showNotification('Unable to change node subject','No node selected!','warning')
             return;
         }
 

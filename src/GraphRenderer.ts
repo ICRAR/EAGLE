@@ -1432,6 +1432,11 @@ export class GraphRenderer {
     }
 
     static centerConstruct(construct:Node,graphNodes:Node[]) : void {
+        if(!construct){
+            Utils.showNotification('Error','A single Construct node must be selected!',"warning")
+            return
+        }
+        
         let childCount = 0
 
         let minX : number = Number.MAX_VALUE;
