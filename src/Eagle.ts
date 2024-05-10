@@ -1025,7 +1025,7 @@ export class Eagle {
         });
 
         // ask the user what type of construct to use
-        Utils.requestUserChoice("Choose Construct", "Please choose a construct type to contain the selection", constructs, -1, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
+        Utils.requestUserChoice("Choose Construct", "Please choose a construct type to contain the selection", constructs, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
             if (!completed)
             {   // Cancelling action.
                 return;
@@ -3540,6 +3540,8 @@ export class Eagle {
         return p;
     }
 
+
+    //CHECK
     /* TODO: 4-level-deep callbacks here, probably should move this to use Promises */
     fetchDockerHTML = () : void => {
         Utils.showNotification("EAGLE", "Fetching data from Docker Hub", "info");
@@ -3561,7 +3563,7 @@ export class Eagle {
             }
 
             // present list of image names to user
-            Utils.requestUserChoice("Docker Hub", "Choose an image", images, -1, false, "", function(completed: boolean, userChoiceIndex: number){
+            Utils.requestUserChoice("Docker Hub", "Choose an image", images, 0, false, "", function(completed: boolean, userChoiceIndex: number){
                 if (!completed){
                     return;
                 }
@@ -3583,7 +3585,7 @@ export class Eagle {
                     }
 
                     // present list of tags to user
-                    Utils.requestUserChoice("Docker Hub", "Choose a tag for image " + imageName, tags, -1, false, "", function(completed: boolean, userChoiceIndex: number){
+                    Utils.requestUserChoice("Docker Hub", "Choose a tag for image " + imageName, tags, 0, false, "", function(completed: boolean, userChoiceIndex: number){
                         if (!completed){
                             return;
                         }

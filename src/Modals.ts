@@ -113,9 +113,16 @@ export class Modals {
         });
 
         $('#choiceModalSelect').on('change', function(){
+            const choice : number = parseInt($('#choiceModalSelect').val().toString(), 10);
+
+            //checking if the value of the select element is valid
+            if(!$('#choiceModalSelect').val() || choice > $('#choiceModalSelect').length){
+                $('#choiceModalSelect').val(0)
+                console.warn('Invalid selection value, resetting to 0')
+            }
+
             // check selected option in select tag
             const choices : string[] = $('#choiceModal').data('choices');
-            const choice : number = parseInt($('#choiceModalSelect').val().toString(), 10);
 
             // hide the custom text input unless the last option in the select is chosen
             $('#choiceModalStringRow').toggle(choice === choices.length);
@@ -181,7 +188,6 @@ export class Modals {
             // show/hide OK button
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', !Utils.validateCustomRepository());
         });
-
 
         $('#gitCustomRepositoryModalAffirmativeButton').on('click', function(){
             $('#gitCustomRepositoryModal').data('completed', true);
