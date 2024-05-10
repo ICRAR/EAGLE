@@ -1,3 +1,4 @@
+/*
 export enum Category {
     Comment = "Comment",
     Description = "Description",
@@ -42,6 +43,7 @@ export enum Category {
 
     Component = "Component" // legacy only
 }
+*/
 
 export namespace Category {
 
@@ -63,6 +65,12 @@ export namespace Category {
         expandedHeaderOffsetY: number,
         sortOrder: number
     };
+
+    export type CategoryTypeData = {
+        color: string,
+        isGroup:boolean,
+        sortOrder: number
+    }
 
     // TODO: add to CategoryData somehow? use in Node.isData() etc?
     export enum Type {

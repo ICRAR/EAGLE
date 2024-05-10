@@ -1,6 +1,40 @@
 import { Category } from './Category';
 
 export class CategoryData {
+    static readonly ctData : {[categoryType: string] : Category.CategoryTypeData} = {
+        Application: {
+            color: Category.Color.Application,
+            isGroup: false,
+            sortOrder: Category.SortOrder.Application
+        },
+        Construct: {
+            color: Category.Color.Group,
+            isGroup: true,
+            sortOrder: Category.SortOrder.Construct
+        },
+        Control: {
+            color: Category.Color.Control,
+            isGroup: false,
+            sortOrder: Category.SortOrder.Control},
+        Data: {
+            color: Category.Color.Data,
+            isGroup: false,
+            sortOrder: Category.SortOrder.Data},
+        Other: {
+            color: Category.Color.Description,
+            isGroup: false,
+            sortOrder: Category.SortOrder.Other},
+        Service: {
+            color: Category.Color.Service,
+            isGroup: false,
+            sortOrder: Category.SortOrder.Service},
+        Unknown: {
+            color: Category.Color.Error,
+            isGroup: false,
+            sortOrder: Category.SortOrder.Other}
+    }
+
+    /*
     static readonly cData : {[category:string] : Category.CategoryData} = {
         Branch               : {categoryType: Category.Type.Control, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 2, maxOutputs: 2, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-branch", color: Category.Color.Control, collapsedHeaderOffsetY: 20, expandedHeaderOffsetY: 54, sortOrder: Category.SortOrder.Control},
         ExclusiveForceNode   : {categoryType: Category.Type.Control, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-force_node", color: Category.Color.Control, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Control},
@@ -50,7 +84,20 @@ export class CategoryData {
         Component            : {categoryType: Category.Type.Unknown, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-none", color: Category.Color.Error, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Other},
         
     };
+    */
 
+    static getCategoryTypeData(categoryType: Category.Type): Category.CategoryTypeData {
+        const c = CategoryData.ctData[categoryType];
+
+        if (typeof c === 'undefined'){
+            console.error("Could not fetch category type data for category type", categoryType);
+            return CategoryData.ctData[Category.Type.Unknown];
+        }
+
+        return c;
+    }
+
+    /*
     static getCategoryData(category : Category) : Category.CategoryData {
         const c = CategoryData.cData[category];
 
@@ -79,4 +126,5 @@ export class CategoryData {
 
         return c;
     }
+    */
 }

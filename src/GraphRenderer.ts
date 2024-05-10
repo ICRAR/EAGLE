@@ -62,6 +62,7 @@ ko.bindingHandlers.nodeRenderHandler = {
     update: function (element:any, valueAccessor) {
         let node: Node = ko.unwrap(valueAccessor());
 
+        // TODO: can we do this in the templates, using a class?
         // set size
         $(element).css({'height':node.getRadius()*2+'px','width':node.getRadius()*2+'px'});
 

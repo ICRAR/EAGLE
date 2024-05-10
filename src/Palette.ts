@@ -262,8 +262,8 @@ export class Palette {
     sort = () : void => {
 
         const sortFunc = function(a:Node, b:Node) : number {
-            const aCData : Category.CategoryData = CategoryData.getCategoryData(a.getCategory());
-            const bCData : Category.CategoryData = CategoryData.getCategoryData(b.getCategory());
+            const aCData : Category.CategoryTypeData = CategoryData.getCategoryTypeData(a.getCategoryType());
+            const bCData : Category.CategoryTypeData = CategoryData.getCategoryTypeData(b.getCategoryType());
 
             if (aCData.sortOrder < bCData.sortOrder) {
                 return -1;

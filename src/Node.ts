@@ -52,7 +52,6 @@ export class Node {
 
     private fields : ko.ObservableArray<Field>;
 
-    private category : ko.Observable<Category>;
     private categoryType : ko.Observable<Category.Type>;
 
     private subject : ko.Observable<number>;       // the key of another node that is the subject of this node. used by comment nodes only.
@@ -76,11 +75,12 @@ export class Node {
     private radius : ko.Observable<number>;
     
     private color : ko.Observable<string>;
+    private icon : ko.Observable<string>;
     private drawOrderHint : ko.Observable<number>; // a secondary sorting hint when ordering the nodes for drawing
                                                    // (primary method is using parent-child relationships)
                                                    // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
 
-    constructor(key : number, name : string, description : string, category : Category){
+    constructor(key : number, name : string, description : string, categoryType : Category.Type){
         this._id = ko.observable(Utils.uuidv4());
         this.key = ko.observable(key);
         this.name = ko.observable(name);
@@ -100,10 +100,9 @@ export class Node {
         this.outputApplication = ko.observable(null);
 
         this.fields = ko.observableArray([]);
-        this.category = ko.observable(category);
 
         // lookup correct categoryType based on category
-        this.categoryType = ko.observable(CategoryData.getCategoryData(category).categoryType);
+        this.categoryType = ko.observable(categoryType);
         this.subject = ko.observable(null);
 
         this.repositoryUrl = ko.observable("");
@@ -118,7 +117,8 @@ export class Node {
         this.collapsed = ko.observable(true);
         this.peek = ko.observable(false);
 
-        this.color = ko.observable(Utils.getColorForNode(category));
+        this.color = ko.observable(Utils.getColorForNode(categoryType));
+        this.icon = ko.observable("");
         this.drawOrderHint = ko.observable(0);
         this.radius = ko.observable(GraphConfig.NORMAL_NODE_RADIUS);
     }
@@ -214,6 +214,14 @@ export class Node {
 
     setColor = (color: string) : void => {
         this.color(color);
+    }
+
+    getIcon = () : string => {
+        return this.icon();
+    }
+
+    setIcon = (icon: string) : void => {
+        this.icon(icon);
     }
 
     getDrawOrderHint = () : number => {
@@ -521,15 +529,6 @@ export class Node {
         return !allowParam;
     }
 
-    getCategory = () : Category => {
-        return this.category();
-    }
-
-    setCategory = (category: Category): void => {
-        this.category(category);
-        this.color(Utils.getColorForNode(category));
-    }
-
     getCategoryType = () : Category.Type => {
         return this.categoryType();
     }
@@ -570,6 +569,7 @@ export class Node {
         return this.categoryType() === Category.Type.Application;
     }
 
+    /*
     isScatter = () : boolean => {
         return this.category() === Category.Scatter;
     }
@@ -605,60 +605,75 @@ export class Node {
     isService = () : boolean => {
         return this.category() === Category.Service;
     }
-
+    */
+   
     isGroup = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).isGroup;
+        return CategoryData.getCategoryTypeData(this.categoryType()).isGroup;
     }
 
     canHaveInputs = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).maxInputs > 0;
+        //return CategoryData.getCategoryData(this.category()).maxInputs > 0;
+        return true;
     }
 
     canHaveOutputs = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).maxOutputs > 0;
+        //return CategoryData.getCategoryData(this.category()).maxOutputs > 0;
+        return true;
     }
 
     maxInputs = () : number => {
-        return CategoryData.getCategoryData(this.category()).maxInputs;
+        //return CategoryData.getCategoryData(this.category()).maxInputs;
+        return Number.MAX_SAFE_INTEGER;
     }
 
     maxOutputs = () : number => {
-        return CategoryData.getCategoryData(this.category()).maxOutputs;
+        //return CategoryData.getCategoryData(this.category()).maxOutputs;
+        return Number.MAX_SAFE_INTEGER;
     }
 
     canHaveInputApplication = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).canHaveInputApplication;
+        //return CategoryData.getCategoryData(this.category()).canHaveInputApplication;
+        return true;
     }
 
     canHaveOutputApplication = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).canHaveOutputApplication;
+        //return CategoryData.getCategoryData(this.category()).canHaveOutputApplication;
+        return true;
     }
 
     canHaveComponentParameters = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).canHaveComponentParameters;
+        //return CategoryData.getCategoryData(this.category()).canHaveComponentParameters;
+        return true;
     }
 
     canHaveApplicationArguments = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).canHaveApplicationArguments;
+        //return CategoryData.getCategoryData(this.category()).canHaveApplicationArguments;
+        return true;
     }
 
     canHaveConstructParameters = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).canHaveConstructParameters;
+        //return CategoryData.getCategoryData(this.category()).canHaveConstructParameters;
+        return true;
     }
 
     canHaveConstraintParameters = () : boolean => {
         return true;
     }
 
-    canHaveType = (parameterType: Daliuge.FieldType) : boolean => {
-        if (parameterType === Daliuge.FieldType.ComponentParameter){
-            return this.canHaveComponentParameters()
+    canHaveType = (fieldType: Daliuge.FieldType) : boolean => {
+        switch(fieldType){
+            case Daliuge.FieldType.ApplicationArgument:
+                return this.canHaveApplicationArguments();
+            case Daliuge.FieldType.ComponentParameter:
+                return this.canHaveComponentParameters();
+            case Daliuge.FieldType.ConstraintParameter:
+                return this.canHaveConstraintParameters();
+            case Daliuge.FieldType.ConstructParameter:
+                return this.canHaveConstructParameters();
+            default:
+                console.warn("Unknown Daliuge.FieldType:", fieldType);
+                return false;
         }
-        if (parameterType === Daliuge.FieldType.ApplicationArgument){
-            return this.canHaveApplicationArguments();
-        }
-
-        return false;
     }
 
     fitsSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
@@ -752,7 +767,6 @@ export class Node {
 
         this.fields([]);
 
-        this.category(Category.Unknown);
         this.categoryType(Category.Type.Unknown);
 
         this.subject(null);
@@ -1085,7 +1099,7 @@ export class Node {
 
     clone = () : Node => {
 
-        const result : Node = new Node(this.key(), this.name(), this.description(), this.category());
+        const result : Node = new Node(this.key(), this.name(), this.description(), this.categoryType());
 
         result._id(this._id());
         result.x(this.x());
@@ -1134,15 +1148,10 @@ export class Node {
         return result;
     }
 
-    // find the right icon for this node
-    getIcon = () : string => {
-        return CategoryData.getCategoryData(this.category()).icon;
-    }
-
+    // TODO: maybe the font-size should be set by CSS here? I think we should be able to just use .getColor()
     //get icon color
     getGraphIconAttr = () : string => {
-        const attr = "font-size: 44px; color:" + CategoryData.getCategoryData(this.category()).color
-        return attr
+        return "font-size: 44px; color: " + this.color();
     }
 
     getLocalMultiplicity = () : number => {
@@ -1241,14 +1250,6 @@ export class Node {
                node0.getCommitHash() !== node1.getCommitHash();
     }
 
-    static canHaveInputApp(node : Node) : boolean {
-        return CategoryData.getCategoryData(node.getCategory()).canHaveInputApplication;
-    }
-
-    static canHaveOutputApp(node : Node) : boolean {
-        return CategoryData.getCategoryData(node.getCategory()).canHaveOutputApplication;
-    }
-
     static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node {
         let name = "";
         if (typeof nodeData.name !== 'undefined'){
@@ -1282,21 +1283,18 @@ export class Node {
         }
 
         // translate categories if required
-        let category: Category = nodeData.category;
+        let categoryType: Category.Type = nodeData.categoryType;
 
         // if category is not known, then add error
-        if (!Utils.isKnownCategory(category)){
-            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
-            category = Category.Unknown;
+        if (!Utils.isKnownCategoryType(categoryType)){
+            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category type: " + categoryType));
+            categoryType = Category.Type.Unknown;
         }
 
-        const node : Node = new Node(key, name, "", category);
+        const node : Node = new Node(key, name, "", categoryType);
 
         // set position
         node.setPosition(x, y);
-
-        // set categoryType based on the category
-        node.categoryType(CategoryData.getCategoryData(category).categoryType);
 
         // get description (if exists)
         if (typeof nodeData.description !== 'undefined'){
@@ -1883,7 +1881,7 @@ export class Node {
     }
 
     getInputAppText = () : string => {
-        if (!Node.canHaveInputApp(this)){
+        if (!this.canHaveInputApplication()){
             return "";
         }
 
@@ -1897,7 +1895,7 @@ export class Node {
     }
 
     getOutputAppText = () : string => {
-        if (!Node.canHaveOutputApp(this)){
+        if (!this.canHaveOutputApplication()){
             return "";
         }
 
@@ -1910,8 +1908,9 @@ export class Node {
         return outputApplication.getName() === "" ? Node.NO_APP_NAME_STRING : outputApplication.getName()
     }
 
+    // TODO: can we add the "white" we use here to a constant somewhere? graphConfig.ts?
     getInputAppColor = () : string => {
-        if (!Node.canHaveInputApp(this)){
+        if (!this.canHaveInputApplication()){
             return "white";
         }
 
@@ -1924,8 +1923,9 @@ export class Node {
         return inputApplication.getColor();
     }
 
+    // TODO: can we add the "white" we use here to a constant somewhere? graphConfig.ts?
     getOutputAppColor = () : string => {
-        if (!Node.canHaveOutputApp(this)){
+        if (!this.canHaveOutputApplication()){
             return "white";
         }
 

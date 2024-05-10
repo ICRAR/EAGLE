@@ -1227,12 +1227,24 @@ export class Utils {
         fields.push(field);
     }
 
+    /*
     static isKnownCategory(category : string) : boolean {
         return typeof CategoryData.cData[category] !== 'undefined';
     }
+    */
 
+    static isKnownCategoryType(categoryType : Category.Type) : boolean {
+        return typeof CategoryData.ctData[categoryType] !== 'undefined';
+    }
+
+    /*
     static getColorForNode(category : Category) : string {
         return CategoryData.getCategoryData(category).color;
+    }
+    */
+
+    static getColorForNode(categoryType : Category.Type) : string {
+        return CategoryData.getCategoryTypeData(categoryType).color;
     }
 
     static saveAsPNG(selector: string, filename: string) : void {
@@ -1307,13 +1319,16 @@ export class Utils {
         return repositoryName+"|"+repositoryBranch;
     }
 
-    static buildComponentList(filter: (cData: Category.CategoryData) => boolean) : Category[] {
-        const result : Category[] = [];
+    static buildComponentList(filterFunc: (node: Node) => boolean) : Node[] {
+        const result : Node[] = [];
+        const eagle: Eagle = Eagle.getInstance();
 
-        for (const category in CategoryData.cData){
-            const cData = CategoryData.getCategoryData(<Category>category);
-            if (filter(cData)){
-                result.push(<Category>category);
+        // search palettes for nodes that satisfy the filter function
+        for (const palette of eagle.palettes()){
+            for (const node of palette.getNodes()){
+                if (filterFunc(node)){
+                    result.push(node);
+                }
             }
         }
 
@@ -2022,12 +2037,12 @@ export class Utils {
     static printCategories() : void {
         const tableData : any[] = [];
 
-        for (const category in CategoryData.cData){
-            const cData = CategoryData.getCategoryData(<Category>category);
+        for (const categoryType in CategoryData.ctData){
+            const ctData = CategoryData.getCategoryTypeData(<Category.Type>categoryType);
 
             tableData.push({
-                category: <Category>category,
-                categoryType: cData.categoryType,
+                category: <Category.Type>categoryType,
+                categoryType: ctData.color,
             });
         }
 
