@@ -116,9 +116,9 @@ export class Modals {
             const choice : number = parseInt($('#choiceModalSelect').val().toString(), 10);
 
             //checking if the value of the select element is valid
-            if(!$('#choiceModalSelect').val() || choice > $('#choiceModalSelect').length){
+            if(!$('#choiceModalSelect').val() || choice > $('#choiceModalSelect option').length){
                 $('#choiceModalSelect').val(0)
-                console.warn('Invalid selection value, resetting to 0')
+                console.warn('Invalid selection value (', choice, '), resetting to 0')
             }
 
             // check selected option in select tag

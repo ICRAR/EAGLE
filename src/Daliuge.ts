@@ -61,8 +61,8 @@ export namespace Daliuge {
 
         // docker
         IMAGE = "image",
-        TAG = "tag",
-        DIGEST = "digest",
+        TAG = "docker_tag",
+        DIGEST = "docker_digest",
 
         // branch
         YES = "yes",
