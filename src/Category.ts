@@ -47,6 +47,7 @@ export namespace Category {
 
     export type CategoryData = {
         categoryType: Type,
+
         isGroup:boolean,
         minInputs: number,
         maxInputs: number,

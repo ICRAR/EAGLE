@@ -1111,12 +1111,14 @@ export class Utils {
         return matchingCategories;
     }
 
-    static getDataComponentMemory(palettes: Palette[]) : Node {
+    static getPaletteComponentByName(name: string) : Node {
+        const eagle: Eagle = Eagle.getInstance();
+
         // add all data components (except ineligible)
-        for (const palette of palettes){
+        for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
                 // skip nodes that are not data components
-                if (node.getName() === Category.Memory){
+                if (node.getName() === name){
                     return node;
                 }
             }
@@ -1943,6 +1945,42 @@ export class Utils {
         }
 
         field.setParameterType(newType);
+    }
+
+    static addMissingRequiredField(eagle: Eagle, node: Node, requiredField: Field){
+        // if requiredField is "dropclass", and node already contains an "appclass" field, then just rename it
+        if (requiredField.getDisplayText() === Daliuge.FieldName.DROP_CLASS){
+            const appClassField = node.getFieldByDisplayText("appclass");
+
+            if (appClassField !== null){
+                appClassField.setDisplayText(Daliuge.FieldName.DROP_CLASS);
+
+                return;
+            }
+        }
+
+        // otherwise just add a clone of the required field
+        const clone: Field = requiredField.clone();
+        clone.setId(Utils.uuidv4());
+
+        // try to set a reasonable default value for some known fields
+        switch(clone.getDisplayText()){
+            case Daliuge.FieldName.DROP_CLASS:
+
+                // look up component in palette
+                const paletteComponent: Node = Utils.getPaletteComponentByName(node.getCategory());
+
+                if (node !== null){
+                    const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS, clone.getParameterType());
+
+                    clone.setValue(dropClassField.getDefaultValue());
+                    clone.setDefaultValue(dropClassField.getDefaultValue());
+                }
+
+                break;
+        }
+
+        node.addField(clone);
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
