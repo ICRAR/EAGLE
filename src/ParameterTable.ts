@@ -260,6 +260,13 @@ export class ParameterTable {
         $(description).find('.parameterTableDescriptionBtn').hide()
     }
 
+    static initiateBrowseDocker() : void {
+        const eagle = Eagle.getInstance()
+        // eagle.smartToggleModal('shortcutsModal')
+        $('.modal.show').modal('hide')
+        eagle.fetchDockerHTML()
+    }
+
     static requestEditDescriptionInModal(currentField:Field) : void {
         const eagle: Eagle = Eagle.getInstance();
         const tableType = eagle.tableModalType()
