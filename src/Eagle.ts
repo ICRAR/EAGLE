@@ -4548,7 +4548,7 @@ export class Eagle {
             y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
         };
 
-        const memoryComponent = Utils.getDataComponentMemory(this.palettes());
+        const memoryComponent = Utils.getPaletteComponentByName(Category.Memory);
 
         // if node not found, exit
         if (memoryComponent === null) {
