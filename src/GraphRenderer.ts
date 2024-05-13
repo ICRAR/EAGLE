@@ -1721,6 +1721,7 @@ export class GraphRenderer {
         //hiding the suggested node edge while the right click menu shows up
         GraphRenderer.portDragSuggestedNode(null)
         GraphRenderer.portDragSuggestedField(null)
+
         // no destination, ask user to choose a new node
         const dataEligible: boolean = GraphRenderer.portDragSourceNode().getCategoryType() !== Category.Type.Data;
 

@@ -3284,7 +3284,11 @@ export class Eagle {
 
             // create edge (in correct direction)
             if (!RightClick.edgeDropSrcIsInput){
-                this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false,null);
+                this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false, (edge: Edge) => {
+                    this.checkGraph();
+                    this.undo().pushSnapshot(this, "Add edge " + edge.getId());
+                    this.logicalGraph.valueHasMutated();
+                });
 
                 // if the new node is a Data node, name the new node according to source port
                 const newName = realSourcePort.getDisplayText();
@@ -3293,7 +3297,11 @@ export class Eagle {
                 }
                 realDestPort.setDisplayText(newName);
             } else {
-                this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, null);
+                this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, (edge: Edge) => {
+                    this.checkGraph();
+                    this.undo().pushSnapshot(this, "Add edge " + edge.getId());
+                    this.logicalGraph.valueHasMutated();
+                });
 
                 // if the new node is a Data node, name the new node according to destination port
                 const newName = realDestPort.getDisplayText();
@@ -3410,7 +3418,6 @@ export class Eagle {
 
                     // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
                     this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, null);
-
                 });
             }
 
