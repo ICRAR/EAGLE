@@ -51,9 +51,6 @@
                     <!-- ko if: $data.searchExclude() -->
                     <a href="#" data-bind="click: function(){$data.setSearchExclude(false)}"><span>Include In Search</span></a>
                     <!-- /ko -->
-                    <!-- ko ifnot: $data.searchExclude() -->
-                    <a href="#" data-bind="click: function(){$data.setSearchExclude(true)}"><span>Exclude From Search</span></a>
-                    <!-- /ko -->
                     <!-- ko if: $data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown && $data.fileInfo().repositoryService !== Eagle.RepositoryService.File -->
                     <a href="#" data-bind="click: $data.copyUrl"><span>Copy Palette URL</span></a>
                     <!-- /ko -->
@@ -75,18 +72,6 @@
                             <span>&nbsp;</span>
                             <h5 class="template-title" data-bs-placement="right" data-bind="text: fileInfo().nameAndModifiedIndicator(), eagleTooltip: fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())"></h5>
                         </div>
-                        <!-- ko ifnot: Eagle.paletteComponentSearchString() === "" -->
-                            <!-- ko if: $data.searchExclude() -->
-                                <div class="searchExcludeTrue" data-bind="click: function(){$data.setSearchExclude(false); $('.tooltip').remove();}, eagleTooltip:'Excluded from search: Click to include'">
-                                    <i class="material-icons">close</i>
-                                </div>
-                            <!-- /ko -->
-                            <!-- ko ifnot: $data.searchExclude() -->
-                                <div class="searchExcludeFalse" data-bind="click: function(){$data.setSearchExclude(true); $('.tooltip').remove();}, eagleTooltip: 'Included in search: Click to exclude'">
-                                    <i class="material-icons">check</i>
-                                </div>
-                            <!-- /ko -->
-                        <!-- /ko -->
                     </div>
                     <div class="collapse show accordion-collapse" aria-labelledby="headingOne" data-bind="attr:{id:'collapse' + $index()}">
                         <div class="accordion-body">

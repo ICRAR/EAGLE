@@ -665,8 +665,10 @@ export class Node {
         if(Eagle.paletteComponentSearchString() === ""){
             return true
         }else if(this.name().toLowerCase().indexOf(Eagle.paletteComponentSearchString().toLowerCase())>=0){
+            $('.leftWindow .accordion-collapse').collapse('show')
             return true
         }else{
+            $('.leftWindow .accordion-collapse').collapse('show')
             return false
         }
     },this)
