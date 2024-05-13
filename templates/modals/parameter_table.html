@@ -332,7 +332,7 @@
                         <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyTableRow, clickBubble:false, disabled: selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
                     <!-- /ko -->
                     <!-- ko if: selectedNode() != null && selectedNode().getCategory() === 'Docker' -->
-                        <button id="tableOpenDocker" class="btn btn-primary float-left" data-bind=" click: ParameterTable.initiateBrowseDocker, clickBubble: false, eagleTooltip: ` Browse images on dockerhub ` + Utils.getKeyboardShortcutTextByKey('something', true)" data-bs-toggle="tooltip" data-html="true" data-bs-placement="right" data-bs-original-title=" Browse images on dockerhub ">
+                        <button id="tableOpenDocker" class="btn btn-primary float-left" data-bind="click: ParameterTable.initiateBrowseDocker, clickBubble: false, eagleTooltip: `Browse images on dockerhub`" data-bs-toggle="tooltip" data-html="true" data-bs-placement="right" data-bs-original-title="">
                             Browse DockerHub
                         </button>
                     <!-- /ko -->
