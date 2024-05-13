@@ -329,10 +329,14 @@
                 </div>
                 <div class="modal-footer"  data-bind="click: ParameterTable.resetSelection">
                     <!-- ko if: selectedNode() != null && tableModalType() === 'inspectorTableModal' -->
-                        
                         <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyTableRow, clickBubble:false, disabled: selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
                     <!-- /ko -->
-                        <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="parameterTableModalAffirmativeAnswer">Close</span></button>
+                    <!-- ko if: selectedNode() != null && selectedNode().getCategory() === 'Docker' -->
+                        <button id="tableOpenDocker" class="btn btn-primary float-left" data-bind="click: ParameterTable.initiateBrowseDocker, clickBubble: false, eagleTooltip: `Browse images on dockerhub`" data-bs-toggle="tooltip" data-html="true" data-bs-placement="right" data-bs-original-title="">
+                            Browse DockerHub
+                        </button>
+                    <!-- /ko -->
+                    <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="parameterTableModalAffirmativeAnswer">Close</span></button>
                 </div>
             <!-- /ko -->
         </div>

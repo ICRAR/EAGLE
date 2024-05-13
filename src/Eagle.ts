@@ -3566,7 +3566,7 @@ export class Eagle {
             // build list of image strings
             const images: string[] = [];
             for (const result of data.results){
-                images.push(result.user + "/" + result.name);
+                images.push(result.namespace + "/" + result.name);
             }
 
             // present list of image names to user
@@ -3589,6 +3589,11 @@ export class Eagle {
                     const tags: string[] = [];
                     for (const result of data.results){
                         tags.push(result.name);
+                    }
+
+                    if (tags.length === 0){
+                        Utils.showNotification("EAGLE", "No image tags available for " + imageName + " from Docker Hub", "danger");
+                        return;
                     }
 
                     // present list of tags to user
@@ -3618,6 +3623,8 @@ export class Eagle {
                         if (digestField !== null){
                             digestField.setValue(digest);
                         }
+
+                        Utils.showNotification("EAGLE", "Image, tag and digest set from Docker Hub", "success");
                     });
                 });
             });
