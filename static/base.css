@@ -2756,10 +2756,6 @@ palette-component input.form-control.selected {
     font-size: 14px;
 }
 
-.contextMenuBorderTop{
-    border-top: 1px solid white;
-}
-
 #customContextMenu a,#customContextMenu span{
     padding:2px 8px;
     display: block;
@@ -2841,6 +2837,7 @@ palette-component input.form-control.selected {
     overflow: hidden;
     text-align: center;
     margin-top: 3px;
+    margin-bottom: 5px;
 }
 
 .rightClickDropdownDividerTitle:before, .rightClickDropdownDividerTitle:after{

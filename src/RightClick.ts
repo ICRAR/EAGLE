@@ -54,7 +54,7 @@ export class RightClick {
             $('#rightClickPaletteList').hide()
             $(event.target).parent().find('a').show()
             $('#paletteNodesSearchResult').remove()
-            $('#customContextMenu').append("<div id='paletteNodesSearchResult'></div>")
+            $('#customContextMenu .searchBarContainer').after("<div id='paletteNodesSearchResult'></div>")
 
             const dropDownOptions = $('#rightClickPaletteList .contextMenuDropdownOption')
             dropDownOptions.each(function(index,dropdownOption){
@@ -67,13 +67,15 @@ export class RightClick {
                     }
                 }
             })
-            
 
-            $('#paletteNodesSearchResult').append('<h5 class="rightClickDropdownDividerTitle" tabindex="-1">Palette Nodes</h5>')
-            $('#paletteNodesSearchResult').append(paletteNodesHtml)
-            $('#paletteNodesSearchResult').append('<h5 class="rightClickDropdownDividerTitle" tabindex="-1">Graph Nodes</h5>')
-            $('#paletteNodesSearchResult').append(graphNodesHtml)
-
+            if(paletteNodesHtml != ''){
+                $('#paletteNodesSearchResult').append('<h5 class="rightClickDropdownDividerTitle" tabindex="-1">Palette Nodes</h5>')
+                $('#paletteNodesSearchResult').append(paletteNodesHtml)
+            }
+            if(graphNodesHtml != ''){
+                $('#paletteNodesSearchResult').append('<h5 class="rightClickDropdownDividerTitle" tabindex="-1">Graph Nodes</h5>')
+                $('#paletteNodesSearchResult').append(graphNodesHtml)
+            }
         } else{
             //if the search bar is empty
             $(event.target).parent().find('a').hide()
@@ -450,9 +452,11 @@ export class RightClick {
                     const message = '<span>Lacking graph editing permissions</span>'
                     $('#customContextMenu').append(message)
                 }
-                $('#customContextMenu').append(`<a class='contextMenuBorderTop' onclick="Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());">Show Graph Info</a>`)
-                $('#customContextMenu').append(`<a onclick="eagle.openParamsTableModal('keyParametersTableModal', 'normal');">Graph Attributes Table</a>`)
-                $('#customContextMenu').append(`<a onclick="eagle.copyGraphUrl();">Copy Graph URL</a>`)
+
+                $('#customContextMenu').append('<h5 class="rightClickDropdownDividerTitle" tabindex="-1">Graph Options</h5>')
+                $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());">Show Graph Info</a>`)
+                $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.openParamsTableModal('keyParametersTableModal', 'normal');">Graph Attributes Table</a>`)
+                $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.copyGraphUrl();">Copy Graph URL</a>`)
             }else if(passedObjectClass === 'edgeDropCreate'){
                 if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
                     const searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
