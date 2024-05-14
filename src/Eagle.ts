@@ -1150,25 +1150,38 @@ export class Eagle {
         for (const node of nodes){
             const insertedNode: Node = keyMap.get(node.getKey());
 
-            // if original node had no parent, skip
-            if (node.getParentKey() === null){
-                continue;
+            // if original node has a parent, set the parent of the inserted node to the inserted parent
+            if (node.getParentKey() !== null){
+                // check if parent of original node was also mapped to a new node
+                const insertedParent: Node = keyMap.get(node.getParentKey());
+
+                // make sure parent is set correctly
+                // if no mapping is available for the parent, then set parent to the new parentNode, or if no parentNode exists, just set parent to null
+                // if a mapping is available, then use the mapped node as the parent for the new node
+                if (typeof insertedParent === 'undefined'){
+                    if (parentNode === null){
+                        insertedNode.setParentKey(null);
+                    } else {
+                        insertedNode.setParentKey(parentNode.getKey());
+                    }
+                } else {
+                    insertedNode.setParentKey(insertedParent.getKey());
+                }
             }
 
-            // check if parent of original node was also mapped to a new node
-            const mappedParent: Node = keyMap.get(node.getParentKey());
+            if (node.getSubjectKey() !== null){
+                const subjectNode = this.logicalGraph().findNodeByKey(node.getSubjectKey());
+                const insertedSubject: Node = keyMap.get(node.getSubjectKey());
 
-            // make sure parent is set correctly
-            // if no mapping is available for the parent, then set parent to the new parentNode, or if no parentNode exists, just set parent to null
-            // if a mapping is available, then use the mapped node as the parent for the new node
-            if (typeof mappedParent === 'undefined'){
-                if (parentNode === null){
-                    insertedNode.setParentKey(null);
+                if (typeof insertedSubject === 'undefined'){
+                    if (subjectNode === null){
+                        insertedNode.setSubjectKey(null);
+                    } else {
+                        insertedNode.setSubjectKey(subjectNode.getKey());
+                    }
                 } else {
-                    insertedNode.setParentKey(parentNode.getKey());
+                    insertedNode.setSubjectKey(insertedSubject.getKey());
                 }
-            } else {
-                insertedNode.setParentKey(mappedParent.getKey());
             }
         }
 
