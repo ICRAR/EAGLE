@@ -47,8 +47,9 @@ export class CategoryData {
         None                 : {categoryType: Category.Type.Unknown, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-none", color: Category.Color.Error, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Other},
 
         // legacy
-        Component            : {categoryType: Category.Type.Unknown, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-none", color: Category.Color.Error, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Other},
-        
+        Component            : {categoryType: Category.Type.Unknown, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-none", color: Category.Color.Legacy, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Legacy},
+        Description          : {categoryType: Category.Type.Other, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveInputApplication: false, canHaveOutputApplication: false, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-paragraph-justify", color: Category.Color.Legacy, collapsedHeaderOffsetY: 0, expandedHeaderOffsetY: 20, sortOrder: Category.SortOrder.Legacy},
+
     };
 
     static getCategoryData(category : Category) : Category.CategoryData {

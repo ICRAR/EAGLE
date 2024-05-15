@@ -1,6 +1,6 @@
 export enum Category {
     Comment = "Comment",
-    Description = "Description",
+
     Scatter = "Scatter",
     Gather = "Gather",
     MKN = "MKN",
@@ -40,7 +40,9 @@ export enum Category {
     None = "None",
     UnknownApplication = "UnknownApplication", // when we know the component is an application, but know almost nothing else about it
 
-    Component = "Component" // legacy only
+    // legacy only
+    Component = "Component",
+    Description = "Description",
 }
 
 export namespace Category {
@@ -85,6 +87,7 @@ export namespace Category {
         Description = "rgb(157 43 96)",
         Error = "#FF66CC",
         Group = "rgb(227 189 100)",
+        Legacy = "#FF66CC",
         Object = "#00bfa6",
         Service = "purple"
     }
@@ -98,6 +101,7 @@ export namespace Category {
         Construct,
         Documentation,
         Service,
-        Other
+        Other,
+        Legacy
     }
 }
