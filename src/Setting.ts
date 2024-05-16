@@ -47,10 +47,10 @@ export class Setting {
     private componentDefaultValue : any;
     private expertDefaultValue : any;
     private oldValue : any;
-    private options : string[];
-    private buttonFunc : () => void;
+    private options : string[]; // an optional list of possible values for this setting
+    private eventFunc : () => void; // optional function to be called when a settings button is clicked, or checkbox is toggled, or a input is changed
 
-    constructor(display: boolean, name : string, key:string, description : string,perpetual:boolean, type : Setting.Type, studentDefaultValue : any, minimalDefaultValue : any,graphDefaultValue : any,componentDefaultValue : any,expertDefaultValue : any, options?: string[], buttonFunc?: () => void){
+    constructor(display: boolean, name : string, key:string, description : string,perpetual:boolean, type : Setting.Type, studentDefaultValue : any, minimalDefaultValue : any,graphDefaultValue : any,componentDefaultValue : any,expertDefaultValue : any, options?: string[], eventFunc?: () => void){
         this.display = display;
         this.name = name;
         this.key = key;
@@ -63,7 +63,7 @@ export class Setting {
         this.componentDefaultValue = componentDefaultValue;
         this.expertDefaultValue = expertDefaultValue;
         this.options = options;
-        this.buttonFunc = buttonFunc;
+        this.eventFunc = eventFunc;
 
         this.oldValue = "";
         this.value = ko.observable(graphDefaultValue);
@@ -140,6 +140,8 @@ export class Setting {
 
         // update the value
         this.value(!this.value());
+
+        this.callEventFunc();
     }
 
     copy = () : void => {
@@ -158,12 +160,8 @@ export class Setting {
         this.oldValue = this.value()
     }
 
-    run = () : void => {
-        this.buttonFunc();
-    }
-
-    static toggleByName(settingName:string) : void {
-        Setting.find(settingName).toggle()
+    callEventFunc = () : void => {
+        this.eventFunc?.();
     }
 
     static find(key : string) : Setting {
@@ -356,7 +354,7 @@ const settings : SettingsGroup[] = [
         "User Options",
         () => {return true;},
         [
-            new Setting(true, "Reset Action Confirmations", Setting.ACTION_CONFIRMATIONS, "Enable all action confirmation prompts",false, Setting.Type.Button, '', '','','','',[], function(){console.log("test rac");Eagle.getInstance().resetActionConfirmations()}),
+            new Setting(true, "Reset Action Confirmations", Setting.ACTION_CONFIRMATIONS, "Enable all action confirmation prompts",false, Setting.Type.Button, '', '','','','',[], function(){console.log("test rac");console.trace();Eagle.getInstance().resetActionConfirmations()}),
             new Setting(false, "Confirm Discard Changes", Setting.CONFIRM_DISCARD_CHANGES, "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.",false, Setting.Type.Boolean, true, true,true,true,true),
             new Setting(false, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.",false, Setting.Type.Boolean, true, true,true,true,true),
             new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORIES, "Prompt user to confirm removing a repository from the list of known repositories.",false , Setting.Type.Boolean, true,true,true,true,true),
