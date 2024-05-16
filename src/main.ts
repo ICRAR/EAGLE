@@ -130,29 +130,7 @@ $(function(){
 
     // load the default palette
     if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
-        eagle.loadPalettes([
-            {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true},
-            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true}
-        ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
-            const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
-
-            // display of errors if setting is true
-            if (showErrors && (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings))){
-                // add warnings/errors to the arrays
-                eagle.loadingErrors(errorsWarnings.errors);
-                eagle.loadingWarnings(errorsWarnings.warnings);
-
-                eagle.errorsMode(Setting.ErrorsMode.Loading);
-                Utils.showErrorsModal("Loading File");
-            }
-
-            for (const palette of palettes){
-                if (palette !== null){
-                    eagle.palettes.push(palette);
-                }
-            }
-            eagle.leftWindow().shown(true);
-        });
+        eagle.loadDefaultPalettes();
     }
 
     // set other state based on settings values
