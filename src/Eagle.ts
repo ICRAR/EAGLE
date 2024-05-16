@@ -64,6 +64,8 @@ export class Eagle {
     logicalGraph : ko.Observable<LogicalGraph>;
     tutorial : ko.Observable<Tutorial>;
 
+    eagleIsReady : ko.Observable<boolean>;
+
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
 
@@ -139,6 +141,8 @@ export class Eagle {
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
+        this.eagleIsReady = ko.observable(false);
+
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
 
@@ -454,6 +458,14 @@ export class Eagle {
 
     zoomToFit = () : void => {
         console.error("Not implemented!");
+    }
+
+    getEagleIsReady = () : string => {
+        if(this.eagleIsReady()){
+            return 'visible'
+        }else{
+            return 'hidden'
+        }
     }
 
     toggleGrid = () : void => {

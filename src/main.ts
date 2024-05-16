@@ -92,8 +92,6 @@ $(function(){
     (<any>window).GraphConfig = GraphConfig;
 
     ko.options.deferUpdates = true;
-    ko.applyBindings(eagle);
-    ko.applyBindings(eagle, document.getElementById("tabTitle"));
 
     // Code responsible for displaying the EAGLE.
     console.log("Initialising EAGLE");
@@ -278,11 +276,12 @@ $(function(){
 
     
     //initiating all the eagle ui when the graph is ready
-    $('#logicalGraph').show(200)
-    $('.leftWindow').show(200)
-    $('.rightWindow').show(200)
-    $('#graphNameWrapper').show(200)
-    $('nav.navbar').show(200).css('display', 'flex');
+    eagle.eagleIsReady = ko.observable(true)
+
+    //applying html ko bindings
+    ko.applyBindings(eagle, document.getElementById("tabTitle"));
+    ko.applyBindings(eagle);
+
 });
 
 function autoLoad(eagle: Eagle) {
