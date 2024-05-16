@@ -2189,6 +2189,14 @@ export class Eagle {
         Utils.showNotification("Success", "Confirmation message pop ups re-enabled", "success");
     }
 
+    // toggles the default palettes on or off
+    // if currently shown, just remove them from the palettes list
+    // if currently not shown, fetch them from the remove source and add to palettes list
+    toggleDefaultPalettes = () : void => {
+        const openDefaultPalette: boolean = Setting.find(Setting.OPEN_DEFAULT_PALETTE).value() as boolean;
+        console.log("toggleDefaultPalette", openDefaultPalette);
+    }
+
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
     savePaletteToDisk = (palette : Palette) : void => {
         console.log("savePaletteToDisk()", palette.fileInfo().name, palette.fileInfo().type);
