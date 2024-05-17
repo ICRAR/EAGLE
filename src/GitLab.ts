@@ -44,8 +44,9 @@ export class GitLab {
 
             // remove all GitLab repos from the list of repositories
             for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-                if (Repositories.repositories()[i].service === Repository.Service.GitLab)
+                if (Repositories.repositories()[i].service === Repository.Service.GitLab){
                     Repositories.repositories.splice(i, 1);
+                }
             }
 
             // add the repositories from the POST response

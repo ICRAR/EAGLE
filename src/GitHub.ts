@@ -45,8 +45,9 @@ export class GitHub {
 
             // remove all GitHub repos from the list of repositories
             for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-                if (Repositories.repositories()[i].service === Repository.Service.GitHub)
+                if (Repositories.repositories()[i].service === Repository.Service.GitHub){
                     Repositories.repositories.splice(i, 1);
+                }
             }
 
             // add the repositories from the POST response
@@ -95,8 +96,9 @@ export class GitHub {
 
             // remove all GitHub repos from the list of repositories
             for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-                if (Repositories.repositories()[i].service === Repository.Service.GitHub)
+                if (Repositories.repositories()[i].service === Repository.Service.GitHub){
                     Repositories.repositories.splice(i, 1);
+                }
             }
 
             // add the repositories from the POST response

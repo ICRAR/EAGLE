@@ -98,10 +98,12 @@ export class Repositories {
             localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
 
             // Reload the repository lists
-            if (repositoryService === Repository.Service.GitHub)
+            if (repositoryService === Repository.Service.GitHub){
                 GitHub.loadRepoList();
-            if (repositoryService === Repository.Service.GitLab)
+            }
+            if (repositoryService === Repository.Service.GitLab){
                 GitLab.loadRepoList();
+            }
         });
     };
 
