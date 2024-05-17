@@ -18,8 +18,9 @@ export class FileInfo {
     private _repositoryBranch : ko.Observable<string>;
     private _repositoryName : ko.Observable<string>;
     private _modified : ko.Observable<boolean>;
-    private _eagleVersion : ko.Observable<string>;
-    private _eagleCommitHash : ko.Observable<string>;
+    private _generatorVersion : ko.Observable<string>;
+    private _generatorCommitHash : ko.Observable<string>;
+    private _generatorName : ko.Observable<string>;
     private _schemaVersion : ko.Observable<Daliuge.SchemaVersion>;
     private _readonly : ko.Observable<boolean>;
     private _builtIn : ko.Observable<boolean>;
@@ -46,8 +47,9 @@ export class FileInfo {
         this._repositoryBranch = ko.observable("");
         this._repositoryName = ko.observable("");
         this._modified = ko.observable(false);
-        this._eagleVersion = ko.observable("");
-        this._eagleCommitHash = ko.observable("");
+        this._generatorVersion = ko.observable("");
+        this._generatorCommitHash = ko.observable("");
+        this._generatorName = ko.observable("");
         this._schemaVersion = ko.observable(Daliuge.SchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
@@ -136,20 +138,28 @@ export class FileInfo {
         this._modified(modified);
     }
 
-    get eagleVersion() : string{
-        return this._eagleVersion();
+    get generatorVersion() : string{
+        return this._generatorVersion();
     }
 
-    set eagleVersion(version : string){
-        this._eagleVersion(version);
+    set generatorVersion(version : string){
+        this._generatorVersion(version);
     }
 
-    get eagleCommitHash() : string{
-        return this._eagleCommitHash();
+    get generatorCommitHash() : string{
+        return this._generatorCommitHash();
     }
 
-    set eagleCommitHash(hash : string){
-        this._eagleCommitHash(hash);
+    set generatorCommitHash(hash : string){
+        this._generatorCommitHash(hash);
+    }
+
+    get generatorName() : string{
+        return this._generatorName();
+    }
+
+    set generatorName(hash : string){
+        this._generatorName(hash);
     }
 
     get schemaVersion(): Daliuge.SchemaVersion{
@@ -251,8 +261,9 @@ export class FileInfo {
         this._repositoryBranch("");
         this._repositoryName("");
         this._modified(false);
-        this._eagleVersion("");
-        this._eagleCommitHash("");
+        this._generatorVersion("");
+        this._generatorCommitHash("");
+        this._generatorName("");
         this._schemaVersion(Daliuge.SchemaVersion.Unknown);
         this._readonly(true);
         this._builtIn(true);
@@ -282,8 +293,9 @@ export class FileInfo {
         result.repositoryBranch = this._repositoryBranch();
         result.repositoryName = this._repositoryName();
         result.modified = this._modified();
-        result.eagleVersion = this._eagleVersion();
-        result.eagleCommitHash = this._eagleCommitHash();
+        result.generatorVersion = this._generatorVersion();
+        result.generatorCommitHash = this._generatorCommitHash();
+        result.generatorName = this._generatorName();
         result.schemaVersion = this._schemaVersion();
         result.readonly = this._readonly();
         result.builtIn = this._builtIn();
@@ -326,8 +338,15 @@ export class FileInfo {
     }
 
     updateEagleInfo = () : void => {
-        this.eagleVersion = (<any>window).version;
-        this.eagleCommitHash = (<any>window).commit_hash;
+        this.generatorVersion = (<any>window).version;
+        this.generatorCommitHash = (<any>window).commit_hash;
+        this.generatorName = "EAGLE";
+    }
+
+    updateGeneratorInfo = (version: string, commitHash: string, name: string) => {
+        this.generatorVersion = version;
+        this.generatorCommitHash = commitHash;
+        this.generatorName = name;
     }
 
     nameAndModifiedIndicator : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -374,8 +393,9 @@ export class FileInfo {
         s += " Repository Name:" + this._repositoryName();
         s += " Repository Branch:" + this._repositoryBranch();
         s += " Modified:" + this._modified();
-        s += " EAGLE Version:" + this._eagleVersion();
-        s += " EAGLE Commit Hash:" + this._eagleCommitHash();
+        s += " Generator Name:" + this._generatorName();
+        s += " Generator Version:" + this._generatorVersion();
+        s += " Generator Commit Hash:" + this._generatorCommitHash();
         s += " Schema Version:" + this._schemaVersion();
         s += " readonly:" + this._readonly();
         s += " builtIn:" + this._builtIn();
@@ -407,8 +427,9 @@ export class FileInfo {
             repoBranch: fileInfo.repositoryBranch,
             repo: fileInfo.repositoryName,
             
-            eagleVersion: fileInfo.eagleVersion,
-            eagleCommitHash: fileInfo.eagleCommitHash,
+            generatorVersion: fileInfo.generatorVersion,
+            generatorCommitHash: fileInfo.generatorCommitHash,
+            generatorName: fileInfo.generatorName,
             schemaVersion: fileInfo.schemaVersion,
             readonly: fileInfo.readonly,
 
@@ -446,8 +467,10 @@ export class FileInfo {
         result.repositoryBranch = modelData.repoBranch ?? "";
         result.repositoryName = modelData.repo ?? "";
 
-        result.eagleVersion = modelData.eagleVersion ?? "";
-        result.eagleCommitHash = modelData.eagleCommitHash ?? "";
+        // look for deprecated attributes (eagleVersion and eagleCommitHash) too
+        result.generatorVersion = modelData.generatorVersion ?? modelData.eagleVersion ?? "";
+        result.generatorCommitHash = modelData.generatorCommitHash ?? modelData.eagleCommitHash ?? "";
+        result.generatorName = modelData.generatorName ?? "";
         result.schemaVersion = modelData.schemaVersion ?? "";
 
         result.readonly = modelData.readonly ?? true;

@@ -188,7 +188,7 @@ export class GraphUpdater {
                         row.numLoadErrors = errorsWarnings.errors.length;
 
                         // use git-related info within file
-                        row.eagleVersion = lg.fileInfo().eagleVersion;
+                        row.generatorVersion = lg.fileInfo().generatorVersion;
                         row.lastModifiedBy = lg.fileInfo().lastModifiedName;
                         row.repositoryUrl = lg.fileInfo().repositoryUrl;
                         row.commitHash = lg.fileInfo().commitHash;
