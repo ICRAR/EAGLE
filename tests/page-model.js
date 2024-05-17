@@ -230,8 +230,6 @@ class Page {
       .click(Selector("#editEdgeModalDestPortIdSelect"))
       .click(Selector("#editEdgeModalDestPortIdSelect").find('option').withText(dstPort))
 
-      .typeText(Selector("#editEdgeModalDataTypeInput"), srcPort, { replace: true })
-
       .click(Selector("#editEdgeModalAffirmativeButton"));
   }
 
