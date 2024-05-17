@@ -1,9 +1,9 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
+import { Repository } from "./Repository";
 
 export class PaletteInfo {
-    repositoryService : Eagle.RepositoryService;
+    repositoryService : Repository.Service;
     repositoryName : string;
     repositoryBranch : string;
     name : string
@@ -11,7 +11,7 @@ export class PaletteInfo {
     isFetching: ko.Observable<boolean>
     isSelected: ko.Observable<boolean>
 
-    constructor(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, name : string, path : string){
+    constructor(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, name : string, path : string){
         this.repositoryService = repositoryService;
         this.repositoryName = repositoryName;
         this.repositoryBranch = repositoryBranch;

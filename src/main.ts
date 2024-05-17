@@ -79,6 +79,7 @@ $(function(){
     (<any>window).Hierarchy = Hierarchy;
     (<any>window).ParameterTable = ParameterTable;
     (<any>window).Repositories = Repositories;
+    (<any>window).Repository = Repository;
     (<any>window).RightClick = RightClick;
     (<any>window).Setting = Setting;
     (<any>window).SideWindow = SideWindow;
@@ -293,28 +294,28 @@ function autoLoad(eagle: Eagle) {
     const url        = (<any>window).auto_load_url;
 
     // cast the service string to an enum
-    const realService: Eagle.RepositoryService = Eagle.RepositoryService[service as keyof typeof Eagle.RepositoryService];
+    const realService: Repository.Service = Repository.Service[service as keyof typeof Repository.Service];
 
     // skip unknown services
-    if (typeof realService === "undefined" || realService === Eagle.RepositoryService.Unknown){
+    if (typeof realService === "undefined" || realService === Repository.Service.Unknown){
         console.log("No auto load. Service Unknown");
         return;
     }
 
     // skip empty strings
-    if ([Eagle.RepositoryService.GitHub, Eagle.RepositoryService.GitLab].includes(realService) && (repository === "" || branch === "" || filename === "")){
+    if ([Repository.Service.GitHub, Repository.Service.GitLab].includes(realService) && (repository === "" || branch === "" || filename === "")){
         console.log("No auto load. Repository, branch or filename not specified");
         return;
     }
 
     // skip url if url is not specified
-    if (realService === Eagle.RepositoryService.Url && url === ""){
+    if (realService === Repository.Service.Url && url === ""){
         console.log("No auto load. Url not specified");
         return;
     }
 
     // load
-    if (service === Eagle.RepositoryService.Url){
+    if (service === Repository.Service.Url){
         Repositories.selectFile(new RepositoryFile(new Repository(service, "", "", false), "", url));
     } else {
         Repositories.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));

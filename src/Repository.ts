@@ -10,7 +10,7 @@ import {GitLab} from "./GitLab";
 export class Repository {
     _id : number
     name : string
-    service : Eagle.RepositoryService
+    service : Repository.Service
     branch : string
     isBuiltIn : boolean
     isFetching: ko.Observable<boolean>
@@ -19,10 +19,10 @@ export class Repository {
     files : ko.ObservableArray<RepositoryFile>
     folders : ko.ObservableArray<RepositoryFolder>
 
-    // NOTE: I think we should be able to use the Eagle.RepositoryService.Unknown enum here, but it causes a javascript error. Not sure why.
-    static readonly DUMMY = new Repository(<Eagle.RepositoryService>"Unknown", "", "", false);
+    // NOTE: I think we should be able to use the Repository.Service.Unknown enum here, but it causes a javascript error. Not sure why.
+    static readonly DUMMY = new Repository(<Repository.Service>"Unknown", "", "", false);
 
-    constructor(service : Eagle.RepositoryService, name : string, branch : string, isBuiltIn : boolean){
+    constructor(service : Repository.Service, name : string, branch : string, isBuiltIn : boolean){
         this._id = Math.floor(Math.random() * 1000000000000);
         this.name = name;
         this.service = service;
@@ -57,10 +57,10 @@ export class Repository {
             this.expanded(!this.expanded());
         } else {
             switch(this.service){
-                case Eagle.RepositoryService.GitHub:
+                case Repository.Service.GitHub:
                     GitHub.loadRepoContent(this);
                     break;
-                case Eagle.RepositoryService.GitLab:
+                case Repository.Service.GitLab:
                     GitLab.loadRepoContent(this);
                     break;
                 default:
@@ -71,10 +71,10 @@ export class Repository {
 
     refresh = () : void => {
         switch(this.service){
-            case Eagle.RepositoryService.GitHub:
+            case Repository.Service.GitHub:
                 GitHub.loadRepoContent(this);
                 break;
-            case Eagle.RepositoryService.GitLab:
+            case Repository.Service.GitLab:
                 GitLab.loadRepoContent(this);
                 break;
             default:
@@ -123,5 +123,15 @@ export class Repository {
         }
 
         return fileNameA.toLowerCase() > fileNameB.toLowerCase() ? 1 : -1;
+    }
+}
+
+export namespace Repository {
+    export enum Service {
+        GitHub = "GitHub",
+        GitLab = "GitLab",
+        File = "File",
+        Url = "Url",
+        Unknown = "Unknown"
     }
 }

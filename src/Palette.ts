@@ -24,14 +24,15 @@
 
 import * as ko from "knockout";
 
-import {Utils} from './Utils';
-import {Eagle} from './Eagle';
-import {Node} from './Node';
-import {FileInfo} from './FileInfo';
-import {RepositoryFile} from './RepositoryFile';
-import {Errors} from './Errors';
-import {Category} from './Category';
-import {CategoryData} from './CategoryData';
+import { Category } from './Category';
+import { CategoryData } from './CategoryData';
+import { Eagle } from './Eagle';
+import { Errors } from './Errors';
+import { FileInfo } from './FileInfo';
+import { Node } from './Node';
+import { Repository } from "./Repository";
+import { RepositoryFile } from './RepositoryFile';
+import { Utils } from './Utils';
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
@@ -285,7 +286,7 @@ export class Palette {
 
         // if we don't know where this file came from then we can't build a URL
         // for example, if the palette was loaded from local disk, then we can't build a URL for others to reach it
-        if (fileInfo.repositoryService === Eagle.RepositoryService.Unknown || fileInfo.repositoryService === Eagle.RepositoryService.File){
+        if (fileInfo.repositoryService === Repository.Service.Unknown || fileInfo.repositoryService === Repository.Service.File){
             Utils.showNotification("Palette URL", "Source of palette is a local file or unknown, unable to create URL for graph.", "danger");
             return;
         }

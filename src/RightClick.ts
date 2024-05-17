@@ -4,6 +4,7 @@ import { Field } from './Field';
 import { GraphRenderer } from './GraphRenderer';
 import { Node } from './Node';
 import { Palette } from './Palette';
+import { Repository } from './Repository';
 import { Setting } from './Setting';
 
 
@@ -525,7 +526,7 @@ export class RightClick {
                 if(!data.fileInfo().builtIn){
                     $('#customContextMenu').append('<a onclick="RightClick.rightClickDeletePalette()"><span>Remove Palette</span></a>')
                 }
-                if(data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown){
+                if(data.fileInfo().repositoryService !== Repository.Service.Unknown){
                     $('#customContextMenu').append('<a onclick="RightClick.rightClickReloadPalette()"><span>Reload Palette</span></a>')
                 }
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
@@ -538,7 +539,7 @@ export class RightClick {
                 if(!data.searchExclude()){
                     $('#customContextMenu').append('<a onclick="RightClick.rightClickToggleSearchExclude(true)"><span>Exclude From Search</span></a>')
                 }
-                if(data.fileInfo().repositoryService !== Eagle.RepositoryService.Unknown && data.fileInfo().repositoryService !== Eagle.RepositoryService.File){
+                if(data.fileInfo().repositoryService !== Repository.Service.Unknown && data.fileInfo().repositoryService !== Repository.Service.File){
                     $('#customContextMenu').append('<a onclick="RightClick.rightClickCopyPaletteUrl()"><span>Copy Palette URL</span></a>')
                 }
             }

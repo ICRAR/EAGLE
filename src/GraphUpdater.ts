@@ -168,7 +168,7 @@ export class GraphUpdater {
         for (const row of data){
             // determine the correct function to load the file
             let openRemoteFileFunc: any;
-            if (row.service === Eagle.RepositoryService.GitHub){
+            if (row.service === Repository.Service.GitHub){
                 openRemoteFileFunc = GitHub.openRemoteFile;
             } else {
                 openRemoteFileFunc = GitLab.openRemoteFile;
