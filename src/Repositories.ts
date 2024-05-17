@@ -53,8 +53,9 @@ export class Repositories {
         }
 
         // if the file is modified, get the user to confirm they want to overwrite changes
-        if (isModified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
-            Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel",Setting.CONFIRM_DISCARD_CHANGES, (confirmed : boolean) : void => {
+        const confirmDiscardChanges: Setting = Setting.find(Setting.CONFIRM_DISCARD_CHANGES);
+        if (isModified && confirmDiscardChanges.value()){
+            Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChanges, (confirmed : boolean) : void => {
                 if (!confirmed){
                     console.log("selectFile() cancelled");
                     return;
@@ -108,14 +109,16 @@ export class Repositories {
     };
 
     removeCustomRepository = (repository : Repository) : void => {
+        const confirmRemoveRepositories: Setting = Setting.find(Setting.CONFIRM_REMOVE_REPOSITORIES);
+
         // if settings dictates that we don't confirm with user, remove immediately
-        if (!Setting.findValue(Setting.CONFIRM_REMOVE_REPOSITORIES)){
+        if (!confirmRemoveRepositories.value()){
             this._removeCustomRepository(repository);
             return;
         }
 
         // otherwise, check with user
-        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel",Setting.CONFIRM_REMOVE_REPOSITORIES, (confirmed : boolean) =>{
+        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", confirmRemoveRepositories, (confirmed : boolean) =>{
             if (!confirmed){
                 console.log("User aborted removeCustomRepository()");
                 return;

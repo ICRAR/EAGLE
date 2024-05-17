@@ -1825,6 +1825,32 @@ export class Eagle {
         this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
     }
 
+    loadDefaultPalettes = () : void => {
+        this.loadPalettes([
+            {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true},
+            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true}
+        ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
+            const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
+
+            // display of errors if setting is true
+            if (showErrors && (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings))){
+                // add warnings/errors to the arrays
+                this.loadingErrors(errorsWarnings.errors);
+                this.loadingWarnings(errorsWarnings.warnings);
+
+                this.errorsMode(Setting.ErrorsMode.Loading);
+                Utils.showErrorsModal("Loading File");
+            }
+
+            for (const palette of palettes){
+                if (palette !== null){
+                    this.palettes.push(palette);
+                }
+            }
+            this.leftWindow().shown(true);
+        });
+    }
+
     loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (errorsWarnings: Errors.ErrorsWarnings, data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
@@ -1952,7 +1978,7 @@ export class Eagle {
 
                     // warn user if file newer than EAGLE
                     if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
-                        Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", "", (confirmed : boolean) : void => {
+                        Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null, (confirmed : boolean) : void => {
                             if (confirmed){
                                 this._loadGraph(dataObject, file);
                             }
@@ -2092,7 +2118,7 @@ export class Eagle {
 
         // if dictated by settings, reload the palette immediately
         if (alreadyLoadedPalette !== null && Setting.findValue(Setting.CONFIRM_RELOAD_PALETTES)){
-            Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No",Setting.CONFIRM_RELOAD_PALETTES, (confirmed : boolean) : void => {
+            Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.find(Setting.CONFIRM_RELOAD_PALETTES), (confirmed : boolean) : void => {
                 if (confirmed){
                     this._reloadPalette(file, data, alreadyLoadedPalette);
                 }
@@ -2160,7 +2186,7 @@ export class Eagle {
 
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
                 if (p.fileInfo().modified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
-                    Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel",'', (confirmed : boolean) : void => {
+                    Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", null, (confirmed : boolean) : void => {
                         if (confirmed){
                             this.palettes.splice(i, 1);
                         }
@@ -2199,6 +2225,45 @@ export class Eagle {
         Setting.setValue(Setting.CONFIRM_RELOAD_PALETTES,true)
         Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORIES,true)
         Utils.showNotification("Success", "Confirmation message pop ups re-enabled", "success");
+    }
+
+    // toggles the default palettes on or off
+    // if currently shown, just remove them from the palettes list
+    // if currently not shown, fetch them from the remove source and add to palettes list
+    toggleDefaultPalettes = () : void => {
+        const allowGraphEditing: boolean = Setting.find(Setting.ALLOW_GRAPH_EDITING).value() as boolean;
+        const allowPaletteEditing: boolean = Setting.find(Setting.ALLOW_PALETTE_EDITING).value() as boolean;
+        const openDefaultPalette: boolean = Setting.find(Setting.OPEN_DEFAULT_PALETTE).value() as boolean;
+
+        // if:
+        // - user is loading palettes
+        // - allow palette editing is off
+        // - allow graph editing is off
+        // then the palettes tab is invisible anyway, and the user will not see the palettes loaded, so notify them of this corner case
+        if (openDefaultPalette && !allowGraphEditing && !allowPaletteEditing){
+            Utils.showNotification("Palettes Disabled", "Palettes are not visible in the current UI mode", "warning");
+        }
+
+        const eagle: Eagle = Eagle.getInstance();
+
+        const builtinPalette: Palette = this.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
+        const dynamicPalette: Palette = this.findPalette(Palette.DYNAMIC_PALETTE_NAME, false);
+
+        // always close the palettes
+        if (builtinPalette !== null){
+            eagle.closePalette(builtinPalette);
+        }
+        if (dynamicPalette !== null){
+            eagle.closePalette(dynamicPalette);
+        }
+        
+        // reload them if applicable
+        if (openDefaultPalette){
+            eagle.loadDefaultPalettes();
+        }
+
+        // show/hide the left window
+        this.leftWindow().shown(openDefaultPalette);
     }
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
@@ -3189,7 +3254,7 @@ export class Eagle {
         }
 
         // request confirmation from user
-        Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No",Setting.CONFIRM_DELETE_OBJECTS, (confirmed : boolean) : void => {
+        Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_OBJECTS), (confirmed : boolean) : void => {
             if (!confirmed){
                 console.log("User aborted deleteSelection()");
                 return;
@@ -4652,7 +4717,7 @@ export class Eagle {
         if (Setting.findValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES)){
 
             // request confirmation from user
-            Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No",Setting.CONFIRM_NODE_CATEGORY_CHANGES, (confirmed : boolean) : void => {
+            Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.find(Setting.CONFIRM_NODE_CATEGORY_CHANGES), (confirmed : boolean) : void => {
                 if (!confirmed){
                     //we need to reset the input select to the previous value
                     $(event.target).val(this.selectedNode().getCategory())

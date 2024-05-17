@@ -578,20 +578,20 @@ export class Utils {
         $('#choiceModal').modal("toggle");
     }
 
-    static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string,confirmSetting:string, callback : (confirmed : boolean) => void ) : void {
+    static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting, callback : (confirmed : boolean) => void ) : void {
         $('#confirmModalTitle').text(title);
         $('#confirmModalMessage').html(message);
         $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
         $('#confirmModalNegativeAnswer').text(negativeAnswer);
         
         $('#confirmModalDontShowAgain button').off()
-        if(confirmSetting === ''){
+        if(confirmSetting === null){
             $('#confirmModalDontShowAgain').hide()
         }else{
             $('#confirmModalDontShowAgain').show()
             $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
-            $('#confirmModalDontShowAgain button').on('click',function(){
-                Setting.toggleByName(confirmSetting)
+            $('#confirmModalDontShowAgain button').on('click', function(){
+                confirmSetting.toggle();
                 if($('#confirmModalDontShowAgain button').text() === 'check_box_outline_blank'){
                     $('#confirmModalDontShowAgain button').text('check_box')
                 }else{
