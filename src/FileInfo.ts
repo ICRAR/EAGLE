@@ -3,6 +3,7 @@ import * as ko from "knockout";
 import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
+import { Repository } from "./Repository";
 import { Utils } from './Utils';
 
 
@@ -13,7 +14,7 @@ export class FileInfo {
 
     private _path : ko.Observable<string>;
     private _type : ko.Observable<Eagle.FileType>;
-    private _repositoryService : ko.Observable<Eagle.RepositoryService>;
+    private _repositoryService : ko.Observable<Repository.Service>;
     private _repositoryBranch : ko.Observable<string>;
     private _repositoryName : ko.Observable<string>;
     private _modified : ko.Observable<boolean>;
@@ -41,7 +42,7 @@ export class FileInfo {
 
         this._path = ko.observable("");
         this._type = ko.observable(Eagle.FileType.Unknown);
-        this._repositoryService = ko.observable(Eagle.RepositoryService.Unknown);
+        this._repositoryService = ko.observable(Repository.Service.Unknown);
         this._repositoryBranch = ko.observable("");
         this._repositoryName = ko.observable("");
         this._modified = ko.observable(false);
@@ -103,11 +104,11 @@ export class FileInfo {
         this._type(type);
     }
 
-    get repositoryService() : Eagle.RepositoryService {
+    get repositoryService() : Repository.Service {
         return this._repositoryService();
     }
 
-    set repositoryService(repositoryService : Eagle.RepositoryService){
+    set repositoryService(repositoryService : Repository.Service){
         this._repositoryService(repositoryService);
     }
 
@@ -246,7 +247,7 @@ export class FileInfo {
 
         this._path("");
         this._type(Eagle.FileType.Unknown);
-        this._repositoryService(Eagle.RepositoryService.Unknown);
+        this._repositoryService(Repository.Service.Unknown);
         this._repositoryBranch("");
         this._repositoryName("");
         this._modified(false);
@@ -310,7 +311,7 @@ export class FileInfo {
     }
 
     removeGitInfo = () : void => {
-        this._repositoryService(Eagle.RepositoryService.Unknown);
+        this._repositoryService(Repository.Service.Unknown);
         this._repositoryBranch("");
         this._repositoryName("");
         this._path("");
@@ -339,7 +340,7 @@ export class FileInfo {
 
     getSummaryHTML = (title : string) : string => {
         let text
-        if (this._repositoryService() === Eagle.RepositoryService.Unknown){
+        if (this._repositoryService() === Repository.Service.Unknown){
             text = "- Location -</br>Url:&nbsp;" + this._repositoryUrl() + "</br>Hash:&nbsp;" + this._commitHash();
         } else {
             text = "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
@@ -441,7 +442,7 @@ export class FileInfo {
             result.shortDescription = result.detailedDescription.split('. ', 1)[0];
         }
 
-        result.repositoryService = modelData.repoService ?? Eagle.RepositoryService.Unknown;
+        result.repositoryService = modelData.repoService ?? Repository.Service.Unknown;
         result.repositoryBranch = modelData.repoBranch ?? "";
         result.repositoryName = modelData.repo ?? "";
 

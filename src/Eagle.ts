@@ -64,6 +64,8 @@ export class Eagle {
     logicalGraph : ko.Observable<LogicalGraph>;
     tutorial : ko.Observable<Tutorial>;
 
+    eagleIsReady : ko.Observable<boolean>;
+
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
 
@@ -139,6 +141,8 @@ export class Eagle {
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
+        this.eagleIsReady = ko.observable(false);
+
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
         this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
 
@@ -454,6 +458,14 @@ export class Eagle {
 
     zoomToFit = () : void => {
         console.error("Not implemented!");
+    }
+
+    getEagleIsReady = () : string => {
+        if(this.eagleIsReady()){
+            return 'visible'
+        }else{
+            return 'hidden'
+        }
     }
 
     toggleGrid = () : void => {
@@ -844,7 +856,7 @@ export class Eagle {
     
                     // update the activeFileInfo with details of the repository the file was loaded from
                     if (fileFullPath !== ""){
-                        eagle.updateLogicalGraphFileInfo(Eagle.RepositoryService.File, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
+                        eagle.updateLogicalGraphFileInfo(Repository.Service.File, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
                     }
     
                     // check graph
@@ -907,7 +919,7 @@ export class Eagle {
         graphFileToInsertInputElement.value = "";
     }
 
-    private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Eagle.RepositoryService) : void => {
+    private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Repository.Service) : void => {
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
         this.hideEagleIsLoading()
         // show errors (if found)
@@ -960,7 +972,7 @@ export class Eagle {
                 break;
         }
 
-        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
+        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
     }
 
     createSubgraphFromSelection = () : void => {
@@ -1218,7 +1230,7 @@ export class Eagle {
 
                 eagle._loadPaletteJSON(data, fileFullPath);
 
-                eagle.palettes()[0].fileInfo().repositoryService = Eagle.RepositoryService.File;
+                eagle.palettes()[0].fileInfo().repositoryService = Repository.Service.File;
                 eagle.palettes()[0].fileInfo.valueHasMutated();
             }
             reader.onerror = function (evt) {
@@ -1255,7 +1267,7 @@ export class Eagle {
         const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
 
         // show errors (if found)
-        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Eagle.RepositoryService.File);
+        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
 
         // sort the palette
         p.sort();
@@ -1424,15 +1436,15 @@ export class Eagle {
          this.closePalette(palette);
 
          switch (fileInfo.repositoryService){
-             case Eagle.RepositoryService.File:
+             case Repository.Service.File:
                 // load palette
                 this.getPaletteFileToLoad();
                 break;
-            case Eagle.RepositoryService.GitLab:
-            case Eagle.RepositoryService.GitHub:
+            case Repository.Service.GitLab:
+            case Repository.Service.GitHub:
                 Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
                 break;
-            case Eagle.RepositoryService.Url:
+            case Repository.Service.Url:
                 this.loadPalettes([
                     {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
                 ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
@@ -1476,7 +1488,7 @@ export class Eagle {
     }
 
     saveGraph = () : void => {
-        if (this.logicalGraph().fileInfo().repositoryService === Eagle.RepositoryService.File){
+        if (this.logicalGraph().fileInfo().repositoryService === Repository.Service.File){
             this.saveFileToLocal(Eagle.FileType.Graph);
         } else {
             this.commitToGit(Eagle.FileType.Graph);
@@ -1484,7 +1496,7 @@ export class Eagle {
     }
 
     saveGraphAs = () : void => {
-        const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Eagle.RepositoryService.File;
+        const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
 
         Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "", (completed: boolean, userChoiceIndex: number) => {
             if (!completed)
@@ -1541,10 +1553,10 @@ export class Eagle {
         let url : string;
 
         switch (repository.service){
-            case Eagle.RepositoryService.GitHub:
+            case Repository.Service.GitHub:
                 url = '/saveFileToRemoteGithub';
                 break;
-            case Eagle.RepositoryService.GitLab:
+            case Repository.Service.GitLab:
                 url = '/saveFileToRemoteGitlab';
                 break;
             default:
@@ -1561,10 +1573,10 @@ export class Eagle {
             }
 
             // Load the file list again.
-            if (repository.service === Eagle.RepositoryService.GitHub){
+            if (repository.service === Repository.Service.GitHub){
                 GitHub.loadRepoContent(repository);
             }
-            if (repository.service === Eagle.RepositoryService.GitLab){
+            if (repository.service === Repository.Service.GitLab){
                 GitLab.loadRepoContent(repository);
             }
 
@@ -1572,10 +1584,10 @@ export class Eagle {
             this.rightWindow().mode(Eagle.RightWindowMode.Repository);
 
             // Show success message
-            if (repository.service === Eagle.RepositoryService.GitHub){
+            if (repository.service === Repository.Service.GitHub){
                 Utils.showNotification("Success", "The file has been saved to GitHub repository.", "success");
             }
-            if (repository.service === Eagle.RepositoryService.GitLab){
+            if (repository.service === Repository.Service.GitLab){
                 Utils.showNotification("Success", "The file has been saved to GitLab repository.", "success");
             }
 
@@ -1642,29 +1654,29 @@ export class Eagle {
         if (this.logicalGraph()){
             // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
             // just use any existing repo
-            if (fileInfo().repositoryService === Eagle.RepositoryService.Unknown || fileInfo().repositoryService === Eagle.RepositoryService.File){
-                const gitHubRepoList : Repository[] = Repositories.getList(Eagle.RepositoryService.GitHub);
-                const gitLabRepoList : Repository[] = Repositories.getList(Eagle.RepositoryService.GitLab);
+            if (fileInfo().repositoryService === Repository.Service.Unknown || fileInfo().repositoryService === Repository.Service.File){
+                const gitHubRepoList : Repository[] = Repositories.getList(Repository.Service.GitHub);
+                const gitLabRepoList : Repository[] = Repositories.getList(Repository.Service.GitLab);
 
                 // use first gitlab repo as second preference
                 if (gitLabRepoList.length > 0){
-                    defaultRepository = new Repository(Eagle.RepositoryService.GitLab, gitLabRepoList[0].name, gitLabRepoList[0].branch, false);
+                    defaultRepository = new Repository(Repository.Service.GitLab, gitLabRepoList[0].name, gitLabRepoList[0].branch, false);
                 }
 
                 // overwrite with first github repo as first preference
                 if (gitHubRepoList.length > 0){
-                    defaultRepository = new Repository(Eagle.RepositoryService.GitHub, gitHubRepoList[0].name, gitHubRepoList[0].branch, false);
+                    defaultRepository = new Repository(Repository.Service.GitHub, gitHubRepoList[0].name, gitHubRepoList[0].branch, false);
                 }
 
                 if (gitHubRepoList.length === 0 && gitLabRepoList.length === 0){
-                    defaultRepository = new Repository(Eagle.RepositoryService.GitHub, "", "", false);
+                    defaultRepository = new Repository(Repository.Service.GitHub, "", "", false);
                 }
             } else {
                 defaultRepository = new Repository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch, false);
             }
         }
 
-        Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
@@ -1714,9 +1726,9 @@ export class Eagle {
 
         // if there is no git repository or filename defined for this file. Please use 'save as' instead!
         if (
-            fileInfo().repositoryService === Eagle.RepositoryService.Unknown ||
-            fileInfo().repositoryService === Eagle.RepositoryService.File ||
-            fileInfo().repositoryService === Eagle.RepositoryService.Url ||
+            fileInfo().repositoryService === Repository.Service.Unknown ||
+            fileInfo().repositoryService === Repository.Service.File ||
+            fileInfo().repositoryService === Repository.Service.Url ||
             fileInfo().repositoryName === null
         ) {
             this.commitToGitAs(fileType);
@@ -1789,10 +1801,10 @@ export class Eagle {
         let token : string;
 
         switch (repository.service){
-            case Eagle.RepositoryService.GitHub:
+            case Repository.Service.GitHub:
                 token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
                 break;
-            case Eagle.RepositoryService.GitLab:
+            case Repository.Service.GitLab:
                 token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
                 break;
             default:
@@ -1913,13 +1925,13 @@ export class Eagle {
         // check the service required to fetch the file
         let openRemoteFileFunc;
         switch (file.repository.service){
-            case Eagle.RepositoryService.GitHub:
+            case Repository.Service.GitHub:
                 openRemoteFileFunc = GitHub.openRemoteFile;
                 break;
-            case Eagle.RepositoryService.GitLab:
+            case Repository.Service.GitLab:
                 openRemoteFileFunc = GitLab.openRemoteFile;
                 break;
-            case Eagle.RepositoryService.Url:
+            case Repository.Service.Url:
                 openRemoteFileFunc = Utils.openRemoteFileFromUrl;
                 break;
             default:
@@ -2026,10 +2038,10 @@ export class Eagle {
         // check the service required to fetch the file
         let insertRemoteFileFunc;
         switch (file.repository.service){
-            case Eagle.RepositoryService.GitHub:
+            case Repository.Service.GitHub:
                 insertRemoteFileFunc = GitHub.openRemoteFile;
                 break;
-            case Eagle.RepositoryService.GitLab:
+            case Repository.Service.GitLab:
                 insertRemoteFileFunc = GitLab.openRemoteFile;
                 break;
             default:
@@ -2138,7 +2150,7 @@ export class Eagle {
         this.leftWindow().shown(true);
     }
 
-    private updateLogicalGraphFileInfo = (repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
+    private updateLogicalGraphFileInfo = (repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
         // update the activeFileInfo with details of the repository the file was loaded from
         this.logicalGraph().fileInfo().repositoryName = repositoryName;
         this.logicalGraph().fileInfo().repositoryBranch = repositoryBranch;
@@ -2274,7 +2286,7 @@ export class Eagle {
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
             palette.fileInfo().modified = false;
-            palette.fileInfo().repositoryService = Eagle.RepositoryService.Unknown;
+            palette.fileInfo().repositoryService = Repository.Service.Unknown;
             palette.fileInfo().repositoryName = "";
             palette.fileInfo().repositoryUrl = "";
             palette.fileInfo().commitHash = "";
@@ -2323,7 +2335,7 @@ export class Eagle {
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
             graph.fileInfo().modified = false;
-            graph.fileInfo().repositoryService = Eagle.RepositoryService.File;
+            graph.fileInfo().repositoryService = Repository.Service.File;
             graph.fileInfo().repositoryName = "";
             graph.fileInfo().repositoryUrl = "";
             graph.fileInfo().commitHash = "";
@@ -2337,7 +2349,7 @@ export class Eagle {
 
         const defaultRepository: Repository = new Repository(palette.fileInfo().repositoryService, palette.fileInfo().repositoryName, palette.fileInfo().repositoryBranch, false);
 
-        Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Eagle.RepositoryService.GitHub),  palette.fileInfo().path, palette.fileInfo().name, (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+        Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Repository.Service.GitHub),  palette.fileInfo().path, palette.fileInfo().name, (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
             // check completed boolean
             if (!completed){
                 console.log("Abort commit");
@@ -2355,10 +2367,10 @@ export class Eagle {
             let token : string;
 
             switch (repositoryService){
-                case Eagle.RepositoryService.GitHub:
+                case Repository.Service.GitHub:
                     token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
                     break;
-                case Eagle.RepositoryService.GitLab:
+                case Repository.Service.GitLab:
                     token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
                     break;
                 default:
@@ -4505,7 +4517,7 @@ export class Eagle {
 
         // if we don't know where this file came from then we can't build a URL
         // for example, if the graph was loaded from local disk, then we can't build a URL for others to reach it
-        if (fileInfo.repositoryService === Eagle.RepositoryService.Unknown || fileInfo.repositoryService === Eagle.RepositoryService.File){
+        if (fileInfo.repositoryService === Repository.Service.Unknown || fileInfo.repositoryService === Repository.Service.File){
             Utils.showNotification("Graph URL", "Source of graph is a local file or unknown, unable to create URL for graph.", "danger");
             return;
         }
@@ -4931,14 +4943,6 @@ export namespace Eagle
         Add = "Add",
         Edit = "Edit",
         Field = "Field"
-    }
-
-    export enum RepositoryService {
-        GitHub = "GitHub",
-        GitLab = "GitLab",
-        File = "File",
-        Url = "Url",
-        Unknown = "Unknown"
     }
 
     export enum Direction {

@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light" data-bind="style:{'visibility':eagle.getEagleIsReady()}">
 
     <object data="/static/assets/svg/liu.svg" type="image/svg+xml" width="30" height="30" class="d-inline-block align-top" alt="LiuIcon"></object>
     <img src="static/assets/img/favicon.png" width="30" height="30" id="brandEagleIcon" class="d-inline-block align-top" alt="">
@@ -226,6 +226,6 @@
 
     </div>
 </nav>
-<div id="graphNameWrapper">
+<div id="graphNameWrapper" data-bind="style: { 'visibility':eagle.getEagleIsReady()}">
     <span id="filename" data-bind="text: repositoryFileName"></span>
 </div>

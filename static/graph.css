@@ -12,10 +12,10 @@
     --edgeColor:red;
     --commentEdgeColor:red;
     --matchingEdgeColor:red;
+    visibility:hidden;
 }
 
 #logicalGraph {
-    display: none;
     -webkit-transform-origin: 0 0;
 }
 
