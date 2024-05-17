@@ -9,6 +9,7 @@ import { FileInfo } from '../src/FileInfo';
 import { GraphUpdater } from '../src/GraphUpdater';
 import { LogicalGraph } from '../src/LogicalGraph';
 import { Node } from '../src/Node';
+import { Repository } from "../src/Repository";
 import { Utils } from '../src/Utils';
 
 
@@ -97,7 +98,7 @@ function readFileInfo(modelData : any, inputFilename : string) : FileInfo {
     result.gitUrl = modelData.git_url;
 
     // NOTE: if the incoming data (modelData) does not indicate the service, assume it is GitHub
-    result.repositoryService = modelData.repoService ?? Eagle.RepositoryService.GitHub;
+    result.repositoryService = modelData.repoService ?? Repository.Service.GitHub;
     result.repositoryName = modelData.repo;
     result.sha = modelData.sha;
 

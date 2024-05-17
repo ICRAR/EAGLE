@@ -69,7 +69,7 @@ export class Repositories {
 
     // use a custom modal to ask user for repository service and url at the same time
     addCustomRepository = () : void => {
-        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : void => {
+        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : void => {
             console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
 
             if (!completed){
@@ -98,10 +98,12 @@ export class Repositories {
             localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
 
             // Reload the repository lists
-            if (repositoryService === Eagle.RepositoryService.GitHub)
+            if (repositoryService === Repository.Service.GitHub){
                 GitHub.loadRepoList();
-            if (repositoryService === Eagle.RepositoryService.GitLab)
+            }
+            if (repositoryService === Repository.Service.GitLab){
                 GitLab.loadRepoList();
+            }
         });
     };
 
@@ -133,13 +135,13 @@ export class Repositories {
 
         // remove from localStorage
         switch(repository.service){
-            case Eagle.RepositoryService.GitHub:
+            case Repository.Service.GitHub:
                 localStorage.removeItem(repository.name + ".repository");
                 localStorage.removeItem(repository.name + ".github_repository");
                 localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
                 GitHub.loadRepoList();
                 break;
-            case Eagle.RepositoryService.GitLab:
+            case Repository.Service.GitLab:
                 localStorage.removeItem(repository.name + ".gitlab_repository");
                 localStorage.removeItem(repository.name + "|" + repository.branch + ".gitlab_repository_and_branch");
                 GitLab.loadRepoList();
@@ -154,7 +156,7 @@ export class Repositories {
         Repositories.repositories.sort(Repository.repositoriesSortFunc);
     }
 
-    static getList(service : Eagle.RepositoryService) : Repository[]{
+    static getList(service : Repository.Service) : Repository[]{
         const list : Repository[] = [];
 
         for (const repository of Repositories.repositories()){
@@ -166,7 +168,7 @@ export class Repositories {
         return list;
     }
 
-    static get(service : Eagle.RepositoryService, name : string, branch : string) : Repository | null {
+    static get(service : Repository.Service, name : string, branch : string) : Repository | null {
         for (const repository of Repositories.repositories()){
             if (repository.service === service && repository.name === name && repository.branch === branch){
                 return repository;

@@ -605,14 +605,14 @@ export class Utils {
         $('#confirmModal').modal("toggle");
     }
 
-    static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
+    static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
         $('#gitCommitModal').data('completed', false);
         $('#gitCommitModal').data('callback', callback);
         $('#gitCommitModal').data('repositories', repositories);
         $('#gitCommitModal').modal("toggle");
 
         //
-        let defaultRepositoryService: Eagle.RepositoryService = Eagle.RepositoryService.Unknown;
+        let defaultRepositoryService: Repository.Service = Repository.Service.Unknown;
         if (defaultRepository !== null){
             defaultRepositoryService = defaultRepository.service;
         }
@@ -622,14 +622,14 @@ export class Utils {
 
         // add options to the repository service select tag
         $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
-            value: Eagle.RepositoryService.GitHub,
-            text: Eagle.RepositoryService.GitHub,
-            selected: defaultRepositoryService === Eagle.RepositoryService.GitHub
+            value: Repository.Service.GitHub,
+            text: Repository.Service.GitHub,
+            selected: defaultRepositoryService === Repository.Service.GitHub
         }));
         $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
-            value: Eagle.RepositoryService.GitLab,
-            text: Eagle.RepositoryService.GitLab,
-            selected: defaultRepositoryService === Eagle.RepositoryService.GitLab
+            value: Repository.Service.GitLab,
+            text: Repository.Service.GitLab,
+            selected: defaultRepositoryService === Repository.Service.GitLab
         }));
 
         Utils.updateGitCommitRepositoriesList(repositories, defaultRepository);
@@ -647,7 +647,7 @@ export class Utils {
         $('#editFieldModal').modal("toggle");
     }
 
-    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) => void) : void {
+    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) => void) : void {
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
         $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
@@ -665,7 +665,7 @@ export class Utils {
         $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
 
         // check service
-        if (repositoryService.trim() !== Eagle.RepositoryService.GitHub && repositoryService.trim() !== Eagle.RepositoryService.GitLab){
+        if (repositoryService.trim() !== Repository.Service.GitHub && repositoryService.trim() !== Repository.Service.GitLab){
             return false;
         }
 
@@ -743,7 +743,7 @@ export class Utils {
         palette.fileInfo().builtIn = true;
         palette.fileInfo().downloadUrl = paletteListItem.filename;
         palette.fileInfo().type = Eagle.FileType.Palette;
-        palette.fileInfo().repositoryService = Eagle.RepositoryService.Url;
+        palette.fileInfo().repositoryService = Repository.Service.Url;
 
         // sort palette and add to results
         palette.sort();
@@ -759,8 +759,9 @@ export class Utils {
 
         // add parameters in json data
         const jsonData = {
+            service: Setting.findValue(Setting.EXPLORE_PALETTES_SERVICE),
             repository: Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY),
-            branch: "master",
+            branch: Setting.findValue(Setting.EXPLORE_PALETTES_BRANCH),
             token: token,
         };
 
@@ -784,7 +785,7 @@ export class Utils {
 
             const explorePalettes: PaletteInfo[] = [];
             for (const palette of data){
-                explorePalettes.push(new PaletteInfo(Eagle.RepositoryService.GitHub, jsonData.repository, jsonData.branch, palette.name, palette.path));
+                explorePalettes.push(new PaletteInfo(jsonData.service, jsonData.repository, jsonData.branch, palette.name, palette.path));
             }
 
             // process files into a more complex structure
@@ -1294,18 +1295,18 @@ export class Utils {
         UiModeSystem.saveToLocalStorage()
     }
 
-    static getLocalStorageKey(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
+    static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
         switch (repositoryService){
-            case Eagle.RepositoryService.GitHub:
+            case Repository.Service.GitHub:
                 return repositoryName + "|" + repositoryBranch + ".github_repository_and_branch";
-            case Eagle.RepositoryService.GitLab:
+            case Repository.Service.GitLab:
                 return repositoryName + "|" + repositoryBranch + ".gitlab_repository_and_branch";
             default:
                 return null;
         }
     }
 
-    static getLocalStorageValue(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : string {
+    static getLocalStorageValue(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
         return repositoryName+"|"+repositoryBranch;
     }
 
@@ -2289,7 +2290,7 @@ export class Utils {
         return result;
     }
 
-    static openRemoteFileFromUrl(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
+    static openRemoteFileFromUrl(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
         Utils.httpGet(fileName, (data: string) => {callback(null, data)}, (error: string) => {callback(error, null)});
     }
 

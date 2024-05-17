@@ -152,17 +152,17 @@ export class Modals {
             $('#gitCommitModalAffirmativeButton').trigger("focus");
         });
         $('#gitCommitModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
+            const callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
             const completed : boolean = $('#gitCommitModal').data('completed');
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
-                callback(false, Eagle.RepositoryService.Unknown, "", "", "", "", "");
+                callback(false, Repository.Service.Unknown, "", "", "", "", "");
                 return;
             }
 
             // check selected option in select tag
-            const repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
+            const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
             const repositories : Repository[] = $('#gitCommitModal').data('repositories');
             const repositoryNameChoice : number = parseInt($('#gitCommitModalRepositoryNameSelect').val().toString(), 10);
 
@@ -177,7 +177,7 @@ export class Modals {
             callback(true, repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage);
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
-            const repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
+            const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
             const repositories: Repository[] = Repositories.getList(repositoryService);
             $('#gitCommitModal').data('repositories', repositories);
             Utils.updateGitCommitRepositoriesList(repositories, null);

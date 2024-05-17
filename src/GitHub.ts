@@ -45,13 +45,14 @@ export class GitHub {
 
             // remove all GitHub repos from the list of repositories
             for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-                if (Repositories.repositories()[i].service === Eagle.RepositoryService.GitHub)
+                if (Repositories.repositories()[i].service === Repository.Service.GitHub){
                     Repositories.repositories.splice(i, 1);
+                }
             }
 
             // add the repositories from the POST response
             for (const d of data){
-                Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitHub, d.repository, d.branch, true));
+                Repositories.repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
             }
 
             // search for custom repositories in localStorage, and add them into the list
@@ -62,19 +63,19 @@ export class GitHub {
 
                 // handle legacy repositories where the service and branch are not specified (assume github and master)
                 if (keyExtension === "repository"){
-                    Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitHub, value, "master", false));
+                    Repositories.repositories.push(new Repository(Repository.Service.GitHub, value, "master", false));
                 }
 
                 // handle legacy repositories where the branch is not specified (assume master)
                 if (keyExtension === "github_repository") {
-                    Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitHub, value, "master", false));
+                    Repositories.repositories.push(new Repository(Repository.Service.GitHub, value, "master", false));
                 }
 
                 // handle the current method of storing repositories where both the service and branch are specified
                 if (keyExtension === "github_repository_and_branch"){
                     const repositoryName = value.split("|")[0];
                     const repositoryBranch = value.split("|")[1];
-                    Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitHub, repositoryName, repositoryBranch, false));
+                    Repositories.repositories.push(new Repository(Repository.Service.GitHub, repositoryName, repositoryBranch, false));
                 }
             }
 
@@ -95,13 +96,14 @@ export class GitHub {
 
             // remove all GitHub repos from the list of repositories
             for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-                if (Repositories.repositories()[i].service === Eagle.RepositoryService.GitHub)
+                if (Repositories.repositories()[i].service === Repository.Service.GitHub){
                     Repositories.repositories.splice(i, 1);
+                }
             }
 
             // add the repositories from the POST response
             for (const d of data){
-                Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitHub, d.repository, d.branch, true));
+                Repositories.repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
             }
 
             // sort the repository list
@@ -217,7 +219,7 @@ export class GitHub {
      * Gets the specified remote file from the server
      * @param filePath File path.
      */
-    static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
+    static openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
         const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
