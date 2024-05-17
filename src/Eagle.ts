@@ -2231,7 +2231,19 @@ export class Eagle {
     // if currently shown, just remove them from the palettes list
     // if currently not shown, fetch them from the remove source and add to palettes list
     toggleDefaultPalettes = () : void => {
+        const allowGraphEditing: boolean = Setting.find(Setting.ALLOW_GRAPH_EDITING).value() as boolean;
+        const allowPaletteEditing: boolean = Setting.find(Setting.ALLOW_PALETTE_EDITING).value() as boolean;
         const openDefaultPalette: boolean = Setting.find(Setting.OPEN_DEFAULT_PALETTE).value() as boolean;
+
+        // if:
+        // - user is loading palettes
+        // - allow palette editing is off
+        // - allow graph editing is off
+        // then the palettes tab is invisible anyway, and the user will not see the palettes loaded, so notify them of this corner case
+        if (openDefaultPalette && !allowGraphEditing && !allowPaletteEditing){
+            Utils.showNotification("Palettes Disabled", "Palettes are not visible in the current UI mode", "warning");
+        }
+
         const eagle: Eagle = Eagle.getInstance();
 
         const builtinPalette: Palette = this.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
