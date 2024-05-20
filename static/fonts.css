@@ -8,53 +8,57 @@
 }
 
 @font-face {
-  font-family: 'Galimer';
-  font-style: normal;
-  src: 
-    url(fonts/galimer/Galimer-ExtraLight.ttf) format('truetype')
-}
-
-@font-face {
-  font-family: 'Galimer';
-  font-style: italic;
-  src: 
-    url(fonts/galimer/Galimer-ExtraLightItalic.ttf) format('truetype')
-}
-
-@font-face {
-  font-family: 'Oxygen';
-  font-style: normal;
-  font-weight: 100;
-  font-display: swap;
-  src: 
-    url(fonts/oxygen/Oxygen-Light.ttf) format('truetype')
-}
-
-@font-face {
-  font-family: 'Oxygen';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: 
-    url(fonts/oxygen/Oxygen-Regular.ttf) format('truetype')
-}
-
-@font-face {
-  font-family: 'Oxygen';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: 
-    url(fonts/oxygen/Oxygen-Bold.ttf) format('truetype')
-}
-
-@font-face {
   font-family: 'Ubuntu Sans';
   font-style: normal;
   font-weight: 100;
   font-display: swap;
   src: 
     url(fonts/Ubuntu_Sans/static/UbuntuSans-Thin.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: italic;
+  font-weight: 100;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-ThinItalic.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-ExtraLight.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: italic;
+  font-weight: 200;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-ExtraLightItalic.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-Light.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-LightItalic.ttf) format('truetype')
 }
 
 @font-face {
@@ -68,11 +72,83 @@
 
 @font-face {
   font-family: 'Ubuntu Sans';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-Italic.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-Medium.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-MediumItalic.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-SemiBold.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-SemiBoldItalic.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
   src: 
     url(fonts/Ubuntu_Sans/static/UbuntuSans-Bold.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-BoldItalic.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-ExtraBold.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: italic;
+  font-weight: 800;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-ExtraBoldItalic.ttf) format('truetype')
 }
 
 @font-face {

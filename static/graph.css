@@ -287,7 +287,7 @@
 .node .header {
     position: absolute;
     text-align: center;
-    bottom:calc(100% + 5px);
+    bottom:calc(100% + 3px);
     left: 50%;
     transform: translateX(-50%);
     /* max-width: 150px; */
