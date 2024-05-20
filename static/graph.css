@@ -294,7 +294,7 @@
 }
 
 .node .branch_node .header{
-    bottom:calc(100% + 20px);
+    bottom:calc(100% + 10px);
 }
 
 .node .header .header-name, .node .body .contents .app-name {

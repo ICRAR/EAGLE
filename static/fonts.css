@@ -8,6 +8,74 @@
 }
 
 @font-face {
+  font-family: 'Galimer';
+  font-style: normal;
+  src: 
+    url(fonts/galimer/Galimer-ExtraLight.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Galimer';
+  font-style: italic;
+  src: 
+    url(fonts/galimer/Galimer-ExtraLightItalic.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Oxygen';
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: 
+    url(fonts/oxygen/Oxygen-Light.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Oxygen';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: 
+    url(fonts/oxygen/Oxygen-Regular.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Oxygen';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: 
+    url(fonts/oxygen/Oxygen-Bold.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-Thin.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-Regular.ttf) format('truetype')
+}
+
+@font-face {
+  font-family: 'Ubuntu Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: 
+    url(fonts/Ubuntu_Sans/static/UbuntuSans-Bold.ttf) format('truetype')
+}
+
+@font-face {
   font-family: 'icomoon';
   src:  url('fonts/icomoon.eot?f4xfc8');
   src:  url('fonts/icomoon.eot?f4xfc8#iefix') format('embedded-opentype'),

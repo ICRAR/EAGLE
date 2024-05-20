@@ -9,6 +9,11 @@ body {
     /* zoom: 75%; */
 }
 
+* {
+    font-family: Ubuntu Sans;
+    font-style: normal;
+}
+
 #graphArea {
     /*background-color: rgb(222,222,222);*/
     height: calc(100% - 82px);
@@ -68,6 +73,14 @@ body {
 #navBarToolBar .navbarGroupError{
     color: white;
     border-color: red;
+}
+
+.navbar .dropdown-item{
+    padding: .05rem 1rem;
+}
+
+.navbar .dropdown-divider{
+    margin:.3rem 0;
 }
 
 #checkGraphWarnings span{
