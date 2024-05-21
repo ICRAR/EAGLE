@@ -306,7 +306,7 @@
 }
 
 .node .header .header-name, .node .body .contents .app-name {
-    padding: 4px;
+    padding: 5px;
     user-select: none;
     line-height: 14px;
     font-size: 15px;
