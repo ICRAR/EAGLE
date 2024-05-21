@@ -1,8 +1,10 @@
 <div class="nodeContent construct_node">
     <div class="container" data-bind="css: {selected: $root.objectIsSelected($data)}">
         <div class="header" data-bind="eagleTooltip:$data.getHelpHTML()">
-            <div class="header-name" data-bind="html: $data.name, style: {transform: 'scale('+$root.getGraphTextScale()+')'},event: {click: GraphRenderer.editNodeTitleInGraph}"></div>
-            <input type="text" data-bind="value:$data.name, readonly: $data.isLocked, style:{display:'none'},event:{click:function(){$(event.target).focus()},keyup:GraphRenderer.nodeNameEditKeybinds}" class="header-input">
+            <div data-bind="style: {transform: 'scale('+$root.getGraphTextScale()+')'}">
+                <div class="header-name" data-bind="html: $data.name,event: {click: GraphRenderer.editNodeTitleInGraph}"></div>
+                <input type="text" data-bind="value:$data.name, readonly: $data.isLocked, style:{display:'none'},event:{click:function(){$(event.target).focus()},keyup:GraphRenderer.nodeNameEditKeybinds}" class="header-input">    
+            </div>
         </div>
     
         <div class="body"  data-bind="eagleRightClick: {data:$data,type:'rightClick_graphNode'}, event: {mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false">
