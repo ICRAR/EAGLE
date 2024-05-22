@@ -990,20 +990,27 @@ export class GraphRenderer {
         $('.changingHeader').removeClass('changingHeader')
     }
 
-    static nodeNameEditKeybinds (data:Node,event: JQuery.TriggeredEvent) : void  {
+    static nodeNameEditorKeybinds (data:Node,event: JQuery.TriggeredEvent) : void  {
         if(event.key === 'Enter' || event.key === 'Escape'){
             GraphRenderer.closeEditTitleInGraph()
         }
     }
 
+    static preventBubbling () : void {
+        //calling this function using native JS using onmousedown, onmouseup or onmousemove prevents bubbling these events up without loosing default event handling far any of those events
+        //for example if we want to keep default input text selection functionality, on an input that is a child of the graph
+        event.stopPropagation()
+    }
+
     static startDrag(node: Node, event: MouseEvent) : void {
         if($(event.target).hasClass('changingHeader')){
+            event.preventDefault()
+            event.stopPropagation()
             return
         }else if(GraphRenderer.editNodeName){
             if(!$(event.target).hasClass('changingHeader')){
                 GraphRenderer.closeEditTitleInGraph()
             }
-            return
         }
         const eagle = Eagle.getInstance();
         // resetting the shift event
