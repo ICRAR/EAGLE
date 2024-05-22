@@ -1449,7 +1449,7 @@ select.form-control{
 .paletteTrippleDot{
     position: absolute;
     right: 35px;
-    margin-top: 13px;
+    margin-top: 10px;
     background: none;
     border: none;
     z-index: 3;
