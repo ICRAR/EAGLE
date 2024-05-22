@@ -1809,7 +1809,7 @@ export class GraphRenderer {
 
     static SCREEN_TO_GRAPH_POSITION_Y(y:number) : number {
         const eagle = Eagle.getInstance();
-        if(y===null){
+        if(y===null && GraphRenderer.dragCurrentPosition){
             y = GraphRenderer.dragCurrentPosition.y
         }
         return (y-83.77)/eagle.globalScale() -eagle.globalOffsetY();
