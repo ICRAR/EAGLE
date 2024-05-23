@@ -1989,7 +1989,7 @@ export class Utils {
         object.setId(Utils.uuidv4());
     }
 
-    static newFieldId(eagle: Eagle, node: Node, field: Field){
+    static newFieldId(eagle: Eagle, node: Node, field: Field): void {
         const oldId = field.getId();
         const newId: string = Utils.uuidv4();
     
