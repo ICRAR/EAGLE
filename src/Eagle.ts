@@ -899,7 +899,7 @@ export class Eagle {
                 const data: string = evt.target.result.toString();
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(Utils.newKey(eagle.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+                    const parentNode: Node = Utils.createSubgraphParent(eagle, lg.fileInfo().name, lg.fileInfo().getText());
     
                     eagle.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
     
@@ -985,7 +985,7 @@ export class Eagle {
         }
 
         // create new subgraph
-        const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), "Subgraph", "", Category.SubGraph);
+        const parentNode: Node = Utils.createSubgraphParent(eagle, "Subgraph", "");
 
         // add the parent node to the logical graph
         this.logicalGraph().addNodeComplete(parentNode);
@@ -2108,7 +2108,7 @@ export class Eagle {
             }
 
             // create parent node
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+            const parentNode: Node = Utils.createSubgraphParent(this, lg.fileInfo().name, lg.fileInfo().getText());
 
             // perform insert
             this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
@@ -4373,11 +4373,10 @@ export class Eagle {
 
             const application : Node = applications[userChoiceIndex];
 
-            // clone the input application to make a local copy
-            // TODO: at the moment, this clone just 'exists' nowhere in particular, but it should be added to the components dict in JSON V3
-            const clone : Node = application.clone();
+            // duplicate the input application
+            const newNode: Node = Utils.duplicateNode(application);
 
-            callback(clone);
+            callback(newNode);
         });
     }
 
@@ -4390,25 +4389,14 @@ export class Eagle {
         this.setNodeApplication("Input Application", "Choose an input application", (inputApplication: Node) => {
             const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
             const oldApp: Node = node.getInputApplication();
-            const clone : Node = inputApplication.clone();
 
             // remove all edges incident on the old input application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
             }
 
-            if(clone.getFields() != null){
-                // set new ids for any fields in this node
-                for (const field of clone.getFields()){
-                    field.setId(Utils.uuidv4());
-                }
-            }
-
-            node.setInputApplication(clone);
-
-            node.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
-            node.getInputApplication().setId(Utils.uuidv4());
-            node.getInputApplication().setEmbedKey(node.getKey());
+            // NOTE: this call also sets the inputApplication's embedKey
+            node.setInputApplication(inputApplication);
 
             this.checkGraph();
             this.undo().pushSnapshot(this, "Set Node Input Application");
@@ -4424,24 +4412,14 @@ export class Eagle {
         this.setNodeApplication("Output Application", "Choose an output application", (outputApplication: Node) => {
             const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
             const oldApp: Node = node.getOutputApplication();
-            const clone : Node = outputApplication.clone();
 
             // remove all edges incident on the old output application
             if (oldApp !== null){
                 this.logicalGraph().removeEdgesByKey(oldApp.getKey());
             }
-            if(clone.getFields() != null){
-                // set new ids for any fields in this node
-                for (const field of clone.getFields()){
-                    field.setId(Utils.uuidv4());
-                }
-            }
 
-            node.setOutputApplication(clone);
-
-            node.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
-            node.getOutputApplication().setId(Utils.uuidv4());
-            node.getOutputApplication().setEmbedKey(node.getKey());
+            // NOTE: this call also sets the outputApplication's embedKey
+            node.setOutputApplication(outputApplication);
 
             this.checkGraph();
             this.undo().pushSnapshot(this, "Set Node Output Application");
@@ -4768,63 +4746,9 @@ export class Eagle {
     // NOTE: clones the node internally
     addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
         // copy node
-        const newNode : Node = node.clone();
-
-        // set appropriate key for node (one that is not already in use)
-        newNode.setId(Utils.uuidv4());
-        newNode.setKey(Utils.newKey(this.logicalGraph().getNodes()));
+        const newNode : Node = Utils.duplicateNode(node);
         newNode.setPosition(x, y);
-        newNode.setEmbedKey(null);
         this.logicalGraph().addNodeComplete(newNode);
-
-        // set new ids for any fields in this node
-        for (const field of newNode.getFields()){
-            field.setId(Utils.uuidv4());
-        }
-
-        // console.log(node.hasInputApplication(),node.getInputApplication(),newNode.hasInputApplication(),newNode.getInputApplication())
-        // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
-        if (node.hasInputApplication()){
-            const clone : Node = node.getInputApplication().clone();
-            
-            if(clone.getFields() != null){
-                // set new ids for any fields in this node
-                for (const field of clone.getFields()){
-                    field.setId(Utils.uuidv4());
-                }
-            }
-            newNode.setInputApplication(clone)
-            // console.log(node.hasInputApplication(),node.getInputApplication(),newNode.hasInputApplication(),newNode.getInputApplication())
-
-            newNode.getInputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
-            newNode.getInputApplication().setId(Utils.uuidv4());
-            newNode.getInputApplication().setEmbedKey(newNode.getKey());
-
-            // set new ids for any fields in this node
-            for (const field of newNode.getInputApplication().getFields()){
-                field.setId(Utils.uuidv4());
-            }
-        }
-        if (node.hasOutputApplication()){
-            const clone : Node = node.getOutputApplication().clone();
-            
-            if(clone.getFields() != null){
-                // set new ids for any fields in this node
-                for (const field of clone.getFields()){
-                    field.setId(Utils.uuidv4());
-                }
-            }
-            newNode.setOutputApplication(clone)
-
-            newNode.getOutputApplication().setKey(Utils.newKey(this.logicalGraph().getNodes()));
-            newNode.getOutputApplication().setId(Utils.uuidv4());
-            newNode.getOutputApplication().setEmbedKey(newNode.getKey());
-
-            // set new ids for any fields in this node
-            for (const field of newNode.getOutputApplication().getFields()){
-                field.setId(Utils.uuidv4());
-            }
-        }
 
         // flag that the logical graph has been modified
         this.logicalGraph().fileInfo().modified = true;

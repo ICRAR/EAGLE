@@ -145,7 +145,7 @@ export class Utils {
         return usedKeys;
     }
 
-    static newKey(nodes: Node[],usedKeys:number[] = []): number {
+    static newKey(nodes: Node[], usedKeys: number[] = []): number {
         const allUsedKeys = Utils.getUsedKeys(nodes).concat(usedKeys);
         return Utils.findNewKey(allUsedKeys);
     }
@@ -2316,5 +2316,91 @@ export class Utils {
             // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
             destField.copyWithKeyAndId(field, destField.getNodeKey(), destField.getId());
         }
+    }
+
+    static duplicateNode(node: Node, usedKeys: number[] = []){
+        const eagle: Eagle = Eagle.getInstance();
+        const newNode = node.clone();
+        const newNodeKey = Utils.newKey(eagle.logicalGraph().getNodes(), usedKeys);
+        let newInputAppKey: number = 0;
+        let newOutputAppKey: number = 0;
+
+        // set appropriate key for node (one that is not already in use)
+        newNode.setId(Utils.uuidv4());
+        newNode.setKey(newNodeKey);
+        newNode.setEmbedKey(null);
+
+        // set new ids for any fields in this node
+        for (const field of newNode.getFields()){
+            field.setId(Utils.uuidv4());
+        }
+
+        // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
+        if (node.hasInputApplication()){
+            const clone : Node = node.getInputApplication().clone();
+            
+            if(clone.getFields() != null){
+                // set new ids for any fields in this node
+                for (const field of clone.getFields()){
+                    field.setId(Utils.uuidv4());
+                }
+            }
+            newNode.setInputApplication(clone)
+
+            // find a new key (prevent re-use of newNodeKey)
+            newInputAppKey = Utils.newKey(eagle.logicalGraph().getNodes(), usedKeys.concat([newNodeKey]));
+            newNode.getInputApplication().setKey(newInputAppKey);
+
+            newNode.getInputApplication().setId(Utils.uuidv4());
+            newNode.getInputApplication().setEmbedKey(newNode.getKey());
+
+            // set new ids for any fields in this node
+            for (const field of newNode.getInputApplication().getFields()){
+                field.setId(Utils.uuidv4());
+            }
+        }
+        if (node.hasOutputApplication()){
+            const clone : Node = node.getOutputApplication().clone();
+            
+            if(clone.getFields() != null){
+                // set new ids for any fields in this node
+                for (const field of clone.getFields()){
+                    field.setId(Utils.uuidv4());
+                }
+            }
+            newNode.setOutputApplication(clone)
+
+            // find a new key (prevent re-use of newNodeKey or newInputAppKey)
+            newOutputAppKey = Utils.newKey(eagle.logicalGraph().getNodes(), usedKeys.concat([newNodeKey, newInputAppKey]));
+            newNode.getOutputApplication().setKey(newOutputAppKey);
+
+            newNode.getOutputApplication().setId(Utils.uuidv4());
+            newNode.getOutputApplication().setEmbedKey(newNode.getKey());
+
+            // set new ids for any fields in this node
+            for (const field of newNode.getOutputApplication().getFields()){
+                field.setId(Utils.uuidv4());
+            }
+        }
+
+        return newNode;
+    }
+
+    static createSubgraphParent(eagle: Eagle, name: string, description: string): Node {
+        const newParentKey: number = Utils.newKey(eagle.logicalGraph().getNodes());
+        const parentNode: Node = new Node(newParentKey, name, description, Category.SubGraph);
+
+        const copyApp: Node = Utils.getPaletteComponentByName("CopyApp");
+
+        const inputApplication = Utils.duplicateNode(copyApp, [newParentKey]);
+        inputApplication.setName("Subgraph Input");
+
+        const outputApplication = Utils.duplicateNode(copyApp, [newParentKey, inputApplication.getKey()]);
+        outputApplication.setName("Subgraph Output");
+
+        parentNode.setInputApplication(inputApplication);
+        parentNode.setOutputApplication(outputApplication);
+
+        return parentNode;
     }
 }
