@@ -2214,8 +2214,19 @@ export class GraphRenderer {
         const inputPort = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey()).findFieldById(edge.getSrcPortId())
         const outputPort = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey()).findFieldById(edge.getDestPortId())
         
-        inputPort.setPeek(value)
-        outputPort.setPeek(value)
+        // if the input port found, set peek
+        if (inputPort !== null){
+            inputPort.setPeek(value);
+        } else {
+            console.warn("Could not find input port of edge. Unable to set peek.")
+        }
+
+        // if the output port found, set peek
+        if (outputPort !== null){
+            outputPort.setPeek(value);
+        } else {
+            console.warn("Could not find output port of edge. Unable to set peek.")
+        }
     }
 
     static edgeGetStrokeColor(edge: Edge) : string {
