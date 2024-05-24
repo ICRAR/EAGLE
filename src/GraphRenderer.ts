@@ -1090,6 +1090,7 @@ export class GraphRenderer {
 
     static mouseMove(eagle: Eagle, event: JQuery.TriggeredEvent) : void {
         const e: MouseEvent = event.originalEvent as MouseEvent;
+        GraphRenderer.ctrlDrag = event.ctrlKey;
 
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
         if (eagle.isDragging()){
@@ -1101,7 +1102,6 @@ export class GraphRenderer {
                 const node:Node = eagle.draggingNode()
                 $('.node.transition').removeClass('transition') //this is for the bubble jump effect which we dont want here
 
-                GraphRenderer.ctrlDrag = event.ctrlKey;
 
                 // move node
                 eagle.selectedObjects().forEach(function(obj){
@@ -1186,13 +1186,10 @@ export class GraphRenderer {
 
     static endDrag(node: Node) : void {
         const eagle = Eagle.getInstance();
-        
-        GraphRenderer.ctrlDrag = false;
 
         // if we dragged a selection region
         if (GraphRenderer.isDraggingSelectionRegion){
             const nodes: Node[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
-
             //checking if there was no drag distance, if so we are clicking a single object and we will toggle its selection
             if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
                 if(GraphRenderer.altSelect){
@@ -1203,15 +1200,28 @@ export class GraphRenderer {
                 const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
                 const objects: (Node | Edge)[] = [];
     
-                // only add those objects which are not already selected
-                for (const node of nodes){
-                    if (!eagle.objectIsSelected(node)){
-                        objects.push(node);
+                // depending on if its shift+ctrl or just shift we are either only adding or only removing nodes
+                if(!GraphRenderer.ctrlDrag){
+                    for (const node of nodes){
+                        if (!eagle.objectIsSelected(node)){
+                            objects.push(node);
+                        }
                     }
-                }
-                for (const edge of edges){
-                    if (!eagle.objectIsSelected(edge)){
-                        objects.push(edge);
+                    for (const edge of edges){
+                        if (!eagle.objectIsSelected(edge)){
+                            objects.push(edge);
+                        }
+                    }
+                }else{
+                    for (const node of nodes){
+                        if (eagle.objectIsSelected(node)){
+                            objects.push(node);
+                        }
+                    }
+                    for (const edge of edges){
+                        if (eagle.objectIsSelected(edge)){
+                            objects.push(edge);
+                        }
                     }
                 }
     
@@ -1219,6 +1229,7 @@ export class GraphRenderer {
                     eagle.editSelection(Eagle.RightWindowMode.Hierarchy, element, Eagle.FileType.Graph )
                 })
             }
+            GraphRenderer.ctrlDrag = false;
 
             GraphRenderer.selectionRegionStart.x = 0;
             GraphRenderer.selectionRegionStart.y = 0;
