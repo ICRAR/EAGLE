@@ -326,11 +326,35 @@ export class Node {
         return result;
     }
 
+    getInputEventPorts = () : Field[] => {
+        const result: Field[] = []
+
+        for (const field of this.fields()){
+            if (field.isInputPort() && field.getIsEvent()){
+                result.push(field);
+            }
+        }
+
+        return result;
+    }
+
     getOutputPorts = () : Field[] => {
         const result: Field[] = []
 
         for (const field of this.fields()){
             if (field.isOutputPort()){
+                result.push(field);
+            }
+        }
+
+        return result;
+    }
+
+    getOutputEventPorts = () : Field[] => {
+        const result: Field[] = []
+
+        for (const field of this.fields()){
+            if (field.isOutputPort() && field.getIsEvent()){
                 result.push(field);
             }
         }
@@ -2093,22 +2117,26 @@ export class Node {
 
         // check that all nodes have correct numbers of inputs and outputs
         const cData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
-        const minInputs  = cData.minInputs;
-        const maxInputs  = cData.maxInputs;
-        const minOutputs = cData.minOutputs;
-        const maxOutputs = cData.maxOutputs;
 
-        if (node.getInputPorts().length < minInputs){
-            errorsWarnings.warnings.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + minInputs));
+        if (node.getInputPorts().length < cData.minInputs){
+            const message: string = "Node " + node.getKey() + " (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + cData.minInputs;
+            const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, selectedLocation, node.getId())}, null, "");
+            errorsWarnings.warnings.push(issue);
         }
-        if (node.getInputPorts().length > maxInputs){
-            errorsWarnings.errors.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + maxInputs));
+        if ((node.getInputPorts().length - node.getInputEventPorts().length) > cData.maxInputs){
+            const message: string = "Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + cData.maxInputs;
+            const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, selectedLocation, node.getId())}, null, "");
+            errorsWarnings.warnings.push(issue);
         }
-        if (node.getOutputPorts().length < minOutputs){
-            errorsWarnings.warnings.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + minOutputs));
+        if (node.getOutputPorts().length < cData.minOutputs){
+            const message: string = "Node " + node.getKey() + " (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + cData.minOutputs;
+            const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, selectedLocation, node.getId())}, null, "");
+            errorsWarnings.warnings.push(issue);
         }
-        if (node.getOutputPorts().length > maxOutputs){
-            errorsWarnings.errors.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") may have too many output ports. Should have at most " + maxOutputs));
+        if ((node.getOutputPorts().length - node.getOutputEventPorts().length) > cData.maxOutputs){
+            const message: string = "Node " + node.getKey() + " (" + node.getName() + ") may have too many output ports. Should have at most " + cData.maxOutputs;
+            const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, selectedLocation, node.getId())}, null, "");
+            errorsWarnings.warnings.push(issue);
         }
 
         // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
@@ -2121,8 +2149,8 @@ export class Node {
         }
 
         // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
-        // only check this if the component has been selected in the graph. If it was selected from the palette, it doesnt make sense to complain that it is not connected.
-        if (!isConnected && !(maxInputs === 0 && maxOutputs === 0) && selectedLocation === Eagle.FileType.Graph){
+        // only check this if the component has been selected in the graph. If it was selected from the palette, it doesn't make sense to complain that it is not connected.
+        if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && selectedLocation === Eagle.FileType.Graph){
             const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.showNode(eagle, selectedLocation, node.getId())}, null, "");
             errorsWarnings.warnings.push(issue);
         }
