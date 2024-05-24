@@ -2318,7 +2318,7 @@ export class Utils {
         }
     }
 
-    static duplicateNode(node: Node, usedKeys: number[] = []){
+    static duplicateNode(node: Node, usedKeys: number[] = []): Node {
         const eagle: Eagle = Eagle.getInstance();
         const newNode = node.clone();
         const newNodeKey = Utils.newKey(eagle.logicalGraph().getNodes(), usedKeys);
@@ -2386,8 +2386,8 @@ export class Utils {
         return newNode;
     }
 
-    static createSubgraphParent(eagle: Eagle, name: string, description: string): Node {
-        const newParentKey: number = Utils.newKey(eagle.logicalGraph().getNodes());
+    static createSubgraphParent(logicalGraph: LogicalGraph, name: string, description: string): Node {
+        const newParentKey: number = Utils.newKey(logicalGraph.getNodes());
         const parentNode: Node = new Node(newParentKey, name, description, Category.SubGraph);
 
         const copyApp: Node = Utils.getPaletteComponentByName("CopyApp");

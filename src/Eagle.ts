@@ -899,7 +899,7 @@ export class Eagle {
                 const data: string = evt.target.result.toString();
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = Utils.createSubgraphParent(eagle, lg.fileInfo().name, lg.fileInfo().getText());
+                    const parentNode: Node = Utils.createSubgraphParent(eagle.logicalGraph(), lg.fileInfo().name, lg.fileInfo().getText());
     
                     eagle.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
     
@@ -985,7 +985,7 @@ export class Eagle {
         }
 
         // create new subgraph
-        const parentNode: Node = Utils.createSubgraphParent(eagle, "Subgraph", "");
+        const parentNode: Node = Utils.createSubgraphParent(eagle.logicalGraph(), "Subgraph", "");
 
         // add the parent node to the logical graph
         this.logicalGraph().addNodeComplete(parentNode);
@@ -2108,7 +2108,7 @@ export class Eagle {
             }
 
             // create parent node
-            const parentNode: Node = Utils.createSubgraphParent(this, lg.fileInfo().name, lg.fileInfo().getText());
+            const parentNode: Node = Utils.createSubgraphParent(this.logicalGraph(), lg.fileInfo().name, lg.fileInfo().getText());
 
             // perform insert
             this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
