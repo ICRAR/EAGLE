@@ -375,6 +375,51 @@ export class Modals {
         Modals._setValidClasses($(event.target), isValid);
     }
 
+    static showBrowseDockerHub(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ) : void {
+        console.log("Modals.showBrowseDockerHub()");
+        
+        $('#browseDockerHubModalTitle').text(title);
+        $('#browseDockerHubModalMessage').html(message);
+        $('#browseDockerHubModalCustomChoiceText').text(customChoiceText);
+        $('#browseDockerHubModalString').val("");
+
+        // remove existing options from the select tag
+        $('#browseDockerHubModalSelect').empty();
+
+        // add options to the modal select tag
+        for (let i = 0 ; i < choices.length ; i++){
+            $('#browseDockerHubModalSelect').append($('<option>', {
+                value: i,
+                text: choices[i]
+            }));
+        }
+
+        // pre-selected the currently selected index
+        $('#browseDockerHubModalSelect').val(selectedChoiceIndex);
+
+        // add the custom choice select option
+        if (allowCustomChoice){
+            $('#browseDockerHubModalSelect').append($('<option>', {
+                value: choices.length,
+                text: "Custom (enter below)"
+            }));
+        }
+
+        // if no choices were supplied, hide the select
+        $('#browseDockerHubModalStringRow').toggle(allowCustomChoice);
+
+        // store data about the choices, callback, result on the modal HTML element
+        // so that the info is available to event handlers
+        $('#browseDockerHubModal').data('completed', false);
+        $('#browseDockerHubModal').data('callback', callback);
+        $('#browseDockerHubModal').data('choices', choices);
+
+        // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
+        $('#browseDockerHubModalSelect').trigger('change');
+
+        $('#browseDockerHubModal').modal("toggle");
+    }
+
     static _setValidClasses(target: JQuery<EventTarget>, isValid: boolean){
         if (isValid){
             target.addClass('is-valid');

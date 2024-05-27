@@ -41,6 +41,7 @@ import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
+import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
 import { ParameterTable } from './ParameterTable';
@@ -3660,7 +3661,7 @@ export class Eagle {
             }
 
             // present list of image names to user
-            Utils.requestUserChoice("Docker Hub", "Choose an image", images, 0, false, "", function(completed: boolean, userChoiceIndex: number){
+            Modals.showBrowseDockerHub("Docker Hub", "Choose an image", images, 0, false, "", function(completed: boolean, userChoiceIndex: number){
                 if (!completed){
                     return;
                 }
