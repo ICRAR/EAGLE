@@ -1,0 +1,39 @@
+<!-- Browse DockerHub Modal -->
+<div class="modal fade" id="browseDockerHubModal" tabindex="-1" role="dialog" aria-labelledby="browseDockerHubModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="browseDockerHubModalTitle">Title</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <p id="browseDockerHubModalMessage">Message</p>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mb-2">
+                                <select class="form-control" id="browseDockerHubModalSelect">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="browseDockerHubModalStringRow">
+                        <div class="col">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="browseDockerHubModalCustomChoiceText">Custom Choice</span>
+                                </div>
+                                <input type="text" class="form-control" aria-label="Custom Port Name" aria-describedby="browseDockerHubModalCustomChoiceText" id="browseDockerHubModalString">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="browseDockerHubModalAffirmativeButton" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
