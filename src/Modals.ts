@@ -356,6 +356,61 @@ export class Modals {
             Eagle.tableSearchString('')
             $('#parameterTableModal .componentSearchBar').val('').trigger("focus").trigger("select")
         });
+
+        // #browseDockerHubModal - Modals.showBrowseDockerHub()
+        $('#browseDockerHubModal .modal-footer button').on('click', function(){
+            $('#browseDockerHubModal').data('completed', true);
+        });
+        $('#browseDockerHubModal').on('shown.bs.modal', function(){
+            $('#browseDockerHubModalAffirmativeButton').trigger("focus");
+        });
+        $('#browseDockerHubModal').on('hidden.bs.modal', function(){
+            const callback : (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => void = $('#browseDockerHubModal').data('callback');
+            const completed : boolean = $('#browseDockerHubModal').data('completed');
+
+            // check if the modal was completed (user clicked OK), if not, return false
+            if (!completed){
+                callback(false, -1, "");
+                return;
+            }
+
+            // check selected option in select tag
+            const choices : string[] = $('#browseDockerHubModal').data('choices');
+            const choice : number = parseInt($('#browseDockerHubModalSelect').val().toString(), 10);
+
+            // if the last item in the select was selected, then return the custom value,
+            // otherwise return the selected choice
+            if (choice === choices.length){
+                callback(true, choices.length, $('#browseDockerHubModalString').val().toString());
+            }
+            else {
+                callback(true, choice, choices[choice]);
+            }
+        });
+        $('#browseDockerHubModalString').on('keypress', function(e){
+            if(TutorialSystem.activeTut === null){
+                if (e.key === "Enter"){
+                    $('#browseDockerHubModal').data('completed', true);
+                    $('#browseDockerHubModal').modal('hide');
+                }
+            }
+        });
+
+        $('#browseDockerHubModalSelect').on('change', function(){
+            const choice : number = parseInt($('#browseDockerHubModalSelect').val().toString(), 10);
+
+            //checking if the value of the select element is valid
+            if(!$('#browseDockerHubModalSelect').val() || choice > $('#browseDockerHubModalSelect option').length){
+                $('#browseDockerHubModalSelect').val(0)
+                console.warn('Invalid selection value (', choice, '), resetting to 0')
+            }
+
+            // check selected option in select tag
+            const choices : string[] = $('#browseDockerHubModal').data('choices');
+
+            // hide the custom text input unless the last option in the select is chosen
+            $('#browseDockerHubModalStringRow').toggle(choice === choices.length);
+        })
     }
 
     static validateFieldModalValueInputText(data: Field, event: Event){
