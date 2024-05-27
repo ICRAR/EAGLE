@@ -1210,6 +1210,13 @@ export class Eagle {
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
             this.addEdge(srcNode, portMap.get(edge.getSrcPortId()), destNode, portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
         }
+
+        //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
+        if(parentNodePosition.extended){
+            setTimeout(function(){
+                Eagle.getInstance().centerGraph()
+            },100)
+        }
     }
 
     triggerShortcut = (shortcut: (eagle: Eagle) => void) :void => {
@@ -3406,6 +3413,7 @@ export class Eagle {
     addNodeToLogicalGraph = (node: Node, nodeId: string, mode: Eagle.AddNodeMode, callback: (node: Node) => void) : void => {
         let pos : {x:number, y:number};
         pos = {x:0,y:0}
+        let searchAreaExtended = false; //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
         
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
@@ -3441,7 +3449,9 @@ export class Eagle {
         if(pos.x === 0 && pos.y === 0){
             // get new position for node
             if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
-                pos = this.getNewNodePosition(node.getRadius());
+                const result = this.getNewNodePosition(node.getRadius());
+                searchAreaExtended = result.extended
+                pos = {x:result.x,y:result.y}
             } else {
                 pos = Eagle.nodeDropLocation;
             }
@@ -3519,6 +3529,12 @@ export class Eagle {
                 callback(newNode);
             }
         });
+        
+        if(searchAreaExtended){
+            setTimeout(function(){
+                Eagle.getInstance().centerGraph()
+            },100)
+        }
     }
 
     addGraphNodesToPalette = () : void => {
@@ -4448,21 +4464,28 @@ export class Eagle {
         });
     }
 
-    getNewNodePosition = (radius: number) : {x:number, y:number} => {
+    getNewNodePosition = (radius: number) : {x:number, y:number, extended:boolean} => {
         const MARGIN = 100; // buffer to keep new nodes away from the maxX and maxY sides of the LG display area
         const navBarHeight = 84
         let suitablePositionFound = false;
         let numIterations = 0;
-        const MAX_ITERATIONS = 100;
+        let increaseSearchArea = false
+        const MAX_ITERATIONS = 150;
         let x;
         let y;
         
         while (!suitablePositionFound && numIterations <= MAX_ITERATIONS){
             // get visible screen size
-            const minX = this.leftWindow().shown() ? this.leftWindow().width()+MARGIN: 0+MARGIN;
-            const maxX = this.rightWindow().shown() ? $('#logicalGraphParent').width() - this.rightWindow().width() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
-            const minY = 0 + navBarHeight + MARGIN;
-            const maxY = $('#logicalGraphParent').height() - MARGIN + navBarHeight;
+            let minX = this.leftWindow().shown() ? this.leftWindow().width()+MARGIN: 0+MARGIN;
+            let maxX = this.rightWindow().shown() ? $('#logicalGraphParent').width() - this.rightWindow().width() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
+            let minY = 0 + navBarHeight + MARGIN;
+            let maxY = $('#logicalGraphParent').height() - MARGIN + navBarHeight;
+            if(increaseSearchArea){
+                minX = minX - 300
+                maxX = maxX + 300
+                minY = minY - 300
+                maxY = maxY + 300
+            }
 
             // choose random position within minimums and maximums determined above
             const randomX = Math.floor(Math.random() * (maxX - minX + 1) + minX);
@@ -4480,6 +4503,9 @@ export class Eagle {
             suitablePositionFound = collision === null;
 
             numIterations += 1;
+            if(numIterations>80){
+                increaseSearchArea = true;
+            }
         }
 
         // if we tried to find a suitable position 100 times, just print a console message
@@ -4487,7 +4513,7 @@ export class Eagle {
             console.warn("Tried to find suitable position for new node", numIterations, "times and failed, using the last try by default.");
         }
 
-        return {x:x, y:y};
+        return {x:x, y:y, extended:increaseSearchArea};
     }
 
     copyGraphUrl = (): void => {
