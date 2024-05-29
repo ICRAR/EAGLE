@@ -3,36 +3,94 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="browseDockerHubModalTitle">Title</h5>
+                <h5 class="modal-title" id="browseDockerHubModalTitle">Docker Hub Browser</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="container">
-                    <div class="row">
-                        <p id="browseDockerHubModalMessage">Message</p>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group mb-2">
-                                <select class="form-control" id="browseDockerHubModalSelect">
-                                </select>
-                            </div>
-                        </div>
-                    </div>
                     <div class="row" id="browseDockerHubModalStringRow">
                         <div class="col">
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text" id="browseDockerHubModalCustomChoiceText">Custom Choice</span>
+                                    <span class="input-group-text" id="browseDockerHubModalCustomChoiceText">Username:</span>
                                 </div>
-                                <input type="text" class="form-control" aria-label="Custom Port Name" aria-describedby="browseDockerHubModalCustomChoiceText" id="browseDockerHubModalString">
+                                <input type="text" class="form-control" aria-label="Custom Port Name" aria-describedby="browseDockerHubModalCustomChoiceText" id="browseDockerHubModalString" data-bind="value: dockerHubBrowser().username, event: {change: dockerHubBrowser().onUsernameChange}">
                             </div>
                         </div>
                     </div>
+
+                    <!-- ko if: dockerHubBrowser().hasFetchedImages -->
+                        <!-- ko if: dockerHubBrowser().images().length === 0 -->
+                        <div class="row">
+                            <p>No images available</p>
+                        </div>
+                        <!-- /ko -->
+                        <!-- ko if: dockerHubBrowser().images().length > 0 -->
+                        <div class="row">
+                            <p id="browseDockerHubModalImageMessage">Choose an image</p>
+                        </div>
+                        <div class="row">                    
+                            <div class="form-group mb-2">
+                                <select class="form-control" id="browseDockerHubModalImageSelect" data-bind="options: dockerHubBrowser().images, value: dockerHubBrowser().selectedImage, event: {change: dockerHubBrowser().onImageChange}">
+                                </select>
+                            </div>
+                        </div>
+                        <!-- /ko -->
+                    <!-- /ko -->
+
+                    <!-- ko if: dockerHubBrowser().isFetchingImages -->
+                    <div class="row">
+                        <div class="col">
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                <div class="spinner-border" id="loadPaletteText" style="width: 3rem; height: 3rem;" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /ko -->
+
+                    <!-- ko if: dockerHubBrowser().hasFetchedTags -->
+                        <!-- ko if: dockerHubBrowser().tags().length === 0 -->
+                        <div class="row">
+                            <p>No tags available</p>
+                        </div>
+                        <!-- /ko -->
+                        <!-- ko if: dockerHubBrowser().tags().length > 0 -->
+                        <div class="row">
+                            <p id="browseDockerHubModalTagMessage">Choose a tag</p>
+                        </div>
+                        <div class="row">                    
+                            <div class="form-group mb-2">
+                                <select class="form-control" id="browseDockerHubModalTagSelect" data-bind="options: dockerHubBrowser().tags, value: dockerHubBrowser().selectedTag, event: {change: dockerHubBrowser().onTagChange}">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" class="form-control" aria-label="" aria-describedby="" id="browseDockerHubModalDigestString" data-bind="value: dockerHubBrowser().digest" disabled>
+                            </div>
+                        </div>
+                        <!-- /ko -->
+                    <!-- /ko -->
+
+                    <!-- ko if: dockerHubBrowser().isFetchingTags -->
+                    <div class="row">
+                        <div class="col">
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                <div class="spinner-border" id="loadPaletteText" style="width: 3rem; height: 3rem;" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /ko -->
+
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="browseDockerHubModalAffirmativeButton" data-bs-dismiss="modal">OK</button>
+                <button type="button" class="btn btn-secondary" id="browseDockerHubModalNegativeButton" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="browseDockerHubModalAffirmativeButton" data-bs-dismiss="modal" data-bind="enable: dockerHubBrowser().ok">OK</button>
             </div>
         </div>
     </div>

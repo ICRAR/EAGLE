@@ -29,6 +29,7 @@ import * as ko from "knockout";
 import { Category } from './Category';
 import { ComponentUpdater } from './ComponentUpdater';
 import { Daliuge } from './Daliuge';
+import { DockerHubBrowser } from "./DockerHubBrowser";
 import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { ExplorePalettes } from './ExplorePalettes';
@@ -96,6 +97,7 @@ export class Eagle {
     rendererFrameCountTick : number;
 
     explorePalettes : ko.Observable<ExplorePalettes>;
+    dockerHubBrowser : ko.Observable<DockerHubBrowser>;
 
     // TODO: move these to GraphRenderer.ts
     isDragging : ko.Observable<boolean>;
@@ -187,6 +189,7 @@ export class Eagle {
         this.rendererFrameCountTick = 0;
 
         this.explorePalettes = ko.observable(new ExplorePalettes());
+        this.dockerHubBrowser = ko.observable(new DockerHubBrowser());
 
         this.isDragging = ko.observable(false);
         this.draggingNode = ko.observable(null);
@@ -3638,87 +3641,37 @@ export class Eagle {
         return p;
     }
 
-
-    //CHECK
-    /* TODO: 4-level-deep callbacks here, probably should move this to use Promises */
     fetchDockerHTML = () : void => {
-        Utils.showNotification("EAGLE", "Fetching data from Docker Hub", "info");
-
-        const that = this;
-        const username = Setting.findValue(Setting.DOCKER_HUB_USERNAME);
-
-        // request eagle server to fetch a list of docker hub images
-        Utils.httpPostJSON("/getDockerImages", {username:username}, function(error : string, data: any){
-            if (error != null){
-                console.error(error);
+        Modals.showBrowseDockerHub(function(completed: boolean){
+            if (!completed){
                 return;
             }
 
-            // build list of image strings
-            const images: string[] = [];
-            for (const result of data.results){
-                images.push(result.namespace + "/" + result.name);
+            const eagle: Eagle = Eagle.getInstance();
+            const imageName = eagle.dockerHubBrowser().selectedImage();
+            const tag = eagle.dockerHubBrowser().selectedTag();
+            const digest = eagle.dockerHubBrowser().digest();
+
+            // get reference to the selectedNode
+            const selectedNode = eagle.selectedNode();
+
+            // get references to image, tag and digest fields in this component
+            const imageField:  Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.IMAGE);
+            const tagField:    Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.TAG);
+            const digestField: Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.DIGEST);
+
+            // set values for the fields
+            if (imageField !== null){
+                imageField.setValue(imageName);
+            }
+            if (tagField !== null){
+                tagField.setValue(tag);
+            }
+            if (digestField !== null){
+                digestField.setValue(digest);
             }
 
-            // present list of image names to user
-            Modals.showBrowseDockerHub("Docker Hub", "Choose an image", images, 0, false, "", function(completed: boolean, userChoiceIndex: number){
-                if (!completed){
-                    return;
-                }
-
-                const imageName: string = images[userChoiceIndex];
-
-                Utils.showNotification("EAGLE", "Fetching data for " + imageName + " from Docker Hub", "info");
-
-                // request eagle server to fetch a list of tags for the given docker image
-                Utils.httpPostJSON("/getDockerImageTags", {imagename:imageName}, function(error: string, data: any){
-                    if (error != null){
-                        console.error(error);
-                        return;
-                    }
-
-                    const tags: string[] = [];
-                    for (const result of data.results){
-                        tags.push(result.name);
-                    }
-
-                    if (tags.length === 0){
-                        Utils.showNotification("EAGLE", "No image tags available for " + imageName + " from Docker Hub", "danger");
-                        return;
-                    }
-
-                    // present list of tags to user
-                    Utils.requestUserChoice("Docker Hub", "Choose a tag for image " + imageName, tags, 0, false, "", function(completed: boolean, userChoiceIndex: number){
-                        if (!completed){
-                            return;
-                        }
-
-                        const tag = data.results[userChoiceIndex].name;
-                        const digest = data.results[userChoiceIndex].images[0].digest;
-
-                        // get reference to the selectedNode
-                        const selectedNode = that.selectedNode();
-
-                        // get references to image, tag and digest fields in this component
-                        const imageField:  Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.IMAGE);
-                        const tagField:    Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.TAG);
-                        const digestField: Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.DIGEST);
-
-                        // set values for the fields
-                        if (imageField !== null){
-                            imageField.setValue(imageName);
-                        }
-                        if (tagField !== null){
-                            tagField.setValue(tag);
-                        }
-                        if (digestField !== null){
-                            digestField.setValue(digest);
-                        }
-
-                        Utils.showNotification("EAGLE", "Image, tag and digest set from Docker Hub", "success");
-                    });
-                });
-            });
+            Utils.showNotification("EAGLE", "Image, tag and digest set from Docker Hub", "success");
         });
     }
 
