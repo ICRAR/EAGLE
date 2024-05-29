@@ -151,10 +151,6 @@ export class DockerHubBrowser {
         });
     }
 
-
-    //const tag = data.results[userChoiceIndex].name;
-    //const digest = data.results[userChoiceIndex].images[0].digest;
-
     onUsernameChange = () : void => {
         this.hasFetchedImages(false);
         this.fetchImages();
