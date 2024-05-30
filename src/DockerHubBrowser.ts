@@ -1,6 +1,29 @@
+/*
+#
+#    ICRAR - International Centre for Radio Astronomy Research
+#    (c) UWA - The University of Western Australia, 2016
+#    Copyright by UWA (in the framework of the ICRAR)
+#    All rights reserved
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+#    MA 02111-1307  USA
+#
+*/
+
 import * as ko from "knockout";
 
-import { Eagle } from './Eagle';
 import { Setting } from "./Setting";
 import { Utils } from "./Utils";
 
@@ -19,7 +42,7 @@ export class DockerHubBrowser {
     hasFetchedTags: ko.Observable<boolean>;
     isFetchingTags: ko.Observable<boolean>;
 
-    ok: ko.Observable<boolean>;
+    isValid: ko.Observable<boolean>; // true iff a valid selection has been made in the docker hub browser UI
 
     constructor(){
         this.username = ko.observable(Setting.findValue(Setting.DOCKER_HUB_USERNAME));
@@ -36,7 +59,7 @@ export class DockerHubBrowser {
         this.isFetchingTags = ko.observable(false);
         this.hasFetchedTags = ko.observable(false);
 
-        this.ok = ko.observable(false);
+        this.isValid = ko.observable(false);
     }
 
     clear = () : void => {
@@ -54,7 +77,7 @@ export class DockerHubBrowser {
         this.isFetchingTags(false);
         this.hasFetchedTags(false);
 
-        this.ok(false);
+        this.isValid(false);
     }
 
     fetchImages = () : void => {
@@ -67,7 +90,7 @@ export class DockerHubBrowser {
         this.isFetchingImages(true);
         this.hasFetchedImages(false);
         this.hasFetchedTags(false);
-        this.ok(false);
+        this.isValid(false);
 
         // keep reference to browser for use in the callbacks
         const browser: DockerHubBrowser = this;
@@ -116,7 +139,7 @@ export class DockerHubBrowser {
 
         this.isFetchingTags(true);
         this.hasFetchedTags(false);
-        this.ok(false);
+        this.isValid(false);
 
         // keep reference to browser for use in the callbacks
         const browser: DockerHubBrowser = this;
@@ -147,7 +170,7 @@ export class DockerHubBrowser {
 
             browser.selectedTag(browser.tags()[0]);
             browser.digest(browser.digests()[0]);
-            browser.ok(true);
+            browser.isValid(true);
         });
     }
 

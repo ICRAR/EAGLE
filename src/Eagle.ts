@@ -3642,18 +3642,23 @@ export class Eagle {
     }
 
     fetchDockerHTML = () : void => {
-        Modals.showBrowseDockerHub(function(completed: boolean){
+        Modals.showBrowseDockerHub((completed: boolean) => {
             if (!completed){
                 return;
             }
 
-            const eagle: Eagle = Eagle.getInstance();
-            const imageName = eagle.dockerHubBrowser().selectedImage();
-            const tag = eagle.dockerHubBrowser().selectedTag();
-            const digest = eagle.dockerHubBrowser().digest();
+            const imageName = this.dockerHubBrowser().selectedImage();
+            const tag = this.dockerHubBrowser().selectedTag();
+            const digest = this.dockerHubBrowser().digest();
 
             // get reference to the selectedNode
-            const selectedNode = eagle.selectedNode();
+            const selectedNode = this.selectedNode();
+
+            // abort if no node selected
+            if (selectedNode === null){
+                Utils.showNotification("EAGLE", "Please select a node before running the Docker Hub Browser", "danger");
+                return;
+            }
 
             // get references to image, tag and digest fields in this component
             const imageField:  Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.IMAGE);
