@@ -262,6 +262,14 @@
     outline: solid 2px var(--nodeBorder);
 }
 
+.node .construct_node .constructInputApp .body{
+    border-color:#2bb673;
+}
+
+.node .construct_node .constructOutputApp .body{
+    border-color:#fbb040;
+}
+
 .node .branch_node .container.selected .outerRing {
     outline: solid 2px var(--nodeBorder);
     outline-offset: 0px;
