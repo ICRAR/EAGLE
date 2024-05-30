@@ -574,6 +574,10 @@ export class Node {
         return this.category() === Category.Scatter;
     }
 
+    isSubgraph = () : boolean => {
+        return this.category() === Category.SubGraph;
+    }
+
     isExclusiveForceNode = () : boolean => {
         return this.category() === Category.ExclusiveForceNode;
     }

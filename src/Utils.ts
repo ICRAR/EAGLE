@@ -1126,6 +1126,22 @@ export class Utils {
         return null;
     }
 
+    static getPaletteComponentById(id: string) : Node {
+        const eagle: Eagle = Eagle.getInstance();
+
+        // add all data components (except ineligible)
+        for (const palette of eagle.palettes()){
+            for (const node of palette.getNodes()){
+                // skip nodes that are not data components
+                if (node.getId() === id){
+                    return node;
+                }
+            }
+        }
+
+        return null;
+    }
+
     static getComponentsWithMatchingPort(mode: string, input: boolean, type: string, dataEligible: boolean) : Node[] {
         let result: Node[] = [];
         const eagle = Eagle.getInstance();

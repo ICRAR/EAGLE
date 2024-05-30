@@ -3415,19 +3415,24 @@ export class Eagle {
         }
 
         if(mode === Eagle.AddNodeMode.ContextMenu){
-            let nodeFound = false 
+            // we addNodeToLogicalGraph is called from the ContextMenu, we expect node to be null. The node is specified by the nodeId instead
+            console.assert(node === null);
 
-            pos = Eagle.selectedRightClickPosition;
-            this.palettes().forEach(function(palette){
-                if(palette.findNodeById(nodeId)!==null){
-                    node = palette.findNodeById(nodeId)
-                    nodeFound = true
-                }
-            })
+            // try to find the node (by nodeId) in the palettes
+            node = Utils.getPaletteComponentById(nodeId);
 
-            if (!nodeFound){
-                node = this.logicalGraph().findNodeById(nodeId)
+            // if node was found, and its a subgraph, its a special case, use the 'createSubgraphParent' function to build it since it will include input and output applications
+            if (node !== null && node.isSubgraph()){
+                node = Utils.createSubgraphParent(this.logicalGraph(), Category.SubGraph, "");
             }
+
+            // if node not found yet, try find in the graph
+            if (node === null){
+                node = this.logicalGraph().findNodeById(nodeId);
+            }
+
+            // use the position where the right click occurred
+            pos = Eagle.selectedRightClickPosition;
 
             RightClick.closeCustomContextMenu(true);
         }
