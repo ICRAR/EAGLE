@@ -2456,6 +2456,81 @@ export class Eagle {
     saveAsPNG = () : void => {
         Utils.saveAsPNG('#logicalGraph svg', this.logicalGraph().fileInfo().name);
     };
+    
+    takeScreenshots = async () =>  {
+        const eagle = Eagle.getInstance()
+        eagle.centerGraph()
+
+        const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia funciton an option
+        const stream = await mediaDevices.getDisplayMedia({preferCurrentTab: true});
+
+        const bodyElement = document.querySelector('body');
+        bodyElement.style.cursor = 'none';
+        try {
+                
+            const width = stream.getVideoTracks()
+            .map((track) => track.getSettings().width)
+            .filter(Boolean)
+            .reduce(Math.max, 0)
+            const height = stream.getVideoTracks()
+            .map((track) => track.getSettings().height)
+            .filter(Boolean)
+            .reduce(Math.max, 0)
+        
+            const video = document.createElement("video")
+            video.srcObject = stream
+            video.autoplay = true
+        
+            await new Promise((resolve, reject) => {
+                video.onloadeddata = resolve
+                video.onerror = reject
+            })
+
+            setTimeout(() => {
+        
+                const canvas = document.createElement("canvas")
+                canvas.width = width
+                canvas.height = height
+
+                const ctx = canvas.getContext('2d');
+                const realwidth = window.innerWidth
+                const divisor = realwidth/width
+
+                const lx = (eagle.leftWindow().width()+50)/divisor
+                const rx = (eagle.rightWindow().width()+50)/divisor
+                const ly = 90/divisor
+
+                canvas.width=width-rx-lx
+
+                console.log(width,realwidth,divisor,realwidth/divisor)
+
+
+                ctx.translate(-lx,-ly)
+
+                canvas.getContext("2d").drawImage(video, 0, 0)
+
+                const png = canvas.toDataURL()
+                // Element that will be used for downloading.
+                const a : HTMLAnchorElement = document.createElement("a");
+                a.style.display = "none";
+                a.href = png;
+                a.download = 'test' + ".png";
+
+                // Add to document, begin download and remove from document.
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(a.href);
+                document.body.removeChild(a);
+                bodyElement.style.cursor = 'auto';
+
+            }, 400);
+        } finally {
+            setTimeout(() => {
+
+            stream.getTracks().forEach((track) => track.stop())
+            }, 500);
+        }
+    }
 
     toggleCollapseAllGroups = () : void => {
         // first work out whether we should be collapsing or expanding
