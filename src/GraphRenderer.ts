@@ -665,13 +665,17 @@ export class GraphRenderer {
             }
         }
 
+        // abort if no field is found
+        if (field === undefined){
+            return [];
+        }
+
         // determine all the adjacent nodes
-        // TODO: earlier abort if field is null
         const adjacentNodes: Node[] = [];
 
         if (input){
             for(const edge of eagle.logicalGraph().getEdges()){
-                if(field != null && field.getId()===edge.getDestPortId()){
+                if(field.getId()===edge.getDestPortId()){
                     const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey());
                     adjacentNodes.push(adjacentNode);
                 }
