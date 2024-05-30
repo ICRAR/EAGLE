@@ -2457,7 +2457,7 @@ export class Eagle {
         const eagle = Eagle.getInstance()
 
         const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia funciton an option
-        const stream:MediaStream = await mediaDevices.getDisplayMedia({preferCurrentTab: true});
+        const stream:MediaStream = await mediaDevices.getDisplayMedia({preferCurrentTab: true,selfBrowserSurface: 'include'});
 
         //prepare the graph for a screenshot
         eagle.centerGraph()

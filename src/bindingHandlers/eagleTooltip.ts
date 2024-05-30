@@ -48,7 +48,7 @@ ko.bindingHandlers.eagleTooltip = {
             }
 
             if(html.includes('|||')){
-                let x = html.split('|||')
+                const x = html.split('|||')
                 for(let i = 0 ; i < x.length ; i++){
                     if(i===0){
                         if(x[i].length === 0){
