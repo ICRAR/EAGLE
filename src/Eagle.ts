@@ -2456,13 +2456,13 @@ export class Eagle {
     saveGraphScreenshot = async () =>  {
         const eagle = Eagle.getInstance()
 
+        const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia funciton an option
+        const stream:MediaStream = await mediaDevices.getDisplayMedia({preferCurrentTab: true});
+
         //prepare the graph for a screenshot
         eagle.centerGraph()
         eagle.setSelection(Eagle.RightWindowMode.Hierarchy,null,Eagle.FileType.Graph)
         document.querySelector('body').style.cursor = 'none';//temporarily disabling the cursor so it doesnt appear in the screenshot
-
-        const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia funciton an option
-        const stream:MediaStream = await mediaDevices.getDisplayMedia({preferCurrentTab: true});
         
         try {        
             const width = stream.getVideoTracks()[0].getSettings().width
