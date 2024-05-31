@@ -1236,45 +1236,6 @@ export class Utils {
         return CategoryData.getCategoryData(category).color;
     }
 
-    static saveAsPNG(selector: string, filename: string) : void {
-        // fetch svg CSS and place inline within serialized SVG
-        $.get("/static/svg.css")
-        .done(function(response){
-            const svgElement : Element = document.querySelector(selector);
-            let svgString : string = new XMLSerializer().serializeToString(svgElement);
-
-            // create svgString with injected CSS stylesheet
-            const CSS_ELEMENT = '<style type="text/css" ><![CDATA[' + response + ']]></style>';
-            svgString = svgString.substring(0, svgString.indexOf(">") + 1) + CSS_ELEMENT + svgString.substring(svgString.indexOf(">") + 1);
-
-            const canvas : HTMLCanvasElement = document.createElement("canvas");
-            canvas.setAttribute("width", svgElement.clientWidth.toString());
-            canvas.setAttribute("height", svgElement.clientHeight.toString());
-            const ctx = canvas.getContext("2d");
-
-            const img = new Image();
-            const svg = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
-            const url = window.URL.createObjectURL(svg);
-            img.onload = function() {
-                ctx.drawImage(img, 0, 0);
-                const png = canvas.toDataURL("image/png");
-
-                // Element that will be used for downloading.
-                const a : HTMLAnchorElement = document.createElement("a");
-                a.style.display = "none";
-                a.href = png;
-                a.download = filename + ".png";
-
-                // Add to document, begin download and remove from document.
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(a.href);
-                document.body.removeChild(a);
-            };
-            img.src = url;
-        });
-    }
-
     static getRightWindowWidth() : number {
         return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH_KEY)
     }

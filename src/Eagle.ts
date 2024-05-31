@@ -2452,10 +2452,70 @@ export class Eagle {
     
         return false
     }
+    
+    saveGraphScreenshot = async () : Promise<void> =>  {
+        const eagle = Eagle.getInstance()
 
-    saveAsPNG = () : void => {
-        Utils.saveAsPNG('#logicalGraph svg', this.logicalGraph().fileInfo().name);
-    };
+        const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia funciton an option
+        const stream:MediaStream = await mediaDevices.getDisplayMedia({preferCurrentTab: true,selfBrowserSurface: 'include'});
+
+        //prepare the graph for a screenshot
+        eagle.centerGraph()
+        eagle.setSelection(Eagle.RightWindowMode.Hierarchy,null,Eagle.FileType.Graph)
+        document.querySelector('body').style.cursor = 'none';//temporarily disabling the cursor so it doesnt appear in the screenshot
+        
+        try {        
+            const width = stream.getVideoTracks()[0].getSettings().width
+            const height = stream.getVideoTracks()[0].getSettings().height
+            
+            const video = document.createElement("video")
+            video.srcObject = stream
+            video.autoplay = true
+        
+            await new Promise((resolve, reject) => {
+                video.onloadeddata = resolve
+                video.onerror = reject
+            })
+
+            setTimeout(() => {
+                const canvas = document.createElement("canvas")
+                canvas.width = width
+                canvas.height = height
+
+                //cropping the ui, so the screenshot only includes the graph
+                const ctx = canvas.getContext('2d');
+                const realwidth = window.innerWidth
+                const divisor = realwidth/width
+
+                const lx = (eagle.leftWindow().width()+50)/divisor
+                const rx = (eagle.rightWindow().width()+50)/divisor
+                const ly = 90/divisor
+                canvas.width=width-rx-lx//trimming the right window
+                ctx.translate(-lx,-ly)
+
+                canvas.getContext("2d").drawImage(video, 0, 0)
+                const png = canvas.toDataURL()
+
+                // Element that will be used for downloading.
+                const a : HTMLAnchorElement = document.createElement("a");
+                a.style.display = "none";
+                a.href = png;
+                const name = eagle.logicalGraph().fileInfo().name.split(".")[0]
+                a.download = name + ".png";
+
+                // Add to document, begin download and remove from document.
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(a.href);
+                document.body.removeChild(a);
+                document.querySelector('body').style.cursor = 'auto';
+            }, 400);
+        } finally {
+            setTimeout(() => {
+            stream.getTracks().forEach((track) => track.stop())
+            }, 500);
+        }
+    }
 
     toggleCollapseAllGroups = () : void => {
         // first work out whether we should be collapsing or expanding

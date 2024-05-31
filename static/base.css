@@ -2727,6 +2727,10 @@ palette-component input.form-control.selected {
     margin-bottom: 10px;
 }
 
+.tooltip-inner em {
+    font-style:italic;
+}
+
 .tooltip-inner{
     transition: 0s visibility;
     visibility: visible;
