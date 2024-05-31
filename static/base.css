@@ -2687,6 +2687,11 @@ palette-component input.form-control.selected {
     background-color: lightgrey;
 }
 
+#browseDockerHubModalCustomChoiceText{
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
 .tooltip-inner h1 {
     font-size: 1.4rem;
     font-weight: 600;
