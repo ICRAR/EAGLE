@@ -443,7 +443,10 @@ export class Edge {
 
         // check if the edge already exists in the graph, there is no point in a duplicate
         for (const edge of eagle.logicalGraph().getEdges()){
-            if (edge.getSrcPortId() === sourcePortId && edge.getDestPortId() === destinationPortId && edge.getId() !== edgeId){
+            const isSrcMatch = edge.getSrcNodeKey() === sourceNodeKey && edge.getSrcPortId() === sourcePortId;
+            const isDestMatch = edge.getDestNodeKey() === destinationNodeKey && edge.getDestPortId() === destinationPortId;
+
+            if ( isSrcMatch && isDestMatch && edge.getId() !== edgeId){
                 const x = Errors.ShowFix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDeleteEdge(eagle, edgeId);}, "Delete edge");
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
