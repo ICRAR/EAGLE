@@ -1804,7 +1804,7 @@ select.form-control{
     border-bottom-right-radius: 0;
 }
 
-#loadPaletteText{
+.loadingSpinner{
     padding: 7px 0px 0px 7px;
 }
 
@@ -2685,6 +2685,11 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 palette-component input.form-control.selected {
     background-color: lightgrey;
+}
+
+#browseDockerHubModalCustomChoiceText{
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 .tooltip-inner h1 {

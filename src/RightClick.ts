@@ -1,3 +1,4 @@
+import { Category } from './Category';
 import { Eagle } from './Eagle';
 import { Edge } from './Edge';
 import { Field } from './Field';
@@ -510,6 +511,9 @@ export class RightClick {
                 if (data.isConstruct()){
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,true)>Delete All</a>')
                     $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
+                }
+                if(data.getCategory() === Category.Docker){
+                    $('#customContextMenu').append('<a onclick=eagle.fetchDockerHTML()>Browse DockerHub</a>')
                 }
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')

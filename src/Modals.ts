@@ -356,6 +356,31 @@ export class Modals {
             Eagle.tableSearchString('')
             $('#parameterTableModal .componentSearchBar').val('').trigger("focus").trigger("select")
         });
+
+        // #browseDockerHubModal - Modals.showBrowseDockerHub()
+        $('#browseDockerHubModalAffirmativeButton').on('click', function(){
+            $('#browseDockerHubModal').data('completed', true);
+        });
+        $('#browseDockerHubModalNegativeButton').on('click', function(){
+            $('#browseDockerHubModal').data('completed', false);
+        });
+        $('#browseDockerHubModal').on('shown.bs.modal', function(){
+            $('#browseDockerHubModalAffirmativeButton').trigger("focus");
+        });
+        $('#browseDockerHubModal').on('hidden.bs.modal', function(){
+            const callback : (completed : boolean) => void = $('#browseDockerHubModal').data('callback');
+            const completed : boolean = $('#browseDockerHubModal').data('completed');
+
+            callback(completed);
+        });
+        $('#browseDockerHubModalString').on('keypress', function(e){
+            if(TutorialSystem.activeTut === null){
+                if (e.key === "Escape"){
+                    $('#browseDockerHubModal').data('completed', true); 
+                    $('#browseDockerHubModal').modal('hide');
+                }
+            }
+        });
     }
 
     static validateFieldModalValueInputText(data: Field, event: Event){
@@ -373,6 +398,21 @@ export class Modals {
         const isValid = Utils.validateField(realType, value);
 
         Modals._setValidClasses($(event.target), isValid);
+    }
+
+    static showBrowseDockerHub(callback : (completed : boolean) => void ) : void {        
+        // fetch is required
+        Eagle.getInstance().dockerHubBrowser().fetchImages();
+
+        // store data about the callback, result on the modal HTML element
+        // so that the info is available to event handlers
+        $('#browseDockerHubModal').data('completed', false);
+        $('#browseDockerHubModal').data('callback', callback);
+
+        // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
+        $('#browseDockerHubModalSelect').trigger('change');
+
+        $('#browseDockerHubModal').modal("toggle");
     }
 
     static _setValidClasses(target: JQuery<EventTarget>, isValid: boolean){
