@@ -899,7 +899,7 @@ export class Eagle {
                 const data: string = evt.target.result.toString();
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = Utils.createSubgraphParent(eagle.logicalGraph(), lg.fileInfo().name, lg.fileInfo().getText());
+                    const parentNode: Node = new Node(Utils.newKey(eagle.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
     
                     eagle.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
     
@@ -985,7 +985,7 @@ export class Eagle {
         }
 
         // create new subgraph
-        const parentNode: Node = Utils.createSubgraphParent(eagle.logicalGraph(), "Subgraph", "");
+        const parentNode: Node = new Node(Utils.newKey(eagle.logicalGraph().getNodes()), "Subgraph", "", Category.SubGraph);
 
         // add the parent node to the logical graph
         this.logicalGraph().addNodeComplete(parentNode);
@@ -2108,7 +2108,7 @@ export class Eagle {
             }
 
             // create parent node
-            const parentNode: Node = Utils.createSubgraphParent(this.logicalGraph(), lg.fileInfo().name, lg.fileInfo().getText());
+            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
             // perform insert
             this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
@@ -3420,11 +3420,6 @@ export class Eagle {
 
             // try to find the node (by nodeId) in the palettes
             node = Utils.getPaletteComponentById(nodeId);
-
-            // if node was found, and its a subgraph, its a special case, use the 'createSubgraphParent' function to build it since it will include input and output applications
-            if (node !== null && node.isSubgraph()){
-                node = Utils.createSubgraphParent(this.logicalGraph(), Category.SubGraph, "");
-            }
 
             // if node not found yet, try find in the graph
             if (node === null){

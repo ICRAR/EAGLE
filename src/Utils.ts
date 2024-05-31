@@ -2401,22 +2401,4 @@ export class Utils {
 
         return newNode;
     }
-
-    static createSubgraphParent(logicalGraph: LogicalGraph, name: string, description: string): Node {
-        const newParentKey: number = Utils.newKey(logicalGraph.getNodes());
-        const parentNode: Node = new Node(newParentKey, name, description, Category.SubGraph);
-
-        const copyApp: Node = Utils.getPaletteComponentByName("CopyApp");
-
-        const inputApplication = Utils.duplicateNode(copyApp, [newParentKey]);
-        inputApplication.setName("Subgraph Input");
-
-        const outputApplication = Utils.duplicateNode(copyApp, [newParentKey, inputApplication.getKey()]);
-        outputApplication.setName("Subgraph Output");
-
-        parentNode.setInputApplication(inputApplication);
-        parentNode.setOutputApplication(outputApplication);
-
-        return parentNode;
-    }
 }
