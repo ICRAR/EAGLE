@@ -149,7 +149,7 @@
                 </div>
                 
                 <!-- input application -->
-                <!-- ko if: $data.canHaveInputApplication() -->
+                <!-- ko if: $data.isConstruct() -->
                     <div class="mb-1 inspectorNodeApplicationWrapper">
                         <span>Input Application</span>    
                         <div class="inspectorApplicationBackground">
@@ -159,7 +159,7 @@
                 <!-- /ko -->
 
                 <!-- output application -->
-                <!-- ko if: $data.canHaveOutputApplication() -->
+                <!-- ko if: $data.isConstruct() -->
                     <div class="mb-1 inspectorNodeApplicationWrapper">
                         <span>Output Application</span>    
                         <div class="inspectorApplicationBackground">
