@@ -57,7 +57,7 @@ export namespace Daliuge {
         N = "n",
     
         BASE_NAME = "base_name", // used in PythonMemberFunction
-        OBJECT = "object", // used in PythonMemberFunction/PythonObject as the port for the object itself
+        SELF = "self", // used in PythonMemberFunction/PythonObject as the port for the object itself
 
         // docker
         IMAGE = "image",
@@ -132,7 +132,7 @@ export namespace Daliuge {
     export const numIterationsField = new Field("", FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort, false);
 
     export const baseNameField = new Field("", FieldName.BASE_NAME, "", "", "The base name of the class of this Member function", false, DataType.String, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
-    export const objectField = new Field("", FieldName.OBJECT, "", "", "", false, DataType.Object, false, [], false, FieldType.ComponentParameter, FieldUsage.InputOutput, false);
+    export const selfField = new Field("", FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.ComponentParameter, FieldUsage.InputOutput, false);
 
     // This list defines the fields required for ALL nodes belonging to a given Category.Type
     // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
@@ -166,7 +166,7 @@ export namespace Daliuge {
     ];
 
     // This list defines the fields required for ALL nodes belonging to a given Category
-    // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
+    // NOTE: ids are empty string here, remember to generate a new id whenever cloning the fields
     export const categoryFieldsRequired = [
         {
             categories: [
@@ -213,11 +213,11 @@ export namespace Daliuge {
         },
         {
             categories: [
-                Category.PythonMemberFunction
+                Category.PythonMemberFunction, Category.PythonObject
             ],
             fields: [
                 Daliuge.baseNameField,
-                Daliuge.objectField
+                Daliuge.selfField
             ]
         }
     ];

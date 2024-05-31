@@ -3544,8 +3544,8 @@ export class Eagle {
             // if node is a PythonMemberFunction, then we should generate a new PythonObject node too
             if (newNode.getCategory() === Category.PythonMemberFunction){
                 // get name of the "base" class from the PythonMemberFunction node,
-                // if no "base_name" field exists, default to use the name "Object"
-                let baseName: string = Daliuge.FieldName.OBJECT;
+                // if no "base_name" field exists, default to sensible name
+                let baseName: string = Daliuge.FieldName.SELF;
                 const baseNameField = newNode.getFieldByDisplayText(Daliuge.FieldName.BASE_NAME);
                 if (baseNameField !== null){
                     baseName = baseNameField.getValue();
@@ -3567,16 +3567,18 @@ export class Eagle {
                     Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
 
                     // find the "object" port on the PythonMemberFunction
-                    const sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.OBJECT, false, false);
+                    let sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);
 
-                    // make sure we can find a "object" port on the PythonMemberFunction
+                    // make sure we can find a port on the PythonMemberFunction
                     if (sourcePort === null){
-                        Utils.showNotification("Edge Error", "Unable to connect edge between PythonMemberFunction and new PythonObject. The PythonMemberFunction does not have a '" + Daliuge.FieldName.OBJECT + "' port.", "danger");
-                        return;
+                        sourcePort = Daliuge.selfField.clone();
+                        sourcePort.setId(Utils.uuidv4());
+                        newNode.addField(sourcePort);
+                        Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
                     }
 
                     // create a new input/output "object" port on the PythonObject
-                    const inputOutputPort = new Field(Utils.uuidv4(), Daliuge.FieldName.OBJECT, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput, false);
+                    const inputOutputPort = new Field(Utils.uuidv4(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput, false);
                     pythonObjectNode.addField(inputOutputPort);
 
 
