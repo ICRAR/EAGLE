@@ -1804,7 +1804,7 @@ select.form-control{
     border-bottom-right-radius: 0;
 }
 
-#loadPaletteText{
+.loadingSpinner{
     padding: 7px 0px 0px 7px;
 }
 

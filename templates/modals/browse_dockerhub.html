@@ -38,18 +38,6 @@
                         <!-- /ko -->
                     <!-- /ko -->
 
-                    <!-- ko if: dockerHubBrowser().isFetchingImages -->
-                    <div class="row">
-                        <div class="col">
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                                <div class="spinner-border" id="loadPaletteText" style="width: 3rem; height: 3rem;" role="status">
-                                    <span class="sr-only">Loading...</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- /ko -->
-
                     <!-- ko if: dockerHubBrowser().hasFetchedTags -->
                         <!-- ko if: dockerHubBrowser().tags().length === 0 -->
                         <div class="row">
@@ -78,16 +66,8 @@
                         <!-- /ko -->
                     <!-- /ko -->
 
-                    <!-- ko if: dockerHubBrowser().isFetchingTags -->
-                    <div class="row">
-                        <div class="col">
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                                <div class="spinner-border" id="loadPaletteText" style="width: 3rem; height: 3rem;" role="status">
-                                    <span class="sr-only">Loading...</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- ko if: dockerHubBrowser().isFetchingImages() || dockerHubBrowser().isFetchingTags() -->
+                        {% include 'modals/loading_spinner.html' %}
                     <!-- /ko -->
 
                 </div>
