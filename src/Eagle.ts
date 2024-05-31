@@ -2453,7 +2453,7 @@ export class Eagle {
         return false
     }
     
-    saveGraphScreenshot = async () =>  {
+    saveGraphScreenshot = async () : Promise<void> =>  {
         const eagle = Eagle.getInstance()
 
         const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia funciton an option
