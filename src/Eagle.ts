@@ -4591,11 +4591,8 @@ export class Eagle {
             return;
         }
 
-        // Add a data component to the graph.
-        const newNode : Node = this.logicalGraph().addDataComponentToGraph(memoryComponent, dataComponentPosition);
-        const newNodeKey : number = Utils.newKey(this.logicalGraph().getNodes());
-        newNode.setId(Utils.uuidv4());
-        newNode.setKey(newNodeKey);
+        // Add a duplicate of the memory component to the graph
+        const newNode : Node = this.logicalGraph().addDataComponentToGraph(Utils.duplicateNode(memoryComponent), dataComponentPosition);
 
         // set name of new node (use user-facing name)
         newNode.setName(srcPort.getDisplayText());
@@ -4623,8 +4620,8 @@ export class Eagle {
         }
 
         // create TWO edges, one from src to data component, one from data component to dest
-        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNodeKey, newInputOutputPort.getId(), loopAware, closesLoop, false);
-        const secondEdge : Edge = new Edge(newNodeKey, newInputOutputPort.getId(), destNode.getKey(), destPort.getId(), loopAware, closesLoop, false);
+        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNode.getKey(), newInputOutputPort.getId(), loopAware, closesLoop, false);
+        const secondEdge : Edge = new Edge(newNode.getKey(), newInputOutputPort.getId(), destNode.getKey(), destPort.getId(), loopAware, closesLoop, false);
 
         this.logicalGraph().addEdgeComplete(firstEdge);
         this.logicalGraph().addEdgeComplete(secondEdge);
