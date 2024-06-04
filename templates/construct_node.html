@@ -11,10 +11,19 @@
             <span data-bind="class: $data.getIcon()"></span>
         </div> 
 
-        
         <!-- ko if: $data.canHaveInputApplication() -->
             <!-- ko ifNot: $data.hasInputApplication() -->
                 <div class="inputSocket socket">
+                    <div>
+                        <i class="material-icons md-18">add</i>
+                    </div>
+                </div>
+            <!-- /ko -->
+        <!-- /ko -->
+
+        <!-- ko if: $data.canHaveOutputApplication() -->
+            <!-- ko ifNot: $data.hasOutputApplication() -->
+                <div class="outputSocket socket">
                     <div>
                         <i class="material-icons md-18">add</i>
                     </div>

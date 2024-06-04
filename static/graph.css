@@ -76,17 +76,27 @@
     pointer-events: all;
 }
 
-.construct_node .inputSocket {
-    background-color: #edeef0;
-    border: 2px #2bb673 solid;
+.construct_node .socket{
+    z-index: 3;
     border-radius: 50%;
     height: 50px;
     width: 50px;
     position: absolute;
+    background-color: #edeef0;
+}
+
+.construct_node .inputSocket {
+    transform: translate(-50%,-50%);
+    border: 2px #2bb673 solid;
     top: 50%;
     left:0px;
-    transform: translate(-50%,-50%);
-    z-index: 3;
+}
+
+.construct_node .outputSocket {
+    transform: translate(50%,-50%);
+    border: 2px #fbb040 solid;
+    top: 50%;
+    right:0px;
 }
 
 .construct_node .socket div{
