@@ -1499,6 +1499,7 @@ export class GraphRenderer {
     static setNewEmbeddedApp (nodeId:string,mode:string) :void {
         const eagle = Eagle.getInstance()
         const parentNode = eagle.selectedNode()
+        RightClick.closeCustomContextMenu(true)
 
         // try to find the node (by nodeId) in the palettes
         let node = Utils.getPaletteComponentById(nodeId);
@@ -1507,12 +1508,12 @@ export class GraphRenderer {
         if (node === null){
             node = eagle.logicalGraph().findNodeById(nodeId);
         }
+        const newNode = Utils.duplicateNode(node)
 
-        console.log(nodeId,mode)
         if(mode==='addEmbeddedOutputApp'){
-            parentNode.setOutputApplication(node)
+            parentNode.setOutputApplication(newNode)
         }else if(mode === 'addEmbeddedInputApp'){
-            parentNode.setInputApplication(node)
+            parentNode.setInputApplication(newNode)
         }else{
             console.warn('mode is not supported: ',mode)
         }
