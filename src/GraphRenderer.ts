@@ -1496,8 +1496,26 @@ export class GraphRenderer {
         GraphRenderer.resizeConstruct(construct)
     }
 
-    static setNewEmbeddedApp (newNodeId:string,mode:string) :void {
-        console.log(newNodeId,mode)
+    static setNewEmbeddedApp (nodeId:string,mode:string) :void {
+        const eagle = Eagle.getInstance()
+        const parentNode = eagle.selectedNode()
+
+        // try to find the node (by nodeId) in the palettes
+        let node = Utils.getPaletteComponentById(nodeId);
+
+        // if node not found yet, try find in the graph
+        if (node === null){
+            node = eagle.logicalGraph().findNodeById(nodeId);
+        }
+
+        console.log(nodeId,mode)
+        if(mode==='addEmbeddedOutputApp'){
+            parentNode.setOutputApplication(node)
+        }else if(mode === 'addEmbeddedInputApp'){
+            parentNode.setInputApplication(node)
+        }else{
+            console.warn('mode is not supported: ',mode)
+        }
     }
 
     static translateLegacyGraph() : void {
