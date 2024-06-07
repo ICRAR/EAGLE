@@ -1496,6 +1496,10 @@ export class GraphRenderer {
         GraphRenderer.resizeConstruct(construct)
     }
 
+    static setNewEmbeddedApp (newNodeId:string,mode:string) :void {
+        console.log(newNodeId,mode)
+    }
+
     static translateLegacyGraph() : void {
         const eagle = Eagle.getInstance();
         //we are moving each node by half its radius to counter the fact that the new graph renderer treats the node's visual center as node position, previously the node position was in its top left.

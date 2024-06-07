@@ -13,7 +13,7 @@
 
         <!-- ko if: $data.canHaveInputApplication() -->
             <!-- ko ifNot: $data.hasInputApplication() -->
-                <div class="inputSocket socket" data-bind="click:function(){$root.setNodeInputApplication($data.getKey())}">
+                <div class="inputSocket socket" data-bind="click:function(){$root.setNodeInputApplication($data.getKey())}, eagleRightClick: {data:$data,type:'addEmbeddedInputApp'}">
                     <div>
                         <i class="material-icons md-18">add</i>
                     </div>
@@ -23,7 +23,7 @@
 
         <!-- ko if: $data.canHaveOutputApplication() -->
             <!-- ko ifNot: $data.hasOutputApplication() -->
-                <div class="outputSocket socket" data-bind="click:function(){$root.setNodeOutputApplication($data.getKey())}">
+                <div class="outputSocket socket" data-bind="click:function(){$root.setNodeOutputApplication($data.getKey())}, eagleRightClick: {data:$data,type:'addEmbeddedOutputApp'}">
                     <div>
                         <i class="material-icons md-18">add</i>
                     </div>

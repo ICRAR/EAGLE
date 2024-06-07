@@ -574,8 +574,8 @@ export class Utils {
 
         // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
         $('#choiceModalSelect').trigger('change');
-
         $('#choiceModal').modal("toggle");
+        $('#choiceModalSelect').click()
     }
 
     static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting, callback : (confirmed : boolean) => void ) : void {
