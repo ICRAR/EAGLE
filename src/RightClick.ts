@@ -448,7 +448,7 @@ export class RightClick {
 
         //checking for screen real estate to the right and bottom, if we are too close to the edges of the window, we expand left, up or both
         if($(document).innerWidth()-mouseX<minXMargin){
-            mouseX = mouseX - 4 // correcting the usability margin in the opposite direction
+            mouseX -= 4 // correcting the usability margin in the opposite direction
             $('#customContextMenu').addClass("leftBoundContextMenu")
         }
 
