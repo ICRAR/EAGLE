@@ -437,8 +437,7 @@ export class RightClick {
             eagle.setSelection(Eagle.RightWindowMode.Inspector,data,Eagle.FileType.Graph)
         }
 
-        // close any existing context menu
-        //RightClick.closeCustomContextMenu(true);
+        // close any existing context menu, the close custom context menu function seems to be doing too much
         $('#customContextMenu').remove();
 
         // setting up the menu div
