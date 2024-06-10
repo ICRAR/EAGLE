@@ -2079,6 +2079,7 @@ div.rightWindow h5.card-header {
     position: relative;
     top: 2px;
     font-size: 18px;
+    pointer-events: none;
 }
 
 ul.nav.navbar-nav .btn-outline-secondary {
