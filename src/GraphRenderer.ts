@@ -1508,6 +1508,13 @@ export class GraphRenderer {
         if (node === null){
             node = eagle.logicalGraph().findNodeById(nodeId);
         }
+
+        //double checking to keep gitAI happy
+        if(node === null){
+            Utils.showNotification("Error", "Could not find the node we are trying to add", "warning");
+            return
+        }
+
         const newNode = Utils.duplicateNode(node)
 
         if(mode==='addEmbeddedOutputApp'){
