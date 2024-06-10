@@ -443,13 +443,16 @@ export class RightClick {
         // setting up the menu div
         $(document).find('body').append('<div id="customContextMenu" onmouseleave="RightClick.closeCustomContextMenu(false)"></div>')
 
+        const minXMargin = 390 // this is the minimum amount of room we need on the right side of the click location to draw the context menu
+        const minYMargin = 430 // this is the minimum amount of room we need on the bottom side of the click location to draw the context menu
+
         //checking for screen real estate to the right and bottom, if we are too close to the edges of the window, we expand left, up or both
-        if($(document).innerWidth()-mouseX<390){
+        if($(document).innerWidth()-mouseX<minXMargin){
             mouseX = mouseX - 4 // correcting the usability margin in the opposite direction
             $('#customContextMenu').addClass("leftBoundContextMenu")
         }
 
-        if($(document).innerHeight()-mouseY<430){
+        if($(document).innerHeight()-mouseY<minYMargin){
             mouseY = mouseY -4 
             $('#customContextMenu').addClass("topBoundContextMenu")
         }
