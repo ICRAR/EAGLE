@@ -425,8 +425,8 @@ export class RightClick {
         const eagle: Eagle = Eagle.getInstance();
 
         const thisEvent = event as MouseEvent
-        const mouseX = thisEvent.clientX+2
-        const mouseY = thisEvent.clientY+2
+        let mouseX = thisEvent.clientX+2 //small margin to prevent the cursor from hovering on the menu right on the corner, making the experience fiddly
+        let mouseY = thisEvent.clientY+2
 
         if(data instanceof Node||data instanceof Edge || data instanceof Palette){
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
@@ -443,14 +443,20 @@ export class RightClick {
 
         // setting up the menu div
         $(document).find('body').append('<div id="customContextMenu" onmouseleave="RightClick.closeCustomContextMenu(false)"></div>')
-        $('#customContextMenu').css('top',mouseY+'px')
-        $('#customContextMenu').css('left',mouseX+'px')
 
-        console.log($(document).innerWidth(),mouseX,$(document).innerWidth()-mouseX)
-        if($(document).innerWidth()-mouseX<300){
-            console.log($('#customContextMenu').width())
+        //checking for screen real estate to the right and bottom, if we are too close to the edges of the window, we expand left, up or both
+        if($(document).innerWidth()-mouseX<390){
+            mouseX = mouseX - 4 // correcting the usability margin in the opposite direction
             $('#customContextMenu').addClass("leftBoundContextMenu")
         }
+
+        if($(document).innerHeight()-mouseY<430){
+            mouseY = mouseY -4 
+            $('#customContextMenu').addClass("topBoundContextMenu")
+        }
+
+        $('#customContextMenu').css('top',mouseY+'px')
+        $('#customContextMenu').css('left',mouseX+'px')
 
         if(passedObjectClass != 'edgeDropCreate'){
             // here we are grabbing the on graph location of the mouse cursor, this is where we will place the node when right clicking on the empty graph
