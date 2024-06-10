@@ -4417,52 +4417,6 @@ export class Eagle {
         });
     }
 
-    setNodeInputApplication = (nodeKey: number) : void => {
-        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
-            Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
-            return;
-        }
-
-        this.setNodeApplication("Input Application", "Choose an input application", (inputApplication: Node) => {
-            const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
-            const oldApp: Node = node.getInputApplication();
-
-            // remove all edges incident on the old input application
-            if (oldApp !== null){
-                this.logicalGraph().removeEdgesByKey(oldApp.getKey());
-            }
-
-            // NOTE: this call also sets the inputApplication's embedKey
-            node.setInputApplication(inputApplication);
-
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Set Node Input Application");
-        });
-    }
-
-    setNodeOutputApplication = (nodeKey: number) : void => {
-        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
-            Utils.showUserMessage("Error", "Unable to add embedded applications to components within palettes. If you wish to add an embedded application, please add it to an instance of this component within a graph.");
-            return;
-        }
-
-        this.setNodeApplication("Output Application", "Choose an output application", (outputApplication: Node) => {
-            const node: Node = this.logicalGraph().findNodeByKey(nodeKey);
-            const oldApp: Node = node.getOutputApplication();
-
-            // remove all edges incident on the old output application
-            if (oldApp !== null){
-                this.logicalGraph().removeEdgesByKey(oldApp.getKey());
-            }
-
-            // NOTE: this call also sets the outputApplication's embedKey
-            node.setOutputApplication(outputApplication);
-
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Set Node Output Application");
-        });
-    }
-
     getNewNodePosition = (radius: number) : {x:number, y:number, extended:boolean} => {
         const MARGIN = 100; // buffer to keep new nodes away from the maxX and maxY sides of the LG display area
         const navBarHeight = 84
