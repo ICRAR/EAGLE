@@ -153,7 +153,7 @@
                     <div class="mb-1 inspectorNodeApplicationWrapper">
                         <span>Input Application</span>    
                         <div class="inspectorApplicationBackground">
-                            <inspector-component params="node: $root.selectedNode().inputApplication, selectCallback: function(){$root.setNodeInputApplication($root.selectedNode().key())}, inspectCallback: $root.selectInputApplicationNode, selectId:'nodeInspectorAddInputApplication', changeId:'nodeInspectorChangeInputApplication', inspectId:'nodeInspectorInspectInputApplication'"></inspector-component>
+                            <inspector-component params="node: $root.selectedNode().inputApplication, selectCallback: function(){$root.setNodeInputApplication($root.selectedNode().key())}, inspectCallback: $root.selectInputApplicationNode,embedFunc: 'addEmbeddedInputApp', selectId:'nodeInspectorAddInputApplication', changeId:'nodeInspectorChangeInputApplication', inspectId:'nodeInspectorInspectInputApplication'"></inspector-component>
                         </div>
                     </div>
                 <!-- /ko -->
@@ -163,7 +163,7 @@
                     <div class="mb-1 inspectorNodeApplicationWrapper">
                         <span>Output Application</span>    
                         <div class="inspectorApplicationBackground">
-                            <inspector-component params="node: $root.selectedNode().outputApplication, selectCallback: function(){$root.setNodeOutputApplication($root.selectedNode().key())}, inspectCallback: $root.selectOutputApplicationNode, selectId:'nodeInspectorAddOutputApplication', changeId:'nodeInspectorChangeOutputApplication', inspectId:'nodeInspectorInspectOutputApplication'"></inspector-component>
+                            <inspector-component params="node: $root.selectedNode().outputApplication, selectCallback: function(){$root.setNodeOutputApplication($root.selectedNode().key())}, inspectCallback: $root.selectOutputApplicationNode,embedFunc: 'addEmbeddedOutputApp', selectId:'nodeInspectorAddOutputApplication', changeId:'nodeInspectorChangeOutputApplication', inspectId:'nodeInspectorInspectOutputApplication'"></inspector-component>
                         </div>
                     </div>
                 <!-- /ko -->

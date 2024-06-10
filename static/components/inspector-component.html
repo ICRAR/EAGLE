@@ -2,7 +2,8 @@
     <div class="col">
         <div class="input-group mb-1">
             <!-- ko if: $data.node() === null -->
-                <button class="btn btn-secondary btn-block btn_wide" type="button" data-bind="click: $data.selectCallback, attr:{id:$data.selectId}, eagleTooltip:'Select application'" data-bs-placement="left" >
+             <div data-bind="text:console.log($data.node())"></div>
+                <button class="btn btn-secondary btn-block btn_wide" type="button" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')}, eagleRightClick: {data:$data,type:$data.embedFunc}, attr:{id:$data.selectId}, eagleTooltip:'Select application'" data-bs-placement="left" >
                     <i class="material-icons md-18">add</i>
                 </button>
             <!-- /ko -->

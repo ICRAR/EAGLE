@@ -446,6 +446,12 @@ export class RightClick {
         $('#customContextMenu').css('top',mouseY+'px')
         $('#customContextMenu').css('left',mouseX+'px')
 
+        console.log($(document).innerWidth(),mouseX,$(document).innerWidth()-mouseX)
+        if($(document).innerWidth()-mouseX<300){
+            console.log($('#customContextMenu').width())
+            $('#customContextMenu').addClass("leftBoundContextMenu")
+        }
+
         if(passedObjectClass != 'edgeDropCreate'){
             // here we are grabbing the on graph location of the mouse cursor, this is where we will place the node when right clicking on the empty graph
             const x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
@@ -521,7 +527,9 @@ export class RightClick {
                 }
             }else if(passedObjectClass === 'addEmbeddedOutputApp' || passedObjectClass === 'addEmbeddedInputApp'){
                 if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-                    eagle.setSelection(Eagle.RightWindowMode.None,data,Eagle.FileType.Graph)
+                    if(data instanceof Node){
+                        eagle.setSelection(Eagle.RightWindowMode.None,data,Eagle.FileType.Graph)
+                    }
                     $('#customContextMenu').append(searchbar)
     
                     $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')

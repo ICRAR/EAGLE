@@ -2913,6 +2913,17 @@ palette-component input.form-control.selected {
     position: relative;
 }
 
+#customContextMenu.leftBoundContextMenu{
+    transform:translateX(-100%);
+    width:max-content;
+}
+
+
+#customContextMenu.leftBoundContextMenu .contextMenuDropdown{
+    right: 100%;
+    left: auto;
+}
+
 .tutorialHighlight{
     position:absolute;
     background-color: rgba(0, 0, 0, 0.5);
