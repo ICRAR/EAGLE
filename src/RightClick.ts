@@ -163,7 +163,7 @@ export class RightClick {
         return paletteList
     }
 
-    static createHtmlEligableEmbeddedNodesList(nodeType:Category.Type,passedObjectClass:string) : string {
+    static createHtmlEligibleEmbeddedNodesList(nodeType:Category.Type,passedObjectClass:string) : string {
         const eagle: Eagle = Eagle.getInstance();
 
         let paletteList:string = ''
@@ -541,7 +541,7 @@ export class RightClick {
                     $('#customContextMenu').append(searchbar)
     
                     $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
-                    const paletteList = RightClick.createHtmlEligableEmbeddedNodesList(Category.Type.Application,passedObjectClass)
+                    const paletteList = RightClick.createHtmlEligibleEmbeddedNodesList(Category.Type.Application,passedObjectClass)
                     $('#rightClickPaletteList').append(paletteList)
     
                     Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
