@@ -453,7 +453,7 @@ export class RightClick {
         }
 
         if($(document).innerHeight()-mouseY<minYMargin){
-            mouseY = mouseY -4 
+            mouseY -= 4 
             $('#customContextMenu').addClass("topBoundContextMenu")
         }
 
