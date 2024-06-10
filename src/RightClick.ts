@@ -140,11 +140,11 @@ export class RightClick {
 
         // add nodes from each palette
         palettes.forEach(function(palette){
-            paletteList = paletteList + RightClick.constructHtmlPaletteList(palette.getNodes(),'addNode',null,palette.fileInfo().name,null)
+            paletteList += RightClick.constructHtmlPaletteList(palette.getNodes(),'addNode',null,palette.fileInfo().name,null)
         })
 
         // add nodes from the logical graph
-        paletteList = paletteList + RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(),'addNode',null,'Graph',null)
+        paletteList += RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(),'addNode',null,'Graph',null)
 
         return paletteList
     }
@@ -156,10 +156,10 @@ export class RightClick {
         const palettes = eagle.palettes();
 
         palettes.forEach(function(palette){
-            paletteList = paletteList + RightClick.constructHtmlPaletteList(palette.getNodes(), 'addAndConnect', compatibleNodesList, palette.fileInfo().name,null)
+            paletteList += RightClick.constructHtmlPaletteList(palette.getNodes(), 'addAndConnect', compatibleNodesList, palette.fileInfo().name,null)
         })
 
-        paletteList = paletteList + RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(), 'addAndConnect', compatibleNodesList, 'Graph',null)
+        paletteList += RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(), 'addAndConnect', compatibleNodesList, 'Graph',null)
         return paletteList
     }
 
@@ -178,7 +178,7 @@ export class RightClick {
                     paletteNodes.push(paletteNode)
                 }
             })
-            paletteList = paletteList + RightClick.constructHtmlPaletteList(paletteNodes,'embedNode',null,palette.fileInfo().name,passedObjectClass)
+            paletteList += RightClick.constructHtmlPaletteList(paletteNodes,'embedNode',null,palette.fileInfo().name,passedObjectClass)
         })
 
         //sorting and adding compatible nodes from the graph
@@ -188,7 +188,7 @@ export class RightClick {
                 graphNodes.push(graphNode)
             }
         })
-        paletteList = paletteList + RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(),'embedNode',null,'Graph',passedObjectClass)
+        paletteList += RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(),'embedNode',null,'Graph',passedObjectClass)
 
         return paletteList
     }
@@ -219,13 +219,13 @@ export class RightClick {
                 for(const filteredNode of compatibleNodesList){
                     if(node === filteredNode){
                         if(node.isData()){
-                            dataHtml = dataHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
+                            dataHtml += `<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
                             dataFound = true
                         }else if (node.isApplication()){
-                            appHtml = appHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
+                            appHtml += `<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
                             appFound = true
                         }else{
-                            otherHtml = otherHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
+                            otherHtml += `<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
                             otherFound = true
                         }
                         nodeFound = true
