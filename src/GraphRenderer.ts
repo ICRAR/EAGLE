@@ -1002,7 +1002,7 @@ export class GraphRenderer {
 
     static preventBubbling () : void {
         //calling this function using native JS using onmousedown, onmouseup or onmousemove prevents bubbling these events up without loosing default event handling far any of those events
-        //for example if we want to keep default input text selection functionality, on an input that is a child of the graph
+        //use this if you want only a click event and prevent any other ko events from being called aka drag, mousedown etc
         event.stopPropagation()
     }
 
