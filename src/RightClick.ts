@@ -532,9 +532,12 @@ export class RightClick {
                 }
             }else if(passedObjectClass === 'addEmbeddedOutputApp' || passedObjectClass === 'addEmbeddedInputApp'){
                 if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+
+                    //making sure the construct we are trying to add an embedded node to is selected
                     if(data instanceof Node){
                         eagle.setSelection(Eagle.RightWindowMode.None,data,Eagle.FileType.Graph)
                     }
+
                     $('#customContextMenu').append(searchbar)
     
                     $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
