@@ -171,7 +171,7 @@ export class RightClick {
 
         // sorting and adding nodes from each palette
         palettes.forEach(function(palette){
-            let paletteNodes:Node[] = []
+            const paletteNodes:Node[] = []
 
             palette.getNodes().forEach(function(paletteNode){
                 if(paletteNode.getCategoryType() === nodeType){
@@ -182,7 +182,7 @@ export class RightClick {
         })
 
         //sorting and adding compatible nodes from the graph
-        let graphNodes:Node[]=[]
+        const graphNodes:Node[]=[]
         eagle.logicalGraph().getNodes().forEach(function(graphNode){
             if(graphNode.getCategoryType() === nodeType){
                 graphNodes.push(graphNode)
