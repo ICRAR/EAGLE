@@ -2079,6 +2079,7 @@ div.rightWindow h5.card-header {
     position: relative;
     top: 2px;
     font-size: 18px;
+    pointer-events: none;
 }
 
 ul.nav.navbar-nav .btn-outline-secondary {
@@ -2911,6 +2912,29 @@ palette-component input.form-control.selected {
 
 .searchBarContainer{
     position: relative;
+}
+
+#customContextMenu.leftBoundContextMenu{
+    transform:translateX(-100%);
+    width:max-content;
+}
+
+#customContextMenu.leftBoundContextMenu .contextMenuDropdown{
+    right: 100%;
+    left: auto;
+}
+
+#customContextMenu.topBoundContextMenu{
+    transform:translateY(-100%);
+}
+
+#customContextMenu.topBoundContextMenu .contextMenuDropdown{
+    bottom: 0%;
+    top: auto;
+}
+
+#customContextMenu.topBoundContextMenu.leftBoundContextMenu{
+    transform:translate(-100%, -100%);
 }
 
 .tutorialHighlight{

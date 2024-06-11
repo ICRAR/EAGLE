@@ -1002,7 +1002,7 @@ export class GraphRenderer {
 
     static preventBubbling () : void {
         //calling this function using native JS using onmousedown, onmouseup or onmousemove prevents bubbling these events up without loosing default event handling far any of those events
-        //for example if we want to keep default input text selection functionality, on an input that is a child of the graph
+        //use this if you want only a click event and prevent any other ko events from being called aka drag, mousedown etc
         event.stopPropagation()
     }
 
@@ -1494,6 +1494,36 @@ export class GraphRenderer {
 
         construct.setPosition(centroidX,centroidY)
         GraphRenderer.resizeConstruct(construct)
+    }
+
+    static setNewEmbeddedApp (nodeId:string,mode:string) :void {
+        const eagle = Eagle.getInstance()
+        const parentNode = eagle.selectedNode()
+        RightClick.closeCustomContextMenu(true)
+
+        // try to find the node (by nodeId) in the palettes
+        let node = Utils.getPaletteComponentById(nodeId);
+
+        // if node not found yet, try find in the graph
+        if (node === null){
+            node = eagle.logicalGraph().findNodeById(nodeId);
+        }
+
+        //double checking to keep gitAI happy
+        if(node === null){
+            Utils.showNotification("Error", "Could not find the node we are trying to add", "warning");
+            return
+        }
+
+        const newNode = Utils.duplicateNode(node)
+
+        if(mode==='addEmbeddedOutputApp'){
+            parentNode.setOutputApplication(newNode)
+        }else if(mode === 'addEmbeddedInputApp'){
+            parentNode.setInputApplication(newNode)
+        }else{
+            console.warn('mode is not supported: ',mode)
+        }
     }
 
     static translateLegacyGraph() : void {

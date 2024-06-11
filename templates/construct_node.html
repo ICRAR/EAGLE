@@ -10,6 +10,27 @@
         <div class="body"  data-bind="eagleRightClick: {data:$data,type:'rightClick_graphNode'}, event: {mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false">
             <span data-bind="class: $data.getIcon()"></span>
         </div> 
+
+        <!-- ko if: $data.canHaveInputApplication() -->
+            <!-- ko ifNot: $data.hasInputApplication() -->
+                <!-- triggerHandler('context menu') is a way to trigger right click, we want both left and right click to trigger the right click menu to add embedded apps -->
+                <div class="inputSocket socket" onmousedown="GraphRenderer.preventBubbling()" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')}, eagleRightClick: {data:$data,type:'addEmbeddedInputApp'}">
+                    <div>
+                        <i class="material-icons md-18">add</i>
+                    </div>
+                </div>
+            <!-- /ko -->
+        <!-- /ko -->
+
+        <!-- ko if: $data.canHaveOutputApplication() -->
+            <!-- ko ifNot: $data.hasOutputApplication() -->
+                <div class="outputSocket socket" onmousedown="GraphRenderer.preventBubbling()" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')}, eagleRightClick: {data:$data,type:'addEmbeddedOutputApp'}">
+                    <div>
+                        <i class="material-icons md-18">add</i>
+                    </div>
+                </div>
+            <!-- /ko -->
+        <!-- /ko -->
     </div>
 
     <!-- ko with: $data.getInputApplication() -->
@@ -17,6 +38,8 @@
             {% include 'basic_node.html' %}
         </div>
     <!-- /ko -->
+
+
     <!-- ko with: $data.getOutputApplication() -->
         <div class="constructOutputApp" data-bind="embeddedAppPosition:{applicationNode:$data, input:false}, nodeRenderHandler:$data">
             {% include 'basic_node.html' %}

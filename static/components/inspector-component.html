@@ -2,7 +2,7 @@
     <div class="col">
         <div class="input-group mb-1">
             <!-- ko if: $data.node() === null -->
-                <button class="btn btn-secondary btn-block btn_wide" type="button" data-bind="click: $data.selectCallback, attr:{id:$data.selectId}, eagleTooltip:'Select application'" data-bs-placement="left" >
+                <button class="btn btn-secondary btn-block btn_wide" type="button" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')}, eagleRightClick: {data:$data,type:$data.embedFunc}, attr:{id:$data.selectId}, eagleTooltip:'Select application'" data-bs-placement="left" >
                     <i class="material-icons md-18">add</i>
                 </button>
             <!-- /ko -->
@@ -17,7 +17,7 @@
                 <input type="text" class="form-control" readonly data-bind="value: $data.node().getDisplayName()">
 
                 <div class="input-group-append">
-                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.selectCallback, attr: {id:$data.changeId}, eagleTooltip: 'Change application'" data-bs-placement="left">
+                    <button class="btn btn-secondary btn-sm" type="button" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')}, eagleRightClick: {data:$data,type:$data.embedFunc}, attr: {id:$data.changeId}, eagleTooltip: 'Change application'" data-bs-placement="left">
                         <i class="material-icons md-18">edit</i>
                     </button>
                 </div>
