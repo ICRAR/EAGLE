@@ -11,7 +11,7 @@
             <span data-bind="class: $data.getIcon()"></span>
         </div> 
 
-        <!-- ko if: $data.canHaveInputApplication() -->
+        <!-- ko if: $data.isConstruct() -->
             <!-- ko ifNot: $data.hasInputApplication() -->
                 <!-- triggerHandler('context menu') is a way to trigger right click, we want both left and right click to trigger the right click menu to add embedded apps -->
                 <div class="inputSocket socket" onmousedown="GraphRenderer.preventBubbling()" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')}, eagleRightClick: {data:$data,type:'addEmbeddedInputApp'}">
@@ -22,7 +22,7 @@
             <!-- /ko -->
         <!-- /ko -->
 
-        <!-- ko if: $data.canHaveOutputApplication() -->
+        <!-- ko if: $data.isConstruct() -->
             <!-- ko ifNot: $data.hasOutputApplication() -->
                 <div class="outputSocket socket" onmousedown="GraphRenderer.preventBubbling()" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')}, eagleRightClick: {data:$data,type:'addEmbeddedOutputApp'}">
                     <div>
