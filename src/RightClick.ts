@@ -163,7 +163,7 @@ export class RightClick {
         return paletteList
     }
 
-    static createHtmlEligibleEmbeddedNodesList(nodeType:Category.Type,passedObjectClass:string) : string {
+    static  createHtmlEligibleEmbeddedNodesList(nodeType:Category.Type,passedObjectClass:string) : string {
         const eagle: Eagle = Eagle.getInstance();
 
         let paletteList:string = ''
@@ -188,7 +188,7 @@ export class RightClick {
                 graphNodes.push(graphNode)
             }
         })
-        paletteList += RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(),'embedNode',null,'Graph',passedObjectClass)
+        paletteList += RightClick.constructHtmlPaletteList(graphNodes,'embedNode',null,'Graph',passedObjectClass)
 
         return paletteList
     }
