@@ -721,7 +721,7 @@ export class Node {
     }
 
     setInputApplication = (inputApplication : Node) : void => {
-        console.assert(this.isConstruct());
+        console.assert(this.isConstruct(), "Can't set input application on node that is not a construct");
 
         this.inputApplication(inputApplication);
 
@@ -739,7 +739,7 @@ export class Node {
     }
 
     setOutputApplication = (outputApplication : Node) : void => {
-        console.assert(this.isConstruct());
+        console.assert(this.isConstruct(), "Can't set output application on node that is not a construct");
 
         this.outputApplication(outputApplication);
 
@@ -1685,7 +1685,7 @@ export class Node {
     }
 
     private static addPortToEmbeddedApplication(node: Node, port: Field, input: boolean, errorsWarnings: Errors.ErrorsWarnings, generateKeyFunc: () => number){
-        console.assert(node.getCategoryType() === Category.Type.Construct);
+        console.assert(node.getCategoryType() === Category.Type.Construct, "Can't add a port to the embedded application of a node that is not a construct");
 
         // check that the node already has an appropriate embedded application, otherwise create it
         if (input){
