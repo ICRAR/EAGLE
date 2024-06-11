@@ -55,8 +55,6 @@ export namespace Category {
         maxInputs: number,
         minOutputs: number,
         maxOutputs: number,
-        canHaveInputApplication: boolean,
-        canHaveOutputApplication: boolean,
         canHaveComponentParameters: boolean,
         canHaveApplicationArguments: boolean,
         canHaveConstructParameters: boolean, 

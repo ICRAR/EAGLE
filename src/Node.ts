@@ -654,14 +654,6 @@ export class Node {
         return CategoryData.getCategoryData(this.category()).maxOutputs;
     }
 
-    canHaveInputApplication = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).canHaveInputApplication;
-    }
-
-    canHaveOutputApplication = () : boolean => {
-        return CategoryData.getCategoryData(this.category()).canHaveOutputApplication;
-    }
-
     canHaveComponentParameters = () : boolean => {
         return CategoryData.getCategoryData(this.category()).canHaveComponentParameters;
     }
@@ -729,11 +721,12 @@ export class Node {
     }
 
     setInputApplication = (inputApplication : Node) : void => {
+        console.assert(this.isConstruct(), "Can't set input application on node that is not a construct");
+
         this.inputApplication(inputApplication);
 
         if (inputApplication !== null){
             inputApplication.setEmbedKey(this.getKey());
-            console.assert(this.canHaveInputApplication());
         }
     }
 
@@ -746,11 +739,12 @@ export class Node {
     }
 
     setOutputApplication = (outputApplication : Node) : void => {
+        console.assert(this.isConstruct(), "Can't set output application on node that is not a construct");
+
         this.outputApplication(outputApplication);
 
         if (outputApplication !== null){
             outputApplication.setEmbedKey(this.getKey());
-            console.assert(this.canHaveOutputApplication());
         }
     }
 
@@ -1271,14 +1265,6 @@ export class Node {
                node0.getCommitHash() !== node1.getCommitHash();
     }
 
-    static canHaveInputApp(node : Node) : boolean {
-        return CategoryData.getCategoryData(node.getCategory()).canHaveInputApplication;
-    }
-
-    static canHaveOutputApp(node : Node) : boolean {
-        return CategoryData.getCategoryData(node.getCategory()).canHaveOutputApplication;
-    }
-
     static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node {
         let name = "";
         if (typeof nodeData.name !== 'undefined'){
@@ -1321,12 +1307,13 @@ export class Node {
         }
 
         const node : Node = new Node(key, name, "", category);
+        const categoryData: Category.CategoryData = CategoryData.getCategoryData(category);
 
         // set position
         node.setPosition(x, y);
 
         // set categoryType based on the category
-        node.categoryType(CategoryData.getCategoryData(category).categoryType);
+        node.categoryType(categoryData.categoryType);
 
         // get description (if exists)
         if (typeof nodeData.description !== 'undefined'){
@@ -1422,7 +1409,7 @@ export class Node {
         // specified input and output applications using name strings rather than nested nodes.
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
         if (inputApplicationName !== ""){
-            if (!CategoryData.getCategoryData(category).canHaveInputApplication){
+            if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
@@ -1435,7 +1422,7 @@ export class Node {
         }
 
         if (inputApplicationName !== "" && inputApplicationType !== Category.None){
-            if (!CategoryData.getCategoryData(category).canHaveInputApplication){
+            if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
@@ -1448,7 +1435,7 @@ export class Node {
         }
 
         if (outputApplicationName !== ""){
-            if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
+            if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
@@ -1461,7 +1448,7 @@ export class Node {
         }
 
         if (outputApplicationName !== "" && outputApplicationType !== Category.None){
-            if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
+            if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
                 if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
@@ -1486,20 +1473,16 @@ export class Node {
         if (nodeData.application !== undefined && nodeData.application !== ""){
             errorsWarnings.errors.push(Errors.Message("Only found old application type, not new input application type and output application type: " + category));
 
-            if (!CategoryData.getCategoryData(category).canHaveInputApplication){
+            if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
-                if (CategoryData.getCategoryData(category).categoryType === Category.Type.Application){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(null, nodeData.application, category, "", node.getKey()));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + category + ", to node."));
-                }
+                node.inputApplication(Node.createEmbeddedApplicationNode(null, nodeData.application, category, "", node.getKey()));
             }
         }
 
         // read the 'real' input and output apps, correctly specified as nested nodes
         if (typeof nodeData.inputApplication !== 'undefined' && nodeData.inputApplication !== null){
-            if (!CategoryData.getCategoryData(category).canHaveInputApplication){
+            if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 node.inputApplication(Node.fromOJSJson(nodeData.inputApplication, errorsWarnings, isPaletteNode, generateKeyFunc));
@@ -1507,7 +1490,7 @@ export class Node {
             }
         }
         if (typeof nodeData.outputApplication !== 'undefined' && nodeData.outputApplication !== null){
-            if (!CategoryData.getCategoryData(category).canHaveOutputApplication){
+            if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
                 node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, isPaletteNode, generateKeyFunc));
@@ -1702,6 +1685,8 @@ export class Node {
     }
 
     private static addPortToEmbeddedApplication(node: Node, port: Field, input: boolean, errorsWarnings: Errors.ErrorsWarnings, generateKeyFunc: () => number){
+        console.assert(node.getCategoryType() === Category.Type.Construct, "Can't add a port to the embedded application of a node that is not a construct");
+
         // check that the node already has an appropriate embedded application, otherwise create it
         if (input){
             if (!node.hasInputApplication()){
@@ -1716,36 +1701,17 @@ export class Node {
             node.inputApplication().addField(port);
             errorsWarnings.warnings.push(Errors.Message("Moved input port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")"));
         } else {
-            // determine whether we should check (and possibly add) an output or exit application, depending on the type of this node
-            if (node.canHaveOutputApplication()){
-                if (!node.hasOutputApplication()){
-                    if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                        node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getDisplayText(), Category.UnknownApplication, "", node.getKey()));
-                        errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention."));
-                    } else {
-                        errorsWarnings.errors.push(Errors.Message("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
-                        return;
-                    }
-                }
-                node.outputApplication().addField(port);
-                errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")"));
-            } else {
-                // if possible, add port to output side of input application
-                if (node.canHaveInputApplication()){
-                    if (!node.hasInputApplication()){
-                        if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                            node.inputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getDisplayText(), Category.UnknownApplication, "", node.getKey()));
-                        } else {
-                            errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
-                            return;
-                        }
-                    }
-                    node.inputApplication().addField(port);
-                    errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + "," + node.getKey() + ") to output of the embedded input application"));
+            if (!node.hasOutputApplication()){
+                if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
+                    node.outputApplication(Node.createEmbeddedApplicationNode(generateKeyFunc(), port.getDisplayText(), Category.UnknownApplication, "", node.getKey()));
+                    errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + ", " + node.getKey() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention."));
                 } else {
-                    errorsWarnings.errors.push(Errors.Message("Can't add port to embedded application. Node can't have output OR exit application."));
+                    errorsWarnings.errors.push(Errors.Message("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
+                    return;
                 }
             }
+            node.outputApplication().addField(port);
+            errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getKey() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")"));
         }
     }
 
@@ -1910,62 +1876,6 @@ export class Node {
         node.setEmbedKey(embedKey);
         node.setRadius(GraphConfig.NORMAL_NODE_RADIUS);
         return node;
-    }
-
-    getInputAppText = () : string => {
-        if (!Node.canHaveInputApp(this)){
-            return "";
-        }
-
-        const inputApplication : Node = this.getInputApplication();
-
-        if (typeof inputApplication === "undefined" || inputApplication === null){
-            return Node.NO_APP_STRING;
-        }
-
-        return inputApplication.getName() === "" ? Node.NO_APP_NAME_STRING : inputApplication.getName();
-    }
-
-    getOutputAppText = () : string => {
-        if (!Node.canHaveOutputApp(this)){
-            return "";
-        }
-
-        const outputApplication : Node = this.getOutputApplication();
-
-        if (typeof outputApplication === "undefined" || outputApplication === null){
-            return Node.NO_APP_STRING;
-        }
-
-        return outputApplication.getName() === "" ? Node.NO_APP_NAME_STRING : outputApplication.getName()
-    }
-
-    getInputAppColor = () : string => {
-        if (!Node.canHaveInputApp(this)){
-            return "white";
-        }
-
-        const inputApplication : Node = this.getInputApplication();
-
-        if (typeof inputApplication === "undefined" || inputApplication === null){
-            return "white";
-        }
-
-        return inputApplication.getColor();
-    }
-
-    getOutputAppColor = () : string => {
-        if (!Node.canHaveOutputApp(this)){
-            return "white";
-        }
-
-        const outputApplication : Node = this.getOutputApplication();
-
-        if (typeof outputApplication === "undefined" || outputApplication === null){
-            return "white";
-        }
-
-        return outputApplication.getColor();
     }
 
     getDataIcon = () : string => {
