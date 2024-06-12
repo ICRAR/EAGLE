@@ -367,10 +367,11 @@ export class ColumnVisibilities {
     private type:ko.Observable<boolean>
     private parameterType:ko.Observable<boolean>
     private usage:ko.Observable<boolean>
+    private encoding:ko.Observable<boolean>
     private flags:ko.Observable<boolean>
     private actions:ko.Observable<boolean>
 
-    constructor(uiModeName:string, keyAttribute:boolean, displayText:boolean,fieldId:boolean,value:boolean,readOnly:boolean,defaultValue:boolean,description:boolean,type:boolean,parameterType:boolean,usage:boolean,flags:boolean,actions:boolean){
+    constructor(uiModeName:string, keyAttribute:boolean, displayText:boolean,fieldId:boolean,value:boolean,readOnly:boolean,defaultValue:boolean,description:boolean,type:boolean,parameterType:boolean,usage:boolean,encoding:boolean,flags:boolean,actions:boolean){
 
         this.uiModeName = uiModeName;
         this.keyAttribute = ko.observable(keyAttribute);
@@ -383,6 +384,7 @@ export class ColumnVisibilities {
         this.type = ko.observable(type);
         this.parameterType = ko.observable(parameterType);
         this.usage = ko.observable(usage);
+        this.encoding = ko.observable(encoding);
         this.flags = ko.observable(flags);
         this.actions = ko.observable(actions);
 
@@ -454,6 +456,10 @@ export class ColumnVisibilities {
         this.usage(value);
     }
 
+    private setEncoding = (value:boolean) : void => {
+        this.encoding(value);
+    }
+
     private setFlags = (value:boolean) : void => {
         this.flags(value);
     }
@@ -513,6 +519,11 @@ export class ColumnVisibilities {
         this.saveToLocalStorage()
     }
 
+    private toggleEncoding = () : void => {
+        this.encoding(!this.encoding());
+        this.saveToLocalStorage()
+    }
+
     private toggleFlags = () : void => {
         this.flags(!this.flags());
         this.saveToLocalStorage()
@@ -538,6 +549,7 @@ export class ColumnVisibilities {
                 type : columnVis.type(),
                 parameterType : columnVis.parameterType(),
                 usage : columnVis.usage(),
+                encoding : columnVis.encoding(),
                 flags : columnVis.flags(),
                 actions : columnVis.actions(),
                 
@@ -565,6 +577,7 @@ export class ColumnVisibilities {
                 columnVisActual.setType(columnvisibility.type)
                 columnVisActual.setParameterType(columnvisibility.parameterType)
                 columnVisActual.setUsage(columnvisibility.usage)
+                columnVisActual.setEncoding(columnvisibility.encoding)
                 columnVisActual.setFlags(columnvisibility.flags)
                 columnVisActual.setActions(columnvisibility.actions)
             })
@@ -575,9 +588,9 @@ export class ColumnVisibilities {
 
 // name, keyAttribute,displayText,value,readOnly,defaultValue,description,type,parameterType,usage,flags,actions
 const columnVisibilities : ColumnVisibilities[] = [
-    new ColumnVisibilities( "Student", false, true,false,true,true,false,false,false,false,false,false,false),
-    new ColumnVisibilities("Minimal", true, true,false,true,true,false,false,false,false,false,true,false),
-    new ColumnVisibilities("Graph", true, true,false,true,true,true,false,true,true,true,true,true),
-    new ColumnVisibilities("Component", true, true,false,true,true,true,true,true,true,true,true,true),
-    new ColumnVisibilities("Expert", true, true,false,true,true,true,true,true,true,true,true,true),
+    new ColumnVisibilities("Student", false, true,false,true,true,false,false,false,false,false,false,false,false),
+    new ColumnVisibilities("Minimal", true, true,false,true,true,false,false,false,false,false,true,false,false),
+    new ColumnVisibilities("Graph", true, true,false,true,true,true,false,true,true,true,true,true,true),
+    new ColumnVisibilities("Component", true, true,false,true,true,true,true,true,true,true,true,true,true),
+    new ColumnVisibilities("Expert", true, true,false,true,true,true,true,true,true,true,true,true,true),
 ]
