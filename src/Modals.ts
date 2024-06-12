@@ -400,9 +400,18 @@ export class Modals {
         Modals._setValidClasses($(event.target), isValid);
     }
 
-    static showBrowseDockerHub(callback : (completed : boolean) => void ) : void {        
-        // fetch is required
-        Eagle.getInstance().dockerHubBrowser().fetchImages();
+    static showBrowseDockerHub(image: string, tag: string, callback : (completed : boolean) => void ) : void {
+        const dockerHubBrowser = Eagle.getInstance().dockerHubBrowser();
+
+        // check if supplied values are usable, populate the UI,
+        if (image !== ""){
+            const username: string = image.split('/')[0];
+            dockerHubBrowser.populate(username, image, tag);
+        }
+        else // otherwise, a fetch is required
+        {
+            Eagle.getInstance().dockerHubBrowser().fetchImages(null, null);
+        }
 
         // store data about the callback, result on the modal HTML element
         // so that the info is available to event handlers
