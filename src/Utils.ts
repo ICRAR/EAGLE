@@ -1993,26 +1993,29 @@ export class Utils {
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
 
-    static showNode(eagle: Eagle, location: Eagle.FileType, nodeId: string): void {
-        console.log("showNode()", location, nodeId);
+    static showNode(eagle: Eagle, nodeId: string): void {
+        console.log("showNode()", nodeId);
+
+        let n: Node = null;
+        let location : Eagle.FileType
 
         // close errors modal if visible
         $('#errorsModal').modal("hide");
 
-        // find node from nodeKey
-        let n: Node = null;
-        switch (location){
-            case Eagle.FileType.Graph:
-                n = eagle.logicalGraph().findNodeById(nodeId);
-                break;
-            case Eagle.FileType.Palette:
-                for (const palette of eagle.palettes()){
-                    n = palette.findNodeById(nodeId);
-                    if (n !== null){
-                        break;
-                    }
+        //attempt to find node in graph
+        n = eagle.logicalGraph().findNodeById(nodeId);
+
+        if(n){
+            location = Eagle.FileType.Graph
+        }else{
+            //if no node was found attempt to find the node in the palettes
+            for (const palette of eagle.palettes()){
+                n = palette.findNodeById(nodeId);
+                if (n !== null){
+                    break;
                 }
-                break;
+            }
+            location = Eagle.FileType.Palette
         }
 
         // check that we found the node
