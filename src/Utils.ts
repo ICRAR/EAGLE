@@ -1373,7 +1373,6 @@ export class Utils {
     }
 
     static checkPalette(palette: Palette): Errors.ErrorsWarnings {
-        const eagle: Eagle = Eagle.getInstance();
         const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
 
         // check for duplicate keys
@@ -1390,7 +1389,9 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of palette.getNodes()){
-            Node.isValid(eagle, node, Eagle.FileType.Palette, false, false, errorsWarnings);
+            const nodeErrorsWarnings = Node.isValid(node, Eagle.FileType.Palette);
+            errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
+            errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
         }
 
         return errorsWarnings;
@@ -1403,7 +1404,9 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of graph.getNodes()){
-            Node.isValid(eagle, node, Eagle.FileType.Graph, false, false, errorsWarnings);
+            const nodeErrorsWarnings = Node.isValid(node, Eagle.FileType.Palette);
+            errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
+            errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
         }
 
         // check all edges are valid
@@ -1420,7 +1423,7 @@ export class Utils {
                 if (ids.includes(node.getId())){
                     const issue: Errors.Issue = Errors.ShowFix(
                         "Node (" + node.getName() + ") does not have a unique id",
-                        function(){Utils.showNode(eagle, Eagle.FileType.Graph, node.getId())},
+                        function(){Utils.showNode(eagle, node.getId())},
                         function(){Utils.newId(node)},
                         "Assign node a new id"
                     );
@@ -1432,7 +1435,7 @@ export class Utils {
                     if (ids.includes(field.getId())){
                         const issue: Errors.Issue = Errors.ShowFix(
                             "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
-                            function(){Utils.showNode(eagle, Eagle.FileType.Graph, node.getId())},
+                            function(){Utils.showNode(eagle, node.getId())},
                             function(){Utils.newFieldId(eagle, node, field)},
                             "Assign field a new id"
                         );
