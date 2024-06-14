@@ -251,9 +251,10 @@ export class Setting {
             
         switch (Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS)){
             case Setting.ShowErrorsMode.Warnings:
-                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length + eagle.selectedNode().getErrorsWarnings(eagle).warnings.length > 0;
+                console.log(eagle.selectedNode().getErrorsWarnings().errors.length,eagle.selectedNode().getErrorsWarnings().warnings.length)
+                return eagle.selectedNode().getErrorsWarnings().errors.length + eagle.selectedNode().getErrorsWarnings().warnings.length > 0;
             case Setting.ShowErrorsMode.Errors:
-                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length > 0;
+                return eagle.selectedNode().getErrorsWarnings().errors.length > 0;
             case Setting.ShowErrorsMode.None:
             default:
                 return false;

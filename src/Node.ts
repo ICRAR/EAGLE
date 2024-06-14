@@ -34,6 +34,7 @@ import { GraphRenderer } from "./GraphRenderer";
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 import { GraphConfig } from "./graphConfig";
+import { error } from "jquery";
 
 export class Node {
     private _id : ko.Observable<string>;
@@ -62,7 +63,7 @@ export class Node {
     private paletteDownloadUrl : ko.Observable<string>;
     private dataHash : ko.Observable<string>;
 
-    private errorsWarnings : Errors.ErrorsWarnings;
+    private errorsWarnings : ko.Observable<Errors.ErrorsWarnings>;
 
     public static readonly DEFAULT_COLOR : string = "ffffff";
 
@@ -112,7 +113,7 @@ export class Node {
         this.paletteDownloadUrl = ko.observable("");
         this.dataHash = ko.observable("");
 
-        this.errorsWarnings = {warnings: [], errors: []};
+        this.errorsWarnings = ko.observable({warnings: [], errors: []});
 
         //graph related things
         this.expanded = ko.observable(true);
@@ -1153,8 +1154,32 @@ export class Node {
     }
 
     getErrorsWarnings = (): Errors.ErrorsWarnings => {
-        return this.errorsWarnings;
+        return this.errorsWarnings();
     }
+
+    getBorderColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        if(this.isEmbedded){
+            return ''
+        }else if(this.errorsWarnings().errors.length>0){
+            return '#ea2727'
+        }else if(this.errorsWarnings().warnings.length>0){
+            return '#ffa500'
+        }else{
+            return '#2e3192'
+        }
+    }, this);
+
+    getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        if(this.errorsWarnings().errors.length>0){
+            return '#ffdcdc'
+        }else if(this.errorsWarnings().warnings.length>0){
+            return '#ffeac4'
+        }else if(this.isEmbedded()){
+            return '#dcdee2'
+        }else{
+            return 'white'
+        }
+    }, this);
 
     // find the right icon for this node
     getIcon = () : string => {
@@ -2108,6 +2133,8 @@ export class Node {
                 }
             }
         }
+
+        node.errorsWarnings(errorsWarnings)
 
         return errorsWarnings
     }
