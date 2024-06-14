@@ -1404,9 +1404,21 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of graph.getNodes()){
-            const nodeErrorsWarnings = Node.isValid(node, Eagle.FileType.Palette);
+            const nodeErrorsWarnings = Node.isValid(node, Eagle.FileType.Graph);
             errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
             errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
+            
+            // check the embedded applications
+            if (node.hasInputApplication()){
+                const inputNodeErrorsWarnings = Node.isValid(node.getInputApplication(),Eagle.FileType.Graph)
+                errorsWarnings.errors.push(...inputNodeErrorsWarnings.errors)
+                errorsWarnings.warnings.push(...inputNodeErrorsWarnings.warnings)
+            }
+            if (node.hasOutputApplication()){
+                const outputNodeErrorsWarnings = Node.isValid(node.getOutputApplication(),Eagle.FileType.Graph)
+                errorsWarnings.errors.push(...outputNodeErrorsWarnings.errors)
+                errorsWarnings.warnings.push(...outputNodeErrorsWarnings.warnings)
+            }
         }
 
         // check all edges are valid
@@ -1420,6 +1432,7 @@ export class Utils {
 
             // loop over graph nodes
             for (const node of graph.getNodes()){
+                //check for unique ids
                 if (ids.includes(node.getId())){
                     const issue: Errors.Issue = Errors.ShowFix(
                         "Node (" + node.getName() + ") does not have a unique id",

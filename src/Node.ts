@@ -2108,14 +2108,6 @@ export class Node {
             errorsWarnings.errors.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output."));
         }
 
-        // check the embedded applications
-        if (node.hasInputApplication()){
-            Node.isValid(node.getInputApplication(),selectedLocation)
-        }
-        if (node.hasOutputApplication()){
-            Node.isValid(node.getOutputApplication(),selectedLocation)
-        }
-
         // check that this category of node contains all the fields it requires
         for (const requirement of Daliuge.categoryFieldsRequired){
             if (requirement.categories.includes(node.getCategory())){
