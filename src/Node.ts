@@ -1158,8 +1158,8 @@ export class Node {
     }
 
     getBorderColor : ko.PureComputed<string> = ko.pureComputed(() => {
-        if(this.isEmbedded){
-            return ''
+        if(this.isEmbedded()){
+            return '' //returning nothing lets the means we are not over writing the default css behaviour
         }else if(this.errorsWarnings().errors.length>0){
             return '#ea2727'
         }else if(this.errorsWarnings().warnings.length>0){
@@ -1174,10 +1174,8 @@ export class Node {
             return '#ffdcdc'
         }else if(this.errorsWarnings().warnings.length>0){
             return '#ffeac4'
-        }else if(this.isEmbedded()){
-            return '#dcdee2'
         }else{
-            return 'white'
+            return '' //returning nothing lets the means we are not over writing the default css behaviour
         }
     }, this);
 

@@ -288,7 +288,7 @@
 }
 
 .node .container.selected .body {
-    outline: solid 2px var(--nodeBorder);
+    outline: solid 3px var(--nodeBorder);
     outline-offset: 0px;
     background-color: var(--selectedBg);
     /* box-shadow: 0 8px 6px -6px black; */
