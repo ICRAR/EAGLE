@@ -316,7 +316,7 @@
 }
 
 .node .branch_node .container.selected .innerRing {
-    background-color:  var(--selectedBg) !important;
+    background-color:  var(--selectedBg) ;
 }
 
 .node .construct_node .container.selected .body {
