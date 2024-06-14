@@ -98,6 +98,11 @@
     border: 2px #fbb040 solid;
     top: 50%;
     right:0px;
+    opacity: 40%;
+}
+
+.construct_node .outputSocket:hover, .construct_node .fullOpacity{
+    opacity: 100%;
 }
 
 .construct_node .socket div{
@@ -114,6 +119,7 @@
     top: 50%;
     left:50%;
     transform: translate(-50%,-50%);
+    pointer-events: none;
 }
 
 #portContainer {

@@ -117,6 +117,7 @@ export class RightClick {
     static closeCustomContextMenu(force:boolean) : void {
         if(force){
             $("#customContextMenu").remove()
+            $('.fullOpacity').removeClass('fullOpacity')//remove any elements that are kept visible during the right click menu process
         }else {
             setTimeout(function() {
                 if($("#customContextMenu:hover").length === 0){
@@ -124,6 +125,7 @@ export class RightClick {
                         return
                     }else {
                         $("#customContextMenu").remove()
+                        $('.fullOpacity').removeClass('fullOpacity')//this exists twice so it happens at the correct time with this timeout func
                     }
                 }
             }, 300);
@@ -535,6 +537,8 @@ export class RightClick {
                 }
             }else if(passedObjectClass === 'addEmbeddedOutputApp' || passedObjectClass === 'addEmbeddedInputApp'){
                 if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+
+                    $(thisEvent.target).addClass('fullOpacity')
 
                     //making sure the construct we are trying to add an embedded node to is selected
                     if(data instanceof Node){
