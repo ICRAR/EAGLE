@@ -740,7 +740,7 @@ export class Field {
         return f;
     }
 
-    static isValid(node:Node, field:Field, selectedLocation:Eagle.FileType){
+    static isValid(node:Node, field:Field, selectedLocation:Eagle.FileType, fieldIndex:number){
         const eagle = Eagle.getInstance()
         const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
     
@@ -825,19 +825,22 @@ export class Field {
         }
 
         //check that the field has a unique display text on the node
-        // for (let j = 0 ; j < node.getFields().length ; j++){
-        //     const field1 = node.getFields()[j];
-        //     if (field.getDisplayText() === field1.getDisplayText() && field.getParameterType() === field1.getParameterType()){
-        //         if (field.getId() === field1.getId()){
-        //             const currentFieldIndex = node.getFieldIndex(field)
-        //             const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeMergeFieldsByIndex(eagle, node, currentFieldIndex, j)}, "Merge fields");
-        //             errorsWarnings.warnings.push(issue);
-        //         } else {
-        //             const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeMergeFields(eagle, node, field, field1)}, "Merge fields");
-        //             errorsWarnings.warnings.push(issue);
-        //         }
-        //     }
-        // }
+        for (let j = 0 ; j < node.getFields().length ; j++){
+            const field1 = node.getFields()[j];
+            if(field === field1){
+                continue
+            }
+
+            if (field.getDisplayText() === field1.getDisplayText() && field.getParameterType() === field1.getParameterType()){
+                if (field.getId() === field1.getId()){
+                    const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeMergeFieldsByIndex(eagle, node, fieldIndex, j)}, "Merge fields");
+                    errorsWarnings.warnings.push(issue);
+                } else {
+                    const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeMergeFields(eagle, node, field, field1)}, "Merge fields");
+                    errorsWarnings.warnings.push(issue);
+                }
+            }
+        }
 
         field.errorsWarnings(errorsWarnings)
 

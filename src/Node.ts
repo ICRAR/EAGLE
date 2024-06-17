@@ -1934,7 +1934,7 @@ export class Node {
                 x = i
             }
         }
-        
+
         if( x = null){
             console.warn('could not find field on node', targetField, this)
         }
@@ -1953,9 +1953,15 @@ export class Node {
         }
 
         //check all the fields
-        node.getFields().forEach(function(field:Field){
-            const fieldErrorsWarnings = Field.isValid(node,field,selectedLocation)
-        })
+        // node.getFields().forEach(function(field:Field){
+        //     const fieldErrorsWarnings = Field.isValid(node,field,selectedLocation)
+        // })
+
+        for (let i = 0 ; i < node.getFields().length ; i++){
+            const field:Field = node.getFields()[i]
+            const fieldErrorsWarnings = Field.isValid(node,field,selectedLocation,i)
+        }
+
 
         // check that all port dataTypes have been defined
         // for (const port of node.getInputPorts()){
