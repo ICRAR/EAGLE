@@ -12,6 +12,8 @@
     --edgeColor:red;
     --commentEdgeColor:red;
     --matchingEdgeColor:red;
+    --nodeOutputColor:red;
+    --nodeInputColor:red;
     visibility:hidden;
 }
 
@@ -265,6 +267,11 @@
     left: 100%;
 }
 
+#portContainer .port.outputPort{
+    border: 2px solid hotpink; /*if this color stays then we have an issue, it should be overwritte later*/
+    background-color: white;
+}
+
 #portContainer div{
     position: relative;
 }
@@ -309,11 +316,11 @@
 }
 
 .node .construct_node .constructInputApp .body{
-    border-color:#2bb673;
+    border-color: var(--nodeInputColor);
 }
 
 .node .construct_node .constructOutputApp .body{
-    border-color:#fbb040;
+    border-color: var(--nodeOutputColor);
 }
 
 .node .branch_node .container.selected .outerRing {

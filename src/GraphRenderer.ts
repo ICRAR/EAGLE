@@ -54,6 +54,8 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", GraphConfig.getColor('constructIcon'));
         $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", GraphConfig.getColor('commentEdge'));
         $("#logicalGraphParent").get(0).style.setProperty("--matchingEdgeColor", GraphConfig.getColor('edgeAutoComplete'));
+        $("#logicalGraphParent").get(0).style.setProperty("--nodeOutputColor", GraphConfig.getColor('nodeOutputPort'));
+        $("#logicalGraphParent").get(0).style.setProperty("--nodeInputColor", GraphConfig.getColor('nodeInputPort'));
         
         if( node.isData()){
             $(element).find('.body').css('background-color:#575757','color:white')
