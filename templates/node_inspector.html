@@ -190,7 +190,7 @@
             <!-- ko if: Setting.showInspectorErrorsWarnings() -->
                 <div class="card pt-2" id="nodeInspectorErrorsCard">
                     <div class="card-body">
-                        <!-- ko with: $data.getErrorsWarnings($root) -->
+                        <!-- ko with: $data.getAllErrorsWarnings() -->
                             <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) != Setting.ShowErrorsMode.None -->
                                 <!-- ko foreach: errors -->
                                     <fix params="data: $data, isError: true"></fix>

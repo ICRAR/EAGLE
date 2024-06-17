@@ -1157,6 +1157,20 @@ export class Node {
         return this.errorsWarnings();
     }
 
+    getAllErrorsWarnings = (): Errors.ErrorsWarnings => {
+        const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
+        errorsWarnings.errors.push(...this.errorsWarnings().errors)
+        errorsWarnings.warnings.push(...this.errorsWarnings().warnings)
+
+        this.getFields().forEach(function(field){
+            errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
+            errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
+        })
+
+        return errorsWarnings
+    }
+
+
     getBorderColor : ko.PureComputed<string> = ko.pureComputed(() => {
         if(this.isEmbedded()){
             return '' //returning nothing lets the means we are not over writing the default css behaviour
