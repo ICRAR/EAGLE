@@ -5,6 +5,8 @@ import {Utils} from './Utils';
 import {Daliuge} from './Daliuge';
 import { Errors } from './Errors';
 import {Node} from './Node';
+import { CategoryData } from './CategoryData';
+import { Category } from './Category';
 
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
@@ -839,6 +841,36 @@ export class Field {
                     const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeMergeFields(eagle, node, field, field1)}, "Merge fields");
                     errorsWarnings.warnings.push(issue);
                 }
+            }
+        }
+
+        // check that fields have parameter types that are suitable for this node
+        // skip the 'drop class' component parameter, those are always suitable for every node
+        if (field.getDisplayText() != Daliuge.FieldName.DROP_CLASS && field.getParameterType() != Daliuge.FieldType.ComponentParameter){
+            if (
+                (field.getParameterType() === Daliuge.FieldType.ComponentParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
+                (field.getParameterType() === Daliuge.FieldType.ApplicationArgument) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments ||
+                (field.getParameterType() === Daliuge.FieldType.ConstructParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveConstructParameters
+            ){
+                // determine a suitable type
+                let suitableType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
+                const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
+
+                if (categoryData.canHaveComponentParameters){
+                    suitableType = Daliuge.FieldType.ComponentParameter;
+                } else {
+                    if (categoryData.canHaveApplicationArguments){
+                        suitableType = Daliuge.FieldType.ApplicationArgument;
+                    } else {
+                        if (categoryData.canHaveConstructParameters){
+                            suitableType = Daliuge.FieldType.ConstructParameter;
+                        }
+                    }
+                }
+
+                const message = "Node " + node.getKey() + " (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
+                const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldParameterType(eagle, node, field, suitableType)}, "Switch to suitable type, or remove if no suitable type");
+                errorsWarnings.warnings.push(issue);
             }
         }
 

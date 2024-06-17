@@ -2056,38 +2056,38 @@ export class Node {
         // }
 
         // check that fields have parameter types that are suitable for this node
-        for (const field of node.getFields()){
-            // skip the 'drop class' component parameter, those are always suitable for every node
-            if (field.getDisplayText() === Daliuge.FieldName.DROP_CLASS && field.getParameterType() === Daliuge.FieldType.ComponentParameter){
-                continue;
-            }
+        // for (const field of node.getFields()){
+        //     // skip the 'drop class' component parameter, those are always suitable for every node
+        //     if (field.getDisplayText() === Daliuge.FieldName.DROP_CLASS && field.getParameterType() === Daliuge.FieldType.ComponentParameter){
+        //         continue;
+        //     }
 
-            if (
-                (field.getParameterType() === Daliuge.FieldType.ComponentParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
-                (field.getParameterType() === Daliuge.FieldType.ApplicationArgument) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments ||
-                (field.getParameterType() === Daliuge.FieldType.ConstructParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveConstructParameters
-            ){
-                // determine a suitable type
-                let suitableType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
-                const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
+        //     if (
+        //         (field.getParameterType() === Daliuge.FieldType.ComponentParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
+        //         (field.getParameterType() === Daliuge.FieldType.ApplicationArgument) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments ||
+        //         (field.getParameterType() === Daliuge.FieldType.ConstructParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveConstructParameters
+        //     ){
+        //         // determine a suitable type
+        //         let suitableType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
+        //         const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
 
-                if (categoryData.canHaveComponentParameters){
-                    suitableType = Daliuge.FieldType.ComponentParameter;
-                } else {
-                    if (categoryData.canHaveApplicationArguments){
-                        suitableType = Daliuge.FieldType.ApplicationArgument;
-                    } else {
-                        if (categoryData.canHaveConstructParameters){
-                            suitableType = Daliuge.FieldType.ConstructParameter;
-                        }
-                    }
-                }
+        //         if (categoryData.canHaveComponentParameters){
+        //             suitableType = Daliuge.FieldType.ComponentParameter;
+        //         } else {
+        //             if (categoryData.canHaveApplicationArguments){
+        //                 suitableType = Daliuge.FieldType.ApplicationArgument;
+        //             } else {
+        //                 if (categoryData.canHaveConstructParameters){
+        //                     suitableType = Daliuge.FieldType.ConstructParameter;
+        //                 }
+        //             }
+        //         }
 
-                const message = "Node " + node.getKey() + " (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
-                const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldParameterType(eagle, node, field, suitableType)}, "Switch to suitable type, or remove if no suitable type");
-                errorsWarnings.warnings.push(issue);
-            }
-        }
+        //         const message = "Node " + node.getKey() + " (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
+        //         const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldParameterType(eagle, node, field, suitableType)}, "Switch to suitable type, or remove if no suitable type");
+        //         errorsWarnings.warnings.push(issue);
+        //     }
+        // }
 
         // check that all nodes have correct numbers of inputs and outputs
         const cData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
