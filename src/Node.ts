@@ -1925,6 +1925,23 @@ export class Node {
         }
     }
 
+    getFieldIndex = (targetField:Field) : number => {
+        let x:number = null
+
+        for(let i = 0;  this.getFields().length; i++){
+            const field = this.getFields()[i]
+            if (field === targetField){
+                x = i
+            }
+        }
+        
+        if( x = null){
+            console.warn('could not find field on node', targetField, this)
+        }
+
+        return x
+    }
+
     static isValid(node: Node, selectedLocation: Eagle.FileType) : Errors.ErrorsWarnings {
         const eagle = Eagle.getInstance()
         const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
@@ -1935,97 +1952,102 @@ export class Node {
             errorsWarnings.warnings.push(issue);
         }
 
+        //check all the fields
+        node.getFields().forEach(function(field:Field){
+            const fieldErrorsWarnings = Field.isValid(node,field,selectedLocation)
+        })
+
         // check that all port dataTypes have been defined
-        for (const port of node.getInputPorts()){
-            if (port.isType(Daliuge.DataType.Unknown)){
-                const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldType(eagle, port)}, "");
-                errorsWarnings.warnings.push(issue);
-            }
-        }
-        for (const port of node.getOutputPorts()){
-            if (port.isType(Daliuge.DataType.Unknown)){
-                const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldType(eagle, port)}, "");
-                errorsWarnings.warnings.push(issue);
-            }
-        }
+        // for (const port of node.getInputPorts()){
+        //     if (port.isType(Daliuge.DataType.Unknown)){
+        //         const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldType(eagle, port)}, "");
+        //         errorsWarnings.warnings.push(issue);
+        //     }
+        // }
+        // for (const port of node.getOutputPorts()){
+        //     if (port.isType(Daliuge.DataType.Unknown)){
+        //         const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldType(eagle, port)}, "");
+        //         errorsWarnings.warnings.push(issue);
+        //     }
+        // }
 
-        for (const port of node.getInputApplicationInputPorts()){
-            if (port.isType(Daliuge.DataType.Unknown)){
-                const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldType(eagle, port)}, "");
-                errorsWarnings.warnings.push(issue);
-            }
-        }
+        // for (const port of node.getInputApplicationInputPorts()){
+        //     if (port.isType(Daliuge.DataType.Unknown)){
+        //         const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldType(eagle, port)}, "");
+        //         errorsWarnings.warnings.push(issue);
+        //     }
+        // }
 
-        for (const port of node.getInputApplicationOutputPorts()){
-            if (port.isType(Daliuge.DataType.Unknown)){
-                const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldType(eagle, port)}, "");
-                errorsWarnings.warnings.push(issue);
-            }
-        }
+        // for (const port of node.getInputApplicationOutputPorts()){
+        //     if (port.isType(Daliuge.DataType.Unknown)){
+        //         const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has input application (" + node.getInputApplication().getName() + ") with output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldType(eagle, port)}, "");
+        //         errorsWarnings.warnings.push(issue);
+        //     }
+        // }
 
-        for (const port of node.getOutputApplicationInputPorts()){
-            if (port.isType(Daliuge.DataType.Unknown)){
-                const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldType(eagle, port)}, "");
-                errorsWarnings.warnings.push(issue);
-            }
-        }
+        // for (const port of node.getOutputApplicationInputPorts()){
+        //     if (port.isType(Daliuge.DataType.Unknown)){
+        //         const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with input port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldType(eagle, port)}, "");
+        //         errorsWarnings.warnings.push(issue);
+        //     }
+        // }
 
-        for (const port of node.getOutputApplicationOutputPorts()){
-            if (port.isType(Daliuge.DataType.Unknown)){
-                const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldType(eagle, port)}, "");
-                errorsWarnings.warnings.push(issue);
-            }
-        }
+        // for (const port of node.getOutputApplicationOutputPorts()){
+        //     if (port.isType(Daliuge.DataType.Unknown)){
+        //         const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has output application (" + node.getOutputApplication().getName() + ") with output port (" + port.getDisplayText() + ") whose type is not specified", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldType(eagle, port)}, "");
+        //         errorsWarnings.warnings.push(issue);
+        //     }
+        // }
 
         // check that all fields have ids
-        for (const field of node.getFields()){
-            if (field.getId() === "" || field.getId() === null){
-                const issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has field (" + field.getDisplayText() + ") with no id", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldId(eagle, field)}, "Generate id for field");
-                errorsWarnings.errors.push(issue);
-            }
-        }
+        // for (const field of node.getFields()){
+        //     if (field.getId() === "" || field.getId() === null){
+        //         const issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has field (" + field.getDisplayText() + ") with no id", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldId(eagle, field)}, "Generate id for field");
+        //         errorsWarnings.errors.push(issue);
+        //     }
+        // }
 
         // check that all fields have default values
-        for (const field of node.getFields()){
-            if (field.getDefaultValue() === "" && !field.isType(Daliuge.DataType.String) && !field.isType(Daliuge.DataType.Password) && !field.isType(Daliuge.DataType.Object) && !field.isType(Daliuge.DataType.Unknown)) {
-                const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose default value is not specified", function(){Utils.showNode(eagle, node.getId())}, function(){Utils.fixFieldDefaultValue(eagle, field)}, "Generate default value for parameter");
-                errorsWarnings.warnings.push(issue);
-            }
-        }
+        // for (const field of node.getFields()){
+        //     if (field.getDefaultValue() === "" && !field.isType(Daliuge.DataType.String) && !field.isType(Daliuge.DataType.Password) && !field.isType(Daliuge.DataType.Object) && !field.isType(Daliuge.DataType.Unknown)) {
+        //         const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose default value is not specified", function(){Utils.showNode(eagle, node.getId())}, function(){Utils.fixFieldDefaultValue(eagle, field)}, "Generate default value for parameter");
+        //         errorsWarnings.warnings.push(issue);
+        //     }
+        // }
 
         // check that all fields have known types
-        for (const field of node.getFields()){
-            if (!Utils.validateType(field.getType())) {
-                const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose type (" + field.getType() + ") is unknown", function(){Utils.showNode(eagle, node.getId())}, function(){Utils.fixFieldType(eagle, field)}, "Prepend existing type (" + field.getType() + ") with 'Object.'");
-                errorsWarnings.warnings.push(issue);
-            }
-        }
+        // for (const field of node.getFields()){
+        //     if (!Utils.validateType(field.getType())) {
+        //         const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose type (" + field.getType() + ") is unknown", function(){Utils.showNode(eagle, node.getId())}, function(){Utils.fixFieldType(eagle, field)}, "Prepend existing type (" + field.getType() + ") with 'Object.'");
+        //         errorsWarnings.warnings.push(issue);
+        //     }
+        // }
 
         // check that all fields "key" attribute is the same as the key of the node they belong to
-        for (const field of node.getFields()){
-            if (field.getNodeKey() !== node.getKey()) {
-                const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose key (" + field.getNodeKey() + ") doesn't match the node (" + node.getKey() + ")", function(){Utils.showNode(eagle, node.getId())}, function(){Utils.fixFieldKey(eagle, node, field)}, "Set field node key correctly");
-                errorsWarnings.errors.push(issue);
-            }
-        }
+        // for (const field of node.getFields()){
+        //     if (field.getNodeKey() !== node.getKey()) {
+        //         const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose key (" + field.getNodeKey() + ") doesn't match the node (" + node.getKey() + ")", function(){Utils.showNode(eagle, node.getId())}, function(){Utils.fixFieldKey(eagle, node, field)}, "Set field node key correctly");
+        //         errorsWarnings.errors.push(issue);
+        //     }
+        // }
 
         // check that multiple fields don't share the same name
         // NOTE: this code checks many pairs of fields twice
-        for (let i = 0 ; i < node.getFields().length ; i++){
-            const field0 = node.getFields()[i];
-            for (let j = 0 ; j < node.getFields().length ; j++){
-                const field1 = node.getFields()[j];
-                if (i !== j && field0.getDisplayText() === field1.getDisplayText() && field0.getParameterType() === field1.getParameterType()){
-                    if (field0.getId() === field1.getId()){
-                        const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeMergeFieldsByIndex(eagle, node, i, j)}, "Merge fields");
-                        errorsWarnings.warnings.push(issue);
-                    } else {
-                        const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeMergeFields(eagle, node, field0, field1)}, "Merge fields");
-                        errorsWarnings.warnings.push(issue);
-                    }
-                }
-            }
-        }
+        // for (let i = 0 ; i < node.getFields().length ; i++){
+        //     const field0 = node.getFields()[i];
+        //     for (let j = 0 ; j < node.getFields().length ; j++){
+        //         const field1 = node.getFields()[j];
+        //         if (i !== j && field0.getDisplayText() === field1.getDisplayText() && field0.getParameterType() === field1.getParameterType()){
+        //             if (field0.getId() === field1.getId()){
+        //                 const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text and id (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeMergeFieldsByIndex(eagle, node, i, j)}, "Merge fields");
+        //                 errorsWarnings.warnings.push(issue);
+        //             } else {
+        //                 const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text (" + field0.getDisplayText() + ").", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeMergeFields(eagle, node, field0, field1)}, "Merge fields");
+        //                 errorsWarnings.warnings.push(issue);
+        //             }
+        //         }
+        //     }
+        // }
 
         // check that fields have parameter types that are suitable for this node
         for (const field of node.getFields()){

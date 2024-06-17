@@ -1407,17 +1407,35 @@ export class Utils {
             const nodeErrorsWarnings = Node.isValid(node, Eagle.FileType.Graph);
             errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
             errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
-            
+
+            //get the node's field errorswarnings 
+            for(const field of node.getFields()){
+                errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
+                errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
+            }
+
             // check the embedded applications
             if (node.hasInputApplication()){
                 const inputNodeErrorsWarnings = Node.isValid(node.getInputApplication(),Eagle.FileType.Graph)
                 errorsWarnings.errors.push(...inputNodeErrorsWarnings.errors)
                 errorsWarnings.warnings.push(...inputNodeErrorsWarnings.warnings)
+
+                //get the input application's field errorswarnings 
+                for(const field of node.getInputApplication().getFields()){
+                    errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
+                    errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
+                }
             }
             if (node.hasOutputApplication()){
                 const outputNodeErrorsWarnings = Node.isValid(node.getOutputApplication(),Eagle.FileType.Graph)
                 errorsWarnings.errors.push(...outputNodeErrorsWarnings.errors)
                 errorsWarnings.warnings.push(...outputNodeErrorsWarnings.warnings)
+                
+                //get the output application's field errorswarnings 
+                for(const field of node.getOutputApplication().getFields()){
+                    errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
+                    errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
+                }
             }
         }
 
