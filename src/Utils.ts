@@ -1925,28 +1925,73 @@ export class Utils {
             }
         }
 
-        // otherwise just add a clone of the required field
-        const clone: Field = requiredField.clone();
-        clone.setId(Utils.uuidv4());
+        // get max number of input and output ports allowed for this node
+        const maxInputs  = CategoryData.getCategoryData(node.getCategory()).maxInputs;
+        const maxOutputs = CategoryData.getCategoryData(node.getCategory()).maxOutputs;
+
+        // the new (or existing) field that will be used for the required field
+        let field: Field = null;
+
+        // if adding a field would exceed the maximum allowed fields, then replace an existing field
+        if (requiredField.isInputPort() && node.getInputPorts().length >= maxInputs){
+            // check if the node has a dummy field (we'll replace that)
+            const dummyField = Utils.getDummyField(node, true);
+            if (dummyField !== null){
+                field = dummyField;
+                field.copyWithKeyAndId(requiredField, field.getNodeKey(), field.getId());
+            }
+        }
+        if (requiredField.isOutputPort() && node.getOutputPorts().length >= maxOutputs){
+            // check if the node has a dummy field (we'll replace that)
+            const dummyField = Utils.getDummyField(node, false);
+            if (dummyField !== null){
+                field = dummyField;
+                field.copyWithKeyAndId(requiredField, field.getNodeKey(), field.getId());
+            }
+        }
+
+        // otherwise, if not found, just add a clone of the required field
+        if (field === null){
+            field = requiredField.clone();
+            field.setId(Utils.uuidv4());
+            node.addField(field);
+        }
 
         // try to set a reasonable default value for some known fields
-        switch(clone.getDisplayText()){
+        switch(field.getDisplayText()){
             case Daliuge.FieldName.DROP_CLASS:
 
                 // look up component in palette
                 const paletteComponent: Node = Utils.getPaletteComponentByName(node.getCategory());
 
                 if (node !== null){
-                    const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS, clone.getParameterType());
+                    const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS, field.getParameterType());
 
-                    clone.setValue(dropClassField.getDefaultValue());
-                    clone.setDefaultValue(dropClassField.getDefaultValue());
+                    field.setValue(dropClassField.getDefaultValue());
+                    field.setDefaultValue(dropClassField.getDefaultValue());
                 }
 
                 break;
         }
+    }
 
-        node.addField(clone);
+    static getDummyField(node: Node, isInput: boolean): Field {
+        const dummy = node.findPortByDisplayText("dummy", isInput, false);
+        if (dummy){
+            return dummy;
+        }
+
+        const dummy0 = node.findPortByDisplayText("dummy0", isInput, false);
+        if (dummy0){
+            return dummy0;
+        }
+
+        const dummy1 = node.findPortByDisplayText("dummy1", isInput, false);
+        if (dummy1){
+            return dummy1;
+        }
+
+        return null;
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
