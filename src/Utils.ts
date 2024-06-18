@@ -1926,32 +1926,24 @@ export class Utils {
         }
 
         // get max number of input and output ports allowed for this node
-        const maxInputs  = CategoryData.getCategoryData(node.getCategory()).maxInputs;
-        const maxOutputs = CategoryData.getCategoryData(node.getCategory()).maxOutputs;
+        const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
 
         // the new (or existing) field that will be used for the required field
-        let field: Field = null;
+        let field: Field;
 
         // if adding a field would exceed the maximum allowed fields, then replace an existing field
-        if (requiredField.isInputPort() && node.getInputPorts().length >= maxInputs){
+        if (requiredField.isInputPort() && node.getInputPorts().length >= categoryData.maxInputs ||
+            requiredField.isOutputPort() && node.getOutputPorts().length >= categoryData.maxOutputs){
             // check if the node has a dummy field (we'll replace that)
-            const dummyField = Utils.getDummyField(node, true);
-            if (dummyField !== null){
-                field = dummyField;
-                field.copyWithKeyAndId(requiredField, field.getNodeKey(), field.getId());
-            }
-        }
-        if (requiredField.isOutputPort() && node.getOutputPorts().length >= maxOutputs){
-            // check if the node has a dummy field (we'll replace that)
-            const dummyField = Utils.getDummyField(node, false);
-            if (dummyField !== null){
+            const dummyField = Utils.findDummyField(node, requiredField.isInputPort());
+            if (dummyField){
                 field = dummyField;
                 field.copyWithKeyAndId(requiredField, field.getNodeKey(), field.getId());
             }
         }
 
         // otherwise, if not found, just add a clone of the required field
-        if (field === null){
+        if (!field){
             field = requiredField.clone();
             field.setId(Utils.uuidv4());
             node.addField(field);
@@ -1964,7 +1956,7 @@ export class Utils {
                 // look up component in palette
                 const paletteComponent: Node = Utils.getPaletteComponentByName(node.getCategory());
 
-                if (node !== null){
+                if (paletteComponent){
                     const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS, field.getParameterType());
 
                     field.setValue(dropClassField.getDefaultValue());
@@ -1975,20 +1967,14 @@ export class Utils {
         }
     }
 
-    static getDummyField(node: Node, isInput: boolean): Field {
-        const dummy = node.findPortByDisplayText("dummy", isInput, false);
-        if (dummy){
-            return dummy;
-        }
+    static findDummyField(node: Node, isInput: boolean): Field {
+        const dummyFieldNames = ["dummy", "dummy0", "dummy1"];
 
-        const dummy0 = node.findPortByDisplayText("dummy0", isInput, false);
-        if (dummy0){
-            return dummy0;
-        }
-
-        const dummy1 = node.findPortByDisplayText("dummy1", isInput, false);
-        if (dummy1){
-            return dummy1;
+        for (const dummyFieldName of dummyFieldNames){
+            const field = node.findPortByDisplayText(dummyFieldName, isInput, false);
+            if (field){
+                return field;
+            }
         }
 
         return null;
