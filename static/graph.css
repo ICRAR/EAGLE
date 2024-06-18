@@ -268,8 +268,12 @@
 }
 
 #portContainer .port.outputPort{
-    border: 2px solid hotpink; /*if this color stays then we have an issue, it should be overwritte later*/
+    border: 2px solid var(--nodeOutputColor); /*if this color stays then we have an issue, it should be overwritte later*/
     background-color: white;
+}
+
+#portContainer .port.inputPort{
+    background-color: var(--nodeInputColor);
 }
 
 #portContainer div{

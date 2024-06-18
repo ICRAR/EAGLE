@@ -1170,7 +1170,6 @@ export class Node {
         return errorsWarnings
     }
 
-
     getBorderColor : ko.PureComputed<string> = ko.pureComputed(() => {
         if(this.isEmbedded()){
             return '' //returning nothing lets the means we are not over writing the default css behaviour
