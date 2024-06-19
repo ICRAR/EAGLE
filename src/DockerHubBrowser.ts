@@ -80,7 +80,13 @@ export class DockerHubBrowser {
         this.isValid(false);
     }
 
-    fetchImages = () : void => {
+    populate = (username: string, image: string, tag: string) : void => {
+        this.username(username);
+        this.hasFetchedImages(false);
+        this.fetchImages(image, tag);
+    }
+
+    fetchImages = (selectedImage: string, selectedTag: string) : void => {
         // if already fetched, abort
         if (this.hasFetchedImages()){
             console.warn("Already fetched images");
@@ -97,6 +103,8 @@ export class DockerHubBrowser {
 
         // request eagle server to fetch a list of docker hub images
         Utils.httpPostJSON("/getDockerImages", {username:this.username()}, function(error : string, data: any){
+            let selectedImageIndex = 0;
+
             browser.isFetchingImages(false);
 
             if (error != null){
@@ -108,8 +116,14 @@ export class DockerHubBrowser {
 
             // build list of image strings
             browser.images([]);
-            for (const result of data.results){
-                browser.images.push(result.namespace + "/" + result.name);
+            for (let i = 0; i < data.results.length ; i++){
+                const result = data.results[i];
+                const imageName = result.namespace + "/" + result.name;
+                browser.images.push(imageName);
+
+                if (imageName === selectedImage){
+                    selectedImageIndex = i;
+                }
             }
 
             // abort if no images available for this user
@@ -117,14 +131,14 @@ export class DockerHubBrowser {
                 return;
             }
 
-            browser.selectedImage(browser.images()[0]);
+            browser.selectedImage(browser.images()[selectedImageIndex]);
 
             // go ahead and grab the tags for this image
-            browser.fetchTags();
+            browser.fetchTags(selectedTag);
         });
     }
 
-    fetchTags = () : void => {
+    fetchTags = (selectedTag: string) : void => {
         // if already fetched, abort
         if (this.hasFetchedTags()){
             console.warn("Already fetched tags");
@@ -146,6 +160,7 @@ export class DockerHubBrowser {
 
         // request eagle server to fetch a list of tags for the given docker image
         Utils.httpPostJSON("/getDockerImageTags", {imagename:this.selectedImage()}, function(error: string, data: any){
+            let selectedTagIndex = 0;
             browser.isFetchingTags(false);
 
             if (error != null){
@@ -158,9 +173,14 @@ export class DockerHubBrowser {
             // build list of tag strings
             browser.tags([]);
             browser.digests([]);
-            for (const result of data.results){
+            for (let i = 0 ; i < data.results.length ; i++){
+                const result = data.results[i];
                 browser.tags.push(result.name);
                 browser.digests.push(result.images[0].digest);
+
+                if (result.name === selectedTag){
+                    selectedTagIndex = i;
+                }
             }
 
             // abort if no tags available for this image
@@ -168,20 +188,20 @@ export class DockerHubBrowser {
                 return;
             }
 
-            browser.selectedTag(browser.tags()[0]);
-            browser.digest(browser.digests()[0]);
+            browser.selectedTag(browser.tags()[selectedTagIndex]);
+            browser.digest(browser.digests()[selectedTagIndex]);
             browser.isValid(true);
         });
     }
 
     onUsernameChange = () : void => {
         this.hasFetchedImages(false);
-        this.fetchImages();
+        this.fetchImages(null, null);
     }
 
     onImageChange = () : void => {
         this.hasFetchedTags(false);
-        this.fetchTags();
+        this.fetchTags(null);
     }
 
     onTagChange = () : void => {

@@ -3730,7 +3730,33 @@ export class Eagle {
     }
 
     fetchDockerHTML = () : void => {
-        Modals.showBrowseDockerHub((completed: boolean) => {
+        // get reference to the selectedNode
+        const selectedNode = this.selectedNode();
+
+        // abort if no node selected
+        if (selectedNode === null){
+            Utils.showNotification("EAGLE", "Please select a node before running the Docker Hub Browser", "danger");
+            return;
+        }
+
+        // get imageName, tag, digest values in currently selected node
+        const imageField:  Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.IMAGE);
+        const tagField:    Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.TAG);
+        const digestField: Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.DIGEST);
+        let image, tag, digest: string = "";
+
+        // set values for the fields
+        if (imageField !== null){
+            image = imageField.getValue();
+        }
+        if (tagField !== null){
+            tag = tagField.getValue();
+        }
+        if (digestField !== null){
+            digest = digestField.getValue();
+        }
+
+        Modals.showBrowseDockerHub(image, tag, (completed: boolean) => {
             if (!completed){
                 return;
             }
@@ -3738,20 +3764,6 @@ export class Eagle {
             const imageName = this.dockerHubBrowser().selectedImage();
             const tag = this.dockerHubBrowser().selectedTag();
             const digest = this.dockerHubBrowser().digest();
-
-            // get reference to the selectedNode
-            const selectedNode = this.selectedNode();
-
-            // abort if no node selected
-            if (selectedNode === null){
-                Utils.showNotification("EAGLE", "Please select a node before running the Docker Hub Browser", "danger");
-                return;
-            }
-
-            // get references to image, tag and digest fields in this component
-            const imageField:  Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.IMAGE);
-            const tagField:    Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.TAG);
-            const digestField: Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.DIGEST);
 
             // set values for the fields
             if (imageField !== null){
