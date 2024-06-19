@@ -109,6 +109,7 @@ export class Eagle {
     graphErrors : ko.ObservableArray<Errors.Issue>;
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
     loadingErrors : ko.ObservableArray<Errors.Issue>;
+    componentUpdates : ko.ObservableArray<Errors.Issue>;
     tableModalType : ko.Observable<string>;
     showTableModal : ko.Observable<boolean>;
     currentFileInfo : ko.Observable<FileInfo>;
@@ -199,6 +200,7 @@ export class Eagle {
         this.graphErrors = ko.observableArray([]);
         this.loadingWarnings = ko.observableArray([]);
         this.loadingErrors = ko.observableArray([]);
+        this.componentUpdates = ko.observableArray([]);
 
         this.tableModalType = ko.observable('')
         this.showTableModal = ko.observable(false)
@@ -4509,10 +4511,14 @@ export class Eagle {
     }
 
     checkGraph = (): void => {
-        const checkResult = Utils.checkGraph(this);
+        const checkResult: Errors.ErrorsWarnings = Utils.checkGraph(this);
 
         this.graphWarnings(checkResult.warnings);
         this.graphErrors(checkResult.errors);
+
+        const updateResult: Errors.Issue[] = ComponentUpdater.checkGraph(this);
+
+        this.componentUpdates(updateResult);
     };
 
     showGraphErrors = (): void => {
@@ -4526,6 +4532,10 @@ export class Eagle {
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
+    }
+
+    showGraphUpdates = (): void => {
+        Utils.showNotification("Update Graph", "Graph OK", "success");
     }
 
     addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {

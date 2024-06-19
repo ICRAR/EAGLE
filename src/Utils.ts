@@ -2084,8 +2084,10 @@ export class Utils {
                 "parentKey":node.getParentKey(),
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
+                /*
                 "expanded":node.getExpanded(),
                 "peek":node.isPeek(),
+                */
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
                 "radius":node.getRadius(),
@@ -2094,7 +2096,11 @@ export class Utils {
                 "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
                 "outputAppKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getKey(),
                 "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
-                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey()
+                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey(),
+                "repositoryUrl":node.getRepositoryUrl(),
+                "commitHash":node.getCommitHash(),
+                "paletteDownloadUrl":node.getPaletteDownloadUrl(),
+                "dataHash":node.getDataHash()
             });
         }
 

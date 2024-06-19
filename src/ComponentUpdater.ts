@@ -1,9 +1,36 @@
-import {LogicalGraph} from './LogicalGraph';
-import {Palette} from './Palette';
-import {Node} from './Node';
-import {Errors} from './Errors';
+import { Eagle } from './Eagle';
+import { Errors } from './Errors';
+import { LogicalGraph } from './LogicalGraph';
+import { Node } from './Node';
+import { Palette } from './Palette';
 
 export class ComponentUpdater {
+
+    static checkGraph(eagle: Eagle) : Errors.Issue[] {
+        const result: Errors.Issue[] = [];
+        const graph = eagle.logicalGraph();
+        const palettes = eagle.palettes();
+
+        // make sure we have a palette available for each component in the graph
+        for (const node of graph.getNodes()){
+            let newVersion : Node = null;
+
+            for (const palette of palettes){
+                for (const paletteNode of palette.getNodes()){
+                    if (ComponentUpdater.requiresUpdate(node, paletteNode)){
+                        newVersion = paletteNode;
+                    }
+                }
+            }
+
+            if (newVersion === null){
+                console.log("No match for node", node.getName());
+                continue;
+            }
+        }
+
+        return result;
+    }
 
     static update(palettes: Palette[], graph: LogicalGraph, callback : (errorsWarnings : Errors.ErrorsWarnings, updatedNodes : Node[]) => void) : void {
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
@@ -23,7 +50,7 @@ export class ComponentUpdater {
 
             for (const palette of palettes){
                 for (const paletteNode of palette.getNodes()){
-                    if (Node.requiresUpdate(node, paletteNode)){
+                    if (ComponentUpdater.requiresUpdate(node, paletteNode)){
                         newVersion = paletteNode;
                     }
                 }
@@ -63,5 +90,13 @@ export class ComponentUpdater {
             // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
             destField.copyWithKeyAndId(srcField, destField.getNodeKey(), destField.getId());
         }
+    }
+
+    static requiresUpdate(node0: Node, node1: Node) : boolean {
+        return node0.getRepositoryUrl() !== "" &&
+               node1.getRepositoryUrl() !== "" &&
+               node0.getRepositoryUrl() === node1.getRepositoryUrl() &&
+               node0.getName() === node1.getName() &&
+               node0.getCommitHash() !== node1.getCommitHash();
     }
 }

@@ -174,7 +174,7 @@ body {
     font-size: 20px;
 }
 
-#checkGraphDone i{
+#checkGraphDone i, #updateGraphDone i{
 color: #00bb00;}
 
 #navBarToolBar .navbarGroup button:first-of-type{

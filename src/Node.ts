@@ -1257,14 +1257,6 @@ export class Node {
                node0.getCommitHash() === node1.getCommitHash();
     }
 
-    static requiresUpdate(node0: Node, node1: Node) : boolean {
-        return node0.getRepositoryUrl() !== "" &&
-               node1.getRepositoryUrl() !== "" &&
-               node0.getRepositoryUrl() === node1.getRepositoryUrl() &&
-               node0.getName() === node1.getName() &&
-               node0.getCommitHash() !== node1.getCommitHash();
-    }
-
     static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node {
         let name = "";
         if (typeof nodeData.name !== 'undefined'){
