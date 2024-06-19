@@ -1889,7 +1889,6 @@ export class Utils {
             field.setDefaultValue("{}");
             break;
             default:
-            console.warn("No specific way to fix default value for field of this type:", field.getType());
             field.setDefaultValue("");
             break;
         }
@@ -1970,7 +1969,7 @@ export class Utils {
                 // look up component in palette
                 const paletteComponent: Node = Utils.getPaletteComponentByName(node.getCategory());
 
-                if (node !== null){
+                if (paletteComponent !== null){
                     const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS, clone.getParameterType());
 
                     clone.setValue(dropClassField.getDefaultValue());
