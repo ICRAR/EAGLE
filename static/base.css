@@ -786,6 +786,10 @@ td:first-child input {
     cursor: col-resize;
 }
 
+#parameterTableModal tr.highlighted{
+    background: #8ec0ff;
+}
+
 /*Animation must have unfill path strokes to work*/
 .path{
     fill: none;

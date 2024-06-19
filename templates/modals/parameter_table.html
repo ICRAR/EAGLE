@@ -117,7 +117,7 @@
                         <tbody data-bind="foreach: $root.parameterTable().getTableFields()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
                                 <!-- ko if: Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || $data.isKeyAttribute() -->
-                                    <tr>
+                                    <tr data-bind="attr: {'id' : 'tableRow_'+$data.getId()}">
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
                                             <td class='columnCell column_KeyAttr'>
                                                 <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>

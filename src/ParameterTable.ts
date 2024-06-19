@@ -235,6 +235,8 @@ export class ParameterTable {
         ParameterTable.selectionParentIndex(selectionIndex);
         ParameterTable.selection(selection);
         ParameterTable.selectionReadonly(readOnlyState);
+
+        $('#parameterTableModal tr.highlighted').removeClass('highlighted')
     }
 
     static resetSelection() : void {
@@ -266,6 +268,10 @@ export class ParameterTable {
         $('.modal.show').modal('hide')
         eagle.fetchDockerHTML()
     }
+
+    static getHighlightRowColor = (field:Field) : string => {
+        return field.getBackgroundColor();
+    } 
 
     static requestEditDescriptionInModal(currentField:Field) : void {
         const eagle: Eagle = Eagle.getInstance();
