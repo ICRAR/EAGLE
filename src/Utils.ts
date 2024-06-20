@@ -1897,12 +1897,12 @@ export class Utils {
                 field.setUsage(usage);
                 break;
             case Daliuge.FieldUsage.InputPort:
-                if (usage = Daliuge.FieldUsage.OutputPort){
+                if (usage === Daliuge.FieldUsage.OutputPort){
                     field.setUsage(Daliuge.FieldUsage.InputOutput);
                 }
                 break;
             case Daliuge.FieldUsage.OutputPort:
-                if (usage = Daliuge.FieldUsage.InputPort){
+                if (usage === Daliuge.FieldUsage.InputPort){
                     field.setUsage(Daliuge.FieldUsage.InputOutput);
                 }
                 break;
