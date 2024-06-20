@@ -8,6 +8,7 @@ import {Node} from './Node';
 import { CategoryData } from './CategoryData';
 import { Category } from './Category';
 import { GraphConfig } from "./graphConfig";
+import { Setting } from './Setting';
 
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
@@ -330,9 +331,9 @@ export class Field {
     }
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
-        if(this.errorsWarnings().errors.length>0){
+        if(this.errorsWarnings().errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
             return '#ea2727'
-        }else if(this.errorsWarnings().warnings.length>0){
+        }else if(this.errorsWarnings().warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
             return '#ffa500'
         }else{
             return ''

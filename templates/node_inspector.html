@@ -191,12 +191,12 @@
                 <div class="card pt-2" id="nodeInspectorErrorsCard">
                     <div class="card-body">
                         <!-- ko with: $data.getAllErrorsWarnings() -->
-                            <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) != Setting.ShowErrorsMode.None -->
+                            <!-- ko if: Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None -->
                                 <!-- ko foreach: errors -->
                                     <fix params="data: $data, isError: true"></fix>
                                 <!-- /ko -->
                             <!-- /ko -->
-                            <!-- ko if: Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS) === Setting.ShowErrorsMode.Warnings -->
+                            <!-- ko if: Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings -->
                                 <!-- ko foreach: warnings -->
                                     <fix params="data: $data, isError: false"></fix>
                                 <!-- /ko -->
