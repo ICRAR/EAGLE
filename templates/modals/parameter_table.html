@@ -25,15 +25,15 @@
                     <div class="dropdown" id="parameterTableVisibilityContainer">
                         <a class="material-icons dropdown-toggle componentTableVisibilityBtn" id="parameterTableVisibilityDropdown"  data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">tune</a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="parameterTableVisibilityDropdown">
-                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleKeyAttributea()}"><span>Key Parameter</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().keyAttribute(),valueUpdate: ['afterkeydown', 'input'],value:ParameterTable.getActiveColumnVisibility().keyAttribute"></div>
-                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleFieldId()}"><span>Field ID</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().fieldId(),valueUpdate: ['afterkeydown', 'input'],value:ParameterTable.getActiveColumnVisibility().fieldId"></div>
-                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleDefaultValue()}"><span>Default Value</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().defaultValue()"></div>
-                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleDescription()}"><span>Description</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().description()"></div>
-                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleType()}"><span>Type</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().type()"></div>
-                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleFlags()}"><span>Flags</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().flags()"></div>
-                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleParameterType()}"><span>Parameter Type</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().parameterType()"></div>
-                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleUsage()}"><span>Use As</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().usage()"></div>
-                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleActions()}"><span>Actions</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().actions()"></div>
+                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggle('keyAttribute')}"><span>Key Parameter</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().get('keyAttribute')"></div>
+                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggle('fieldId')}"><span>Field ID</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().get('fieldId')"></div>
+                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggle('defaultValue')}"><span>Default Value</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().get('defaultValue')"></div>
+                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggle('description')}"><span>Description</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().get('description')"></div>
+                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggle('type')}"><span>Type</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().get('type')"></div>
+                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggle('flags')}"><span>Flags</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().get('flags')"></div>
+                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggle('parameterType')}"><span>Parameter Type</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().get('parameterType')"></div>
+                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggle('usage')}"><span>Use As</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().get('usage')"></div>
+                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggle('actions')}"><span>Actions</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().get('actions')"></div>
                         </div>
                     </div>
                     <div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
@@ -52,7 +52,7 @@
                         </div>
                         <thead>
                             <tr>
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().get('keyAttribute') -->
                                     <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'Toggle Field Key attribute state'" data-bs-placement="top"></th>
                                 <!-- /ko -->
                                 <!-- ko if: $root.tableModalType() === 'keyParametersTableModal'-->
@@ -67,49 +67,49 @@
                                         </th>
                                     <!-- /ko -->
                                 <!-- /ko -->
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().get('displayText') -->
                                     <th id="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">
                                         Attribute Name
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_text') === true}"></div>
                                     </th>
                                 <!-- /ko -->
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().fieldId() -->
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().get('fieldId') -->
                                     <th id="parameter_table_id" data-bind="eagleTooltip:'backend id'" data-bs-placement="top">
                                         Field ID
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_id') === true}"></div>
                                     </th>
                                 <!-- /ko -->
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().value() -->
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().get('value') -->
                                     <th id="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">
                                         Value
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_value') === true}"></div>
                                     </th>
                                 <!-- /ko -->
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().defaultValue() -->
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().get('defaultValue') -->
                                     <th id="parameter_table_default_value" data-bind="eagleTooltip:'The default value of this parameter before user modifications'" data-bs-placement="top">
                                         Default Value
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_default_value') === true}"></div>
                                     </th>
                                 <!-- /ko -->
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().get('description') -->
                                     <th id="parameter_table_description" data-bind="eagleTooltip:'A description of the purpose of this parameter'" data-bs-placement="top">
                                         Description
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_description') === true}"></div>
                                     </th>
                                 <!-- /ko -->
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().get('type') -->
                                     <th id="parameter_table_type" data-bind="eagleTooltip:'The type of the data stored in this parameter (e.g. Integer, Float, String etc)'" data-bs-placement="top">Type</th>
                                 <!-- /ko -->
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().flags() -->
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().get('flags') -->
                                     <th id="parameter_table_flags" data-bind="eagleTooltip:'Parameter flags'" data-bs-placement="top">Flags</th>
                                     <!-- /ko -->
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().parameterType() -->
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().get('parameterType') -->
                                     <th id="parameter_table_parameter_type" data-bind="eagleTooltip:'The way this parameter will be used by the component. ComponentParameters are passed to the DALiuGE execution framework. ApplicationArguments are passed to the Application executed by this component.'" data-bs-placement="top">Parameter Type</th>
                                 <!-- /ko -->
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().get('usage') -->
                                     <th id="parameter_table_usage" data-bind="eagleTooltip:'InputPorts and OutputPorts are used to specify named inputs and outputs from this Component.'" data-bs-placement="top">Use As</th>
                                 <!-- /ko -->
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().get('actions') -->
                                     <th id="parameter_table_actions" data-bind="eagleTooltip:'Additional operations that are possible on this parameter (e.g. Delete, Duplicate etc)'" data-bs-placement="top">Actions</th>
                                 <!-- /ko -->
                             </tr>
@@ -118,7 +118,7 @@
                             <!-- ko if: $data.fitsTableSearchQuery() -->
                                 <!-- ko if: Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || $data.isKeyAttribute() -->
                                     <tr>
-                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().get('keyAttribute') -->
                                             <td class='columnCell column_KeyAttr'>
                                                 <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
                                             </td>
@@ -129,15 +129,15 @@
                                                 <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getKey(), disabled: true"></td>
                                             <!-- /ko -->
                                         <!-- /ko -->
-                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().get('displayText') -->
                                             <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' },eagleTooltip:description"><input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
                                         <!-- /ko -->
-                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().fieldId() -->
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().get('fieldId') -->
                                             <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'fieldId' },eagleTooltip:id"><input class="tableParameter selectionTargets tableFieldFieldId" type="string" disabled data-bind="value: id, valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.fieldId(), 'fieldId', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.fieldId(), 'fieldId', true, $data, $index())}}"></td>
                                         <!-- /ko -->
 
                                         <!-- value fields -->
-                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().value() -->
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().get('value') -->
                                             <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
                                                 <!-- ko if: $data.getType() === 'Integer' -->    
                                                     <td class='columnCell column_Value' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'value' }"><input class="tableParameter" min="0" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $root.getCurrentParamValueReadonly($data), $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $root.getCurrentParamValueReadonly($data), $data, $index())}}"></td>
@@ -159,7 +159,7 @@
                                         <!-- /ko -->
 
                                         <!-- default value fields -->
-                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().defaultValue() -->
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().get('defaultValue') -->
                                             <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
                                                 <!-- ko if: $data.getType() === 'Integer' -->    
                                                     <td class='columnCell column_DefaultValue' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'defaultValue' }"><input class="tableParameter" min="0" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="checked: valIsTrue($data.defaultValue()), disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $root.parameterTable().getNodeLockedState($data), $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
@@ -200,14 +200,14 @@
                                             <!-- /ko -->
                                         <!-- /ko -->
                                         
-                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().get('description') -->
                                             <td class='columnCell column_Description' onmouseenter="ParameterTable.showEditDescription(this)" onmouseleave="ParameterTable.hideEditDescription(this)" data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'description' }, eagleTooltip:description">
                                                 <input class="tableParameter" type="string" data-bind="value: description, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $root.parameterTable().getNodeLockedState($data), $data, $index())}}">
                                                 <button class="parameterTableDescriptionBtn icon-pencil" data-bind="click:function(data,event){ParameterTable.requestEditDescriptionInModal($data)}"></button>
                                             </td>
                                         <!-- /ko -->
                                         
-                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().get('type') -->
                                             <td class='columnCell column_Type'>
                                                 <!-- ko ifnot: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
                                                     <select data-bind="options: $root.types(), value: type, disabled: $root.parameterTable().getNodeLockedState($data)">
@@ -231,7 +231,7 @@
                                                 <!-- /ko --> 
                                             </td>
                                         <!-- /ko --> 
-                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().flags() -->
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().get('flags') -->
                                             <td class='columnCell column_Flags'>    
                                                 <!-- ko if: $root.parameterTable().getNodeLockedState($data) -->
                                                         <!-- ko if: $data.isReadonly() -->
@@ -295,7 +295,7 @@
                                                 <!-- /ko -->
                                             </td>
                                         <!-- /ko -->
-                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().parameterType() -->
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().get('parameterType') -->
                                             <td class='columnCell column_ParamType'>
                                                 <select class="tableFieldParamTypeSelect" data-bind="options: Object.values(Daliuge.FieldType), value: parameterType, disabled: $root.parameterTable().getNodeLockedState($data)">
                                                     <!-- options are added dynamically -->
@@ -303,7 +303,7 @@
                                             </td>
                                         <!-- /ko -->
                                         
-                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().get('usage') -->
                                             <td class='columnCell column_Usage'>
                                                 <select class="tbaleFieldUseAs" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: $root.parameterTable().getParamsTableEditState() , event: {change: ParameterTable.fieldUsageChanged}">
                                                     <!-- options are added dynamically -->
@@ -311,7 +311,7 @@
                                             </td>
                                         <!-- /ko -->
                                         
-                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().get('actions') -->
                                             <td class="columnCell column_Actions">
                                                 <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
                                                 <!-- ko ifnot: $root.parameterTable().getNodeLockedState($data) -->

@@ -15,7 +15,7 @@
         "strictPropertyInitialization": false,
         "module": "umd",
         "moduleResolution": "node",
-        "target": "es5",
+        "target": "ES6",
         "lib": ["es2021", "dom"],
         "allowJs": false,
         "types": ["jquery", "bootstrap", "bootstrap-notify"]

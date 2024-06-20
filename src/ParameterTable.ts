@@ -28,7 +28,6 @@ export class ParameterTable {
         ParameterTable.selection = ko.observable(null);
         ParameterTable.selectionName = ko.observable('');
         ParameterTable.selectionReadonly = ko.observable(false);
-
     }
 
     static setActiveColumnVisibility = () :void => {
@@ -354,9 +353,30 @@ export class ParameterTable {
     }
 }
 
+/*
+export namespace ParameterTable {
+    export enum Column {
+        KEY_ATTRIBUTE = "keyAttribute",
+        DISPLAY_TEXT = "displayText",
+        FIELD_ID = "fieldId",
+        VALUE = "value",
+        READ_ONLY = "readOnly",
+        DEFAULT_VALUE = "defaultValue",
+        DESCRIPTION = "description",
+        TYPE = "type",
+        PARAMETER_TYPE = "parameterType",
+        USAGE = "usage",
+        FLAGS = "flags",
+        ACTIONS = "actions"
+    }
+}
+*/
+
 export class ColumnVisibilities {
 
     private uiModeName : string;
+    private attributes : ko.Observable<Map<string, boolean>>
+    /*
     private keyAttribute:ko.Observable<boolean>
     private displayText:ko.Observable<boolean>
     private fieldId:ko.Observable<boolean>
@@ -369,10 +389,13 @@ export class ColumnVisibilities {
     private usage:ko.Observable<boolean>
     private flags:ko.Observable<boolean>
     private actions:ko.Observable<boolean>
-
-    constructor(uiModeName:string, keyAttribute:boolean, displayText:boolean,fieldId:boolean,value:boolean,readOnly:boolean,defaultValue:boolean,description:boolean,type:boolean,parameterType:boolean,usage:boolean,flags:boolean,actions:boolean){
+    */
+    constructor(uiModeName:string, attributes: Map<string, boolean>){
 
         this.uiModeName = uiModeName;
+        this.attributes = ko.observable(attributes);
+
+        /*
         this.keyAttribute = ko.observable(keyAttribute);
         this.displayText = ko.observable(displayText);
         this.fieldId = ko.observable(fieldId);
@@ -385,7 +408,7 @@ export class ColumnVisibilities {
         this.usage = ko.observable(usage);
         this.flags = ko.observable(flags);
         this.actions = ko.observable(actions);
-
+        */
     }
 
     getVisibilities = () : this => {
@@ -409,6 +432,23 @@ export class ColumnVisibilities {
     setModeName = (newUiModeName:string) : void => {
         this.uiModeName = newUiModeName;
     }
+
+    private set = (key: string, value: boolean): void => {
+        this.attributes().set(key, value);
+    }
+
+    private get = (key: string): boolean => {
+        return this.attributes().get(key);
+    }
+
+    private toggle = (key: string): void => {
+        console.log("toggle(" + key + ")");
+
+        this.attributes().set(key, !this.attributes().get(key));
+        this.saveToLocalStorage()
+    }
+
+    /*
 
     getKeyAttribute = () : boolean => {
         return this.keyAttribute()
@@ -523,11 +563,19 @@ export class ColumnVisibilities {
         this.saveToLocalStorage()
     }
 
+    */
+
     private saveToLocalStorage = () : void => {
         const columnVisibilitiesObjArray : any[] = []
         columnVisibilities.forEach(function(columnVis:ColumnVisibilities){
-            const columnVisibilitiesObj = {
-                name : columnVis.getModeName(),
+            const columnVisibilitiesObj: {[key: string]: boolean | string} = {
+                name : columnVis.getModeName()
+            };
+
+            for (const [key, value] of columnVis.attributes()){
+                columnVisibilitiesObj[key] = value;
+            }
+            /*
                 keyAttribute : columnVis.keyAttribute(),
                 displayText : columnVis.displayText(),
                 fieldId : columnVis.fieldId(),
@@ -542,6 +590,7 @@ export class ColumnVisibilities {
                 actions : columnVis.actions(),
                 
             }
+            */
             columnVisibilitiesObjArray.push(columnVisibilitiesObj)
         })
         localStorage.setItem('ColumnVisibilities', JSON.stringify(columnVisibilitiesObjArray));
@@ -555,6 +604,8 @@ export class ColumnVisibilities {
         }else{
             columnVisibilitiesObjArray.forEach(function(columnvisibility){
                 const columnVisActual:ColumnVisibilities = that.getModeByName(columnvisibility.name)
+
+                /*
                 columnVisActual.setKeyAttribute(columnvisibility.keyAttribute)
                 columnVisActual.setDisplayText(columnvisibility.displayText)
                 columnVisActual.setFieldId(columnvisibility.fieldId)
@@ -567,6 +618,7 @@ export class ColumnVisibilities {
                 columnVisActual.setUsage(columnvisibility.usage)
                 columnVisActual.setFlags(columnvisibility.flags)
                 columnVisActual.setActions(columnvisibility.actions)
+                */
             })
         }
     }
@@ -575,9 +627,84 @@ export class ColumnVisibilities {
 
 // name, keyAttribute,displayText,value,readOnly,defaultValue,description,type,parameterType,usage,flags,actions
 const columnVisibilities : ColumnVisibilities[] = [
-    new ColumnVisibilities( "Student", false, true,false,true,true,false,false,false,false,false,false,false),
-    new ColumnVisibilities("Minimal", true, true,false,true,true,false,false,false,false,false,true,false),
-    new ColumnVisibilities("Graph", true, true,false,true,true,true,false,true,true,true,true,true),
-    new ColumnVisibilities("Component", true, true,false,true,true,true,true,true,true,true,true,true),
-    new ColumnVisibilities("Expert", true, true,false,true,true,true,true,true,true,true,true,true),
+    new ColumnVisibilities(
+        "Student",
+        new Map(Object.entries({
+            "keyAttribute": false,
+            "displayText": true,
+            "fieldId": false,
+            "value": true,
+            "readOnly": true,
+            "defaultValue": false,
+            "description": false,
+            "type": false,
+            "parameterType": false,
+            "usage": false,
+            "flags": false,
+            "actions": false
+        }))),
+    new ColumnVisibilities(
+        "Minimal",
+        new Map(Object.entries({
+            "keyAttribute": true,
+            "displayText": true,
+            "fieldId": false,
+            "value": true,
+            "readOnly": true,
+            "defaultValue": false,
+            "description": false,
+            "type": false,
+            "parameterType": false,
+            "usage": false,
+            "flags": true,
+            "actions": false
+        }))),
+    new ColumnVisibilities(
+        "Graph",
+        new Map(Object.entries({
+            "keyAttribute": true,
+            "displayText": true,
+            "fieldId": false,
+            "value": true,
+            "readOnly": true,
+            "defaultValue": true,
+            "description": false,
+            "type": true,
+            "parameterType": true,
+            "usage": true,
+            "flags": true,
+            "actions": true
+        }))),
+    new ColumnVisibilities(
+        "Component",
+        new Map(Object.entries({
+            "keyAttribute": true,
+            "displayText": true,
+            "fieldId": false,
+            "value": true,
+            "readOnly": true,
+            "defaultValue": true,
+            "description": true,
+            "type": true,
+            "parameterType": true,
+            "usage": true,
+            "flags": true,
+            "actions": true
+        }))),
+    new ColumnVisibilities(
+        "Expert",
+        new Map(Object.entries({
+            "keyAttribute": true,
+            "displayText": true,
+            "fieldId": false,
+            "value": true,
+            "readOnly": true,
+            "defaultValue": true,
+            "description": true,
+            "type": true,
+            "parameterType": true,
+            "usage": true,
+            "flags": true,
+            "actions": true
+        })))
 ]
