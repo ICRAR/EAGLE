@@ -1862,6 +1862,12 @@ export class Utils {
     }
 
     static fixFieldType(eagle: Eagle, field: Field){
+        // fix for undefined value
+        if (field.getType() === undefined){
+            field.setType(Daliuge.DataType.Object);
+        }
+        
+        // fix for 'Unknown' type
         if (field.getType() === Daliuge.DataType.Unknown){
             field.setType(Daliuge.DataType.Object);
             return;
@@ -1873,11 +1879,76 @@ export class Utils {
             return;
         }
 
+        // abort if this fix has already been done by some other method
+        if (field.getType() === Daliuge.DataType.Object){
+            return;
+        }
+
         field.setType(Daliuge.DataType.Object + "." + field.getType());
     }
 
     static fixFieldKey(eagle: Eagle, node: Node, field: Field){
         field.setNodeKey(node.getKey());
+    }
+
+    static fixFieldUsage(eagle: Eagle, field: Field, usage: Daliuge.FieldUsage){
+        switch(field.getUsage()){
+            case Daliuge.FieldUsage.NoPort:
+                field.setUsage(usage);
+                break;
+            case Daliuge.FieldUsage.InputPort:
+                if (usage = Daliuge.FieldUsage.OutputPort){
+                    field.setUsage(Daliuge.FieldUsage.InputOutput);
+                }
+                break;
+            case Daliuge.FieldUsage.OutputPort:
+                if (usage = Daliuge.FieldUsage.InputPort){
+                    field.setUsage(Daliuge.FieldUsage.InputOutput);
+                }
+                break;
+        }
+    }
+
+    static addSourcePortToSourceNode(eagle: Eagle, edgeId: string){
+        const edge = eagle.logicalGraph().findEdgeById(edgeId);
+        const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        const destNode = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+        const destPort = destNode.findFieldById(edge.getDestPortId());
+
+        // abort fix if source port exists on source node
+        if (srcNode.findFieldById(edge.getSrcPortId()) !== null){
+            return;
+        }
+
+        // determine a sensible type for the new source port
+        const srcPortType = destPort.getType() === undefined ? Daliuge.DataType.Object : destPort.getType();
+
+        // create new source port
+        const srcPort = new Field(edge.getSrcPortId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort, false);
+
+        // add port to source node
+        srcNode.addField(srcPort);
+    }
+
+    static addDestinationPortToDestinationNode(eagle: Eagle, edgeId: string){
+        const edge = eagle.logicalGraph().findEdgeById(edgeId);
+        const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        const destNode = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+        const srcPort = srcNode.findFieldById(edge.getSrcPortId());
+
+        // abort fix if destination port exists on destination node
+        if (destNode.findFieldById(edge.getDestPortId()) !== null){
+            return;
+        }
+
+        // determine a sensible type for the new destination port
+        const destPortType = srcPort.getType() === undefined ? Daliuge.DataType.Object : srcPort.getType();
+
+        // create new destination port
+        const destPort = new Field(edge.getDestPortId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort, false);
+
+        // add port to destination node
+        destNode.addField(destPort);
     }
 
     static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){
