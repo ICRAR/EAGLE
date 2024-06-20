@@ -987,7 +987,7 @@ export class GraphRenderer {
         const target = event.target
         $(target).hide()
         const input = $(target).parent().find('.header-input')
-        input.show().trigger('focus').addClass('changingHeader')
+        input.show().trigger('focus').addClass('changingHeader').trigger('select')
     }
 
     static closeEditTitleInGraph () : void {

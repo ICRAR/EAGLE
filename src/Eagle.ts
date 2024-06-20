@@ -2719,7 +2719,7 @@ export class Eagle {
         eagle.setSelection(Eagle.RightWindowMode.None, node,Eagle.FileType.Graph)
         eagle.openParamsTableModal('inspectorTableModal','normal')
         setTimeout(function(){
-            $('#tableRow_'+field.getId()).css('background-color',ParameterTable.getHighlightRowColor(field)).addClass('highlighted')
+            $('#tableRow_'+field.getId()).addClass('highlighted')
         },300)
     }
 

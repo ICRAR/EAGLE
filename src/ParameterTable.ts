@@ -269,10 +269,6 @@ export class ParameterTable {
         eagle.fetchDockerHTML()
     }
 
-    static getHighlightRowColor = (field:Field) : string => {
-        return field.getBackgroundColor();
-    } 
-
     static requestEditDescriptionInModal(currentField:Field) : void {
         const eagle: Eagle = Eagle.getInstance();
         const tableType = eagle.tableModalType()
