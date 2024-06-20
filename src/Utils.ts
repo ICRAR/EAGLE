@@ -35,6 +35,7 @@ import { Field } from './Field';
 import { FileInfo } from "./FileInfo";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
+import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
 import { PaletteInfo } from './PaletteInfo';
@@ -605,8 +606,9 @@ export class Utils {
         $('#confirmModal').modal("toggle");
     }
 
-    static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
+    static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, fileType: Eagle.FileType, callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
         $('#gitCommitModal').data('completed', false);
+        $('#gitCommitModal').data('fileType', fileType);
         $('#gitCommitModal').data('callback', callback);
         $('#gitCommitModal').data('repositories', repositories);
         $('#gitCommitModal').modal("toggle");
@@ -636,6 +638,9 @@ export class Utils {
 
         $('#gitCommitModalFilePathInput').val(filePath);
         $('#gitCommitModalFileNameInput').val(fileName);
+
+        // validate fileName input
+        Modals.validateCommitModalFileNameInputText();
     }
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
