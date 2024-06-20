@@ -192,6 +192,14 @@ export class Field {
         this.keyAttribute(!this.keyAttribute())
     }
 
+    getKeyAttrVis = () : string => {
+        if(this.keyAttribute()){
+            return 'visible'
+        }else{
+            return 'hidden'
+        }
+    }
+
     valIsTrue = (val:string) : boolean => {
         return Utils.asBool(val);
     }

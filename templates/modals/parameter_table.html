@@ -120,17 +120,22 @@
                                     <tr data-bind="attr: {'id' : 'tableRow_'+$data.getId()}">
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
                                             <td class='columnCell column_KeyAttr'>
-                                                <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', html: $root.getKeyAttributeDisplay($data.keyAttribute())"></button>
+                                                
                                             </td>
                                         <!-- /ko -->
                                         <!-- ko if: $root.tableModalType() === 'keyParametersTableModal' -->
-                                            <td class='columnCell column_NodeName'><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getName(), disabled: true"></td>
+                                            <td class='columnCell column_NodeName'>
+                                                <input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getName(), disabled: true">
+                                            </td>
                                             <!-- ko if: $root.displayNodeKeys() -->
                                                 <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getKey(), disabled: true"></td>
                                             <!-- /ko -->
                                         <!-- /ko -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
-                                            <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' },eagleTooltip:description"><input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}"></td>
+                                            <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' },eagleTooltip:description">
+                                                <input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}">
+                                                <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', html: $root.getKeyAttributeDisplay($data.keyAttribute()),style:{'visibility':$data.getKeyAttrVis()}"></button>
+                                            </td>
                                         <!-- /ko -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().fieldId() -->
                                             <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'fieldId' },eagleTooltip:id"><input class="tableParameter selectionTargets tableFieldFieldId" type="string" disabled data-bind="value: id, valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.fieldId(), 'fieldId', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.fieldId(), 'fieldId', true, $data, $index())}}"></td>

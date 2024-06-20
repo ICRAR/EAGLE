@@ -648,6 +648,16 @@ td:first-child input {
     max-width: 27px;
 }
 
+#parameterTableModal .column_DisplayText button{
+    position: absolute;
+    right: 2px;
+    top: 2px;
+}
+
+#parameterTableModal .column_DisplayText:hover button{
+    visibility:visible !important;
+}
+
 #parameter_table_name{
     width: 160px;
 }
