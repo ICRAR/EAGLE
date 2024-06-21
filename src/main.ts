@@ -154,10 +154,10 @@ $(function(){
     document.onkeyup = KeyboardShortcut.processKey;
 
     // auto load the file
-    autoLoad(eagle);
+    autoLoad();
 
     // auto load a tutorial, if specified on the url
-    autoTutorial(eagle);
+    autoTutorial();
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").on("mouseleave", function(){
@@ -263,7 +263,7 @@ $(function(){
 
 });
 
-function autoLoad(eagle: Eagle) {
+function autoLoad(): void {
     const service    = (<any>window).auto_load_service;
     const repository = (<any>window).auto_load_repository;
     const branch     = (<any>window).auto_load_branch;
@@ -300,7 +300,7 @@ function autoLoad(eagle: Eagle) {
     }
 }
 
-function autoTutorial(eagle: Eagle){
+function autoTutorial(){
     const urlParams = new URLSearchParams(window.location.search);
     const tutorialName = urlParams.get('tutorial');
 
