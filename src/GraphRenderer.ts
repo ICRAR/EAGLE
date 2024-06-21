@@ -1698,6 +1698,7 @@ export class GraphRenderer {
 
         //here
         if(Math.abs(GraphRenderer.portDragStartPos.x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null))+Math.abs(GraphRenderer.portDragStartPos.y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null))<3){
+            //identify a click, if we click a port, we will open the parameter table and highlight the port
             eagle.openParamsTableModalAndSelectField(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort())
             GraphRenderer.clearEdgeVars();
         }else{

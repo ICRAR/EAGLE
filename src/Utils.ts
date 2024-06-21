@@ -2027,8 +2027,6 @@ export class Utils {
     }
 
     static showNode(eagle: Eagle, nodeId: string): void {
-        console.log("showNode()", nodeId);
-
         let n: Node = null;
         let location : Eagle.FileType
 
@@ -2058,6 +2056,14 @@ export class Utils {
         }
         
         eagle.setSelection(Eagle.RightWindowMode.Inspector, n, location);
+    }
+
+    static showField(eagle:Eagle, nodeId:string,field:Field) :void {
+        this.showNode(eagle,nodeId)
+        setTimeout(function(){
+            const node = eagle.selectedNode()
+            eagle.openParamsTableModalAndSelectField(node, field)
+        },100)
     }
 
     // only update result if it is worse that current result

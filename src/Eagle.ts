@@ -2720,7 +2720,7 @@ export class Eagle {
         eagle.openParamsTableModal('inspectorTableModal','normal')
         setTimeout(function(){
             $('#tableRow_'+field.getId()).addClass('highlighted')
-        },300)
+        },200)
     }
 
     getCurrentParamReadonly = (field: Field) : boolean => {

@@ -2058,7 +2058,7 @@ export class Node {
         } else {
             if (existingField.getParameterType() !== field.getParameterType()){
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") has a '" + field.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + field.getParameterType();
-                existingField.addErrorsWarnings(Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixFieldParameterType(eagle, node, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType()),'error');
+                existingField.addErrorsWarnings(Errors.ShowFix(message, function(){Utils.showField(eagle, node.getId(),existingField);}, function(){Utils.fixFieldParameterType(eagle, node, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType()),'error');
             }
         }
     }
