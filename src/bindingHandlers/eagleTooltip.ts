@@ -27,7 +27,9 @@ ko.bindingHandlers.eagleTooltip = {
         // manual tooltip open system to allow for hovering on the tooltips
         let stillHovering = false
         jQueryElement.on('mouseenter', function () {
-
+            event.stopImmediatePropagation()
+            event.stopPropagation()
+            event.preventDefault()
             jQueryElement.attr("data-bs-toggle", "tooltip");
             jQueryElement.attr("data-html", "true");
     
@@ -81,6 +83,8 @@ ko.bindingHandlers.eagleTooltip = {
             //in manual trigger mode the delay attribute of the bootstrap tooltip no longer works, we need to do this ourselves
             setTimeout(function(){
                 if(stillHovering && !GraphRenderer.draggingPort && !eagle.draggingPaletteNode){
+                    // make sure there is never more than one tooltip open
+                    $(".tooltip").tooltip("hide");
                     jQueryElement.tooltip('show');
 
                     //adding our custom size if provided

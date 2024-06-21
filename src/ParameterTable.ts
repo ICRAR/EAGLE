@@ -264,9 +264,14 @@ export class ParameterTable {
 
     static initiateBrowseDocker() : void {
         const eagle = Eagle.getInstance()
-        // eagle.smartToggleModal('shortcutsModal')
         $('.modal.show').modal('hide')
         eagle.fetchDockerHTML()
+    }
+
+    static getErrorsWarningsAsHtml() : string {
+        let result:string = ''
+        
+        return result
     }
 
     static requestEditDescriptionInModal(currentField:Field) : void {

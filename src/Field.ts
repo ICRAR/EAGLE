@@ -338,6 +338,14 @@ export class Field {
         return this.errorsWarnings();
     }
 
+    addErrorsWarnings(issue:Errors.Issue, issueType:string) : void {
+        if(issueType === 'error'){
+            this.errorsWarnings().errors.push(issue)
+        }else{
+            this.errorsWarnings().warnings.push(issue)
+        }
+    }
+
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         if(this.errorsWarnings().errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
             return '#ea2727'
@@ -347,6 +355,14 @@ export class Field {
             return ''
         }
     }, this);
+
+    getHasErrors = () : boolean => {
+        return this.errorsWarnings().errors.length>0;
+    }
+
+    getHasOnlyWarnings = () : boolean => {
+        return this.errorsWarnings().warnings.length>0 && this.errorsWarnings().errors.length === 0;
+    }
 
     setNodeKey = (key : number) : void => {
         this.nodeKey(key);
