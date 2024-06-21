@@ -268,9 +268,17 @@ export class ParameterTable {
         eagle.fetchDockerHTML()
     }
 
-    static getErrorsWarningsAsHtml() : string {
+    static getErrorsWarningsAsHtml(field:Field) : string {
         let result:string = ''
         
+        field.getErrorsWarnings().errors.forEach(function(error){
+            result += error.message+'<br><br>'
+        }) 
+        field.getErrorsWarnings().warnings.forEach(function(warning){
+            result += warning.message+'<br><br>'
+
+        })
+
         return result
     }
 

@@ -325,11 +325,11 @@
                                                     <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: $root.parameterTable().getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                                 <!-- /ko -->
                                                 <!-- ko if: $data.getHasErrors()-->
-                                                    <button class="text-danger" disabled><i class="material-icons">error</i></button>
+                                                    <button class="text-danger" disabled data-bind="eagleTooltip:ParameterTable.getErrorsWarningsAsHtml($data)"><i class="material-icons">error</i></button>
                                                 <!-- /ko -->
                                                 
                                                 <!-- ko if: $data.getHasOnlyWarnings()-->
-                                                    <button class="text-warning" disabled><i class="material-icons">warning</i></button>
+                                                    <button class="text-warning" disabled data-bind="eagleTooltip:ParameterTable.getErrorsWarningsAsHtml($data)"><i class="material-icons">warning</i></button>
                                                 <!-- /ko -->
                                             </td>
                                         <!-- /ko -->
