@@ -176,11 +176,9 @@ export class Modals {
             const commitMessage : string = $('#gitCommitModalCommitMessageInput').val().toString();
 
             // ensure that the graph filename ends with ".graph" or ".palette" as appropriate
-            if (fileType === Eagle.FileType.Graph && !fileName.endsWith('.graph')){
-                fileName = fileName + '.graph';
-            }
-            if (fileType === Eagle.FileType.Palette && !fileName.endsWith('.palette')){
-                fileName = fileName + '.palette';
+            if ((fileType === Eagle.FileType.Graph && !fileName.endsWith('.graph')) ||
+                (fileType === Eagle.FileType.Palette && !fileName.endsWith('.palette'))) {
+                fileName += fileType === Eagle.FileType.Graph ? '.graph' : '.palette';
             }
 
             callback(true, repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage);
@@ -392,7 +390,7 @@ export class Modals {
         });
     }
 
-    static validateFieldModalValueInputText(data: Field, event: Event){
+    static validateFieldModalValueInputText(data: Field, event: Event): void {
         const type: string = data.getType()
         const value: any = $(event.target).val();
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
@@ -409,11 +407,14 @@ export class Modals {
         Modals._setValidClasses($(event.target), isValid);
     }
 
-    static validateCommitModalFileNameInputText(){
+    static validateCommitModalFileNameInputText(): void {
         const inputElement = $("#gitCommitModalFileNameInput");
-        const fileType : Eagle.FileType = $('#gitCommitModal').data('fileType');
+        const fileTypeData = $('#gitCommitModal').data('fileType');
+        const fileType: Eagle.FileType = fileTypeData ? fileTypeData : Eagle.FileType.Unknown;
         
-        const isValid = (fileType === Eagle.FileType.Graph && inputElement.val().toString().endsWith(".graph")) || (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette"));
+        const isValid = (fileType === Eagle.FileType.Unknown) ||
+            (fileType === Eagle.FileType.Graph && inputElement.val().toString().endsWith(".graph")) ||
+            (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette"));
 
         Modals._setValidClasses(inputElement, isValid);
     }
