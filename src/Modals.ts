@@ -410,7 +410,6 @@ export class Modals {
     }
 
     static validateCommitModalFileNameInputText(){
-        console.log("validateCommitModalFileNameInputText()");
         const inputElement = $("#gitCommitModalFileNameInput");
         const fileType : Eagle.FileType = $('#gitCommitModal').data('fileType');
         
