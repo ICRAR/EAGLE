@@ -191,7 +191,10 @@
                         </div>
                         <div class="col">
                             <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="gitCommitModalFileNameInput">
+                                <input type="text" class="form-control" id="gitCommitModalFileNameInput" data-bind="event: {input: Modals.validateCommitModalFileNameInputText}">
+                                <div id="validationFeedback" class="invalid-feedback">
+                                    Graph file name must end with '.graph'. Palette file name must end with '.palette'.
+                                </div>
                             </div>
                         </div>
                     </div>
