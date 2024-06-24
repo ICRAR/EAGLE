@@ -1659,7 +1659,11 @@ export class Node {
                 if (node.canHaveInputs()){
                     node.addField(port);
                 } else {
-                    Node.addPortToEmbeddedApplication(node, port, true, errorsWarnings, generateKeyFunc);
+                    if (node.getCategoryType() === Category.Type.Construct){
+                        Node.addPortToEmbeddedApplication(node, port, true, errorsWarnings, generateKeyFunc);
+                    } else {
+                        errorsWarnings.errors.push(Errors.Message("Can't add input field " + inputPort.text + " to node " + node.getName() + ". Node cannot have inputs, and cannot have an embedded input application."));
+                    }
                 }
             }
         }
@@ -1674,7 +1678,11 @@ export class Node {
                 if (node.canHaveOutputs()){
                     node.addField(port);
                 } else {
-                    Node.addPortToEmbeddedApplication(node, port, false, errorsWarnings, generateKeyFunc);
+                    if (node.getCategoryType() === Category.Type.Construct){
+                        Node.addPortToEmbeddedApplication(node, port, false, errorsWarnings, generateKeyFunc);
+                    } else {
+                        errorsWarnings.errors.push(Errors.Message("Can't add output field " + outputPort.text + " to node " + node.getName() + ". Node cannot have outputs, and cannot have an embedded output application."));
+                    }
                 }
             }
         }
