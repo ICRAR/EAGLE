@@ -1162,7 +1162,7 @@ export class Node {
         errorsWarnings.errors.push(...this.errorsWarnings().errors)
         errorsWarnings.warnings.push(...this.errorsWarnings().warnings)
 
-        this.getFields().forEach(function(field){
+        this.getFields().forEach((field) =>{
             errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
             errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
         })
