@@ -35,6 +35,7 @@ import { Field } from './Field';
 import { FileInfo } from "./FileInfo";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
+import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
 import { PaletteInfo } from './PaletteInfo';
@@ -605,8 +606,9 @@ export class Utils {
         $('#confirmModal').modal("toggle");
     }
 
-    static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
+    static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, fileType: Eagle.FileType, callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
         $('#gitCommitModal').data('completed', false);
+        $('#gitCommitModal').data('fileType', fileType);
         $('#gitCommitModal').data('callback', callback);
         $('#gitCommitModal').data('repositories', repositories);
         $('#gitCommitModal').modal("toggle");
@@ -636,6 +638,9 @@ export class Utils {
 
         $('#gitCommitModalFilePathInput').val(filePath);
         $('#gitCommitModalFileNameInput').val(fileName);
+
+        // validate fileName input
+        Modals.validateCommitModalFileNameInputText();
     }
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
@@ -1958,28 +1963,59 @@ export class Utils {
             }
         }
 
-        // otherwise just add a clone of the required field
-        const clone: Field = requiredField.clone();
-        clone.setId(Utils.uuidv4());
+        // get max number of input and output ports allowed for this node
+        const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
+
+        // the new (or existing) field that will be used for the required field
+        let field: Field;
+
+        // if adding a field would exceed the maximum allowed fields, then replace an existing field
+        if (requiredField.isInputPort() && node.getInputPorts().length >= categoryData.maxInputs ||
+            requiredField.isOutputPort() && node.getOutputPorts().length >= categoryData.maxOutputs){
+            // check if the node has a dummy field (we'll replace that)
+            const dummyField = Utils.findDummyField(node, requiredField.isInputPort());
+            if (dummyField){
+                field = dummyField;
+                field.copyWithKeyAndId(requiredField, field.getNodeKey(), field.getId());
+            }
+        }
+
+        // otherwise, if not found, just add a clone of the required field
+        if (!field){
+            field = requiredField.clone();
+            field.setId(Utils.uuidv4());
+            node.addField(field);
+        }
 
         // try to set a reasonable default value for some known fields
-        switch(clone.getDisplayText()){
+        switch(field.getDisplayText()){
             case Daliuge.FieldName.DROP_CLASS:
 
                 // look up component in palette
                 const paletteComponent: Node = Utils.getPaletteComponentByName(node.getCategory());
 
                 if (paletteComponent !== null){
-                    const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS, clone.getParameterType());
+                    const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS, field.getParameterType());
 
-                    clone.setValue(dropClassField.getDefaultValue());
-                    clone.setDefaultValue(dropClassField.getDefaultValue());
+                    field.setValue(dropClassField.getDefaultValue());
+                    field.setDefaultValue(dropClassField.getDefaultValue());
                 }
 
                 break;
         }
+    }
 
-        node.addField(clone);
+    static findDummyField(node: Node, isInput: boolean): Field {
+        const dummyFieldNames = ["dummy", "dummy0", "dummy1"];
+
+        for (const dummyFieldName of dummyFieldNames){
+            const field = node.findPortByDisplayText(dummyFieldName, isInput, false);
+            if (field){
+                return field;
+            }
+        }
+
+        return null;
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
@@ -2079,7 +2115,7 @@ export class Utils {
 
         if (errorsWarnings.errors.length !== 0){
             // TODO: this actually has no way of knowing whether the errors are of type Invalid or Impossible
-            return Eagle.LinkValid.Impossible;
+            return Eagle.LinkValid.Invalid;
         }
 
         return Eagle.LinkValid.Warning;

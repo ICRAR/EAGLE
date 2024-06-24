@@ -154,6 +154,7 @@ export class Modals {
         $('#gitCommitModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
             const completed : boolean = $('#gitCommitModal').data('completed');
+            const fileType : Eagle.FileType = $('#gitCommitModal').data('fileType');
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
@@ -171,8 +172,14 @@ export class Modals {
             const repositoryBranch : string = repositories[repositoryNameChoice].branch;
 
             const filePath : string = $('#gitCommitModalFilePathInput').val().toString();
-            const fileName : string = $('#gitCommitModalFileNameInput').val().toString();
+            let fileName : string = $('#gitCommitModalFileNameInput').val().toString();
             const commitMessage : string = $('#gitCommitModalCommitMessageInput').val().toString();
+
+            // ensure that the graph filename ends with ".graph" or ".palette" as appropriate
+            if ((fileType === Eagle.FileType.Graph && !fileName.endsWith('.graph')) ||
+                (fileType === Eagle.FileType.Palette && !fileName.endsWith('.palette'))) {
+                fileName += fileType === Eagle.FileType.Graph ? '.graph' : '.palette';
+            }
 
             callback(true, repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage);
         });
@@ -383,7 +390,7 @@ export class Modals {
         });
     }
 
-    static validateFieldModalValueInputText(data: Field, event: Event){
+    static validateFieldModalValueInputText(data: Field, event: Event): void {
         const type: string = data.getType()
         const value: any = $(event.target).val();
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
@@ -398,6 +405,18 @@ export class Modals {
         const isValid = Utils.validateField(realType, value);
 
         Modals._setValidClasses($(event.target), isValid);
+    }
+
+    static validateCommitModalFileNameInputText(): void {
+        const inputElement = $("#gitCommitModalFileNameInput");
+        const fileTypeData = $('#gitCommitModal').data('fileType');
+        const fileType: Eagle.FileType = fileTypeData ? fileTypeData : Eagle.FileType.Unknown;
+        
+        const isValid = (fileType === Eagle.FileType.Unknown) ||
+            (fileType === Eagle.FileType.Graph && inputElement.val().toString().endsWith(".graph")) ||
+            (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette"));
+
+        Modals._setValidClasses(inputElement, isValid);
     }
 
     static showBrowseDockerHub(image: string, tag: string, callback : (completed : boolean) => void ) : void {

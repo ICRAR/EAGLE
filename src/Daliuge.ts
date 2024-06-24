@@ -85,6 +85,15 @@ export namespace Daliuge {
         Python = "Python"
     }
 
+    export enum Encoding {
+        Binary = "binary",
+        Pickle = "pickle",
+        Dill = "dill",
+        Npy = "npy",
+        Base64 = "base64",
+        UTF8 = "utf-8"
+    }
+
     export enum FieldType {
         ApplicationArgument = "ApplicationArgument",
         ComponentParameter = "ComponentParameter",
