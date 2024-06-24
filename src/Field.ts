@@ -15,6 +15,7 @@ export class Field {
     private options : ko.ObservableArray<string>;
     private positional : ko.Observable<boolean>;
     private keyAttribute : ko.Observable<boolean>;
+    private encoding : ko.Observable<Daliuge.Encoding>;
 
     // port-specific attributes
     private id : ko.Observable<string>;
@@ -45,6 +46,7 @@ export class Field {
         this.options = ko.observableArray(options);
         this.positional = ko.observable(positional);
         this.keyAttribute = ko.observable(keyAttribute);
+        this.encoding = ko.observable(Daliuge.Encoding.UTF8);
 
         this.id = ko.observable(id);
         this.parameterType = ko.observable(parameterType);
@@ -180,6 +182,14 @@ export class Field {
 
     toggleKeyAttribute = () => {
         this.keyAttribute(!this.keyAttribute())
+    }
+
+    setEncoding = (encoding: Daliuge.Encoding) => {
+        this.encoding(encoding);
+    }
+
+    getEncoding = () : Daliuge.Encoding => {
+        return this.encoding();
     }
 
     valIsTrue = (val:string) : boolean => {
@@ -333,6 +343,7 @@ export class Field {
         this.parameterType(Daliuge.FieldType.Unknown);
         this.usage(Daliuge.FieldUsage.NoPort);
         this.keyAttribute(false);
+        this.encoding(Daliuge.Encoding.UTF8);
 
         this.id("");
         this.isEvent(false);
@@ -346,8 +357,9 @@ export class Field {
         }
 
         const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
-        f.setIsEvent(this.isEvent());
-        f.setNodeKey(this.nodeKey());
+        f.encoding(this.encoding());
+        f.isEvent(this.isEvent());
+        f.nodeKey(this.nodeKey());
         return f;
     }
 
@@ -375,7 +387,8 @@ export class Field {
         this.positional(src.positional());
         this.parameterType(src.parameterType());
         this.usage(src.usage());
-        this.setKeyAttribute(src.keyAttribute());
+        this.keyAttribute(src.keyAttribute());
+        this.encoding(src.encoding());
         this.isEvent(src.isEvent());
 
         // NOTE: these two are not copied from the src, but come from the function's parameters
@@ -573,6 +586,7 @@ export class Field {
             options:field.options(),
             positional:field.positional(),
             keyAttribute:field.keyAttribute(),
+            encoding:field.encoding(),
             id: field.id(),
             parameterType: field.parameterType(),
             usage: field.usage(),
@@ -593,6 +607,7 @@ export class Field {
             options:field.options(),
             positional: field.positional(),
             keyAttribute:field.keyAttribute(),
+            encoding:field.encoding(),
             id: field.id(),
             parameterType: field.parameterType(),
             usage: field.usage()
@@ -608,7 +623,8 @@ export class Field {
             event:field.isEvent(),
             type:field.type(),
             description:field.description(),
-            keyAttribute:field.keyAttribute()
+            keyAttribute:field.keyAttribute(),
+            encoding:field.encoding()
         };
     }
 
@@ -627,6 +643,7 @@ export class Field {
         let usage: Daliuge.FieldUsage = Daliuge.FieldUsage.NoPort;
         let isEvent: boolean = false;
         let keyAttribute: boolean = false;
+        let encoding: Daliuge.Encoding = Daliuge.Encoding.UTF8;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
@@ -697,8 +714,11 @@ export class Field {
             isEvent = data.event;
         if (typeof data.keyAttribute !== 'undefined')
             keyAttribute = data.keyAttribute;
+        if (typeof data.encoding !== 'undefined')
+            encoding = data.encoding;
         const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage, keyAttribute);
-        result.setIsEvent(isEvent);
+        result.isEvent(isEvent);
+        result.encoding(encoding);
         return result;
     }
 
@@ -708,6 +728,7 @@ export class Field {
         let type: string;
         let description: string = "";
         let keyAttribute: boolean = false;
+        let encoding: Daliuge.Encoding = Daliuge.Encoding.UTF8;
 
         if (typeof data.name !== 'undefined')
             name = data.name;
@@ -719,6 +740,8 @@ export class Field {
             description = data.description;
         if (typeof data.keyAttribute !== 'undefined')
             keyAttribute = data.keyAttribute;
+        if (typeof data.encoding !== 'undefined')
+            encoding = data.encoding;
 
         // avoid empty text fields if we can
         if (name === ""){
@@ -726,7 +749,8 @@ export class Field {
         }
      
         const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort, keyAttribute);
-        f.setIsEvent(event);
+        f.isEvent(event);
+        f.encoding(encoding);
         return f;
     }
 

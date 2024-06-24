@@ -33,6 +33,7 @@
                             <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleFlags()}"><span>Flags</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().flags()"></div>
                             <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleParameterType()}"><span>Parameter Type</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().parameterType()"></div>
                             <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleUsage()}"><span>Use As</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().usage()"></div>
+                            <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleEncoding()}"><span>Encoding</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().encoding()"></div>
                             <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleActions()}"><span>Actions</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().actions()"></div>
                         </div>
                     </div>
@@ -107,7 +108,10 @@
                                     <th id="parameter_table_parameter_type" data-bind="eagleTooltip:'The way this parameter will be used by the component. ComponentParameters are passed to the DALiuGE execution framework. ApplicationArguments are passed to the Application executed by this component.'" data-bs-placement="top">Parameter Type</th>
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
-                                    <th id="parameter_table_usage" data-bind="eagleTooltip:'InputPorts and OutputPorts are used to specify named inputs and outputs from this Component.'" data-bs-placement="top">Use As</th>
+                                <th id="parameter_table_usage" data-bind="eagleTooltip:'InputPorts and OutputPorts are used to specify named inputs and outputs from this Component.'" data-bs-placement="top">Use As</th>
+                                <!-- /ko -->
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().encoding() -->
+                                <th id="parameter_table_encoding" data-bind="eagleTooltip:'The way data is encoded when passing through this port.'" data-bs-placement="top">Encoding</th>
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
                                     <th id="parameter_table_actions" data-bind="eagleTooltip:'Additional operations that are possible on this parameter (e.g. Delete, Duplicate etc)'" data-bs-placement="top">Actions</th>
@@ -304,11 +308,19 @@
                                         <!-- /ko -->
                                         
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
-                                            <td class='columnCell column_Usage'>
-                                                <select class="tbaleFieldUseAs" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: $root.parameterTable().getParamsTableEditState() , event: {change: ParameterTable.fieldUsageChanged}">
-                                                    <!-- options are added dynamically -->
-                                                </select>
-                                            </td>
+                                        <td class='columnCell column_Usage'>
+                                            <select class="tbaleFieldUseAs" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: $root.parameterTable().getParamsTableEditState() , event: {change: ParameterTable.fieldUsageChanged}">
+                                                <!-- options are added dynamically -->
+                                            </select>
+                                        </td>
+                                        <!-- /ko -->
+
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().encoding() -->
+                                        <td class='columnCell column_Encoding'>
+                                            <select class="tbaleFieldEncoding" data-bind="options: Object.values(Daliuge.Encoding), value: encoding, disabled: $root.parameterTable().getParamsTableEditState() , event: {change: ParameterTable.encodingChanged}">
+                                                <!-- options are added dynamically -->
+                                            </select>
+                                        </td>
                                         <!-- /ko -->
                                         
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
