@@ -54,6 +54,8 @@ ko.bindingHandlers.nodeRenderHandler = {
         $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", GraphConfig.getColor('constructIcon'));
         $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", GraphConfig.getColor('commentEdge'));
         $("#logicalGraphParent").get(0).style.setProperty("--matchingEdgeColor", GraphConfig.getColor('edgeAutoComplete'));
+        $("#logicalGraphParent").get(0).style.setProperty("--nodeOutputColor", GraphConfig.getColor('nodeOutputPort'));
+        $("#logicalGraphParent").get(0).style.setProperty("--nodeInputColor", GraphConfig.getColor('nodeInputPort'));
         
         if( node.isData()){
             $(element).find('.body').css('background-color:#575757','color:white')
@@ -330,6 +332,7 @@ export class GraphRenderer {
     static selectionRegionEnd = {x:0, y:0};
     static ctrlDrag:boolean = null;
     static editNodeName:boolean = false;
+    static portDragStartPos = {x:0, y:0};
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
@@ -984,7 +987,7 @@ export class GraphRenderer {
         const target = event.target
         $(target).hide()
         const input = $(target).parent().find('.header-input')
-        input.show().trigger('focus').addClass('changingHeader')
+        input.show().trigger('focus').addClass('changingHeader').trigger('select')
     }
 
     static closeEditTitleInGraph () : void {
@@ -1652,6 +1655,9 @@ export class GraphRenderer {
         GraphRenderer.portDragSourcePort(port);
         GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
         GraphRenderer.renderDraggingPortEdge(true);
+        
+        //take not of the start drag position
+        GraphRenderer.portDragStartPos = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
 
         //setting up the port event listeners
         $('#logicalGraphParent').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
@@ -1684,46 +1690,54 @@ export class GraphRenderer {
     static portDragEnd() : void {
         const eagle = Eagle.getInstance();
 
+
         GraphRenderer.draggingPort = false;
         // cleaning up the port drag event listeners
         $('#logicalGraphParent').off('mouseup.portDrag')
         $('.node .body').off('mouseup.portDrag')
 
-        if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.portMatchCloseEnough()){
-            const srcNode: Node = GraphRenderer.portDragSourceNode();
-            const srcPort: Field = GraphRenderer.portDragSourcePort();
-
-            let destNode: Node = null;
-            let destPort: Field = null;
-
-            if (GraphRenderer.destinationPort !== null){
-                destNode = GraphRenderer.destinationNode;
-                destPort = GraphRenderer.destinationPort;
-            } else {
-                destNode = GraphRenderer.portDragSuggestedNode();
-                destPort = GraphRenderer.portDragSuggestedField();
-            }
-
-            GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
-
-            // we can stop rendering the dragging edge
-            GraphRenderer.renderDraggingPortEdge(false);
+        //here
+        if(Math.abs(GraphRenderer.portDragStartPos.x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null))+Math.abs(GraphRenderer.portDragStartPos.y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null))<3){
+            //identify a click, if we click a port, we will open the parameter table and highlight the port
+            eagle.openParamsTableModalAndSelectField(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort())
             GraphRenderer.clearEdgeVars();
-        } else {
-            if (GraphRenderer.destinationPort === null){
-                GraphRenderer.showUserNodeSelectionContextMenu();
-            } else {
-                // connect to destination port
+        }else{
+            if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.portMatchCloseEnough()){
                 const srcNode: Node = GraphRenderer.portDragSourceNode();
                 const srcPort: Field = GraphRenderer.portDragSourcePort();
-                const destNode: Node = GraphRenderer.destinationNode;
-                const destPort: Field = GraphRenderer.destinationPort;
-
+    
+                let destNode: Node = null;
+                let destPort: Field = null;
+    
+                if (GraphRenderer.destinationPort !== null){
+                    destNode = GraphRenderer.destinationNode;
+                    destPort = GraphRenderer.destinationPort;
+                } else {
+                    destNode = GraphRenderer.portDragSuggestedNode();
+                    destPort = GraphRenderer.portDragSuggestedField();
+                }
+    
                 GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
-
+    
                 // we can stop rendering the dragging edge
                 GraphRenderer.renderDraggingPortEdge(false);
                 GraphRenderer.clearEdgeVars();
+            } else {
+                if (GraphRenderer.destinationPort === null){
+                    GraphRenderer.showUserNodeSelectionContextMenu();
+                } else {
+                    // connect to destination port
+                    const srcNode: Node = GraphRenderer.portDragSourceNode();
+                    const srcPort: Field = GraphRenderer.portDragSourcePort();
+                    const destNode: Node = GraphRenderer.destinationNode;
+                    const destPort: Field = GraphRenderer.destinationPort;
+    
+                    GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
+    
+                    // we can stop rendering the dragging edge
+                    GraphRenderer.renderDraggingPortEdge(false);
+                    GraphRenderer.clearEdgeVars();
+                }
             }
         }
 

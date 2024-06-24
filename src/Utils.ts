@@ -1378,7 +1378,6 @@ export class Utils {
     }
 
     static checkPalette(palette: Palette): Errors.ErrorsWarnings {
-        const eagle: Eagle = Eagle.getInstance();
         const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
 
         // check for duplicate keys
@@ -1395,7 +1394,9 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of palette.getNodes()){
-            Node.isValid(eagle, node, Eagle.FileType.Palette, false, false, errorsWarnings);
+            const nodeErrorsWarnings = Node.isValid(node, Eagle.FileType.Palette);
+            errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
+            errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
         }
 
         return errorsWarnings;
@@ -1408,7 +1409,39 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of graph.getNodes()){
-            Node.isValid(eagle, node, Eagle.FileType.Graph, false, false, errorsWarnings);
+            const nodeErrorsWarnings = Node.isValid(node, Eagle.FileType.Graph);
+            errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
+            errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
+
+            //get the node's field errorswarnings 
+            for(const field of node.getFields()){
+                errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
+                errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
+            }
+
+            // check the embedded applications
+            if (node.hasInputApplication()){
+                const inputNodeErrorsWarnings = Node.isValid(node.getInputApplication(),Eagle.FileType.Graph)
+                errorsWarnings.errors.push(...inputNodeErrorsWarnings.errors)
+                errorsWarnings.warnings.push(...inputNodeErrorsWarnings.warnings)
+
+                //get the input application's field errorswarnings 
+                for(const field of node.getInputApplication().getFields()){
+                    errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
+                    errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
+                }
+            }
+            if (node.hasOutputApplication()){
+                const outputNodeErrorsWarnings = Node.isValid(node.getOutputApplication(),Eagle.FileType.Graph)
+                errorsWarnings.errors.push(...outputNodeErrorsWarnings.errors)
+                errorsWarnings.warnings.push(...outputNodeErrorsWarnings.warnings)
+                
+                //get the output application's field errorswarnings 
+                for(const field of node.getOutputApplication().getFields()){
+                    errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
+                    errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
+                }
+            }
         }
 
         // check all edges are valid
@@ -1422,10 +1455,11 @@ export class Utils {
 
             // loop over graph nodes
             for (const node of graph.getNodes()){
+                //check for unique ids
                 if (ids.includes(node.getId())){
                     const issue: Errors.Issue = Errors.ShowFix(
                         "Node (" + node.getName() + ") does not have a unique id",
-                        function(){Utils.showNode(eagle, Eagle.FileType.Graph, node.getId())},
+                        function(){Utils.showNode(eagle, node.getId())},
                         function(){Utils.newId(node)},
                         "Assign node a new id"
                     );
@@ -1437,7 +1471,7 @@ export class Utils {
                     if (ids.includes(field.getId())){
                         const issue: Errors.Issue = Errors.ShowFix(
                             "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
-                            function(){Utils.showNode(eagle, Eagle.FileType.Graph, node.getId())},
+                            function(){Utils.showNode(eagle, node.getId())},
                             function(){Utils.newFieldId(eagle, node, field)},
                             "Assign field a new id"
                         );
@@ -1860,7 +1894,6 @@ export class Utils {
             field.setDefaultValue("{}");
             break;
             default:
-            console.warn("No specific way to fix default value for field of this type:", field.getType());
             field.setDefaultValue("");
             break;
         }
@@ -1961,7 +1994,7 @@ export class Utils {
                 // look up component in palette
                 const paletteComponent: Node = Utils.getPaletteComponentByName(node.getCategory());
 
-                if (paletteComponent){
+                if (paletteComponent !== null){
                     const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS, field.getParameterType());
 
                     field.setValue(dropClassField.getDefaultValue());
@@ -2029,26 +2062,27 @@ export class Utils {
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
 
-    static showNode(eagle: Eagle, location: Eagle.FileType, nodeId: string): void {
-        console.log("showNode()", location, nodeId);
+    static showNode(eagle: Eagle, nodeId: string): void {
+        let n: Node = null;
+        let location : Eagle.FileType
 
         // close errors modal if visible
         $('#errorsModal').modal("hide");
 
-        // find node from nodeKey
-        let n: Node = null;
-        switch (location){
-            case Eagle.FileType.Graph:
-                n = eagle.logicalGraph().findNodeById(nodeId);
-                break;
-            case Eagle.FileType.Palette:
-                for (const palette of eagle.palettes()){
-                    n = palette.findNodeById(nodeId);
-                    if (n !== null){
-                        break;
-                    }
+        //attempt to find node in graph
+        n = eagle.logicalGraph().findNodeById(nodeId);
+
+        if(n){
+            location = Eagle.FileType.Graph
+        }else{
+            //if no node was found attempt to find the node in the palettes
+            for (const palette of eagle.palettes()){
+                n = palette.findNodeById(nodeId);
+                if (n !== null){
+                    break;
                 }
-                break;
+            }
+            location = Eagle.FileType.Palette
         }
 
         // check that we found the node
@@ -2058,6 +2092,14 @@ export class Utils {
         }
         
         eagle.setSelection(Eagle.RightWindowMode.Inspector, n, location);
+    }
+
+    static showField(eagle:Eagle, nodeId:string,field:Field) :void {
+        this.showNode(eagle,nodeId)
+        setTimeout(function(){
+            const node = eagle.selectedNode()
+            eagle.openParamsTableModalAndSelectField(node, field)
+        },100)
     }
 
     // only update result if it is worse that current result

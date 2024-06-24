@@ -2713,6 +2713,16 @@ export class Eagle {
         },5)
     }
 
+    openParamsTableModalAndSelectField = (node:Node, field:Field) : void => {
+        const eagle = Eagle.getInstance()
+
+        eagle.setSelection(Eagle.RightWindowMode.None, node,Eagle.FileType.Graph)
+        eagle.openParamsTableModal('inspectorTableModal','normal')
+        setTimeout(function(){
+            $('#tableRow_'+field.getId()).addClass('highlighted')
+        },200)
+    }
+
     getCurrentParamReadonly = (field: Field) : boolean => {
         // check that we actually found the right field, otherwise abort
         if (field === null){

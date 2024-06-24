@@ -235,6 +235,8 @@ export class ParameterTable {
         ParameterTable.selectionParentIndex(selectionIndex);
         ParameterTable.selection(selection);
         ParameterTable.selectionReadonly(readOnlyState);
+
+        $('#parameterTableModal tr.highlighted').removeClass('highlighted')
     }
 
     static resetSelection() : void {
@@ -262,9 +264,22 @@ export class ParameterTable {
 
     static initiateBrowseDocker() : void {
         const eagle = Eagle.getInstance()
-        // eagle.smartToggleModal('shortcutsModal')
         $('.modal.show').modal('hide')
         eagle.fetchDockerHTML()
+    }
+
+    static getErrorsWarningsAsHtml(field:Field) : string {
+        let result:string = ''
+        
+        field.getErrorsWarnings().errors.forEach(function(error){
+            result += error.message+'<br><br>'
+        }) 
+        field.getErrorsWarnings().warnings.forEach(function(warning){
+            result += warning.message+'<br><br>'
+
+        })
+
+        return result
     }
 
     static requestEditDescriptionInModal(currentField:Field) : void {

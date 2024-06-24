@@ -249,11 +249,11 @@ export class Setting {
     static showInspectorErrorsWarnings() : boolean {
         const eagle = Eagle.getInstance();
             
-        switch (Setting.findValue(Setting.SHOW_INSPECTOR_WARNINGS)){
+        switch (Setting.findValue(Setting.SHOW_GRAPH_WARNINGS)){
             case Setting.ShowErrorsMode.Warnings:
-                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length + eagle.selectedNode().getErrorsWarnings(eagle).warnings.length > 0;
+                return eagle.selectedNode().getErrorsWarnings().errors.length + eagle.selectedNode().getErrorsWarnings().warnings.length > 0;
             case Setting.ShowErrorsMode.Errors:
-                return eagle.selectedNode().getErrorsWarnings(eagle).errors.length > 0;
+                return eagle.selectedNode().getErrorsWarnings().errors.length > 0;
             case Setting.ShowErrorsMode.None:
             default:
                 return false;
@@ -314,7 +314,7 @@ export class Setting {
     static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";
     static readonly SNAP_TO_GRID: string = "SnapToGrid";
     static readonly SNAP_TO_GRID_SIZE: string = "SnapToGridSize";
-    static readonly SHOW_INSPECTOR_WARNINGS: string = "ShowInspectorWarnings";
+    static readonly SHOW_GRAPH_WARNINGS: string = "ShowInspectorWarnings";
     static readonly SHOW_ALL_CATEGORY_OPTIONS: string = "ShowAllCategoryOptions";
 }
 
@@ -381,7 +381,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Graph Zoom Divisor", Setting.GRAPH_ZOOM_DIVISOR, "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", false, Setting.Type.Number,1000,1000,1000,1000,1000),
             new Setting(false, "Snap To Grid", Setting.SNAP_TO_GRID, "Align positions of nodes in graph to a grid", false, Setting.Type.Boolean,false,false,false,false,false),
             new Setting(false, "Snap To Grid Size", Setting.SNAP_TO_GRID_SIZE, "Size of grid used when aligning positions of nodes in graph (pixels)", false, Setting.Type.Number, 50, 50, 50, 50, 50),
-            new Setting(true, "Show edge/node errors/warnings in inspector", Setting.SHOW_INSPECTOR_WARNINGS, "Show the errors/warnings found for the selected node/edge in the inspector", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
+            new Setting(true, "Show edge/node errors/warnings in Graph and inspector", Setting.SHOW_GRAPH_WARNINGS, "Show the errors/warnings found in the graph and for the selected node/edge in the inspector", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
             new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_WIDTH_KEY, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
             new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH_KEY, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
         ]

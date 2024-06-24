@@ -26,7 +26,7 @@ const colors: { name: string; color: string; }[] = [
         color: '#2bb673'
     },{
         name: 'nodeOutputPort',
-        color: '#fbb040'
+        color: '#4346ac'
     },{
         name: 'nodeUtilPort',
         color: '#6fa7f1'

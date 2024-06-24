@@ -12,6 +12,8 @@
     --edgeColor:red;
     --commentEdgeColor:red;
     --matchingEdgeColor:red;
+    --nodeOutputColor:red;
+    --nodeInputColor:red;
     visibility:hidden;
 }
 
@@ -91,6 +93,7 @@
     border: 2px #2bb673 solid;
     top: 50%;
     left:0px;
+    opacity: 40%;
 }
 
 .construct_node .outputSocket {
@@ -98,6 +101,11 @@
     border: 2px #fbb040 solid;
     top: 50%;
     right:0px;
+    opacity: 40%;
+}
+
+.construct_node .socket:hover, .construct_node .fullOpacity{
+    opacity: 100%;
 }
 
 .construct_node .socket div{
@@ -114,6 +122,7 @@
     top: 50%;
     left:50%;
     transform: translate(-50%,-50%);
+    pointer-events: none;
 }
 
 #portContainer {
@@ -259,6 +268,15 @@
     left: 100%;
 }
 
+#portContainer .port.outputPort{
+    border: 2px solid var(--nodeOutputColor); /*if this color stays then we have an issue, it should be overwritte later*/
+    background-color: white;
+}
+
+#portContainer .port.inputPort{
+    background-color: var(--nodeInputColor);
+}
+
 #portContainer div{
     position: relative;
 }
@@ -288,7 +306,7 @@
 }
 
 .node .container.selected .body {
-    outline: solid 2px var(--nodeBorder);
+    outline: solid 3px var(--nodeBorder);
     outline-offset: 0px;
     background-color: var(--selectedBg);
     /* box-shadow: 0 8px 6px -6px black; */
@@ -303,11 +321,11 @@
 }
 
 .node .construct_node .constructInputApp .body{
-    border-color:#2bb673;
+    border-color: var(--nodeInputColor);
 }
 
 .node .construct_node .constructOutputApp .body{
-    border-color:#fbb040;
+    border-color: var(--nodeOutputColor);
 }
 
 .node .branch_node .container.selected .outerRing {
@@ -316,7 +334,7 @@
 }
 
 .node .branch_node .container.selected .innerRing {
-    background-color:  var(--selectedBg) !important;
+    background-color:  var(--selectedBg) ;
 }
 
 .node .construct_node .container.selected .body {
