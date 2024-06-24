@@ -300,7 +300,7 @@ function autoLoad(): void {
     }
 }
 
-function autoTutorial(){
+function autoTutorial(): void {
     const urlParams = new URLSearchParams(window.location.search);
     const tutorialName = urlParams.get('tutorial');
 
