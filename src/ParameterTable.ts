@@ -567,19 +567,45 @@ export class ColumnVisibilities {
         }else{
             columnVisibilitiesObjArray.forEach(function(columnvisibility){
                 const columnVisActual:ColumnVisibilities = that.getModeByName(columnvisibility.name)
-                columnVisActual.setKeyAttribute(columnvisibility.keyAttribute)
-                columnVisActual.setDisplayText(columnvisibility.displayText)
-                columnVisActual.setFieldId(columnvisibility.fieldId)
-                columnVisActual.setValue(columnvisibility.value)
-                columnVisActual.setReadOnly(columnvisibility.readOnly)
-                columnVisActual.setDefaultValue(columnvisibility.defaultValue)
-                columnVisActual.setDescription(columnvisibility.description)
-                columnVisActual.setType(columnvisibility.type)
-                columnVisActual.setParameterType(columnvisibility.parameterType)
-                columnVisActual.setUsage(columnvisibility.usage)
-                columnVisActual.setEncoding(columnvisibility.encoding)
-                columnVisActual.setFlags(columnvisibility.flags)
-                columnVisActual.setActions(columnvisibility.actions)
+                if(columnvisibility.keyAttribute){
+                    columnVisActual.setKeyAttribute(columnvisibility.keyAttribute)
+                }
+                if(columnvisibility.displayText){
+                    columnVisActual.setDisplayText(columnvisibility.displayText)
+                }
+                if(columnvisibility.fieldId){
+                    columnVisActual.setFieldId(columnvisibility.fieldId)
+                }
+                if(columnvisibility.value){
+                    columnVisActual.setValue(columnvisibility.value)
+                }
+                if(columnvisibility.readOnly){
+                    columnVisActual.setReadOnly(columnvisibility.readOnly)
+                }
+                if(columnvisibility.defaultValue){
+                    columnVisActual.setDefaultValue(columnvisibility.defaultValue)
+                }
+                if(columnvisibility.description){
+                    columnVisActual.setDescription(columnvisibility.description)
+                }
+                if(columnvisibility.type){
+                    columnVisActual.setType(columnvisibility.type)
+                }
+                if(columnvisibility.parameterType){
+                    columnVisActual.setParameterType(columnvisibility.parameterType)
+                }
+                if(columnvisibility.usage){
+                    columnVisActual.setUsage(columnvisibility.usage)
+                }
+                if(columnvisibility.encoding){
+                    columnVisActual.setEncoding(columnvisibility.encoding)
+                }
+                if(columnvisibility.flags){
+                    columnVisActual.setFlags(columnvisibility.flags)
+                }
+                if(columnvisibility.actions){
+                    columnVisActual.setActions(columnvisibility.actions)
+                }
             })
         }
     }
