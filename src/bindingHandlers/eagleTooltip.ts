@@ -67,7 +67,7 @@ ko.bindingHandlers.eagleTooltip = {
                     result += y
                 }
             }else{
-                result = html
+                result = Utils.markdown2html(html)
             }
 
             jQueryElement.attr("data-bs-original-title", result);

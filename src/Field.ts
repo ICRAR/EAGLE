@@ -580,7 +580,6 @@ export class Field {
 
     getHelpHtml= () : string => {
         return "###"+ this.getDisplayText() + "\n" + this.getDescription();
-
     }
 
     isPeek = () : boolean => {
