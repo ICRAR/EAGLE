@@ -512,6 +512,10 @@ td:first-child input {
     font-size: 12px;
 }
 
+#parameterTableModal .column_Encoding .faded{
+    color: #5b5b5b;
+}
+
 #parameterTableVisibilityContainer{
     position:absolute;
     right: 320px;
