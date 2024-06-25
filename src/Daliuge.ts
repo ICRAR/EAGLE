@@ -65,8 +65,8 @@ export namespace Daliuge {
         DIGEST = "docker_digest",
 
         // branch
-        YES = "yes",
-        NO = "no",
+        TRUE = "true",
+        FALSE = "false",
 
         // dummy
         DUMMY = "dummy"
@@ -126,8 +126,8 @@ export namespace Daliuge {
     export const groupStartField = new Field("", FieldName.GROUP_START, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
     export const groupEndField = new Field("", FieldName.GROUP_END, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
 
-    export const branchYesField = new Field("", FieldName.YES, "", "", "The affirmative output from a branch node", false, DataType.Object, false, [], false, FieldType.ComponentParameter, FieldUsage.OutputPort, false);
-    export const branchNoField  = new Field("", FieldName.NO,  "", "", "he negative output from a branch node", false, DataType.Object, false, [], false, FieldType.ComponentParameter, FieldUsage.OutputPort, false);
+    export const branchYesField = new Field("", FieldName.TRUE, "", "", "The affirmative output from a branch node", false, DataType.Object, false, [], false, FieldType.ComponentParameter, FieldUsage.OutputPort, false);
+    export const branchNoField  = new Field("", FieldName.FALSE,  "", "", "he negative output from a branch node", false, DataType.Object, false, [], false, FieldType.ComponentParameter, FieldUsage.OutputPort, false);
 
     export const dropClassField = new Field("", FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort, false);
 
