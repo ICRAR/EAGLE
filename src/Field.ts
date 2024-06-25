@@ -54,7 +54,7 @@ export class Field {
         this.options = ko.observableArray(options);
         this.positional = ko.observable(positional);
         this.keyAttribute = ko.observable(keyAttribute);
-        this.encoding = ko.observable(Daliuge.Encoding.UTF8);
+        this.encoding = ko.observable(Daliuge.Encoding.Pickle);
 
         this.id = ko.observable(id);
         this.parameterType = ko.observable(parameterType);
@@ -391,7 +391,7 @@ export class Field {
         this.parameterType(Daliuge.FieldType.Unknown);
         this.usage(Daliuge.FieldUsage.NoPort);
         this.keyAttribute(false);
-        this.encoding(Daliuge.Encoding.UTF8);
+        this.encoding(Daliuge.Encoding.Pickle);
 
         this.id("");
         this.isEvent(false);
@@ -691,7 +691,7 @@ export class Field {
         let usage: Daliuge.FieldUsage = Daliuge.FieldUsage.NoPort;
         let isEvent: boolean = false;
         let keyAttribute: boolean = false;
-        let encoding: Daliuge.Encoding = Daliuge.Encoding.UTF8;
+        let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
@@ -776,7 +776,7 @@ export class Field {
         let type: string;
         let description: string = "";
         let keyAttribute: boolean = false;
-        let encoding: Daliuge.Encoding = Daliuge.Encoding.UTF8;
+        let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
 
         if (typeof data.name !== 'undefined')
             name = data.name;

@@ -322,9 +322,14 @@
 
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().encoding() -->
                                         <td class='columnCell column_Encoding'>
+                                            <!-- ko if: $data.usage() === Daliuge.FieldUsage.NoPort-->
+                                            <span>N/A</span>
+                                            <!-- /ko -->
+                                            <!-- ko ifnot: $data.usage() === Daliuge.FieldUsage.NoPort-->
                                             <select class="tbaleFieldEncoding" data-bind="options: Object.values(Daliuge.Encoding), value: encoding, disabled: $root.parameterTable().getParamsTableEditState() , event: {change: ParameterTable.encodingChanged}">
                                                 <!-- options are added dynamically -->
                                             </select>
+                                            <!-- /ko -->
                                         </td>
                                         <!-- /ko -->
                                         
