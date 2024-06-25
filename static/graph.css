@@ -93,7 +93,7 @@
     border: 2px #2bb673 solid;
     top: 50%;
     left:0px;
-    opacity: 40%;
+    opacity: 0%;
 }
 
 .construct_node .outputSocket {
@@ -101,7 +101,11 @@
     border: 2px #fbb040 solid;
     top: 50%;
     right:0px;
-    opacity: 40%;
+    opacity: 0%;
+}
+
+.construct_node:hover .socket, .construct_node .selected .socket{
+    opacity:40%;
 }
 
 .construct_node .socket:hover, .construct_node .fullOpacity{
