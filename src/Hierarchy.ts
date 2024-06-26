@@ -120,6 +120,18 @@ export class Hierarchy {
                 }
             })
         }
+        
+        this.scrollToNode()
+    }
+
+    static scrollToNode():void{
+        setTimeout(function(){
+            const innerItem = $('.hierarchy .hierarchyNodeIsSelected')
+            const parentDiv = $('.hierarchy')
+            if(innerItem.length > 0 && parentDiv.length > 0){
+                parentDiv.scrollTop(parentDiv.scrollTop() + innerItem.position().top - parentDiv.height()/2 + innerItem.height()/2)
+            }
+        },50)
     }
 
     // TODO: rename to remove "hierarchy" from name

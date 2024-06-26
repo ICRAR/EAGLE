@@ -224,16 +224,17 @@ export class Eagle {
                 KeyboardShortcut.changeShortcutKey(this,'open_translation','4',KeyboardShortcut.Modifier.None)
                 KeyboardShortcut.changeShortcutKey(this,'open_inspector','2',KeyboardShortcut.Modifier.None)
             }
+
+            Hierarchy.scrollToNode()
         }, this)
 
         this.rightWindow().mode.subscribe(function(newValue){
             if (newValue === Eagle.RightWindowMode.Hierarchy){
                 window.setTimeout(function(){
                     Hierarchy.updateDisplay()
-                }, 500)
+                }, 100)
             }
         }, this)
-       
     }
 
     static getInstance() : Eagle {
