@@ -730,7 +730,7 @@ export class Eagle {
         this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
     }
 
-    changeHieraryMode(requestedMode:Eagle.RightWindowMode) : void {
+    changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {
         this.rightWindow().mode(requestedMode)
         this.rightWindow().shown(true); 
 
