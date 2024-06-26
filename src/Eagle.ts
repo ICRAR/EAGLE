@@ -731,6 +731,18 @@ export class Eagle {
         this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
     }
 
+    changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {
+        this.rightWindow().mode(requestedMode)
+        this.rightWindow().shown(true); 
+
+        //if we are intentionally switching to the hierary, then we do not want the right window mode to switch to the inspector when we change node selection.
+        if(requestedMode===Eagle.RightWindowMode.Hierarchy){
+            this.hierarchyMode(true)
+        }else {
+            this.hierarchyMode(false)
+        }
+    }
+
     objectIsSelected = (object: Node | Edge): boolean => {
         if (object instanceof Node){
             for (const o of this.selectedObjects()){
