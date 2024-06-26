@@ -1424,9 +1424,12 @@ select.form-control{
     height: 100%;
 }
 
-
 #inputTextModalInput {
     font-family: monospace;
+}
+
+#gitCommitModal .modal-content{
+    height: 420px;
 }
 
 #nodeInspector select{
