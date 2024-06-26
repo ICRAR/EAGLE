@@ -3551,20 +3551,28 @@ export class Eagle {
                 newNode.setParentKey(null);
             }
 
-            // if node is a PythonMemberFunction, then we should generate a new PythonObject node too
-            if (newNode.getCategory() === Category.PythonMemberFunction){
+            // determine whether we should also generate an object data drop along with this node
+            const generateObjectDataDrop: boolean = newNode.getCategory() === Category.PythonMemberFunction && (newNode.getName().includes("__init__") || newNode.getName().includes("__class__"));
+
+            // optionally generate a new PythonObject node
+            if (generateObjectDataDrop){
+                // determine a name for the new node
+                let poName: string = Daliuge.FieldName.SELF; // use this as a fall-back default
+
+                // use the dataType of the self field
+                const selfField = newNode.getFieldByDisplayText(Daliuge.FieldName.SELF);
+                if (selfField !== null){
+                    poName = selfField.getType();
+                }
+
                 // get name of the "base" class from the PythonMemberFunction node,
-                // if no "base_name" field exists, default to sensible name
-                let baseName: string = Daliuge.FieldName.SELF;
                 const baseNameField = newNode.getFieldByDisplayText(Daliuge.FieldName.BASE_NAME);
                 if (baseNameField !== null){
-                    baseName = baseNameField.getValue();
-                } else {
-                    console.warn("Could not find 'base_name' port on PythonMemberFunction");
+                    poName = baseNameField.getValue();
                 }
 
                 // create node
-                const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), baseName, "Instance of " + baseName, Category.PythonObject);
+                const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), poName, "Instance of " + poName, Category.PythonObject);
 
                 // add node to LogicalGraph
                 const OBJECT_OFFSET_X = 100;
@@ -3590,7 +3598,6 @@ export class Eagle {
                     // create a new input/output "object" port on the PythonObject
                     const inputOutputPort = new Field(Utils.uuidv4(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput, false);
                     pythonObjectNode.addField(inputOutputPort);
-
 
                     // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
                     this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, null);
