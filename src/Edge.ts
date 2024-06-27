@@ -400,12 +400,11 @@ export class Edge {
         const isSibling : boolean = sourceNode.getParentKey() === destinationNode.getParentKey(); // do the two nodes have the same parent
         let associatedConstructType : Category = null; //the category type of the parent construct of the source or destination node
 
-        //checking the type of the 
+        //checking the type of the parent nodes
         if(!isSibling){
             const srcNodeParent = eagle.logicalGraph().findNodeByKeyQuiet(sourceNode.getParentKey())
             const destNodeParent = eagle.logicalGraph().findNodeByKeyQuiet  (destinationNode.getParentKey())
             if(destNodeParent != null && destNodeParent.getCategory() === Category.Loop || srcNodeParent != null && srcNodeParent.getCategory() === Category.Loop){
-            //edge wil be connected to each loop instance
                 associatedConstructType = Category.Loop
             }else if(destNodeParent.getCategory() === Category.ExclusiveForceNode || srcNodeParent.getCategory() === Category.ExclusiveForceNode){
                 associatedConstructType = Category.ExclusiveForceNode
@@ -418,6 +417,11 @@ export class Edge {
                 const x = Errors.ShowFix("Source and destination ports don't match data types: sourcePort (" + sourcePort.getDisplayText() + ":" + sourcePort.getType() + ") destinationPort (" + destinationPort.getDisplayText() + ":" + destinationPort.getType() + ")", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixPortType(eagle, sourcePort, destinationPort);}, "Overwrite destination port type with source port type");
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
+        }
+
+        if(isSibling && loopAware){
+            const x = Errors.ShowFix("An edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDisableEdgeLoopAware(eagle, edgeId);}, "Disable loop aware on the edge.");
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
         }
 
         // if link is not a parent, child or sibling, then warn user

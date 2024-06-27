@@ -1753,6 +1753,10 @@ export class Utils {
         eagle.logicalGraph().removeEdgeById(edgeId);
     }
 
+    static fixDisableEdgeLoopAware(eagle: Eagle, edgeId: string): void {
+        eagle.logicalGraph().findEdgeById(edgeId).setLoopAware(false)
+    }
+
     static fixPortType(eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
         destinationPort.setType(sourcePort.getType());
     }
