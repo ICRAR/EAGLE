@@ -430,12 +430,8 @@ export class Edge {
         }
 
         // if link is not a parent, child or sibling, then warn user
-        if (associatedConstructType != Category.ExclusiveForceNode && !isSibling && !loopAware && !isParentOfConstruct && !isChildOfConstruct && !destPortIsEmbeddedAppOfSibling && !srcPortIsEmbeddedAppOfSibling){
-            if(associatedConstructType === Category.Loop){
-                Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, Errors.Show("Edge will be connected to each instance of the Loop", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
-            }else{
-                Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, Errors.Show("Edge is not between siblings, or between a child and its parent's embedded Application. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);    
-            }
+        if (associatedConstructType != Category.ExclusiveForceNode && associatedConstructType != Category.Loop && !isSibling && !isParentOfConstruct && !isChildOfConstruct && !destPortIsEmbeddedAppOfSibling && !srcPortIsEmbeddedAppOfSibling){
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, Errors.Show("Edge is not between siblings, or between a child and its parent's embedded Application. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // check if the edge already exists in the graph, there is no point in a duplicate
