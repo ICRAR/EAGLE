@@ -424,7 +424,6 @@ export class Edge {
             }
         }
 
-        // console.log('src: '+sourceNode.getName() + ' -> dest: '+ destinationNode.getName(), srcPortIsEmbeddedAppOfSibling,destPortIsEmbeddedAppOfSibling, loopAware)
         //checking if the edge is un-neccessarily loopAware
         if(    isSibling && loopAware 
             || destPortIsEmbeddedAppOfSibling && loopAware 
@@ -434,7 +433,7 @@ export class Edge {
             || associatedConstructType != Category.Loop && loopAware
         ){
             const x = Errors.ShowFix("An edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDisableEdgeLoopAware(eagle, edgeId);}, "Disable loop aware on the edge.");
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, x, showNotification, showConsole, errorsWarnings);
         }
 
 
