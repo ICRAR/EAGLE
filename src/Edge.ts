@@ -400,13 +400,18 @@ export class Edge {
         const isSibling : boolean = sourceNode.getParentKey() === destinationNode.getParentKey(); // do the two nodes have the same parent
         let associatedConstructType : Category = null; //the category type of the parent construct of the source or destination node
 
+        //these checks are to see if the source or destination node are embedded apps whose parent is a sibling of the other source or destination node
+        const destPortIsEmbeddedAppOfSibling : boolean =  sourceNode.getParentKey() !== null && destinationNode.getEmbedKey() != null && sourceNode.getParentKey() === eagle.logicalGraph().findNodeByKeyQuiet(destinationNode.getEmbedKey()).getParentKey()
+        const srcPortIsEmbeddedAppOfSibling : boolean =  destinationNode.getParentKey() !== null && sourceNode.getEmbedKey() != null && destinationNode.getParentKey() === eagle.logicalGraph().findNodeByKeyQuiet(sourceNode.getEmbedKey()).getParentKey()
+
         //checking the type of the parent nodes
         if(!isSibling){
             const srcNodeParent = eagle.logicalGraph().findNodeByKeyQuiet(sourceNode.getParentKey())
             const destNodeParent = eagle.logicalGraph().findNodeByKeyQuiet  (destinationNode.getParentKey())
+
             if(destNodeParent != null && destNodeParent.getCategory() === Category.Loop || srcNodeParent != null && srcNodeParent.getCategory() === Category.Loop){
                 associatedConstructType = Category.Loop
-            }else if(destNodeParent.getCategory() === Category.ExclusiveForceNode || srcNodeParent.getCategory() === Category.ExclusiveForceNode){
+            }else if(destNodeParent != null && destNodeParent.getCategory() === Category.ExclusiveForceNode || srcNodeParent != null && srcNodeParent.getCategory() === Category.ExclusiveForceNode){
                 associatedConstructType = Category.ExclusiveForceNode
             }
         }
@@ -425,11 +430,11 @@ export class Edge {
         }
 
         // if link is not a parent, child or sibling, then warn user
-        if (associatedConstructType != Category.ExclusiveForceNode && !isSibling && !loopAware && !isParentOfConstruct && !isChildOfConstruct){
+        if (associatedConstructType != Category.ExclusiveForceNode && !isSibling && !loopAware && !isParentOfConstruct && !isChildOfConstruct && !destPortIsEmbeddedAppOfSibling && !srcPortIsEmbeddedAppOfSibling){
             if(associatedConstructType === Category.Loop){
                 Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, Errors.Show("Edge will be connected to each instance of the Loop", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
             }else{
-                Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, Errors.Show("Edge is not between siblings, or between a child and its parents embedded Application. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);    
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, Errors.Show("Edge is not between siblings, or between a child and its parent's embedded Application. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);    
             }
         }
 
