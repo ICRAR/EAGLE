@@ -467,7 +467,7 @@ export class Utils {
         $('#errorsModalErrorsAccordionItem').toggle(errors.length > 0);
         $('#errorsModalWarningsAccordionItem').toggle(warnings.length > 0);
 
-        $('#errorsModal').modal("toggle");
+        $('#errorsModal').modal("show");
     }
 
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
