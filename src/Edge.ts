@@ -31,6 +31,7 @@ import { Field } from './Field';
 import { Utils } from './Utils';
 import { Errors } from './Errors';
 import * as ko from "knockout";
+import { CategoryData } from './CategoryData';
 
 export class Edge {
     private _id : string
@@ -393,43 +394,26 @@ export class Edge {
             }
         }
 
-        // check relationship between destination and source node
-        const isParent : boolean = sourceNode.getParentKey() === destinationNodeKey;
-        const isParentOfConstruct : boolean = sourceNode.getParentKey() === destinationNode.getEmbedKey() && sourceNode.getParentKey() !== null;
-        const isChild : boolean = destinationNode.getParentKey() === sourceNodeKey;
-        const isChildOfConstruct : boolean = destinationNode.getParentKey() === sourceNode.getEmbedKey() && destinationNode.getParentKey() !== null;
-        const isSibling : boolean = sourceNode.getParentKey() === destinationNode.getParentKey();
-        let parentIsEFN : boolean = false;
+        // check relationship of destination Node in relation to source node
+        const isParentOfConstruct : boolean = sourceNode.getParentKey() === destinationNode.getEmbedKey() && sourceNode.getParentKey() !== null; // is the connection from a child of a construct to an embedded app of the same construct
+        const isChildOfConstruct : boolean = destinationNode.getParentKey() === sourceNode.getEmbedKey() && destinationNode.getParentKey() !== null; //is the connections from an embedded app of a construct to a child of that same construct
+        const isSibling : boolean = sourceNode.getParentKey() === destinationNode.getParentKey(); // do the two nodes have the same parent
+        let associatedConstructType : Category = null; //the category type of the parent construct of the source or destination node
 
-        // determine if the new edge is crossing a ExclusiveForceNode boundary
-        if (destinationNode.getParentKey() !== null){
-            if (eagle.logicalGraph().findNodeByKey(destinationNode.getParentKey()) !== null){
-                parentIsEFN = eagle.logicalGraph().findNodeByKey(destinationNode.getParentKey()).getCategory() === Category.ExclusiveForceNode;
+        //these checks are to see if the source or destination node are embedded apps whose parent is a sibling of the other source or destination node
+        const destPortIsEmbeddedAppOfSibling : boolean =  sourceNode.getParentKey() !== null && destinationNode.getEmbedKey() != null && sourceNode.getParentKey() === eagle.logicalGraph().findNodeByKeyQuiet(destinationNode.getEmbedKey())?.getParentKey();
+        const srcPortIsEmbeddedAppOfSibling : boolean =  destinationNode.getParentKey() !== null && sourceNode.getEmbedKey() != null && destinationNode.getParentKey() === eagle.logicalGraph().findNodeByKeyQuiet(sourceNode.getEmbedKey())?.getParentKey();
+
+        //checking the type of the parent nodes
+        if(!isSibling){
+            const srcNodeParent = eagle.logicalGraph().findNodeByKeyQuiet(sourceNode.getParentKey())
+            const destNodeParent = eagle.logicalGraph().findNodeByKeyQuiet  (destinationNode.getParentKey())
+
+            if(destNodeParent != null && destNodeParent.getCategory() === Category.Loop || srcNodeParent != null && srcNodeParent.getCategory() === Category.Loop){
+                associatedConstructType = Category.Loop
+            }else if(destNodeParent != null && destNodeParent.getCategory() === Category.ExclusiveForceNode || srcNodeParent != null && srcNodeParent.getCategory() === Category.ExclusiveForceNode){
+                associatedConstructType = Category.ExclusiveForceNode
             }
-        }
-        if (sourceNode.getParentKey() !== null){
-            if (eagle.logicalGraph().findNodeByKey(sourceNode.getParentKey()) !== null){
-                parentIsEFN = eagle.logicalGraph().findNodeByKey(sourceNode.getParentKey()).getCategory() === Category.ExclusiveForceNode;
-            }
-        }
-
-        // if a node is connecting to its parent, it must connect to the local port
-        if (isParent && !destinationNode.hasLocalPortWithId(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source port is connecting to its parent, yet destination port is not local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
-        }
-
-        // if a node is connecting to a child, it must start from the local port
-        if (isChild && !sourceNode.hasLocalPortWithId(sourcePortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source connecting to child, yet source port is not local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
-        }
-
-        // if destination node is not a child, destination port cannot be a local port
-        if (!parentIsEFN && !isParent && destinationNode.hasLocalPortWithId(destinationPortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Source is not a child of destination, yet destination port is local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
-        }
-
-        if (!parentIsEFN && !isChild && sourceNode.hasLocalPortWithId(sourcePortId)){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, Errors.Show("Destination is not a child of source, yet source port is local", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         if (sourcePort !== null && destinationPort !== null){
@@ -440,9 +424,21 @@ export class Edge {
             }
         }
 
+        //checking if the edge is un-neccessarily loopAware
+        if(    isSibling && loopAware 
+            || destPortIsEmbeddedAppOfSibling && loopAware 
+            || srcPortIsEmbeddedAppOfSibling && loopAware 
+            || sourceNode.getEmbedKey() != null && sourceNode.getEmbedKey() === destinationNode.getParentKey() && loopAware 
+            || destinationNode.getEmbedKey() != null && destinationNode.getEmbedKey() === sourceNode.getParentKey() && loopAware
+            || associatedConstructType != Category.Loop && loopAware
+        ){
+            const x = Errors.ShowFix("An edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDisableEdgeLoopAware(eagle, edgeId);}, "Disable loop aware on the edge.");
+            Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, x, showNotification, showConsole, errorsWarnings);
+        }
+
         // if link is not a parent, child or sibling, then warn user
-        if (!parentIsEFN && !isParent && !isChild && !isSibling && !loopAware && !isParentOfConstruct && !isChildOfConstruct){
-            Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, Errors.Show("Edge is not child->parent, parent->child or between siblings. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+        if (associatedConstructType != Category.ExclusiveForceNode && associatedConstructType != Category.Loop && !isSibling && !isParentOfConstruct && !isChildOfConstruct && !destPortIsEmbeddedAppOfSibling && !srcPortIsEmbeddedAppOfSibling){
+                Edge.isValidLog(edgeId, Eagle.LinkValid.Warning, Errors.Show("Edge is not between siblings, or between a child and its parent's embedded Application. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // check if the edge already exists in the graph, there is no point in a duplicate
