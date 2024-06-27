@@ -1663,13 +1663,8 @@ export class GraphRenderer {
         $('#logicalGraphParent').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
         $('.node .body').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
 
-        
-        // check for nearby nodes
-        const matchingNodes = GraphRenderer.findMatchingNodes(GraphRenderer.portDragSourceNode().getKey());
-
-        // check for nearest matching port in the nearby nodes
-        const matchingPorts = GraphRenderer.findMatchingPorts(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), matchingNodes, GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort(), GraphRenderer.portDragSourcePortIsInput);
-        GraphRenderer.matchingPortList = matchingPorts
+        // build the list of all ports in the graph that are a valid end-point for an edge starting at this port
+        GraphRenderer.matchingPortList = GraphRenderer.findMatchingPorts(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort());
     }
 
     static portDragging() : void {
@@ -1896,46 +1891,6 @@ export class GraphRenderer {
         return (y+eagle.globalOffsetY())*eagle.globalScale()+83.77
     }
 
-    static findMatchingNodes(sourceNodeKey: number): Node[]{
-        const result: Node[] = [];
-        const nodeData : Node[] = GraphRenderer.nodeData
-
-        for (const node of nodeData){
-            // skip the source node
-            if (node.getKey() === sourceNodeKey){
-                continue;
-            }
-
-            // fetch categoryData for the node
-            const categoryData = CategoryData.getCategoryData(node.getCategory());
-            let possibleInputs = categoryData.maxInputs;
-            let possibleOutputs = categoryData.maxOutputs;
-
-            // add categoryData for embedded apps (if they exist)
-            if (node.hasInputApplication()){
-                const inputApp = node.getInputApplication();
-                const inputAppCategoryData = CategoryData.getCategoryData(inputApp.getCategory());
-                possibleInputs += inputAppCategoryData.maxInputs;
-                possibleOutputs += inputAppCategoryData.maxOutputs;
-            }
-            if (node.hasOutputApplication()){
-                const outputApp = node.getOutputApplication();
-                const outputAppCategoryData = CategoryData.getCategoryData(outputApp.getCategory());
-                possibleInputs += outputAppCategoryData.maxInputs;
-                possibleOutputs += outputAppCategoryData.maxOutputs;
-            }
-
-            // skip nodes that can't have inputs or outputs
-            if (possibleInputs === 0 && possibleOutputs === 0){
-                continue;
-            }
-
-            result.push(node);
-        }
-
-        return result;
-    }
-
     static depthFirstTraversalOfNodes(graph: LogicalGraph, showDataNodes: boolean) : Node[] {
         const indexPlusDepths : {index:number, depth:number}[] = [];
         const result : Node[] = [];
@@ -2062,58 +2017,21 @@ export class GraphRenderer {
         return null;
     }
 
-    
-    static findMatchingPorts(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node, field: Field}[] {
+    static findMatchingPorts(sourceNode: Node, sourcePort: Field): {node: Node, field: Field}[]{
         const eagle = Eagle.getInstance();
-        const result :{field:Field, node:Node}[]= []
-        for (const node of nearbyNodes){
-            let portList: Field[] = [];
+        const result: {node: Node, field: Field}[] = [];
 
-            // if source node is Data, then no nearby Data nodes can have matching ports
-            if (sourceNode.getCategoryType() === Category.Type.Data && node.getCategoryType() === Category.Type.Data){
-                continue;
-            }
+        for (const node of eagle.logicalGraph().getNodes()){
+            for (const port of node.getPorts()){
+                const isValid: Eagle.LinkValid = Edge.isValid(eagle, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
 
-            // if sourcePortIsInput, we should search for output ports, and vice versa
-            if (sourcePortIsInput){
-                portList = portList.concat(node.getOutputPorts());
-            } else {
-                portList = portList.concat(node.getInputPorts());
-            }
-
-            // get inputApplication ports
-            if (sourcePortIsInput){
-                portList = portList.concat(node.getInputApplicationOutputPorts());
-            } else {
-                portList = portList.concat(node.getInputApplicationInputPorts());
-            }
-
-            // get outputApplication ports
-            if (sourcePortIsInput){
-                portList = portList.concat(node.getOutputApplicationOutputPorts());
-            } else {
-                portList = portList.concat(node.getOutputApplicationInputPorts());
-            }
-
-            for (const port of portList){
-                if (!Utils.portsMatch(port, sourcePort)){
-                    continue;
+                if (isValid === Eagle.LinkValid.Valid){
+                    result.push({node: node, field: port})
                 }
-
-                // if port has no id (broken) then don't consider it as a auto-complete target
-                if (port.getId() === ""){
-                    continue;
-                }
-
-                //this is needed for embedded apps, as the node variable is still the construct
-                const realNode = eagle.logicalGraph().findNodeByKeyQuiet(port.getNodeKey())
-                
-                result.push({field:port,node:realNode})
-                port.setPeek(true)
             }
         }
 
-        return result
+        return result;
     }
     
     static findNearestMatchingPort(positionX: number, positionY: number, sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node, field: Field} {
