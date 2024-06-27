@@ -424,7 +424,7 @@ export class Edge {
             }
         }
 
-        if(isSibling && loopAware){
+        if(isSibling && loopAware || destPortIsEmbeddedAppOfSibling && loopAware || srcPortIsEmbeddedAppOfSibling && loopAware || sourceNode.getEmbedKey() === destinationNode.getParentKey() && loopAware || destinationNode.getEmbedKey() === sourceNode.getParentKey() && loopAware){
             const x = Errors.ShowFix("An edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDisableEdgeLoopAware(eagle, edgeId);}, "Disable loop aware on the edge.");
             Edge.isValidLog(edgeId, Eagle.LinkValid.Invalid, x, showNotification, showConsole, errorsWarnings);
         }
