@@ -3282,6 +3282,12 @@ export class Eagle {
         // skip confirmation if setting dictates
         if (!Setting.find(Setting.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
             this._deleteSelection(deleteChildren, data, location);
+            
+            // if we're NOT in rightClick mode, empty the selected objects, should have all been deleted
+            if(!rightClick){
+                this.selectedObjects([]);
+            }
+
             return;
         }
 
