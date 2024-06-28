@@ -412,27 +412,6 @@ export class Node {
         return this.outputApplication().getOutputPorts();
     }
 
-    hasLocalPortWithId = (id : string) : boolean => {
-        // check output ports of input application, if one exists
-        if (this.hasInputApplication()){
-            for (const outputPort of this.inputApplication().getOutputPorts()){
-                if (outputPort.getId() === id){
-                    return true;
-                }
-            }
-        }
-        // check input ports of outputApplication, if one exists
-        if (this.hasOutputApplication()){
-            for (const inputPort of this.outputApplication().getInputPorts()){
-                if (inputPort.getId() === id){
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     getFieldByDisplayText = (displayText : string) : Field | null => {
         for (const field of this.fields()){
             if (field.getDisplayText() === displayText){

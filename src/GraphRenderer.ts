@@ -2255,6 +2255,8 @@ export class GraphRenderer {
     static edgeGetStrokeType(edge:Edge) : string {
         if(edge.isClosesLoop()){
             return ' 15, 8, 5, 8'
+        }else if(edge.isLoopAware()){
+            return '4,6'
         }else{
             return ''
         }
