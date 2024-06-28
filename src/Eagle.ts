@@ -2854,8 +2854,8 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-            if (isValid === Eagle.LinkValid.Impossible || isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
+            const isValid: Edge.Validity = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            if (isValid === Edge.Validity.Impossible || isValid === Edge.Validity.Invalid || isValid === Edge.Validity.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
@@ -2899,8 +2899,8 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Eagle.LinkValid = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-            if (isValid === Eagle.LinkValid.Impossible || isValid === Eagle.LinkValid.Invalid || isValid === Eagle.LinkValid.Unknown){
+            const isValid: Edge.Validity = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            if (isValid === Edge.Validity.Impossible || isValid === Edge.Validity.Invalid || isValid === Edge.Validity.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
@@ -4865,14 +4865,6 @@ export namespace Eagle
         JSON = "JSON",
         Markdown = "Markdown",
         Unknown = "Unknown"
-    }
-
-    export enum LinkValid {
-        Unknown = "Unknown",        // validity of the edge is unknown
-        Impossible = "Impossible",  // never useful or valid
-        Invalid = "Invalid",        // invalid, but possibly useful for expert users?
-        Warning = "Warning",        // valid, but some issue that the user should be aware of
-        Valid = "Valid"             // fine
     }
 
     export enum ModalType {

@@ -302,7 +302,7 @@ export class GraphRenderer {
 
     //port drag handler globals
     static draggingPort : boolean = false;
-    static isDraggingPortValid: ko.Observable<Eagle.LinkValid> = ko.observable(<Eagle.LinkValid>"Unknown");
+    static isDraggingPortValid: ko.Observable<Edge.Validity> = ko.observable(Edge.Validity.Unknown);
     static destinationNode : Node = null;
     static destinationPort : Field = null;
     
@@ -983,7 +983,7 @@ export class GraphRenderer {
     }
 
     static editNodeTitleInGraph (data:Node,event: JQuery.TriggeredEvent) : void {
-        GraphRenderer.editNodeName = true //used to prevent other drag funcitons if this feature is active
+        GraphRenderer.editNodeName = true //used to prevent other drag functions if this feature is active
         const target = event.target
         $(target).hide()
         const input = $(target).parent().find('.header-input')
@@ -1762,11 +1762,11 @@ export class GraphRenderer {
         }
 
         // check if link is valid
-        const linkValid : Eagle.LinkValid = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
+        const linkValid : Edge.Validity = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
-        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Eagle.LinkValid.Invalid) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
-            if (linkValid === Eagle.LinkValid.Warning){
+        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Edge.Validity.Invalid) || linkValid === Edge.Validity.Valid || linkValid === Edge.Validity.Warning){
+            if (linkValid === Edge.Validity.Warning){
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, false, false);
@@ -2026,8 +2026,8 @@ export class GraphRenderer {
 
         for (const node of eagle.logicalGraph().getNodes()){
             for (const port of node.getPorts()){
-                const isValid: Eagle.LinkValid = Edge.isValid(eagle, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
-                const isValidIndex: number = Object.values(Eagle.LinkValid).indexOf(isValid);
+                const isValid: Edge.Validity = Edge.isValid(eagle, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
+                const isValidIndex: number = Object.values(Edge.Validity).indexOf(isValid);
 
                 if (isValidIndex >= minValidityIndex){
                     result.push({node: node, field: port});
@@ -2100,20 +2100,22 @@ export class GraphRenderer {
         GraphRenderer.destinationPort = null;
         GraphRenderer.destinationNode = null;
 
-        GraphRenderer.isDraggingPortValid(Eagle.LinkValid.Unknown);
+        GraphRenderer.isDraggingPortValid(Edge.Validity.Unknown);
     }
 
     static draggingEdgeGetStrokeColor: ko.PureComputed<string> = ko.pureComputed(() => {
         switch (GraphRenderer.isDraggingPortValid()){
-            case Eagle.LinkValid.Unknown:
+            case Edge.Validity.Unknown:
                 return "black";
-            case Eagle.LinkValid.Impossible:
-            case Eagle.LinkValid.Invalid:
+            case Edge.Validity.Impossible:
+            case Edge.Validity.Invalid:
                 return GraphConfig.getColor("edgeInvalid");
-            case Eagle.LinkValid.Warning:
+            case Edge.Validity.Warning:
                 return GraphConfig.getColor("edgeWarning");
-            case Eagle.LinkValid.Valid:
+            case Edge.Validity.Valid:
                 return GraphConfig.getColor("edgeValid");
+            default:
+                return GraphConfig.getColor("edgeDefault");
         }
     }, this);
 
@@ -2229,14 +2231,14 @@ export class GraphRenderer {
         }
 
         // check if link has a warning or is invalid
-        const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        const linkValid : Edge.Validity = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
 
-        if (linkValid === Eagle.LinkValid.Invalid || linkValid === Eagle.LinkValid.Impossible){
+        if (linkValid === Edge.Validity.Invalid || linkValid === Edge.Validity.Impossible){
             normalColor = GraphConfig.getColor('edgeInvalid');
             selectedColor = GraphConfig.getColor('edgeInvalidSelected');
         }
 
-        if (linkValid === Eagle.LinkValid.Warning){
+        if (linkValid === Edge.Validity.Warning){
             normalColor = GraphConfig.getColor('edgeWarning');
             selectedColor = GraphConfig.getColor('edgeWarningSelected');
         }
