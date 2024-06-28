@@ -527,3 +527,13 @@ export class Edge {
         }
     }
 }
+
+export namespace Edge {
+    export enum Validity {
+        Unknown = "Unknown",        // validity of the edge is unknown
+        Impossible = "Impossible",  // never useful or valid
+        Invalid = "Invalid",        // invalid, but possibly useful for expert users?
+        Warning = "Warning",        // valid, but some issue that the user should be aware of
+        Valid = "Valid"             // fine
+    }
+}
