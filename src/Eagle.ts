@@ -3149,8 +3149,6 @@ export class Eagle {
     }
 
     selectAllInGraph = () : void => {
-        console.log("selectAllInGraph()");
-
         const newSelection : (Node | Edge)[] = [];
 
         // add nodes
@@ -3165,6 +3163,7 @@ export class Eagle {
 
         // set selection
         this.selectedObjects(newSelection);
+        Eagle.selectedLocation(Eagle.FileType.Graph);
     }
 
     selectNoneInGraph = () : void => {
@@ -3261,18 +3260,17 @@ export class Eagle {
         this.addNodesToPalette(nodes);
     }
 
-    // TODO: requestMode param here is spelt incorrectly, should be an enum? 
-    deleteSelection = (requestMode:any, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
-        let mode: string; // TODO: should be an enum?
-        let data: any = []; // TODO: declare type
+    deleteSelection = (rightClick: boolean, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
+        let data: (Node | Edge)[] = [];
+        let location: Eagle.FileType = Eagle.FileType.Unknown;
 
         // if no objects selected, warn user
-        if (requestMode === ''){
-            data = this.selectedObjects()
-            mode = 'normal'
-        }else{
+        if (rightClick){
             data.push(Eagle.selectedRightClickObject())
-            mode = 'rightClick'
+            location = Eagle.selectedRightClickLocation();
+        }else{
+            data = this.selectedObjects()
+            location = Eagle.selectedLocation();
         }
 
         // check that graph editing is allowed
@@ -3296,7 +3294,13 @@ export class Eagle {
 
         // skip confirmation if setting dictates
         if (!Setting.find(Setting.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
-            this._deleteSelection(deleteChildren,data,mode);
+            this._deleteSelection(deleteChildren, data, location);
+            
+            // if we're NOT in rightClick mode, empty the selected objects, should have all been deleted
+            if(!rightClick){
+                this.selectedObjects([]);
+            }
+
             return;
         }
 
@@ -3367,7 +3371,12 @@ export class Eagle {
                 return;
             }
 
-            this._deleteSelection(deleteChildren,data,mode);
+            this._deleteSelection(deleteChildren, data, location);
+
+            // if we're NOT in rightClick mode, empty the selected objects, should have all been deleted
+            if(!rightClick){
+                this.selectedObjects([]);
+            }
         });
     }
 
@@ -3384,61 +3393,52 @@ export class Eagle {
         return children;
     }
 
-    // TODO: make mode an Enum here
-    private _deleteSelection = (deleteChildren: boolean, data:any, mode:string) : void => {
-        let location: Eagle.FileType = Eagle.FileType.Unknown;
-
-        if (mode === 'normal'){
-            location = Eagle.selectedLocation()
-        }else{
-            location = Eagle.selectedRightClickLocation()
-        }
-
-        if (location === Eagle.FileType.Graph){
-
-            // if not deleting children, move them to different parents first
-            if (!deleteChildren){
-                this._moveChildrenOfSelection();
-            }
-
-            // delete the selection
-            for (const object of data){
-                if (object instanceof Node){
-                    this.logicalGraph().removeNode(object);
+    private _deleteSelection = (deleteChildren: boolean, data: (Node | Edge)[], location: Eagle.FileType) : void => {
+        switch(location){
+            case Eagle.FileType.Graph:
+                // if not deleting children, move them to different parents first
+                if (!deleteChildren){
+                    this._moveChildrenOfSelection();
                 }
 
-                if (object instanceof Edge){
-                    this.logicalGraph().removeEdgeById(object.getId());
-                }
-            }
+                // delete the selection
+                for (const object of data){
+                    if (object instanceof Node){
+                        this.logicalGraph().removeNode(object);
+                    }
 
-            // flag LG has changed
-            this.logicalGraph().fileInfo().modified = true;
-
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Delete Selection");
-        }
-
-        if (location === Eagle.FileType.Palette){
-
-            for (const object of data){
-                if (object instanceof Node){
-                    for (const palette of this.palettes()){
-                        palette.removeNodeById(object.getId());
-
-                        // TODO: only flag palette has changed if a node was removed
-                        palette.fileInfo().modified = true;
+                    if (object instanceof Edge){
+                        this.logicalGraph().removeEdgeById(object.getId());
                     }
                 }
 
-                // NOTE: do nothing with edges! shouldn't be any in palettes
-            }
-        }
+                // flag LG has changed
+                this.logicalGraph().fileInfo().modified = true;
 
-        if(mode === 'normal'){
-            // empty the selected objects, should have all been deleted
-            this.selectedObjects([]);
-        }
+                this.checkGraph();
+                this.undo().pushSnapshot(this, "Delete Selection");
+                break;
+
+            case Eagle.FileType.Palette:
+
+                for (const object of data){
+                    if (object instanceof Node){
+                        for (const palette of this.palettes()){
+                            palette.removeNodeById(object.getId());
+
+                            // TODO: only flag palette has changed if a node was removed
+                            palette.fileInfo().modified = true;
+                        }
+                    }
+
+                    // NOTE: do nothing with edges! shouldn't be any in palettes
+                }
+                break;
+
+            default:
+                console.warn("deleteSelection from unknown location", location);
+                break;
+        }    
     }
 
     // used before deleting a selection, if we wish to preserve the children of the selection

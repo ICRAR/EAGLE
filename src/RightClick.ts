@@ -483,7 +483,7 @@ export class RightClick {
         if(rightClickObjectInSelection){
             // if we right clicked an object that is part of a multi selection
             if(passedObjectClass === 'rightClick_graphNode' || passedObjectClass === 'rightClick_graphEdge' || passedObjectClass === 'rightClick_hierarchyNode' || passedObjectClass === 'rightClick_paletteComponent'){
-                $('#customContextMenu').append('<a onclick=eagle.deleteSelection("",false,false)>Delete</a>')
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection(false,false,false)>Delete</a>')
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("normal")>Duplicate</a>')
                 $('#customContextMenu').append('<a onclick=eagle.copySelectionToClipboard()>Copy</a>')
             }
@@ -564,7 +564,7 @@ export class RightClick {
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
                     $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Open Fields Table</a>')
-                    $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
+                    $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to another palette</a>')
                 }
             }else if(passedObjectClass === 'rightClick_hierarchyNode'){
@@ -573,7 +573,7 @@ export class RightClick {
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
                 $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Inspector Table</a>')
                 $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`keyParametersTableModal`,`rightClick`)">Open Fields Table</a>')
-                $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
                 }
@@ -583,9 +583,9 @@ export class RightClick {
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
                 $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Open Fields Table</a>')
                 $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`keyParametersTableModal`,`rightClick`)">Graph Attributes</a>')
-                $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                 if (data.isConstruct()){
-                    $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,true)>Delete All</a>')
+                    $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete All</a>')
                     $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
                 }
                 if(data.getCategory() === Category.Docker){
@@ -599,7 +599,7 @@ export class RightClick {
             }else if(passedObjectClass === 'rightClick_graphEdge'){
                 $('#customContextMenu').append('<a onclick=Eagle.selectedRightClickObject().toggleLoopAware()>Toggle Loop Aware</a>')
                 $('#customContextMenu').append('<a onclick=eagle.toggleEdgeClosesLoop()>Toggle Closes Loop</a>')
-                $('#customContextMenu').append('<a onclick=eagle.deleteSelection("contextMenuRequest",false,false)>Delete</a>')
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
     
             }else if(passedObjectClass === 'rightClick_paletteHeader'){
                 
