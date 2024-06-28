@@ -84,7 +84,7 @@ ko.bindingHandlers.eagleTooltip = {
             setTimeout(function(){
                 if(stillHovering && !GraphRenderer.draggingPort && !eagle.draggingPaletteNode){
                     // make sure there is never more than one tooltip open
-                    $(".tooltip").tooltip("hide");
+                    $(".tooltip").remove();
                     jQueryElement.tooltip('show');
 
                     //adding our custom size if provided
