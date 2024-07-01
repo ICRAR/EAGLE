@@ -2178,22 +2178,22 @@ export class Utils {
     }
 
     // only update result if it is worse that current result
-    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Eagle.LinkValid {
+    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Edge.Validity {
         if (errorsWarnings === null){
             console.warn("errorsWarnings is null");
-            return Eagle.LinkValid.Valid;
+            return Edge.Validity.Valid;
         }
 
         if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
-            return Eagle.LinkValid.Valid;
+            return Edge.Validity.Valid;
         }
 
         if (errorsWarnings.errors.length !== 0){
             // TODO: this actually has no way of knowing whether the errors are of type Invalid or Impossible
-            return Eagle.LinkValid.Invalid;
+            return Edge.Validity.Invalid;
         }
 
-        return Eagle.LinkValid.Warning;
+        return Edge.Validity.Warning;
     }
 
     static printCategories() : void {

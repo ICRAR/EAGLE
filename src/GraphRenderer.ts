@@ -302,7 +302,7 @@ export class GraphRenderer {
 
     //port drag handler globals
     static draggingPort : boolean = false;
-    static isDraggingPortValid: ko.Observable<Eagle.LinkValid> = ko.observable(<Eagle.LinkValid>"Unknown");
+    static isDraggingPortValid: ko.Observable<Edge.Validity> = ko.observable(Edge.Validity.Unknown);
     static destinationNode : Node = null;
     static destinationPort : Field = null;
     
@@ -983,7 +983,7 @@ export class GraphRenderer {
     }
 
     static editNodeTitleInGraph (data:Node,event: JQuery.TriggeredEvent) : void {
-        GraphRenderer.editNodeName = true //used to prevent other drag funcitons if this feature is active
+        GraphRenderer.editNodeName = true //used to prevent other drag functions if this feature is active
         const target = event.target
         $(target).hide()
         const input = $(target).parent().find('.header-input')
@@ -1663,13 +1663,8 @@ export class GraphRenderer {
         $('#logicalGraphParent').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
         $('.node .body').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
 
-        
-        // check for nearby nodes
-        const matchingNodes = GraphRenderer.findMatchingNodes(GraphRenderer.portDragSourceNode().getKey());
-
-        // check for nearest matching port in the nearby nodes
-        const matchingPorts = GraphRenderer.findMatchingPorts(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), matchingNodes, GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort(), GraphRenderer.portDragSourcePortIsInput);
-        GraphRenderer.matchingPortList = matchingPorts
+        // build the list of all ports in the graph that are a valid end-point for an edge starting at this port
+        GraphRenderer.matchingPortList = GraphRenderer.findMatchingPorts(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort());
     }
 
     static portDragging() : void {
@@ -1767,11 +1762,11 @@ export class GraphRenderer {
         }
 
         // check if link is valid
-        const linkValid : Eagle.LinkValid = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
+        const linkValid : Edge.Validity = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
-        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Eagle.LinkValid.Invalid) || linkValid === Eagle.LinkValid.Valid || linkValid === Eagle.LinkValid.Warning){
-            if (linkValid === Eagle.LinkValid.Warning){
+        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Edge.Validity.Invalid) || linkValid === Edge.Validity.Valid || linkValid === Edge.Validity.Warning){
+            if (linkValid === Edge.Validity.Warning){
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, false, false);
@@ -1894,46 +1889,6 @@ export class GraphRenderer {
     static GRAPH_TO_SCREEN_POSITION_Y(y: number) : number {
         const eagle = Eagle.getInstance();
         return (y+eagle.globalOffsetY())*eagle.globalScale()+83.77
-    }
-
-    static findMatchingNodes(sourceNodeKey: number): Node[]{
-        const result: Node[] = [];
-        const nodeData : Node[] = GraphRenderer.nodeData
-
-        for (const node of nodeData){
-            // skip the source node
-            if (node.getKey() === sourceNodeKey){
-                continue;
-            }
-
-            // fetch categoryData for the node
-            const categoryData = CategoryData.getCategoryData(node.getCategory());
-            let possibleInputs = categoryData.maxInputs;
-            let possibleOutputs = categoryData.maxOutputs;
-
-            // add categoryData for embedded apps (if they exist)
-            if (node.hasInputApplication()){
-                const inputApp = node.getInputApplication();
-                const inputAppCategoryData = CategoryData.getCategoryData(inputApp.getCategory());
-                possibleInputs += inputAppCategoryData.maxInputs;
-                possibleOutputs += inputAppCategoryData.maxOutputs;
-            }
-            if (node.hasOutputApplication()){
-                const outputApp = node.getOutputApplication();
-                const outputAppCategoryData = CategoryData.getCategoryData(outputApp.getCategory());
-                possibleInputs += outputAppCategoryData.maxInputs;
-                possibleOutputs += outputAppCategoryData.maxOutputs;
-            }
-
-            // skip nodes that can't have inputs or outputs
-            if (possibleInputs === 0 && possibleOutputs === 0){
-                continue;
-            }
-
-            result.push(node);
-        }
-
-        return result;
     }
 
     static depthFirstTraversalOfNodes(graph: LogicalGraph, showDataNodes: boolean) : Node[] {
@@ -2062,58 +2017,25 @@ export class GraphRenderer {
         return null;
     }
 
-    
-    static findMatchingPorts(positionX: number, positionY: number, nearbyNodes: Node[], sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node, field: Field}[] {
+    static findMatchingPorts(sourceNode: Node, sourcePort: Field): {node: Node, field: Field}[]{
         const eagle = Eagle.getInstance();
-        const result :{field:Field, node:Node}[]= []
-        for (const node of nearbyNodes){
-            let portList: Field[] = [];
+        const result: {node: Node, field: Field}[] = [];
 
-            // if source node is Data, then no nearby Data nodes can have matching ports
-            if (sourceNode.getCategoryType() === Category.Type.Data && node.getCategoryType() === Category.Type.Data){
-                continue;
-            }
+        const minValidity: Edge.Validity = Setting.findValue(Setting.AUTO_COMPLETE_EDGES_LEVEL);
+        const minValidityIndex: number = Object.values(Edge.Validity).indexOf(minValidity);
 
-            // if sourcePortIsInput, we should search for output ports, and vice versa
-            if (sourcePortIsInput){
-                portList = portList.concat(node.getOutputPorts());
-            } else {
-                portList = portList.concat(node.getInputPorts());
-            }
+        for (const node of eagle.logicalGraph().getNodes()){
+            for (const port of node.getPorts()){
+                const isValid: Edge.Validity = Edge.isValid(eagle, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
+                const isValidIndex: number = Object.values(Edge.Validity).indexOf(isValid);
 
-            // get inputApplication ports
-            if (sourcePortIsInput){
-                portList = portList.concat(node.getInputApplicationOutputPorts());
-            } else {
-                portList = portList.concat(node.getInputApplicationInputPorts());
-            }
-
-            // get outputApplication ports
-            if (sourcePortIsInput){
-                portList = portList.concat(node.getOutputApplicationOutputPorts());
-            } else {
-                portList = portList.concat(node.getOutputApplicationInputPorts());
-            }
-
-            for (const port of portList){
-                if (!Utils.portsMatch(port, sourcePort)){
-                    continue;
+                if (isValidIndex >= minValidityIndex){
+                    result.push({node: node, field: port});
                 }
-
-                // if port has no id (broken) then don't consider it as a auto-complete target
-                if (port.getId() === ""){
-                    continue;
-                }
-
-                //this is needed for embedded apps, as the node variable is still the construct
-                const realNode = eagle.logicalGraph().findNodeByKeyQuiet(port.getNodeKey())
-                
-                result.push({field:port,node:realNode})
-                port.setPeek(true)
             }
         }
 
-        return result
+        return result;
     }
     
     static findNearestMatchingPort(positionX: number, positionY: number, sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node, field: Field} {
@@ -2178,20 +2100,22 @@ export class GraphRenderer {
         GraphRenderer.destinationPort = null;
         GraphRenderer.destinationNode = null;
 
-        GraphRenderer.isDraggingPortValid(Eagle.LinkValid.Unknown);
+        GraphRenderer.isDraggingPortValid(Edge.Validity.Unknown);
     }
 
     static draggingEdgeGetStrokeColor: ko.PureComputed<string> = ko.pureComputed(() => {
         switch (GraphRenderer.isDraggingPortValid()){
-            case Eagle.LinkValid.Unknown:
+            case Edge.Validity.Unknown:
                 return "black";
-            case Eagle.LinkValid.Impossible:
-            case Eagle.LinkValid.Invalid:
+            case Edge.Validity.Impossible:
+            case Edge.Validity.Invalid:
                 return GraphConfig.getColor("edgeInvalid");
-            case Eagle.LinkValid.Warning:
+            case Edge.Validity.Warning:
                 return GraphConfig.getColor("edgeWarning");
-            case Eagle.LinkValid.Valid:
+            case Edge.Validity.Valid:
                 return GraphConfig.getColor("edgeValid");
+            default:
+                return GraphConfig.getColor("edgeDefault");
         }
     }, this);
 
@@ -2307,14 +2231,14 @@ export class GraphRenderer {
         }
 
         // check if link has a warning or is invalid
-        const linkValid : Eagle.LinkValid = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        const linkValid : Edge.Validity = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
 
-        if (linkValid === Eagle.LinkValid.Invalid || linkValid === Eagle.LinkValid.Impossible){
+        if (linkValid === Edge.Validity.Invalid || linkValid === Edge.Validity.Impossible){
             normalColor = GraphConfig.getColor('edgeInvalid');
             selectedColor = GraphConfig.getColor('edgeInvalidSelected');
         }
 
-        if (linkValid === Eagle.LinkValid.Warning){
+        if (linkValid === Edge.Validity.Warning){
             normalColor = GraphConfig.getColor('edgeWarning');
             selectedColor = GraphConfig.getColor('edgeWarningSelected');
         }
