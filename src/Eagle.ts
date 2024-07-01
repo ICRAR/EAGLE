@@ -3354,12 +3354,12 @@ export class Eagle {
         for (const edge of this.logicalGraph().getEdges()){
             for (const node of childNodes){
                 if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
-                    // TODO: check if edge is already in selectedObjects
+                    // check if edge is already in selectedObjects
                     if (this.objectIsSelected(edge)){
                         continue;
                     }
 
-                    // check if edge as already in the childEdges list
+                    // check if edge is already in the childEdges list
                     let found = false;
                     for (const e of childEdges){
                         if (e.getId() === edge.getId()){
