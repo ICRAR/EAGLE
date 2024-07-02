@@ -3324,7 +3324,29 @@ export class Eagle {
         // find child nodes
         for (const object of data){
             if (object instanceof Node){
-                childNodes.push(...this._findChildren(object));
+                // find children of this node
+                const children = this._findChildren(object);
+
+                for (const child of children){
+                    // check each child is not already in selectedObjects
+                    if (this.objectIsSelected(child)){
+                        continue;
+                    }
+
+                    // check each child is not already in childNodes
+                    let found: boolean = false;
+                    for (const cn of childNodes){
+                        if (cn.getId() === child.getId()){
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    // add to childNodes
+                    if (!found){
+                        childNodes.push(child);
+                    }
+                }
             }
         }
 
@@ -3332,7 +3354,12 @@ export class Eagle {
         for (const edge of this.logicalGraph().getEdges()){
             for (const node of childNodes){
                 if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
-                    // check if edge as already in the list
+                    // check if edge is already in selectedObjects
+                    if (this.objectIsSelected(edge)){
+                        continue;
+                    }
+
+                    // check if edge is already in the childEdges list
                     let found = false;
                     for (const e of childEdges){
                         if (e.getId() === edge.getId()){
