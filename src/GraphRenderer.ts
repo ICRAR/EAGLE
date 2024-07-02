@@ -2024,7 +2024,19 @@ export class GraphRenderer {
         const minValidity: Edge.Validity = Setting.findValue(Setting.AUTO_COMPLETE_EDGES_LEVEL);
         const minValidityIndex: number = Object.values(Edge.Validity).indexOf(minValidity);
 
+        const potentialNodes :Node[] = []
+
         for (const node of eagle.logicalGraph().getNodes()){
+            potentialNodes.push(node)
+            if(node.isConstruct && node.getInputApplication()){
+                potentialNodes.push(node.getInputApplication())
+            }
+            if(node.isConstruct && node.getOutputApplication()){
+                potentialNodes.push(node.getOutputApplication())
+            }
+        }
+
+        for(const node of potentialNodes){
             for (const port of node.getPorts()){
                 const isValid: Edge.Validity = Edge.isValid(eagle, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
                 const isValidIndex: number = Object.values(Edge.Validity).indexOf(isValid);
