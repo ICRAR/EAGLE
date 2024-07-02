@@ -2038,7 +2038,13 @@ export class GraphRenderer {
 
         for(const node of potentialNodes){
             for (const port of node.getPorts()){
-                const isValid: Edge.Validity = Edge.isValid(eagle, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
+                let isValid: Edge.Validity
+                if(sourcePort.isInputPort()){
+                    isValid = Edge.isValid(eagle, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
+                }else{
+                    isValid = Edge.isValid(eagle, "", node.getKey(), port.getId(), sourceNode.getKey(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
+                }
+                console.log(node.getName(),port.getDisplayText(),isValid)
                 const isValidIndex: number = Object.values(Edge.Validity).indexOf(isValid);
 
                 if (isValidIndex >= minValidityIndex){
@@ -2091,6 +2097,7 @@ export class GraphRenderer {
         if (minDistance<GraphConfig.NODE_SUGGESTION_SNAP_RADIUS){
             GraphRenderer.portMatchCloseEnough(true)
         }
+        console.log(minNode.getName(), minPort.getDisplayText())
 
         return {node: minNode, field: minPort};
     }

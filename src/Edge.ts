@@ -279,6 +279,8 @@ export class Edge {
 
     static isValid(eagle: Eagle, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Edge.Validity {
         
+        let impossibleEdge : boolean = false;
+
         // check for problems
         if (isNaN(sourceNodeKey)){
             return Edge.Validity.Unknown;
@@ -320,11 +322,6 @@ export class Edge {
             return Edge.Validity.Unknown;
         }
 
-        // check that we are not connecting two ports within the same node
-        if (sourceNodeKey === destinationNodeKey){
-            Edge.isValidLog(edgeId, Edge.Validity.Impossible, Errors.Show("sourceNodeKey and destinationNodeKey are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
-        }
-
         // check that we are not connecting a Data component to a Data component, that is not supported
         if (sourceNode.getCategoryType() === Category.Type.Data && destinationNode.getCategoryType() === Category.Type.Data){
             Edge.isValidLog(edgeId, Edge.Validity.Invalid, Errors.Show("Data nodes may not be connected directly to other Data nodes", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
@@ -335,7 +332,7 @@ export class Edge {
             const issue: Errors.Issue = Errors.ShowFix("Edge (" + edgeId + ") cannot have a source node (" + sourceNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
             Edge.isValidLog(edgeId, Edge.Validity.Invalid, issue, showNotification, showConsole, errorsWarnings);
         }
-        
+
         if (destinationNode.getCategoryType() === Category.Type.Construct){
             const issue: Errors.Issue = Errors.ShowFix("Edge (" + edgeId + ") cannot have a destination node (" + destinationNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
             Edge.isValidLog(edgeId, Edge.Validity.Invalid, issue, showNotification, showConsole, errorsWarnings);
@@ -357,29 +354,34 @@ export class Edge {
         if (sourcePort === null) {
             const issue: Errors.Issue = Errors.ShowFix("Source port (" + sourcePortId + ") doesn't exist on source node (" + sourceNode.getName() + ")", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.addSourcePortToSourceNode(eagle, edgeId)}, "Add source port to source node");
             Edge.isValidLog(edgeId, Edge.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
+            impossibleEdge = true;
         }
 
         // check if destination port was found
         if (destinationPort === null){
             const issue: Errors.Issue = Errors.ShowFix("Destination port (" + destinationPortId + ") doesn't exist on destination node (" + destinationNode.getName() + ")", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.addDestinationPortToDestinationNode(eagle, edgeId)}, "Add destination port to destination node");
             Edge.isValidLog(edgeId, Edge.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
+            impossibleEdge = true;
         }
 
         // check that we are not connecting a port to itself
         if (sourcePortId === destinationPortId){
             Edge.isValidLog(edgeId, Edge.Validity.Impossible, Errors.Show("Source port and destination port are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            impossibleEdge = true;
         }
 
         // check that source is output
         if (!sourcePort.isOutputPort()){
             const issue: Errors.Issue = Errors.ShowFix("Source port is not output port (" + sourcePort.getUsage() + ")", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixFieldUsage(eagle, sourcePort, Daliuge.FieldUsage.OutputPort)}, "Add output usage to source port");
             Edge.isValidLog(edgeId, Edge.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
+            impossibleEdge = true;
         }
 
         // check that destination in input
         if (!destinationPort.isInputPort()){
             const issue: Errors.Issue = Errors.ShowFix("Destination port is not input port (" + destinationPort.getUsage() + ")", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixFieldUsage(eagle, destinationPort, Daliuge.FieldUsage.InputPort)}, "Add input usage to destination port");
             Edge.isValidLog(edgeId, Edge.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
+            impossibleEdge = true;
         }
 
         if (sourcePort !== null && destinationPort !== null){
@@ -474,7 +476,12 @@ export class Edge {
             }
         }
 
-        return Utils.worstEdgeError(errorsWarnings);
+        //the worst edge errror function can only check for entries in errors or warnings, it isnt able to distinguish impossible from invalid
+        if(impossibleEdge){
+            return Edge.Validity.Impossible
+        }else{
+            return Utils.worstEdgeError(errorsWarnings);
+        }
     }
 
     private static isValidLog(edgeId : string, linkValid : Edge.Validity, issue: Errors.Issue, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : void {
