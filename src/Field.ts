@@ -873,7 +873,7 @@ export class Field {
             errorsWarnings.warnings.push(issue);
         }
 
-        //chack that the field has a known type
+        // check that the field has a known type
         if (!Utils.validateType(field.getType())) {
             const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose type (" + field.getType() + ") is unknown", function(){Utils.showField(eagle, node.getId(),field)}, function(){Utils.fixFieldType(eagle, field)}, "Prepend existing type (" + field.getType() + ") with 'Object.'");
             errorsWarnings.warnings.push(issue);
@@ -885,7 +885,7 @@ export class Field {
             errorsWarnings.errors.push(issue);
         }
 
-        //check that the field has a unique display text on the node
+        // check that the field has a unique display text on the node
         for (let j = 0 ; j < node.getFields().length ; j++){
             const field1 = node.getFields()[j];
             if(field === field1){
@@ -900,6 +900,20 @@ export class Field {
                     const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixNodeMergeFields(eagle, node, field, field1)}, "Merge fields");
                     errorsWarnings.warnings.push(issue);
                 }
+            }
+        }
+
+        // check that PythonObject's self port is input for only one edge
+        if (node.getCategory() === Category.PythonObject && field.getDisplayText() === Daliuge.FieldName.SELF){
+            let numSelfPortConnections: number = 0;
+            for (const edge of eagle.logicalGraph().getEdges()){
+                if (edge.getDestPortId() === field.getId()){
+                    numSelfPortConnections += 1;
+                }
+            }
+
+            if (numSelfPortConnections > 1){
+                errorsWarnings.errors.push(Errors.Message("Port " + field.getDisplayText() + " on node " + node.getName() + " cannot have multiple inputs."));
             }
         }
 
