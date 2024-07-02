@@ -315,6 +315,12 @@ export class Edge {
         const sourceNode : Node = eagle.logicalGraph().findNodeByKey(sourceNodeKey);
         const destinationNode : Node = eagle.logicalGraph().findNodeByKey(destinationNodeKey);
 
+        // check that we are not connecting two ports within the same node
+        if (sourceNodeKey === destinationNodeKey){
+            Edge.isValidLog(edgeId, Edge.Validity.Impossible, Errors.Show("sourceNodeKey and destinationNodeKey are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            return Edge.Validity.Impossible;
+        }
+
         if (sourceNode === null || typeof sourceNode === "undefined" || destinationNode === null || typeof destinationNode === "undefined"){
             return Edge.Validity.Unknown;
         }
@@ -333,12 +339,6 @@ export class Edge {
         if (destinationNode.getCategoryType() === Category.Type.Construct){
             const issue: Errors.Issue = Errors.ShowFix("Edge (" + edgeId + ") cannot have a destination node (" + destinationNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
             Edge.isValidLog(edgeId, Edge.Validity.Invalid, issue, showNotification, showConsole, errorsWarnings);
-        }
-
-        // check that we are not connecting two ports within the same node
-        if (sourceNodeKey === destinationNodeKey){
-            Edge.isValidLog(edgeId, Edge.Validity.Impossible, Errors.Show("sourceNodeKey and destinationNodeKey are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
-            return Edge.Validity.Impossible;
         }
 
         // if source node is a memory, and destination is a BashShellApp, OR
