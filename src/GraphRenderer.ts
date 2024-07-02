@@ -1662,6 +1662,7 @@ export class GraphRenderer {
         //setting up the port event listeners
         $('#logicalGraphParent').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
         $('.node .body').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
+        port.setPeek(true)
 
         // build the list of all ports in the graph that are a valid end-point for an edge starting at this port
         GraphRenderer.matchingPortList = GraphRenderer.findMatchingPorts(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort());
@@ -1684,7 +1685,6 @@ export class GraphRenderer {
 
     static portDragEnd() : void {
         const eagle = Eagle.getInstance();
-
 
         GraphRenderer.draggingPort = false;
         // cleaning up the port drag event listeners
@@ -1734,6 +1734,7 @@ export class GraphRenderer {
                     GraphRenderer.clearEdgeVars();
                 }
             }
+            GraphRenderer.portDragSourcePort().setPeek(false)
         }
 
         //resetting some global cached variables
@@ -2031,6 +2032,7 @@ export class GraphRenderer {
 
                 if (isValidIndex >= minValidityIndex){
                     result.push({node: node, field: port});
+                    port.setPeek(true)
                 }
             }
         }
