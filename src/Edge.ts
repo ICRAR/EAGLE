@@ -43,6 +43,7 @@ export class Edge {
     private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
     private selectionRelative : boolean // indicates if the edge is either selected or attached to a selected node
     private isShortEdge : ko.Observable<boolean>;
+    private errors : {issue:Errors.Issue, validity:Edge.Validity}[]
 
     constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
         this._id = Utils.uuidv4();
@@ -56,6 +57,7 @@ export class Edge {
         this.closesLoop = closesLoop;
         this.selectionRelative = selectionRelative;
         this.isShortEdge = ko.observable(false)
+        this.errors = [];
     }
 
     getId = () : string => {
@@ -171,7 +173,7 @@ export class Edge {
     getErrorsWarnings = (eagle: Eagle): Errors.ErrorsWarnings => {
         const result: {warnings: Errors.Issue[], errors: Errors.Issue[]} = {warnings: [], errors: []};
 
-        Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, false, false, result);
+        Edge.isValid(eagle,false, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, false, false, result);
 
         return result;
     }
@@ -277,7 +279,7 @@ export class Edge {
         return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.loopAware, edgeData.closesLoop, false);
     }
 
-    static isValid(eagle: Eagle, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Edge.Validity {
+    static isValid(eagle: Eagle,autoSuggestMode:boolean, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Edge.Validity {
         
         let impossibleEdge : boolean = false;
 
@@ -365,7 +367,7 @@ export class Edge {
         }
 
         // check that we are not connecting a port to itself
-        if (sourcePortId === destinationPortId){
+        if (sourceNodeKey === destinationNodeKey){
             Edge.isValidLog(edgeId, Edge.Validity.Impossible, Errors.Show("Source port and destination port are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
         }
@@ -523,6 +525,7 @@ export class Edge {
         if (type === "warning" && errorsWarnings !== null){
             errorsWarnings.warnings.push(issue);
         }
+        Eagle.getInstance().logicalGraph().findEdgeById(edgeId)?.errors.push({issue:issue, validity:linkValid})
     }
 }
 
@@ -532,6 +535,7 @@ export namespace Edge {
         Impossible = "Impossible",  // never useful or valid
         Invalid = "Invalid",        // invalid, but possibly useful for expert users?
         Warning = "Warning",        // valid, but some issue that the user should be aware of
+        Fixable = "Fixable",        // there is an issue with the connection but for drawing edges eagle will fix this for you
         Valid = "Valid"             // fine
     }
 }

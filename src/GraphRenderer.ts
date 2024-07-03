@@ -1762,7 +1762,7 @@ export class GraphRenderer {
         }
 
         // check if link is valid
-        const linkValid : Edge.Validity = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
+        const linkValid : Edge.Validity = Edge.isValid(eagle,false, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
         if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Edge.Validity.Invalid) || linkValid === Edge.Validity.Valid || linkValid === Edge.Validity.Warning){
@@ -2039,12 +2039,11 @@ export class GraphRenderer {
         for(const node of potentialNodes){
             for (const port of node.getPorts()){
                 let isValid: Edge.Validity
-                if(sourcePort.isInputPort()){
-                    isValid = Edge.isValid(eagle, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
+                if(!GraphRenderer.portDragSourcePortIsInput){
+                    isValid = Edge.isValid(eagle,true, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }else{
-                    isValid = Edge.isValid(eagle, "", node.getKey(), port.getId(), sourceNode.getKey(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
+                    isValid = Edge.isValid(eagle,true, "", node.getKey(), port.getId(), sourceNode.getKey(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }
-                console.log(node.getName(),port.getDisplayText(),isValid)
                 const isValidIndex: number = Object.values(Edge.Validity).indexOf(isValid);
 
                 if (isValidIndex >= minValidityIndex){
@@ -2097,7 +2096,6 @@ export class GraphRenderer {
         if (minDistance<GraphConfig.NODE_SUGGESTION_SNAP_RADIUS){
             GraphRenderer.portMatchCloseEnough(true)
         }
-        console.log(minNode.getName(), minPort.getDisplayText())
 
         return {node: minNode, field: minPort};
     }
@@ -2111,7 +2109,7 @@ export class GraphRenderer {
         GraphRenderer.destinationPort = port;
         GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
 
-        const isValid = Edge.isValid(eagle, null, GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
+        const isValid = Edge.isValid(eagle,true, null, GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
         GraphRenderer.isDraggingPortValid(isValid);
     }
 
@@ -2250,7 +2248,7 @@ export class GraphRenderer {
         }
 
         // check if link has a warning or is invalid
-        const linkValid : Edge.Validity = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        const linkValid : Edge.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
 
         if (linkValid === Edge.Validity.Invalid || linkValid === Edge.Validity.Impossible){
             normalColor = GraphConfig.getColor('edgeInvalid');
