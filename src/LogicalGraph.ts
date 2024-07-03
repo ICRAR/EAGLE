@@ -546,11 +546,8 @@ export class LogicalGraph {
 
     // TODO: shrinkNode and normaliseNodes seem to share some common code, maybe factor out or combine?
     shrinkNode = (node : Node) : void => {
-        console.log("shrinkNode()", node.getKey());
-
         // abort shrink of non-group node
         if (!node.isGroup()){
-            console.log("not group");
             return;
         }
 
@@ -562,8 +559,6 @@ export class LogicalGraph {
 
         // loop through all nodes, finding all children and determining minimum bounding box to contain all children
         for (const n of this.nodes()){
-            console.log("n", n.getKey(), n.getParentKey());
-
             if (n.getParentKey() === node.getKey()){
                 numChildren += 1;
 
@@ -584,7 +579,6 @@ export class LogicalGraph {
 
         // if no children were found, set to default size
         if (numChildren === 0){
-            console.log("no children");
             node.setRadius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
             return;
         }
@@ -599,8 +593,6 @@ export class LogicalGraph {
         node.setPosition(minX, minY);
         const maxDimension = Math.max(maxX - minX, maxY - minY);
         node.setRadius(maxDimension);
-
-        console.log("Shrink node", node.getName(), node.getKey(), "to", minX, minY, maxDimension);
     }
 
     findMultiplicity = (node : Node) : number => {

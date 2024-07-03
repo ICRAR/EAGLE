@@ -80,7 +80,6 @@ export class Undo {
             return;
         }
 
-        console.log("Undo: write to memory at", this.current());
         this.memory()[this.current()] = new Snapshot(description, newContent);
         this.memory.valueHasMutated();
         this.front((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
@@ -170,7 +169,6 @@ export class Undo {
     }
 
     _loadFromIndex = (index: number, eagle: Eagle) : void => {
-        console.log("_loadFromIndex()", index);
         const snapshot : Snapshot = this.memory()[index];
 
         if (snapshot === null){
@@ -179,8 +177,6 @@ export class Undo {
         }
 
         const dataObject: LogicalGraph = snapshot.data();
-        console.log("dataObject", "nodes", dataObject.getNodes().length, "edges", dataObject.getEdges().length);
-
         eagle.logicalGraph(dataObject.clone());
     }
 

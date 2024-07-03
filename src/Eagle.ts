@@ -993,8 +993,6 @@ export class Eagle {
     }
 
     createSubgraphFromSelection = () : void => {
-        console.log("createSubgraphFromSelection()");
-
         const eagle = Eagle.getInstance()
         if(eagle.selectedObjects().length === 0){
             Utils.showNotification('Error','At least one node must be selected!', 'warning')
@@ -1024,7 +1022,6 @@ export class Eagle {
 
             // update selection
             node.setParentKey(parentNode.getKey());
-            console.log("set parent of node", node.getKey(), node.getName(), "to", parentNode.getKey(), parentNode.getName());
         }
 
         // shrink/expand subgraph node to fit children
