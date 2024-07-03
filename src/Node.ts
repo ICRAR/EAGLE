@@ -28,13 +28,12 @@ import { Category } from './Category';
 import { CategoryData } from './CategoryData';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { GraphRenderer } from "./GraphRenderer";
 import { Setting } from './Setting';
 import { Utils } from './Utils';
-import { GraphConfig } from "./graphConfig";
-import { error } from "jquery";
 
 export class Node {
     private _id : ko.Observable<string>;
@@ -123,7 +122,7 @@ export class Node {
 
         this.color = ko.observable(Utils.getColorForNode(category));
         this.drawOrderHint = ko.observable(0);
-        this.radius = ko.observable(GraphConfig.NORMAL_NODE_RADIUS);
+        this.radius = ko.observable(EagleConfig.NORMAL_NODE_RADIUS);
     }
 
     getId = () : string => {
@@ -745,7 +744,7 @@ export class Node {
         this.description("");
         this.x(0);
         this.y(0);
-        this.radius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
+        this.radius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
         this.color(Node.DEFAULT_COLOR);
         this.drawOrderHint(0);
 
@@ -774,7 +773,7 @@ export class Node {
 
     getDisplayRadius = () : number => {
         if (this.isGroup() && this.isCollapsed()){
-            return GraphConfig.MINIMUM_CONSTRUCT_RADIUS;
+            return EagleConfig.MINIMUM_CONSTRUCT_RADIUS;
         }
 
         if (!this.isGroup() && !this.isCollapsed()){
@@ -1346,8 +1345,8 @@ export class Node {
         }
         
         // get size (if exists)
-        let width = GraphConfig.NORMAL_NODE_RADIUS;
-        let height = GraphConfig.NORMAL_NODE_RADIUS;
+        let width = EagleConfig.NORMAL_NODE_RADIUS;
+        let height = EagleConfig.NORMAL_NODE_RADIUS;
         if (typeof nodeData.desiredSize !== 'undefined'){
             width = nodeData.desiredSize.width;
             height = nodeData.desiredSize.height;
@@ -1363,9 +1362,9 @@ export class Node {
             node.radius(Math.max(width, height));
         } else {
             if (node.isBranch()){
-                node.radius(GraphConfig.BRANCH_NODE_RADIUS);
+                node.radius(EagleConfig.BRANCH_NODE_RADIUS);
             } else {
-                node.radius(GraphConfig.NORMAL_NODE_RADIUS);
+                node.radius(EagleConfig.NORMAL_NODE_RADIUS);
             }
         }
 
@@ -1903,7 +1902,7 @@ export class Node {
 
         const node = new Node(key, name, description, category);
         node.setEmbedKey(embedKey);
-        node.setRadius(GraphConfig.NORMAL_NODE_RADIUS);
+        node.setRadius(EagleConfig.NORMAL_NODE_RADIUS);
         return node;
     }
 

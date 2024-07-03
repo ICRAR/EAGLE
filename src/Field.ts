@@ -1,14 +1,14 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
-import {Daliuge} from './Daliuge';
-import { Errors } from './Errors';
-import {Node} from './Node';
 import { CategoryData } from './CategoryData';
 import { Category } from './Category';
-import { GraphConfig } from "./graphConfig";
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
+import { Errors } from './Errors';
+import { Node } from './Node';
 import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name

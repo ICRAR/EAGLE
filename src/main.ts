@@ -30,13 +30,12 @@ import * as bootstrap from 'bootstrap';
 
 import { Category } from './Category';
 import { CategoryData } from './CategoryData';
-import { Config } from './Config';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
-import { GraphConfig } from "./graphConfig";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
@@ -72,9 +71,9 @@ $(function(){
     (<any>window).eagle = eagle;
 
     (<any>window).Category = Category;
-    (<any>window).Config = Config;
     (<any>window).Daliuge = Daliuge;
     (<any>window).Eagle = Eagle;
+    (<any>window).EagleConfig = EagleConfig;
     (<any>window).Errors = Errors;
     (<any>window).Hierarchy = Hierarchy;
     (<any>window).ParameterTable = ParameterTable;
@@ -90,13 +89,14 @@ $(function(){
     (<any>window).KeyboardShortcut = KeyboardShortcut;
     (<any>window).QuickActions = QuickActions;
     (<any>window).Modals = Modals;
-    (<any>window).GraphConfig = GraphConfig;
 
     ko.options.deferUpdates = true;
 
     // Code responsible for displaying the EAGLE.
     console.log("Initialising EAGLE");
     eagle.resetEditor();
+
+    EagleConfig.initCSS();
 
     // init empty data structures
     eagle.logicalGraph(new LogicalGraph());
