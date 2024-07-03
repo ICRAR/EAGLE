@@ -2144,6 +2144,7 @@ export class GraphRenderer {
 
         eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, (edge : Edge) : void => {
             eagle.checkGraph();
+            eagle.undo().pushSnapshot(eagle, "Added edge from " + srcNode.getName() + " to " + destNode.getName());
             eagle.logicalGraph.valueHasMutated();
             GraphRenderer.clearEdgeVars();
         });
