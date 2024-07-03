@@ -1024,6 +1024,7 @@ export class Eagle {
 
             // update selection
             node.setParentKey(parentNode.getKey());
+            console.log("set parent of node", node.getKey(), node.getName(), "to", parentNode.getKey(), parentNode.getName());
         }
 
         // shrink/expand subgraph node to fit children

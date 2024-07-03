@@ -55,11 +55,11 @@ export class LogicalGraph {
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
         result.modelData.schemaVersion = Daliuge.SchemaVersion.OJS;
-        result.modelData.numLGNodes = graph.getNodes().length;
+        result.modelData.numLGNodes = graph.nodes().length;
 
         // add nodes
         result.nodeDataArray = [];
-        for (const node of graph.getNodes()){
+        for (const node of graph.nodes()){
             const nodeData : any = Node.toOJSGraphJson(node);
             result.nodeDataArray.push(nodeData);
         }
@@ -267,7 +267,7 @@ export class LogicalGraph {
     getCommentNodes = () : Node[] => {
         const commentNodes: Node[] = [];
 
-        for (const node of this.getNodes()){
+        for (const node of this.nodes()){
             if (node.isComment()){
                 commentNodes.push(node);
             }
@@ -419,14 +419,13 @@ export class LogicalGraph {
     }
 
     findNodeGraphIdByNodeName = (name:string) :string =>{
-        const eagle: Eagle = Eagle.getInstance();
-        let graphNodeId:string
-        eagle.logicalGraph().getNodes().forEach(function(node){
-            if(node.getName() === name){
-                graphNodeId = node.getId()
+        for (const node of this.nodes()){
+            if (node.getName() === name){
+                return node.getId();
             }
-        })
-        return graphNodeId
+        }
+
+        return null;
     }
 
     removeNode = (node: Node) : void => {
@@ -547,12 +546,14 @@ export class LogicalGraph {
 
     // TODO: shrinkNode and normaliseNodes seem to share some common code, maybe factor out or combine?
     shrinkNode = (node : Node) : void => {
+        console.log("shrinkNode()", node.getKey());
+
         // abort shrink of non-group node
         if (!node.isGroup()){
+            console.log("not group");
             return;
         }
 
-        const nodes : Node[] = this.getNodes();
         let minX : number = Number.MAX_SAFE_INTEGER;
         let minY : number = Number.MAX_SAFE_INTEGER;
         let maxX : number = Number.MIN_SAFE_INTEGER;
@@ -560,7 +561,9 @@ export class LogicalGraph {
         let numChildren : number = 0;
 
         // loop through all nodes, finding all children and determining minimum bounding box to contain all children
-        for (const n of nodes){
+        for (const n of this.nodes()){
+            console.log("n", n.getKey(), n.getParentKey());
+
             if (n.getParentKey() === node.getKey()){
                 numChildren += 1;
 
@@ -581,6 +584,7 @@ export class LogicalGraph {
 
         // if no children were found, set to default size
         if (numChildren === 0){
+            console.log("no children");
             node.setRadius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
             return;
         }
@@ -595,6 +599,8 @@ export class LogicalGraph {
         node.setPosition(minX, minY);
         const maxDimension = Math.max(maxX - minX, maxY - minY);
         node.setRadius(maxDimension);
+
+        console.log("Shrink node", node.getName(), node.getKey(), "to", minX, minY, maxDimension);
     }
 
     findMultiplicity = (node : Node) : number => {
@@ -729,7 +735,7 @@ export class LogicalGraph {
 
         // populate index plus depths
         for (let i = 0 ; i < this.nodes().length ; i++){
-            const node = this.getNodes()[i];
+            const node = this.nodes()[i];
 
             const depth = this.findDepthByKey(node.getKey());
 
@@ -743,7 +749,7 @@ export class LogicalGraph {
 
         // write nodes to result in sorted order
         for (const indexPlusDepth of indexPlusDepths){
-            result.push(this.getNodes()[indexPlusDepth.index]);
+            result.push(this.nodes()[indexPlusDepth.index]);
         }
 
         return result;
