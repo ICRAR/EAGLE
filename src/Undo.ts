@@ -124,6 +124,8 @@ export class Undo {
         }
 
         eagle.checkGraph();
+
+        this._updateSelection();
     }
 
     nextSnapshot = (eagle: Eagle) : void => {
@@ -141,6 +143,8 @@ export class Undo {
         }
 
         eagle.checkGraph();
+
+        this._updateSelection();
     }
 
     toString = () : string => {
@@ -174,8 +178,37 @@ export class Undo {
         }
 
         const dataObject: LogicalGraph = snapshot.data();
+        eagle.logicalGraph(dataObject.clone());
+    }
 
-        eagle.logicalGraph(dataObject);
+    // if we undo, or redo, then the objects in selectedObject are from the graph prior to the new snapshot
+    // so the references will be to non-existent objects
+    // in this function, we use the ids of the old selectedObjects, and attempt to add the matching objects in the new snapshot to the selectedObjects list
+    _updateSelection = () : void => {
+        const eagle: Eagle = Eagle.getInstance();
+        const objectIds: string[] = [];
+
+        // build a list of the ids of the selected objects
+        for (const object of eagle.selectedObjects()){
+            objectIds.push(object.getId());
+        }
+
+        // clear selection
+        eagle.setSelection(Eagle.RightWindowMode.Hierarchy, null, Eagle.FileType.Graph);
+
+        // find the objects in the ids list, and add them to the selection
+        for (const id of objectIds){
+            const node = eagle.logicalGraph().findNodeById(id);
+            const edge = eagle.logicalGraph().findEdgeById(id);
+            const object = node || edge;
+
+            // abort if no edge or node exists fot that id
+            if (node === null && edge === null){
+                continue;
+            }
+
+            eagle.editSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), object, Eagle.selectedLocation());
+        }
     }
 
     static printTable() : void {
@@ -194,6 +227,8 @@ export class Undo {
                 "current": realCurrent === i ? "->" : "",
                 "description": snapshot.description(),
                 "buffer position": i,
+                "nodes": snapshot.data().getNodes().length,
+                "edges": snapshot.data().getEdges().length
             });
         }
 

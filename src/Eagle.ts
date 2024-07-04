@@ -993,8 +993,6 @@ export class Eagle {
     }
 
     createSubgraphFromSelection = () : void => {
-        console.log("createSubgraphFromSelection()");
-
         const eagle = Eagle.getInstance()
         if(eagle.selectedObjects().length === 0){
             Utils.showNotification('Error','At least one node must be selected!', 'warning')
