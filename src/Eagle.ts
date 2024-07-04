@@ -30,6 +30,7 @@ import { Category } from './Category';
 import { ComponentUpdater } from './ComponentUpdater';
 import { Daliuge } from './Daliuge';
 import { DockerHubBrowser } from "./DockerHubBrowser";
+import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { ExplorePalettes } from './ExplorePalettes';
@@ -37,7 +38,6 @@ import { Field } from './Field';
 import { FileInfo } from './FileInfo';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
-import { GraphConfig } from "./graphConfig";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
@@ -3554,7 +3554,7 @@ export class Eagle {
 
         // if node is a construct, set width and height a little larger
         if (node.isGroup()){
-            node.setRadius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
+            node.setRadius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
         }
 
         //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it

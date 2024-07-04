@@ -27,11 +27,11 @@ import * as ko from "knockout";
 import { Category } from './Category';
 import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
-import { GraphConfig } from "./graphConfig";
 import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
@@ -579,15 +579,15 @@ export class LogicalGraph {
 
         // if no children were found, set to default size
         if (numChildren === 0){
-            node.setRadius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
+            node.setRadius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
             return;
         }
 
         // add some padding
-        minX -= GraphConfig.CONSTRUCT_MARGIN;
-        minY -= GraphConfig.CONSTRUCT_MARGIN;
-        maxX += GraphConfig.CONSTRUCT_MARGIN;
-        maxY += GraphConfig.CONSTRUCT_MARGIN;
+        minX -= EagleConfig.CONSTRUCT_MARGIN;
+        minY -= EagleConfig.CONSTRUCT_MARGIN;
+        maxX += EagleConfig.CONSTRUCT_MARGIN;
+        maxY += EagleConfig.CONSTRUCT_MARGIN;
 
         // set the size of the node
         node.setPosition(minX, minY);
@@ -777,7 +777,7 @@ export class LogicalGraph {
         // move all nodes so that the top left corner of the graph starts at the origin 0,0
         for (const node of nodes){
             const pos = node.getPosition();
-            node.setPosition(pos.x - minX + GraphConfig.CONSTRUCT_MARGIN, pos.y - minY + GraphConfig.CONSTRUCT_MARGIN+(radius/4));
+            node.setPosition(pos.x - minX + EagleConfig.CONSTRUCT_MARGIN, pos.y - minY + EagleConfig.CONSTRUCT_MARGIN+(radius/4));
         }
 
         return radius;

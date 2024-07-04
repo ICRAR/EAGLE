@@ -17,11 +17,11 @@ require.config({
         "bindingHandlers/eagleRightClick":"./static/built/bindingHandlers/eagleRightClick",
         "components":"./static/built/components",
         "main":"./static/built/main",
-        "Config": "./static/built/Config",
         "Daliuge": "./static/built/Daliuge",
         "GitHub": "./static/built/GitHub",
         "GitLab": "./static/built/GitLab",
         "Eagle": "./static/built/Eagle",
+        "EagleConfig": "./static/built/EagleConfig",
         "Utils": "./static/built/Utils",
         "Modals": "./static/built/Modals",
         "GraphUpdater": "./static/built/GraphUpdater",
@@ -57,7 +57,6 @@ require.config({
         "RightClick": "./static/built/RightClick",
         "Repositories": "./static/built/Repositories",
         "ParameterTable": "./static/built/ParameterTable",
-        "graphConfig": "./static/built/graphConfig"
     },
     shim: {
         "bootstrap": {

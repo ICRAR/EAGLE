@@ -24,7 +24,6 @@
 
 import * as ko from "knockout";
 
-import {Config} from './Config';
 import {Eagle} from './Eagle';
 import {LogicalGraph} from './LogicalGraph';
 import {Setting} from './Setting';
@@ -42,6 +41,8 @@ class Snapshot {
 }
 
 export class Undo {
+    static readonly MEMORY_SIZE : number = 10;
+
     memory: ko.ObservableArray<Snapshot>;
     front: ko.Observable<number>; // place where next snapshot will go
     rear: ko.Observable<number>;
@@ -49,7 +50,7 @@ export class Undo {
 
     constructor(){
         this.memory = ko.observableArray([]);
-        for (let i = 0 ; i < Config.UNDO_MEMORY_SIZE ; i++){
+        for (let i = 0 ; i < Undo.MEMORY_SIZE ; i++){
             this.memory.push(null);
         }
 
@@ -59,7 +60,7 @@ export class Undo {
     }
 
     clear = () : void => {
-        for (let i = 0 ; i < Config.UNDO_MEMORY_SIZE ; i++){
+        for (let i = 0 ; i < Undo.MEMORY_SIZE ; i++){
             this.memory()[i] = null;
         }
         this.memory.valueHasMutated();
@@ -69,7 +70,7 @@ export class Undo {
     }
 
     pushSnapshot = (eagle: Eagle, description: string) : void => {
-        const previousIndex = (this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
+        const previousIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
         const previousSnapshot : Snapshot = this.memory()[previousIndex];
         const newContent : LogicalGraph = eagle.logicalGraph().clone();
 
@@ -82,19 +83,19 @@ export class Undo {
 
         this.memory()[this.current()] = new Snapshot(description, newContent);
         this.memory.valueHasMutated();
-        this.front((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
+        this.front((this.current() + 1) % Undo.MEMORY_SIZE);
         this.current(this.front());
 
         // update rear
         if (this.rear() === this.front()){
-            this.rear((this.rear() + 1) % Config.UNDO_MEMORY_SIZE);
+            this.rear((this.rear() + 1) % Undo.MEMORY_SIZE);
         }
 
         // delete items from current to rear
-        for (let i = 0 ; i < Config.UNDO_MEMORY_SIZE ; i++){
-            const index = (this.current() + i) % Config.UNDO_MEMORY_SIZE;
+        for (let i = 0 ; i < Undo.MEMORY_SIZE ; i++){
+            const index = (this.current() + i) % Undo.MEMORY_SIZE;
 
-            if (((index + 1) % Config.UNDO_MEMORY_SIZE) === this.rear()){
+            if (((index + 1) % Undo.MEMORY_SIZE) === this.rear()){
                 break;
             }
 
@@ -113,10 +114,10 @@ export class Undo {
             return;
         }
 
-        const prevprevIndex = (this.current() + Config.UNDO_MEMORY_SIZE - 2) % Config.UNDO_MEMORY_SIZE;
+        const prevprevIndex = (this.current() + Undo.MEMORY_SIZE - 2) % Undo.MEMORY_SIZE;
 
         this._loadFromIndex(prevprevIndex, eagle);
-        this.current((this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE);
+        this.current((this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE);
 
         if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
             Undo.printTable();
@@ -135,7 +136,7 @@ export class Undo {
         }
 
         this._loadFromIndex(this.current(), eagle);
-        this.current((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
+        this.current((this.current() + 1) % Undo.MEMORY_SIZE);
 
         if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
             Undo.printTable();
@@ -149,7 +150,7 @@ export class Undo {
     toString = () : string => {
         const result = [];
 
-        for (let i = 0; i < Config.UNDO_MEMORY_SIZE ; i++){
+        for (let i = 0; i < Undo.MEMORY_SIZE ; i++){
             let suffix = "";
 
             if (i === this.rear()){
@@ -208,9 +209,9 @@ export class Undo {
     static printTable() : void {
         const eagle: Eagle = Eagle.getInstance();
         const tableData : any[] = [];
-        const realCurrent: number = (eagle.undo().current() - 1 + Config.UNDO_MEMORY_SIZE) % Config.UNDO_MEMORY_SIZE;
+        const realCurrent: number = (eagle.undo().current() - 1 + Undo.MEMORY_SIZE) % Undo.MEMORY_SIZE;
 
-        for (let i = Config.UNDO_MEMORY_SIZE - 1 ; i >= 0 ; i--){
+        for (let i = Undo.MEMORY_SIZE - 1 ; i >= 0 ; i--){
             const snapshot = eagle.undo().memory()[i];
 
             if (snapshot === null){
