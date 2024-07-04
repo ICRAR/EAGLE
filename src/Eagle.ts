@@ -3592,7 +3592,7 @@ export class Eagle {
             }
 
             // determine whether we should also generate an object data drop along with this node
-            const generateObjectDataDrop: boolean = newNode.getCategory() === Category.PythonMemberFunction && (newNode.getName().includes("__init__") || newNode.getName().includes("__class__"));
+            const generateObjectDataDrop: boolean = Daliuge.isPythonInitialiser(newNode);
 
             // optionally generate a new PythonObject node
             if (generateObjectDataDrop){
