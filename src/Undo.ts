@@ -202,6 +202,11 @@ export class Undo {
             const edge = eagle.logicalGraph().findEdgeById(id);
             const object = node || edge;
 
+            // abort if no edge or node exists fot that id
+            if (node === null && edge === null){
+                continue;
+            }
+
             eagle.editSelection(<Eagle.RightWindowMode>eagle.rightWindow().mode(), object, Eagle.selectedLocation());
         }
     }
