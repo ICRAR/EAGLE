@@ -2178,21 +2178,21 @@ export class Utils {
     }
 
     // only update result if it is worse that current result
-    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Edge.Validity {
+    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
         if (errorsWarnings === null){
             console.warn("errorsWarnings is null");
-            return Edge.Validity.Valid;
+            return Errors.Validity.Valid;
         }
 
         if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
-            return Edge.Validity.Valid;
+            return Errors.Validity.Valid;
         }
 
         if (errorsWarnings.errors.length !== 0){
-            return Edge.Validity.Invalid;
+            return Errors.Validity.Invalid;
         }
 
-        return Edge.Validity.Warning;
+        return Errors.Validity.Warning;
     }
 
     static printCategories() : void {

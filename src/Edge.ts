@@ -43,7 +43,7 @@ export class Edge {
     private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
     private selectionRelative : boolean // indicates if the edge is either selected or attached to a selected node
     private isShortEdge : ko.Observable<boolean>;
-    private errors : {issue:Errors.Issue, validity:Edge.Validity}[]
+    private errors : {issue:Errors.Issue, validity:Errors.Validity}[]
 
     constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
         this._id = Utils.uuidv4();
@@ -279,41 +279,41 @@ export class Edge {
         return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.loopAware, edgeData.closesLoop, false);
     }
 
-    static isValid(eagle: Eagle,autoSuggestMode:boolean, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Edge.Validity {
+    static isValid(eagle: Eagle,autoSuggestMode:boolean, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
         
         let impossibleEdge : boolean = false;
 
         // check for problems
         if (isNaN(sourceNodeKey)){
-            return Edge.Validity.Unknown;
+            return Errors.Validity.Unknown;
         }
 
         if (isNaN(destinationNodeKey)){
-            return Edge.Validity.Unknown;
+            return Errors.Validity.Unknown;
         }
 
         if (sourcePortId === ""){
             const issue = Errors.Fix("source port has no id", function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on source node");
-            Edge.isValidLog(edgeId, Edge.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
-            return Edge.Validity.Impossible;
+            Edge.isValidLog(edgeId, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
+            return Errors.Validity.Impossible;
         }
 
         if (destinationPortId === ""){
             const issue = Errors.Fix("destination port has no id", function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on destination node");
-            Edge.isValidLog(edgeId, Edge.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
-            return Edge.Validity.Impossible;
+            Edge.isValidLog(edgeId, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
+            return Errors.Validity.Impossible;
         }
 
         if (sourcePortId === null){
             const issue = Errors.Fix("source port id is null", function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on source node");
-            Edge.isValidLog(edgeId, Edge.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
-            return Edge.Validity.Impossible;
+            Edge.isValidLog(edgeId, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
+            return Errors.Validity.Impossible;
         }
 
         if (destinationPortId === null){
             const issue = Errors.Fix("destination port id is null", function(){Utils.fixNodeFieldIds(eagle, sourceNodeKey)}, "Generate ids for ports on destination node");
-            Edge.isValidLog(edgeId, Edge.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
-            return Edge.Validity.Impossible;
+            Edge.isValidLog(edgeId, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
+            return Errors.Validity.Impossible;
         }
 
         // get references to actual source and destination nodes (from the keys)
@@ -321,23 +321,23 @@ export class Edge {
         const destinationNode : Node = eagle.logicalGraph().findNodeByKey(destinationNodeKey);
 
         if (sourceNode === null || typeof sourceNode === "undefined" || destinationNode === null || typeof destinationNode === "undefined"){
-            return Edge.Validity.Unknown;
+            return Errors.Validity.Unknown;
         }
 
         // check that we are not connecting a Data component to a Data component, that is not supported
         if (sourceNode.getCategoryType() === Category.Type.Data && destinationNode.getCategoryType() === Category.Type.Data){
-            Edge.isValidLog(edgeId, Edge.Validity.Invalid, Errors.Show("Data nodes may not be connected directly to other Data nodes", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Errors.Validity.Invalid, Errors.Show("Data nodes may not be connected directly to other Data nodes", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // if source node or destination node is a construct, then something is wrong, constructs should not have ports
         if (sourceNode.getCategoryType() === Category.Type.Construct){
             const issue: Errors.Issue = Errors.ShowFix("Edge (" + edgeId + ") cannot have a source node (" + sourceNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
-            Edge.isValidLog(edgeId, Edge.Validity.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Errors.Validity.Invalid, issue, showNotification, showConsole, errorsWarnings);
         }
 
         if (destinationNode.getCategoryType() === Category.Type.Construct){
             const issue: Errors.Issue = Errors.ShowFix("Edge (" + edgeId + ") cannot have a destination node (" + destinationNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
-            Edge.isValidLog(edgeId, Edge.Validity.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Errors.Validity.Invalid, issue, showNotification, showConsole, errorsWarnings);
         }
 
         // if source node is a memory, and destination is a BashShellApp, OR
@@ -346,7 +346,7 @@ export class Edge {
         if ((sourceNode.getCategory() === Category.Memory && destinationNode.getCategory() === Category.BashShellApp) ||
             (sourceNode.getCategory() === Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplication() !== undefined && destinationNode.hasInputApplication() && destinationNode.getInputApplication().getCategory() === Category.BashShellApp)){
             const issue: Errors.Issue = Errors.ShowFix("output from Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", function(){Utils.showNode(eagle, sourceNode.getId())}, function(){Utils.fixNodeCategory(eagle, sourceNode, Category.File, Category.Type.Data)}, "Change data component type to File");
-            Edge.isValidLog(edgeId, Edge.Validity.Invalid, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Errors.Validity.Invalid, issue, showNotification, showConsole, errorsWarnings);
         }
 
         const sourcePort : Field = sourceNode.findFieldById(sourcePortId);
@@ -355,41 +355,41 @@ export class Edge {
         // check if source port was found
         if (sourcePort === null) {
             const issue: Errors.Issue = Errors.ShowFix("Source port (" + sourcePortId + ") doesn't exist on source node (" + sourceNode.getName() + ")", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.addSourcePortToSourceNode(eagle, edgeId)}, "Add source port to source node");
-            Edge.isValidLog(edgeId, Edge.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
         }
 
         // check if destination port was found
         if (destinationPort === null){
             const issue: Errors.Issue = Errors.ShowFix("Destination port (" + destinationPortId + ") doesn't exist on destination node (" + destinationNode.getName() + ")", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.addDestinationPortToDestinationNode(eagle, edgeId)}, "Add destination port to destination node");
-            Edge.isValidLog(edgeId, Edge.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
         }
 
         // check that we are not connecting a port to itself
         if (sourceNodeKey === destinationNodeKey){
-            Edge.isValidLog(edgeId, Edge.Validity.Impossible, Errors.Show("Source port and destination port are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Errors.Validity.Impossible, Errors.Show("Source port and destination port are the same", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
         }
 
         // check that source is output
         if (!sourcePort.isOutputPort()){
             const issue: Errors.Issue = Errors.ShowFix("Source port is not output port (" + sourcePort.getUsage() + ")", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixFieldUsage(eagle, sourcePort, Daliuge.FieldUsage.OutputPort)}, "Add output usage to source port");
-            Edge.isValidLog(edgeId, Edge.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
         }
 
         // check that destination in input
         if (!destinationPort.isInputPort()){
             const issue: Errors.Issue = Errors.ShowFix("Destination port is not input port (" + destinationPort.getUsage() + ")", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixFieldUsage(eagle, destinationPort, Daliuge.FieldUsage.InputPort)}, "Add input usage to destination port");
-            Edge.isValidLog(edgeId, Edge.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
         }
 
         if (sourcePort !== null && destinationPort !== null){
             // check that source and destination port are both event, or both not event
             if ((sourcePort.getIsEvent() && !destinationPort.getIsEvent()) || (!sourcePort.getIsEvent() && destinationPort.getIsEvent())){
-                Edge.isValidLog(edgeId, Edge.Validity.Invalid, Errors.Show("Source port and destination port are mix of event and non-event ports", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Errors.Validity.Invalid, Errors.Show("Source port and destination port are mix of event and non-event ports", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
             }
         }
 
@@ -419,7 +419,7 @@ export class Edge {
             // abort if source port and destination port have different data types
             if (!Utils.portsMatch(sourcePort, destinationPort)){
                 const x = Errors.ShowFix("Source and destination ports don't match data types: sourcePort (" + sourcePort.getDisplayText() + ":" + sourcePort.getType() + ") destinationPort (" + destinationPort.getDisplayText() + ":" + destinationPort.getType() + ")", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixPortType(eagle, sourcePort, destinationPort);}, "Overwrite destination port type with source port type");
-                Edge.isValidLog(edgeId, Edge.Validity.Invalid, x, showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Errors.Validity.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
         }
 
@@ -432,12 +432,12 @@ export class Edge {
             || associatedConstructType !== Category.Loop && loopAware
         ){
             const x = Errors.ShowFix("An edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDisableEdgeLoopAware(eagle, edgeId);}, "Disable loop aware on the edge.");
-            Edge.isValidLog(edgeId, Edge.Validity.Warning, x, showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edgeId, Errors.Validity.Warning, x, showNotification, showConsole, errorsWarnings);
         }
 
         // if link is not a parent, child or sibling, then warn user
         if (associatedConstructType !== Category.ExclusiveForceNode && associatedConstructType !== Category.Loop && !isSibling && !isParentOfConstruct && !isChildOfConstruct && !destPortIsEmbeddedAppOfSibling && !srcPortIsEmbeddedAppOfSibling){
-                Edge.isValidLog(edgeId, Edge.Validity.Warning, Errors.Show("Edge is not between siblings, or between a child and its parent's embedded Application. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Errors.Validity.Warning, Errors.Show("Edge is not between siblings, or between a child and its parent's embedded Application. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
         // check if the edge already exists in the graph, there is no point in a duplicate
@@ -447,7 +447,7 @@ export class Edge {
 
             if ( isSrcMatch && isDestMatch && edge.getId() !== edgeId){
                 const x = Errors.ShowFix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDeleteEdge(eagle, edgeId);}, "Delete edge");
-                Edge.isValidLog(edgeId, Edge.Validity.Invalid, x, showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Errors.Validity.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
         }
 
@@ -459,49 +459,49 @@ export class Edge {
         if (closesLoop){
             if (!sourceNode.isData()){
                 const x = Errors.Show("Closes Loop Edge (" + edgeId + ") does not start from a Data component.", function(){Utils.showEdge(eagle, edgeId);});
-                Edge.isValidLog(edgeId, Edge.Validity.Invalid, x, showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Errors.Validity.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
 
             if (!destinationNode.isApplication()){
                 const x = Errors.Show("Closes Loop Edge (" + edgeId + ") does not end at an Application component.", function(){Utils.showEdge(eagle, edgeId);});
-                Edge.isValidLog(edgeId, Edge.Validity.Invalid, x, showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Errors.Validity.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
 
             if (!sourceNode.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_END) || !Utils.asBool(sourceNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).getValue())){
                 const x = Errors.ShowFix("'Closes Loop' Edge (" + edgeId + ") start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixFieldValue(eagle, sourceNode, Daliuge.groupEndField, "true")}, "Set 'group_end' to true");
-                Edge.isValidLog(edgeId, Edge.Validity.Invalid, x, showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Errors.Validity.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
 
             if (!destinationNode.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_START) || !Utils.asBool(destinationNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).getValue())){
                 const x = Errors.ShowFix("'Closes Loop' Edge (" + edgeId + ") end node (" + destinationNode.getName() + ") does not have 'group_start' set to true.", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixFieldValue(eagle, destinationNode, Daliuge.groupStartField, "true")}, "Set 'group_start' to true");
-                Edge.isValidLog(edgeId, Edge.Validity.Invalid, x, showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edgeId, Errors.Validity.Invalid, x, showNotification, showConsole, errorsWarnings);
             }
         }
 
         //the worst edge errror function can only check for entries in errors or warnings, it isnt able to distinguish impossible from invalid
         if(impossibleEdge){
-            return Edge.Validity.Impossible
+            return Errors.Validity.Impossible
         }else{
             return Utils.worstEdgeError(errorsWarnings);
         }
     }
 
-    private static isValidLog(edgeId : string, linkValid : Edge.Validity, issue: Errors.Issue, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : void {
+    private static isValidLog(edgeId : string, linkValid : Errors.Validity, issue: Errors.Issue, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : void {
         // determine correct title
         let title = "Edge Valid";
         let type : "success" | "info" | "warning" | "danger" = "success";
         let message = "";
 
         switch (linkValid){
-            case Edge.Validity.Warning:
+            case Errors.Validity.Warning:
                 title = "Edge Warning";
                 type = "warning";
                 break;
-            case Edge.Validity.Impossible:
+            case Errors.Validity.Impossible:
                 title = "Edge Impossible";
                 type = "danger";
                 break;
-            case Edge.Validity.Invalid:
+            case Errors.Validity.Invalid:
                 title = "Edge Invalid";
                 type = "danger";
                 break;
@@ -526,18 +526,5 @@ export class Edge {
             errorsWarnings.warnings.push(issue);
         }
         Eagle.getInstance().logicalGraph().findEdgeById(edgeId)?.errors.push({issue:issue, validity:linkValid})
-    }
-}
-
-//change data structure of each nodes, fields and edges and new logicalgraph is valid function to be {issue, validity}[]
-// move to errors, use for nodes,fields and edges
-export namespace Edge {
-    export enum Validity {
-        Unknown = "Unknown",        // validity of the edge is unknown
-        Impossible = "Impossible",  // never useful or valid
-        Invalid = "Invalid",        // invalid, but possibly useful for expert users?   change to error
-        Warning = "Warning",        // valid, but some issue that the user should be aware of
-        Fixable = "Fixable",        // there is an issue with the connection but for drawing edges eagle will fix this for you
-        Valid = "Valid"             // fine
     }
 }

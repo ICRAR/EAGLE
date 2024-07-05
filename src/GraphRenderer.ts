@@ -27,13 +27,13 @@ import * as ko from "knockout";
 import { Category } from './Category';
 import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
+import { Errors } from './Errors';
 import { Edge } from "./Edge";
 import { Field } from './Field';
 import { GraphConfig } from './graphConfig';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Utils } from './Utils';
-import { CategoryData} from './CategoryData';
 import { Setting } from './Setting';
 import { RightClick } from "./RightClick";
 
@@ -302,7 +302,7 @@ export class GraphRenderer {
 
     //port drag handler globals
     static draggingPort : boolean = false;
-    static isDraggingPortValid: ko.Observable<Edge.Validity> = ko.observable(Edge.Validity.Unknown);
+    static isDraggingPortValid: ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown);
     static destinationNode : Node = null;
     static destinationPort : Field = null;
     
@@ -1762,11 +1762,11 @@ export class GraphRenderer {
         }
 
         // check if link is valid
-        const linkValid : Edge.Validity = Edge.isValid(eagle,false, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
+        const linkValid : Errors.Validity = Edge.isValid(eagle,false, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
-        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Edge.Validity.Invalid) || linkValid === Edge.Validity.Valid || linkValid === Edge.Validity.Warning){
-            if (linkValid === Edge.Validity.Warning){
+        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Errors.Validity.Invalid) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning){
+            if (linkValid === Errors.Validity.Warning){
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, false, false);
@@ -2021,8 +2021,8 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         const result: {node: Node, field: Field}[] = [];
 
-        const minValidity: Edge.Validity = Setting.findValue(Setting.AUTO_COMPLETE_EDGES_LEVEL);
-        const minValidityIndex: number = Object.values(Edge.Validity).indexOf(minValidity);
+        const minValidity: Errors.Validity = Setting.findValue(Setting.AUTO_COMPLETE_EDGES_LEVEL);
+        const minValidityIndex: number = Object.values(Errors.Validity).indexOf(minValidity);
 
         const potentialNodes :Node[] = []
 
@@ -2038,13 +2038,13 @@ export class GraphRenderer {
 
         for(const node of potentialNodes){
             for (const port of node.getPorts()){
-                let isValid: Edge.Validity
+                let isValid: Errors.Validity
                 if(!GraphRenderer.portDragSourcePortIsInput){
                     isValid = Edge.isValid(eagle,true, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }else{
                     isValid = Edge.isValid(eagle,true, "", node.getKey(), port.getId(), sourceNode.getKey(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }
-                const isValidIndex: number = Object.values(Edge.Validity).indexOf(isValid);
+                const isValidIndex: number = Object.values(Errors.Validity).indexOf(isValid);
 
                 if (isValidIndex >= minValidityIndex){
                     result.push({node: node, field: port});
@@ -2117,19 +2117,19 @@ export class GraphRenderer {
         GraphRenderer.destinationPort = null;
         GraphRenderer.destinationNode = null;
 
-        GraphRenderer.isDraggingPortValid(Edge.Validity.Unknown);
+        GraphRenderer.isDraggingPortValid(Errors.Validity.Unknown);
     }
 
     static draggingEdgeGetStrokeColor: ko.PureComputed<string> = ko.pureComputed(() => {
         switch (GraphRenderer.isDraggingPortValid()){
-            case Edge.Validity.Unknown:
+            case Errors.Validity.Unknown:
                 return "black";
-            case Edge.Validity.Impossible:
-            case Edge.Validity.Invalid:
+            case Errors.Validity.Impossible:
+            case Errors.Validity.Invalid:
                 return GraphConfig.getColor("edgeInvalid");
-            case Edge.Validity.Warning:
+            case Errors.Validity.Warning:
                 return GraphConfig.getColor("edgeWarning");
-            case Edge.Validity.Valid:
+            case Errors.Validity.Valid:
                 return GraphConfig.getColor("edgeValid");
             default:
                 return GraphConfig.getColor("edgeDefault");
@@ -2248,14 +2248,14 @@ export class GraphRenderer {
         }
 
         // check if link has a warning or is invalid
-        const linkValid : Edge.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        const linkValid : Errors.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
 
-        if (linkValid === Edge.Validity.Invalid || linkValid === Edge.Validity.Impossible){
+        if (linkValid === Errors.Validity.Invalid || linkValid === Errors.Validity.Impossible){
             normalColor = GraphConfig.getColor('edgeInvalid');
             selectedColor = GraphConfig.getColor('edgeInvalidSelected');
         }
 
-        if (linkValid === Edge.Validity.Warning){
+        if (linkValid === Errors.Validity.Warning){
             normalColor = GraphConfig.getColor('edgeWarning');
             selectedColor = GraphConfig.getColor('edgeWarningSelected');
         }
