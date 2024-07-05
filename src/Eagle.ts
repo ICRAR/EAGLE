@@ -38,6 +38,7 @@ import { Field } from './Field';
 import { FileInfo } from './FileInfo';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
+import { GraphConfig } from "./GraphConfig";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
@@ -2033,9 +2034,13 @@ export class Eagle {
                     Utils.showUserMessage(file.name, Utils.markdown2html(data));
                     break;
 
+                case Eagle.FileType.GraphConfig:
+                    this._remoteConfigLoaded(file, data);
+                    break;
+
                 default:
                     // Show error message
-                    Utils.showUserMessage("Error", "The file type is neither graph nor palette!");
+                    Utils.showUserMessage("Error", "The file type is unknown!");
             }
         this.resetEditor()
         });
@@ -2163,6 +2168,24 @@ export class Eagle {
         } else {
             this._reloadPalette(file, data, alreadyLoadedPalette);
         }
+    }
+
+    private _remoteConfigLoaded = (file: RepositoryFile, data: string): void => {
+        // attempt to parse the JSON
+        let dataObject;
+        try {
+            dataObject = JSON.parse(data);
+        }
+        catch(err){
+            Utils.showUserMessage("Error parsing file JSON", err.message);
+            return;
+        }
+
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+
+        const graphConfig = GraphConfig.fromJson(dataObject, errorsWarnings);
+        console.log(graphConfig);
+
     }
 
     private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
@@ -4898,6 +4921,7 @@ export namespace Eagle
         Palette = "Palette",
         JSON = "JSON",
         Markdown = "Markdown",
+        GraphConfig = "GraphConfig",
         Unknown = "Unknown"
     }
 

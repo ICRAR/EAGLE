@@ -50,6 +50,7 @@ export class Utils {
         "diagram",
         "graph",
         "palette",
+        "cfg", // for graph config files
         "md" // for markdown e.g. README.md
     ];
 
@@ -1312,6 +1313,11 @@ export class Utils {
 
         if (typeof data.DALiuGEGraph !== 'undefined'){
             return Eagle.FileType.Graph;
+        }
+
+        // TODO: change this to something more likely to be config-only
+        if (typeof data.nodes !== 'undefined'){
+            return Eagle.FileType.GraphConfig;
         }
 
         return Eagle.FileType.Unknown;
