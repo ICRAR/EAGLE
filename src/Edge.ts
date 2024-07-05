@@ -31,7 +31,6 @@ import { Field } from './Field';
 import { Utils } from './Utils';
 import { Errors } from './Errors';
 import * as ko from "knockout";
-import { CategoryData } from './CategoryData';
 
 export class Edge {
     private _id : string
@@ -43,7 +42,7 @@ export class Edge {
     private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
     private selectionRelative : boolean // indicates if the edge is either selected or attached to a selected node
     private isShortEdge : ko.Observable<boolean>;
-    private errors : {issue:Errors.Issue, validity:Errors.Validity}[]
+    private errorsArray : {issue:Errors.Issue, validity:Errors.Validity}[]
 
     constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
         this._id = Utils.uuidv4();
@@ -57,7 +56,7 @@ export class Edge {
         this.closesLoop = closesLoop;
         this.selectionRelative = selectionRelative;
         this.isShortEdge = ko.observable(false)
-        this.errors = [];
+        this.errorsArray = [];
     }
 
     getId = () : string => {
@@ -176,6 +175,10 @@ export class Edge {
         Edge.isValid(eagle,false, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, false, false, result);
 
         return result;
+    }
+
+    getErrorsArray = () : {issue:Errors.Issue, validity:Errors.Validity}[] => {
+        return this.errorsArray;
     }
 
     static toOJSJson(edge : Edge) : object {
@@ -525,6 +528,6 @@ export class Edge {
         if (type === "warning" && errorsWarnings !== null){
             errorsWarnings.warnings.push(issue);
         }
-        Eagle.getInstance().logicalGraph().findEdgeById(edgeId)?.errors.push({issue:issue, validity:linkValid})
+        Eagle.getInstance().logicalGraph().findEdgeById(edgeId)?.errorsArray.push({issue:issue, validity:linkValid})
     }
 }

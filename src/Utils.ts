@@ -1404,6 +1404,7 @@ export class Utils {
 
     static checkGraph(eagle: Eagle): Errors.ErrorsWarnings {
         const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
+        
 
         const graph: LogicalGraph = eagle.logicalGraph();
 
@@ -1446,7 +1447,7 @@ export class Utils {
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
+            Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {warnings: [], errors: []});
         }
 
         // check that all node, edge, field ids are unique

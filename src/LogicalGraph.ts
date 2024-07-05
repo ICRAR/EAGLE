@@ -784,4 +784,8 @@ export class LogicalGraph {
 
         return radius;
     }
+
+    static isValid () : void {
+        //here should be the higher level graph wide checks for graph validity
+    }
 }
