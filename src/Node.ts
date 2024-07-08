@@ -1965,6 +1965,18 @@ export class Node {
             Field.isValid(node,field,selectedLocation,i)
         }
 
+        if(node.isConstruct()){
+            //checking the input application if one is present
+            if(node.hasInputApplication()){
+                Node.isValid(node.getInputApplication(),selectedLocation)
+            }
+
+            //checking the output application if one is present
+            if(node.hasOutputApplication()){
+                Node.isValid(node.getOutputApplication(),selectedLocation)
+            }
+        }
+        
         // check that all nodes have correct numbers of inputs and outputs
         const cData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
 
