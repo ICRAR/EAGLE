@@ -200,7 +200,8 @@ export class GraphUpdater {
                         row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
 
                         // check the graph once loaded
-                        const results: Errors.ErrorsWarnings = Utils.checkGraph(eagle);
+                        Utils.checkGraph(eagle);
+                        const results: Errors.ErrorsWarnings = Utils.gatherGraphErrors();
                         row.numCheckWarnings = results.warnings.length;
                         row.numCheckErrors = results.errors.length;
                     }

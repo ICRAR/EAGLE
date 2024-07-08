@@ -1765,7 +1765,7 @@ export class GraphRenderer {
         const linkValid : Errors.Validity = Edge.isValid(eagle,false, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
-        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Errors.Validity.Invalid) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning){
+        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Errors.Validity.Error) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning){
             if (linkValid === Errors.Validity.Warning){
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
@@ -2125,7 +2125,7 @@ export class GraphRenderer {
             case Errors.Validity.Unknown:
                 return "black";
             case Errors.Validity.Impossible:
-            case Errors.Validity.Invalid:
+            case Errors.Validity.Error:
                 return GraphConfig.getColor("edgeInvalid");
             case Errors.Validity.Warning:
                 return GraphConfig.getColor("edgeWarning");
@@ -2250,7 +2250,7 @@ export class GraphRenderer {
         // check if link has a warning or is invalid
         const linkValid : Errors.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
 
-        if (linkValid === Errors.Validity.Invalid || linkValid === Errors.Validity.Impossible){
+        if (linkValid === Errors.Validity.Error || linkValid === Errors.Validity.Impossible){
             normalColor = GraphConfig.getColor('edgeInvalid');
             selectedColor = GraphConfig.getColor('edgeInvalidSelected');
         }

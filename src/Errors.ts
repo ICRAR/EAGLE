@@ -123,7 +123,7 @@ export namespace Errors
     export enum Validity {
         Unknown = "Unknown",        // validity of the edge is unknown
         Impossible = "Impossible",  // never useful or valid
-        Invalid = "Invalid",        // invalid, but possibly useful for expert users?   change to error
+        Error = "Error",        // invalid, but possibly useful for expert users?   change to error
         Warning = "Warning",        // valid, but some issue that the user should be aware of
         Fixable = "Fixable",        // there is an issue with the connection but for drawing edges eagle will fix this for you
         Valid = "Valid"             // fine
