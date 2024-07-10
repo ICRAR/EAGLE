@@ -64,7 +64,7 @@ export class Node {
     private dataHash : ko.Observable<string>;
 
     private errorsArray : {issue:Errors.Issue, validity:Errors.Validity}[]
-    private errorsWarnings : ko.Observable<Errors.ErrorsWarnings>;
+    // private errorsWarnings : ko.Observable<Errors.ErrorsWarnings>;
 
     public static readonly DEFAULT_COLOR : string = "ffffff";
 
@@ -115,7 +115,7 @@ export class Node {
         this.dataHash = ko.observable("");
 
         this.errorsArray = [];
-        this.errorsWarnings = ko.observable({warnings: [], errors: []});
+        // this.errorsWarnings = ko.observable({warnings: [], errors: []});
 
         //graph related things
         this.expanded = ko.observable(true);
@@ -1134,33 +1134,59 @@ export class Node {
         return result;
     }
 
-    getErrorsWarnings = (): Errors.ErrorsWarnings => {
-        return this.errorsWarnings();
-    }
-
     getErrors = (): {issue:Errors.Issue, validity:Errors.Validity}[] => {
         return this.errorsArray;
     }
 
-    getAllErrorsWarnings = (): Errors.ErrorsWarnings => {
+    getAllErrors = () : {issue:Errors.Issue, validity:Errors.Validity}[] => {
+        const allNodeErrors : {issue:Errors.Issue, validity:Errors.Validity}[] = []
+
+        allNodeErrors.push(...this.getErrors())
+        this.getFields().forEach(function(field){
+            allNodeErrors.push(...field.getErrors())
+        })
+
+        return allNodeErrors
+    }
+
+    getErrorsWarnings : ko.PureComputed<Errors.ErrorsWarnings> = ko.pureComputed(() => {
         const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
-        errorsWarnings.errors.push(...this.errorsWarnings().errors)
-        errorsWarnings.warnings.push(...this.errorsWarnings().warnings)
+
+        this.getErrors().forEach(function(error){
+            if(error.validity === Errors.Validity.Error || error.validity === Errors.Validity.Unknown){
+                errorsWarnings.errors.push(error.issue)
+            }else{
+                errorsWarnings.warnings.push(error.issue)
+            }
+        })
+
+        return errorsWarnings;
+    }, this);
+
+    getAllErrorsWarnings : ko.PureComputed<Errors.ErrorsWarnings> = ko.pureComputed(() => {
+        const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
+        const nodeErrors = this.getErrorsWarnings()
+
+        errorsWarnings.errors.push(...nodeErrors.errors)
+        errorsWarnings.warnings.push(...nodeErrors.warnings)
 
         this.getFields().forEach((field) =>{
-            errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
-            errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
+            const fieldErrors = field.getErrorsWarnings()
+            errorsWarnings.errors.push(...fieldErrors.errors)
+            errorsWarnings.warnings.push(...fieldErrors.warnings)
         })
 
         return errorsWarnings
-    }
+    }, this);
 
     getBorderColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        const errorsWarnings = this.getErrorsWarnings()
+
         if(this.isEmbedded()){
             return '' //returning nothing lets the means we are not over writing the default css behaviour
-        }else if(this.errorsWarnings().errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
+        }else if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
             return '#ea2727'
-        }else if(this.errorsWarnings().warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
             return '#ffa500'
         }else{
             return '#2e3192'
@@ -1168,10 +1194,12 @@ export class Node {
     }, this);
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        const errorsWarnings = this.getErrorsWarnings()
         const eagle = Eagle.getInstance()
-        if(this.errorsWarnings().errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
+
+        if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
             return '#ffdcdc'
-        }else if(this.errorsWarnings().warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
             return '#ffeac4'
         }else if(this.isBranch()){
             //for some reason branch nodes dont want to behave like other nodes, i need to return their background or selected color manually
@@ -2080,7 +2108,8 @@ export class Node {
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") has a '" + field.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + field.getParameterType();
                 const issue : Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, node.getId(),existingField);}, function(){Utils.fixFieldParameterType(eagle, node, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType())
                 // existingField.addErrorsWarnings(Errors.ShowFix(message, function(){Utils.showField(eagle, node.getId(),existingField);}, function(){Utils.fixFieldParameterType(eagle, node, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType()),'error');
-                node.errorsArray.push({issue:issue,validity:Errors.Validity.Error});
+                // node.errorsArray.push({issue:issue,validity:Errors.Validity.Error});
+                existingField.addError(issue,Errors.Validity.Error)
             }
         }
     }

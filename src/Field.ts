@@ -42,7 +42,7 @@ export class Field {
     private outputAngle : number;
 
     private errorsArray : {issue:Errors.Issue, validity:Errors.Validity}[]
-    private errorsWarnings : ko.Observable<Errors.ErrorsWarnings>;
+    // private errorsWarnings : ko.Observable<Errors.ErrorsWarnings>;
 
     constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
         this.displayText = ko.observable(displayText);
@@ -75,7 +75,7 @@ export class Field {
         this.outputAngle = 0;
 
         this.errorsArray = [];
-        this.errorsWarnings = ko.observable({warnings: [], errors: []});
+        // this.errorsWarnings = ko.observable({warnings: [], errors: []});
     }
 
     getId = () : string => {
@@ -346,26 +346,34 @@ export class Field {
         return this.nodeKey();
     }
 
-    getErrorsWarnings = (): Errors.ErrorsWarnings => {
-        return this.errorsWarnings();
-    }
+    getErrorsWarnings : ko.PureComputed<Errors.ErrorsWarnings> = ko.pureComputed(() => {
+        const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
+        
+        this.getErrors().forEach(function(error){
+            if(error.validity === Errors.Validity.Error || error.validity === Errors.Validity.Unknown){
+                errorsWarnings.errors.push(error.issue)
+            }else{
+                errorsWarnings.warnings.push(error.issue)
+            }
+        })
+
+        return errorsWarnings;
+    }, this);
 
     getErrors = (): {issue:Errors.Issue, validity:Errors.Validity}[] => {
         return this.errorsArray;
     }
 
-    addErrorsWarnings(issue:Errors.Issue, issueType:string) : void {
-        if(issueType === 'error'){
-            this.errorsWarnings().errors.push(issue)
-        }else{
-            this.errorsWarnings().warnings.push(issue)
-        }
+    addError(issue:Errors.Issue, validity:Errors.Validity){
+        this.errorsArray.push({issue:issue,validity:validity})
     }
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
-        if(this.errorsWarnings().errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
+        const errorsWarnings = this.getErrorsWarnings()
+
+        if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
             return '#ea2727'
-        }else if(this.errorsWarnings().warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
             return '#ffa500'
         }else{
             return ''
@@ -373,11 +381,13 @@ export class Field {
     }, this);
 
     getHasErrors = () : boolean => {
-        return this.errorsWarnings().errors.length>0;
+        const errorsWarnings = this.getErrorsWarnings()
+        return errorsWarnings.errors.length>0;
     }
 
     getHasOnlyWarnings = () : boolean => {
-        return this.errorsWarnings().warnings.length>0 && this.errorsWarnings().errors.length === 0;
+        const errorsWarnings = this.getErrorsWarnings()
+        return errorsWarnings.warnings.length>0 && errorsWarnings.errors.length === 0;
     }
 
     setNodeKey = (key : number) : void => {
