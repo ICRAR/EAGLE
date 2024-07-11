@@ -1,6 +1,7 @@
 import * as ko from "knockout";
 
 import { Errors } from "./Errors";
+import { LogicalGraph } from "./LogicalGraph";
 import { Repository } from "./Repository";
 
 export class GraphConfigField {
@@ -10,6 +11,10 @@ export class GraphConfigField {
     setValue = (value: string): GraphConfigField => {
         this.value = value;
         return this;
+    }
+
+    getValue = (): string => {
+        return this.value;
     }
 
     setComment = (comment: string): GraphConfigField => {
@@ -120,5 +125,29 @@ export class GraphConfig {
         }
 
         return result;
+    }
+
+    static apply(lg: LogicalGraph, config: GraphConfig) : void {
+        console.log("Applying graph config with", config.numFields(), "fields to logical graph", lg.fileInfo.name);
+
+        for (const [nodeId, node] of config.nodes){
+            const lgNode = lg.findNodeById(nodeId);
+
+            if (lgNode === null){
+                console.warn("GraphConfig.apply(): Could not find node", nodeId);
+                continue;
+            }
+
+            for (const [fieldId, field] of node.getFields()){
+                const lgField = lgNode.findFieldById(fieldId);
+
+                if (lgField === null){
+                    console.warn("GraphConfig.apply(): Could not find field", fieldId, "on node", lgNode.getName());
+                    continue;
+                }
+
+                lgField.setValue(field.getValue());
+            }
+        }
     }
 }
