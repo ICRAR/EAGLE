@@ -248,4 +248,18 @@
             <button type="button" id="setTranslatorUrlBtn" class="btn btn-primary btn-block btn_wide" data-bind="click: setTranslatorUrl">Set Translator URL</button>
         </div>
     </div>
+    <div class="row">
+        <!-- ko if: graphConfig() === null -->
+        <div class="alert alert-light noselect" role="alert">
+            <span>No Graph Config Loaded</span>
+        </div>
+        <!-- /ko -->
+        <!-- ko if: graphConfig() !== null -->
+        <div class="alert alert-light noselect" role="alert">
+            <span>Graph Config contains</span>
+            <span data-bind="text: graphConfig().numFields()"></span>
+            <span>fields.</span>
+        </div>
+        <!-- /ko -->
+    </div>
 </div>

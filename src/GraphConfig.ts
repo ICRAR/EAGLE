@@ -1,3 +1,5 @@
+import * as ko from "knockout";
+
 import { Errors } from "./Errors";
 import { Repository } from "./Repository";
 
@@ -49,6 +51,10 @@ export class GraphConfigNode {
         return newField;
     }
 
+    getFields = (): Map<string, GraphConfigField> => {
+        return this.fields;
+    }
+
     static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
         const result = new GraphConfigNode();
 
@@ -90,6 +96,16 @@ export class GraphConfig {
     addValue = (nodeId: string, fieldId: string, value: string) => {
         this.addNode(nodeId).addField(fieldId).setValue(value);
     }
+
+    numFields: ko.PureComputed<number> = ko.pureComputed(() => {
+        let count = 0;
+
+        for (const [id, node] of this.nodes){
+            count += node.getFields().size;
+        }
+
+        return count;
+    }, this)
 
     static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
         const result: GraphConfig = new GraphConfig();

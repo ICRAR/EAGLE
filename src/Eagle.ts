@@ -65,6 +65,7 @@ export class Eagle {
 
     palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
+    graphConfig : ko.Observable<GraphConfig>;
     tutorial : ko.Observable<Tutorial>;
 
     eagleIsReady : ko.Observable<boolean>;
@@ -145,6 +146,7 @@ export class Eagle {
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
+        this.graphConfig = ko.observable(null);
         this.eagleIsReady = ko.observable(false);
 
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
@@ -2035,7 +2037,7 @@ export class Eagle {
                     break;
 
                 case Eagle.FileType.GraphConfig:
-                    this._remoteConfigLoaded(file, data);
+                    this._remoteGraphConfigLoaded(file, data);
                     break;
 
                 default:
@@ -2170,7 +2172,7 @@ export class Eagle {
         }
     }
 
-    private _remoteConfigLoaded = (file: RepositoryFile, data: string): void => {
+    private _remoteGraphConfigLoaded = (file: RepositoryFile, data: string): void => {
         // attempt to parse the JSON
         let dataObject;
         try {
@@ -2183,9 +2185,11 @@ export class Eagle {
 
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
+        // load graph config from JSON and add to EAGLE
         const graphConfig = GraphConfig.fromJson(dataObject, errorsWarnings);
-        console.log(graphConfig);
+        this.graphConfig(graphConfig);
 
+        this.rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);
     }
 
     private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
