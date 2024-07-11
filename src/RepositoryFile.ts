@@ -30,8 +30,10 @@ export class RepositoryFile {
                 return "palette";
             case Eagle.FileType.JSON:
                 return "language";
+            case Eagle.FileType.GraphConfig:
+                return "construction";
             default:
-                return "description";
+                return this.type;
         }
     }, this);
 

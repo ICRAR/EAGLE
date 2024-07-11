@@ -261,6 +261,7 @@ export class Utils {
     static translateStringToFileType(fileType : string) : Eagle.FileType {
         // check input parameter is a string
         if (typeof fileType !== 'string'){
+            console.warn("Can't determine file type, not a string");
             return Eagle.FileType.Unknown;
         }
 
@@ -270,6 +271,8 @@ export class Utils {
             return Eagle.FileType.Palette;
         if (fileType.toLowerCase() === "json")
             return Eagle.FileType.JSON;
+        if (fileType.toLowerCase() === "cfg")
+            return Eagle.FileType.GraphConfig;
 
         return Eagle.FileType.Unknown;
     }
@@ -1322,6 +1325,7 @@ export class Utils {
             return Eagle.FileType.GraphConfig;
         }
 
+        console.warn("Can't determine filetype");
         return Eagle.FileType.Unknown;
     }
 
