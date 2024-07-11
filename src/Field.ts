@@ -41,7 +41,7 @@ export class Field {
     private inputAngle : number;
     private outputAngle : number;
 
-    private errorsArray : {issue:Errors.Issue, validity:Errors.Validity}[]
+    private issues : {issue:Errors.Issue, validity:Errors.Validity}[]
     // private errorsWarnings : ko.Observable<Errors.ErrorsWarnings>;
 
     constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
@@ -74,7 +74,7 @@ export class Field {
         this.inputAngle = 0;
         this.outputAngle = 0;
 
-        this.errorsArray = [];
+        this.issues = [];
         // this.errorsWarnings = ko.observable({warnings: [], errors: []});
     }
 
@@ -349,7 +349,7 @@ export class Field {
     getErrorsWarnings : ko.PureComputed<Errors.ErrorsWarnings> = ko.pureComputed(() => {
         const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
         
-        this.getErrors().forEach(function(error){
+        this.getIssues().forEach(function(error){
             if(error.validity === Errors.Validity.Error || error.validity === Errors.Validity.Unknown){
                 errorsWarnings.errors.push(error.issue)
             }else{
@@ -360,12 +360,12 @@ export class Field {
         return errorsWarnings;
     }, this);
 
-    getErrors = (): {issue:Errors.Issue, validity:Errors.Validity}[] => {
-        return this.errorsArray;
+    getIssues = (): {issue:Errors.Issue, validity:Errors.Validity}[] => {
+        return this.issues;
     }
 
     addError(issue:Errors.Issue, validity:Errors.Validity){
-        this.errorsArray.push({issue:issue,validity:validity})
+        this.issues.push({issue:issue,validity:validity})
     }
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -819,7 +819,7 @@ export class Field {
 
     static isValid(node:Node, field:Field, selectedLocation:Eagle.FileType, fieldIndex:number){
         const eagle = Eagle.getInstance()
-        // const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
+        field.issues = [] //clear old issues
     
         //checks for input ports
         if(field.isInputPort()){
@@ -844,7 +844,7 @@ export class Field {
                     }
                 }
 
-                field.errorsArray.push({issue:issue,validity:Errors.Validity.Warning})
+                field.issues.push({issue:issue,validity:Errors.Validity.Warning})
                 // errorsWarnings.warnings.push(issue);
             }
 
@@ -873,7 +873,7 @@ export class Field {
                         issue = Errors.ShowFix("Node " + node.getKey() + " (" + parentNode.getName() + ") has output application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                     }
                 }
-                field.errorsArray.push({issue:issue,validity:Errors.Validity.Warning})
+                field.issues.push({issue:issue,validity:Errors.Validity.Warning})
                 // errorsWarnings.warnings.push(issue);
             }
 
@@ -883,28 +883,28 @@ export class Field {
         //check that the field has an id
         if (field.getId() === "" || field.getId() === null){
             const issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has field (" + field.getDisplayText() + ") with no id", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldId(eagle, field)}, "Generate id for field");
-                field.errorsArray.push({issue:issue,validity:Errors.Validity.Error})
+                field.issues.push({issue:issue,validity:Errors.Validity.Error})
                 // errorsWarnings.errors.push(issue);
         }
 
         // check that the field has a default value
         if (field.getDefaultValue() === "" && !field.isType(Daliuge.DataType.String) && !field.isType(Daliuge.DataType.Password) && !field.isType(Daliuge.DataType.Object) && !field.isType(Daliuge.DataType.Unknown)) {
             const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose default value is not specified", function(){Utils.showField(eagle, node.getId(),field)}, function(){Utils.fixFieldDefaultValue(eagle, field)}, "Generate default value for parameter");
-                field.errorsArray.push({issue:issue,validity:Errors.Validity.Warning})
+                field.issues.push({issue:issue,validity:Errors.Validity.Warning})
                 // errorsWarnings.warnings.push(issue);
         }
 
         //chack that the field has a known type
         if (!Utils.validateType(field.getType())) {
             const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose type (" + field.getType() + ") is unknown", function(){Utils.showField(eagle, node.getId(),field)}, function(){Utils.fixFieldType(eagle, field)}, "Prepend existing type (" + field.getType() + ") with 'Object.'");
-                field.errorsArray.push({issue:issue,validity:Errors.Validity.Warning})
+                field.issues.push({issue:issue,validity:Errors.Validity.Warning})
                 // errorsWarnings.warnings.push(issue);
         }
 
         // check that the fields "key" is the same as the key of the node it belongs to
         if (field.getNodeKey() !== node.getKey()) {
             const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose key (" + field.getNodeKey() + ") doesn't match the node (" + node.getKey() + ")", function(){Utils.showField(eagle, node.getId(),field)}, function(){Utils.fixFieldKey(eagle, node, field)}, "Set field node key correctly");
-                field.errorsArray.push({issue:issue,validity:Errors.Validity.Error})
+                field.issues.push({issue:issue,validity:Errors.Validity.Error})
                 // errorsWarnings.errors.push(issue);
         }
 
@@ -918,11 +918,11 @@ export class Field {
             if (field.getDisplayText() === field1.getDisplayText() && field.getParameterType() === field1.getParameterType()){
                 if (field.getId() === field1.getId()){
                     const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixNodeMergeFieldsByIndex(eagle, node, fieldIndex, j)}, "Merge fields");
-                    field.errorsArray.push({issue:issue,validity:Errors.Validity.Warning})
+                    field.issues.push({issue:issue,validity:Errors.Validity.Warning})
                     // errorsWarnings.warnings.push(issue);
                 } else {
                     const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixNodeMergeFields(eagle, node, field, field1)}, "Merge fields");
-                    field.errorsArray.push({issue:issue,validity:Errors.Validity.Warning})
+                    field.issues.push({issue:issue,validity:Errors.Validity.Warning})
                     // errorsWarnings.warnings.push(issue);
                 }
             }
@@ -954,7 +954,7 @@ export class Field {
 
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
                 const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldParameterType(eagle, node, field, suitableType)}, "Switch to suitable type, or remove if no suitable type");
-                field.errorsArray.push({issue:issue,validity:Errors.Validity.Warning})
+                field.issues.push({issue:issue,validity:Errors.Validity.Warning})
                 // errorsWarnings.warnings.push(issue);
             }
         }

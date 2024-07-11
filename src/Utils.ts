@@ -456,6 +456,7 @@ export class Utils {
     }
 
     static showErrorsModal(title: string){
+        //maybe
         const errors: Errors.Issue[] = Errors.getErrors();
         const warnings: Errors.Issue[] = Errors.getWarnings();
 
@@ -1395,7 +1396,7 @@ export class Utils {
         // check all nodes are valid
         for (const node of palette.getNodes()){
             Node.isValid(node, Eagle.FileType.Palette);
-            paletteErrors.push(...node.getErrors())
+            paletteErrors.push(...node.getIssues())
             // errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
             // errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
         }
@@ -1419,93 +1420,12 @@ export class Utils {
         // check all nodes are valid
         for (const node of graph.getNodes()){
             Node.isValid(node, Eagle.FileType.Graph);
-            // errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
-            // errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
-
-            //get the node's field errorswarnings 
-            // for(const field of node.getFields()){
-                // errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
-                // errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
-            // }
-
-            // check the embedded applications
-            // if (node.hasInputApplication()){
-            //     const inputNodeErrorsWarnings = Node.isValid(node.getInputApplication(),Eagle.FileType.Graph)
-            //     // errorsWarnings.errors.push(...inputNodeErrorsWarnings.errors)
-            //     // errorsWarnings.warnings.push(...inputNodeErrorsWarnings.warnings)
-
-            //     //get the input application's field errorswarnings 
-            //     for(const field of node.getInputApplication().getFields()){
-            //         // errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
-            //         // errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
-            //     }
-            // }
-            // if (node.hasOutputApplication()){
-            //     const outputNodeErrorsWarnings = Node.isValid(node.getOutputApplication(),Eagle.FileType.Graph)
-            //     // errorsWarnings.errors.push(...outputNodeErrorsWarnings.errors)
-            //     // errorsWarnings.warnings.push(...outputNodeErrorsWarnings.warnings)
-                
-            //     //get the output application's field errorswarnings 
-            //     for(const field of node.getOutputApplication().getFields()){
-            //         // errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
-            //         // errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
-            //     }
-            // }
         }
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
             Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {warnings: [], errors: []});
         }
-
-        // // check that all node, edge, field ids are unique
-        // {
-        //     const ids : string[] = [];
-
-        //     // loop over graph nodes
-        //     for (const node of graph.getNodes()){
-        //         //check for unique ids
-        //         if (ids.includes(node.getId())){
-        //             const issue: Errors.Issue = Errors.ShowFix(
-        //                 "Node (" + node.getName() + ") does not have a unique id",
-        //                 function(){Utils.showNode(eagle, node.getId())},
-        //                 function(){Utils.newId(node)},
-        //                 "Assign node a new id"
-        //             );
-        //             // errorsWarnings.errors.push(issue);
-        //         }
-        //         ids.push(node.getId());
-
-        //         for (const field of node.getFields()){
-        //             if (ids.includes(field.getId())){
-        //                 const issue: Errors.Issue = Errors.ShowFix(
-        //                     "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
-        //                     function(){Utils.showNode(eagle, node.getId())},
-        //                     function(){Utils.newFieldId(eagle, node, field)},
-        //                     "Assign field a new id"
-        //                 );
-        //                 // errorsWarnings.errors.push(issue);
-        //             }
-        //             ids.push(field.getId());
-        //         }
-        //     }
-
-        //     // loop over graph edges
-        //     for (const edge of graph.getEdges()){
-        //         if (ids.includes(edge.getId())){
-        //             const issue: Errors.Issue = Errors.ShowFix(
-        //                 "Edge (" + edge.getId() + ") does not have a unique id",
-        //                 function(){Utils.showEdge(eagle, edge.getId())},
-        //                 function(){Utils.newId(edge)},
-        //                 "Assign edge a new id"
-        //             );
-        //             // errorsWarnings.errors.push(issue);
-        //         }
-        //         ids.push(edge.getId());
-        //     }
-        // }
-
-        // return errorsWarnings;
     }
 
     static gatherGraphErrors(): Errors.ErrorsWarnings {
@@ -1517,39 +1437,38 @@ export class Utils {
         //gather all the errors
         //from nodes
         for(const node of graph.getNodes()){
-            graphErrors.push(...node.getErrors())
-            
+            graphErrors.push(...node.getIssues())
             //fields
             for( const field of node.getFields()){
-                graphErrors.push(...field.getErrors())
+                graphErrors.push(...field.getIssues())
             }
 
             //embedded input applications and their fields
             if(node.hasInputApplication()){
-                graphErrors.push(...node.getInputApplication().getErrors())
+                graphErrors.push(...node.getInputApplication().getIssues())
                 
                 for( const field of node.getInputApplication().getFields()){
-                    graphErrors.push(...field.getErrors())
+                    graphErrors.push(...field.getIssues())
                 }
             }
 
             //embedded output applications and their fields
             if(node.hasOutputApplication()){
-                graphErrors.push(...node.getOutputApplication().getErrors())
+                graphErrors.push(...node.getOutputApplication().getIssues())
                 
                 for( const field of node.getOutputApplication().getFields()){
-                    graphErrors.push(...field.getErrors())
+                    graphErrors.push(...field.getIssues())
                 }
             }
         }
 
         // from edges
         for (const edge of graph.getEdges()){
-            graphErrors.push(...edge.getErrorsArray())
+            graphErrors.push(...edge.getissues())
         }
 
         //from logical graph
-        graphErrors.push(...graph.getErrors())
+        graphErrors.push(...graph.getIssues())
 
         for(const error of graphErrors){
             if(error.validity === Errors.Validity.Error || error.validity === Errors.Validity.Impossible || error.validity === Errors.Validity.Unknown){

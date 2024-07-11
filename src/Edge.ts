@@ -42,7 +42,7 @@ export class Edge {
     private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
     private selectionRelative : boolean // indicates if the edge is either selected or attached to a selected node
     private isShortEdge : ko.Observable<boolean>;
-    private errorsArray : {issue:Errors.Issue, validity:Errors.Validity}[]
+    private issues : {issue:Errors.Issue, validity:Errors.Validity}[]
 
     constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
         this._id = Utils.uuidv4();
@@ -56,7 +56,7 @@ export class Edge {
         this.closesLoop = closesLoop;
         this.selectionRelative = selectionRelative;
         this.isShortEdge = ko.observable(false)
-        this.errorsArray = [];
+        this.issues = [];
     }
 
     getId = () : string => {
@@ -177,8 +177,8 @@ export class Edge {
         return result;
     }
 
-    getErrorsArray = () : {issue:Errors.Issue, validity:Errors.Validity}[] => {
-        return this.errorsArray;
+    getissues = () : {issue:Errors.Issue, validity:Errors.Validity}[] => {
+        return this.issues;
     }
 
     static toOJSJson(edge : Edge) : object {
@@ -285,7 +285,11 @@ export class Edge {
     static isValid(eagle: Eagle,autoSuggestMode:boolean, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
         
         let impossibleEdge : boolean = false;
-
+        const edge = eagle.logicalGraph().findEdgeById(edgeId)
+        if(edge){
+            edge.issues = [] //clear old issues
+        }
+        
         // check for problems
         if (isNaN(sourceNodeKey)){
             return Errors.Validity.Unknown;
@@ -528,6 +532,6 @@ export class Edge {
         if (type === "warning" && errorsWarnings !== null){
             errorsWarnings.warnings.push(issue);
         }
-        Eagle.getInstance().logicalGraph().findEdgeById(edgeId)?.errorsArray.push({issue:issue, validity:linkValid})
+        Eagle.getInstance().logicalGraph().findEdgeById(edgeId)?.issues.push({issue:issue, validity:linkValid})
     }
 }

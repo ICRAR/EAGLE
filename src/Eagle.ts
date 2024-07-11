@@ -4568,6 +4568,7 @@ export class Eagle {
     checkGraph = (): void => {
         Utils.checkGraph(this);//validate the graph
         const graphErrors = Utils.gatherGraphErrors() //gather all the errors from all of the components
+        
         this.graphWarnings(graphErrors.warnings);
         this.graphErrors(graphErrors.errors);
     };

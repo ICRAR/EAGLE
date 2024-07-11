@@ -42,14 +42,14 @@ export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
     private nodes : ko.ObservableArray<Node>;
     private edges : ko.ObservableArray<Edge>;
-    private errorsArray : {issue:Errors.Issue, validity:Errors.Validity}[]
+    private issues : {issue:Errors.Issue, validity:Errors.Validity}[]
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Graph;
         this.nodes = ko.observableArray([]);
         this.edges = ko.observableArray([]);
-        this.errorsArray = []
+        this.issues = []
     }
 
     static toOJSJson(graph : LogicalGraph, forTranslation : boolean) : object {
@@ -315,8 +315,8 @@ export class LogicalGraph {
         return result;
     }
 
-    getErrors = (): {issue:Errors.Issue, validity:Errors.Validity}[] => {
-        return this.errorsArray;
+    getIssues = (): {issue:Errors.Issue, validity:Errors.Validity}[] => {
+        return this.issues;
     }
 
     /**
@@ -810,7 +810,7 @@ export class LogicalGraph {
                     function(){Utils.newId(node)},
                     "Assign node a new id"
                 );
-                graph.errorsArray.push({issue : issue, validity : Errors.Validity.Error})
+                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
                 // errorsWarnings.errors.push(issue);
             }
             ids.push(node.getId());
@@ -823,7 +823,7 @@ export class LogicalGraph {
                         function(){Utils.newFieldId(eagle, node, field)},
                         "Assign field a new id"
                     );
-                    graph.errorsArray.push({issue : issue, validity : Errors.Validity.Error})
+                    graph.issues.push({issue : issue, validity : Errors.Validity.Error})
                     // errorsWarnings.errors.push(issue);
                 }
                 ids.push(field.getId());
@@ -839,7 +839,7 @@ export class LogicalGraph {
                     function(){Utils.newId(edge)},
                     "Assign edge a new id"
                 );
-                graph.errorsArray.push({issue : issue, validity : Errors.Validity.Error})
+                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
                 // errorsWarnings.errors.push(issue);
             }
             ids.push(edge.getId());
