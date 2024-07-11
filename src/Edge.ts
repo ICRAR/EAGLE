@@ -42,7 +42,7 @@ export class Edge {
     private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
     private selectionRelative : boolean // indicates if the edge is either selected or attached to a selected node
     private isShortEdge : ko.Observable<boolean>;
-    private issues : {issue:Errors.Issue, validity:Errors.Validity}[]
+    private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of edge errors
 
     constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
         this._id = Utils.uuidv4();
@@ -56,7 +56,7 @@ export class Edge {
         this.closesLoop = closesLoop;
         this.selectionRelative = selectionRelative;
         this.isShortEdge = ko.observable(false)
-        this.issues = [];
+        this.issues = ko.observableArray([]);
     }
 
     getId = () : string => {
@@ -169,16 +169,23 @@ export class Edge {
         return result;
     }
 
-    getErrorsWarnings = (eagle: Eagle): Errors.ErrorsWarnings => {
-        const result: {warnings: Errors.Issue[], errors: Errors.Issue[]} = {warnings: [], errors: []};
+    getErrorsWarnings = (): Errors.ErrorsWarnings => {
+        const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
+        
+        this.getIssues().forEach(function(error){
+            if(error.validity === Errors.Validity.Error || error.validity === Errors.Validity.Unknown){
+                errorsWarnings.errors.push(error.issue)
+            }else{
+                errorsWarnings.warnings.push(error.issue)
+            }
+        })
 
-        Edge.isValid(eagle,false, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, false, false, result);
+        return errorsWarnings;
 
-        return result;
     }
 
-    getissues = () : {issue:Errors.Issue, validity:Errors.Validity}[] => {
-        return this.issues;
+    getIssues = () : {issue:Errors.Issue, validity:Errors.Validity}[] => {
+        return this.issues();
     }
 
     static toOJSJson(edge : Edge) : object {
@@ -283,11 +290,10 @@ export class Edge {
     }
 
     static isValid(eagle: Eagle,autoSuggestMode:boolean, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
-        
         let impossibleEdge : boolean = false;
         const edge = eagle.logicalGraph().findEdgeById(edgeId)
         if(edge){
-            edge.issues = [] //clear old issues
+            edge.issues([]) //clear old issues
         }
         
         // check for problems
@@ -532,6 +538,6 @@ export class Edge {
         if (type === "warning" && errorsWarnings !== null){
             errorsWarnings.warnings.push(issue);
         }
-        Eagle.getInstance().logicalGraph().findEdgeById(edgeId)?.issues.push({issue:issue, validity:linkValid})
+        Eagle.getInstance().logicalGraph().findEdgeById(edgeId)?.issues().push({issue:issue, validity:linkValid})
     }
 }

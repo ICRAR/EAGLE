@@ -42,14 +42,14 @@ export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
     private nodes : ko.ObservableArray<Node>;
     private edges : ko.ObservableArray<Edge>;
-    private issues : {issue:Errors.Issue, validity:Errors.Validity}[]
+    private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Graph;
         this.nodes = ko.observableArray([]);
         this.edges = ko.observableArray([]);
-        this.issues = []
+        this.issues = ko.observableArray([])
     }
 
     static toOJSJson(graph : LogicalGraph, forTranslation : boolean) : object {
@@ -316,7 +316,7 @@ export class LogicalGraph {
     }
 
     getIssues = (): {issue:Errors.Issue, validity:Errors.Validity}[] => {
-        return this.issues;
+        return this.issues();
     }
 
     /**

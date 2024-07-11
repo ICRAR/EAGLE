@@ -652,6 +652,11 @@ export class Eagle {
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
         Eagle.selectedLocation(selectedLocation);
         GraphRenderer.clearPortPeek()
+
+        // if(selection === null && this.selectedObjects().length === 0){
+        //     return
+        // }
+
         if (selection === null){
             this.selectedObjects([]);
             this.rightWindow().mode(rightWindowMode);

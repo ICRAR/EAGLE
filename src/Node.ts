@@ -63,8 +63,7 @@ export class Node {
     private paletteDownloadUrl : ko.Observable<string>;
     private dataHash : ko.Observable<string>;
 
-    private issues : {issue:Errors.Issue, validity:Errors.Validity}[]
-    // private errorsWarnings : ko.Observable<Errors.ErrorsWarnings>;
+    private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}>//keeps track of node level errors
 
     public static readonly DEFAULT_COLOR : string = "ffffff";
 
@@ -114,8 +113,7 @@ export class Node {
         this.paletteDownloadUrl = ko.observable("");
         this.dataHash = ko.observable("");
 
-        this.issues = [];
-        // this.errorsWarnings = ko.observable({warnings: [], errors: []});
+        this.issues = ko.observableArray([]);
 
         //graph related things
         this.expanded = ko.observable(true);
@@ -1135,7 +1133,7 @@ export class Node {
     }
 
     getIssues = (): {issue:Errors.Issue, validity:Errors.Validity}[] => {
-        return this.issues;
+        return this.issues();
     }
 
     getAllErrors = () : {issue:Errors.Issue, validity:Errors.Validity}[] => {
@@ -1978,13 +1976,13 @@ export class Node {
 
     static isValid(node: Node, selectedLocation: Eagle.FileType) : void {
         const eagle = Eagle.getInstance()
-        node.issues = []//clear old issues
+        node.issues([])//clear old issues
 
          // check that node has modern (not legacy) category
          if (node.getCategory() === Category.Component){
             const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has legacy category (" + node.getCategory() + ")", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeCategory(eagle, node, Category.PythonApp, Category.Type.Application)}, "");
             // errorsWarnings.warnings.push(issue);
-            node.issues.push({issue:issue,validity:Errors.Validity.Warning})
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
         // looping through and checking all the fields on the node
@@ -2011,25 +2009,25 @@ export class Node {
         if (node.getInputPorts().length < cData.minInputs){
             const message: string = "Node " + node.getKey() + " (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + cData.minInputs;
             const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, null, "");
-            node.issues.push({issue:issue,validity:Errors.Validity.Warning})
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             // errorsWarnings.warnings.push(issue);
         }
         if ((node.getInputPorts().length - node.getInputEventPorts().length) > cData.maxInputs){
             const message: string = "Node " + node.getKey() + " (" + node.getName() + ") has too many input ports. Should have at most " + cData.maxInputs;
             const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, null, "");
-            node.issues.push({issue:issue,validity:Errors.Validity.Warning})
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             // errorsWarnings.warnings.push(issue);
         }
         if (node.getOutputPorts().length < cData.minOutputs){
             const message: string = "Node " + node.getKey() + " (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + cData.minOutputs;
             const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, null, "");
-            node.issues.push({issue:issue,validity:Errors.Validity.Warning})
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             // errorsWarnings.warnings.push(issue);
         }
         if ((node.getOutputPorts().length - node.getOutputEventPorts().length) > cData.maxOutputs){
             const message: string = "Node " + node.getKey() + " (" + node.getName() + ") may have too many output ports. Should have at most " + cData.maxOutputs;
             const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, null, "");
-            node.issues.push({issue:issue,validity:Errors.Validity.Warning})
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             // errorsWarnings.warnings.push(issue);
         }
 
@@ -2046,7 +2044,7 @@ export class Node {
         // only check this if the component has been selected in the graph. If it was selected from the palette, it doesn't make sense to complain that it is not connected.
         if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && selectedLocation === Eagle.FileType.Graph){
             const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.showNode(eagle, node.getId())}, null, "");
-            node.issues.push({issue:issue,validity:Errors.Validity.Warning})
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             // errorsWarnings.warnings.push(issue);
         }
 
@@ -2054,19 +2052,19 @@ export class Node {
         if (node.hasInputApplication() && node.getInputApplication().getCategory() === Category.None){
             const issue: Errors.Issue = Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'.")
             // errorsWarnings.errors.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") has input application with category 'None'."));
-            node.issues.push({issue:issue,validity:Errors.Validity.Error});
+            node.issues().push({issue:issue,validity:Errors.Validity.Error});
         }
         if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Category.None){
             const issue : Errors.Issue = Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'.")
             // errorsWarnings.errors.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") has output application with category 'None'."));
-            node.issues.push({issue:issue,validity:Errors.Validity.Error});
+            node.issues().push({issue:issue,validity:Errors.Validity.Error});
         }
 
         // check that Service nodes have inputApplications with no output ports!
         if (node.getCategory() === Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
             const issue : Errors.Issue = Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output.")
             // errorsWarnings.errors.push(Errors.Message("Node " + node.getKey() + " (" + node.getName() + ") is a Service node, but has an input application with at least one output."));
-            node.issues.push({issue:issue,validity:Errors.Validity.Error});
+            node.issues().push({issue:issue,validity:Errors.Validity.Error});
         }
 
         // check that this category of node contains all the fields it requires
@@ -2102,7 +2100,7 @@ export class Node {
             const message = "Node " + node.getKey() + " (" + node.getName() + ":" + node.category() + ":" + node.categoryType() + ") does not have the required '" + field.getDisplayText() + "' field";
             const issue : Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId());}, function(){Utils.addMissingRequiredField(eagle, node, field);}, "Add missing " + field.getDisplayText() + " field.")
             // errorsWarnings.errors.push(Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId());}, function(){Utils.addMissingRequiredField(eagle, node, field);}, "Add missing " + field.getDisplayText() + " field."));
-            node.issues.push({issue:issue,validity:Errors.Validity.Error});
+            node.issues().push({issue:issue,validity:Errors.Validity.Error});
         } else {
             if (existingField.getParameterType() !== field.getParameterType()){
                 const message = "Node " + node.getKey() + " (" + node.getName() + ") has a '" + field.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + field.getParameterType();

@@ -1122,7 +1122,6 @@ export class GraphRenderer {
                     const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(outerMostNode.getParentKey());
 
                     // keep track of whether we would update any node parents
-                    const updated = {parent: false};
                     const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
                     //construct resizing 
                     if(outerMostNode.getParentKey() != null){
@@ -1140,13 +1139,13 @@ export class GraphRenderer {
 
                     // if a parent was found, update
                     if (parent !== null && outerMostNode.getParentKey() !== parent.getKey() && outerMostNode.getKey() !== parent.getKey() && !ancestorOfParent && !outerMostNode.isEmbedded()){
-                        GraphRenderer._updateNodeParent(outerMostNode, parent.getKey(), updated, allowGraphEditing);
+                        GraphRenderer.updateNodeParent(outerMostNode, parent.getKey(),  allowGraphEditing);
                         GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByKeyQuiet(parent.getKey()).getRadius()
                     }
 
                     // if no parent found, update
                     if (parent === null && outerMostNode.getParentKey() !== null && !outerMostNode.isEmbedded()){
-                        GraphRenderer._updateNodeParent(outerMostNode, null, updated, allowGraphEditing);
+                        GraphRenderer.updateNodeParent(outerMostNode, null,  allowGraphEditing);
                     }
 
                     if (oldParent !== null){
@@ -1594,14 +1593,13 @@ export class GraphRenderer {
     }
 
     // update the parent of the given node
-    // however, if allGraphEditing is false, then don't update
-    // always keep track of whether an update would have happened, sp we can warn user
-    static _updateNodeParent(node: Node, parentKey: number, updated: {parent: boolean}, allowGraphEditing: boolean): void {
+    // however, if allowGraphEditing is false, then don't update
+    static updateNodeParent(node: Node, parentKey: number, allowGraphEditing: boolean): void {
         if (node.getParentKey() !== parentKey){
             if (allowGraphEditing){
                 node.setParentKey(parentKey);
+                Eagle.getInstance().checkGraph()   
             }
-            updated.parent = true;
         }
     }
 
@@ -2248,7 +2246,8 @@ export class GraphRenderer {
         }
 
         // check if link has a warning or is invalid
-        const linkValid : Errors.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        // const linkValid : Errors.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        const linkValid : Errors.Validity = Utils.worstEdgeError(edge.getErrorsWarnings());
 
         if (linkValid === Errors.Validity.Error || linkValid === Errors.Validity.Impossible){
             normalColor = GraphConfig.getColor('edgeInvalid');

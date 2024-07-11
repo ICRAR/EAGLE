@@ -1413,8 +1413,6 @@ export class Utils {
     }
 
     static checkGraph(eagle: Eagle): void {
-        // const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
-
         const graph: LogicalGraph = eagle.logicalGraph();
 
         // check all nodes are valid
@@ -1438,7 +1436,8 @@ export class Utils {
         //from nodes
         for(const node of graph.getNodes()){
             graphErrors.push(...node.getIssues())
-            //fields
+            
+            //from fields
             for( const field of node.getFields()){
                 graphErrors.push(...field.getIssues())
             }
@@ -1464,12 +1463,13 @@ export class Utils {
 
         // from edges
         for (const edge of graph.getEdges()){
-            graphErrors.push(...edge.getissues())
+            graphErrors.push(...edge.getIssues())
         }
 
         //from logical graph
         graphErrors.push(...graph.getIssues())
 
+        //sort all issues into warnings or errors
         for(const error of graphErrors){
             if(error.validity === Errors.Validity.Error || error.validity === Errors.Validity.Impossible || error.validity === Errors.Validity.Unknown){
                 errorsWarnings.errors.push(error.issue)
