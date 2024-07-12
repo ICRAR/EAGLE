@@ -34,7 +34,7 @@ import * as ko from "knockout";
 import { CategoryData } from './CategoryData';
 
 export class Edge {
-    private _id : string
+    private id : string
     private srcNodeKey : number;
     private srcPortId : string;
     private destNodeKey : number;
@@ -45,7 +45,7 @@ export class Edge {
     private isShortEdge : ko.Observable<boolean>;
 
     constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
-        this._id = Utils.uuidv4();
+        this.id = Utils.uuidv4();
 
         this.srcNodeKey = srcNodeKey;
         this.srcPortId = srcPortId;
@@ -59,11 +59,11 @@ export class Edge {
     }
 
     getId = () : string => {
-        return this._id;
+        return this.id;
     }
 
     setId = (id: string) : void => {
-        this._id = id;
+        this.id = id;
     }
 
     getSrcNodeKey = () : number => {
@@ -151,7 +151,7 @@ export class Edge {
     }
 
     clear = () : void => {
-        this._id = "";
+        this.id = "";
         this.srcNodeKey = 0;
         this.srcPortId = "";
         this.destNodeKey = 0;
@@ -163,7 +163,7 @@ export class Edge {
     clone = () : Edge => {
         const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, this.selectionRelative);
 
-        result._id = this._id;
+        result.id = this.id;
 
         return result;
     }
@@ -171,7 +171,7 @@ export class Edge {
     getErrorsWarnings = (eagle: Eagle): Errors.ErrorsWarnings => {
         const result: {warnings: Errors.Issue[], errors: Errors.Issue[]} = {warnings: [], errors: []};
 
-        Edge.isValid(eagle, this._id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, false, false, result);
+        Edge.isValid(eagle, this.id, this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, false, false, result);
 
         return result;
     }
