@@ -1,6 +1,7 @@
 import * as ko from "knockout";
 
 import { Errors } from "./Errors";
+import { Field } from "./Field";
 import { LogicalGraph } from "./LogicalGraph";
 import { Repository } from "./Repository";
 
@@ -84,6 +85,10 @@ export class GraphConfig {
     
     constructor(){
        this.nodes = new Map();
+    }
+
+    getNodes = (): Map<string, GraphConfigNode> => {
+        return this.nodes;
     }
 
     addNode = (id:string): GraphConfigNode => {

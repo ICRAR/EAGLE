@@ -3,6 +3,7 @@ import { Eagle } from './Eagle';
 import { Edge } from './Edge';
 import { Field } from './Field';
 import { LogicalGraph } from './LogicalGraph';
+import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
@@ -267,7 +268,7 @@ export class Modals {
         });
 
         $('#editFieldModal').on('hidden.bs.modal', function(){
-            eagle.openParamsTableModal('inspectorTableModal','normal')
+            eagle.openParamsTableModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal)
         });
 
         // #editEdgeModal - requestUserEditEdge()

@@ -111,7 +111,7 @@ export class Eagle {
     graphErrors : ko.ObservableArray<Errors.Issue>;
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
     loadingErrors : ko.ObservableArray<Errors.Issue>;
-    tableModalType : ko.Observable<string>;
+    parameterTableMode : ko.Observable<ParameterTable.Mode>;
     showTableModal : ko.Observable<boolean>;
     currentFileInfo : ko.Observable<FileInfo>;
     currentFileInfoTitle : ko.Observable<string>;
@@ -163,6 +163,7 @@ export class Eagle {
         this.translator = ko.observable(new Translator());
         this.undo = ko.observable(new Undo());
         this.parameterTable = ko.observable(new ParameterTable());
+        this.parameterTableMode = ko.observable(ParameterTable.Mode.GraphConfig); // TODO: add mode to parameter table class
         
         //load parameter table visibility from local storage
         ParameterTable.getActiveColumnVisibility().loadFromLocalStorage()
@@ -203,7 +204,6 @@ export class Eagle {
         this.loadingWarnings = ko.observableArray([]);
         this.loadingErrors = ko.observableArray([]);
 
-        this.tableModalType = ko.observable('')
         this.showTableModal = ko.observable(false)
         this.currentFileInfo = ko.observable(null);
         this.currentFileInfoTitle = ko.observable("");
@@ -217,7 +217,7 @@ export class Eagle {
             GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(this.logicalGraph(), this.showDataNodes());
             Hierarchy.updateDisplay()
             if(this.selectedObjects().length === 0){
-                this.tableModalType('keyParametersTableModal')
+                this.parameterTableMode(ParameterTable.Mode.GraphConfig);
                 //changing right window shortcuts depending on if right window tabs are visible or not 
                 KeyboardShortcut.changeShortcutKey(this,'open_translation','3',KeyboardShortcut.Modifier.None)
                 KeyboardShortcut.changeShortcutKey(this,'open_hierarchy','2',KeyboardShortcut.Modifier.None)
@@ -2720,7 +2720,7 @@ export class Eagle {
         $('#loadingContainer').hide()
     }
 
-    openParamsTableModal = (mode:string,selectType:string) : void => {
+    openParamsTableModal = (mode: ParameterTable.Mode, selectType: ParameterTable.SelectType) : void => {
         this.showEagleIsLoading()
         const eagle = this
         setTimeout(function(){
@@ -2732,7 +2732,7 @@ export class Eagle {
                     return
                 }
             }
-            if(selectType === 'rightClick'){
+            if(selectType === ParameterTable.SelectType.RightClick){
                 eagle.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
 
                 RightClick.closeCustomContextMenu(true);
@@ -2741,7 +2741,7 @@ export class Eagle {
                     Utils.showOpenParamsTableModal(mode);
                 }, 30);
             }else{
-                if (mode==='inspectorTableModal' && !eagle.selectedNode()){
+                if (mode=== ParameterTable.Mode.NodeFields && !eagle.selectedNode()){
                     eagle.hideEagleIsLoading()
                     Utils.showNotification("Error", "No Node Is Selected", "warning");
                 }else{
@@ -2757,7 +2757,7 @@ export class Eagle {
         const eagle = Eagle.getInstance()
 
         eagle.setSelection(Eagle.RightWindowMode.None, node,Eagle.FileType.Graph)
-        eagle.openParamsTableModal('inspectorTableModal','normal')
+        eagle.openParamsTableModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal)
         setTimeout(function(){
             $('#tableRow_'+field.getId()).addClass('highlighted')
         },200)
@@ -2800,14 +2800,14 @@ export class Eagle {
             return false;
         }
         
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.ReadOnly){
+        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.ReadOnly){
             return false;
         }
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.Normal){
+        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.Normal){
             return field.isReadonly();
         }
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.valueEditingPerms.KeyOnly){
-            return !field.isKeyAttribute() || field.isReadonly();
+        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.ConfigOnly){
+            return field.isReadonly();
         }
         
         console.warn("something in value readonly permissions has one wrong!");
@@ -3663,7 +3663,7 @@ export class Eagle {
                     }
 
                     // create a new input/output "object" port on the PythonObject
-                    const inputOutputPort = new Field(Utils.uuidv4(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput, false);
+                    const inputOutputPort = new Field(Utils.uuidv4(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput);
                     pythonObjectNode.addField(inputOutputPort);
 
                     // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
@@ -4332,7 +4332,7 @@ export class Eagle {
             $("#addParameterWrapper").show();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", false, Daliuge.DataType.Integer, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false);
+            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", false, Daliuge.DataType.Integer, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
@@ -4699,7 +4699,7 @@ export class Eagle {
         newNode.removeAllOutputPorts();
 
         // add InputOutput port for dataType
-        const newInputOutputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputOutput, false);
+        const newInputOutputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputOutput);
         newNode.addField(newInputOutputPort);
 
         // set the parent of the new node

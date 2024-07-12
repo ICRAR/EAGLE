@@ -3,11 +3,13 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { Edge } from "./Edge";
 import { Field } from './Field';
+import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
 import { Palette } from "./Palette";
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
+import { GraphConfig } from "./GraphConfig";
 
 export class ParameterTable {
 
@@ -134,20 +136,42 @@ export class ParameterTable {
 
     getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
-        const tableModalType = eagle.tableModalType()
-        let displayedFields:any = []
-        if(tableModalType === 'inspectorTableModal'){
-            displayedFields = eagle.selectedNode().getFields()
-        }else if (tableModalType === 'keyParametersTableModal'){
-            eagle.logicalGraph().getNodes().forEach(function(node){
-                node.getFields().forEach(function(field){
-                    if(field.isKeyAttribute()){
-                        displayedFields.push(field)
+        
+        switch (eagle.parameterTableMode()){
+
+            case ParameterTable.Mode.Unknown:
+                return [];
+
+            case ParameterTable.Mode.GraphConfig:
+                return eagle.selectedNode().getFields();
+            
+            case ParameterTable.Mode.NodeFields:
+                const config: GraphConfig = eagle.graphConfig();
+                const lg: LogicalGraph = eagle.logicalGraph();
+                const displayedFields: Field[] = [];
+
+                for (const [nodeId, node] of config.getNodes()){
+                    const lgNode = lg.findNodeById(nodeId);
+        
+                    if (lgNode === null){
+                        console.warn("ParameterTable.getTableFields(): Could not find node", nodeId);
+                        continue;
                     }
-                })
-            })
+        
+                    for (const [fieldId, field] of node.getFields()){
+                        const lgField = lgNode.findFieldById(fieldId);
+        
+                        if (lgField === null){
+                            console.warn("ParameterTable.getTableFields(): Could not find field", fieldId, "on node", lgNode.getName());
+                            continue;
+                        }
+        
+                        displayedFields.push(lgField);
+                    }
+                }
+
+                return displayedFields;
         }
-        return displayedFields
     }, this);
 
     getNodeLockedState = (field:Field) : boolean => {
@@ -284,8 +308,8 @@ export class ParameterTable {
 
     static requestEditDescriptionInModal(currentField:Field) : void {
         const eagle: Eagle = Eagle.getInstance();
-        const tableType = eagle.tableModalType()
-        eagle.openParamsTableModal('','')
+        const tableType: ParameterTable.Mode = eagle.parameterTableMode()
+        eagle.openParamsTableModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
         Utils.requestUserText(
             "Edit Field Description",
             "Please edit the description for: " + eagle.logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey()).getName() + ' - ' + currentField.getDisplayText(),
@@ -296,7 +320,7 @@ export class ParameterTable {
                 }
 
                 currentField.setDescription(userText);
-                eagle.openParamsTableModal(tableType,'')
+                eagle.openParamsTableModal(tableType, ParameterTable.SelectType.Normal);
             }
         )
     }
@@ -364,8 +388,21 @@ export class ParameterTable {
                 downresizer.removeClass('resizing');
             };
         
-            //doing it this way because it makes it simpler to have the header in quetion in hand. the ko events proved difficult to pass events and objects with
+            //doing it this way because it makes it simpler to have the header in question in hand. the ko events proved difficult to pass events and objects with
             upresizer.on('mousedown', mouseDownHandler);
+    }
+}
+
+export namespace ParameterTable {
+    export enum Mode {
+        Unknown = "Unknown", // blank
+        NodeFields = "NodeFields", //inspectorTableModal
+        GraphConfig = "GraphConfig", //keyParametersTableModal
+    }
+
+    export enum SelectType {
+        Normal = "Normal",
+        RightClick = "RightClick",
     }
 }
 

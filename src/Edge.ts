@@ -233,21 +233,6 @@ export class Edge {
         return new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, loopAware, closesLoop, false);
     }
 
-    static toV3Json(edge : Edge) : object {
-        return {
-            srcNode: edge.srcNodeKey.toString(),
-            srcPort: edge.srcPortId,
-            destNode: edge.destNodeKey.toString(),
-            destPort: edge.destPortId,
-            loop_aware: edge.loopAware ? "1" : "0",
-            closesLoop: edge.closesLoop
-        }
-    }
-
-    static fromV3Json(edgeData: any, errorsWarnings: Errors.ErrorsWarnings): Edge {
-        return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, edgeData.loop_aware === "1", edgeData.closesLoop, false);
-    }
-
     static toAppRefJson(edge : Edge, lg: LogicalGraph) : object {
         const result : any = {
             from: edge.srcNodeKey,

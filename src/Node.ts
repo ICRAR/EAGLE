@@ -997,8 +997,7 @@ export class Node {
                 [],
                 false,
                 Daliuge.FieldType.ComponentParameter,
-                Daliuge.FieldUsage.NoPort,
-                false));
+                Daliuge.FieldUsage.NoPort));
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).setValue(value.toString());
         }
@@ -1018,8 +1017,7 @@ export class Node {
                 [],
                 false,
                 Daliuge.FieldType.ComponentParameter,
-                Daliuge.FieldUsage.NoPort,
-                false));
+                Daliuge.FieldUsage.NoPort));
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).setValue(value.toString());
         }
@@ -1229,7 +1227,7 @@ export class Node {
     }
 
     addEmptyField = (index:number) :void => {
-        const newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false);
+        const newField = new Field(Utils.uuidv4(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort);
 
         if(index === -1){
             this.addField(newField);
@@ -1556,8 +1554,7 @@ export class Node {
                 [],
                 false,
                 Daliuge.FieldType.ComponentParameter,
-                Daliuge.FieldUsage.NoPort,
-                false);
+                Daliuge.FieldUsage.NoPort);
             node.addField(preciousField);
         }
 
@@ -1575,8 +1572,7 @@ export class Node {
                 [],
                 false,
                 Daliuge.FieldType.ComponentParameter,
-                Daliuge.FieldUsage.NoPort,
-                false);
+                Daliuge.FieldUsage.NoPort);
             node.addField(streamingField);
         }
 
@@ -1960,6 +1956,7 @@ export class Node {
             errorsWarnings.warnings.push(issue);
         }
 
+        // TODO: remove this for loop?
         for (let i = 0 ; i < node.getFields().length ; i++){
             const field:Field = node.getFields()[i]
             const fieldErrorsWarnings = Field.isValid(node,field,selectedLocation,i)

@@ -4,11 +4,11 @@ import { CategoryData } from './CategoryData';
 import { Category } from './Category';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
-import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { Node } from './Node';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
+import { ParameterTable } from "./ParameterTable";
 
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
@@ -20,7 +20,6 @@ export class Field {
     private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
     private options : ko.ObservableArray<string>;
     private positional : ko.Observable<boolean>;
-    private keyAttribute : ko.Observable<boolean>;
     private encoding : ko.Observable<Daliuge.Encoding>;
 
     // port-specific attributes
@@ -43,7 +42,7 @@ export class Field {
 
     private errorsWarnings : ko.Observable<Errors.ErrorsWarnings>;
 
-    constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
+    constructor(id: string, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
         this.displayText = ko.observable(displayText);
         this.value = ko.observable(value);
         this.defaultValue = ko.observable(defaultValue);
@@ -53,7 +52,6 @@ export class Field {
         this.precious = ko.observable(precious);
         this.options = ko.observableArray(options);
         this.positional = ko.observable(positional);
-        this.keyAttribute = ko.observable(keyAttribute);
         this.encoding = ko.observable(Daliuge.Encoding.Pickle);
 
         this.id = ko.observable(id);
@@ -180,26 +178,6 @@ export class Field {
 
     isType = (type: string) => {
         return Utils.dataTypePrefix(this.type()) === type;
-    }
-
-    isKeyAttribute = () : boolean => {
-        return this.keyAttribute();
-    }
-
-    setKeyAttribute = (keyAttribute: boolean) => {
-        this.keyAttribute(keyAttribute);
-    }
-
-    toggleKeyAttribute = () => {
-        this.keyAttribute(!this.keyAttribute())
-    }
-
-    getKeyAttrVis = () : string => {
-        if(this.keyAttribute()){
-            return 'visible'
-        }else{
-            return 'hidden'
-        }
     }
     
     setEncoding = (encoding: Daliuge.Encoding) => {
@@ -391,7 +369,6 @@ export class Field {
         this.positional(false);
         this.parameterType(Daliuge.FieldType.Unknown);
         this.usage(Daliuge.FieldUsage.NoPort);
-        this.keyAttribute(false);
         this.encoding(Daliuge.Encoding.Pickle);
 
         this.id("");
@@ -405,7 +382,7 @@ export class Field {
             options.push(option);
         }
 
-        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
+        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage());
         f.encoding(this.encoding());
         f.isEvent(this.isEvent());
         f.nodeKey(this.nodeKey());
@@ -436,7 +413,6 @@ export class Field {
         this.positional(src.positional());
         this.parameterType(src.parameterType());
         this.usage(src.usage());
-        this.keyAttribute(src.keyAttribute());
         this.encoding(src.encoding());
         this.isEvent(src.isEvent());
 
@@ -504,7 +480,7 @@ export class Field {
             }
 
             //check if the node name matches, but only if using the key parameter table modal
-            if(eagle.tableModalType() === 'keyParametersTableModal'){
+            if(eagle.parameterTableMode() === ParameterTable.Mode.GraphConfig){
                 if(Eagle.getInstance().logicalGraph().findNodeByKey(that.nodeKey()).getName().toLowerCase().indexOf(term) >= 0){
                     result = true
                 }
@@ -633,33 +609,11 @@ export class Field {
             precious:field.precious(),
             options:field.options(),
             positional:field.positional(),
-            keyAttribute:field.keyAttribute(),
             encoding:field.encoding(),
             id: field.id(),
             parameterType: field.parameterType(),
             usage: field.usage(),
         }
-
-        return result;
-    }
-
-    static toV3Json(field : Field) : object {
-        const result : any =  {
-            name:field.displayText(),
-            value:Field.stringAsType(field.value(), field.type()),
-            defaultValue:field.defaultValue(),
-            description:field.description(),
-            readonly:field.readonly(),
-            type:field.isEvent() ? "Event" : field.type(),
-            precious:field.precious(),
-            options:field.options(),
-            positional: field.positional(),
-            keyAttribute:field.keyAttribute(),
-            encoding:field.encoding(),
-            id: field.id(),
-            parameterType: field.parameterType(),
-            usage: field.usage()
-        };
 
         return result;
     }
@@ -671,7 +625,6 @@ export class Field {
             event:field.isEvent(),
             type:field.type(),
             description:field.description(),
-            keyAttribute:field.keyAttribute(),
             encoding:field.encoding()
         };
     }
@@ -690,7 +643,6 @@ export class Field {
         let parameterType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
         let usage: Daliuge.FieldUsage = Daliuge.FieldUsage.NoPort;
         let isEvent: boolean = false;
-        let keyAttribute: boolean = false;
         let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
 
         if (typeof data.id !== 'undefined')
@@ -760,11 +712,9 @@ export class Field {
             usage = data.usage;
         if (typeof data.event !== 'undefined')
             isEvent = data.event;
-        if (typeof data.keyAttribute !== 'undefined')
-            keyAttribute = data.keyAttribute;
         if (typeof data.encoding !== 'undefined')
             encoding = data.encoding;
-        const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage, keyAttribute);
+        const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         result.isEvent(isEvent);
         result.encoding(encoding);
         return result;
@@ -775,7 +725,6 @@ export class Field {
         let event: boolean = false;
         let type: string;
         let description: string = "";
-        let keyAttribute: boolean = false;
         let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
 
         if (typeof data.name !== 'undefined')
@@ -786,8 +735,6 @@ export class Field {
             type = data.type;
         if (typeof data.description !== 'undefined')
             description = data.description;
-        if (typeof data.keyAttribute !== 'undefined')
-            keyAttribute = data.keyAttribute;
         if (typeof data.encoding !== 'undefined')
             encoding = data.encoding;
 
@@ -796,7 +743,7 @@ export class Field {
             name = data.IdText;
         }
      
-        const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort, keyAttribute);
+        const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
         f.isEvent(event);
         f.encoding(encoding);
         return f;
@@ -874,7 +821,7 @@ export class Field {
             errorsWarnings.warnings.push(issue);
         }
 
-        //chack that the field has a known type
+        // check that the field has a known type
         if (!Utils.validateType(field.getType())) {
             const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose type (" + field.getType() + ") is unknown", function(){Utils.showField(eagle, node.getId(),field)}, function(){Utils.fixFieldType(eagle, field)}, "Prepend existing type (" + field.getType() + ") with 'Object.'");
             errorsWarnings.warnings.push(issue);
@@ -886,7 +833,7 @@ export class Field {
             errorsWarnings.errors.push(issue);
         }
 
-        //check that the field has a unique display text on the node
+        // check that the field has a unique display text on the node
         for (let j = 0 ; j < node.getFields().length ; j++){
             const field1 = node.getFields()[j];
             if(field === field1){

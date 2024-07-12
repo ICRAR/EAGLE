@@ -42,6 +42,7 @@ import { PaletteInfo } from './PaletteInfo';
 import { Repository } from './Repository';
 import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
+import { ParameterTable } from "./ParameterTable";
 
 export class Utils {
     // Allowed file extensions
@@ -729,9 +730,8 @@ export class Utils {
         $('#settingsModal').modal("hide");
     }
 
-    static showOpenParamsTableModal(mode:string) : void {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.tableModalType(mode)
+    static showOpenParamsTableModal(mode: ParameterTable.Mode) : void {
+        Eagle.getInstance().parameterTableMode(mode);
         $('#parameterTableModal').modal("show");
     }
 
@@ -1978,7 +1978,7 @@ export class Utils {
         const srcPortType = destPort.getType() === undefined ? Daliuge.DataType.Object : destPort.getType();
 
         // create new source port
-        const srcPort = new Field(edge.getSrcPortId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort, false);
+        const srcPort = new Field(edge.getSrcPortId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort);
 
         // add port to source node
         srcNode.addField(srcPort);
@@ -1999,7 +1999,7 @@ export class Utils {
         const destPortType = srcPort.getType() === undefined ? Daliuge.DataType.Object : srcPort.getType();
 
         // create new destination port
-        const destPort = new Field(edge.getDestPortId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort, false);
+        const destPort = new Field(edge.getDestPortId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort);
 
         // add port to destination node
         destNode.addField(destPort);
