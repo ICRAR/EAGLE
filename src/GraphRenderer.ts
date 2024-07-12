@@ -27,13 +27,13 @@ import * as ko from "knockout";
 import { Category } from './Category';
 import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
+import { Errors } from './Errors';
+import { EagleConfig } from "./EagleConfig";
 import { Edge } from "./Edge";
 import { Field } from './Field';
-import { GraphConfig } from './graphConfig';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Utils } from './Utils';
-import { CategoryData} from './CategoryData';
 import { Setting } from './Setting';
 import { RightClick } from "./RightClick";
 
@@ -41,23 +41,8 @@ ko.bindingHandlers.nodeRenderHandler = {
     // TODO: element any (more around)
     init: function(element:any, valueAccessor) {
         const node: Node = ko.unwrap(valueAccessor())
-
-        //overwriting css variables using colours from graphConfig.ts. I am using this for simple styling to avoid excessive css data binds in the node html files
-        $("#logicalGraphParent").get(0).style.setProperty("--selectedBg", GraphConfig.getColor('selectBackground'));
-        $("#logicalGraphParent").get(0).style.setProperty("--selectedConstructBg", GraphConfig.getColor('selectConstructBackground'));
-        $("#logicalGraphParent").get(0).style.setProperty("--nodeBorder", GraphConfig.getColor('bodyBorder'));
-        $("#logicalGraphParent").get(0).style.setProperty("--nodeBg", GraphConfig.getColor('nodeBg'));
-        $("#logicalGraphParent").get(0).style.setProperty("--graphText", GraphConfig.getColor('graphText'));
-        $("#logicalGraphParent").get(0).style.setProperty("--branchBg", GraphConfig.getColor('branchBg'));
-        $("#logicalGraphParent").get(0).style.setProperty("--constructBg", GraphConfig.getColor('constructBg'));
-        $("#logicalGraphParent").get(0).style.setProperty("--embeddedApp", GraphConfig.getColor('embeddedApp'));
-        $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", GraphConfig.getColor('constructIcon'));
-        $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", GraphConfig.getColor('commentEdge'));
-        $("#logicalGraphParent").get(0).style.setProperty("--matchingEdgeColor", GraphConfig.getColor('edgeAutoComplete'));
-        $("#logicalGraphParent").get(0).style.setProperty("--nodeOutputColor", GraphConfig.getColor('nodeOutputPort'));
-        $("#logicalGraphParent").get(0).style.setProperty("--nodeInputColor", GraphConfig.getColor('nodeInputPort'));
         
-        if( node.isData()){
+        if(node.isData()){
             $(element).find('.body').css('background-color:#575757','color:white')
         }
     },
@@ -302,7 +287,7 @@ export class GraphRenderer {
 
     //port drag handler globals
     static draggingPort : boolean = false;
-    static isDraggingPortValid: ko.Observable<Edge.Validity> = ko.observable(Edge.Validity.Unknown);
+    static isDraggingPortValid: ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown);
     static destinationNode : Node = null;
     static destinationPort : Field = null;
     
@@ -381,7 +366,7 @@ export class GraphRenderer {
 
     static sortAndOrganizePorts (node:Node) : void {
         //calculating the minimum port distance as an angle. we save this min distance as a pixel distance between ports
-        const minimumPortDistance:number = Number(Math.asin(GraphConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
+        const minimumPortDistance:number = Number(Math.asin(EagleConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
         
         const connectedFields : {angle:number, field:Field,mode:string}[] = []
         const danglingPorts : {angle:number, field:Field, mode:string}[] = []
@@ -776,7 +761,7 @@ export class GraphRenderer {
         const edgeLength = Math.sqrt((destNodePosition.x - srcNodePosition.x)**2 + (destNodePosition.y - srcNodePosition.y)**2);
 
         //determining if the edge's length is below a certain threshold. if it is we will draw the edge straight and remove the arrow
-        const isShortEdge: boolean = edgeLength < srcNodeRadius * GraphConfig.SWITCH_TO_STRAIGHT_EDGE_MULTIPLIER;
+        const isShortEdge: boolean = edgeLength < srcNodeRadius * EagleConfig.SWITCH_TO_STRAIGHT_EDGE_MULTIPLIER;
 
         if (edge !== null){
             edge.setIsShortEdge(isShortEdge)
@@ -840,18 +825,18 @@ export class GraphRenderer {
         //the edge parameter is null if we are rendering a comment edge and this is not needed
         if(edge != null){
             //we are hiding the arrows if the edge is too short
-            if(edgeLength > GraphConfig.EDGE_DISTANCE_ARROW_VISIBILITY){
+            if(edgeLength > EagleConfig.EDGE_DISTANCE_ARROW_VISIBILITY){
                 //were adding the position and shape of the arrow to the edges
                 const arrowPosX =  GraphRenderer.getCoordinateOnBezier(0.5,x1,c1x,c2x,x2)
                 const arrowPosY =  GraphRenderer.getCoordinateOnBezier(0.5,y1,c1y,c2y,y2)
 
                 //generating the points for the arrow polygon
-                const P1x = arrowPosX+GraphConfig.EDGE_ARROW_SIZE
+                const P1x = arrowPosX+EagleConfig.EDGE_ARROW_SIZE
                 const P1y = arrowPosY
-                const P2x = arrowPosX-GraphConfig.EDGE_ARROW_SIZE
-                const P2y = arrowPosY+GraphConfig.EDGE_ARROW_SIZE
-                const P3x = arrowPosX-GraphConfig.EDGE_ARROW_SIZE
-                const P3y = arrowPosY-GraphConfig.EDGE_ARROW_SIZE
+                const P2x = arrowPosX-EagleConfig.EDGE_ARROW_SIZE
+                const P2y = arrowPosY+EagleConfig.EDGE_ARROW_SIZE
+                const P3x = arrowPosX-EagleConfig.EDGE_ARROW_SIZE
+                const P3y = arrowPosY-EagleConfig.EDGE_ARROW_SIZE
 
                 //we are calculating the angle the arrow should be pointing by getting two positions on either side of the center of the bezier curve then calculating the angle 
                 const  anglePos1x =  GraphRenderer.getCoordinateOnBezier(0.45,x1,c1x,c2x,x2)
@@ -1122,11 +1107,10 @@ export class GraphRenderer {
                     const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(outerMostNode.getParentKey());
 
                     // keep track of whether we would update any node parents
-                    const updated = {parent: false};
                     const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
                     //construct resizing 
                     if(outerMostNode.getParentKey() != null){
-                        if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+GraphConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
+                        if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
                             oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag) //HERE
                             outerMostNode.setParentKey(null)
                         }
@@ -1140,13 +1124,13 @@ export class GraphRenderer {
 
                     // if a parent was found, update
                     if (parent !== null && outerMostNode.getParentKey() !== parent.getKey() && outerMostNode.getKey() !== parent.getKey() && !ancestorOfParent && !outerMostNode.isEmbedded()){
-                        GraphRenderer._updateNodeParent(outerMostNode, parent.getKey(), updated, allowGraphEditing);
+                        GraphRenderer.updateNodeParent(outerMostNode, parent.getKey(),  allowGraphEditing);
                         GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByKeyQuiet(parent.getKey()).getRadius()
                     }
 
                     // if no parent found, update
                     if (parent === null && outerMostNode.getParentKey() !== null && !outerMostNode.isEmbedded()){
-                        GraphRenderer._updateNodeParent(outerMostNode, null, updated, allowGraphEditing);
+                        GraphRenderer.updateNodeParent(outerMostNode, null,  allowGraphEditing);
                     }
 
                     if (oldParent !== null){
@@ -1594,14 +1578,13 @@ export class GraphRenderer {
     }
 
     // update the parent of the given node
-    // however, if allGraphEditing is false, then don't update
-    // always keep track of whether an update would have happened, sp we can warn user
-    static _updateNodeParent(node: Node, parentKey: number, updated: {parent: boolean}, allowGraphEditing: boolean): void {
+    // however, if allowGraphEditing is false, then don't update
+    static updateNodeParent(node: Node, parentKey: number, allowGraphEditing: boolean): void {
         if (node.getParentKey() !== parentKey){
             if (allowGraphEditing){
                 node.setParentKey(parentKey);
+                Eagle.getInstance().checkGraph()   
             }
-            updated.parent = true;
         }
     }
 
@@ -1620,14 +1603,14 @@ export class GraphRenderer {
                 const dx = construct.getPosition().x - node.getPosition().x;
                 const dy = construct.getPosition().y - node.getPosition().y;
                 const distance = Math.sqrt(dx*dx + dy*dy);
-                const paddedDistance = distance + node.getRadius() + GraphConfig.CONSTRUCT_MARGIN;
+                const paddedDistance = distance + node.getRadius() + EagleConfig.CONSTRUCT_MARGIN;
 
                 maxDistance = Math.max(maxDistance, paddedDistance);
             }
         }
 
         // make sure constructs are never below minimum size
-        maxDistance = Math.max(maxDistance, GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
+        maxDistance = Math.max(maxDistance, EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
 
         if(construct.isGroup()){
             construct.setRadius(maxDistance);
@@ -1763,11 +1746,11 @@ export class GraphRenderer {
         }
 
         // check if link is valid
-        const linkValid : Edge.Validity = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
+        const linkValid : Errors.Validity = Edge.isValid(eagle,false, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
-        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Edge.Validity.Invalid) || linkValid === Edge.Validity.Valid || linkValid === Edge.Validity.Warning){
-            if (linkValid === Edge.Validity.Warning){
+        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Errors.Validity.Error) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning){
+            if (linkValid === Errors.Validity.Warning){
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, false, false);
@@ -2022,13 +2005,30 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         const result: {node: Node, field: Field}[] = [];
 
-        const minValidity: Edge.Validity = Setting.findValue(Setting.AUTO_COMPLETE_EDGES_LEVEL);
-        const minValidityIndex: number = Object.values(Edge.Validity).indexOf(minValidity);
+        const minValidity: Errors.Validity = Setting.findValue(Setting.AUTO_COMPLETE_EDGES_LEVEL);
+        const minValidityIndex: number = Object.values(Errors.Validity).indexOf(minValidity);
+
+        const potentialNodes :Node[] = []
 
         for (const node of eagle.logicalGraph().getNodes()){
+            potentialNodes.push(node)
+            if(node.isConstruct && node.getInputApplication()){
+                potentialNodes.push(node.getInputApplication())
+            }
+            if(node.isConstruct && node.getOutputApplication()){
+                potentialNodes.push(node.getOutputApplication())
+            }
+        }
+
+        for(const node of potentialNodes){
             for (const port of node.getPorts()){
-                const isValid: Edge.Validity = Edge.isValid(eagle, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
-                const isValidIndex: number = Object.values(Edge.Validity).indexOf(isValid);
+                let isValid: Errors.Validity
+                if(!GraphRenderer.portDragSourcePortIsInput){
+                    isValid = Edge.isValid(eagle,true, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
+                }else{
+                    isValid = Edge.isValid(eagle,true, "", node.getKey(), port.getId(), sourceNode.getKey(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
+                }
+                const isValidIndex: number = Object.values(Errors.Validity).indexOf(isValid);
 
                 if (isValidIndex >= minValidityIndex){
                     result.push({node: node, field: port});
@@ -2067,7 +2067,7 @@ export class GraphRenderer {
             // get distance to port
             const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
 
-            if(distance > GraphConfig.NODE_SUGGESTION_RADIUS){
+            if(distance > EagleConfig.NODE_SUGGESTION_RADIUS){
                 continue
             }
 
@@ -2078,7 +2078,7 @@ export class GraphRenderer {
                 minDistance = distance;
             }
         }
-        if (minDistance<GraphConfig.NODE_SUGGESTION_SNAP_RADIUS){
+        if (minDistance<EagleConfig.NODE_SUGGESTION_SNAP_RADIUS){
             GraphRenderer.portMatchCloseEnough(true)
         }
 
@@ -2094,7 +2094,7 @@ export class GraphRenderer {
         GraphRenderer.destinationPort = port;
         GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
 
-        const isValid = Edge.isValid(eagle, null, GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
+        const isValid = Edge.isValid(eagle,true, null, GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
         GraphRenderer.isDraggingPortValid(isValid);
     }
 
@@ -2102,30 +2102,30 @@ export class GraphRenderer {
         GraphRenderer.destinationPort = null;
         GraphRenderer.destinationNode = null;
 
-        GraphRenderer.isDraggingPortValid(Edge.Validity.Unknown);
+        GraphRenderer.isDraggingPortValid(Errors.Validity.Unknown);
     }
 
     static draggingEdgeGetStrokeColor: ko.PureComputed<string> = ko.pureComputed(() => {
         switch (GraphRenderer.isDraggingPortValid()){
-            case Edge.Validity.Unknown:
+            case Errors.Validity.Unknown:
                 return "black";
-            case Edge.Validity.Impossible:
-            case Edge.Validity.Invalid:
-                return GraphConfig.getColor("edgeInvalid");
-            case Edge.Validity.Warning:
-                return GraphConfig.getColor("edgeWarning");
-            case Edge.Validity.Valid:
-                return GraphConfig.getColor("edgeValid");
+            case Errors.Validity.Impossible:
+            case Errors.Validity.Error:
+                return EagleConfig.getColor("edgeInvalid");
+            case Errors.Validity.Warning:
+                return EagleConfig.getColor("edgeWarning");
+            case Errors.Validity.Valid:
+                return EagleConfig.getColor("edgeValid");
             default:
-                return GraphConfig.getColor("edgeDefault");
+                return EagleConfig.getColor("edgeDefault");
         }
     }, this);
 
     static suggestedEdgeGetStrokeColor() : string {
         if(GraphRenderer.portMatchCloseEnough()){
-            return GraphConfig.getColor("edgeAutoComplete");
+            return EagleConfig.getColor("edgeAutoComplete");
         }else{
-            return GraphConfig.getColor("edgeAutoCompleteSuggestion");
+            return EagleConfig.getColor("edgeAutoCompleteSuggestion");
         }
     }
 
@@ -2146,6 +2146,7 @@ export class GraphRenderer {
 
         eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, (edge : Edge) : void => {
             eagle.checkGraph();
+            eagle.undo().pushSnapshot(eagle, "Added edge from " + srcNode.getName() + " to " + destNode.getName());
             eagle.logicalGraph.valueHasMutated();
             GraphRenderer.clearEdgeVars();
         });
@@ -2217,8 +2218,8 @@ export class GraphRenderer {
     static edgeGetStrokeColor(edge: Edge) : string {
         const eagle = Eagle.getInstance();
 
-        let normalColor: string = GraphConfig.getColor('edgeDefault');
-        let selectedColor: string = GraphConfig.getColor('edgeDefaultSelected');
+        let normalColor: string = EagleConfig.getColor('edgeDefault');
+        let selectedColor: string = EagleConfig.getColor('edgeDefaultSelected');
 
         // check if source node is an event, if so, draw in blue
         const srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
@@ -2227,28 +2228,29 @@ export class GraphRenderer {
             const srcPort : Field = srcNode.findFieldById(edge.getSrcPortId());
 
             if (srcPort !== null && srcPort.getIsEvent()){
-                normalColor = GraphConfig.getColor('edgeEvent');
-                selectedColor = GraphConfig.getColor('edgeEventSelected');
+                normalColor = EagleConfig.getColor('edgeEvent');
+                selectedColor = EagleConfig.getColor('edgeEventSelected');
             }
         }
 
         // check if link has a warning or is invalid
-        const linkValid : Edge.Validity = Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        // const linkValid : Errors.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        const linkValid : Errors.Validity = Utils.worstEdgeError(edge.getErrorsWarnings());
 
-        if (linkValid === Edge.Validity.Invalid || linkValid === Edge.Validity.Impossible){
-            normalColor = GraphConfig.getColor('edgeInvalid');
-            selectedColor = GraphConfig.getColor('edgeInvalidSelected');
+        if (linkValid === Errors.Validity.Error || linkValid === Errors.Validity.Impossible){
+            normalColor = EagleConfig.getColor('edgeInvalid');
+            selectedColor = EagleConfig.getColor('edgeInvalidSelected');
         }
 
-        if (linkValid === Edge.Validity.Warning){
-            normalColor = GraphConfig.getColor('edgeWarning');
-            selectedColor = GraphConfig.getColor('edgeWarningSelected');
+        if (linkValid === Errors.Validity.Warning){
+            normalColor = EagleConfig.getColor('edgeWarning');
+            selectedColor = EagleConfig.getColor('edgeWarningSelected');
         }
 
         // check if the edge is a "closes loop" edge
         if (edge.isClosesLoop()){
-            normalColor = GraphConfig.getColor('edgeClosesLoop');
-            selectedColor = GraphConfig.getColor('edgeClosesLoopSelected');
+            normalColor = EagleConfig.getColor('edgeClosesLoop');
+            selectedColor = EagleConfig.getColor('edgeClosesLoopSelected');
         }
 
         return eagle.objectIsSelected(edge) ? selectedColor : normalColor;

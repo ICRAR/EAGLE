@@ -1,8 +1,8 @@
-import {Config} from './Config';
-import {Eagle} from './Eagle';
-import {Edge} from './Edge';
+import { Eagle } from './Eagle';
+import { EagleConfig } from './EagleConfig';
+import { Edge } from './Edge';
 import { GraphRenderer } from './GraphRenderer';
-import {Node} from './Node';
+import { Node } from './Node';
 
 export class Hierarchy {
 
@@ -179,7 +179,7 @@ export class Hierarchy {
         const parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
 
         // determine colour of edge
-        const colour: string = edgeSelected ? Config.HIERARCHY_EDGE_SELECTED_COLOR : Config.HIERARCHY_EDGE_DEFAULT_COLOR;
+        const colour: string = edgeSelected ? EagleConfig.getColor('hierarchyEdgeSelectedColor') : EagleConfig.getColor('hierarchyEdgeDefaultColor');
 
         let p1x, p1y, p2x, p2y, arrowX, mpx;
         if(use==="input"){
