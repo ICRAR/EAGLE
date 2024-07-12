@@ -653,10 +653,6 @@ export class Eagle {
         Eagle.selectedLocation(selectedLocation);
         GraphRenderer.clearPortPeek()
 
-        // if(selection === null && this.selectedObjects().length === 0){
-        //     return
-        // }
-
         if (selection === null){
             this.selectedObjects([]);
             this.rightWindow().mode(rightWindowMode);

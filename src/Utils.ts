@@ -456,7 +456,6 @@ export class Utils {
     }
 
     static showErrorsModal(title: string){
-        //maybe
         const errors: Errors.Issue[] = Errors.getErrors();
         const warnings: Errors.Issue[] = Errors.getWarnings();
 
@@ -1380,7 +1379,7 @@ export class Utils {
 
     static checkPalette(palette: Palette): Errors.ErrorsWarnings {
         const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
-        const paletteErrors : {issue:Errors.Issue, validity:Errors.Validity}[]=[]
+        const paletteIssues : {issue:Errors.Issue, validity:Errors.Validity}[]=[]
         // check for duplicate keys
         const keys: number[] = [];
 
@@ -1396,12 +1395,12 @@ export class Utils {
         // check all nodes are valid
         for (const node of palette.getNodes()){
             Node.isValid(node, Eagle.FileType.Palette);
-            paletteErrors.push(...node.getIssues())
+            paletteIssues.push(...node.getIssues())
             // errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
             // errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
         }
 
-        for(const error of paletteErrors){
+        for(const error of paletteIssues){
             if(error.validity === Errors.Validity.Error){
                 errorsWarnings.errors.push(error.issue)
             }else{
@@ -1429,48 +1428,48 @@ export class Utils {
     static gatherGraphErrors(): Errors.ErrorsWarnings {
         const eagle = Eagle.getInstance()
         const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
-        const graphErrors : {issue:Errors.Issue, validity:Errors.Validity}[] = []
+        const graphIssues : {issue:Errors.Issue, validity:Errors.Validity}[] = []
         const graph : LogicalGraph = eagle.logicalGraph()
 
         //gather all the errors
         //from nodes
         for(const node of graph.getNodes()){
-            graphErrors.push(...node.getIssues())
+            graphIssues.push(...node.getIssues())
             
             //from fields
             for( const field of node.getFields()){
-                graphErrors.push(...field.getIssues())
+                graphIssues.push(...field.getIssues())
             }
 
             //embedded input applications and their fields
             if(node.hasInputApplication()){
-                graphErrors.push(...node.getInputApplication().getIssues())
+                graphIssues.push(...node.getInputApplication().getIssues())
                 
                 for( const field of node.getInputApplication().getFields()){
-                    graphErrors.push(...field.getIssues())
+                    graphIssues.push(...field.getIssues())
                 }
             }
 
             //embedded output applications and their fields
             if(node.hasOutputApplication()){
-                graphErrors.push(...node.getOutputApplication().getIssues())
+                graphIssues.push(...node.getOutputApplication().getIssues())
                 
                 for( const field of node.getOutputApplication().getFields()){
-                    graphErrors.push(...field.getIssues())
+                    graphIssues.push(...field.getIssues())
                 }
             }
         }
 
         // from edges
         for (const edge of graph.getEdges()){
-            graphErrors.push(...edge.getIssues())
+            graphIssues.push(...edge.getIssues())
         }
 
         //from logical graph
-        graphErrors.push(...graph.getIssues())
+        graphIssues.push(...graph.getIssues())
 
         //sort all issues into warnings or errors
-        for(const error of graphErrors){
+        for(const error of graphIssues){
             if(error.validity === Errors.Validity.Error || error.validity === Errors.Validity.Impossible || error.validity === Errors.Validity.Unknown){
                 errorsWarnings.errors.push(error.issue)
             }else{

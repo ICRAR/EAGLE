@@ -1580,11 +1580,9 @@ export class GraphRenderer {
     // update the parent of the given node
     // however, if allowGraphEditing is false, then don't update
     static updateNodeParent(node: Node, parentKey: number, allowGraphEditing: boolean): void {
-        if (node.getParentKey() !== parentKey){
-            if (allowGraphEditing){
-                node.setParentKey(parentKey);
-                Eagle.getInstance().checkGraph()   
-            }
+        if (node.getParentKey() !== parentKey && allowGraphEditing){
+            node.setParentKey(parentKey);
+            Eagle.getInstance().checkGraph()   
         }
     }
 
