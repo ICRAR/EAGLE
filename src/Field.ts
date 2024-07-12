@@ -1,14 +1,14 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
-import {Daliuge} from './Daliuge';
-import { Errors } from './Errors';
-import {Node} from './Node';
 import { CategoryData } from './CategoryData';
 import { Category } from './Category';
-import { GraphConfig } from "./graphConfig";
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
+import { Errors } from './Errors';
+import { Node } from './Node';
 import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
@@ -892,7 +892,7 @@ export class Field {
                 // errorsWarnings.warnings.push(issue);
         }
 
-        //chack that the field has a known type
+        // check that the field has a known type
         if (!Utils.validateType(field.getType())) {
             const issue: Errors.Issue = Errors.ShowFix("Node " + node.getKey() + " (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose type (" + field.getType() + ") is unknown", function(){Utils.showField(eagle, node.getId(),field)}, function(){Utils.fixFieldType(eagle, field)}, "Prepend existing type (" + field.getType() + ") with 'Object.'");
                 field.issues().push({issue:issue,validity:Errors.Validity.Warning})
@@ -906,7 +906,7 @@ export class Field {
                 // errorsWarnings.errors.push(issue);
         }
 
-        //check that the field has a unique display text on the node
+        // check that the field has a unique display text on the node
         for (let j = 0 ; j < node.getFields().length ; j++){
             const field1 = node.getFields()[j];
             if(field === field1){
@@ -923,6 +923,21 @@ export class Field {
                     field.issues().push({issue:issue,validity:Errors.Validity.Warning})
                     // errorsWarnings.warnings.push(issue);
                 }
+            }
+        }
+
+        // check that PythonObject's self port is input for only one edge
+        if (node.getCategory() === Category.PythonObject && field.getDisplayText() === Daliuge.FieldName.SELF){
+            let numSelfPortConnections: number = 0;
+            for (const edge of eagle.logicalGraph().getEdges()){
+                if (edge.getDestPortId() === field.getId()){
+                    numSelfPortConnections += 1;
+                }
+            }
+
+            if (numSelfPortConnections > 1){
+                const issue: Errors.Issue = Errors.Message("Port " + field.getDisplayText() + " on node " + node.getName() + " cannot have multiple inputs.")
+                field.issues().push({issue:issue,validity:Errors.Validity.Error})
             }
         }
 

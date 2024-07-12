@@ -30,6 +30,7 @@ import { Category } from './Category';
 import { ComponentUpdater } from './ComponentUpdater';
 import { Daliuge } from './Daliuge';
 import { DockerHubBrowser } from "./DockerHubBrowser";
+import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { ExplorePalettes } from './ExplorePalettes';
@@ -37,7 +38,6 @@ import { Field } from './Field';
 import { FileInfo } from './FileInfo';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
-import { GraphConfig } from "./graphConfig";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
@@ -998,8 +998,6 @@ export class Eagle {
     }
 
     createSubgraphFromSelection = () : void => {
-        console.log("createSubgraphFromSelection()");
-
         const eagle = Eagle.getInstance()
         if(eagle.selectedObjects().length === 0){
             Utils.showNotification('Error','At least one node must be selected!', 'warning')
@@ -3561,7 +3559,7 @@ export class Eagle {
 
         // if node is a construct, set width and height a little larger
         if (node.isGroup()){
-            node.setRadius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
+            node.setRadius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
         }
 
         //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
@@ -3597,7 +3595,7 @@ export class Eagle {
             }
 
             // determine whether we should also generate an object data drop along with this node
-            const generateObjectDataDrop: boolean = newNode.getCategory() === Category.PythonMemberFunction && (newNode.getName().includes("__init__") || newNode.getName().includes("__class__"));
+            const generateObjectDataDrop: boolean = Daliuge.isPythonInitialiser(newNode);
 
             // optionally generate a new PythonObject node
             if (generateObjectDataDrop){

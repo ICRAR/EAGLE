@@ -1,6 +1,6 @@
 const colors: { name: string; color: string; }[] = [
     {
-    //node colours
+    //node colors
         name: 'bodyBorder',
         color: '#2e3192'
     },{
@@ -38,7 +38,7 @@ const colors: { name: string; color: string; }[] = [
         color: '#85b9ff94'
     },{
 
-    //edge colours
+    //edge colors
         name: 'edgeDefault',
         color: '#58595b'
     },{
@@ -80,10 +80,18 @@ const colors: { name: string; color: string; }[] = [
     },{
         name: 'edgeClosesLoopSelected',
         color: '#4247df'
+    },{
+
+    // hierarchy colors
+        name: 'hierarchyEdgeSelectedColor',
+        color: '#2F16D5'
+    },{
+        name: 'hierarchyEdgeDefaultColor',
+        color: '#000000'
     }
 ]
 
-export class GraphConfig {
+export class EagleConfig {
 
     // graph behaviour
     public static readonly NODE_SUGGESTION_RADIUS = 300
@@ -99,7 +107,7 @@ export class GraphConfig {
 
     //edge settings
     public static readonly EDGE_ARROW_SIZE : number = 8;
-    public static readonly EDGE_DISTANCE_ARROW_VISIBILITY : number = 100; //how loong does an edge have to be to show the direction arrows
+    public static readonly EDGE_DISTANCE_ARROW_VISIBILITY : number = 100; //how long does an edge have to be to show the direction arrows
     public static readonly SWITCH_TO_STRAIGHT_EDGE_MULTIPLIER : number = 5 //this affect the cutoff distance between nodes required to switch between a straight and curved edge
 
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
@@ -108,14 +116,37 @@ export class GraphConfig {
     public static readonly CONSTRUCT_DRAG_OUT_DISTANCE: number = 200;
 
     static getColor(name:string) : string {
-        let result = 'red'
+        let result: string = null;
+
         for (const color of colors) {
             if(color.name === name){
                 result = color.color
-            }else{
-                continue
+                break;
             }
         }
+
+        if (result === null){
+            console.warn("EagleConfig.getColor() could not find color with name", name);
+            result = 'red';
+        }
+
         return result
+    }
+
+    static initCSS(){
+        //overwriting css variables using colors from EagleConfig. I am using this for simple styling to avoid excessive css data binds in the node html files
+        $("#logicalGraphParent").get(0).style.setProperty("--selectedBg", EagleConfig.getColor('selectBackground'));
+        $("#logicalGraphParent").get(0).style.setProperty("--selectedConstructBg", EagleConfig.getColor('selectConstructBackground'));
+        $("#logicalGraphParent").get(0).style.setProperty("--nodeBorder", EagleConfig.getColor('bodyBorder'));
+        $("#logicalGraphParent").get(0).style.setProperty("--nodeBg", EagleConfig.getColor('nodeBg'));
+        $("#logicalGraphParent").get(0).style.setProperty("--graphText", EagleConfig.getColor('graphText'));
+        $("#logicalGraphParent").get(0).style.setProperty("--branchBg", EagleConfig.getColor('branchBg'));
+        $("#logicalGraphParent").get(0).style.setProperty("--constructBg", EagleConfig.getColor('constructBg'));
+        $("#logicalGraphParent").get(0).style.setProperty("--embeddedApp", EagleConfig.getColor('embeddedApp'));
+        $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", EagleConfig.getColor('constructIcon'));
+        $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", EagleConfig.getColor('commentEdge'));
+        $("#logicalGraphParent").get(0).style.setProperty("--matchingEdgeColor", EagleConfig.getColor('edgeAutoComplete'));
+        $("#logicalGraphParent").get(0).style.setProperty("--nodeOutputColor", EagleConfig.getColor('nodeOutputPort'));
+        $("#logicalGraphParent").get(0).style.setProperty("--nodeInputColor", EagleConfig.getColor('nodeInputPort'));
     }
 }

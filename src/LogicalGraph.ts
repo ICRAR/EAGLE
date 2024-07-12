@@ -27,11 +27,11 @@ import * as ko from "knockout";
 import { Category } from './Category';
 import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
-import { GraphConfig } from "./graphConfig";
 import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
@@ -57,11 +57,11 @@ export class LogicalGraph {
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
         result.modelData.schemaVersion = Daliuge.SchemaVersion.OJS;
-        result.modelData.numLGNodes = graph.getNodes().length;
+        result.modelData.numLGNodes = graph.nodes().length;
 
         // add nodes
         result.nodeDataArray = [];
-        for (const node of graph.getNodes()){
+        for (const node of graph.nodes()){
             const nodeData : any = Node.toOJSGraphJson(node);
             result.nodeDataArray.push(nodeData);
         }
@@ -269,7 +269,7 @@ export class LogicalGraph {
     getCommentNodes = () : Node[] => {
         const commentNodes: Node[] = [];
 
-        for (const node of this.getNodes()){
+        for (const node of this.nodes()){
             if (node.isComment()){
                 commentNodes.push(node);
             }
@@ -425,14 +425,13 @@ export class LogicalGraph {
     }
 
     findNodeGraphIdByNodeName = (name:string) :string =>{
-        const eagle: Eagle = Eagle.getInstance();
-        let graphNodeId:string
-        eagle.logicalGraph().getNodes().forEach(function(node){
-            if(node.getName() === name){
-                graphNodeId = node.getId()
+        for (const node of this.nodes()){
+            if (node.getName() === name){
+                return node.getId();
             }
-        })
-        return graphNodeId
+        }
+
+        return null;
     }
 
     removeNode = (node: Node) : void => {
@@ -558,7 +557,6 @@ export class LogicalGraph {
             return;
         }
 
-        const nodes : Node[] = this.getNodes();
         let minX : number = Number.MAX_SAFE_INTEGER;
         let minY : number = Number.MAX_SAFE_INTEGER;
         let maxX : number = Number.MIN_SAFE_INTEGER;
@@ -566,7 +564,7 @@ export class LogicalGraph {
         let numChildren : number = 0;
 
         // loop through all nodes, finding all children and determining minimum bounding box to contain all children
-        for (const n of nodes){
+        for (const n of this.nodes()){
             if (n.getParentKey() === node.getKey()){
                 numChildren += 1;
 
@@ -587,15 +585,15 @@ export class LogicalGraph {
 
         // if no children were found, set to default size
         if (numChildren === 0){
-            node.setRadius(GraphConfig.MINIMUM_CONSTRUCT_RADIUS);
+            node.setRadius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
             return;
         }
 
         // add some padding
-        minX -= GraphConfig.CONSTRUCT_MARGIN;
-        minY -= GraphConfig.CONSTRUCT_MARGIN;
-        maxX += GraphConfig.CONSTRUCT_MARGIN;
-        maxY += GraphConfig.CONSTRUCT_MARGIN;
+        minX -= EagleConfig.CONSTRUCT_MARGIN;
+        minY -= EagleConfig.CONSTRUCT_MARGIN;
+        maxX += EagleConfig.CONSTRUCT_MARGIN;
+        maxY += EagleConfig.CONSTRUCT_MARGIN;
 
         // set the size of the node
         node.setPosition(minX, minY);
@@ -735,7 +733,7 @@ export class LogicalGraph {
 
         // populate index plus depths
         for (let i = 0 ; i < this.nodes().length ; i++){
-            const node = this.getNodes()[i];
+            const node = this.nodes()[i];
 
             const depth = this.findDepthByKey(node.getKey());
 
@@ -749,7 +747,7 @@ export class LogicalGraph {
 
         // write nodes to result in sorted order
         for (const indexPlusDepth of indexPlusDepths){
-            result.push(this.getNodes()[indexPlusDepth.index]);
+            result.push(this.nodes()[indexPlusDepth.index]);
         }
 
         return result;
@@ -785,7 +783,7 @@ export class LogicalGraph {
         // move all nodes so that the top left corner of the graph starts at the origin 0,0
         for (const node of nodes){
             const pos = node.getPosition();
-            node.setPosition(pos.x - minX + GraphConfig.CONSTRUCT_MARGIN, pos.y - minY + GraphConfig.CONSTRUCT_MARGIN+(radius/4));
+            node.setPosition(pos.x - minX + EagleConfig.CONSTRUCT_MARGIN, pos.y - minY + EagleConfig.CONSTRUCT_MARGIN+(radius/4));
         }
 
         return radius;
