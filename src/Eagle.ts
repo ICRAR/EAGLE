@@ -919,7 +919,7 @@ export class Eagle {
                 const data: string = evt.target.result.toString();
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(Utils.newKey(eagle.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+                    const parentNode: Node = new Node(Utils.uuidv4(), Utils.newKey(eagle.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
     
                     eagle.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
     
@@ -1005,7 +1005,7 @@ export class Eagle {
         }
 
         // create new subgraph
-        const parentNode: Node = new Node(Utils.newKey(eagle.logicalGraph().getNodes()), "Subgraph", "", Category.SubGraph);
+        const parentNode: Node = new Node(Utils.uuidv4(), Utils.newKey(eagle.logicalGraph().getNodes()), "Subgraph", "", Category.SubGraph);
 
         // add the parent node to the logical graph
         this.logicalGraph().addNodeComplete(parentNode);
@@ -1066,7 +1066,7 @@ export class Eagle {
             const userChoice: string = constructs[userChoiceIndex];
 
             // create new subgraph
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Category>userChoice);
+            const parentNode: Node = new Node(Utils.uuidv4(), Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Category>userChoice);
 
             // add the parent node to the logical graph
             this.logicalGraph().addNodeComplete(parentNode);
@@ -2139,7 +2139,7 @@ export class Eagle {
             }
 
             // create parent node
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+            const parentNode: Node = new Node(Utils.uuidv4(), Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
             // perform insert
             this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
@@ -3639,7 +3639,7 @@ export class Eagle {
                 }
 
                 // create node
-                const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), poName, "Instance of " + poName, Category.PythonObject);
+                const poNode: Node = new Node(Utils.uuidv4(), Utils.newKey(this.logicalGraph().getNodes()), poName, "Instance of " + poName, Category.PythonObject);
 
                 // add node to LogicalGraph
                 const OBJECT_OFFSET_X = 100;

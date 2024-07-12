@@ -36,7 +36,7 @@ import { Setting } from './Setting';
 import { Utils } from './Utils';
 
 export class Node {
-    private _id : ko.Observable<string>;
+    private id : ko.Observable<string>;
     private key : ko.Observable<number>;
     private name : ko.Observable<string>;
     private description : ko.Observable<string>;
@@ -81,8 +81,8 @@ export class Node {
                                                    // (primary method is using parent-child relationships)
                                                    // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
 
-    constructor(key : number, name : string, description : string, category : Category){
-        this._id = ko.observable(Utils.uuidv4());
+    constructor(id: string, key : number, name : string, description : string, category : Category){
+        this.id = ko.observable(id);
         this.key = ko.observable(key);
         this.name = ko.observable(name);
         this.description = ko.observable(description);
@@ -126,11 +126,11 @@ export class Node {
     }
 
     getId = () : string => {
-        return this._id();
+        return this.id();
     }
 
     setId = (id: string) : void => {
-        this._id(id);
+        this.id(id);
     }
 
     getKey = () : number => {
@@ -738,7 +738,7 @@ export class Node {
     }
 
     clear = () : void => {
-        this._id("");
+        this.id("");
         this.key(0);
         this.name("");
         this.description("");
@@ -1090,9 +1090,9 @@ export class Node {
 
     clone = () : Node => {
 
-        const result : Node = new Node(this.key(), this.name(), this.description(), this.category());
+        const result : Node = new Node(this.id(), this.key(), this.name(), this.description(), this.category());
 
-        result._id(this._id());
+        result.id(this.id());
         result.x(this.x());
         result.y(this.y());
         result.radius(this.radius());
@@ -1310,6 +1310,13 @@ export class Node {
             y = nodeData.y;
         }
 
+        let id: string = "";
+        if (typeof nodeData.id !== 'undefined' && nodeData.id !== null){
+            id = nodeData.id;
+        } else {
+            id = Utils.uuidv4();
+        }
+
         let key = 0;
         if (typeof nodeData.key !== 'undefined' && nodeData.key !== null){
             key = nodeData.key;
@@ -1326,7 +1333,7 @@ export class Node {
             category = Category.Unknown;
         }
 
-        const node : Node = new Node(key, name, "", category);
+        const node : Node = new Node(id, key, name, "", category);
         const categoryData: Category.CategoryData = CategoryData.getCategoryData(category);
 
         // set position
@@ -1749,6 +1756,7 @@ export class Node {
         result.category = node.category();
         result.categoryType = node.categoryType();
 
+        result.id = node.id();
         result.key = node.key();
         result.name = node.name();
         result.description = node.description();
@@ -1825,6 +1833,7 @@ export class Node {
         result.color = node.color();
         result.drawOrderHint = node.drawOrderHint();
 
+        result.id = node.id();
         result.key = node.key();
         result.name = node.name();
         result.description = node.description();
@@ -1900,7 +1909,7 @@ export class Node {
     static createEmbeddedApplicationNode(key: number, name : string, category: Category, description: string, embedKey: number) : Node {
         console.assert(CategoryData.getCategoryData(category).categoryType === Category.Type.Application);
 
-        const node = new Node(key, name, description, category);
+        const node = new Node(Utils.uuidv4(), key, name, description, category);
         node.setEmbedKey(embedKey);
         node.setRadius(EagleConfig.NORMAL_NODE_RADIUS);
         return node;
