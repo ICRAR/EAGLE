@@ -104,7 +104,7 @@ export class Eagle {
     draggingNode : ko.Observable<Node>;
     draggingPaletteNode : boolean;
 
-    errorsMode : ko.Observable<Setting.ErrorsMode>;
+    errorsMode : ko.Observable<Errors.Mode>;
     graphWarnings : ko.ObservableArray<Errors.Issue>;
     graphErrors : ko.ObservableArray<Errors.Issue>;
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
@@ -194,7 +194,7 @@ export class Eagle {
         this.isDragging = ko.observable(false);
         this.draggingNode = ko.observable(null);
         this.draggingPaletteNode = false;
-        this.errorsMode = ko.observable(Setting.ErrorsMode.Loading);
+        this.errorsMode = ko.observable(Errors.Mode.Loading);
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);
         this.loadingWarnings = ko.observableArray([]);
@@ -652,6 +652,7 @@ export class Eagle {
     setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
         Eagle.selectedLocation(selectedLocation);
         GraphRenderer.clearPortPeek()
+
         if (selection === null){
             this.selectedObjects([]);
             this.rightWindow().mode(rightWindowMode);
@@ -947,7 +948,7 @@ export class Eagle {
                 this.loadingErrors(errorsWarnings.errors);
                 this.loadingWarnings(errorsWarnings.warnings);
 
-                this.errorsMode(Setting.ErrorsMode.Loading);
+                this.errorsMode(Errors.Mode.Loading);
                 Utils.showErrorsModal("Loading File");
             }
         } else {
@@ -1873,7 +1874,7 @@ export class Eagle {
                 this.loadingErrors(errorsWarnings.errors);
                 this.loadingWarnings(errorsWarnings.warnings);
 
-                this.errorsMode(Setting.ErrorsMode.Loading);
+                this.errorsMode(Errors.Mode.Loading);
                 Utils.showErrorsModal("Loading File");
             }
 
@@ -2852,8 +2853,8 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Edge.Validity = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-            if (isValid === Edge.Validity.Impossible || isValid === Edge.Validity.Invalid || isValid === Edge.Validity.Unknown){
+            const isValid: Errors.Validity = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
@@ -2897,8 +2898,8 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Edge.Validity = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-            if (isValid === Edge.Validity.Impossible || isValid === Edge.Validity.Invalid || isValid === Edge.Validity.Unknown){
+            const isValid: Errors.Validity = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
@@ -4564,17 +4565,18 @@ export class Eagle {
     }
 
     checkGraph = (): void => {
-        const checkResult = Utils.checkGraph(this);
-
-        this.graphWarnings(checkResult.warnings);
-        this.graphErrors(checkResult.errors);
+        Utils.checkGraph(this);//validate the graph
+        const graphErrors = Utils.gatherGraphErrors() //gather all the errors from all of the components
+        
+        this.graphWarnings(graphErrors.warnings);
+        this.graphErrors(graphErrors.errors);
     };
 
     showGraphErrors = (): void => {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
 
             // switch to graph errors mode
-            this.errorsMode(Setting.ErrorsMode.Graph);
+            this.errorsMode(Errors.Mode.Graph);
 
             // show graph modal
             this.smartToggleModal('errorsModal')

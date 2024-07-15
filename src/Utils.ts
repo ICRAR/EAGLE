@@ -1379,7 +1379,7 @@ export class Utils {
 
     static checkPalette(palette: Palette): Errors.ErrorsWarnings {
         const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
-
+        const paletteIssues : {issue:Errors.Issue, validity:Errors.Validity}[]=[]
         // check for duplicate keys
         const keys: number[] = [];
 
@@ -1394,105 +1394,86 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of palette.getNodes()){
-            const nodeErrorsWarnings = Node.isValid(node, Eagle.FileType.Palette);
-            errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
-            errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
+            Node.isValid(node, Eagle.FileType.Palette);
+            paletteIssues.push(...node.getIssues())
+            // errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
+            // errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
+        }
+
+        for(const error of paletteIssues){
+            if(error.validity === Errors.Validity.Error){
+                errorsWarnings.errors.push(error.issue)
+            }else{
+                errorsWarnings.warnings.push(error.issue)
+            }
         }
 
         return errorsWarnings;
     }
 
-    static checkGraph(eagle: Eagle): Errors.ErrorsWarnings {
-        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
-
+    static checkGraph(eagle: Eagle): void {
         const graph: LogicalGraph = eagle.logicalGraph();
 
         // check all nodes are valid
         for (const node of graph.getNodes()){
-            const nodeErrorsWarnings = Node.isValid(node, Eagle.FileType.Graph);
-            errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
-            errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
-
-            //get the node's field errorswarnings 
-            for(const field of node.getFields()){
-                errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
-                errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
-            }
-
-            // check the embedded applications
-            if (node.hasInputApplication()){
-                const inputNodeErrorsWarnings = Node.isValid(node.getInputApplication(),Eagle.FileType.Graph)
-                errorsWarnings.errors.push(...inputNodeErrorsWarnings.errors)
-                errorsWarnings.warnings.push(...inputNodeErrorsWarnings.warnings)
-
-                //get the input application's field errorswarnings 
-                for(const field of node.getInputApplication().getFields()){
-                    errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
-                    errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
-                }
-            }
-            if (node.hasOutputApplication()){
-                const outputNodeErrorsWarnings = Node.isValid(node.getOutputApplication(),Eagle.FileType.Graph)
-                errorsWarnings.errors.push(...outputNodeErrorsWarnings.errors)
-                errorsWarnings.warnings.push(...outputNodeErrorsWarnings.warnings)
-                
-                //get the output application's field errorswarnings 
-                for(const field of node.getOutputApplication().getFields()){
-                    errorsWarnings.errors.push(...field.getErrorsWarnings().errors)
-                    errorsWarnings.warnings.push(...field.getErrorsWarnings().warnings)
-                }
-            }
+            Node.isValid(node, Eagle.FileType.Graph);
         }
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, errorsWarnings);
+            Edge.isValid(eagle, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {warnings: [], errors: []});
         }
+    }
 
-        // check that all node, edge, field ids are unique
-        {
-            const ids : string[] = [];
+    static gatherGraphErrors(): Errors.ErrorsWarnings {
+        const eagle = Eagle.getInstance()
+        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
+        const graphIssues : {issue:Errors.Issue, validity:Errors.Validity}[] = []
+        const graph : LogicalGraph = eagle.logicalGraph()
 
-            // loop over graph nodes
-            for (const node of graph.getNodes()){
-                //check for unique ids
-                if (ids.includes(node.getId())){
-                    const issue: Errors.Issue = Errors.ShowFix(
-                        "Node (" + node.getName() + ") does not have a unique id",
-                        function(){Utils.showNode(eagle, node.getId())},
-                        function(){Utils.newId(node)},
-                        "Assign node a new id"
-                    );
-                    errorsWarnings.errors.push(issue);
-                }
-                ids.push(node.getId());
+        //gather all the errors
+        //from nodes
+        for(const node of graph.getNodes()){
+            graphIssues.push(...node.getIssues())
+            
+            //from fields
+            for( const field of node.getFields()){
+                graphIssues.push(...field.getIssues())
+            }
 
-                for (const field of node.getFields()){
-                    if (ids.includes(field.getId())){
-                        const issue: Errors.Issue = Errors.ShowFix(
-                            "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
-                            function(){Utils.showNode(eagle, node.getId())},
-                            function(){Utils.newFieldId(eagle, node, field)},
-                            "Assign field a new id"
-                        );
-                        errorsWarnings.errors.push(issue);
-                    }
-                    ids.push(field.getId());
+            //embedded input applications and their fields
+            if(node.hasInputApplication()){
+                graphIssues.push(...node.getInputApplication().getIssues())
+                
+                for( const field of node.getInputApplication().getFields()){
+                    graphIssues.push(...field.getIssues())
                 }
             }
 
-            // loop over graph edges
-            for (const edge of graph.getEdges()){
-                if (ids.includes(edge.getId())){
-                    const issue: Errors.Issue = Errors.ShowFix(
-                        "Edge (" + edge.getId() + ") does not have a unique id",
-                        function(){Utils.showEdge(eagle, edge.getId())},
-                        function(){Utils.newId(edge)},
-                        "Assign edge a new id"
-                    );
-                    errorsWarnings.errors.push(issue);
+            //embedded output applications and their fields
+            if(node.hasOutputApplication()){
+                graphIssues.push(...node.getOutputApplication().getIssues())
+                
+                for( const field of node.getOutputApplication().getFields()){
+                    graphIssues.push(...field.getIssues())
                 }
-                ids.push(edge.getId());
+            }
+        }
+
+        // from edges
+        for (const edge of graph.getEdges()){
+            graphIssues.push(...edge.getIssues())
+        }
+
+        //from logical graph
+        graphIssues.push(...graph.getIssues())
+
+        //sort all issues into warnings or errors
+        for(const error of graphIssues){
+            if(error.validity === Errors.Validity.Error || error.validity === Errors.Validity.Impossible || error.validity === Errors.Validity.Unknown){
+                errorsWarnings.errors.push(error.issue)
+            }else{
+                errorsWarnings.warnings.push(error.issue)
             }
         }
 
@@ -2178,22 +2159,21 @@ export class Utils {
     }
 
     // only update result if it is worse that current result
-    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Edge.Validity {
+    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
         if (errorsWarnings === null){
             console.warn("errorsWarnings is null");
-            return Edge.Validity.Valid;
+            return Errors.Validity.Valid;
         }
 
         if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
-            return Edge.Validity.Valid;
+            return Errors.Validity.Valid;
         }
 
         if (errorsWarnings.errors.length !== 0){
-            // TODO: this actually has no way of knowing whether the errors are of type Invalid or Impossible
-            return Edge.Validity.Invalid;
+            return Errors.Validity.Error;
         }
 
-        return Edge.Validity.Warning;
+        return Errors.Validity.Warning;
     }
 
     static printCategories() : void {

@@ -42,12 +42,14 @@ export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
     private nodes : ko.ObservableArray<Node>;
     private edges : ko.ObservableArray<Edge>;
+    private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Graph;
         this.nodes = ko.observableArray([]);
         this.edges = ko.observableArray([]);
+        this.issues = ko.observableArray([])
     }
 
     static toOJSJson(graph : LogicalGraph, forTranslation : boolean) : object {
@@ -311,6 +313,10 @@ export class LogicalGraph {
         }
 
         return result;
+    }
+
+    getIssues = (): {issue:Errors.Issue, validity:Errors.Validity}[] => {
+        return this.issues();
     }
 
     /**
@@ -781,5 +787,61 @@ export class LogicalGraph {
         }
 
         return radius;
+    }
+
+    static isValid () : void {
+        //here should be the higher level graph wide checks for graph validity
+        const eagle = Eagle.getInstance()
+        const graph = eagle.logicalGraph()
+
+        // check that all node, edge, field ids are unique
+        // {
+        const ids : string[] = [];
+
+        // loop over graph nodes
+        for (const node of graph.getNodes()){
+            //check for unique ids
+            if (ids.includes(node.getId())){
+                const issue: Errors.Issue = Errors.ShowFix(
+                    "Node (" + node.getName() + ") does not have a unique id",
+                    function(){Utils.showNode(eagle, node.getId())},
+                    function(){Utils.newId(node)},
+                    "Assign node a new id"
+                );
+                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+                // errorsWarnings.errors.push(issue);
+            }
+            ids.push(node.getId());
+
+            for (const field of node.getFields()){
+                if (ids.includes(field.getId())){
+                    const issue: Errors.Issue = Errors.ShowFix(
+                        "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
+                        function(){Utils.showNode(eagle, node.getId())},
+                        function(){Utils.newFieldId(eagle, node, field)},
+                        "Assign field a new id"
+                    );
+                    graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+                    // errorsWarnings.errors.push(issue);
+                }
+                ids.push(field.getId());
+            }
+        }
+
+        // loop over graph edges
+        for (const edge of graph.getEdges()){
+            if (ids.includes(edge.getId())){
+                const issue: Errors.Issue = Errors.ShowFix(
+                    "Edge (" + edge.getId() + ") does not have a unique id",
+                    function(){Utils.showEdge(eagle, edge.getId())},
+                    function(){Utils.newId(edge)},
+                    "Assign edge a new id"
+                );
+                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+                // errorsWarnings.errors.push(issue);
+            }
+            ids.push(edge.getId());
+        }
+        // }
     }
 }
