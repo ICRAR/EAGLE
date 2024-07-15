@@ -117,6 +117,16 @@ export class GraphConfig {
         return count;
     }, this)
 
+    hasField = (field: Field): boolean => {
+        for (const node of this.nodes.values()){
+            if (node.getFields().has(field.getId())){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
         const result: GraphConfig = new GraphConfig();
 

@@ -459,6 +459,7 @@ export class Field {
         }
     },this)
 
+    // TODO: move to ParameterTable class?
     fitsTableSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if (Eagle.tableSearchString() === ""){
             return true;
