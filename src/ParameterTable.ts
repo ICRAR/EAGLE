@@ -136,19 +136,23 @@ export class ParameterTable {
 
     getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
-        
+
         switch (eagle.parameterTableMode()){
 
             case ParameterTable.Mode.Unknown:
                 return [];
 
-            case ParameterTable.Mode.GraphConfig:
-                return eagle.selectedNode().getFields();
-            
             case ParameterTable.Mode.NodeFields:
+                return eagle.selectedNode()?.getFields();
+            
+            case ParameterTable.Mode.GraphConfig:
                 const config: GraphConfig = eagle.graphConfig();
                 const lg: LogicalGraph = eagle.logicalGraph();
                 const displayedFields: Field[] = [];
+
+                if (!config){
+                    return [];
+                }
 
                 for (const [nodeId, node] of config.getNodes()){
                     const lgNode = lg.findNodeById(nodeId);

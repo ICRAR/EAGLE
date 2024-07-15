@@ -4,10 +4,10 @@
         <div class="modal-content">
             <!-- ko if: showTableModal() -->
                 <div class="modal-header" data-bind="click: function(){ParameterTable.resetSelection()}">
-                    <!-- ko if: tableModalType() === 'keyParametersTableModal' -->
+                    <!-- ko if: parameterTableMode() === ParameterTable.Mode.GraphConfig -->
                         <h5 class="modal-title" id="parameterTableModalTitle">Key Graph Attributes</h5>
                     <!-- /ko -->
-                    <!-- ko if: tableModalType() === 'inspectorTableModal' -->
+                    <!-- ko if: parameterTableMode() === ParameterTable.Mode.NodeFields -->
                         <h5 class="modal-title" id="parameterTableModalTitle">Fields Table: <span data-bind="html: selectedNode().getName()"></span></h5>
                         <!-- ko if: selectedNode() != null -->
                             <!-- ko if: selectedNode().isLocked() -->
@@ -56,7 +56,7 @@
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
                                     <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'Toggle Field Key attribute state'" data-bs-placement="top"></th>
                                 <!-- /ko -->
-                                <!-- ko if: $root.tableModalType() === 'keyParametersTableModal'-->
+                                <!-- ko if: $root.parameterTableMode() === ParameterTable.Mode.GraphConfig -->
                                     <th id="parameter_table_node_name" data-bind="eagleTooltip:`This Parameter's Parent Node Name`" data-bs-placement="top">
                                         Node Name
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_name') === true}"></div>
@@ -127,7 +127,7 @@
                                                 <!-- kept for now as we will need the space for the row drag handle -->
                                             </td>
                                         <!-- /ko -->
-                                        <!-- ko if: $root.tableModalType() === 'keyParametersTableModal' -->
+                                        <!-- ko if: $root.parameterTableMode() === ParameterTable.Mode.GraphConfig -->
                                             <td class='columnCell column_NodeName'>
                                                 <input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getName(), disabled: true">
                                             </td>
@@ -357,10 +357,10 @@
                     </table>
                 </div>
                 <div class="modal-footer"  data-bind="click: ParameterTable.resetSelection">
-                    <!-- ko if: selectedNode() != null && tableModalType() === 'inspectorTableModal' -->
+                    <!-- ko if: selectedNode() != null && parameterTableMode() === ParameterTable.Mode.NodeFields -->
                         <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyTableRow, clickBubble:false, disabled: selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
                     <!-- /ko -->
-                    <!-- ko if: selectedNode() != null && selectedNode().getCategory() === 'Docker' -->
+                    <!-- ko if: selectedNode() != null && selectedNode().getCategory() === Category.Docker -->
                         <button id="tableOpenDocker" class="btn btn-primary float-left" data-bind="click: ParameterTable.initiateBrowseDocker, clickBubble: false, eagleTooltip: `Browse images on dockerhub`" data-bs-toggle="tooltip" data-html="true" data-bs-placement="right" data-bs-original-title="">
                             Browse DockerHub
                         </button>

@@ -24,7 +24,7 @@
                 <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
                     <i class="material-icons md-18">info</i>
                 </button>
-                <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal', 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)">
+                <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal(ParameterTable.Mode.GraphConfig, 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)">
                     <i class="md-18 icon-keyAttrTable"></i>
                 </button>
                 <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >

@@ -85,6 +85,7 @@ export class Eagle {
     translator : ko.Observable<Translator>;
     undo : ko.Observable<Undo>;
     parameterTable : ko.Observable<ParameterTable>;
+    parameterTableMode : ko.Observable<ParameterTable.Mode>;
 
     globalOffsetX : ko.Observable<number>;
     globalOffsetY : ko.Observable<number>;
@@ -111,7 +112,6 @@ export class Eagle {
     graphErrors : ko.ObservableArray<Errors.Issue>;
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
     loadingErrors : ko.ObservableArray<Errors.Issue>;
-    parameterTableMode : ko.Observable<ParameterTable.Mode>;
     showTableModal : ko.Observable<boolean>;
     currentFileInfo : ko.Observable<FileInfo>;
     currentFileInfoTitle : ko.Observable<string>;
