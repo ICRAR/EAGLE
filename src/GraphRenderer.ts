@@ -1744,7 +1744,7 @@ export class GraphRenderer {
         }
 
         // check if link is valid
-        const linkValid : Errors.Validity = Edge.isValid(eagle,false, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
+        const linkValid : Errors.Validity = Edge.isValid(eagle, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
         if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Errors.Validity.Error) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning){
@@ -2022,9 +2022,9 @@ export class GraphRenderer {
             for (const port of node.getPorts()){
                 let isValid: Errors.Validity
                 if(!GraphRenderer.portDragSourcePortIsInput){
-                    isValid = Edge.isValid(eagle,true, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
+                    isValid = Edge.isValid(eagle, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }else{
-                    isValid = Edge.isValid(eagle,true, "", node.getKey(), port.getId(), sourceNode.getKey(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
+                    isValid = Edge.isValid(eagle, "", node.getKey(), port.getId(), sourceNode.getKey(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }
                 const isValidIndex: number = Object.values(Errors.Validity).indexOf(isValid);
 
@@ -2092,7 +2092,7 @@ export class GraphRenderer {
         GraphRenderer.destinationPort = port;
         GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
 
-        const isValid = Edge.isValid(eagle,true, null, GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
+        const isValid = Edge.isValid(eagle, null, GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
         GraphRenderer.isDraggingPortValid(isValid);
     }
 

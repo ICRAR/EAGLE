@@ -2853,7 +2853,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Errors.Validity = Edge.isValid(this,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Errors.Validity = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
@@ -2898,7 +2898,7 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Errors.Validity = Edge.isValid(this,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Errors.Validity = Edge.isValid(this, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
