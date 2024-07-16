@@ -42,7 +42,7 @@
                         <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.tableSearchString,data,event)}">
                             <i class="material-icons md-18 searchBarIconClose">close</i>
                         </a>
-                        <input class="componentSearchBar" type="text" placeholder="Search: eg. app, string" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.tableSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}},eagleTooltip:`Search for names, types, anything really! You may enter several terms that should match seperated by a ','`">
+                        <input class="componentSearchBar" type="text" placeholder="Search: eg. app, string" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.tableSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}},eagleTooltip:`Search for names, types, anything really! You may enter several terms that should match separated by a ','`">
                     </div>
                 </div>
                 <div class="modal-body">
@@ -120,7 +120,7 @@
                         </thead>
                         <tbody data-bind="foreach: $root.parameterTable().getTableFields()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
-                                <!-- ko if: Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || $data.isKeyAttribute() -->
+                                <!-- ko if: Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || $root.graphConfig().hasField($data) -->
                                     <tr data-bind="attr: {'id' : 'tableRow_'+$data.getId()}">
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
                                             <td class='columnCell column_KeyAttr'>
@@ -138,7 +138,18 @@
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
                                             <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' },eagleTooltip:description">
                                                 <input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}">
-                                                <button data-bind="value: $data.keyAttribute, click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', html: $root.getKeyAttributeDisplay($data.keyAttribute()),style:{'visibility':$data.getKeyAttrVis()},clickBubble:false"></button>
+                                                
+                                                <!-- ko ifnot: $root.graphConfig().hasField($data) -->
+                                                <button data-bind="click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', style:{'visibility':'hidden'}, clickBubble:false">
+                                                    <i class="material-icons">favorite_border</i>
+                                                </button>
+                                                <!-- /ko -->
+                                                <!-- ko if: $root.graphConfig().hasField($data) -->
+                                                <button data-bind="click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', style:{'visibility':'visible'}, clickBubble:false">
+                                                    <i class="material-icons">favorite</i>
+                                                </button>
+                                                <!-- /ko -->
+
                                             </td>
                                         <!-- /ko -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().fieldId() -->
