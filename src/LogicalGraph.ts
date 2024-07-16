@@ -319,6 +319,10 @@ export class LogicalGraph {
         return this.issues();
     }
 
+    addIssue = (issue:Errors.Issue, validity:Errors.Validity): void => {
+        this.issues().push({issue:issue,validity:validity})
+    }
+
     /**
      * Opens a dialog for selecting a data component type.
      */
