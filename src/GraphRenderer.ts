@@ -2116,7 +2116,7 @@ export class GraphRenderer {
         if(edgeTargetValidity===Errors.Validity.Unknown){
             edgeTargetValidity = GraphRenderer.portDragSuggestionValidity()
 
-            //we are coloring the edge accorting to suggested connections, but the suggestion is not close enough
+            //we are coloring the edge according to suggested connections, but the suggestion is not close enough
             if(!GraphRenderer.portMatchCloseEnough()){
                 return EagleConfig.getColor("edgeDefault")
             }
