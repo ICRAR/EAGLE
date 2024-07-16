@@ -414,14 +414,6 @@ export class Eagle {
         return algorithmName === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)
     }
 
-    getKeyAttributeDisplay = (isKeyAttribute : boolean) : string => {
-        if(!isKeyAttribute){
-            return '<i class="material-icons">favorite_border</i>'
-        }else{
-            return '<i class="material-icons">favorite</i>'
-        }
-    }
-
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
         if (this.logicalGraph() === null){
             return "";
