@@ -500,9 +500,7 @@ export class Edge {
     }
 
     private static isValidLog(edge : Edge,draggingPortMode:boolean, linkValid : Errors.Validity, issue: Errors.Issue, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : void {
-        if(draggingPortMode){
-            return
-        }
+       
 
         // determine correct title
         let title = "Edge Valid";
@@ -543,6 +541,8 @@ export class Edge {
             errorsWarnings.warnings.push(issue);
         }
 
-        edge.issues().push({issue:issue, validity:linkValid})
+        if(!draggingPortMode){
+            edge.issues().push({issue:issue, validity:linkValid})
+        }
     }
 }
