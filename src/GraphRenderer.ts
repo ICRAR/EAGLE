@@ -297,7 +297,7 @@ export class GraphRenderer {
 
     static portDragSuggestedNode : ko.Observable<Node> = ko.observable(null);
     static portDragSuggestedField : ko.Observable<Field> = ko.observable(null);
-    static portDragSuggestionValidity : ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown)
+    static portDragSuggestionValidity : ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown) // this is necessary because we cannot keep the validity on the ege as it does not exist
     static matchingPortList : {field:Field,node:Node,validity: Errors.Validity}[] = []
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
@@ -1414,12 +1414,12 @@ export class GraphRenderer {
         let findConstructId
         const orderedConstructList:Node[] = []
 
-        constructsList.forEach(function(x){
-            if(x.getParentKey()===null){
+        constructsList.forEach(function(construct){
+            if(construct.getParentKey()===null){
                 let finished = false // while there are child construct found in this construct nest group
 
-                findConstructId = x.getKey()
-                orderedConstructList.unshift(x)
+                findConstructId = construct.getKey()
+                orderedConstructList.unshift(construct)
                 while(!finished){
                     let found = false
                     for(const entry of constructsList){
@@ -1723,8 +1723,8 @@ export class GraphRenderer {
         }
 
         //resetting some global cached variables
-        GraphRenderer.matchingPortList.forEach(function(x){
-            x.field.setPeek(false)
+        GraphRenderer.matchingPortList.forEach(function(matchingPort){
+            matchingPort.field.setPeek(false)
         })
 
         GraphRenderer.matchingPortList = []
@@ -2049,10 +2049,10 @@ export class GraphRenderer {
         GraphRenderer.portMatchCloseEnough(false)
 
         const portList = GraphRenderer.matchingPortList
-        for (const x of portList){
-            const port = x.field
-            const node = x.node
-            const validity = x.validity
+        for (const portInfo of portList){
+            const port = portInfo.field
+            const node = portInfo.node
+            const validity = portInfo.validity
 
             // get position of port
             let portX
