@@ -2110,11 +2110,11 @@ export class GraphRenderer {
     }
 
     static draggingEdgeGetStrokeColor: ko.PureComputed<string> = ko.pureComputed(() => {
-        let usageArray = GraphRenderer.isDraggingPortValid()
+        let edgeTargetValidity = GraphRenderer.isDraggingPortValid()
 
         //if this is the case, we are not hovering on a port and want the validity of the suggested connection to determine the edge color
-        if(usageArray===Errors.Validity.Unknown){
-            usageArray = GraphRenderer.portDragSuggestionValidity()
+        if(edgeTargetValidity===Errors.Validity.Unknown){
+            edgeTargetValidity = GraphRenderer.portDragSuggestionValidity()
 
             //we are coloring the edge accorting to suggested connections, but the suggestion is not close enough
             if(!GraphRenderer.portMatchCloseEnough()){
@@ -2122,7 +2122,7 @@ export class GraphRenderer {
             }
         }
 
-        switch (usageArray){
+        switch (edgeTargetValidity){
             case Errors.Validity.Unknown:
                 return EagleConfig.getColor("edgeDefault");
             case Errors.Validity.Impossible:
