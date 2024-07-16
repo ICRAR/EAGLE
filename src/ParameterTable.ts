@@ -526,8 +526,8 @@ export class ColumnVisibilities {
 
     //these toggle functions are used in the knockout for the ui elements
     private toggleKeyAttribute = () : void => {
-            this.keyAttribute(!this.keyAttribute());
-            this.saveToLocalStorage()
+        this.keyAttribute(!this.keyAttribute());
+        this.saveToLocalStorage()
     }
 
     private toggleDisplayText = () : void => {

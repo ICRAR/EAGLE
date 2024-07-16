@@ -1,5 +1,6 @@
 import * as ko from "knockout";
 
+import { Eagle } from "./Eagle";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { LogicalGraph } from "./LogicalGraph";
@@ -57,6 +58,11 @@ export class GraphConfigNode {
         return newField;
     }
 
+    removeField = (id: string): GraphConfigNode => {
+        this.fields.delete(id);
+        return this;
+    }
+
     getFields = (): Map<string, GraphConfigField> => {
         return this.fields;
     }
@@ -101,6 +107,18 @@ export class GraphConfig {
         const newNode: GraphConfigNode = new GraphConfigNode();
         this.nodes.set(id, newNode);
         return newNode;
+    }
+
+    addField = (field: Field): void => {
+        const node = Eagle.getInstance().logicalGraph().findNodeByKey(field.getNodeKey());
+        this.addNode(node.getId()).addField(field.getId());
+    }
+
+    removeField = (field: Field): void => {
+        const node = Eagle.getInstance().logicalGraph().findNodeByKey(field.getNodeKey());
+        this.nodes.get(node.getId()).removeField(field.getId());
+
+        // TODO: do we need to check if removing the field means that the node now has zero fields?
     }
 
     addValue = (nodeId: string, fieldId: string, value: string) => {
