@@ -140,12 +140,12 @@
                                                 <input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: $root.parameterTable().getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $root.parameterTable().getNodeLockedState($data), $data, $index())}}">
                                                 
                                                 <!-- ko ifnot: $root.graphConfig().hasField($data) -->
-                                                <button data-bind="click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', style:{'visibility':'hidden'}, clickBubble:false">
+                                                <button data-bind="click: function(){$root.graphConfig().addField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', style:{'visibility':'hidden'}, clickBubble:false">
                                                     <i class="material-icons">favorite_border</i>
                                                 </button>
                                                 <!-- /ko -->
                                                 <!-- ko if: $root.graphConfig().hasField($data) -->
-                                                <button data-bind="click: function(){toggleKeyAttribute()}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', style:{'visibility':'visible'}, clickBubble:false">
+                                                <button data-bind="click: function(){$root.graphConfig().removeField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', style:{'visibility':'visible'}, clickBubble:false">
                                                     <i class="material-icons">favorite</i>
                                                 </button>
                                                 <!-- /ko -->
