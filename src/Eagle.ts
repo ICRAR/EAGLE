@@ -2465,6 +2465,7 @@ export class Eagle {
         });
     }
 
+    // TODO: move to Translator.ts
     setTranslatorUrl = () : void => {
         const translatorURLSetting : Setting = Setting.find(Setting.TRANSLATOR_URL);
 
@@ -2477,6 +2478,7 @@ export class Eagle {
         });
     };
 
+    // TODO: move to Translator.ts
     translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
         const normalTranslatorMode :boolean = Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Normal;
         if(!normalTranslatorMode){
@@ -2712,6 +2714,7 @@ export class Eagle {
         $('#loadingContainer').hide()
     }
 
+    // TODO: move to ParameterTable.ts
     openParamsTableModal = (mode: ParameterTable.Mode, selectType: ParameterTable.SelectType) : void => {
         this.showEagleIsLoading()
         const eagle = this
@@ -2745,6 +2748,7 @@ export class Eagle {
         },5)
     }
 
+    // TODO: move to ParameterTable.ts
     openParamsTableModalAndSelectField = (node:Node, field:Field) : void => {
         const eagle = Eagle.getInstance()
 
@@ -2755,6 +2759,7 @@ export class Eagle {
         },200)
     }
 
+    // TODO: move to ParameterTable.ts
     getCurrentParamReadonly = (field: Field) : boolean => {
         // check that we actually found the right field, otherwise abort
         if (field === null){
@@ -2777,6 +2782,7 @@ export class Eagle {
         }
     }
 
+    // TODO: move to ParameterTable.ts
     getCurrentParamValueReadonly = (field: Field) : boolean => {
         // check that we actually found the right field, otherwise abort
         if (field === null){
@@ -2825,6 +2831,7 @@ export class Eagle {
         }
     }
 
+    // TODO: move to KeyboardShortcut.ts?
     closeShortcuts = () : void => {
         Utils.closeShortcutsModal();
     }

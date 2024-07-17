@@ -244,22 +244,17 @@
             </select>
             <input type="hidden" class="form-control" placeholder="0" id="alg1-rmode-value" aria-label="Key" aria-describedby="alg1-rmode-label" data-bind="value: translator().rmode">
         </div>
-        <div class="input-group mb-1">
-            <button type="button" id="setTranslatorUrlBtn" class="btn btn-primary btn-block btn_wide" data-bind="click: setTranslatorUrl">Set Translator URL</button>
-        </div>
+
+        <button type="button" id="setTranslatorUrlBtn" class="btn btn-primary btn-block" data-bind="click: setTranslatorUrl">Set Translator URL</button>
+
     </div>
-    <div class="row">
-        <!-- ko if: graphConfig() === null -->
-        <div class="alert alert-light noselect" role="alert">
-            <span>No Graph Config Loaded</span>
-        </div>
-        <!-- /ko -->
-        <!-- ko if: graphConfig() !== null -->
-        <div class="alert alert-light noselect" role="alert">
-            <span>Graph Config contains</span>
+
+    <div class="row mt-2">
+        <div class="alert alert-light noselect mb-1" role="alert">
+            <span>Graph Config overwrites</span>
             <span data-bind="text: graphConfig().numFields()"></span>
             <span>fields.</span>
         </div>
-        <!-- /ko -->
+        <button class="btn btn-primary btn-block" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Configuration Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)">Open Graph Configuration</button>
     </div>
 </div>
