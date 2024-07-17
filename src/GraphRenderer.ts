@@ -298,7 +298,7 @@ export class GraphRenderer {
     static portDragSuggestedNode : ko.Observable<Node> = ko.observable(null);
     static portDragSuggestedField : ko.Observable<Field> = ko.observable(null);
     static portDragSuggestionValidity : ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown) // this is necessary because we cannot keep the validity on the ege as it does not exist
-    static matchingPortList : {field:Field,node:Node,validity: Errors.Validity}[] = []
+    static createEdgeSuggestedPorts : {field:Field,node:Node,validity: Errors.Validity}[] = []
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
     //node drag handler globals
@@ -1637,7 +1637,7 @@ export class GraphRenderer {
         GraphRenderer.portDragSourcePort(port);
         GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
         GraphRenderer.renderDraggingPortEdge(true);
-        GraphRenderer.matchingPortList = []
+        GraphRenderer.createEdgeSuggestedPorts = []
         
         //take not of the start drag position
         GraphRenderer.portDragStartPos = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
@@ -1648,7 +1648,7 @@ export class GraphRenderer {
         port.setPeek(true)
 
         // build the list of all ports in the graph that are a valid end-point for an edge starting at this port
-        GraphRenderer.matchingPortList = GraphRenderer.findMatchingPorts(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort());
+        GraphRenderer.createEdgeSuggestedPorts = GraphRenderer.findMatchingPorts(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort());
     }
 
     static portDragging() : void {
@@ -1723,11 +1723,11 @@ export class GraphRenderer {
         }
 
         //resetting some global cached variables
-        GraphRenderer.matchingPortList.forEach(function(matchingPort){
+        GraphRenderer.createEdgeSuggestedPorts.forEach(function(matchingPort){
             matchingPort.field.setPeek(false)
         })
 
-        GraphRenderer.matchingPortList = []
+        GraphRenderer.createEdgeSuggestedPorts = []
         eagle.logicalGraph.valueHasMutated();
     }
 
@@ -2048,7 +2048,7 @@ export class GraphRenderer {
         let minValidity: Errors.Validity = Errors.Validity.Unknown;
         GraphRenderer.portMatchCloseEnough(false)
 
-        const portList = GraphRenderer.matchingPortList
+        const portList = GraphRenderer.createEdgeSuggestedPorts
         for (const portInfo of portList){
             const port = portInfo.field
             const node = portInfo.node
