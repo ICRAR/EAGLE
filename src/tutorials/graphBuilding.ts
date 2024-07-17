@@ -80,7 +80,7 @@ newTut.newTutStep("Key Attributes", "You can flag important parameters and attri
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(700)
 
-newTut.newTutStep("Key Attributes", "You can view the key attributes of a graph by opening the key attributes table located here.", function(){return $("#openKeyParameterTable")})
+newTut.newTutStep("Key Attributes", "You can view the key attributes of a graph by opening the key attributes table located here.", function(){return $("#openGraphConfigurationTable")})
 .setPreFunction(function(){$('#parameterTableModal').modal('hide')})
 
 newTut.newTutStep("Right Click to add nodes", "There are also various right click options available in EAGLE. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})
