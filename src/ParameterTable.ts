@@ -154,19 +154,19 @@ export class ParameterTable {
                     return [];
                 }
 
-                for (const [nodeId, node] of config.getNodes()){
-                    const lgNode = lg.findNodeById(nodeId);
+                for (const node of config.getNodes()){
+                    const lgNode = lg.findNodeById(node.getId());
         
                     if (lgNode === null){
-                        console.warn("ParameterTable.getTableFields(): Could not find node", nodeId);
+                        console.warn("ParameterTable.getTableFields(): Could not find node", node.getId());
                         continue;
                     }
         
-                    for (const [fieldId, field] of node.getFields()){
-                        const lgField = lgNode.findFieldById(fieldId);
+                    for (const field of node.getFields()){
+                        const lgField = lgNode.findFieldById(field.getId());
         
                         if (lgField === null){
-                            console.warn("ParameterTable.getTableFields(): Could not find field", fieldId, "on node", lgNode.getName());
+                            console.warn("ParameterTable.getTableFields(): Could not find field", field.getId(), "on node", lgNode.getName());
                             continue;
                         }
         

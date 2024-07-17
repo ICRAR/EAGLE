@@ -33,6 +33,7 @@ import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from "./FileInfo";
+import { GraphConfig } from "./GraphConfig";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
@@ -2337,6 +2338,30 @@ export class Utils {
                 "defaultValue": field.getDefaultValue(),
                 "readonly":field.isReadonly()
             });
+        }
+
+        console.table(tableData);
+    }
+
+    static printGraphConfigurationTable() : void {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+        const graphConfig: GraphConfig = eagle.graphConfig();
+
+        // add logical graph nodes to table
+        for (const node of graphConfig.getNodes()){
+            const graphNode: Node = eagle.logicalGraph().findNodeById(node.getId());
+            for (const field of node.getFields()){
+                const graphField: Field = graphNode.findFieldById(field.getId());
+                tableData.push({
+                    "nodeName": graphNode.getName(),
+                    "nodeId": node.getId(),
+                    "fieldName": graphField.getDisplayText(),
+                    "fieldId": field.getId(),
+                    "value": field.getValue(),
+                    "comment": field.getComment()
+                });
+            }
         }
 
         console.table(tableData);

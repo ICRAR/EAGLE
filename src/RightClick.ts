@@ -518,7 +518,7 @@ export class RightClick {
 
                 $('#customContextMenu').append('<h5 class="rightClickDropdownDividerTitle" tabindex="-1">Graph Options</h5>')
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());">Show Graph Info</a>`)
-                $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.openParamsTableModal(ParameterTable.Mode.GraphConfig, 'normal');">Graph Attributes Table</a>`)
+                $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.openParamsTableModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal);">Graph Attributes Table</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.copyGraphUrl();">Copy Graph URL</a>`)
             }else if(passedObjectClass === 'edgeDropCreate'){
                 if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
@@ -563,7 +563,7 @@ export class RightClick {
     
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
-                    $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(`inspectorTableModal`,`rightClick`)">Open Fields Table</a>')
+                    $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to another palette</a>')
                 }
@@ -571,8 +571,8 @@ export class RightClick {
                 Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
 
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
-                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(ParameterTable.Mode.NodeFields,`rightClick`)">Inspector Table</a>')
-                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(ParameterTable.Mode.GraphConfig,`rightClick`)">Open Fields Table</a>')
+                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.RightClick)">Inspector Table</a>')
+                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
@@ -581,8 +581,8 @@ export class RightClick {
     
             }else if(passedObjectClass === 'rightClick_graphNode'){
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
-                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(ParameterTable.Mode.NodeFields,`rightClick`)">Open Fields Table</a>')
-                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(ParameterTable.Mode.GraphConfig,`rightClick`)">Graph Attributes</a>')
+                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
+                $('#customContextMenu').append('<a onclick="eagle.openParamsTableModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.RightClick)">Graph Attributes</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                 if (data.isConstruct()){
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete All</a>')

@@ -146,7 +146,7 @@ export class Eagle {
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
-        this.graphConfig = ko.observable(null);
+        this.graphConfig = ko.observable(new GraphConfig());
         this.eagleIsReady = ko.observable(false);
 
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));

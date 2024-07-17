@@ -7,32 +7,52 @@ import { LogicalGraph } from "./LogicalGraph";
 import { Repository } from "./Repository";
 
 export class GraphConfigField {
-    private value: string;
-    private comment: string;
+    private id: ko.Observable<string>;
+    private value: ko.Observable<string>;
+    private comment: ko.Observable<string>;
+
+    constructor(){
+        this.id = ko.observable("");
+        this.value = ko.observable("");
+        this.comment = ko.observable("");
+    }
+
+    setId = (id: string): GraphConfigField => {
+        this.id(id);
+        return this;
+    }
+
+    getId = (): string => {
+        return this.id();
+    }
 
     setValue = (value: string): GraphConfigField => {
-        this.value = value;
+        this.value(value);
         return this;
     }
 
     getValue = (): string => {
-        return this.value;
+        return this.value();
     }
 
     setComment = (comment: string): GraphConfigField => {
-        this.comment = comment;
+        this.comment(comment);
         return this;
+    }
+
+    getComment = (): string => {
+        return this.comment();
     }
 
     static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
         const result = new GraphConfigField();
 
         if (typeof data.value !== 'undefined'){
-            result.value = data.value;
+            result.value(data.value);
         }
 
         if (typeof data.comment !== 'undefined'){
-            result.comment = data.comment;
+            result.comment(data.comment);
         }
 
         return result;
@@ -40,31 +60,51 @@ export class GraphConfigField {
 }
 
 export class GraphConfigNode {
-    private fields: Map<string, GraphConfigField>;
+    private id: ko.Observable<string>;
+    private fields: ko.ObservableArray<GraphConfigField>;
 
     constructor(){
-        this.fields = new Map();
+        this.id = ko.observable("");
+        this.fields = ko.observableArray([]);
     }
 
-    addField = (id: string): GraphConfigField => {
-        const result: GraphConfigField = this.fields.get(id);
-
-        if (result){
-            return result;
-        }
-
-        const newField = new GraphConfigField();
-        this.fields.set(id, newField);
-        return newField;
-    }
-
-    removeField = (id: string): GraphConfigNode => {
-        this.fields.delete(id);
+    setId = (id: string): GraphConfigNode => {
+        this.id(id);
         return this;
     }
 
-    getFields = (): Map<string, GraphConfigField> => {
-        return this.fields;
+    getId = (): string => {
+        return this.id();
+    }
+
+    addField = (id: string): GraphConfigField => {
+        // check to see if the field already exists
+        for (const field of this.fields()){
+            if (field.getId() === id){
+                return field;
+            }
+        }
+
+        // otherwise add new field
+        const newField: GraphConfigField = new GraphConfigField();
+        newField.setId(id);
+        this.fields.push(newField);
+        return newField;
+    }
+
+    removeFieldById = (id: string): GraphConfigNode => {
+        for (let i = this.fields().length - 1; i >= 0 ; i--){
+            if (this.fields()[i].getId() === id){
+                this.fields.splice(i, 1);
+                break;
+            }
+        }
+
+        return this;
+    }
+
+    getFields = (): GraphConfigField[] => {
+        return this.fields();
     }
 
     static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
@@ -74,8 +114,8 @@ export class GraphConfigNode {
             for (const fieldId in data.fields){
                 const fieldData = data.fields[fieldId];
                 const newField: GraphConfigField = GraphConfigField.fromJson(fieldData, errorsWarnings);
-
-                result.fields.set(fieldId, newField);
+                newField.setId(fieldId);
+                result.fields.push(newField);
             }
         }
 
@@ -84,28 +124,31 @@ export class GraphConfigNode {
 }
 
 export class GraphConfig {
-    private nodes: Map<string, GraphConfigNode>;
+    private nodes: ko.ObservableArray<GraphConfigNode>;
     private repositoryService: Repository.Service;
     private repositoryBranch: string;
     private repositoryName: string;
     
     constructor(){
-       this.nodes = new Map();
+       this.nodes = ko.observableArray([]);
     }
 
-    getNodes = (): Map<string, GraphConfigNode> => {
-        return this.nodes;
+    getNodes = (): GraphConfigNode[] => {
+        return this.nodes();
     }
 
-    addNode = (id:string): GraphConfigNode => {
-        const result: GraphConfigNode = this.nodes.get(id);
-        
-        if (result){
-            return result;
+    addNode = (id: string): GraphConfigNode => {
+        // check to see if node already exists
+        for (const node of this.nodes()){
+            if (node.getId() === id){
+                return node;
+            }
         }
 
+        // otherwise add new node
         const newNode: GraphConfigNode = new GraphConfigNode();
-        this.nodes.set(id, newNode);
+        newNode.setId(id);
+        this.nodes.push(newNode);
         return newNode;
     }
 
@@ -114,9 +157,18 @@ export class GraphConfig {
         this.addNode(node.getId()).addField(field.getId());
     }
 
+    findNodeById = (id: string): GraphConfigNode => {
+        for (const node of this.nodes()){
+            if (node.getId() === id){
+                return node;
+            }
+        }
+        return null;
+    }
+
     removeField = (field: Field): void => {
         const node = Eagle.getInstance().logicalGraph().findNodeByKey(field.getNodeKey());
-        this.nodes.get(node.getId()).removeField(field.getId());
+        this.findNodeById(node.getId()).removeFieldById(field.getId());
 
         // TODO: do we need to check if removing the field means that the node now has zero fields?
     }
@@ -128,17 +180,19 @@ export class GraphConfig {
     numFields: ko.PureComputed<number> = ko.pureComputed(() => {
         let count = 0;
 
-        for (const [id, node] of this.nodes){
-            count += node.getFields().size;
+        for (const node of this.nodes()){
+            count += node.getFields().length;
         }
 
         return count;
     }, this)
 
     hasField = (field: Field): boolean => {
-        for (const node of this.nodes.values()){
-            if (node.getFields().has(field.getId())){
-                return true;
+        for (const n of this.nodes()){
+            for (const f of n.getFields()){
+                if (field.getId() === f.getId()){
+                    return true;
+                }
             }
         }
 
@@ -152,8 +206,8 @@ export class GraphConfig {
             for (const nodeId in data.nodes){
                 const nodeData = data.nodes[nodeId];
                 const newNode: GraphConfigNode = GraphConfigNode.fromJson(nodeData, errorsWarnings);
-
-                result.nodes.set(nodeId, newNode);
+                newNode.setId(nodeId);
+                result.nodes.push(newNode);
             }
         }
 
@@ -163,19 +217,19 @@ export class GraphConfig {
     static apply(lg: LogicalGraph, config: GraphConfig) : void {
         console.log("Applying graph config with", config.numFields(), "fields to logical graph", lg.fileInfo.name);
 
-        for (const [nodeId, node] of config.nodes){
-            const lgNode = lg.findNodeById(nodeId);
+        for (const node of config.nodes()){
+            const lgNode = lg.findNodeById(node.getId());
 
             if (lgNode === null){
-                console.warn("GraphConfig.apply(): Could not find node", nodeId);
+                console.warn("GraphConfig.apply(): Could not find node", node.getId());
                 continue;
             }
 
-            for (const [fieldId, field] of node.getFields()){
-                const lgField = lgNode.findFieldById(fieldId);
+            for (const field of node.getFields()){
+                const lgField = lgNode.findFieldById(field.getId());
 
                 if (lgField === null){
-                    console.warn("GraphConfig.apply(): Could not find field", fieldId, "on node", lgNode.getName());
+                    console.warn("GraphConfig.apply(): Could not find field", field.getId(), "on node", lgNode.getName());
                     continue;
                 }
 
