@@ -1,14 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: none;
-      }
-    </style>
-  </defs>
-  <g id="Layer_1-2" data-name="Layer 1">
-    <path class="cls-1" d="m0,0h24v24H0V0Z"/>
-    <path d="m23.52,2.77c0-1.27-1.03-2.31-2.3-2.31H2.77C1.5.47.47,1.5.47,2.77v13.84c0,1.27,1.04,2.31,2.31,2.31h16.15l4.61,4.61V2.77Zm-4.6,11.53H5.08v-2.31h13.84v2.31Zm0-3.46H5.08v-2.31h13.84v2.31Zm0-3.46H5.08v-2.31h13.84v2.31Z"/>
-  </g>
-</svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg width="100%" height="100%" viewBox="0 0 4171 4171" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><rect id="comment" x="2.203" y="1.822" width="4166.67" height="4166.67" style="fill:none;"/><rect x="2.203" y="1.822" width="4166.67" height="4166.67" style="fill:none;"/><clipPath id="_clip1"><rect id="comment.svg" x="46.073" y="45.692" width="4078.93" height="4078.93"/></clipPath><g clip-path="url(#_clip1)"><g id="Layer_1-2"><path d="M4121.47,453.945c0,-224.451 -182.035,-408.253 -406.485,-408.253l-3260.72,0c-224.45,1.768 -406.485,183.802 -406.485,408.253l-0,2445.98c-0,224.451 183.802,408.253 408.253,408.253l2854.24,-0l814.738,814.738l-0,-3668.97l-3.535,0Zm-812.971,2037.73l-2445.98,0l0,-408.253l2445.98,0l0,408.253Zm0,-611.496l-2445.98,0l0,-408.252l2445.98,-0l0,408.252Zm0,-611.495l-2445.98,-0l0,-408.253l2445.98,-0l0,408.253Z" style="fill-rule:nonzero;"/></g></g></svg>

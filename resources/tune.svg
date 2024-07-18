@@ -1,14 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: none;
-      }
-    </style>
-  </defs>
-  <g id="Layer_1-2" data-name="Layer 1">
-    <path class="cls-1" d="m0,0h24v24H0V0Z"/>
-    <path d="m.6,18.34v2.53h7.6v-2.53H.6ZM.6,3.13v2.53h12.67v-2.53H.6Zm12.67,20.28v-2.53h10.14v-2.53h-10.14v-2.53h-2.53v7.6h2.53Zm-7.6-15.21v2.53H.6v2.53h5.07v2.53h2.53v-7.6h-2.53Zm17.74,5.07v-2.53h-12.67v2.53h12.67Zm-7.6-5.07h2.53v-2.53h5.07v-2.53h-5.07V.6h-2.53v7.6Z"/>
-  </g>
-</svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg width="100%" height="100%" viewBox="0 0 4171 4167" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><rect id="tune" x="2.203" y="-0.007" width="4166.67" height="4166.67" style="fill:none;"/><clipPath id="_clip1"><rect x="2.203" y="-0.007" width="4166.67" height="4166.67"/></clipPath><g clip-path="url(#_clip1)"><rect x="2.203" y="-0.007" width="4166.67" height="4166.67" style="fill:none;"/><clipPath id="_clip2"><rect id="tune.svg" x="63.977" y="61.767" width="4043.12" height="4043.12"/></clipPath><g clip-path="url(#_clip2)"><g id="Layer_1-2"><rect x="63.977" y="61.767" width="4043.12" height="4043.12" style="fill:none;fill-rule:nonzero;"/><path d="M63.977,3204.84l0,448.251l1346.54,0l0,-448.251l-1346.54,0Zm0,-2694.82l0,448.251l2244.82,0l-0,-448.251l-2244.82,0Zm2244.82,3594.87l-0,-450.023l1796.57,0l-0,-448.251l-1796.57,0l-0,-448.251l-448.256,-0l-0,1346.53l448.256,0Zm-1346.54,-2698.37l-0,450.023l-898.284,0l0,448.251l898.284,0l-0,448.252l448.256,-0l0,-1346.53l-448.256,0Zm3143.11,900.046l-0,-448.251l-2244.82,0l-0,448.251l2244.82,0Zm-1346.54,-898.274l448.256,0l-0,-448.251l898.284,-0l-0,-448.251l-898.284,-0l-0,-450.023l-448.256,-0l-0,1346.53Z" style="fill-rule:nonzero;"/></g></g></g></svg>
