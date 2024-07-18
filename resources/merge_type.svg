@@ -1,14 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: none;
-      }
-    </style>
-  </defs>
-  <g id="Layer_1-2" data-name="Layer 1">
-    <path class="cls-1" d="m0,0h24v24H0V0Z"/>
-    <path d="m18.95,23.7l1.96-1.96-4.74-4.74-1.96,1.96,4.74,4.74ZM5.75,6.46h4.86v7.76l-7.51,7.51,1.96,1.96,8.33-8.33V6.46h4.86L12,.21l-6.25,6.25Z"/>
-  </g>
-</svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg width="100%" height="100%" viewBox="0 0 4171 4171" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><rect id="merge_type" x="2.203" y="1.119" width="4166.67" height="4166.67" style="fill:none;"/><rect x="2.203" y="1.119" width="4166.67" height="4166.67" style="fill:none;"/><clipPath id="_clip1"><rect id="merge_type.svg" x="63.977" y="62.893" width="4043.12" height="4043.12"/></clipPath><g clip-path="url(#_clip1)"><g id="Layer_1-2"><path d="M3280.92,4106.01l337.357,-337.357l-815.853,-815.853l-337.357,337.357l815.853,815.853Zm-2271.99,-2967.36l836.507,0l0,1335.66l-1292.63,1292.63l337.357,337.357l1433.77,-1433.77l0,-1531.88l836.507,0l-1075.76,-1075.76l-1075.76,1075.76Z" style="fill-rule:nonzero;"/></g></g></svg>
