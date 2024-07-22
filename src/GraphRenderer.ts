@@ -751,7 +751,7 @@ export class GraphRenderer {
         return interpolatedAngle;
     }
 
-    static createBezier(edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field, sourcePortIsInput: boolean) : string {
+    static createBezier(straightEdgeForce:boolean,addArrowForce:boolean, edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field, sourcePortIsInput: boolean) : string {
 
         //since the svg parent is translated -50% to center our working area, we need to add half of its width to correct the positions
         // TODO: remove magic numbers here (5000)
@@ -803,10 +803,6 @@ export class GraphRenderer {
         const x2 = destNodePosition.x + destPortOffset.x;
         const y2 = destNodePosition.y + destPortOffset.y;
 
-        // if edge is short, use simplified rendering
-        if (isShortEdge){
-            return "M " + x1 + " " + y1 + " L " + x2 + " " + y2;
-        }
 
         // otherwise, calculate an angle for the src and dest control points
         const srcCPAngle = GraphRenderer.edgeDirectionAngle(srcPortAngle);
@@ -822,11 +818,18 @@ export class GraphRenderer {
         const c2x = destNodePosition.x + destCPOffset.x;
         const c2y = destNodePosition.y + destCPOffset.y;
 
-
         //the edge parameter is null if we are rendering a comment edge and this is not needed
-        if(edge != null){
+        if(edge != null || addArrowForce){
+            let arrowContainer
+
+            if(addArrowForce){
+                arrowContainer = $('#draggingEdge polygon')
+            }else{
+                arrowContainer = $('#'+edge.getId() +" polygon")
+            }
+
             //we are hiding the arrows if the edge is too short
-            if(edgeLength > EagleConfig.EDGE_DISTANCE_ARROW_VISIBILITY){
+            if(!isShortEdge){
                 //were adding the position and shape of the arrow to the edges
                 const arrowPosX =  GraphRenderer.getCoordinateOnBezier(0.5,x1,c1x,c2x,x2)
                 const arrowPosY =  GraphRenderer.getCoordinateOnBezier(0.5,y1,c1y,c2y,y2)
@@ -846,18 +849,22 @@ export class GraphRenderer {
                 const  anglePos2y =  GraphRenderer.getCoordinateOnBezier(0.55,y1,c1y,c2y,y2)
 
                 const arrowAngle = GraphRenderer.calculateConnectionAngle({x:anglePos1x,y:anglePos1y}, {x:anglePos2x,y:anglePos2y})
-
-                $('#'+edge.getId() +" polygon").show()
-                $('#'+edge.getId() +" polygon").attr('points', P1x +','+P1y+', '+ P2x +','+P2y +', '+ P3x +','+P3y)
+                
+                arrowContainer.show()
+                arrowContainer.attr('points', P1x +','+P1y+', '+ P2x +','+P2y +', '+ P3x +','+P3y)
                 // the rotate argument takes three inputs, (angle in deg, x , y coordinates for the midpoint to rotate around)
-                $('#'+edge.getId() +" polygon").attr({'transform':'rotate('+arrowAngle*(180/Math.PI)*-1+','+arrowPosX+','+arrowPosY +')'});
+                arrowContainer.attr({'transform':'rotate('+arrowAngle*(180/Math.PI)*-1+','+arrowPosX+','+arrowPosY +')'});
             }else{
-                $('#'+edge.getId() +" polygon").hide()
+                arrowContainer.hide()
             }
         }
 
+        // if edge is short, use simplified rendering
+        if (isShortEdge || straightEdgeForce){
+            return "M " + x1 + " " + y1 + " L " + x2 + " " + y2;
+        }
+
         return "M " + x1 + " " + y1 + " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + x2 + " " + y2;
-        // return "M " + x1 + " " + y1 +  ", " + x2 + " " + y2; //straighten edges
     }
 
     static getCoordinateOnBezier(t:number,p1:number,p2:number,p3:number,p4:number) : number {
@@ -890,7 +897,6 @@ export class GraphRenderer {
 
     static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
         if (GraphRenderer.portDragSourceNode() === null){
-            console.warn('GraphRenderer.getPathDraggingEdge(): no source node detected')
             return '';
         }
 
@@ -904,7 +910,7 @@ export class GraphRenderer {
         const srcField: Field = GraphRenderer.portDragSourcePort();
         const destField: Field = null;
 
-        return GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
+        return GraphRenderer.createBezier(false,true, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
     }, this);
 
     static getPathSuggestedEdge : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -921,7 +927,7 @@ export class GraphRenderer {
         const srcField: Field = null;
         const destField: Field = GraphRenderer.portDragSuggestedField();
 
-        return GraphRenderer.createBezier(null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
+        return GraphRenderer.createBezier(true,false,  null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
     }, this);
 
     static _getPath(edge:Edge, srcNode: Node, destNode: Node, srcField: Field, destField: Field) : string {
@@ -939,7 +945,7 @@ export class GraphRenderer {
         const destX = destNode.getPosition().x -destNodeRadius;
         const destY = destNode.getPosition().y -destNodeRadius;
 
-        return GraphRenderer.createBezier(edge, srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, false);
+        return GraphRenderer.createBezier(false,false, edge, srcNodeRadius, destNodeRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, false);
     }
 
     static scrollZoom(eagle: Eagle, event: JQuery.TriggeredEvent) : void {
