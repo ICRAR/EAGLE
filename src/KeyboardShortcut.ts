@@ -91,6 +91,11 @@ export class KeyboardShortcut {
     }
 
     static processKey(e:KeyboardEvent) : void {
+        // skip all non-KeyboardEvent, otherwise we can't guarantee the Event has a '.key' attribute
+        if (!(e instanceof KeyboardEvent)){
+            return;
+        }
+
         // skip all repeat events, just process the initial keyup or keydown
         if (e.repeat){
             return;

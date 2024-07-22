@@ -1655,7 +1655,7 @@ export class Eagle {
         console.log("commitToGitAs()");
 
         let fileInfo : ko.Observable<FileInfo>;
-        let obj : LogicalGraph | Palette;
+        let obj : LogicalGraph | Palette | GraphConfig;
 
         // determine which object of the given filetype we are committing
         switch (fileType){
@@ -1674,9 +1674,13 @@ export class Eagle {
                 obj = palette;
                 break;
             }
-            default:
-                Utils.showUserMessage("Not implemented", "Not sure which fileType right one to commit :" + fileType);
+            case Eagle.FileType.GraphConfig:
+                fileInfo = this.graphConfig().fileInfo;
+                obj = this.graphConfig();
                 break;
+            default:
+                Utils.showUserMessage("Not implemented", "Not sure which fileType to commit :" + fileType);
+                return;
         }
 
 
@@ -1791,7 +1795,7 @@ export class Eagle {
         this._commit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, commitMessage, obj);
     };
 
-    _commit = (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : void => {
+    _commit = (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette | GraphConfig) : void => {
         // check that repository was found, if not try "save as"!
         if (repository === null){
             this.commitToGitAs(fileType);
@@ -1804,25 +1808,26 @@ export class Eagle {
     /**
      * Saves a graph/palette file to the GitHub repository.
      */
-    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette) : void => {
-        console.log("saveDiagramToGit() repositoryName", repository.name, "filePath", filePath, "fileName", fileName, "commitMessage", commitMessage);
+    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette | GraphConfig) : void => {
+        console.log("saveDiagramToGit() repositoryName", repository.name, "fileType", fileType, "filePath", filePath, "fileName", fileName, "commitMessage", commitMessage);
 
-        if (fileType === Eagle.FileType.Graph){
-            // clone the logical graph
-            const lg_clone : LogicalGraph = (<LogicalGraph> obj).clone();
-            lg_clone.fileInfo().updateEagleInfo();
+        const clone: LogicalGraph | Palette | GraphConfig = obj.clone();
+        clone.fileInfo().updateEagleInfo();
 
-            const jsonString: string = LogicalGraph.toOJSJsonString(lg_clone, false);
-
-            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
-        } else {
-            // clone the palette
-            const p_clone : Palette = (<Palette> obj).clone();
-            p_clone.fileInfo().updateEagleInfo();
-            const jsonString: string = Palette.toOJSJsonString(p_clone);
-
-            this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
+        let jsonString: string = "";
+        switch (fileType){
+            case Eagle.FileType.Graph:
+                jsonString = LogicalGraph.toOJSJsonString(<LogicalGraph>clone, false);
+                break;
+            case Eagle.FileType.Palette:
+                jsonString = Palette.toOJSJsonString(<Palette>clone);
+                break;
+            case Eagle.FileType.GraphConfig:
+                jsonString = GraphConfig.toJsonString(<GraphConfig>clone);
+                break;
         }
+
+        this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
     }
 
     _saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string) : void => {
@@ -3960,6 +3965,7 @@ export class Eagle {
         $("#"+divID).hide();
     }
 
+    // TODO: move to ParameterTable.ts
     addEmptyTableRow = () : void => {
         let fieldIndex:number
 

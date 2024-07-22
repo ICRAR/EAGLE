@@ -1,10 +1,11 @@
 import * as ko from "knockout";
 
+import { Daliuge } from "./Daliuge";
 import { Eagle } from "./Eagle";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
+import { FileInfo } from "./FileInfo";
 import { LogicalGraph } from "./LogicalGraph";
-import { Repository } from "./Repository";
 
 export class GraphConfigField {
     private id: ko.Observable<string>;
@@ -15,6 +16,16 @@ export class GraphConfigField {
         this.id = ko.observable("");
         this.value = ko.observable("");
         this.comment = ko.observable("");
+    }
+
+    clone = (): GraphConfigField => {
+        const result = new GraphConfigField();
+
+        result.id(this.id());
+        result.value(this.value());
+        result.comment(this.comment());
+
+        return result;
     }
 
     setId = (id: string): GraphConfigField => {
@@ -57,6 +68,16 @@ export class GraphConfigField {
 
         return result;
     }
+
+    static toJson(field: GraphConfigField): object {
+        const result : any = {};
+
+        result.id = field.id();
+        result.value = field.value();
+        result.comment = field.comment();
+
+        return result;
+    }
 }
 
 export class GraphConfigNode {
@@ -66,6 +87,18 @@ export class GraphConfigNode {
     constructor(){
         this.id = ko.observable("");
         this.fields = ko.observableArray([]);
+    }
+
+    clone = () : GraphConfigNode => {
+        const result: GraphConfigNode = new GraphConfigNode();
+
+        result.id(this.id());
+
+        for (const field of this.fields()){
+            result.fields.push(field.clone());
+        }
+
+        return result;
     }
 
     setId = (id: string): GraphConfigNode => {
@@ -121,16 +154,43 @@ export class GraphConfigNode {
 
         return result;
     }
+
+    static toJSON(node: GraphConfigNode) : object {
+        const result : any = {};
+
+        result.id = node.id();
+
+        // add fields
+        result.fields = {};
+        for (const field of node.fields()){
+            result.fields[field.getId()] = GraphConfigField.toJson(field);
+        }
+
+        return result;
+    }
 }
 
 export class GraphConfig {
+    fileInfo : ko.Observable<FileInfo>;
     private nodes: ko.ObservableArray<GraphConfigNode>;
-    private repositoryService: Repository.Service;
-    private repositoryBranch: string;
-    private repositoryName: string;
     
     constructor(){
-       this.nodes = ko.observableArray([]);
+        this.fileInfo = ko.observable(new FileInfo());
+        this.fileInfo().type = Eagle.FileType.GraphConfig;
+        this.nodes = ko.observableArray([]);
+    }
+
+    clone = () : GraphConfig => {
+        const result : GraphConfig = new GraphConfig();
+
+        result.fileInfo(this.fileInfo().clone());
+
+        // copy nodes
+        for (const node of this.nodes()){
+            result.nodes.push(node.clone());
+        }
+
+        return result;
     }
 
     getNodes = (): GraphConfigNode[] => {
@@ -210,6 +270,35 @@ export class GraphConfig {
                 result.nodes.push(newNode);
             }
         }
+
+        return result;
+    }
+
+    static toJson(graphConfig: GraphConfig) : object {
+        const result : any = {};
+
+        result.modelData = FileInfo.toOJSJson(graphConfig.fileInfo());
+
+        // add nodes
+        result.nodes = {};
+        for (const node of graphConfig.nodes()){
+
+            result.nodes[node.getId()] = GraphConfigNode.toJSON(node);
+        }
+
+        return result;
+    }
+
+    static toJsonString(graphConfig: GraphConfig) : string {
+        let result: string = "";
+
+        const json: any = GraphConfig.toJson(graphConfig);
+
+        // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
+        result += "{\n";
+        result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
+        result += '"nodes": ' + JSON.stringify(json.nodes, null, 4) + "\n";
+        result += "}\n";
 
         return result;
     }

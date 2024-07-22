@@ -1541,6 +1541,10 @@ export class Utils {
                     case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
                         break;
+                    case Eagle.FileType.GraphConfig:
+                        // TODO: develop a schema for graph config flles?
+                        valid = true;
+                        break;
                     default:
                         console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
                         valid = true;
