@@ -4,10 +4,10 @@
         <div class="modal-content">
             <!-- ko if: showTableModal() -->
                 <div class="modal-header" data-bind="click: function(){ParameterTable.resetSelection()}">
-                    <!-- ko if: parameterTableMode() === ParameterTable.Mode.GraphConfig -->
+                    <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
                         <h5 class="modal-title" id="parameterTableModalTitle">Graph Configuration Attributes Table</h5>
                     <!-- /ko -->
-                    <!-- ko if: parameterTableMode() === ParameterTable.Mode.NodeFields -->
+                    <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
                         <h5 class="modal-title" id="parameterTableModalTitle">Fields Table: <span data-bind="html: selectedNode().getName()"></span></h5>
                         <!-- ko if: selectedNode() != null -->
                             <!-- ko if: selectedNode().isLocked() -->
@@ -56,7 +56,7 @@
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
                                     <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'Toggle Field Key attribute state'" data-bs-placement="top"></th>
                                 <!-- /ko -->
-                                <!-- ko if: $root.parameterTableMode() === ParameterTable.Mode.GraphConfig -->
+                                <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
                                     <th id="parameter_table_node_name" data-bind="eagleTooltip:`This Parameter's Parent Node Name`" data-bs-placement="top">
                                         Node Name
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_name') === true}"></div>
@@ -98,7 +98,7 @@
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_description') === true}"></div>
                                     </th>
                                 <!-- /ko -->
-                                <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
+                                <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) && ParameterTable.getActiveColumnVisibility().type() -->
                                     <th id="parameter_table_type" data-bind="eagleTooltip:'The type of the data stored in this parameter (e.g. Integer, Float, String etc)'" data-bs-placement="top">Type</th>
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().flags() -->
@@ -127,7 +127,7 @@
                                                 <!-- kept for now as we will need the space for the row drag handle -->
                                             </td>
                                         <!-- /ko -->
-                                        <!-- ko if: $root.parameterTableMode() === ParameterTable.Mode.GraphConfig -->
+                                        <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
                                             <td class='columnCell column_NodeName'>
                                                 <input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getName(), disabled: true">
                                             </td>
@@ -368,7 +368,7 @@
                     </table>
                 </div>
                 <div class="modal-footer"  data-bind="click: ParameterTable.resetSelection">
-                    <!-- ko if: parameterTableMode() === ParameterTable.Mode.NodeFields -->
+                    <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
                         <!-- ko if: selectedNode() != null -->
                             <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: $root.addEmptyTableRow, clickBubble:false, disabled: selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
                         <!-- /ko -->
@@ -378,7 +378,7 @@
                             </button>
                         <!-- /ko -->
                     <!-- /ko -->
-                    <!-- ko if: parameterTableMode() === ParameterTable.Mode.GraphConfig -->
+                    <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
                         <button type="button" class="btn btn-primary" id="saveGraphConfig" data-bind="click: function(){commitToGitAs(Eagle.FileType.GraphConfig)}, clickBubble:false" style="left: 15px;position: absolute;"><span>Save</span></button>
                     <!-- /ko -->
                     <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="parameterTableModalAffirmativeAnswer">Close</span></button>

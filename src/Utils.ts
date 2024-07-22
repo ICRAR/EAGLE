@@ -732,7 +732,7 @@ export class Utils {
     }
 
     static showOpenParamsTableModal(mode: ParameterTable.Mode) : void {
-        Eagle.getInstance().parameterTableMode(mode);
+        ParameterTable.mode(mode);
         $('#parameterTableModal').modal("show");
     }
 

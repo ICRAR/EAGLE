@@ -13,6 +13,7 @@ import { GraphConfig } from "./GraphConfig";
 
 export class ParameterTable {
 
+    static mode: ko.Observable<ParameterTable.Mode>;
     static selectionParent : ko.Observable<Field | null>; // row in the parameter table that is currently selected
     static selectionParentIndex : ko.Observable<number> // id of the selected field
     static selection : ko.Observable<string | null>; // cell in the parameter table that is currently selected
@@ -25,12 +26,13 @@ export class ParameterTable {
     static tableHeaderW : any;
 
     constructor(){
+        ParameterTable.mode = ko.observable(ParameterTable.Mode.GraphConfig);
+
         ParameterTable.selectionParent = ko.observable(null);
         ParameterTable.selectionParentIndex = ko.observable(-1);
         ParameterTable.selection = ko.observable(null);
         ParameterTable.selectionName = ko.observable('');
         ParameterTable.selectionReadonly = ko.observable(false);
-
     }
 
     static setActiveColumnVisibility = () :void => {
@@ -50,6 +52,10 @@ export class ParameterTable {
     static getColumnVisibilities = () : ColumnVisibilities[] => {
        return columnVisibilities
     } 
+
+    static inMode = (mode: ParameterTable.Mode): boolean => {
+        return mode === ParameterTable.mode();
+    }
 
     formatTableInspectorSelection = () : string => {
         if (ParameterTable.selection() === null){
@@ -137,7 +143,7 @@ export class ParameterTable {
     getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
-        switch (eagle.parameterTableMode()){
+        switch (ParameterTable.mode()){
 
             case ParameterTable.Mode.Unknown:
                 return [];
@@ -312,8 +318,9 @@ export class ParameterTable {
 
     static requestEditDescriptionInModal(currentField:Field) : void {
         const eagle: Eagle = Eagle.getInstance();
-        const tableType: ParameterTable.Mode = eagle.parameterTableMode()
+
         eagle.openParamsTableModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
+
         Utils.requestUserText(
             "Edit Field Description",
             "Please edit the description for: " + eagle.logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey()).getName() + ' - ' + currentField.getDisplayText(),
@@ -324,7 +331,7 @@ export class ParameterTable {
                 }
 
                 currentField.setDescription(userText);
-                eagle.openParamsTableModal(tableType, ParameterTable.SelectType.Normal);
+                eagle.openParamsTableModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
             }
         )
     }

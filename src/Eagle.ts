@@ -84,8 +84,6 @@ export class Eagle {
     repositories: ko.Observable<Repositories>;
     translator : ko.Observable<Translator>;
     undo : ko.Observable<Undo>;
-    parameterTable : ko.Observable<ParameterTable>;
-    parameterTableMode : ko.Observable<ParameterTable.Mode>;
 
     globalOffsetX : ko.Observable<number>;
     globalOffsetY : ko.Observable<number>;
@@ -162,8 +160,6 @@ export class Eagle {
         this.repositories = ko.observable(new Repositories());
         this.translator = ko.observable(new Translator());
         this.undo = ko.observable(new Undo());
-        this.parameterTable = ko.observable(new ParameterTable());
-        this.parameterTableMode = ko.observable(ParameterTable.Mode.GraphConfig); // TODO: add mode to parameter table class
         
         //load parameter table visibility from local storage
         ParameterTable.getActiveColumnVisibility().loadFromLocalStorage()
@@ -217,7 +213,7 @@ export class Eagle {
             GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(this.logicalGraph(), this.showDataNodes());
             Hierarchy.updateDisplay()
             if(this.selectedObjects().length === 0){
-                this.parameterTableMode(ParameterTable.Mode.GraphConfig);
+                ParameterTable.mode(ParameterTable.Mode.GraphConfig);
                 //changing right window shortcuts depending on if right window tabs are visible or not 
                 KeyboardShortcut.changeShortcutKey(this,'open_translation','3',KeyboardShortcut.Modifier.None)
                 KeyboardShortcut.changeShortcutKey(this,'open_hierarchy','2',KeyboardShortcut.Modifier.None)

@@ -465,7 +465,6 @@ export class Field {
             return true;
         }
 
-        const eagle: Eagle = Eagle.getInstance();
         let searchTermNo : number = 0
         let searchTermTrueNo : number = 0
         const that = this
@@ -481,7 +480,7 @@ export class Field {
             }
 
             //check if the node name matches, but only if using the key parameter table modal
-            if(eagle.parameterTableMode() === ParameterTable.Mode.GraphConfig){
+            if(ParameterTable.mode() === ParameterTable.Mode.GraphConfig){
                 if(Eagle.getInstance().logicalGraph().findNodeByKey(that.nodeKey()).getName().toLowerCase().indexOf(term) >= 0){
                     result = true
                 }
@@ -512,6 +511,7 @@ export class Field {
         return searchTermNo === searchTermTrueNo
     }, this);
 
+    // TODO: move to Daliuge.ts?
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return Object.values<string>(Daliuge.FieldName).includes(this.displayText());
     }, this);
