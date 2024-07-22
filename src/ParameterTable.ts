@@ -25,7 +25,7 @@ export class ParameterTable {
     static tableHeaderX : any;
     static tableHeaderW : any;
 
-    constructor(){
+    static init(){
         ParameterTable.mode = ko.observable(ParameterTable.Mode.GraphConfig);
 
         ParameterTable.selectionParent = ko.observable(null);
@@ -57,7 +57,7 @@ export class ParameterTable {
         return mode === ParameterTable.mode();
     }
 
-    formatTableInspectorSelection = () : string => {
+    static formatTableInspectorSelection = () : string => {
         if (ParameterTable.selection() === null){
             return "";
         }
@@ -65,7 +65,7 @@ export class ParameterTable {
         return ParameterTable.selectionParent().getDisplayText() + " - " + ParameterTable.selectionName();
     }
 
-    formatTableInspectorValue = () : string => {
+    static formatTableInspectorValue = () : string => {
         if (ParameterTable.selection() === null){
             return "";
         }
@@ -83,7 +83,7 @@ export class ParameterTable {
             targetCell.parent().addClass('selectedTableParameter')
         }else if ($(event.target).closest('.columnCell')){
 
-        //if a cell in the table is currently selected, enter will select the next cell down
+            //if a cell in the table is currently selected, enter will select the next cell down
 
             //we are getting the class name of the current column's cell eg. column_Description
             const classes = $(event.target).closest('.columnCell').attr('class').split(' ')
@@ -121,7 +121,7 @@ export class ParameterTable {
         }
     }
 
-    tableInspectorUpdateSelection = (value:string) : void => {
+    static tableInspectorUpdateSelection = (value:string) : void => {
         // abort update if nothing is selected
         if (!ParameterTable.hasSelection()){
             return;
@@ -140,7 +140,8 @@ export class ParameterTable {
         }
     }
 
-    getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
+    // TODO: could be renamed to getFields()
+    static getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
         switch (ParameterTable.mode()){
@@ -184,7 +185,9 @@ export class ParameterTable {
         }
     }, this);
 
-    getNodeLockedState = (field:Field) : boolean => {
+    // TODO: move to Eagle.ts?
+    //       doesn't seem to depend on any ParameterTable state, only Eagle state
+    static getNodeLockedState = (field:Field) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(eagle.selectedNode() === null){
@@ -199,7 +202,8 @@ export class ParameterTable {
         }
     }
 
-    getParamsTableEditState = () : boolean => {
+    // TODO: move to Eagle.ts? only depends on Eagle state and settings
+    static getParamsTableEditState = () : boolean => {
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             return !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
         }else{
@@ -282,7 +286,9 @@ export class ParameterTable {
         return ParameterTable.selectionParentIndex() !== -1;
     }
 
-    setUpColumnResizer = (headerId:string) : boolean => {
+    // NOTE: Always returns true, so that a CSS class 'resizer' will be applied to an element
+    //       I think setting the class and initialising the resizers should be separated, for clarity
+    static setUpColumnResizer = (headerId:string) : boolean => {
         // little helper function that sets up resizable columns. this is called by ko on the headers when they are created
         ParameterTable.initiateResizableColumns(headerId)
         return true
@@ -294,6 +300,14 @@ export class ParameterTable {
 
     static hideEditDescription(description: HTMLElement) : void {
         $(description).find('.parameterTableDescriptionBtn').hide()
+    }
+
+    static showEditComment(comment: HTMLElement) : void {
+        $(comment).find('.parameterTableCommentBtn').show()
+    }
+
+    static hideEditComment(comment: HTMLElement) : void {
+        $(comment).find('.parameterTableCommentBtn').hide()
     }
 
     static initiateBrowseDocker() : void {

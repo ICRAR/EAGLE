@@ -162,6 +162,7 @@ export class Eagle {
         this.undo = ko.observable(new Undo());
         
         //load parameter table visibility from local storage
+        ParameterTable.init();
         ParameterTable.getActiveColumnVisibility().loadFromLocalStorage()
 
         Eagle.componentParamsSearchString = ko.observable("");
@@ -214,6 +215,7 @@ export class Eagle {
             Hierarchy.updateDisplay()
             if(this.selectedObjects().length === 0){
                 ParameterTable.mode(ParameterTable.Mode.GraphConfig);
+
                 //changing right window shortcuts depending on if right window tabs are visible or not 
                 KeyboardShortcut.changeShortcutKey(this,'open_translation','3',KeyboardShortcut.Modifier.None)
                 KeyboardShortcut.changeShortcutKey(this,'open_hierarchy','2',KeyboardShortcut.Modifier.None)

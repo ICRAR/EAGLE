@@ -501,7 +501,7 @@ td:first-child input {
     color: rgb(113 113 113);
 }
 
-#parameterTableModal .modal-dialog td button.parameterTableDescriptionBtn {
+#parameterTableModal .modal-dialog td button.parameterTableDescriptionBtn, #parameterTableModal .modal-dialog td button.parameterTableCommentBtn {
     position: absolute;
     right: 4px;
     top: 2px;
