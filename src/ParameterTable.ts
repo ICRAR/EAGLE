@@ -10,7 +10,7 @@ import { RightClick } from "./RightClick";
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
-import { GraphConfig } from "./GraphConfig";
+import { GraphConfig, GraphConfigField } from "./GraphConfig";
 
 export class ParameterTable {
 
@@ -341,6 +341,29 @@ export class ParameterTable {
                 // if completed successfully, set the description on the field
                 if (completed){
                     currentField.setDescription(userText);
+                }
+
+                // always re-open the ParameterTable
+                ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
+            }
+        )
+    }
+
+    static requestEditCommentInModal(currentField:Field) : void {
+        const currentNode: Node = Eagle.getInstance().logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey());
+        const configField: GraphConfigField = Eagle.getInstance().graphConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
+
+        //ParameterTable.openModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
+        ParameterTable.closeModal();
+
+        Utils.requestUserText(
+            "Edit Field Comment",
+            "Please edit the comment for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(),
+            configField.getComment(),
+            (completed, userText) => {
+                // if completed successfully, set the description on the field
+                if (completed){
+                    configField.setComment(userText);
                 }
 
                 // always re-open the ParameterTable

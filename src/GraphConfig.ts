@@ -125,6 +125,16 @@ export class GraphConfigNode {
         return newField;
     }
 
+    findFieldById = (id: string): GraphConfigField => {
+        for (let i = this.fields().length - 1; i >= 0 ; i--){
+            if (this.fields()[i].getId() === id){
+                return this.fields()[i];
+            }
+        }
+
+        return null;
+    }
+
     removeFieldById = (id: string): GraphConfigNode => {
         for (let i = this.fields().length - 1; i >= 0 ; i--){
             if (this.fields()[i].getId() === id){

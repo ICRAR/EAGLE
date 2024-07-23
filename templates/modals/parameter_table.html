@@ -236,7 +236,7 @@
                                         <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
                                         <td class='columnCell column_Comment' onmouseenter="ParameterTable.showEditComment(this)" onmouseleave="ParameterTable.hideEditComment(this)" data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'comment' }, eagleTooltip: 'comment'">
                                             <input class="tableParameter" type="string" data-bind="value: 'comment', disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'comment', ParameterTable.getNodeLockedState($data), $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'comment', ParameterTable.getNodeLockedState($data), $data, $index())}}">
-                                            <button class="parameterTableCommentBtn icon-pencil" data-bind="click:function(data,event){console.warn('not implemented', $data)}"></button>
+                                            <button class="parameterTableCommentBtn icon-pencil" data-bind="click:function(data,event){ParameterTable.requestEditCommentInModal($data)}"></button>
                                         </td>
                                         <!-- /ko -->
                                         
