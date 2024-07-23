@@ -2190,7 +2190,7 @@ export class Utils {
         this.showNode(eagle,nodeId)
         setTimeout(function(){
             const node = eagle.selectedNode()
-            eagle.openParamsTableModalAndSelectField(node, field)
+            ParameterTable.openModalAndSelectField(node, field)
         },100)
     }
 

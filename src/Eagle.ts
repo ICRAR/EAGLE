@@ -3925,37 +3925,6 @@ export class Eagle {
         $("#"+divID).hide();
     }
 
-    // TODO: move to ParameterTable.ts
-    addEmptyTableRow = () : void => {
-        let fieldIndex:number
-
-        if(ParameterTable.hasSelection()){
-            // A cell in the table is selected well insert new row instead of adding at the end
-            fieldIndex = ParameterTable.selectionParentIndex() + 1
-            this.selectedNode().addEmptyField(fieldIndex)
-        }else{
-            this.selectedNode().addEmptyField(-1)
-
-            //getting the length of the array to use as an index to select the last row in the table
-            fieldIndex = this.selectedNode().getFields().length-1;
-        }
-
-        //a timeout was necessary to wait for the element to be added before counting how many there are
-        setTimeout(function() {
-            //handling selecting and highlighting the newly created row
-            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
-
-            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
-            clickTarget.focus() // used to focus the field allowing the user to immediately start typing
-            $(clickTarget).trigger("select")
-
-            //scroll to new row
-            $("#parameterTableModal .modal-body").animate({
-                scrollTop: (fieldIndex*30)
-            }, 1000);
-        }, 100);
-    }
-
     // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
     // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
     nodeInspectorDropdownClick = (val:number, divID:string) : void => {

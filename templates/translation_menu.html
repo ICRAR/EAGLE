@@ -255,6 +255,6 @@
             <span data-bind="text: graphConfig().numFields()"></span>
             <span>fields.</span>
         </div>
-        <button class="btn btn-primary btn-block" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Configuration Attributes ` + Utils.getKeyboardShortcutTextByKey('open_graph_configuration_table_modal', true)">Open Graph Configuration</button>
+        <button class="btn btn-primary btn-block" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Configuration Attributes ` + Utils.getKeyboardShortcutTextByKey('open_graph_configuration_table_modal', true)">Open Graph Configuration</button>
     </div>
 </div>

@@ -268,7 +268,7 @@ export class Modals {
         });
 
         $('#editFieldModal').on('hidden.bs.modal', function(){
-            eagle.openParamsTableModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal)
+            ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal)
         });
 
         // #editEdgeModal - requestUserEditEdge()
