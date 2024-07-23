@@ -916,7 +916,6 @@ export class GraphRenderer {
         }else{
             return GraphRenderer.createBezier(false,true, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
         }
-
     }, this);
 
     static getPathSuggestedEdge : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -1762,7 +1761,7 @@ export class GraphRenderer {
         const linkValid : Errors.Validity = Edge.isValid(eagle, true, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
-        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Errors.Validity.Error) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning){
+        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Errors.Validity.Error) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning || linkValid === Errors.Validity.Fixable){
             if (linkValid === Errors.Validity.Warning){
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
@@ -2137,6 +2136,8 @@ export class GraphRenderer {
         switch (edgeTargetValidity){
             case Errors.Validity.Unknown:
                 return EagleConfig.getColor("edgeDefault");
+            case Errors.Validity.Fixable:
+                return EagleConfig.getColor("edgeFixable")
             case Errors.Validity.Impossible:
             case Errors.Validity.Error:
                 return EagleConfig.getColor("edgeInvalid");
