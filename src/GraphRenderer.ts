@@ -910,7 +910,13 @@ export class GraphRenderer {
         const srcField: Field = GraphRenderer.portDragSourcePort();
         const destField: Field = null;
 
-        return GraphRenderer.createBezier(false,true, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
+        //if we are dragging from an input port well pass the dragSrcPort(the input port) as the destination of edge. this is so the flow arrow on the edge is point in the correct direction in terms of graph flow
+        if(GraphRenderer.portDragSourcePortIsInput){
+            return GraphRenderer.createBezier(false,true, null, destNodeRadius, srcNodeRadius, {x:destX, y:destY}, {x:srcX, y:srcY}, destField, srcField, !GraphRenderer.portDragSourcePortIsInput);
+        }else{
+            return GraphRenderer.createBezier(false,true, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
+        }
+
     }, this);
 
     static getPathSuggestedEdge : ko.PureComputed<string> = ko.pureComputed(() => {
