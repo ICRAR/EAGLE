@@ -134,7 +134,3 @@ export namespace Errors
         Graph = "Graph"
     }
 }
-
-
-//change data structure of each nodes, fields and edges and new logicalgraph is valid function to be {issue, validity}[]
-// move to errors, use for nodes,fields and edges

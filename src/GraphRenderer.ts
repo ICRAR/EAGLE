@@ -910,7 +910,12 @@ export class GraphRenderer {
         const srcField: Field = GraphRenderer.portDragSourcePort();
         const destField: Field = null;
 
-        return GraphRenderer.createBezier(false,true, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
+        //if we are dragging from an input port well pass the dragSrcPort(the input port) as the destination of edge. this is so the flow arrow on the edge is point in the correct direction in terms of graph flow
+        if(GraphRenderer.portDragSourcePortIsInput){
+            return GraphRenderer.createBezier(false,true, null, destNodeRadius, srcNodeRadius, {x:destX, y:destY}, {x:srcX, y:srcY}, destField, srcField, !GraphRenderer.portDragSourcePortIsInput);
+        }else{
+            return GraphRenderer.createBezier(false,true, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
+        }
     }, this);
 
     static getPathSuggestedEdge : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -1756,7 +1761,7 @@ export class GraphRenderer {
         const linkValid : Errors.Validity = Edge.isValid(eagle, true, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
-        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Errors.Validity.Error) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning){
+        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Errors.Validity.Error) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning || linkValid === Errors.Validity.Fixable){
             if (linkValid === Errors.Validity.Warning){
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
@@ -2131,6 +2136,8 @@ export class GraphRenderer {
         switch (edgeTargetValidity){
             case Errors.Validity.Unknown:
                 return EagleConfig.getColor("edgeDefault");
+            case Errors.Validity.Fixable:
+                return EagleConfig.getColor("edgeFixable")
             case Errors.Validity.Impossible:
             case Errors.Validity.Error:
                 return EagleConfig.getColor("edgeInvalid");

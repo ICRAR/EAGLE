@@ -54,6 +54,9 @@ const colors: { name: string; color: string; }[] = [
         name: 'edgeWarning',
         color: '#ffa500'
     },{
+        name: 'edgeFixable',
+        color: '#6dc7bd'
+    },{
         name: 'edgeWarningSelected',
         color: '#4247df'
     },{

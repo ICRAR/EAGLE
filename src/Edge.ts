@@ -291,6 +291,8 @@ export class Edge {
 
     static isValid(eagle: Eagle, draggingPortMode:boolean, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
         let impossibleEdge : boolean = false;
+        let draggingEdgeFixable : boolean = false;
+
         const edge = eagle.logicalGraph().findEdgeById(edgeId)
         if(edge){
             edge.issues([]) //clear old issues
@@ -491,9 +493,19 @@ export class Edge {
             }
         }
 
+        //check for fixable issues during dragging port mode
+        if(draggingPortMode){
+            //if source and destination nodes are applications
+            if(sourceNode.isApplication() && destinationNode.isApplication()){
+                draggingEdgeFixable = true
+            }
+        }
+
         //the worst edge errror function can only check for entries in errors or warnings, it isnt able to distinguish impossible from invalid
         if(impossibleEdge){
             return Errors.Validity.Impossible
+        }else if(draggingEdgeFixable){
+            return Errors.Validity.Fixable
         }else{
             return Utils.worstEdgeError(errorsWarnings);
         }
