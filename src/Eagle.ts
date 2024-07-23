@@ -1729,7 +1729,7 @@ export class Eagle {
                 resolve();
             });
         });
-    };
+    }
 
     /**
      * Performs a Git commit of a graph/palette.
@@ -1798,7 +1798,7 @@ export class Eagle {
         const repository = Repositories.get(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch);
 
         this._commit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, commitMessage, obj);
-    };
+    }
 
     _commit = (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette | GraphConfig) : void => {
         // check that repository was found, if not try "save as"!
