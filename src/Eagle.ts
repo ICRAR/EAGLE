@@ -1668,6 +1668,7 @@ export class Eagle {
                     const palette = this.findPalette(paletteName, false);
                     if (palette === null){
                         reject("Chosen palette not found in open palettes");
+                        return;
                     }
                     fileInfo = palette.fileInfo;
                     obj = palette;
@@ -1680,6 +1681,7 @@ export class Eagle {
                 default:
                     Utils.showUserMessage("Not implemented", "Not sure which fileType to commit :" + fileType);
                     reject("Not sure which fileType to commit:" + fileType);
+                    return;
             }
 
 
@@ -1716,6 +1718,7 @@ export class Eagle {
                 if (!completed){
                     console.log("Abort commit");
                     reject("Abort commit");
+                    return;
                 }
 
                 // check repository name

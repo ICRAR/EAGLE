@@ -1,11 +1,11 @@
 import * as ko from "knockout";
 
-import { Daliuge } from "./Daliuge";
 import { Eagle } from "./Eagle";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { FileInfo } from "./FileInfo";
 import { LogicalGraph } from "./LogicalGraph";
+import { ParameterTable } from "./ParameterTable";
 
 export class GraphConfigField {
     private id: ko.Observable<string>;
@@ -72,7 +72,7 @@ export class GraphConfigField {
     static toJson(field: GraphConfigField): object {
         const result : any = {};
 
-        result.id = field.id();
+        // NOTE: do not add 'id' attribute, since fields are stored in a dict keyed by id
         result.value = field.value();
         result.comment = field.comment();
 
@@ -158,7 +158,7 @@ export class GraphConfigNode {
     static toJSON(node: GraphConfigNode) : object {
         const result : any = {};
 
-        result.id = node.id();
+        // NOTE: do not add 'id' attribute, since nodes are stored in a dict keyed by id
 
         // add fields
         result.fields = {};
@@ -325,5 +325,21 @@ export class GraphConfig {
                 lgField.setValue(field.getValue());
             }
         }
+    }
+
+    static async save() {
+        console.log("save()");
+
+        ParameterTable.closeModal();
+
+        try {
+            await Eagle.getInstance().commitToGitAs(Eagle.FileType.GraphConfig);
+        }
+        catch (reason){
+            console.log(reason);
+        }
+
+        console.log("openModal");
+        ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
     }
 }
