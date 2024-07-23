@@ -338,11 +338,12 @@ export class ParameterTable {
             "Please edit the description for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(),
             currentField.getDescription(),
             (completed, userText) => {
-                if (!completed){
-                    return;
+                // if completed successfully, set the description on the field
+                if (completed){
+                    currentField.setDescription(userText);
                 }
 
-                currentField.setDescription(userText);
+                // always re-open the ParameterTable
                 ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
             }
         )
