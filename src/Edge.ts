@@ -506,7 +506,7 @@ export class Edge {
             return Errors.Validity.Impossible
         }else if(draggingEdgeFixable){
             return Errors.Validity.Fixable
-        }{
+        }else{
             return Utils.worstEdgeError(errorsWarnings);
         }
     }
