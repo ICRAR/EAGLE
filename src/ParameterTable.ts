@@ -6,6 +6,7 @@ import { Field } from './Field';
 import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
 import { Palette } from "./Palette";
+import { RightClick } from "./RightClick";
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
@@ -145,10 +146,6 @@ export class ParameterTable {
         const eagle: Eagle = Eagle.getInstance();
 
         switch (ParameterTable.mode()){
-
-            case ParameterTable.Mode.Unknown:
-                return [];
-
             case ParameterTable.Mode.NodeFields:
                 return eagle.selectedNode()?.getFields();
             
@@ -331,13 +328,14 @@ export class ParameterTable {
     }
 
     static requestEditDescriptionInModal(currentField:Field) : void {
-        const eagle: Eagle = Eagle.getInstance();
+        const currentNode: Node = Eagle.getInstance().logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey());
 
-        eagle.openParamsTableModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
+        //ParameterTable.openModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
+        ParameterTable.closeModal();
 
         Utils.requestUserText(
             "Edit Field Description",
-            "Please edit the description for: " + eagle.logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey()).getName() + ' - ' + currentField.getDisplayText(),
+            "Please edit the description for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(),
             currentField.getDescription(),
             (completed, userText) => {
                 if (!completed){
@@ -345,7 +343,7 @@ export class ParameterTable {
                 }
 
                 currentField.setDescription(userText);
-                eagle.openParamsTableModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
+                ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
             }
         )
     }
@@ -416,11 +414,66 @@ export class ParameterTable {
             //doing it this way because it makes it simpler to have the header in question in hand. the ko events proved difficult to pass events and objects with
             upresizer.on('mousedown', mouseDownHandler);
     }
+
+    static openModal = (mode: ParameterTable.Mode, selectType: ParameterTable.SelectType) : void => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        eagle.showEagleIsLoading()
+
+        setTimeout(function(){
+            if($('.modal.show').length>0){
+                if($('.modal.show').attr('id')==='parameterTableModal'){
+                    // TODO: use closeModal here!
+                    $('#parameterTableModal').modal('hide')
+                    eagle.showTableModal(false)
+                }else{
+                    return
+                }
+            }
+            if(selectType === ParameterTable.SelectType.RightClick){
+                eagle.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
+
+                RightClick.closeCustomContextMenu(true);
+
+                setTimeout(function() {
+                    Utils.showOpenParamsTableModal(mode);
+                }, 30);
+            }else{
+                if (mode=== ParameterTable.Mode.NodeFields && !eagle.selectedNode()){
+                    eagle.hideEagleIsLoading()
+                    Utils.showNotification("Error", "No Node Is Selected", "warning");
+                }else{
+                    Utils.showOpenParamsTableModal(mode);
+                }
+            }
+            eagle.showTableModal(true)
+
+        },5)
+    }
+    
+    // TODO: can we combine this with openModal(), maybe use an extra parameter to the function?
+    static openModalAndSelectField = (node:Node, field:Field) : void => {
+        const eagle = Eagle.getInstance()
+
+        eagle.setSelection(Eagle.RightWindowMode.None, node,Eagle.FileType.Graph)
+
+        ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal);
+        
+        setTimeout(function(){
+            $('#tableRow_'+field.getId()).addClass('highlighted')
+        },200)
+    }
+
+    static closeModal = (): void => {
+        // TODO!
+        console.log("closeModal!");
+        $('#parameterTableModal').modal('hide')
+        Eagle.getInstance().showTableModal(false)
+    }
 }
 
 export namespace ParameterTable {
     export enum Mode {
-        Unknown = "Unknown", // blank
         NodeFields = "NodeFields", //inspectorTableModal
         GraphConfig = "GraphConfig", //keyParametersTableModal
     }

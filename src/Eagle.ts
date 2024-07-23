@@ -1649,78 +1649,82 @@ export class Eagle {
     /**
      * Performs a Git commit of a graph/palette. Asks user for a file name before saving.
      */
-    commitToGitAs = async (fileType : Eagle.FileType) : Promise<void> => {
-        console.log("commitToGitAs()");
+    commitToGitAs = (fileType : Eagle.FileType) : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
 
-        let fileInfo : ko.Observable<FileInfo>;
-        let obj : LogicalGraph | Palette | GraphConfig;
+            console.log("commitToGitAs()");
+            let fileInfo : ko.Observable<FileInfo>;
+            let obj : LogicalGraph | Palette | GraphConfig;
 
-        // determine which object of the given filetype we are committing
-        switch (fileType){
-            case Eagle.FileType.Graph:
-                fileInfo = this.logicalGraph().fileInfo;
-                obj = this.logicalGraph();
-                break;
-            case Eagle.FileType.Palette: {
-                const paletteNames: string[] = this.buildReadablePaletteNamesList();
-                const paletteName = await Utils.userChoosePalette(paletteNames);
-                const palette = this.findPalette(paletteName, false);
-                if (palette === null){
-                    return;
+            // determine which object of the given filetype we are committing
+            switch (fileType){
+                case Eagle.FileType.Graph:
+                    fileInfo = this.logicalGraph().fileInfo;
+                    obj = this.logicalGraph();
+                    break;
+                case Eagle.FileType.Palette: {
+                    const paletteNames: string[] = this.buildReadablePaletteNamesList();
+                    const paletteName = await Utils.userChoosePalette(paletteNames);
+                    const palette = this.findPalette(paletteName, false);
+                    if (palette === null){
+                        reject("Chosen palette not found in open palettes");
+                    }
+                    fileInfo = palette.fileInfo;
+                    obj = palette;
+                    break;
                 }
-                fileInfo = palette.fileInfo;
-                obj = palette;
-                break;
-            }
-            case Eagle.FileType.GraphConfig:
-                fileInfo = this.graphConfig().fileInfo;
-                obj = this.graphConfig();
-                break;
-            default:
-                Utils.showUserMessage("Not implemented", "Not sure which fileType to commit :" + fileType);
-                return;
-        }
-
-
-        // create default repository to supply to modal so that the modal is populated with useful defaults
-        let defaultRepository: Repository;
-
-        if (this.logicalGraph()){
-            // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
-            // just use any existing repo
-            if (fileInfo().repositoryService === Repository.Service.Unknown || fileInfo().repositoryService === Repository.Service.File){
-                const gitHubRepoList : Repository[] = Repositories.getList(Repository.Service.GitHub);
-                const gitLabRepoList : Repository[] = Repositories.getList(Repository.Service.GitLab);
-
-                // use first gitlab repo as second preference
-                if (gitLabRepoList.length > 0){
-                    defaultRepository = new Repository(Repository.Service.GitLab, gitLabRepoList[0].name, gitLabRepoList[0].branch, false);
-                }
-
-                // overwrite with first github repo as first preference
-                if (gitHubRepoList.length > 0){
-                    defaultRepository = new Repository(Repository.Service.GitHub, gitHubRepoList[0].name, gitHubRepoList[0].branch, false);
-                }
-
-                if (gitHubRepoList.length === 0 && gitLabRepoList.length === 0){
-                    defaultRepository = new Repository(Repository.Service.GitHub, "", "", false);
-                }
-            } else {
-                defaultRepository = new Repository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch, false);
-            }
-        }
-
-        Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, fileType, (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
-            // check completed boolean
-            if (!completed){
-                console.log("Abort commit");
-                return;
+                case Eagle.FileType.GraphConfig:
+                    fileInfo = this.graphConfig().fileInfo;
+                    obj = this.graphConfig();
+                    break;
+                default:
+                    Utils.showUserMessage("Not implemented", "Not sure which fileType to commit :" + fileType);
+                    reject("Not sure which fileType to commit:" + fileType);
             }
 
-            // check repository name
-            const repository : Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
 
-            this._commit(repository, fileType, filePath, fileName, fileInfo, commitMessage, obj);
+            // create default repository to supply to modal so that the modal is populated with useful defaults
+            let defaultRepository: Repository;
+
+            if (this.logicalGraph()){
+                // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
+                // just use any existing repo
+                if (fileInfo().repositoryService === Repository.Service.Unknown || fileInfo().repositoryService === Repository.Service.File){
+                    const gitHubRepoList : Repository[] = Repositories.getList(Repository.Service.GitHub);
+                    const gitLabRepoList : Repository[] = Repositories.getList(Repository.Service.GitLab);
+
+                    // use first gitlab repo as second preference
+                    if (gitLabRepoList.length > 0){
+                        defaultRepository = new Repository(Repository.Service.GitLab, gitLabRepoList[0].name, gitLabRepoList[0].branch, false);
+                    }
+
+                    // overwrite with first github repo as first preference
+                    if (gitHubRepoList.length > 0){
+                        defaultRepository = new Repository(Repository.Service.GitHub, gitHubRepoList[0].name, gitHubRepoList[0].branch, false);
+                    }
+
+                    if (gitHubRepoList.length === 0 && gitLabRepoList.length === 0){
+                        defaultRepository = new Repository(Repository.Service.GitHub, "", "", false);
+                    }
+                } else {
+                    defaultRepository = new Repository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch, false);
+                }
+            }
+
+            Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, fileType, (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+                // check completed boolean
+                if (!completed){
+                    console.log("Abort commit");
+                    reject("Abort commit");
+                }
+
+                // check repository name
+                const repository : Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
+
+                this._commit(repository, fileType, filePath, fileName, fileInfo, commitMessage, obj);
+
+                resolve();
+            });
         });
     };
 
@@ -2715,51 +2719,6 @@ export class Eagle {
 
     hideEagleIsLoading = () : void => {
         $('#loadingContainer').hide()
-    }
-
-    // TODO: move to ParameterTable.ts
-    openParamsTableModal = (mode: ParameterTable.Mode, selectType: ParameterTable.SelectType) : void => {
-        this.showEagleIsLoading()
-        const eagle = this
-        setTimeout(function(){
-            if($('.modal.show').length>0){
-                if($('.modal.show').attr('id')==='parameterTableModal'){
-                    $('#parameterTableModal').modal('hide')
-                    eagle.showTableModal(false)
-                }else{
-                    return
-                }
-            }
-            if(selectType === ParameterTable.SelectType.RightClick){
-                eagle.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
-
-                RightClick.closeCustomContextMenu(true);
-
-                setTimeout(function() {
-                    Utils.showOpenParamsTableModal(mode);
-                }, 30);
-            }else{
-                if (mode=== ParameterTable.Mode.NodeFields && !eagle.selectedNode()){
-                    eagle.hideEagleIsLoading()
-                    Utils.showNotification("Error", "No Node Is Selected", "warning");
-                }else{
-                    Utils.showOpenParamsTableModal(mode);
-                }
-            }
-            eagle.showTableModal(true)
-
-        },5)
-    }
-
-    // TODO: move to ParameterTable.ts
-    openParamsTableModalAndSelectField = (node:Node, field:Field) : void => {
-        const eagle = Eagle.getInstance()
-
-        eagle.setSelection(Eagle.RightWindowMode.None, node,Eagle.FileType.Graph)
-        eagle.openParamsTableModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal)
-        setTimeout(function(){
-            $('#tableRow_'+field.getId()).addClass('highlighted')
-        },200)
     }
 
     // TODO: move to ParameterTable.ts
