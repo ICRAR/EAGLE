@@ -919,7 +919,7 @@ export class GraphRenderer {
     }, this);
 
     static getPathSuggestedEdge : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (GraphRenderer.portDragSuggestedNode() === null){
+        if (GraphRenderer.portDragSuggestedNode() === null || GraphRenderer.destinationPort !== null){
             return '';
         }
 
@@ -2100,7 +2100,7 @@ export class GraphRenderer {
         return {node: minNode, field: minPort, validity: minValidity};
     }
     
-    static mouseEnterPort(port : Field) : void {
+    static mouseEnterPort(usage:string, port : Field) : void {
         if (!GraphRenderer.draggingPort){
             return;
         }
@@ -2108,6 +2108,17 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         GraphRenderer.destinationPort = port;
         GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
+        console.log("hi")
+        //if the port we are dragging from and are hovering one are the same type of port return an error
+        if(usage === 'input' && GraphRenderer.portDragSourcePortIsInput || usage === 'output' && !GraphRenderer.portDragSourcePortIsInput){
+            console.log('port is: ',port.isInputPort(),port.isOutputPort())
+            if(port.isInputPort() && port.isOutputPort()){
+                GraphRenderer.isDraggingPortValid(Errors.Validity.Fixable)
+            }else{
+                GraphRenderer.isDraggingPortValid(Errors.Validity.Impossible)
+            }
+            return
+        }
 
         const isValid = Edge.isValid(eagle, true, null, GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
         GraphRenderer.isDraggingPortValid(isValid);
