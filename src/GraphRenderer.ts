@@ -2108,10 +2108,9 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         GraphRenderer.destinationPort = port;
         GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
-        console.log("hi")
+        
         //if the port we are dragging from and are hovering one are the same type of port return an error
         if(usage === 'input' && GraphRenderer.portDragSourcePortIsInput || usage === 'output' && !GraphRenderer.portDragSourcePortIsInput){
-            console.log('port is: ',port.isInputPort(),port.isOutputPort())
             if(port.isInputPort() && port.isOutputPort()){
                 GraphRenderer.isDraggingPortValid(Errors.Validity.Fixable)
             }else{
