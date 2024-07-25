@@ -24,6 +24,7 @@
 
 import { Category } from './Category';
 import { Field } from './Field';
+import { Node } from './Node';
 
 export class Daliuge {
     // automatically loaded palettes
@@ -32,6 +33,11 @@ export class Daliuge {
 
     // schemas
     static readonly GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg/dropmake/lg.graph.schema";
+
+    // NOTE: eventually this can be replaced. Once we have added a new category for PythonInitialiser
+    static isPythonInitialiser(node: Node): boolean {
+        return node.getCategory() === Category.PythonMemberFunction && (node.getName().includes("__init__") || node.getName().includes("__class__"));
+    }
 }
 
 export namespace Daliuge {

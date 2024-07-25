@@ -1,14 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: none;
-      }
-    </style>
-  </defs>
-  <g id="Layer_1-2" data-name="Layer 1">
-    <path class="cls-1" d="m0,0h24v24H0V0Z"/>
-    <path d="m14.87.52l3.29,3.29-4.13,4.13,2.04,2.04,4.13-4.13,3.29,3.29V.52h-8.61Zm-5.74,0H.52v8.61l3.29-3.29,6.76,6.74v10.89h2.87v-12.07L5.84,3.81l3.29-3.29Z"/>
-  </g>
-</svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg width="100%" height="100%" viewBox="0 0 4171 4167" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><rect id="call_split" x="4.026" y="0" width="4166.67" height="4166.67" style="fill:none;"/><clipPath id="_clip1"><rect x="4.026" y="0" width="4166.67" height="4166.67"/></clipPath><g clip-path="url(#_clip1)"><clipPath id="_clip2"><rect id="call_split.svg" x="47.896" y="42.771" width="4078.93" height="4078.93"/></clipPath><g clip-path="url(#_clip2)"><g id="Layer_1-2"><rect x="47.896" y="42.771" width="4078.93" height="4078.93" style="fill:none;fill-rule:nonzero;"/><path d="M2596.12,42.848l584.226,584.226l-733.39,733.39l362.255,362.255l733.39,-733.39l584.226,584.226l0,-1530.71l-1530.71,-0Zm-1019.29,-0l-1528.93,-0l-0,1528.93l584.226,-584.226l1200.41,1196.86l0,1933.81l509.644,-0l-0,-2143.35l-1349.58,-1347.8l584.226,-584.226Z" style="fill-rule:nonzero;"/></g></g><rect x="4.026" y="6.13" width="4166.67" height="4166.67" style="fill:none;"/></g></svg>
