@@ -3263,6 +3263,8 @@ export class Eagle {
         let data: (Node | Edge)[] = [];
         let location: Eagle.FileType = Eagle.FileType.Unknown;
 
+        GraphRenderer.clearPortPeek()
+
         // if no objects selected, warn user
         if (rightClick){
             data.push(Eagle.selectedRightClickObject())

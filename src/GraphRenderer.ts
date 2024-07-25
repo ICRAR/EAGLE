@@ -1656,7 +1656,12 @@ export class GraphRenderer {
         //setting up the port event listeners
         $('#logicalGraphParent').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
         $('.node .body').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
-        port.setPeek(true)
+
+        if(GraphRenderer.portDragSourcePortIsInput){
+            port.setInputPeek(true)
+        }else{
+            port.setOutputPeek(true)
+        }
 
         // build the list of all ports in the graph that are a valid end-point for an edge starting at this port
         GraphRenderer.createEdgeSuggestedPorts = GraphRenderer.findMatchingPorts(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort());
@@ -1730,12 +1735,14 @@ export class GraphRenderer {
                     GraphRenderer.clearEdgeVars();
                 }
             }
-            GraphRenderer.portDragSourcePort()?.setPeek(false)
+            GraphRenderer.portDragSourcePort()?.setInputPeek(false)
+            GraphRenderer.portDragSourcePort()?.setOutputPeek(false)
         }
 
         //resetting some global cached variables
         GraphRenderer.createEdgeSuggestedPorts.forEach(function(matchingPort){
-            matchingPort.field.setPeek(false)
+            matchingPort.field.setInputPeek(false)
+            matchingPort.field.setOutputPeek(false)
         })
 
         GraphRenderer.createEdgeSuggestedPorts = []
@@ -1849,7 +1856,7 @@ export class GraphRenderer {
             return true
         }else if(eagle.objectIsSelected(node)){
             return true
-        }else if(field.isPeek()){
+        }else if(field.isInputPeek() || field.isOutputPeek()){
             return true
         }else{
             return false
@@ -2044,7 +2051,11 @@ export class GraphRenderer {
 
                 if (isValidIndex >= minValidityIndex){
                     result.push({node: node, field: port,validity: isValid});
-                    port.setPeek(true)
+                    if(GraphRenderer.portDragSourcePortIsInput){
+                        port.setOutputPeek(true)
+                    }else{
+                        port.setInputPeek(true)
+                    }
                 }
             }
         }
@@ -2108,7 +2119,7 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         GraphRenderer.destinationPort = port;
         GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
-        
+
         //if the port we are dragging from and are hovering one are the same type of port return an error
         if(usage === 'input' && GraphRenderer.portDragSourcePortIsInput || usage === 'output' && !GraphRenderer.portDragSourcePortIsInput){
             if(port.isInputPort() && port.isOutputPort()){
@@ -2218,18 +2229,21 @@ export class GraphRenderer {
             if(node.isConstruct()){
                 if(node.getInputApplication() != null){
                     node.getInputApplication().getFields().forEach(function(inputAppField){
-                       inputAppField.setPeek(false) 
+                       inputAppField.setInputPeek(false) 
+                       inputAppField.setOutputPeek(false) 
                     })
                 }
                 if(node.getOutputApplication() != null){
                     node.getOutputApplication().getFields().forEach(function(outputAppField){
-                        outputAppField.setPeek(false) 
+                        outputAppField.setInputPeek(false) 
+                        outputAppField.setOutputPeek(false) 
                     })
                 }
             }
 
             node.getFields().forEach(function(field){
-                field.setPeek(false)
+                field.setInputPeek(false) 
+                field.setOutputPeek(false) 
             })  
         })  
     }
@@ -2241,14 +2255,14 @@ export class GraphRenderer {
         
         // if the input port found, set peek
         if (inputPort !== null){
-            inputPort.setPeek(value);
+            inputPort.setOutputPeek(value);
         } else {
             console.warn("Could not find input port of edge. Unable to set peek.")
         }
 
         // if the output port found, set peek
         if (outputPort !== null){
-            outputPort.setPeek(value);
+            outputPort.setInputPeek(value);
         } else {
             console.warn("Could not find output port of edge. Unable to set peek.")
         }
