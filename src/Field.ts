@@ -372,14 +372,14 @@ export class Field {
         this.nodeKey(key);
     }
 
-    getGraphConfigFieldComment : ko.PureComputed<string> = ko.pureComputed(() => {
+    getGraphConfigField : ko.PureComputed<GraphConfigField> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
         const graphNodeId = eagle.logicalGraph().findNodeByKey(this.getNodeKey()).getId();
 
         const graphConfigField: GraphConfigField = eagle.graphConfig().findNodeById(graphNodeId)?.findFieldById(this.id());
-        console.log("getGraphConfigField()", graphNodeId, this.id(), graphConfigField, graphConfigField.getComment());
+        console.log("getGraphConfigField()", "node", graphNodeId, "field", this.id(), graphConfigField, "value", graphConfigField.getValue(), "comment", graphConfigField.getComment());
 
-        return graphConfigField.getComment();
+        return graphConfigField;
     }, this);
 
     clear = () : void => {
