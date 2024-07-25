@@ -53,6 +53,9 @@
                         </div>
                         <thead>
                             <tr>
+                                <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
+                                    <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'Toggle Field Key attribute state'" data-bs-placement="top"></th>
+                                <!-- /ko -->
                                 <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
                                     <th id="parameter_table_node_name" data-bind="eagleTooltip:`This Parameter's Parent Node Name`" data-bs-placement="top">
                                         Node Name
@@ -127,6 +130,11 @@
                             <!-- ko if: $data.fitsTableSearchQuery() -->
                                 <!-- ko if: Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || $root.graphConfig().hasField($data) -->
                                     <tr data-bind="attr: {'id' : 'tableRow_'+$data.getId()}">
+                                        <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
+                                        <td class='columnCell column_KeyAttr'>
+                                            <!-- kept for now as we will need the space for the row drag handle -->
+                                        </td>
+                                        <!-- /ko -->
                                         <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
                                             <td class='columnCell column_NodeName'>
                                                 <input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getName(), disabled: true">
