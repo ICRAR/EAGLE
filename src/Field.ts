@@ -5,6 +5,7 @@ import { Category } from './Category';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
+import { GraphConfigField } from "./GraphConfig";
 import { Node } from './Node';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -370,6 +371,16 @@ export class Field {
     setNodeKey = (key : number) : void => {
         this.nodeKey(key);
     }
+
+    getGraphConfigFieldComment : ko.PureComputed<string> = ko.pureComputed(() => {
+        const eagle: Eagle = Eagle.getInstance();
+        const graphNodeId = eagle.logicalGraph().findNodeByKey(this.getNodeKey()).getId();
+
+        const graphConfigField: GraphConfigField = eagle.graphConfig().findNodeById(graphNodeId)?.findFieldById(this.id());
+        console.log("getGraphConfigField()", graphNodeId, this.id(), graphConfigField, graphConfigField.getComment());
+
+        return graphConfigField.getComment();
+    }, this);
 
     clear = () : void => {
         this.displayText("");
