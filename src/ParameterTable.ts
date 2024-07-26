@@ -274,6 +274,18 @@ export class ParameterTable {
         $('#parameterTableModal tr.highlighted').removeClass('highlighted')
     }
 
+    static select2(selection: string, selectionName: string, selectionParent: Field, selectionIndex: number) : void {
+        const eagle: Eagle = Eagle.getInstance();
+
+        ParameterTable.selectionName(selectionName);
+        ParameterTable.selectionParent(selectionParent);
+        ParameterTable.selectionParentIndex(selectionIndex);
+        ParameterTable.selection(selection);
+        ParameterTable.selectionReadonly(eagle.getCurrentParamValueReadonly(selectionParent));
+
+        $('#parameterTableModal tr.highlighted').removeClass('highlighted')
+    }
+
     static resetSelection() : void {
         ParameterTable.selectionParentIndex(-1);
         ParameterTable.selection(null);

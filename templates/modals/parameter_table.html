@@ -189,13 +189,27 @@
                                                 <!-- /ko -->
                                             <!-- /ko -->
                                             <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
-                                                <td class='columnCell column_Value' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'value' }"><input class="tableParameter" tabindex='-1' data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$data.toggle(); ParameterTable.fieldValueChanged();}}"></td>
+                                                <td class='columnCell column_Value' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'value' }">
+                                                    <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
+                                                        <input class="tableParameter" tabindex='-1' data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$data.toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
+                                                    <!-- /ko -->
+                                                    <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
+                                                        <input class="tableParameter" tabindex='-1' data-bind="checked: valIsTrue($data.getGraphConfigField().value()), disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, event: {change: function(){$data.toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
+                                                    <!-- /ko -->
+                                                </td>
                                             <!-- /ko -->
                                             <!-- ko if: $data.getHtmlInputType() === 'select' -->
                                                 <td class='columnCell column_Value' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'value' }">
-                                                    <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="disabled: $root.getCurrentParamValueReadonly($data), event: {change: ParameterTable.fieldValueChanged}, options: $data.options, value: $data.value">
+                                                    <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
+                                                        <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="disabled: $root.getCurrentParamValueReadonly($data), event: {change: ParameterTable.fieldValueChanged}, options: $data.options, value: $data.value">
+                                                            <!-- options are added dynamically -->
+                                                        </select>
+                                                    <!-- /ko -->
+                                                    <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
+                                                        <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="disabled: $root.getCurrentParamValueReadonly($data), event: {change: ParameterTable.fieldValueChanged}, options: $data.options, value: $data.getGraphConfigField().value">
                                                         <!-- options are added dynamically -->
-                                                    </select> 
+                                                        </select>
+                                                    <!-- /ko -->
                                                 </td>
                                             <!-- /ko -->
                                         <!-- /ko -->
