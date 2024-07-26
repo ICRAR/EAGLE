@@ -376,10 +376,7 @@ export class Field {
         const eagle: Eagle = Eagle.getInstance();
         const graphNodeId = eagle.logicalGraph().findNodeByKey(this.getNodeKey()).getId();
 
-        const graphConfigField: GraphConfigField = eagle.graphConfig().findNodeById(graphNodeId)?.findFieldById(this.id());
-        console.log("getGraphConfigField()", "node", graphNodeId, "field", this.id(), graphConfigField, "value", graphConfigField.getValue(), "comment", graphConfigField.getComment());
-
-        return graphConfigField;
+        return eagle.graphConfig().findNodeById(graphNodeId)?.findFieldById(this.id());
     }, this);
 
     clear = () : void => {

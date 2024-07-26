@@ -276,6 +276,10 @@ export class ParameterTable {
         $('#parameterTableModal tr.highlighted').removeClass('highlighted')
     }
 
+    static isSelected(selectionName: string, selectionParent: Field): boolean {
+        return ParameterTable.selection() != null && selectionParent == ParameterTable.selectionParent() && ParameterTable.selectionName() == selectionName;
+    }
+
     static resetSelection() : void {
         ParameterTable.selectionParentIndex(-1);
         ParameterTable.selection(null);
