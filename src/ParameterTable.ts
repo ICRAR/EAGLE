@@ -264,17 +264,7 @@ export class ParameterTable {
         eagle.selectedObjects.valueHasMutated();
     }
 
-    static select(selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void {
-        ParameterTable.selectionName(selectionName);
-        ParameterTable.selectionParent(selectionParent);
-        ParameterTable.selectionParentIndex(selectionIndex);
-        ParameterTable.selection(selection);
-        ParameterTable.selectionReadonly(readOnlyState);
-
-        $('#parameterTableModal tr.highlighted').removeClass('highlighted')
-    }
-
-    static select2(selection: string, selectionName: string, selectionParent: Field, selectionIndex: number) : void {
+    static select(selection: string, selectionName: string, selectionParent: Field, selectionIndex: number) : void {
         const eagle: Eagle = Eagle.getInstance();
 
         ParameterTable.selectionName(selectionName);
