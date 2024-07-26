@@ -919,7 +919,12 @@ export class GraphRenderer {
     }, this);
 
     static getPathSuggestedEdge : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (GraphRenderer.portDragSuggestedNode() === null || GraphRenderer.destinationPort !== null){
+        if (GraphRenderer.portDragSuggestedNode() === null){
+            return '';
+        }
+
+        //this is a global variable to contains a port on mouse over. if we are mousing over a port we dont need to draw an edge
+        if(GraphRenderer.destinationPort !== null){
             return '';
         }
 
