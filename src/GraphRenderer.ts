@@ -2129,8 +2129,13 @@ export class GraphRenderer {
             }
             return
         }
+        let isValid: Errors.Validity
 
-        const isValid = Edge.isValid(eagle, true, null, GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
+        if(!GraphRenderer.portDragSourcePortIsInput){
+            isValid = Edge.isValid(eagle, true, "", GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
+        }else{
+            isValid = Edge.isValid(eagle, true, "", GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), false, false, false, false, {errors:[], warnings:[]});
+        }
         GraphRenderer.isDraggingPortValid(isValid);
     }
 

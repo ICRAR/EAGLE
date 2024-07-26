@@ -499,6 +499,12 @@ export class Edge {
             if(sourceNode.isApplication() && destinationNode.isApplication()){
                 draggingEdgeFixable = true
             }
+
+            if(sourcePort.isInputPort() && destinationPort.isInputPort() && !destinationPort.isOutputPort()){
+                impossibleEdge = true
+            }else if (sourcePort.isOutputPort() && destinationPort.isOutputPort() && !destinationPort.isInputPort()){
+                impossibleEdge = true
+            }
         }
 
         //the worst edge errror function can only check for entries in errors or warnings, it isnt able to distinguish impossible from invalid
