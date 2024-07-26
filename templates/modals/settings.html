@@ -7,7 +7,7 @@
                 <!-- ko ifnot: Setting.findValue( Setting.STUDENT_SETTINGS_MODE) -->
                     <div id="uiModeDiv">
                         <span>UiMode:</span>
-                        <select class="form-control" id='settingUserInterfaceModeValue' data-bind="options: UiModeSystem.getUiModeNamesList(), value: UiModeSystem.getActiveUiMode().getName(),event:{ change: function(){UiModeSystem.setActiveUiModeByName($element.value);$('#settingsModal').data('completed', true);}}">
+                        <select class="form-control" placeholder="uiMode" id='settingUserInterfaceModeValue' data-bind="options: UiModeSystem.getUiModeNamesList(), value: UiModeSystem.getActiveUiMode().getName(),event:{ change: function(){UiModeSystem.setActiveUiModeByName($element.value);$('#settingsModal').data('completed', true);}}">
                         </select>
                     </div>
                 <!-- /ko -->
