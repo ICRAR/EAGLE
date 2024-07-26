@@ -35,7 +35,8 @@ export class Field {
     private inputY : ko.Observable<number>;
     private outputX : ko.Observable<number>;
     private outputY : ko.Observable<number>;
-    private peek : ko.Observable<boolean>;
+    private inputPeek : ko.Observable<boolean>;
+    private outputPeek : ko.Observable<boolean>;
     private inputConnected : ko.Observable<boolean>
     private outputConnected : ko.Observable<boolean>
     private inputAngle : number;
@@ -67,7 +68,8 @@ export class Field {
         this.inputY = ko.observable(0);
         this.outputX = ko.observable(0);
         this.outputY = ko.observable(0);
-        this.peek = ko.observable(false);
+        this.inputPeek = ko.observable(false);
+        this.outputPeek = ko.observable(false);
         this.inputConnected = ko.observable(false)
         this.outputConnected = ko.observable(false)
         this.inputAngle = 0;
@@ -596,12 +598,20 @@ export class Field {
         return "###"+ this.getDisplayText() + "\n" + this.getDescription();
     }
 
-    isPeek = () : boolean => {
-        return this.peek()
+    isInputPeek = () : boolean => {
+        return this.inputPeek()
     }
 
-    setPeek = (value:boolean) : void => {
-        this.peek(value);
+    setInputPeek = (value:boolean) : void => {
+        this.inputPeek(value);
+    }
+
+    isOutputPeek = () : boolean => {
+        return this.outputPeek()
+    }
+
+    setOutputPeek = (value:boolean) : void => {
+        this.outputPeek(value);
     }
 
     getInputConnected = () :boolean => {
