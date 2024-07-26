@@ -2086,8 +2086,8 @@ export class GraphRenderer {
                 portX = port.getInputPosition().x;
                 portY = port.getInputPosition().y;
             }
-            portX = node.getPosition().x + portX
-            portY = node.getPosition().y + portY
+            portX = node.getPosition().x - node.getRadius() + portX
+            portY = node.getPosition().y - node.getRadius() + portY
 
             // get distance to port
             const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
