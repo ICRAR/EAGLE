@@ -1407,7 +1407,7 @@ export class Eagle {
      * Creates a new logical graph for editing.
      */
     newLogicalGraph = () : void => {
-        this.newDiagram(Eagle.FileType.Graph, (name: string) => {
+        Utils.newDiagram(Eagle.FileType.Graph, (name: string) => {
             this.logicalGraph(new LogicalGraph());
             this.logicalGraph().fileInfo().name = name;
             this.checkGraph();
@@ -1506,7 +1506,7 @@ export class Eagle {
      * Creates a new palette for editing.
      */
     newPalette = () : void => {
-        this.newDiagram(Eagle.FileType.Palette, (name : string) => {
+        Utils.newDiagram(Eagle.FileType.Palette, (name : string) => {
             const p: Palette = new Palette();
             p.fileInfo().name = name;
 
@@ -1565,32 +1565,6 @@ export class Eagle {
                 // can't be fetched
                 break;
          }
-    }
-
-    /**
-     * Create a new diagram (graph or palette).
-     */
-    newDiagram = (fileType : Eagle.FileType, callbackAction : (name : string) => void ) : void => {
-        const defaultName: string = Utils.generateGraphName();
-
-        Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false, (completed : boolean, userString : string) : void => {
-            if (!completed)
-            {   // Cancelling action.
-                return;
-            }
-            if (userString === ""){
-            Utils.showNotification("Invalid graph name", "Please enter a name for the new graph", "danger");
-                return;
-            }
-
-            // Adding file extension to the title if it does not have it.
-            if (!Utils.verifyFileExtension(userString)) {
-                userString = userString + "." + Utils.getDiagramExtension(fileType);
-            }
-
-            // Callback.
-            callbackAction(userString);
-        });
     }
 
     saveGraph = () : void => {
@@ -2504,7 +2478,53 @@ export class Eagle {
     saveConfigToDisk = (config: GraphConfig): void => {
         console.log("saveConfigToDisk()", config.fileInfo().name, config.fileInfo().type);
 
-        // TODO
+         // check that the fileType has been set for the graphConfig
+         if (config.fileInfo().type !== Eagle.FileType.GraphConfig){
+            Utils.showUserMessage("Error", "Graph Configuration fileType not set correctly. Could not save file.");
+            return;
+        }
+
+        // check that config has at least one field, otherwise not much point
+        if (config.numFields() === 0){
+            Utils.showNotification("Error", "This Graph Configuration contains no fields, please add fields before saving", "danger");
+            return;
+        }
+
+        // check that config has a filename
+        if (config.fileInfo().name === "") {
+            // abort and notify user
+            Utils.showNotification("Unable to save Config with no name", "Please name the config before saving", "danger");
+            return;
+        }
+
+        // clone the config and remove github info ready for local save
+        const c_clone : GraphConfig = config.clone();
+        c_clone.fileInfo().removeGitInfo();
+        c_clone.fileInfo().updateEagleInfo();
+        const jsonString: string = GraphConfig.toJsonString(c_clone);
+
+        // validate json
+        Utils.validateJSON(jsonString, Eagle.FileType.GraphConfig);
+
+        Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
+            if (error != null){
+                Utils.showUserMessage("Error", "Error saving the file!");
+                console.error(error);
+                return;
+            }
+
+            Utils.downloadFile(error, data, config.fileInfo().name);
+
+            // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
+            // clear the modified flag
+            config.fileInfo().modified = false;
+            config.fileInfo().repositoryService = Repository.Service.Unknown;
+            config.fileInfo().repositoryName = "";
+            config.fileInfo().repositoryUrl = "";
+            config.fileInfo().commitHash = "";
+            config.fileInfo().downloadUrl = "";
+            config.fileInfo.valueHasMutated();
+        });
     }
 
     savePaletteToGit = (palette: Palette): void => {
@@ -4870,7 +4890,7 @@ export class Eagle {
 
         // check if node was added to an empty graph, if so prompt user to specify graph name
         if (this.logicalGraph().fileInfo().name === ""){
-            this.newDiagram(Eagle.FileType.Graph, (name: string) => {
+            Utils.newDiagram(Eagle.FileType.Graph, (name: string) => {
                 this.logicalGraph().fileInfo().name = name;
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Named Logical Graph");

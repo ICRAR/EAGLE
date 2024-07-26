@@ -96,8 +96,8 @@ export class Utils {
         return now.getFullYear() + "-" + Utils.padStart(now.getMonth() + 1, 2) + "-" + Utils.padStart(now.getDate(), 2) + "-" + Utils.padStart(now.getHours(), 2) + "-" + Utils.padStart(now.getMinutes(), 2) + "-" + Utils.padStart(now.getSeconds(), 2);
     }
 
-    static generateGraphName(): string {
-        return "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(Eagle.FileType.Graph);
+    static generateName(fileType: Eagle.FileType): string {
+        return fileType.toString() + "-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
     }
 
     static findNewKey(usedKeys : number[]): number {
@@ -217,6 +217,32 @@ export class Utils {
     }
 
     /**
+     * Create a new diagram (graph, palette, config).
+     */
+    static newDiagram(fileType : Eagle.FileType, callbackAction : (name : string) => void ) : void {
+        const defaultName: string = Utils.generateName(fileType);
+
+        Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false, (completed : boolean, userString : string) : void => {
+            if (!completed)
+            {   // Cancelling action.
+                return;
+            }
+            if (userString === ""){
+            Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
+                return;
+            }
+
+            // Adding file extension to the title if it does not have it.
+            if (!Utils.verifyFileExtension(userString)) {
+                userString = userString + "." + Utils.getDiagramExtension(fileType);
+            }
+
+            // Callback.
+            callbackAction(userString);
+        });
+    }
+
+    /**
      * Returns the file extension.
      * @param path File name.
      */
@@ -254,6 +280,8 @@ export class Utils {
             return "graph";
         } else if (fileType == Eagle.FileType.Palette) {
             return "palette";
+        } else if (fileType === Eagle.FileType.GraphConfig) {
+            return "cfg";
         } else {
             console.error("Utils.getDiagramExtension() : Unknown file type! (" + fileType + ")");
             return "";

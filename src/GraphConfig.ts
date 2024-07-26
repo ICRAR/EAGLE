@@ -6,6 +6,7 @@ import { Field } from "./Field";
 import { FileInfo } from "./FileInfo";
 import { LogicalGraph } from "./LogicalGraph";
 import { ParameterTable } from "./ParameterTable";
+import { Utils } from "./Utils";
 
 export class GraphConfigField {
     private id: ko.Observable<string>;

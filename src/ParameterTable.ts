@@ -333,6 +333,24 @@ export class ParameterTable {
         return result
     }
 
+    static requestAddField(currentField: Field): void {
+        const graphConfig: GraphConfig = Eagle.getInstance().graphConfig();
+
+        graphConfig.addField(currentField);
+
+        if (graphConfig.fileInfo().name === ""){
+
+            ParameterTable.closeModal();
+
+            Utils.newDiagram(Eagle.FileType.GraphConfig, (name: string) => {
+                graphConfig.fileInfo().name = name;
+                graphConfig.fileInfo.valueHasMutated();
+
+                ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
+            });
+        }
+    }
+
     static requestEditDescriptionInModal(currentField:Field) : void {
         const currentNode: Node = Eagle.getInstance().logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey());
 
@@ -495,8 +513,6 @@ export class ParameterTable {
     }
 
     static closeModal = (): void => {
-        // TODO!
-        console.log("closeModal!");
         $('#parameterTableModal').modal('hide')
         Eagle.getInstance().showTableModal(false)
     }
