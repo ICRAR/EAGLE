@@ -1311,19 +1311,96 @@ export class Eagle {
     }
 
     /**
+     * Loads a custom config from a file.
+     */
+    loadLocalConfigFile = () : void => {
+        const configFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("configFileToLoad");
+        const fileFullPath : string = configFileInputElement.value;
+        const eagle: Eagle = this;
+
+        // abort if value is empty string
+        if (fileFullPath === ""){
+            return;
+        }
+
+        // get a reference to the file in the html element
+        const file = configFileInputElement.files[0];
+        
+        // read the file
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsText(file, "UTF-8");
+            reader.onload = function (evt) {
+                const data: string = evt.target.result.toString();
+
+                eagle._loadConfigJSON(data, fileFullPath);
+
+                eagle.graphConfig().fileInfo().repositoryService = Repository.Service.File;
+                eagle.graphConfig().fileInfo.valueHasMutated();
+            }
+            reader.onerror = function (evt) {
+                console.error("error reading file", evt);
+            }
+        }
+        
+        // reset file selection element
+        configFileInputElement.value = "";
+    }
+
+    private _loadConfigJSON = (data: string, fileFullPath: string) => {
+        let dataObject;
+
+        // attempt to parse the JSON
+        try {
+            dataObject = JSON.parse(data);
+        }
+        catch(err){
+            Utils.showUserMessage("Error parsing file JSON", err.message);
+            return;
+        }
+
+        // determine file type
+        const loadedFileType : Eagle.FileType = Utils.determineFileType(dataObject);
+
+        // abort if not palette
+        if (loadedFileType !== Eagle.FileType.GraphConfig){
+            Utils.showUserMessage("Error", "This is not a config file! Looks like a " + loadedFileType);
+            return;
+        }
+
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const g : GraphConfig = GraphConfig.fromJson(data, errorsWarnings);
+
+        // show errors (if found)
+        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
+
+        // add new palette to the START of the palettes array
+        this.graphConfig(g);
+
+        // show the left window
+        this.leftWindow().shown(true);
+
+        Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
+    }
+
+    /**
      * The following two functions allows the file selectors to be hidden and let tags 'click' them
      */
-     getGraphFileToLoad = () : void => {
-         document.getElementById("graphFileToLoad").click();
-         this.resetEditor()
-     }
+    getGraphFileToLoad = () : void => {
+        document.getElementById("graphFileToLoad").click();
+        this.resetEditor()
+    }
 
-     getGraphFileToInsert = () : void => {
-         document.getElementById("graphFileToInsert").click();
-     }
+    getGraphFileToInsert = () : void => {
+        document.getElementById("graphFileToInsert").click();
+    }
 
     getPaletteFileToLoad = () : void => {
         document.getElementById("paletteFileToLoad").click();
+    }
+
+    getConfigFileToLoad = () : void => {
+        document.getElementById("configFileToLoad").click();
     }
 
     /**
@@ -1567,6 +1644,9 @@ export class Eagle {
                 this.savePaletteToDisk(destinationPalette);
                 break;
             }
+            case Eagle.FileType.GraphConfig:
+                this.saveConfigToDisk(this.graphConfig());
+                break;
             default:
                 Utils.showUserMessage("Not implemented", "Not sure which fileType right one to save locally :" + fileType);
                 break;
@@ -2419,6 +2499,12 @@ export class Eagle {
             graph.fileInfo().downloadUrl = "";
             graph.fileInfo.valueHasMutated();
         });
+    }
+
+    saveConfigToDisk = (config: GraphConfig): void => {
+        console.log("saveConfigToDisk()", config.fileInfo().name, config.fileInfo().type);
+
+        // TODO
     }
 
     savePaletteToGit = (palette: Palette): void => {
