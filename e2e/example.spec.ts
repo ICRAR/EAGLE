@@ -60,4 +60,7 @@ test('Eagle has title', async ({ page }) => {
   //wait for bootstrap modal then close
   await page.waitForTimeout(500);
   await page.locator('#parameterTableModal').getByRole('button', { name: 'Close' }).click();
+
+
+  await page.close();
 });

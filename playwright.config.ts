@@ -67,6 +67,7 @@ export default defineConfig({
         deviceScaleFactor: undefined,
         viewport:null,
       }
+      
     },
 
     /* Test against mobile viewports. */
