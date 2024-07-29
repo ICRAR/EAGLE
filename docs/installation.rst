@@ -1,21 +1,26 @@
 Installation
 ============
 
-Instructions of how to install and run the EAGLE. The primary method detailed below, using Docker images, is the preferred method.
+EAGLE can be installed and run in various ways. First off you don't need to install it at all, since there is a version maintained by us under https://eagle.icrar.org. If you want to run EAGLE locally, the various methods are detailed below. Using Docker images, is the preferred method.
 
 Docker Images
 -------------
 
-This is the preferred way to get EAGLE up and running both in an operational and in a development environment. It is based on an image from <https://github.com/tiangolo/meinheld-gunicorn-flask-docker> and packs meinheld, gunicorn, flask and EAGLE into a less than 400 MB docker image. When started, it runs EAGLE as a Flask WSGI application served by multiple gunicorn tasks.
+This is the preferred way to get EAGLE up and running both in an operational and in a development environment. It is based on an image from https://github.com/tiangolo/meinheld-gunicorn-flask-docker and packs meinheld, gunicorn, flask and EAGLE into a docker image. When started, it runs EAGLE as a Flask WSGI application served by multiple gunicorn tasks. There are three different targets to build docker images:
 
-There are two versions of the docker image build procedures, one for deployment and one for local development.
+    #. deployment (dep)
+    #. development (dev)
+    #. slim (slim)
 
 Deployment Image
 """"""""""""""""
 
-To build a deployment image:
+This is probably the most commonly used target. To build a deployment image:
 
-    git clone https://github.com/ICRAR/EAGLE.git; cd EAGLE
+.. code-block:: shell
+
+    git clone https://github.com/ICRAR/EAGLE.git
+    cd EAGLE
     ./build_eagle.sh dep
 
 This will build an image and tag it with the latest tag found on git. To start this image run:
@@ -49,6 +54,10 @@ will likely help.
 
 To stop the running container press CTRL+C in the terminal where the image was started (it is also possible to use './stop_eagle dev' from another command prompt).
 
+Slimmed Deployment Image
+""""""""""""""""""""""""
+This is mainly used for releases, but helps in keeping the size of the final image small. It is using the `SlimToolkit <https://github.com/slimtoolkit/slim>`_
+
 Non-docker installation
 -----------------------
 
@@ -64,7 +73,7 @@ Install NPM
 
 EAGLE is based on typescript and that and the supporting infrastructure needs to be installed first.
 
-MacOSX users should download the latest NodeJS Long Term Support (LTS) installer from <https://nodejs.org>
+MacOSX users should download the latest NodeJS Long Term Support (LTS) installer from https://nodejs.org
 
 Linux users should use apt
 
@@ -104,7 +113,9 @@ Virtualenvs are standard in python3 and the recommended method
 is to use pyenv. EAGLE does not impose any particular way of
 using virtual environments, but strongly recommends to use a separate one for EAGLE. Please refer to the documentation of your virtual environment system on how to do this. EAGLE has only been tested with the plain virtualenv and the pyenv. With pyenv this would look like:
 
-    pyenv virtualenv -p python3.6 eagle
+ .. code-block:: shell
+
+    pyenv virtualenv -p python3.8 eagle
     pyenv activate eagle
 
 Install EAGLE
@@ -115,7 +126,7 @@ Install EAGLE
 Start Server
 """"""""""""
 
-Simply start it using in the main directory:
+Simply start it using
 
     $ eagleServer -t /tmp
 
