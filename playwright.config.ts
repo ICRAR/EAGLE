@@ -47,28 +47,6 @@ export default defineConfig({
       }
     },
 
-    {
-      name: 'firefox',
-      use: { ...devices['Firefox']  ,
-        deviceScaleFactor: undefined,
-        viewport:null,
-        launchOptions: {
-          args: ["--start-maximized"],
-        }
-      }
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari']  ,
-        deviceScaleFactor: undefined,
-        viewport:null,
-        launchOptions: {
-          args: ["--start-maximized"],
-        }
-      }
-    },
-
     /* Test against mobile viewports. */
     // {
     //   name: 'Mobile Chrome',
