@@ -7,6 +7,8 @@ test('Eagle has title', async ({ page }) => {
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/EAGLE/);
 
+  await page.waitForTimeout(500);
+
   //open settings modal
   await page.locator('#settings').click()
 
