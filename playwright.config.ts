@@ -30,7 +30,8 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     launchOptions:{
-      args:['--window-size=1920,1080']
+      args:['--window-size=1920,1080'],
+      // slowMo: 500 //use for debugging to more easily see what is happening
     }
   },
 

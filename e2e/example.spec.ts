@@ -7,8 +7,6 @@ test('Eagle has title', async ({ page }) => {
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/EAGLE/);
 
-  await page.waitForTimeout(500);
-
   //open settings modal
   await page.locator('#settings').click()
 
@@ -21,7 +19,7 @@ test('Eagle has title', async ({ page }) => {
   await page.getByRole('button', { name: 'OK' }).click()
 
   //right click the hellow world app in the palette
-  await page.locator('#palette_0_HelloWorldApp').click({
+  await page.locator('#palette_0_CopyApp').click({
     button: 'right'
   });
 
@@ -44,10 +42,22 @@ test('Eagle has title', async ({ page }) => {
 
   //scroll the file node into view in the palette
   await page.locator('#palette_1_File').scrollIntoViewIfNeeded()
-  // await page.locator('#palette_1_File').dragTo('#graphArea'
   await page. dragAndDrop( '#palette_1_File' ,'#graphArea', {targetPosition:{x:700,y:700}})
+
   await page.waitForTimeout(500);
 
+  //drag an edge from helloWorldApp -> File
   await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
 
+  //center the graph
+  await page.getByRole('button', { name: 'filter_center_focus' }).click();
+
+  //click on the input port of the file to open the parameter table modal and highlight the port
+  await page.locator('.inputPort').click();
+  //rename the port
+  await page.locator('.highlighted .tableFieldDisplayName').fill('testInput');
+
+  //wait for bootstrap modal then close
+  await page.waitForTimeout(500);
+  await page.locator('#parameterTableModal').getByRole('button', { name: 'Close' }).dblclick();
 });
