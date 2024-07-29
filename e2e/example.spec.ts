@@ -1,24 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-// test('has title', async ({ page }) => {
-//   await page.goto('https://playwright.dev/');
-
-//   // Expect a title "to contain" a substring.
-//   await expect(page).toHaveTitle(/Playwright/);
-// });
-
-// test('get started link', async ({ page }) => {
-//   await page.goto('https://playwright.dev/');
-
-//   // Click the get started link.
-//   await page.getByRole('link', { name: 'Get started' }).click();
-
-//   // Expects page to have a heading with the name of Installation.
-//   await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
-// });
-
-
 test('Eagle has title', async ({ page }) => {
+  
   await page.goto('http://localhost:8888/');
 
   // Expect a title "to contain" a substring.
@@ -45,15 +28,24 @@ test('Eagle has title', async ({ page }) => {
 
   //select the input field to give the new palette a name
   await page.getByRole('textbox', { name: 'Custom Port Name' }).click();
-
   //write test
   await page.getByRole('textbox', { name: 'Custom Port Name' }).fill('test');
-
   //timeout for bootstrap animation and confirm the modal
   await page.waitForTimeout(500);
   await page.getByRole('button', { name: 'OK' }).click();
 
-  await page.locator('#addPaletteNodeGenericNpyScatterApp').click();
+  //add a helloworld app to the graph by clicking it's icon
+  await page.locator('#addPaletteNodeHelloWorldApp').click();
+  //agree to create a new graph with it's auto-generated name
   await page.waitForTimeout(500);
   await page.getByRole('button', { name: 'OK' }).click();
+
+  //scroll the file node into view in the palette
+  await page.locator('#palette_1_File').scrollIntoViewIfNeeded()
+  // await page.locator('#palette_1_File').dragTo('#graphArea'
+  await page. dragAndDrop( '#palette_1_File' ,'#graphArea', {targetPosition:{x:700,y:700}})
+  await page.waitForTimeout(500);
+
+  await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
+
 });
