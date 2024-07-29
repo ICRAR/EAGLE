@@ -42,6 +42,10 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] ,
         deviceScaleFactor: undefined,
         viewport:null,
+        launchOptions:{
+          args:['--window-size=1920,1080'],
+          // slowMo: 500 //use for debugging to more easily see what is happening
+        }
       }
     },
 
@@ -50,12 +54,18 @@ export default defineConfig({
       use: { ...devices['Firefox']  ,
         deviceScaleFactor: undefined,
         viewport:null,
+        launchOptions:{
+          args:['--window-size=1920,1080'],
+          // slowMo: 500 //use for debugging to more easily see what is happening
+        }
       }
     },
 
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari']  ,
+        deviceScaleFactor: undefined,
+        viewport:null,
       }
     },
 
