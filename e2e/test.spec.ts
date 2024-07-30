@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('Eagle has title', async ({ page }) => {
+  page.setViewportSize({width:1920,height:1080})
   
   await page.goto('http://localhost:8888/');
 
@@ -42,7 +43,7 @@ test('Eagle has title', async ({ page }) => {
 
   //scroll the file node into view in the palette
   await page.locator('#palette_1_File').scrollIntoViewIfNeeded()
-  await page.dragAndDrop( '#palette_1_File' ,'#graphArea', {targetPosition:{x:400,y:400}})
+  await page.dragAndDrop( '#palette_1_File' ,'#graphArea', {targetPosition:{x:500,y:500}})
 
   //center the graph
   await page.getByRole('button', { name: 'filter_center_focus' }).click();
