@@ -60,19 +60,19 @@ export default defineConfig({
     },
 
     //disabled webkit for now, as the '--window-size' argument does not work for it, i dont know how to set it to a bigger window size, and eagles tests fail because the screen is too small
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari']  ,
-    //     deviceScaleFactor: undefined,
-    //     viewport:null,
-    //     launchOptions:{
-    //       // args:['--window-size=1920,1080'],
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari']  ,
+        deviceScaleFactor: undefined,
+        viewport:null,
+        launchOptions:{
+          // args:['--window-size=1920,1080'],
 
-    //       // args:['screen=1920,1080'],
-    //     }
-    //   },
+          // args:['screen=1920,1080'],
+        }
+      },
       
-    // },
+    },
 
     /* Test against mobile viewports. */
     // {
