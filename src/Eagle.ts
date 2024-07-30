@@ -1414,7 +1414,7 @@ export class Eagle {
             this.undo().clear();
             this.undo().pushSnapshot(this, "New Logical Graph");
             this.logicalGraph.valueHasMutated();
-            Utils.showNotification("New Graph Created",name, "success");
+            Utils.showNotification("New Graph Created", name, "success");
         });
         this.resetEditor()
     }
@@ -1501,7 +1501,6 @@ export class Eagle {
         Utils.requestUserText("Export Graph to JSON", "", jsonString, null);
     }
 
-
     /**
      * Creates a new palette for editing.
      */
@@ -1516,6 +1515,8 @@ export class Eagle {
 
             // add to palettes
             this.palettes.unshift(p);
+
+            Utils.showNotification("New Palette Created", name, "success");
         });
     }
 
@@ -1565,6 +1566,39 @@ export class Eagle {
                 // can't be fetched
                 break;
          }
+    }
+
+    /**
+     * Creates a new graph configuration
+     */
+    newConfig = () : void => {
+        Utils.newDiagram(Eagle.FileType.GraphConfig, (name : string) => {
+            const c: GraphConfig = new GraphConfig();
+            c.fileInfo().name = name;
+
+            // mark the config as modified and readwrite
+            c.fileInfo().modified = true;
+            c.fileInfo().readonly = false;
+
+            // replace existing config
+            this.graphConfig(c);
+
+            Utils.showNotification("New Graph Config Created", name, "success");
+        });
+    }
+
+    /**
+    * Presents the user with a textarea in which to paste JSON. Reads the JSON and parses it into a palette.
+    */
+    newConfigFromJson = () : void => {
+        Utils.requestUserText("New Graph Config from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
+            if (!completed)
+            {   // Cancelling action.
+                return;
+            }
+
+            this._loadConfigJSON(userText, "");
+        });
     }
 
     saveGraph = () : void => {
