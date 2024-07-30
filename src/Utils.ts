@@ -301,7 +301,7 @@ export class Utils {
             return Eagle.FileType.Palette;
         if (fileType.toLowerCase() === "json")
             return Eagle.FileType.JSON;
-        if (fileType.toLowerCase() === "cfg")
+        if (fileType.toLowerCase() === "graphconfig" || fileType.toLowerCase() === "cfg")
             return Eagle.FileType.GraphConfig;
 
         return Eagle.FileType.Unknown;

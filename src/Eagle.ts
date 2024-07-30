@@ -1369,7 +1369,7 @@ export class Eagle {
         }
 
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const g : GraphConfig = GraphConfig.fromJson(data, errorsWarnings);
+        const g : GraphConfig = GraphConfig.fromJson(dataObject, errorsWarnings);
 
         // show errors (if found)
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
