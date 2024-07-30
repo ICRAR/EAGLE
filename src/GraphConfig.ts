@@ -337,20 +337,4 @@ export class GraphConfig {
             }
         }
     }
-
-    static async save() {
-        console.log("save()");
-
-        ParameterTable.closeModal();
-
-        try {
-            await Eagle.getInstance().commitToGitAs(Eagle.FileType.GraphConfig);
-        }
-        catch (reason){
-            console.log(reason);
-        }
-
-        console.log("openModal");
-        ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
-    }
 }
