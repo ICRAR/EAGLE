@@ -61,7 +61,7 @@ export class ComponentUpdater {
             }
            
             // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
-            destField.copyWithKeyAndId(srcField, destField.getNodeKey(), destField.getId());
+            destField.copyWithIds(srcField, destField.getNodeId(), destField.getId());
         }
     }
 }

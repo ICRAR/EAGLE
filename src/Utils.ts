@@ -58,6 +58,18 @@ export class Utils {
 
     static ojsPaletteSchema : object = {};
 
+    static generateNodeId(): NodeId {
+        return Utils._uuidv4() as NodeId;
+    }
+
+    static generateFieldId(): FieldId {
+        return Utils._uuidv4() as FieldId;
+    }
+
+    static generateEdgeId(): EdgeId {
+        return Utils._uuidv4() as EdgeId;
+    }
+
     /**
      * Generates a UUID.
      * See https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
@@ -65,7 +77,7 @@ export class Utils {
      *       crypto.getRandomValues() call that is not available in NodeJS
      */
 
-    static uuidv4() : string {
+    static _uuidv4() : string {
         if (typeof crypto.randomUUID !== "undefined"){
             return crypto.randomUUID();
         }
@@ -114,66 +126,24 @@ export class Utils {
         }
     }
 
-    static getUsedKeys(nodes : Node[]) : number[] {
-        // build a list of used keys
-        const usedKeys: number[] = [];
-
-        for (const node of nodes){
-            usedKeys.push(node.getKey())
-
-            // if this node has inputApp, add the inputApp key
-            if (node.hasInputApplication()){
-                usedKeys.push(node.getInputApplication().getKey());
-            }
-
-            // if this node has outputApp, add the outputApp key
-            if (node.hasOutputApplication()){
-                usedKeys.push(node.getOutputApplication().getKey());
-            }
-        }
-
-        return usedKeys;
-    }
-
-    static getUsedKeysFromNodeData(nodeData : any[]) : number[] {
-        // build a list of used keys
-        const usedKeys: number[] = [];
-
-        for (const node of nodeData){
-            usedKeys.push(node.key);
-        }
-
-        return usedKeys;
-    }
-
-    static newKey(nodes: Node[], usedKeys: number[] = []): number {
-        const allUsedKeys = Utils.getUsedKeys(nodes).concat(usedKeys);
-        return Utils.findNewKey(allUsedKeys);
-    }
-
-    static setEmbeddedApplicationNodeKeys(lg: LogicalGraph): void {
+    // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids)
+    static setEmbeddedApplicationNodeIds(lg: LogicalGraph): void {
         const nodes: Node[] = lg.getNodes();
-        const usedKeys: number[] = Utils.getUsedKeys(nodes);
 
-        // loop through nodes, look for embedded nodes with null key, create new key, add to usedKeys
+        // loop through nodes, look for embedded nodes with null id, create new id
         for (const node of nodes){
-            usedKeys.push(node.getKey())
 
-            // if this node has inputApp, add the inputApp key
+            // if this node has inputApp, set the inputApp id
             if (node.hasInputApplication()){
-                if (node.getInputApplication().getKey() === null){
-                    const newKey = Utils.findNewKey(usedKeys);
-                    node.getInputApplication().setKey(newKey);
-                    usedKeys.push(newKey);
+                if (node.getInputApplication().getId() === null){
+                    node.getInputApplication().setId(Utils.generateNodeId());
                 }
             }
 
-            // if this node has outputApp, add the outputApp key
+            // if this node has outputApp, set the outputApp id
             if (node.hasOutputApplication()){
-                if (node.getOutputApplication().getKey() === null){
-                    const newKey = Utils.findNewKey(usedKeys);
-                    node.getOutputApplication().setKey(newKey);
-                    usedKeys.push(newKey);
+                if (node.getOutputApplication().getId() === null){
+                    node.getOutputApplication().setId(Utils.generateNodeId());
                 }
             }
         }
@@ -1910,8 +1880,8 @@ export class Utils {
         field.setType(Daliuge.DataType.Object + "." + field.getType());
     }
 
-    static fixFieldKey(eagle: Eagle, node: Node, field: Field){
-        field.setNodeKey(node.getKey());
+    static fixFieldNodeId(eagle: Eagle, node: Node, field: Field){
+        field.setNodeId(node.getId());
     }
 
     static fixFieldUsage(eagle: Eagle, field: Field, usage: Daliuge.FieldUsage){

@@ -36,16 +36,15 @@ import { Setting } from './Setting';
 import { Utils } from './Utils';
 
 export class Node {
-    private _id : ko.Observable<string>;
-    private key : ko.Observable<number>;
+    private id : ko.Observable<NodeId>;
     private name : ko.Observable<string>;
     private description : ko.Observable<string>;
 
     private x : ko.Observable<number>;
     private y : ko.Observable<number>;
 
-    private parentKey : ko.Observable<number>;
-    private embedKey : ko.Observable<number>;
+    private parentId : ko.Observable<NodeId>;
+    private embedId : ko.Observable<NodeId>;
 
     private inputApplication : ko.Observable<Node>;
     private outputApplication : ko.Observable<Node>;
@@ -81,21 +80,16 @@ export class Node {
                                                    // (primary method is using parent-child relationships)
                                                    // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
 
-    constructor(key : number, name : string, description : string, category : Category){
-        this._id = ko.observable(Utils.uuidv4());
-        this.key = ko.observable(key);
+    constructor(name : string, description : string, category : Category){
+        this.id = ko.observable(Utils.generateNodeId());
         this.name = ko.observable(name);
         this.description = ko.observable(description);
 
         this.x = ko.observable(0);
         this.y = ko.observable(0);
-        
-        this.key = ko.observable(key);
-        this.name = ko.observable(name);
-        this.description = ko.observable(description);
 
-        this.parentKey = ko.observable(null);
-        this.embedKey = ko.observable(null);
+        this.parentId = ko.observable(null);
+        this.embedId = ko.observable(null);
 
         this.inputApplication = ko.observable(null);
         this.outputApplication = ko.observable(null);
@@ -125,25 +119,12 @@ export class Node {
         this.radius = ko.observable(EagleConfig.NORMAL_NODE_RADIUS);
     }
 
-    getId = () : string => {
-        return this._id();
+    getId = () : NodeId => {
+        return this.id();
     }
 
-    setId = (id: string) : void => {
-        this._id(id);
-    }
-
-    getKey = () : number => {
-        return this.key();
-    }
-
-    setKey = (key : number) : void => {
-        this.key(key);
-
-        // go through all fields on this node, and make sure their nodeKeys are all updated, important for ports
-        for (const field of this.fields()){
-            field.setNodeKey(key);
-        }
+    setId = (id: NodeId) : void => {
+        this.id(id);
     }
 
     getName = () : string => {
@@ -236,30 +217,31 @@ export class Node {
         this.drawOrderHint(drawOrderHint);
     }
 
-    getParentKey = () : number => {
-        return this.parentKey();
+    getParentId = () : NodeId => {
+        return this.parentId();
     }
 
-    setParentKey = (key : number) : void => {
+    setParentId = (id: NodeId) : void => {
+        // TODO: maybe we should allow this here and just check for the bad state in checkGraph() ?
         // check that we are not making this node its own parent
-        if (key === this.key()){
+        if (id === this.id()){
             console.warn("Setting node as its own parent!");
             return;
         }
 
-        this.parentKey(key);
+        this.parentId(id);
     }
 
-    getEmbedKey = () : number => {
-        return this.embedKey();
+    getEmbedId = () : NodeId => {
+        return this.embedId();
     }
 
-    setEmbedKey = (key : number) : void => {
-        this.embedKey(key);
+    setEmbedId = (id: NodeId) : void => {
+        this.embedId(id);
     }
 
     isEmbedded = () : boolean => {
-        return this.embedKey() !== null;
+        return this.embedId() !== null;
     }
 
     isCollapsed = () : boolean => {
@@ -738,8 +720,7 @@ export class Node {
     }
 
     clear = () : void => {
-        this._id("");
-        this.key(0);
+        this.id(null);
         this.name("");
         this.description("");
         this.x(0);
@@ -748,8 +729,8 @@ export class Node {
         this.color(Node.DEFAULT_COLOR);
         this.drawOrderHint(0);
 
-        this.parentKey(null);
-        this.embedKey(null);
+        this.parentId(null);
+        this.embedId(null);
         this.collapsed(true);
 
         this.inputApplication(null);
@@ -807,17 +788,17 @@ export class Node {
         return null;
     }
 
-    findPortInApplicationsById = (portId : string) : {key: number, port: Field} => {
+    findPortInApplicationsById = (portId : string) : {id: NodeId, port: Field} => {
         // if node has an inputApplication, check those ports too
         if (this.hasInputApplication()){
             for (const inputPort of this.inputApplication().getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {key: this.inputApplication().getKey(), port: inputPort};
+                    return {id: this.inputApplication().id(), port: inputPort};
                 }
             }
             for (const outputPort of this.inputApplication().getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {key: this.inputApplication().getKey(), port: outputPort};
+                    return {id: this.inputApplication().id(), port: outputPort};
                 }
             }
         }
@@ -826,20 +807,20 @@ export class Node {
         if (this.hasOutputApplication()){
             for (const inputPort of this.outputApplication().getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {key: this.outputApplication().getKey(), port: inputPort};
+                    return {id: this.outputApplication().id(), port: inputPort};
                 }
             }
             for (const outputPort of this.outputApplication().getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {key: this.outputApplication().getKey(), port: outputPort};
+                    return {id: this.outputApplication().id(), port: outputPort};
                 }
             }
         }
 
-        return {key: null, port: null};
+        return {id: null, port: null};
     }
 
-    findPortIndexById = (portId : string) : number => {
+    findPortIndexById = (portId: FieldId) : number => {
         // check input ports
         for (let i = 0; i < this.getInputPorts().length; i++){
             const port = this.getInputPorts()[i];
@@ -980,13 +961,13 @@ export class Node {
 
     addFieldByIndex = (field : Field, i : number) : void => {
         this.fields.splice(i, 0, field);
-        field.setNodeKey(this.key());
+        field.setNodeId(this.id());
     }
 
     setGroupStart = (value: boolean) => {
         if (!this.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_START)){
             this.addField(new Field(
-                Utils.uuidv4(),
+                Utils.generateFieldId(),
                 Daliuge.FieldName.GROUP_START,
                 value.toString(),
                 "false",
@@ -1007,7 +988,7 @@ export class Node {
     setGroupEnd = (value: boolean) => {
         if (!this.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_END)){
             this.addField(new Field(
-                Utils.uuidv4(),
+                Utils.generateFieldId(),
                 Daliuge.FieldName.GROUP_END,
                 value.toString(),
                 "false",
@@ -1317,7 +1298,7 @@ export class Node {
                node0.getCommitHash() !== node1.getCommitHash();
     }
 
-    static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean, generateKeyFunc: () => number) : Node {
+    static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
         let name = "";
         if (typeof nodeData.name !== 'undefined'){
             name = nodeData.name;
@@ -1342,13 +1323,6 @@ export class Node {
             y = nodeData.y;
         }
 
-        let key = 0;
-        if (typeof nodeData.key !== 'undefined' && nodeData.key !== null){
-            key = nodeData.key;
-        } else {
-            key = generateKeyFunc();
-        }
-
         // translate categories if required
         let category: Category = nodeData.category;
 
@@ -1358,7 +1332,7 @@ export class Node {
             category = Category.Unknown;
         }
 
-        const node : Node = new Node(key, name, "", category);
+        const node : Node = new Node(name, "", category);
         const categoryData: Category.CategoryData = CategoryData.getCategoryData(category);
 
         // set position

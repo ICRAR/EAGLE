@@ -157,8 +157,8 @@ export class LogicalGraph {
             result.nodes.push(newNode);
         }
 
-        // set keys for all embedded nodes
-        Utils.setEmbeddedApplicationNodeKeys(result);
+        // set ids for all embedded nodes
+        Utils.setEmbeddedApplicationNodeIds(result);
 
         // make sure to set parentId for all nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
@@ -402,7 +402,7 @@ export class LogicalGraph {
         return null;
     }
 
-    findNodeById = (id : string) : Node => {
+    findNodeById = (id: NodeId) : Node => {
         for (let i = this.nodes().length - 1; i >= 0 ; i--){
 
             // check if the node itself has a matching key
@@ -439,7 +439,7 @@ export class LogicalGraph {
     }
 
     removeNode = (node: Node) : void => {
-        const key = node.getKey();
+        const id = node.getId();
 
         // NOTE: this section handles an unusual case where:
         //  - the removed node is an embedded node within a construct
@@ -460,7 +460,7 @@ export class LogicalGraph {
         }
 
         // delete edges incident on this node
-        this.removeEdgesByKey(key);
+        this.removeEdgesById(id);
 
         // delete edges incident on the embedded apps of this node
         if (node.hasInputApplication()){
@@ -527,8 +527,8 @@ export class LogicalGraph {
         }
     }
 
-    // delete edges that start from or end at the node with the given key
-    removeEdgesByKey = (key: number) : void => {
+    // delete edges that start from or end at the node with the given id
+    removeEdgesById = (id: NodeId) : void => {
         for (let i = this.edges().length - 1 ; i >= 0; i--){
             const edge : Edge = this.edges()[i];
             if (edge.getSrcNodeKey() === key || edge.getDestNodeKey() === key){

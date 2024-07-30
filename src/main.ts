@@ -311,3 +311,14 @@ function autoTutorial(): void {
         },1000)
     }
 }
+
+declare const __brand: unique symbol
+type Brand<B> = { [__brand]: B }
+
+export type Branded<T, B> = T & Brand<B>
+
+declare global {
+    type NodeId = Branded<string, "NodeId">
+    type FieldId = Branded<string, "FieldId">
+    type EdgeId = Branded<string, "EdgeId">
+}

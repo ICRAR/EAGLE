@@ -33,11 +33,11 @@ import { Errors } from './Errors';
 import * as ko from "knockout";
 
 export class Edge {
-    private _id : string
-    private srcNodeKey : number;
-    private srcPortId : string;
-    private destNodeKey : number;
-    private destPortId : string;
+    private id: EdgeId;
+    private srcNodeId: NodeId;
+    private srcPortId: FieldId;
+    private destNodeId: NodeId;
+    private destPortId: FieldId;
     private loopAware : boolean; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
     private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
     private selectionRelative : boolean // indicates if the edge is either selected or attached to a selected node
@@ -45,7 +45,7 @@ export class Edge {
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of edge errors
 
     constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
-        this._id = Utils.uuidv4();
+        this.id = Utils.generateEdgeId();
 
         this.srcNodeKey = srcNodeKey;
         this.srcPortId = srcPortId;
@@ -64,7 +64,7 @@ export class Edge {
     }
 
     setId = (id: string) : void => {
-        this._id = id;
+        this.id = id;
     }
 
     getSrcNodeKey = () : number => {
