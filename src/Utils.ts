@@ -295,14 +295,18 @@ export class Utils {
             return Eagle.FileType.Unknown;
         }
 
-        if (fileType.toLowerCase() === "graph")
+        if (fileType.toLowerCase() === "graph"){
             return Eagle.FileType.Graph;
-        if (fileType.toLowerCase() === "palette")
+        }
+        if (fileType.toLowerCase() === "palette"){
             return Eagle.FileType.Palette;
-        if (fileType.toLowerCase() === "json")
+        }
+        if (fileType.toLowerCase() === "json"){
             return Eagle.FileType.JSON;
-        if (fileType.toLowerCase() === "graphconfig" || fileType.toLowerCase() === "cfg")
+        }
+        if (fileType.toLowerCase() === "graphconfig" || fileType.toLowerCase() === "cfg"){
             return Eagle.FileType.GraphConfig;
+        }
 
         return Eagle.FileType.Unknown;
     }
