@@ -795,11 +795,11 @@ export class Eagle {
                 return
             }
 
-            if(object.getParentKey() !== null){
+            if(object.getParentId() !== null){
                 let thisParentIsSelected = true
                 let thisObject = object
                 while (thisParentIsSelected){
-                    const thisParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(thisObject.getParentKey());
+                    const thisParent: Node = eagle.logicalGraph().findNodeByIdQuiet(thisObject.getParentId());
                     if(thisParent != null){
                         thisParentIsSelected = eagle.objectIsSelectedById(thisParent.getId())
                         if(thisParentIsSelected){
@@ -907,7 +907,7 @@ export class Eagle {
                 const data: string = evt.target.result.toString();
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(Utils.newKey(eagle.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
     
                     eagle.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
     
@@ -1082,8 +1082,8 @@ export class Eagle {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
-        const nodeIdMap: Map<NodeId, Node> = new Map();
-        const portIdMap: Map<FieldId, Field> = new Map();
+        const nodeMap: Map<NodeId, Node> = new Map();
+        const portMap: Map<FieldId, Field> = new Map();
         let parentNodePosition;
 
         // add the parent node to the logical graph
@@ -1108,7 +1108,7 @@ export class Eagle {
         for (const node of nodes){
             this.addNode(node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
                 // save mapping for node itself
-                nodeIdMap.set(node.getId(), insertedNode);
+                nodeMap.set(node.getId(), insertedNode);
 
                 // if insertedNode has no parent, make it a parent of the parent node
                 if (insertedNode.getParentId() === null && parentNode !== null){
@@ -1120,7 +1120,7 @@ export class Eagle {
                     const oldInputApplication : Node = node.getInputApplication();
                     const newInputApplication : Node = insertedNode.getInputApplication();
                    
-                    keyMap.set(oldInputApplication.getKey(), newInputApplication);
+                    nodeMap.set(oldInputApplication.getId(), newInputApplication);
 
                     // save mapping for input ports
                     for (let j = 0 ; j < oldInputApplication.getInputPorts().length; j++ ){
@@ -1139,7 +1139,7 @@ export class Eagle {
                     const oldOutputApplication : Node = node.getOutputApplication();
                     const newOutputApplication : Node = insertedNode.getOutputApplication();
                     
-                    keyMap.set(oldOutputApplication.getKey(), newOutputApplication);
+                    nodeMap.set(oldOutputApplication.getId(), newOutputApplication);
                     
                     // save mapping for input ports
                     for (let j = 0 ; j < oldOutputApplication.getInputPorts().length; j++){
@@ -1166,29 +1166,29 @@ export class Eagle {
 
         // update some other details of the nodes are updated correctly
         for (const node of nodes){
-            const insertedNode: Node = keyMap.get(node.getKey());
+            const insertedNode: Node = nodeMap.get(node.getId());
 
             // if original node has a parent, set the parent of the inserted node to the inserted parent
-            if (node.getParentKey() !== null){
+            if (node.getParentId() !== null){
                 // check if parent of original node was also mapped to a new node
-                const insertedParent: Node = keyMap.get(node.getParentKey());
+                const insertedParent: Node = nodeMap.get(node.getParentId());
 
                 // make sure parent is set correctly
                 // if no mapping is available for the parent, then set parent to the new parentNode, or if no parentNode exists, just set parent to null
                 // if a mapping is available, then use the mapped node as the parent for the new node
                 if (typeof insertedParent === 'undefined'){
                     if (parentNode === null){
-                        insertedNode.setParentKey(null);
+                        insertedNode.setParentId(null);
                     } else {
-                        insertedNode.setParentKey(parentNode.getKey());
+                        insertedNode.setParentId(parentNode.getId());
                     }
                 } else {
-                    insertedNode.setParentKey(insertedParent.getKey());
+                    insertedNode.setParentId(insertedParent.getId());
                 }
             }
 
-            if (node.getSubjectKey() !== null){
-                const subjectNode = this.logicalGraph().findNodeByKey(node.getSubjectKey());
+            if (node.getSubjectId() !== null){
+                const subjectNode = this.logicalGraph().findNodeById(node.getSubjectKey());
                 const insertedSubject: Node = keyMap.get(node.getSubjectKey());
 
                 if (typeof insertedSubject === 'undefined'){
