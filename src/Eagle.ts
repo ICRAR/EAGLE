@@ -1188,25 +1188,25 @@ export class Eagle {
             }
 
             if (node.getSubjectId() !== null){
-                const subjectNode = this.logicalGraph().findNodeById(node.getSubjectKey());
-                const insertedSubject: Node = keyMap.get(node.getSubjectKey());
+                const subjectNode = this.logicalGraph().findNodeById(node.getSubjectId());
+                const insertedSubject: Node = nodeMap.get(node.getSubjectId());
 
                 if (typeof insertedSubject === 'undefined'){
                     if (subjectNode === null){
-                        insertedNode.setSubjectKey(null);
+                        insertedNode.setSubjectId(null);
                     } else {
-                        insertedNode.setSubjectKey(subjectNode.getKey());
+                        insertedNode.setSubjectId(subjectNode.getId());
                     }
                 } else {
-                    insertedNode.setSubjectKey(insertedSubject.getKey());
+                    insertedNode.setSubjectId(insertedSubject.getId());
                 }
             }
         }
 
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
-            const srcNode = keyMap.get(edge.getSrcNodeKey());
-            const destNode = keyMap.get(edge.getDestNodeKey());
+            const srcNode = nodeMap.get(edge.getSrcNodeId());
+            const destNode = nodeMap.get(edge.getDestNodeId());
 
             if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
                 errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
@@ -1376,11 +1376,7 @@ export class Eagle {
             const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
 
             for (const n of clipboard.nodes){
-                const node = Node.fromOJSJson(n, null, false, (): number => {
-                    // TODO: add error to errorsWarnings
-                    console.error("Should not have to generate new key for node", n);
-                    return 0;
-                });
+                const node = Node.fromOJSJson(n, null, false);
 
                 nodes.push(node);
             }
@@ -2121,7 +2117,7 @@ export class Eagle {
             }
 
             // create parent node
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+            const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
             // perform insert
             this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
@@ -2227,19 +2223,19 @@ export class Eagle {
         this.resetEditor()
     }
 
-    getParentNameAndKey = (parentKey:number) : string => {
-        if(parentKey === null){
+    getParentNameAndId = (parentId: NodeId) : string => {
+        if(parentId === null){
             return ""
         }
 
         // TODO: temporary fix while we get lots of warnings about missing nodes
-        const parentNode = this.logicalGraph().findNodeByKeyQuiet(parentKey);
+        const parentNode = this.logicalGraph().findNodeByIdQuiet(parentId);
 
         if (parentNode === null){
             return ""
         }
 
-        const parentText = parentNode.getName() + ' | Key: ' + parentKey;
+        const parentText = parentNode.getName() + ' | Id: ' + parentId;
 
         return parentText
     }
@@ -2583,8 +2579,8 @@ export class Eagle {
         this.selectedEdge().toggleClosesLoop();
 
         // get nodes from edge
-        const sourceNode = this.logicalGraph().findNodeByKey(this.selectedEdge().getSrcNodeKey());
-        const destNode = this.logicalGraph().findNodeByKey(this.selectedEdge().getDestNodeKey());
+        const sourceNode = this.logicalGraph().findNodeById(this.selectedEdge().getSrcNodeId());
+        const destNode = this.logicalGraph().findNodeById(this.selectedEdge().getDestNodeId());
 
         sourceNode.setGroupEnd(this.selectedEdge().isClosesLoop());
         destNode.setGroupStart(this.selectedEdge().isClosesLoop());
@@ -2833,7 +2829,7 @@ export class Eagle {
         }
 
         // if input edge is null, then we are creating a new edge here, so initialise it with some default values
-        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getKey(), "", this.logicalGraph().getNodes()[0].getKey(), "", false, false, false);
+        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getId(), null, this.logicalGraph().getNodes()[0].getId(), null, false, false, false);
 
         // display edge editing modal UI
         Utils.requestUserEditEdge(newEdge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
@@ -2843,15 +2839,15 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
 
-            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
             const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
             const destPort: Field = destNode.findFieldById(edge.getDestPortId());
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
@@ -2888,15 +2884,15 @@ export class Eagle {
             }
 
             // validate edge
-            const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+            const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
             if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
                 Utils.showUserMessage("Error", "Invalid edge");
                 return;
             }
 
-            const srcNode: Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+            const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
             const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-            const destNode: Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+            const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
             const destPort: Field = destNode.findFieldById(edge.getDestPortId());
 
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
@@ -3011,7 +3007,7 @@ export class Eagle {
         if (copyChildren){
             for (const edge of this.logicalGraph().getEdges()){
                 for (const node of nodes){
-                    if (node.getKey() === edge.getSrcNodeKey() || node.getKey() === edge.getDestNodeKey()){
+                    if (node.getId() === edge.getSrcNodeId() || node.getId() === edge.getDestNodeId()){
                         this._addUniqueEdge(edges, edge);
                     }
                 }
@@ -3051,7 +3047,7 @@ export class Eagle {
         this._addUniqueNode(output, node);
 
         for (const n of nodes){
-            if (n.getParentKey() === node.getKey()){
+            if (n.getParentId() === node.getId()){
                 this._addNodeAndChildren(nodes, n, output);
             }
         }
@@ -3061,7 +3057,7 @@ export class Eagle {
     // only add the new node to the nodes list if it is not already present
     _addUniqueNode = (nodes: Node[], newNode: Node): void => {
         for (const node of nodes){
-            if (node.getKey() === newNode.getKey()){
+            if (node.getId() === newNode.getId()){
                 return;
             }
         }
@@ -3110,10 +3106,7 @@ export class Eagle {
         const edges : Edge[] = [];
 
         for (const n of clipboard.nodes){
-            const node = Node.fromOJSJson(n, errorsWarnings, false, (): number => {
-                console.error("Should not have to generate new key for node", n);
-                return 0;
-            });
+            const node = Node.fromOJSJson(n, errorsWarnings, false);
 
             nodes.push(node);
         }
@@ -3207,16 +3200,16 @@ export class Eagle {
                 destinationPalette.addNode(node, true);
 
                 // get key of just-added node
-                const key: number = destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].getKey();
+                const id: NodeId = destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].getId();
 
                 // check if clone has embedded applications, if so, add them to destination palette and remove
                 if (node.hasInputApplication()){
                     destinationPalette.addNode(node.getInputApplication(), true);
-                    destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedKey(key);
+                    destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedId(id);
                 }
                 if (node.hasOutputApplication()){
                     destinationPalette.addNode(node.getOutputApplication(), true);
-                    destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedKey(key);
+                    destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedId(id);
                 }
 
                 // mark the palette as modified
@@ -3226,6 +3219,7 @@ export class Eagle {
         });
     }
 
+    // TODO: mode enum?
     addSelectedNodesToPalette = (mode:string) : void => {
         const nodes = []
 
@@ -3344,7 +3338,7 @@ export class Eagle {
         // find child edges
         for (const edge of this.logicalGraph().getEdges()){
             for (const node of childNodes){
-                if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
+                if (edge.getSrcNodeId() === node.getId() || edge.getDestNodeId() === node.getId()){
                     // check if edge is already in selectedObjects
                     if (this.objectIsSelected(edge)){
                         continue;
@@ -3402,7 +3396,7 @@ export class Eagle {
         const children: Node[] = [];
 
         for(const node of this.logicalGraph().getNodes()){
-            if (node.getParentKey() === parent.getKey()){
+            if (node.getParentId() === parent.getId()){
                 children.push(node);
                 children.push(...this._findChildren(node));
             }
@@ -3464,8 +3458,8 @@ export class Eagle {
         for (const object of this.selectedObjects()){
             if (object instanceof Node){
                 for (const node of this.logicalGraph().getNodes()){
-                    if (node.getParentKey() === object.getKey()){
-                        node.setParentKey(object.getParentKey());
+                    if (node.getParentId() === object.getId()){
+                        node.setParentId(object.getParentId());
                     }
                 }
             }
@@ -3515,7 +3509,7 @@ export class Eagle {
         });
     }
 
-    addNodeToLogicalGraph = (node: Node, nodeId: string, mode: Eagle.AddNodeMode, callback: (node: Node) => void) : void => {
+    addNodeToLogicalGraph = (node: Node, nodeId: NodeId, mode: Eagle.AddNodeMode, callback: (node: Node) => void) : void => {
         let pos : {x:number, y:number};
         pos = {x:0,y:0}
         let searchAreaExtended = false; //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
@@ -3573,13 +3567,13 @@ export class Eagle {
             const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), true);
 
             // if a parent was found, update
-            if (parent !== null && newNode.getParentKey() !== parent.getKey() && newNode.getKey() !== parent.getKey()){
-                newNode.setParentKey(parent.getKey());
+            if (parent !== null && newNode.getParentId() !== parent.getId() && newNode.getId() !== parent.getId()){
+                newNode.setParentId(parent.getId());
             }
 
             // if no parent found, update
-            if (parent === null && newNode.getParentKey() !== null){
-                newNode.setParentKey(null);
+            if (parent === null && newNode.getParentId() !== null){
+                newNode.setParentId(null);
             }
 
             // determine whether we should also generate an object data drop along with this node
@@ -3603,14 +3597,14 @@ export class Eagle {
                 }
 
                 // create node
-                const poNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), poName, "Instance of " + poName, Category.PythonObject);
+                const poNode: Node = new Node(poName, "Instance of " + poName, Category.PythonObject);
 
                 // add node to LogicalGraph
                 const OBJECT_OFFSET_X = 100;
                 const OBJECT_OFFSET_Y = 100;
                 this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
                     // set parent to same as PythonMemberFunction
-                    pythonObjectNode.setParentKey(newNode.getParentKey());
+                    pythonObjectNode.setParentId(newNode.getParentId());
 
                     // copy all fields from a "PythonObject" node in the palette
                     Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
@@ -3621,13 +3615,13 @@ export class Eagle {
                     // make sure we can find a port on the PythonMemberFunction
                     if (sourcePort === null){
                         sourcePort = Daliuge.selfField.clone();
-                        sourcePort.setId(Utils.uuidv4());
+                        sourcePort.setId(Utils.generateFieldId());
                         newNode.addField(sourcePort);
                         Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
                     }
 
                     // create a new input/output "object" port on the PythonObject
-                    const inputOutputPort = new Field(Utils.uuidv4(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput, false);
+                    const inputOutputPort = new Field(Utils.generateFieldId(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput, false);
                     pythonObjectNode.addField(inputOutputPort);
 
                     // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)

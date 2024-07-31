@@ -226,7 +226,7 @@ $(function(){
 
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const eagle: Eagle = Eagle.getInstance();
-        const selectEdge = eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
+        const selectEdge = eagle.logicalGraph().findEdgeById(($(event.target).attr("id") as EdgeId))
 
         if(!selectEdge){
             console.log("no edge found")

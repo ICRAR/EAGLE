@@ -91,7 +91,7 @@ export class Edge {
         this.destNodeId = id;
     }
 
-    getDestPortId = () : string => {
+    getDestPortId = () : FieldId => {
         return this.destPortId;
     }
 
