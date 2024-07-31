@@ -3466,7 +3466,7 @@ export class Eagle {
         }
     }
 
-    addNodeToLogicalGraphAndConnect = (newNodeId: string) : void => {
+    addNodeToLogicalGraphAndConnect = (newNodeId: NodeId) : void => {
         this.addNodeToLogicalGraph(null, newNodeId, Eagle.AddNodeMode.ContextMenu, (node: Node)=>{
             const realSourceNode: Node = RightClick.edgeDropSrcNode;
             const realSourcePort: Field = RightClick.edgeDropSrcPort;
@@ -4034,7 +4034,7 @@ export class Eagle {
         // build list of nodes that are candidates to be the parent
         for (const node of this.logicalGraph().getNodes()){
             // a node can't be its own parent
-            if (node.getKey() === selectedNode.getKey()){
+            if (node.getId() === selectedNode.getId()){
                 continue;
             }
 
@@ -4047,11 +4047,11 @@ export class Eagle {
             validChoiceIndex++
 
             // if this node is already the parent, note its index, so that we can preselect this parent node in the modal dialog
-            if (node.getKey() === selectedNode.getParentKey()){
+            if (node.getId() === selectedNode.getParentId()){
                 selectedChoiceIndex = validChoiceIndex;
             }
 
-            nodeList.push(node.getName() + " : " + node.getKey());
+            nodeList.push(node.getName() + " : " + node.getId());
         }
 
         // add "None" to the list of possible parents
@@ -4065,13 +4065,13 @@ export class Eagle {
             const choice: string = nodeList[userChoiceIndex];
 
             // change the parent
-            const newParentKey : number = parseInt(choice.substring(choice.lastIndexOf(" ") + 1), 10);
+            const newParentId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1).toString() as NodeId
 
             // key '0' is a special case
-            if (newParentKey === 0){
-                selectedNode.setParentKey(null);
+            if (newParentId === null){
+                selectedNode.setParentId(null);
             } else {
-                selectedNode.setParentKey(newParentKey);
+                selectedNode.setParentId(newParentId);
             }
 
             // refresh the display

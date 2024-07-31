@@ -291,32 +291,33 @@ export class Modals {
             }
 
             // extract field data from HTML elements
-            const srcNodeKey : number = parseInt($('#editEdgeModalSrcNodeKeySelect').val().toString(), 10);
-            const srcPortId : string = $('#editEdgeModalSrcPortIdSelect').val().toString();
-            const destNodeKey : number = parseInt($('#editEdgeModalDestNodeKeySelect').val().toString(), 10);
-            const destPortId: string = $('#editEdgeModalDestPortIdSelect').val().toString();
+            // TODO: validate ids
+            const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
+            const srcPortId: FieldId = $('#editEdgeModalSrcPortIdSelect').val().toString() as FieldId;
+            const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
+            const destPortId: FieldId = $('#editEdgeModalDestPortIdSelect').val().toString() as FieldId;
             const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
             const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
 
-            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, loopAware, closesLoop, false);
+            const newEdge = new Edge(srcNodeId, srcPortId, destNodeId, destPortId, loopAware, closesLoop, false);
 
             callback(true, newEdge);
         });
-        $('#editEdgeModalSrcNodeKeySelect').on('change', function(){
+        $('#editEdgeModalSrcNodeIdSelect').on('change', function(){
             const edge: Edge = $('#editEdgeModal').data('edge');
             const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
-            const srcNodeKey : number = parseInt($('#editEdgeModalSrcNodeKeySelect').val().toString(), 10);
-            edge.setSrcNodeKey(srcNodeKey);
+            const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
+            edge.setSrcNodeId(srcNodeId);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
         });
-        $('#editEdgeModalDestNodeKeySelect').on('change', function(){
+        $('#editEdgeModalDestNodeIdSelect').on('change', function(){
             const edge: Edge = $('#editEdgeModal').data('edge');
             const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
-            const destNodeKey : number = parseInt($('#editEdgeModalDestNodeKeySelect').val().toString(), 10);
-            edge.setDestNodeKey(destNodeKey);
+            const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
+            edge.setDestNodeKey(destNodeId);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
         });
