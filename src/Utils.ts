@@ -1375,7 +1375,7 @@ export class Utils {
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
-            Edge.isValid(eagle, false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {warnings: [], errors: []});
+            Edge.isValid(eagle, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {warnings: [], errors: []});
         }
     }
 
@@ -1684,11 +1684,11 @@ export class Utils {
         return value.toLowerCase() === "true";
     }
 
-    static fixDeleteEdge(eagle: Eagle, edgeId: string): void {
+    static fixDeleteEdge(eagle: Eagle, edgeId: EdgeId): void {
         eagle.logicalGraph().removeEdgeById(edgeId);
     }
 
-    static fixDisableEdgeLoopAware(eagle: Eagle, edgeId: string): void {
+    static fixDisableEdgeLoopAware(eagle: Eagle, edgeId: EdgeId): void {
         eagle.logicalGraph().findEdgeById(edgeId)?.setLoopAware(false)
     }
 
@@ -1786,7 +1786,7 @@ export class Utils {
         return result;
     }
 
-    static _mergeEdges(eagle: Eagle, oldFieldId: string, newFieldId: string){
+    static _mergeEdges(eagle: Eagle, oldFieldId: FieldId, newFieldId: FieldId){
         // update all edges to use new field
         for (const edge of eagle.logicalGraph().getEdges()){
             // update src port
@@ -1802,7 +1802,7 @@ export class Utils {
     }
 
     static fixFieldId(eagle: Eagle, field: Field){
-        field.setId(Utils.uuidv4());
+        field.setId(Utils.generateFieldId());
     }
 
     static fixFieldValue(eagle: Eagle, node: Node, exampleField: Field, value: string){
@@ -1811,7 +1811,7 @@ export class Utils {
         // if a field was not found, clone one from the example and add to node
         if (field === null){
             field = exampleField.clone();
-            field.setId(Utils.uuidv4());
+            field.setId(Utils.generateFieldId());
             node.addField(field);
         }
 
@@ -1886,10 +1886,10 @@ export class Utils {
         }
     }
 
-    static addSourcePortToSourceNode(eagle: Eagle, edgeId: string){
+    static addSourcePortToSourceNode(eagle: Eagle, edgeId: EdgeId){
         const edge = eagle.logicalGraph().findEdgeById(edgeId);
-        const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-        const destNode = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+        const srcNode = eagle.logicalGraph().findNodeById(edge.getSrcNodeId());
+        const destNode = eagle.logicalGraph().findNodeById(edge.getDestNodeId());
         const destPort = destNode.findFieldById(edge.getDestPortId());
 
         // abort fix if source port exists on source node
@@ -1907,10 +1907,10 @@ export class Utils {
         srcNode.addField(srcPort);
     }
 
-    static addDestinationPortToDestinationNode(eagle: Eagle, edgeId: string){
+    static addDestinationPortToDestinationNode(eagle: Eagle, edgeId: EdgeId){
         const edge = eagle.logicalGraph().findEdgeById(edgeId);
-        const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-        const destNode = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+        const srcNode = eagle.logicalGraph().findNodeById(edge.getSrcNodeId());
+        const destNode = eagle.logicalGraph().findNodeById(edge.getDestNodeId());
         const srcPort = srcNode.findFieldById(edge.getSrcPortId());
 
         // abort fix if destination port exists on destination node
@@ -1928,17 +1928,17 @@ export class Utils {
         destNode.addField(destPort);
     }
 
-    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: string){
+    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: EdgeId){
         const edge = eagle.logicalGraph().findEdgeById(edgeId);
-        const srcNode = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-        const destNode = eagle.logicalGraph().findNodeByKey(edge.getDestNodeKey());
+        const srcNode = eagle.logicalGraph().findNodeById(edge.getSrcNodeId());
+        const destNode = eagle.logicalGraph().findNodeById(edge.getDestNodeId());
 
         // if the SOURCE node is a construct, find the port within the embedded apps, and modify the edge with a new source node
         if (srcNode.getCategoryType() === Category.Type.Construct){
             const embeddedApplicationKeyAndPort = srcNode.findPortInApplicationsById(edge.getSrcPortId());
 
-            if (embeddedApplicationKeyAndPort.key !== null){
-                edge.setSrcNodeKey(embeddedApplicationKeyAndPort.key);
+            if (embeddedApplicationKeyAndPort.id !== null){
+                edge.setSrcNodeId(embeddedApplicationKeyAndPort.id);
             }
         }
 
@@ -1946,8 +1946,8 @@ export class Utils {
         if (destNode.getCategoryType() === Category.Type.Construct){
             const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPortId());
 
-            if (embeddedApplicationKeyAndPort.key !== null){
-                edge.setDestNodeKey(embeddedApplicationKeyAndPort.key);
+            if (embeddedApplicationKeyAndPort.id !== null){
+                edge.setDestNodeKey(embeddedApplicationKeyAndPort.id);
             }
         }
     }
@@ -1986,14 +1986,14 @@ export class Utils {
             const dummyField = Utils.findDummyField(node, requiredField.isInputPort());
             if (dummyField){
                 field = dummyField;
-                field.copyWithKeyAndId(requiredField, field.getNodeKey(), field.getId());
+                field.copyWithIds(requiredField, field.getNodeId(), field.getId());
             }
         }
 
         // otherwise, if not found, just add a clone of the required field
         if (!field){
             field = requiredField.clone();
-            field.setId(Utils.uuidv4());
+            field.setId(Utils.generateFieldId());
             node.addField(field);
         }
 
@@ -2166,9 +2166,8 @@ export class Utils {
         for (const node of nodesList){
             tableData.push({
                 "name":node.getName(),
-                "key":node.getKey(),
                 "id":node.getId(),
-                "parentKey":node.getParentKey(),
+                "parentId":node.getParentId(),
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
                 "expanded":node.getExpanded(),
@@ -2176,12 +2175,12 @@ export class Utils {
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
                 "radius":node.getRadius(),
-                "inputAppKey":node.getInputApplication() === null ? null : node.getInputApplication().getKey(),
+                "inputAppId":node.getInputApplication() === null ? null : node.getInputApplication().getId(),
                 "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
-                "inputAppEmbedKey":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedKey(),
-                "outputAppKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getKey(),
+                "inputAppEmbedId":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedId(),
+                "outputAppId":node.getOutputApplication() === null ? null : node.getOutputApplication().getId(),
                 "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
-                "outputAppEmbedKey":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedKey()
+                "outputAppEmbedId":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedId()
             });
         }
 
@@ -2196,9 +2195,9 @@ export class Utils {
         for (const edge of eagle.logicalGraph().getEdges()){
             tableData.push({
                 "_id":edge.getId(),
-                "sourceNodeKey":edge.getSrcNodeKey(),
+                "sourceNodeId":edge.getSrcNodeId(),
                 "sourcePortId":edge.getSrcPortId(),
-                "destNodeKey":edge.getDestNodeKey(),
+                "destNodeId":edge.getDestNodeId(),
                 "destPortId":edge.getDestPortId(),
                 "loopAware":edge.isLoopAware(),
                 "isSelectionRelative":edge.getSelectionRelative()
@@ -2218,9 +2217,8 @@ export class Utils {
                 tableData.push({
                     "palette":palette.fileInfo().name,
                     "name":node.getName(),
-                    "key":node.getKey(),
                     "id":node.getId(),
-                    "embedKey":node.getEmbedKey(),
+                    "embedId":node.getEmbedId(),
                     "category":node.getCategory(),
                     "categoryType":node.getCategoryType(),
                     "numFields":node.getNumFields(),
@@ -2250,7 +2248,7 @@ export class Utils {
             tableData.push({
                 "id":field.getId(),
                 "displayText":field.getDisplayText(),
-                "nodeKey":field.getNodeKey(),
+                "nodeId":field.getNodeId(),
                 "type":field.getType(),
                 "parameterType":field.getParameterType(),
                 "usage":field.getUsage(),
@@ -2398,25 +2396,24 @@ export class Utils {
             }
 
             // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
-            destField.copyWithKeyAndId(field, destField.getNodeKey(), destField.getId());
+            destField.copyWithIds(field, destField.getNodeId(), destField.getId());
         }
     }
 
     static duplicateNode(node: Node, usedKeys: number[] = []): Node {
         const eagle: Eagle = Eagle.getInstance();
         const newNode = node.clone();
-        const newNodeKey = Utils.newKey(eagle.logicalGraph().getNodes(), usedKeys);
-        let newInputAppKey: number = 0;
-        let newOutputAppKey: number = 0;
+        const newNodeId = Utils.generateNodeId();
+        let newInputAppId: NodeId = null;
+        let newOutputAppId: NodeId = null;
 
         // set appropriate key for node (one that is not already in use)
-        newNode.setId(Utils.uuidv4());
-        newNode.setKey(newNodeKey);
-        newNode.setEmbedKey(null);
+        newNode.setId(newNodeId);
+        newNode.setEmbedId(null);
 
         // set new ids for any fields in this node
         for (const field of newNode.getFields()){
-            field.setId(Utils.uuidv4());
+            field.setId(Utils.generateFieldId());
         }
 
         // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
@@ -2426,21 +2423,19 @@ export class Utils {
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
                 for (const field of clone.getFields()){
-                    field.setId(Utils.uuidv4());
+                    field.setId(Utils.generateFieldId());
                 }
             }
             newNode.setInputApplication(clone)
 
             // find a new key (prevent re-use of newNodeKey)
-            newInputAppKey = Utils.newKey(eagle.logicalGraph().getNodes(), usedKeys.concat([newNodeKey]));
-            newNode.getInputApplication().setKey(newInputAppKey);
-
-            newNode.getInputApplication().setId(Utils.uuidv4());
-            newNode.getInputApplication().setEmbedKey(newNode.getKey());
+            newInputAppId = Utils.generateNodeId();
+            newNode.getInputApplication().setId(newInputAppId);
+            newNode.getInputApplication().setEmbedId(newNode.getId());
 
             // set new ids for any fields in this node
             for (const field of newNode.getInputApplication().getFields()){
-                field.setId(Utils.uuidv4());
+                field.setId(Utils.generateFieldId());
             }
         }
         if (node.hasOutputApplication()){
@@ -2449,21 +2444,19 @@ export class Utils {
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
                 for (const field of clone.getFields()){
-                    field.setId(Utils.uuidv4());
+                    field.setId(Utils.generateFieldId());
                 }
             }
             newNode.setOutputApplication(clone)
 
             // find a new key (prevent re-use of newNodeKey or newInputAppKey)
-            newOutputAppKey = Utils.newKey(eagle.logicalGraph().getNodes(), usedKeys.concat([newNodeKey, newInputAppKey]));
-            newNode.getOutputApplication().setKey(newOutputAppKey);
-
-            newNode.getOutputApplication().setId(Utils.uuidv4());
-            newNode.getOutputApplication().setEmbedKey(newNode.getKey());
+            newOutputAppId = Utils.generateNodeId();
+            newNode.getOutputApplication().setId(newOutputAppId);
+            newNode.getOutputApplication().setEmbedId(newNode.getId());
 
             // set new ids for any fields in this node
             for (const field of newNode.getOutputApplication().getFields()){
-                field.setId(Utils.uuidv4());
+                field.setId(Utils.generateFieldId());
             }
         }
 

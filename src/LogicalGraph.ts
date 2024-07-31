@@ -451,7 +451,7 @@ export class LogicalGraph {
         }
     }
 
-    findEdgeById = (id: string) : Edge => {
+    findEdgeById = (id: EdgeId) : Edge => {
         for (let i = this.edges().length - 1; i >= 0 ; i--){
             if (this.edges()[i].getId() === id){
                 return this.edges()[i];
@@ -460,7 +460,7 @@ export class LogicalGraph {
         return null;
     }
 
-    removeEdgeById = (id: string) : void => {
+    removeEdgeById = (id: EdgeId) : void => {
         let found = false;
 
         for (let i = this.edges().length - 1; i >= 0 ; i--){
@@ -757,7 +757,7 @@ export class LogicalGraph {
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Node (" + node.getName() + ") does not have a unique id",
                     function(){Utils.showNode(eagle, node.getId())},
-                    function(){Utils.newId(node)},
+                    function(){node.setId(Utils.generateNodeId())},
                     "Assign node a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
@@ -786,7 +786,7 @@ export class LogicalGraph {
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Edge (" + edge.getId() + ") does not have a unique id",
                     function(){Utils.showEdge(eagle, edge.getId())},
-                    function(){Utils.newId(edge)},
+                    function(){edge.setId(Utils.generateEdgeId())},
                     "Assign edge a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
