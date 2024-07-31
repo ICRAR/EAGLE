@@ -44,12 +44,12 @@ export class Edge {
     private isShortEdge : ko.Observable<boolean>;
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of edge errors
 
-    constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
+    constructor(srcNodeId: NodeId, srcPortId: FieldId, destNodeId: NodeId, destPortId: FieldId, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
         this.id = Utils.generateEdgeId();
 
-        this.srcNodeKey = srcNodeKey;
+        this.srcNodeId = srcNodeId;
         this.srcPortId = srcPortId;
-        this.destNodeKey = destNodeKey;
+        this.destNodeId = destNodeId;
         this.destPortId = destPortId;
 
         this.loopAware = loopAware;
@@ -59,36 +59,36 @@ export class Edge {
         this.issues = ko.observableArray([]);
     }
 
-    getId = () : string => {
-        return this._id;
+    getId = () : EdgeId => {
+        return this.id;
     }
 
-    setId = (id: string) : void => {
+    setId = (id: EdgeId) : void => {
         this.id = id;
     }
 
-    getSrcNodeKey = () : number => {
-        return this.srcNodeKey;
+    getSrcNodeId = () : NodeId => {
+        return this.srcNodeId;
     }
 
-    setSrcNodeKey = (key: number): void => {
-        this.srcNodeKey = key;
+    setSrcNodeId = (id: NodeId): void => {
+        this.srcNodeId = id;
     }
 
-    getSrcPortId = () : string => {
+    getSrcPortId = () : FieldId => {
         return this.srcPortId;
     }
 
-    setSrcPortId = (id: string) : void => {
+    setSrcPortId = (id: FieldId) : void => {
         this.srcPortId = id;
     }
 
-    getDestNodeKey = () : number => {
-        return this.destNodeKey;
+    getDestNodeId = () : NodeId => {
+        return this.destNodeId;
     }
 
-    setDestNodeKey = (key: number): void => {
-        this.destNodeKey = key;
+    setDestNodeKey = (id: NodeId): void => {
+        this.destNodeId = id;
     }
 
     getDestPortId = () : string => {
@@ -99,7 +99,7 @@ export class Edge {
         return this.selectionRelative;
     }
 
-    setDestPortId = (id: string) : void => {
+    setDestPortId = (id: FieldId) : void => {
         this.destPortId = id;
     }
 
@@ -152,19 +152,19 @@ export class Edge {
     }
 
     clear = () : void => {
-        this._id = "";
-        this.srcNodeKey = 0;
-        this.srcPortId = "";
-        this.destNodeKey = 0;
-        this.destPortId = "";
+        this.id = null;
+        this.srcNodeId = null;
+        this.srcPortId = null;
+        this.destNodeId = null;
+        this.destPortId = null;
         this.loopAware = false;
         this.closesLoop = false;
     }
 
     clone = () : Edge => {
-        const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, this.selectionRelative);
+        const result : Edge = new Edge(this.srcNodeId, this.srcPortId, this.destNodeId, this.destPortId, this.loopAware, this.closesLoop, this.selectionRelative);
 
-        result._id = this._id;
+        result.id = this.id;
 
         return result;
     }
@@ -190,9 +190,9 @@ export class Edge {
 
     static toOJSJson(edge : Edge) : object {
         return {
-            from: edge.srcNodeKey,
+            from: edge.srcNodeId,
             fromPort: edge.srcPortId,
-            to: edge.destNodeKey,
+            to: edge.destNodeId,
             toPort: edge.destPortId,
             loop_aware: edge.loopAware ? "1" : "0",
             closesLoop: edge.closesLoop
@@ -201,15 +201,15 @@ export class Edge {
 
     static fromOJSJson(linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge {
         // try to read source and destination nodes and ports
-        let srcNodeKey : number = 0;
+        let srcNodeId : string = "";
         let srcPortId : string = "";
-        let destNodeKey : number = 0;
+        let destNodeId : string = "";
         let destPortId : string = "";
 
         if (typeof linkData.from === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'from' attribute"));
         } else {
-            srcNodeKey = linkData.from;
+            srcNodeId = linkData.from;
         }
         if (typeof linkData.fromPort === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'fromPort' attribute"));
@@ -219,7 +219,7 @@ export class Edge {
         if (typeof linkData.to === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'to' attribute"));
         } else {
-            destNodeKey = linkData.to;
+            destNodeId = linkData.to;
         }
         if (typeof linkData.toPort === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'toPort' attribute"));
@@ -242,51 +242,8 @@ export class Edge {
             closesLoop = linkData.closesLoop;
         }
 
-        return new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, loopAware, closesLoop, false);
-    }
-
-    static toV3Json(edge : Edge) : object {
-        return {
-            srcNode: edge.srcNodeKey.toString(),
-            srcPort: edge.srcPortId,
-            destNode: edge.destNodeKey.toString(),
-            destPort: edge.destPortId,
-            loop_aware: edge.loopAware ? "1" : "0",
-            closesLoop: edge.closesLoop
-        }
-    }
-
-    static fromV3Json(edgeData: any, errorsWarnings: Errors.ErrorsWarnings): Edge {
-        return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, edgeData.loop_aware === "1", edgeData.closesLoop, false);
-    }
-
-    static toAppRefJson(edge : Edge, lg: LogicalGraph) : object {
-        const result : any = {
-            from: edge.srcNodeKey,
-            fromPort: edge.srcPortId,
-            to: edge.destNodeKey,
-            toPort: edge.destPortId,
-            loopAware: edge.loopAware,
-            closesLoop: edge.closesLoop
-        };
-
-        // if srcNode is an embedded application, add a 'fromRef' attribute to the edge
-        const srcNode : Node = lg.findNodeByKey(edge.srcNodeKey);
-        if (srcNode.getEmbedKey() !== null){
-            result.fromRef = srcNode.getEmbedKey();
-        }
-
-        // if destNode is an embedded application, add a 'toRef' attribute to the edge
-        const destNode : Node = lg.findNodeByKey(edge.destNodeKey);
-        if (destNode.getEmbedKey() != null){
-            result.toRef = destNode.getEmbedKey();
-        }
-
-        return result;
-    }
-
-    static fromAppRefJson(edgeData: any, errorsWarnings: Errors.ErrorsWarnings): Edge {
-        return new Edge(edgeData.from, edgeData.fromPort, edgeData.to, edgeData.toPort, edgeData.loopAware, edgeData.closesLoop, false);
+        // TODO: validate ids
+        return new Edge(srcNodeId, srcPortId, destNodeId, destPortId, loopAware, closesLoop, false);
     }
 
     static isValid(eagle: Eagle, draggingPortMode:boolean, edgeId: string, sourceNodeKey : number, sourcePortId : string, destinationNodeKey : number, destinationPortId : string, loopAware: boolean, closesLoop: boolean, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
@@ -409,9 +366,9 @@ export class Edge {
         }
 
         // check relationship of destination Node in relation to source node
-        const isParentOfConstruct : boolean = sourceNode.getParentKey() === destinationNode.getEmbedKey() && sourceNode.getParentKey() !== null; // is the connection from a child of a construct to an embedded app of the same construct
-        const isChildOfConstruct : boolean = destinationNode.getParentKey() === sourceNode.getEmbedKey() && destinationNode.getParentKey() !== null; //is the connections from an embedded app of a construct to a child of that same construct
-        const isSibling : boolean = sourceNode.getParentKey() === destinationNode.getParentKey(); // do the two nodes have the same parent
+        const isParentOfConstruct : boolean = sourceNode.getParentId() === destinationNode.getEmbedId() && sourceNode.getParentId() !== null; // is the connection from a child of a construct to an embedded app of the same construct
+        const isChildOfConstruct : boolean = destinationNode.getParentId() === sourceNode.getEmbedId() && destinationNode.getParentId() !== null; //is the connections from an embedded app of a construct to a child of that same construct
+        const isSibling : boolean = sourceNode.getParentId() === destinationNode.getParentId(); // do the two nodes have the same parent
         let associatedConstructType : Category = null; //the category type of the parent construct of the source or destination node
 
         //these checks are to see if the source or destination node are embedded apps whose parent is a sibling of the other source or destination node
