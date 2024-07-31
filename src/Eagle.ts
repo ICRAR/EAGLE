@@ -785,16 +785,6 @@ export class Eagle {
         return false;
     }
 
-    objectIsSelectedByKey = (key: number): boolean => {
-        for (const o of this.selectedObjects()){
-            if (o instanceof Node && o.getKey() === key){
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     getOutermostSelectedNodes = () : Node[] => {
         const outermostNodes : Node[] = []
         const selectedNodes = this.selectedObjects()
@@ -1001,7 +991,7 @@ export class Eagle {
         }
 
         // create new subgraph
-        const parentNode: Node = new Node(Utils.newKey(eagle.logicalGraph().getNodes()), "Subgraph", "", Category.SubGraph);
+        const parentNode: Node = new Node("Subgraph", "", Category.SubGraph);
 
         // add the parent node to the logical graph
         this.logicalGraph().addNodeComplete(parentNode);
@@ -1013,16 +1003,16 @@ export class Eagle {
             }
 
             // if already parented to a node in this selection, skip
-            const parentKey = node.getParentKey();
+            const parentKey = node.getParentId();
             if (parentKey !== null){
-                const parent = this.logicalGraph().findNodeByKey(parentKey);
+                const parent = this.logicalGraph().findNodeById(parentKey);
                 if (this.objectIsSelected(parent)){
                     continue;
                 }
             }
 
             // update selection
-            node.setParentKey(parentNode.getKey());
+            node.setParentId(parentNode.getId());
         }
 
         // shrink/expand subgraph node to fit children
@@ -1062,7 +1052,7 @@ export class Eagle {
             const userChoice: string = constructs[userChoiceIndex];
 
             // create new subgraph
-            const parentNode: Node = new Node(Utils.newKey(this.logicalGraph().getNodes()), userChoice, "", <Category>userChoice);
+            const parentNode: Node = new Node(userChoice, "", userChoice as Category);
 
             // add the parent node to the logical graph
             this.logicalGraph().addNodeComplete(parentNode);
@@ -1073,7 +1063,7 @@ export class Eagle {
                     continue;
                 }
 
-                node.setParentKey(parentNode.getKey());
+                node.setParentId(parentNode.getId());
             }
 
             // shrink/expand subgraph node to fit children
@@ -1092,8 +1082,8 @@ export class Eagle {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
-        const keyMap: Map<number, Node> = new Map();
-        const portMap: Map<string, Field> = new Map();
+        const nodeIdMap: Map<NodeId, Node> = new Map();
+        const portIdMap: Map<FieldId, Field> = new Map();
         let parentNodePosition;
 
         // add the parent node to the logical graph
@@ -1118,11 +1108,11 @@ export class Eagle {
         for (const node of nodes){
             this.addNode(node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
                 // save mapping for node itself
-                keyMap.set(node.getKey(), insertedNode);
+                nodeIdMap.set(node.getId(), insertedNode);
 
                 // if insertedNode has no parent, make it a parent of the parent node
-                if (insertedNode.getParentKey() === null && parentNode !== null){
-                    insertedNode.setParentKey(parentNode.getKey());
+                if (insertedNode.getParentId() === null && parentNode !== null){
+                    insertedNode.setParentId(parentNode.getId());
                 }
                 
                 // copy embedded input application
