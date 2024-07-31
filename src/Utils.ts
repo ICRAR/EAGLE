@@ -109,23 +109,6 @@ export class Utils {
         return "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(Eagle.FileType.Graph);
     }
 
-    static findNewKey(usedKeys : number[]): number {
-        for (let i = -1 ; ; i--){
-            let found = false;
-
-            for (const usedKey of usedKeys){
-                if (i === usedKey){
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found){
-                return i;
-            }
-        }
-    }
-
     // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids)
     static setEmbeddedApplicationNodeIds(lg: LogicalGraph): void {
         const nodes: Node[] = lg.getNodes();
@@ -796,14 +779,14 @@ export class Utils {
 
         // populate UI with current edge data
         // add src node keys
-        $('#editEdgeModalSrcNodeKeySelect').empty();
+        $('#editEdgeModalSrcNodeIdSelect').empty();
         for (const node of logicalGraph.getNodes()){
             // if node itself can have output ports, add the node to the list
             if (node.canHaveOutputs()){
-                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
+                $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
+                    value: node.getId(),
                     text: node.getName(),
-                    selected: edge.getSrcNodeKey() === node.getKey()
+                    selected: edge.getSrcNodeId() === node.getId()
                 }));
             }
 
@@ -811,10 +794,10 @@ export class Utils {
             if (node.hasInputApplication()){
                 const inputApp = node.getInputApplication();
 
-                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
-                    value: inputApp.getKey(),
+                $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
+                    value: inputApp.getId(),
                     text: inputApp.getName(),
-                    selected: edge.getSrcNodeKey() === inputApp.getKey()
+                    selected: edge.getSrcNodeId() === inputApp.getId()
                 }));
             }
 
@@ -822,21 +805,22 @@ export class Utils {
             if (node.hasOutputApplication()){
                 const outputApp = node.getOutputApplication();
 
-                $('#editEdgeModalSrcNodeKeySelect').append($('<option>', {
-                    value: outputApp.getKey(),
+                $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
+                    value: outputApp.getId(),
                     text: outputApp.getName(),
-                    selected: edge.getSrcNodeKey() === outputApp.getKey()
+                    selected: edge.getSrcNodeId() === outputApp.getId()
                 }));
             }
         }
 
         // make sure srcNode reflects what is actually selected in the UI
-        const srcNodeKey : number = parseInt(<string>$('#editEdgeModalSrcNodeKeySelect').val(), 10);
+        // TODO: validate id
+        const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
 
-        if (isNaN(srcNodeKey)){
+        if (srcNodeId === null){
             srcNode = null;
         } else {
-            srcNode = logicalGraph.findNodeByKey(srcNodeKey);
+            srcNode = logicalGraph.findNodeById(srcNodeId);
         }
 
         // check that source node was found, if not, disable SrcPortIdSelect?
@@ -855,13 +839,13 @@ export class Utils {
         }
 
         // add dest node keys
-        $('#editEdgeModalDestNodeKeySelect').empty();
+        $('#editEdgeModalDestNodeIdSelect').empty();
         for (const node of logicalGraph.getNodes()){
             if (node.canHaveInputs()){
-                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
-                    value: node.getKey(),
+                $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
+                    value: node.getId(),
                     text: node.getName(),
-                    selected: edge.getDestNodeKey() === node.getKey()
+                    selected: edge.getDestNodeId() === node.getId()
                 }));
             }
 
@@ -869,10 +853,10 @@ export class Utils {
             if (node.hasInputApplication()){
                 const inputApp = node.getInputApplication();
 
-                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
-                    value: inputApp.getKey(),
+                $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
+                    value: inputApp.getId(),
                     text: inputApp.getName(),
-                    selected: edge.getDestNodeKey() === inputApp.getKey()
+                    selected: edge.getDestNodeId() === inputApp.getId()
                 }));
             }
 
@@ -880,21 +864,21 @@ export class Utils {
             if (node.hasOutputApplication()){
                 const outputApp = node.getOutputApplication();
 
-                $('#editEdgeModalDestNodeKeySelect').append($('<option>', {
-                    value: outputApp.getKey(),
+                $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
+                    value: outputApp.getId(),
                     text: outputApp.getName(),
-                    selected: edge.getDestNodeKey() === outputApp.getKey()
+                    selected: edge.getDestNodeId() === outputApp.getId()
                 }));
             }
         }
 
         // make sure srcNode reflects what is actually selected in the UI
-        const destNodeKey : number = parseInt(<string>$('#editEdgeModalDestNodeKeySelect').val(), 10);
+        const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
 
-        if (isNaN(destNodeKey)){
+        if (destNodeId === null){
             destNode = null;
         } else {
-            destNode = logicalGraph.findNodeByKey(destNodeKey);
+            destNode = logicalGraph.findNodeById(destNodeId);
         }
 
         // check that dest node was found, if not, disable DestPortIdSelect?
@@ -1351,14 +1335,14 @@ export class Utils {
         const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
         const paletteIssues : {issue:Errors.Issue, validity:Errors.Validity}[]=[]
         // check for duplicate keys
-        const keys: number[] = [];
+        const keys: NodeId[] = [];
 
         for (const node of palette.getNodes()){
             // check existing keys
-            if (keys.indexOf(node.getKey()) !== -1){
-                errorsWarnings.errors.push(Errors.Message("Key " + node.getKey() + " used by multiple components in palette."));
+            if (keys.indexOf(node.getId()) !== -1){
+                errorsWarnings.errors.push(Errors.Message("Key " + node.getId() + " used by multiple components in palette."));
             } else {
-                keys.push(node.getKey());
+                keys.push(node.getId());
             }
         }
 
