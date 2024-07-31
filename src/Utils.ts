@@ -1716,16 +1716,16 @@ export class Utils {
         node.addField(field);
     }
 
-    static fixNodeFieldIds(eagle: Eagle, nodeKey: number){
-        const node: Node = eagle.logicalGraph().findNodeByKey(nodeKey);
+    static fixNodeFieldIds(eagle: Eagle, nodeId: NodeId){
+        const node: Node = eagle.logicalGraph().findNodeById(nodeId);
 
         if (node === null){
             return;
         }
 
         for (const field of node.getFields()){
-            if (field.getId() === ""){
-                field.setId(Utils.uuidv4());
+            if (field.getId() === null){
+                field.setId(Utils.generateFieldId());
             }
         }
     }

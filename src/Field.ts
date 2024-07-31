@@ -520,7 +520,7 @@ export class Field {
 
             //check if the node name matches, but only if using the key parameter table modal
             if(eagle.tableModalType() === 'keyParametersTableModal'){
-                if(Eagle.getInstance().logicalGraph().findNodeByKey(that.nodeKey()).getName().toLowerCase().indexOf(term) >= 0){
+                if(Eagle.getInstance().logicalGraph().findNodeById(that.nodeId()).getName().toLowerCase().indexOf(term) >= 0){
                     result = true
                 }
             }
@@ -968,7 +968,7 @@ export class Field {
                     }
                 }
 
-                const message = "Node " + node.getKey() + " (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
+                const message = "Node " + node.getId() + " (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
                 const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldParameterType(eagle, node, field, suitableType)}, "Switch to suitable type, or remove if no suitable type");
                 field.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
