@@ -485,15 +485,15 @@ export class LogicalGraph {
         }
     }
 
-    portIsLinked = (nodeKey : number, portId : string) : any => {
+    portIsLinked = (nodeId: NodeId, portId: FieldId) : any => {
         let result:{input:boolean,output:boolean} = {'input':false,'output':false}
         let input = false
         let output = false
         for (const edge of this.edges()){
-            if(edge.getSrcNodeKey() === nodeKey && edge.getSrcPortId() === portId){
+            if(edge.getSrcNodeId() === nodeId && edge.getSrcPortId() === portId){
                 output = true
             }
-            if(edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
+            if(edge.getDestNodeId() === nodeId && edge.getDestPortId() === portId){
                 input = true
             }
         }
@@ -517,7 +517,7 @@ export class LogicalGraph {
 
         // loop through all nodes, finding all children and determining minimum bounding box to contain all children
         for (const n of this.nodes()){
-            if (n.getParentKey() === node.getKey()){
+            if (n.getParentId() === node.getId()){
                 numChildren += 1;
 
                 if (n.getPosition().x < minX){
@@ -566,11 +566,11 @@ export class LogicalGraph {
 
             iterations += 1;
 
-            if (n.getParentKey() === null){
+            if (n.getParentId() === null){
                 break;
             }
 
-            n = this.findNodeByKey(n.getParentKey());
+            n = this.findNodeById(n.getParentId());
 
             if (n === null){
                 break;
@@ -595,7 +595,7 @@ export class LogicalGraph {
                 
                 for(const object of eagle.selectedObjects()){
                     // abort if checking for self!
-                    if (object instanceof Node && object.getKey() === node.getKey()){
+                    if (object instanceof Node && object.getId() === node.getId()){
                         nodeIsSelected=true
                         break
                     }
@@ -630,7 +630,7 @@ export class LogicalGraph {
         let maxDepthOverlap: Node = null;
 
         for (const overlap of overlaps){
-            const depth = this.findDepthByKey(overlap.getKey());
+            const depth = this.findDepthById(overlap.getId());
 
             if (depth > maxDepth){
                 maxDepth = depth;
@@ -642,13 +642,13 @@ export class LogicalGraph {
         return maxDepthOverlap;
     }
 
-    findDepthByKey = (key: number) : number => {
-        const node = this.findNodeByKey(key);
-        let parentKey = node.getParentKey();
+    findDepthById = (id: NodeId) : number => {
+        const node = this.findNodeById(id);
+        let parentId: NodeId = node.getParentId();
         let depth = 0;
         let iterations = 0;
 
-        while (parentKey !== null){
+        while (parentId !== null){
             if (iterations > 10){
                 console.error("too many iterations in findDepthByKey()");
                 break;
@@ -656,7 +656,7 @@ export class LogicalGraph {
 
             iterations += 1;
             depth += 1;
-            parentKey = this.findNodeByKey(parentKey).getParentKey();
+            parentId = this.findNodeById(parentId).getParentId();
         }
 
         return depth;
@@ -667,11 +667,11 @@ export class LogicalGraph {
         return this.getChildrenOfNodeByKey(null);
     }
 
-    getChildrenOfNodeByKey = (key: number) : Node[] => {
+    getChildrenOfNodeByKey = (id: NodeId) : Node[] => {
         const result: Node[] = [];
 
         for (const node of this.nodes()){
-            if (node.getParentKey() === key){
+            if (node.getParentId() === id){
                 result.push(node);
             }
         }
@@ -687,7 +687,7 @@ export class LogicalGraph {
         for (let i = 0 ; i < this.nodes().length ; i++){
             const node = this.nodes()[i];
 
-            const depth = this.findDepthByKey(node.getKey());
+            const depth = this.findDepthById(node.getId());
 
             indexPlusDepths.push({index:i, depth:depth});
         }
