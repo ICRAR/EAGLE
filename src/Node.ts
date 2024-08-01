@@ -1388,16 +1388,6 @@ export class Node {
             node.drawOrderHint(nodeData.drawOrderHint);
         }
 
-        // keys for embedded applications
-        let inputApplicationKey: number = null;
-        let outputApplicationKey: number = null;
-        if (typeof nodeData.inputApplicationKey !== 'undefined'){
-            inputApplicationKey = nodeData.inputApplicationKey;
-        }
-        if (typeof nodeData.outputApplicationKey !== 'undefined'){
-            outputApplicationKey = nodeData.outputApplicationKey;
-        }
-
         // read embedded application data from node
         let inputApplicationName: string = "";
         let inputApplicationType: Category = Category.None;
@@ -1440,7 +1430,7 @@ export class Node {
             } else {
                 // check applicationType is an application
                 if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, inputApplicationName, inputApplicationType, inputApplicationDescription, node.getId()));
+                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationName, inputApplicationType, inputApplicationDescription, node.getId()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
                 }
@@ -1453,7 +1443,7 @@ export class Node {
             } else {
                 // check applicationType is an application
                 if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationKey, inputApplicationName, inputApplicationType, inputApplicationDescription, node.getId()));
+                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationName, inputApplicationType, inputApplicationDescription, node.getId()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
                 }
@@ -1466,7 +1456,7 @@ export class Node {
             } else {
                 // check applicationType is an application
                 if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, outputApplicationName, outputApplicationType, outputApplicationDescription, node.getId()));
+                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationName, outputApplicationType, outputApplicationDescription, node.getId()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
                 }
@@ -1478,7 +1468,7 @@ export class Node {
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
                 if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationKey, outputApplicationName, outputApplicationType, outputApplicationDescription, node.getId()));
+                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationName, outputApplicationType, outputApplicationDescription, node.getId()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
                 }
@@ -1735,7 +1725,7 @@ export class Node {
                 }
             }
             node.inputApplication().addField(port);
-            errorsWarnings.warnings.push(Errors.Message("Moved input port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getId() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getKey() + ")"));
+            errorsWarnings.warnings.push(Errors.Message("Moved input port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getId() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getId() + ")"));
         } else {
             if (!node.hasOutputApplication()){
                 if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
@@ -1747,7 +1737,7 @@ export class Node {
                 }
             }
             node.outputApplication().addField(port);
-            errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getId() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getKey() + ")"));
+            errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ", " + node.getId() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getId() + ")"));
         }
     }
 
@@ -1882,23 +1872,23 @@ export class Node {
         if (node.hasInputApplication()){
             result.inputApplicationName = node.inputApplication().name();
             result.inputApplicationType = node.inputApplication().category();
-            result.inputApplicationKey  = node.inputApplication().key();
+            result.inputApplicationId  = node.inputApplication().id();
             result.inputApplicationDescription = node.inputApplication().description();
         } else {
             result.inputApplicationName = "";
             result.inputApplicationType = Category.None;
-            result.inputApplicationKey  = null;
+            result.inputApplicationId  = null;
             result.inputApplicationDescription = "";
         }
         if (node.hasOutputApplication()){
             result.outputApplicationName = node.outputApplication().name();
             result.outputApplicationType = node.outputApplication().category();
-            result.outputApplicationKey  = node.outputApplication().key();
+            result.outputApplicationId  = node.outputApplication().id();
             result.outputApplicationDescription = node.outputApplication().description();
         } else {
             result.outputApplicationName = "";
             result.outputApplicationType = Category.None;
-            result.outputApplicationKey  = null;
+            result.outputApplicationId  = null;
             result.outputApplicationDescription = "";
         }
 

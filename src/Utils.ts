@@ -2041,22 +2041,18 @@ export class Utils {
         eagle.undo().pushSnapshot(eagle, "Fix");
     }
 
-    static newId(object: Node | Edge): void {
-        object.setId(Utils.uuidv4());
-    }
-
     static newFieldId(eagle: Eagle, node: Node, field: Field): void {
         const oldId = field.getId();
-        const newId: string = Utils.uuidv4();
+        const newId: FieldId = Utils.generateFieldId();
     
         // loop over all edges
         for (const edge of eagle.logicalGraph().getEdges()){
             // update the src port id, if required
-            if (edge.getSrcNodeKey() === node.getKey() && edge.getSrcPortId() === oldId){
+            if (edge.getSrcNodeId() === node.getId() && edge.getSrcPortId() === oldId){
                 edge.setSrcPortId(newId);
             }
             // update the dest port id, if required
-            if (edge.getDestNodeKey() === node.getKey() && edge.getDestPortId() === oldId){
+            if (edge.getDestNodeId() === node.getId() && edge.getDestPortId() === oldId){
                 edge.setDestPortId(newId);
             }
         }
@@ -2065,14 +2061,14 @@ export class Utils {
         field.setId(newId);
     }
     
-    static showEdge(eagle: Eagle, edgeId: string): void {
+    static showEdge(eagle: Eagle, edgeId: EdgeId): void {
         // close errors modal if visible
         $('#errorsModal').modal("hide");
 
         eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
 
-    static showNode(eagle: Eagle, nodeId: string): void {
+    static showNode(eagle: Eagle, nodeId: NodeId): void {
         let n: Node = null;
         let location : Eagle.FileType
 
@@ -2104,8 +2100,8 @@ export class Utils {
         eagle.setSelection(Eagle.RightWindowMode.Inspector, n, location);
     }
 
-    static showField(eagle:Eagle, nodeId:string,field:Field) :void {
-        this.showNode(eagle,nodeId)
+    static showField(eagle: Eagle, nodeId: NodeId, field: Field) :void {
+        this.showNode(eagle, nodeId)
         setTimeout(function(){
             const node = eagle.selectedNode()
             eagle.openParamsTableModalAndSelectField(node, field)
