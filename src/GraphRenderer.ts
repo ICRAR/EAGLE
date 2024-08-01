@@ -1471,7 +1471,7 @@ export class GraphRenderer {
         let maxY : number = -Number.MAX_VALUE;
         for (const node of graphNodes){
             
-            if (!node.isEmbedded() && node.getParentKey() === construct.getKey()){
+            if (!node.isEmbedded() && node.getParentId() === construct.getId()){
                 childCount++
                 if (node.getPosition().x - node.getRadius() < minX){
                     minX = node.getPosition().x - node.getRadius();
@@ -1500,7 +1500,8 @@ export class GraphRenderer {
         GraphRenderer.resizeConstruct(construct)
     }
 
-    static setNewEmbeddedApp (nodeId:string,mode:string) :void {
+    // TODO: mode parameter could be a boolean?
+    static setNewEmbeddedApp(nodeId: NodeId, mode: string) :void {
         const eagle = Eagle.getInstance()
         const parentNode = eagle.selectedNode()
         RightClick.closeCustomContextMenu(true)
@@ -1549,11 +1550,11 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
 
         // get id of parent nodeIndex
-        const parentKey : number = node.getKey();
+        const parentId: NodeId = node.getId();
 
         // loop through all nodes, if they belong to the parent's group, move them too
         for (const node of eagle.logicalGraph().getNodes()){
-            if (node.getParentKey() === parentKey){
+            if (node.getParentId() === parentId){
                 node.changePosition(deltaX, deltaY);
                 GraphRenderer.moveChildNodes(node, deltaX, deltaY);
             }
@@ -1649,7 +1650,7 @@ export class GraphRenderer {
         
         //preparing necessary port info
         GraphRenderer.draggingPort = true
-        GraphRenderer.portDragSourceNode(eagle.logicalGraph().findNodeByKey(port.getNodeKey()));
+        GraphRenderer.portDragSourceNode(eagle.logicalGraph().findNodeById(port.getNodeId()));
         GraphRenderer.portDragSourcePort(port);
         GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
         GraphRenderer.renderDraggingPortEdge(true);
@@ -1770,7 +1771,7 @@ export class GraphRenderer {
         }
 
         // check if link is valid
-        const linkValid : Errors.Validity = Edge.isValid(eagle, true, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
+        const linkValid : Errors.Validity = Edge.isValid(eagle, true, null, realSourceNode.getId(), realSourcePort.getId(), realDestinationNode.getId(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
         if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Errors.Validity.Error) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning || linkValid === Errors.Validity.Fixable){
@@ -1911,11 +1912,11 @@ export class GraphRenderer {
 
             // check if node has connected input and output
             for (const edge of graph.getEdges()){
-                if (edge.getDestNodeKey() === node.getKey()){
+                if (edge.getDestNodeId() === node.getId()){
                     nodeHasConnectedInput = true;
                 }
 
-                if (edge.getSrcNodeKey() === node.getKey()){
+                if (edge.getSrcNodeId() === node.getId()){
                     nodeHasConnectedOutput = true;
                 }
             }
@@ -1952,12 +1953,12 @@ export class GraphRenderer {
 
         let depth : number = 0;
         let node : Node = nodes[index];
-        let nodeKey : number;
-        let nodeParentKey : number = node.getParentKey();
+        let nodeId: NodeId;
+        let nodeParentId: NodeId = node.getParentId();
         let iterations = 0;
 
         // follow the chain of parents
-        while (nodeParentKey != null){
+        while (nodeParentId != null){
             if (iterations > 10){
                 console.error("too many iterations in findDepthOfNode()");
                 break;
@@ -1966,17 +1967,18 @@ export class GraphRenderer {
             iterations += 1;
             depth += 1;
             depth += node.getDrawOrderHint() / 10;
-            nodeKey = node.getKey();
-            nodeParentKey = node.getParentKey();
+            nodeId = node.getId();
+            nodeParentId = node.getParentId();
 
-            if (nodeParentKey === null){
+            if (nodeParentId === null){
                 return depth;
             }
 
-            node = GraphRenderer.findNodeWithKey(nodeParentKey, nodes);
+            // TODO: could we use 
+            node = GraphRenderer.findNodeWithId(nodeParentId, nodes);
 
             if (node === null){
-                console.error("Node", nodeKey, "has parentKey", nodeParentKey, "but call to findNodeWithKey(", nodeParentKey, ") returned null");
+                console.error("Node", nodeId, "has parentId", nodeParentId, "but call to findNodeWithId(", nodeParentId, ") returned null");
                 return depth;
             }
 
@@ -2049,9 +2051,9 @@ export class GraphRenderer {
             for (const port of node.getPorts()){
                 let isValid: Errors.Validity
                 if(!GraphRenderer.portDragSourcePortIsInput){
-                    isValid = Edge.isValid(eagle, true, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
+                    isValid = Edge.isValid(eagle, true, null, sourceNode.getId(), sourcePort.getId(), node.getId(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }else{
-                    isValid = Edge.isValid(eagle, true, "", node.getKey(), port.getId(), sourceNode.getKey(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
+                    isValid = Edge.isValid(eagle, true, null, node.getId(), port.getId(), sourceNode.getId(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }
                 const isValidIndex: number = Object.values(Errors.Validity).indexOf(isValid);
 
@@ -2124,7 +2126,7 @@ export class GraphRenderer {
 
         const eagle = Eagle.getInstance();
         GraphRenderer.destinationPort = port;
-        GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
+        GraphRenderer.destinationNode = eagle.logicalGraph().findNodeById(port.getNodeId());
 
         //if the port we are dragging from and are hovering one are the same type of port return an error
         if(usage === 'input' && GraphRenderer.portDragSourcePortIsInput || usage === 'output' && !GraphRenderer.portDragSourcePortIsInput){
@@ -2138,9 +2140,9 @@ export class GraphRenderer {
         let isValid: Errors.Validity
 
         if(!GraphRenderer.portDragSourcePortIsInput){
-            isValid = Edge.isValid(eagle, true, "", GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
+            isValid = Edge.isValid(eagle, true, null, GraphRenderer.portDragSourceNode().getId(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getId(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
         }else{
-            isValid = Edge.isValid(eagle, true, "", GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), false, false, false, false, {errors:[], warnings:[]});
+            isValid = Edge.isValid(eagle, true, null, GraphRenderer.destinationNode.getId(), GraphRenderer.destinationPort.getId(), GraphRenderer.portDragSourceNode().getId(), GraphRenderer.portDragSourcePort().getId(), false, false, false, false, {errors:[], warnings:[]});
         }
         GraphRenderer.isDraggingPortValid(isValid);
     }
@@ -2261,8 +2263,8 @@ export class GraphRenderer {
 
     static setPortPeekForEdge(edge:Edge, value:boolean) : void {
         const eagle = Eagle.getInstance();
-        const inputPort = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey()).findFieldById(edge.getSrcPortId())
-        const outputPort = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey()).findFieldById(edge.getDestPortId())
+        const inputPort = eagle.logicalGraph().findNodeByIdQuiet(edge.getSrcNodeId()).findFieldById(edge.getSrcPortId())
+        const outputPort = eagle.logicalGraph().findNodeByIdQuiet(edge.getDestNodeId()).findFieldById(edge.getDestPortId())
         
         // if the input port found, set peek
         if (inputPort !== null){
@@ -2286,7 +2288,7 @@ export class GraphRenderer {
         let selectedColor: string = EagleConfig.getColor('edgeDefaultSelected');
 
         // check if source node is an event, if so, draw in blue
-        const srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        const srcNode : Node = eagle.logicalGraph().findNodeById(edge.getSrcNodeId());
 
         if (srcNode !== null){
             const srcPort : Field = srcNode.findFieldById(edge.getSrcPortId());
