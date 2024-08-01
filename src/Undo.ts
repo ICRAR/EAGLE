@@ -186,7 +186,7 @@ export class Undo {
     // in this function, we use the ids of the old selectedObjects, and attempt to add the matching objects in the new snapshot to the selectedObjects list
     _updateSelection = () : void => {
         const eagle: Eagle = Eagle.getInstance();
-        const objectIds: string[] = [];
+        const objectIds: (NodeId | EdgeId)[] = [];
 
         // build a list of the ids of the selected objects
         for (const object of eagle.selectedObjects()){
@@ -198,8 +198,8 @@ export class Undo {
 
         // find the objects in the ids list, and add them to the selection
         for (const id of objectIds){
-            const node = eagle.logicalGraph().findNodeById(id);
-            const edge = eagle.logicalGraph().findEdgeById(id);
+            const node = eagle.logicalGraph().findNodeById(id as NodeId);
+            const edge = eagle.logicalGraph().findEdgeById(id as EdgeId);
             const object = node || edge;
 
             // abort if no edge or node exists fot that id

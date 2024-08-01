@@ -4099,7 +4099,7 @@ export class Eagle {
             const node : Node = this.logicalGraph().getNodes()[i];
 
             // if this node is already the subject, note its index, so that we can preselect this subject node in the modal dialog
-            if (node.getKey() === selectedNode.getSubjectKey()){
+            if (node.getId() === selectedNode.getSubjectId()){
                 selectedChoiceIndex = i;
             }
 
@@ -4108,7 +4108,7 @@ export class Eagle {
                 continue;
             }
 
-            nodeList.push(node.getName() + " : " + node.getKey());
+            nodeList.push(node.getName() + " : " + node.getId());
         }
 
         // ask user for parent
@@ -4119,8 +4119,8 @@ export class Eagle {
             const choice = nodeList[userChoiceIndex];
 
             // change the subject
-            const newSubjectKey : number = parseInt(choice.substring(choice.lastIndexOf(" ") + 1), 10);
-            selectedNode.setSubjectKey(newSubjectKey);
+            const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId;
+            selectedNode.setSubjectId(newSubjectId);
 
             // refresh the display
             this.checkGraph();
@@ -4187,7 +4187,7 @@ export class Eagle {
 
         // add each of the nodes we are moving
         for (const sourceComponent of sourceComponents){
-            this.addNodeToLogicalGraph(sourceComponent, "", Eagle.AddNodeMode.Default, null);
+            this.addNodeToLogicalGraph(sourceComponent, null, Eagle.AddNodeMode.Default, null);
 
             // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
             Eagle.nodeDropLocation.x += 20;
@@ -4290,7 +4290,7 @@ export class Eagle {
             $("#addParameterWrapper").show();
 
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field(Utils.uuidv4(), "", "", "", "", false, Daliuge.DataType.Integer, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false);
+            const field: Field = new Field(Utils.generateFieldId(), "", "", "", "", false, Daliuge.DataType.Integer, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false);
 
             Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
                 // abort if the user aborted
@@ -4316,7 +4316,7 @@ export class Eagle {
                 } else {
                     console.log('field: ',this.currentField().getDisplayText())
                     const clone : Field = this.currentField().clone();
-                    clone.setId(Utils.uuidv4());
+                    clone.setId(Utils.generateFieldId());
                     clone.setParameterType(parameterType);
                     node.addField(clone);
                 }
@@ -4345,7 +4345,7 @@ export class Eagle {
                 }
 
                 // update field data (keep existing nodeKey and id)
-                field.copyWithKeyAndId(newField, field.getNodeKey(), field.getId());
+                field.copyWithIds(newField, field.getNodeId(), field.getId());
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");
@@ -4362,7 +4362,7 @@ export class Eagle {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
 
         const copiedField = this.selectedNode().getFields()[index].clone()
-        copiedField.setId(Utils.uuidv4())
+        copiedField.setId(Utils.generateFieldId())
         copiedField.setDisplayText(copiedField.getDisplayText()+' copy')
         if(ParameterTable.hasSelection()){
             //if a cell in the table is selected in this case the new node will be placed below the currently selected node
@@ -4395,7 +4395,7 @@ export class Eagle {
             return;
         }
 
-        const selectedNodeKey : number = selectedNode.getKey();
+        const selectedNodeId: NodeId = selectedNode.getId();
 
         console.log("ShowFieldValuePicker() node:", selectedNode.getName(), "fieldIndex:", fieldIndex, "input", input);
 
@@ -4403,16 +4403,16 @@ export class Eagle {
         const nodes : string[] = [];
         for (const edge of this.logicalGraph().getEdges()){
             // add output nodes to the list
-            if (edge.getSrcNodeKey() === selectedNodeKey){
-                const destNode : Node = this.logicalGraph().findNodeByKey(edge.getDestNodeKey());
-                const s : string = "output:" + destNode.getName() + ":" + destNode.getKey();
+            if (edge.getSrcNodeId() === selectedNodeId){
+                const destNode : Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
+                const s : string = "output:" + destNode.getName() + ":" + destNode.getId();
                 nodes.push(s);
             }
 
             // add input nodes to the list
-            if (edge.getDestNodeKey() === selectedNodeKey){
-                const srcNode : Node = this.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
-                const s : string = "input:" + srcNode.getName() + ":" + srcNode.getKey();
+            if (edge.getDestNodeId() === selectedNodeId){
+                const srcNode : Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
+                const s : string = "input:" + srcNode.getName() + ":" + srcNode.getId();
                 nodes.push(s);
             }
         }
@@ -4609,7 +4609,7 @@ export class Eagle {
 
         // if edge DOES NOT connect two applications, process normally
         if (!edgeConnectsTwoApplications || twoEventPorts){
-            const edge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), destNode.getKey(), destPort.getId(), loopAware, closesLoop, false);
+            const edge : Edge = new Edge(srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
             setTimeout(() => {
                 this.setSelection(Eagle.RightWindowMode.Hierarchy, edge,Eagle.FileType.Graph)
@@ -4624,10 +4624,10 @@ export class Eagle {
 
         // if source or destination node is an embedded application, use position of parent construct node
         if (srcNode.isEmbedded()){
-            srcNodePosition = this.logicalGraph().findNodeByKey(srcNode.getEmbedKey()).getPosition();
+            srcNodePosition = this.logicalGraph().findNodeById(srcNode.getEmbedId()).getPosition();
         }
         if (destNode.isEmbedded()){
-            destNodePosition = this.logicalGraph().findNodeByKey(destNode.getEmbedKey()).getPosition();
+            destNodePosition = this.logicalGraph().findNodeById(destNode.getEmbedId()).getPosition();
         }
 
         // count number of edges between source and destination
@@ -4658,26 +4658,26 @@ export class Eagle {
         newNode.removeAllOutputPorts();
 
         // add InputOutput port for dataType
-        const newInputOutputPort = new Field(Utils.uuidv4(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputOutput, false);
+        const newInputOutputPort = new Field(Utils.generateFieldId(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputOutput, false);
         newNode.addField(newInputOutputPort);
 
         // set the parent of the new node
         // by default, set parent to parent of dest node,
-        newNode.setParentKey(destNode.getParentKey());
+        newNode.setParentId(destNode.getParentId());
 
         // if source node is a child of dest node, make the new node a child too
-        if (srcNode.getParentKey() === destNode.getKey()){
-            newNode.setParentKey(destNode.getKey());
+        if (srcNode.getParentId() === destNode.getId()){
+            newNode.setParentId(destNode.getId());
         }
 
          // if dest node is a child of source node, make the new node a child too
-        if (destNode.getParentKey() === srcNode.getKey()){
-            newNode.setParentKey(srcNode.getKey());
+        if (destNode.getParentId() === srcNode.getId()){
+            newNode.setParentId(srcNode.getId());
         }
 
         // create TWO edges, one from src to data component, one from data component to dest
-        const firstEdge : Edge = new Edge(srcNode.getKey(), srcPort.getId(), newNode.getKey(), newInputOutputPort.getId(), loopAware, closesLoop, false);
-        const secondEdge : Edge = new Edge(newNode.getKey(), newInputOutputPort.getId(), destNode.getKey(), destPort.getId(), loopAware, closesLoop, false);
+        const firstEdge : Edge = new Edge(srcNode.getId(), srcPort.getId(), newNode.getId(), newInputOutputPort.getId(), loopAware, closesLoop, false);
+        const secondEdge : Edge = new Edge(newNode.getId(), newInputOutputPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
 
         this.logicalGraph().addEdgeComplete(firstEdge);
         this.logicalGraph().addEdgeComplete(secondEdge);
@@ -4776,7 +4776,7 @@ export class Eagle {
             }
            
             // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
-            destField.copyWithKeyAndId(field, destField.getNodeKey(), destField.getId());
+            destField.copyWithIds(field, destField.getNodeId(), destField.getId());
         }
 
         // copy name and description from new category to old node, if old node values are defaults
@@ -4986,7 +4986,8 @@ $( document ).ready(function() {
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const e: MouseEvent = event.originalEvent as MouseEvent;
         const eagle: Eagle = Eagle.getInstance();
-        const selectEdge = eagle.logicalGraph().findEdgeById(($(e.target).attr("id")))
+        const selectedEdgeId: EdgeId = $(e.target).attr("id") as EdgeId;
+        const selectEdge = eagle.logicalGraph().findEdgeById(selectedEdgeId);
 
         if(!selectEdge){
             console.log("no edge found")
