@@ -30,8 +30,6 @@ test('Creating a Simple Graph', async ({ page }) => {
   //center the graph
   await page.getByRole('button', { name: 'filter_center_focus' }).click();
 
-  await page.waitForTimeout(500);
-
   //doing a little mouse zoom with the cursor at the center location of the graph
   const box = await page.locator('#logicalGraphParent').boundingBox();
   let centerX :number;
