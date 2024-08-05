@@ -1517,7 +1517,7 @@ export class Eagle {
         }
         
 
-        Utils.requestUserText("Export Graph to JSON", "", jsonString, null);
+        Utils.requestUserText("Export " + fileType + " to JSON", "", jsonString, null);
     }
 
     /**
