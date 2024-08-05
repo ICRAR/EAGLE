@@ -256,6 +256,14 @@ export class KeyboardShortcut {
             new KeyboardShortcut("toggleCollapseAllGroups", "Toggle Collapse All Groups", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['expand','hide','show'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.toggleCollapseAllGroups();}),
             new KeyboardShortcut("addSelectedNodeToPalette", "Add Selected Nodes To Palette", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.addSelectedNodesToPalette('normal');}),
             new KeyboardShortcut("screenshotGraph", "Save Graph as PNG (Screenshot)", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['print','printScreen','screen','save','png'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.saveGraphScreenshot();}),
+
+            // graph configs
+            new KeyboardShortcut("createNewConfig", "Create New Config", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.newConfig();}),
+            new KeyboardShortcut("createNewConfigFromJson", "Create New Config From Json", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.newConfigFromJson();}),
+            new KeyboardShortcut("saveConfig", "Save Config To Git", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.commitToGit(Eagle.FileType.GraphConfig);}),
+            new KeyboardShortcut("saveConfigAs", "Save As Config To Git", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.commitToGitAs(Eagle.FileType.GraphConfig);}),
+            new KeyboardShortcut("saveConfigLocally", "Save Config Locally", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.saveFileToLocal(Eagle.FileType.GraphConfig);}),
+            new KeyboardShortcut("loadConfigLocally", "Load Config Locally", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.getConfigFileToLoad();}),
             
             //docs
             new KeyboardShortcut("docs_load_a_palette", "Loading a Palette", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#loading-a-palette');}),

@@ -1656,7 +1656,7 @@ export class Eagle {
                 this.saveConfigToDisk(this.graphConfig());
                 break;
             default:
-                Utils.showUserMessage("Not implemented", "Not sure which fileType right one to save locally :" + fileType);
+                Utils.showUserMessage("Not implemented", "Not sure which fileType is the right one to save locally :" + fileType);
                 break;
         }
     }
@@ -1823,7 +1823,7 @@ export class Eagle {
      */
     commitToGit = async (fileType : Eagle.FileType) : Promise<void> => {
         let fileInfo : ko.Observable<FileInfo>;
-        let obj : LogicalGraph | Palette;
+        let obj : LogicalGraph | Palette | GraphConfig;
 
         // determine which object of the given filetype we are committing
         switch (fileType){
@@ -1844,8 +1844,12 @@ export class Eagle {
                 obj = palette;
                 break;
             }
+            case Eagle.FileType.GraphConfig:
+                fileInfo = this.graphConfig().fileInfo;
+                obj = this.graphConfig();
+                break;
             default:
-                Utils.showUserMessage("Not implemented", "Not sure which fileType right one to commit :" + fileType);
+                Utils.showUserMessage("Not implemented", "Not sure which fileType is the right one to commit :" + fileType);
                 break;
         }
 
@@ -1869,6 +1873,8 @@ export class Eagle {
                 Utils.showUserMessage('Error', 'Graph is not chosen! Open existing or create a new graph.');
             } else if (fileType == Eagle.FileType.Palette) {
                 Utils.showUserMessage('Error', 'Palette is not chosen! Open existing or create a new palette.');
+            } else if (fileType === Eagle.FileType.GraphConfig) {
+                Utils.showUserMessage('Error', 'Config is not chosen! Open existing or create a new config.');
             }
             return;
         }
