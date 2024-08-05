@@ -97,6 +97,18 @@ export class Utils {
     }
 
     static generateName(fileType: Eagle.FileType): string {
+        if (fileType === Eagle.FileType.GraphConfig){
+            // get graph name
+            let graphName = Eagle.getInstance().logicalGraph().fileInfo().name;
+
+            // if empty, replace with 'graph'
+            if (graphName === ""){
+                graphName = "graph";
+            }
+
+            return graphName + "-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
+        }
+
         return fileType.toString() + "-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
     }
 
