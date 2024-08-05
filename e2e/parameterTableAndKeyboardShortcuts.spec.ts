@@ -34,10 +34,16 @@ test('Creating a Simple Graph', async ({ page }) => {
   //-----------EDITING THE NODE IN THE PARAMETERS TABLE--------
   //open the parameters table via keybaord shortcut
   await page.press('body','t');
-  // await page.getByRole('button', { name: 'Add Parameter' }).click();
-  // await page.getByRole('cell', { name: 'New Parameter' }).getByPlaceholder('New Parameter').click();
-  // await page.getByRole('row', { name: 'New Paramtest parametereter' }).getByPlaceholder('New Parameter').pressSequentially('test parameter');
-  // await page.locator('#typeButtonFor_851fd1f0-809e-440c-acd4-4a8644368b36').click();
+
+  //add a new parameter
+  await page.getByRole('button', { name: 'Add Parameter' }).click();
+  //select the new parameter
+  await page.getByRole('cell', { name: 'New Parameter' }).getByPlaceholder('New Parameter').click();
+  //select text and replace it with a test name
+  await page.getByRole('row', { name: 'New Parameter' }).getByPlaceholder('New Parameter').selectText()
+  await page.getByRole('row', { name: 'New Parameter' }).getByPlaceholder('New Parameter').pressSequentially('test parameter');
+
+  await page.locator('#typeButtonFor_851fd1f0-809e-440c-acd4-4a8644368b36').click();
   // await page.getByRole('cell', { name: 'Object arrow_drop_down' }).getByRole('button').click();
   // await page.getByRole('row', { name: 'test parameter String' }).getByRole('combobox').first().selectOption('ApplicationArgument');
   // await page.getByRole('row', { name: 'test parameter String' }).getByRole('combobox').nth(1).selectOption('OutputPort');
