@@ -52,6 +52,8 @@
                             <div class="row align-items-center h-100">
                                 <div class="col-md-12 text-center">
                                     <span class="fs-3">No fields</span>
+                                    <br/>
+                                    <span class="fs-6">Fields can be added from the Fields Table when a graph node is selected</span>
                                 </div>
                             </div>
                         </div>
@@ -65,7 +67,7 @@
                             <thead>
                                 <tr>
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
-                                        <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'Toggle Field Key attribute state'" data-bs-placement="top"></th>
+                                        <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'Add/remove Field from Graph Config'" data-bs-placement="top"></th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
                                         <th id="parameter_table_node_name" data-bind="eagleTooltip:`This Parameter's Parent Node Name`" data-bs-placement="top">
@@ -159,12 +161,12 @@
                                                     <input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}}">
                                                     
                                                     <!-- ko ifnot: $root.graphConfig().hasField($data) -->
-                                                    <button data-bind="click: function(){ParameterTable.requestAddField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', style:{'visibility':'hidden'}, clickBubble:false">
+                                                    <button data-bind="click: function(){ParameterTable.requestAddField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Add Field to Graph Config', style:{'visibility':'hidden'}, clickBubble:false">
                                                         <i class="material-icons">favorite_border</i>
                                                     </button>
                                                     <!-- /ko -->
                                                     <!-- ko if: $root.graphConfig().hasField($data) -->
-                                                    <button data-bind="click: function(){$root.graphConfig().removeField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Toggle Field Key attribute state', style:{'visibility':'visible'}, clickBubble:false">
+                                                    <button data-bind="click: function(){$root.graphConfig().removeField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Remove Field from Graph Config', style:{'visibility':'visible'}, clickBubble:false">
                                                         <i class="material-icons">favorite</i>
                                                     </button>
                                                     <!-- /ko -->
