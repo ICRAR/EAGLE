@@ -5,7 +5,7 @@
             <!-- ko if: showTableModal() -->
                 <div class="modal-header" data-bind="click: function(){ParameterTable.resetSelection()}">
                     <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
-                        <h5 class="modal-title" id="parameterTableModalTitle" data-bind="text: 'Graph Configuration Attributes Table (' + $root.graphConfig().fileInfo().name + ')'">
+                        <h5 class="modal-title" id="parameterTableModalTitle" data-bind="text: 'Graph Configuration Table (' + $root.graphConfig().fileInfo().name + ')'">
                         </h5>
                     <!-- /ko -->
                     <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
