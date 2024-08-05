@@ -176,14 +176,14 @@
                                                 <!-- /ko -->
                                             <!-- /ko -->
                                             <!-- value fields -->
-                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().value() -->
+                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().value()  -->
                                                 <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
                                                     <!-- ko if: $data.getType() === 'Integer' -->    
                                                         <td class='columnCell column_Value' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('value', $data) }">
                                                             <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
                                                                 <input class="tableParameter" min="0" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}">
                                                             <!-- /ko -->
-                                                            <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
+                                                            <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) && $data.getGraphConfigField() -->
                                                                 <input class="tableParameter" min="0" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $root.getCurrentParamValueReadonly($data), $data, $index())}}" type="number">
                                                             <!-- /ko -->
                                                         </td>
@@ -193,7 +193,7 @@
                                                             <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
                                                                 <input class="tableParameter inputNoArrows tableFieldStringValueInput" data-bind="disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}">
                                                             <!-- /ko -->
-                                                            <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
+                                                            <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) && $data.getGraphConfigField() -->
                                                                 <input class="tableParameter inputNoArrows tableFieldStringValueInput" data-bind="disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}">
                                                             <!-- /ko -->
                                                         </td>
@@ -204,7 +204,7 @@
                                                         <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
                                                             <input class="tableParameter" tabindex='-1' data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$data.toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
                                                         <!-- /ko -->
-                                                        <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
+                                                        <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) && $data.getGraphConfigField() -->
                                                             <input class="tableParameter" tabindex='-1' data-bind="checked: valIsTrue($data.getGraphConfigField().value()), disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, event: {change: function(){$data.toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
                                                         <!-- /ko -->
                                                     </td>
@@ -216,7 +216,7 @@
                                                                 <!-- options are added dynamically -->
                                                             </select>
                                                         <!-- /ko -->
-                                                        <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
+                                                        <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) && $data.getGraphConfigField() -->
                                                             <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="disabled: $root.getCurrentParamValueReadonly($data), event: {change: ParameterTable.fieldValueChanged}, options: $data.options, value: $data.getGraphConfigField().value">
                                                             <!-- options are added dynamically -->
                                                             </select>
@@ -284,7 +284,7 @@
                                                 <!-- /ko -->
                                             <!-- /ko -->
 
-                                            <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
+                                            <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) && $data.getGraphConfigField() -->
                                             <td class='columnCell column_Comment' onmouseenter="ParameterTable.showEditComment(this)" onmouseleave="ParameterTable.hideEditComment(this)" data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('comment', $data) }, eagleTooltip: $data.getGraphConfigField().comment">
                                                 <input class="tableParameter" type="string" data-bind="value: $data.getGraphConfigField().comment, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'comment', $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'comment', $data, $index())}}">
                                                 <button class="parameterTableCommentBtn icon-pencil" data-bind="click:function(data,event){ParameterTable.requestEditCommentInModal($data)}"></button>
