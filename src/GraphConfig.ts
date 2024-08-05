@@ -188,6 +188,8 @@ export class GraphConfig {
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.GraphConfig;
+        this.fileInfo().readonly = false;
+        this.fileInfo().builtIn = false;
         this.nodes = ko.observableArray([]);
     }
 

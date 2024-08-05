@@ -47,6 +47,8 @@ export class LogicalGraph {
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Graph;
+        this.fileInfo().readonly = false;
+        this.fileInfo().builtIn = false;
         this.nodes = ko.observableArray([]);
         this.edges = ko.observableArray([]);
         this.issues = ko.observableArray([])
