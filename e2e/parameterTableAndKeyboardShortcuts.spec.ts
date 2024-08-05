@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { setTimeout } from 'timers';
 
 test('Creating a Simple Graph', async ({ page }) => {
   
@@ -28,8 +29,8 @@ test('Creating a Simple Graph', async ({ page }) => {
   //------------ADD NODE TO GRAPH-----------
   
   //scroll the file node into view in the palette and add to graph
-  await page.locator('#palette_0_File').scrollIntoViewIfNeeded()
-  await page.dragAndDrop( '#palette_0_File' ,'#graphArea', {targetPosition:{x:400,y:400}})
+  // await page.locator('#palette_0_File').scrollIntoViewIfNeeded()
+  // await page.dragAndDrop( '#palette_0_File' ,'#graphArea', {targetPosition:{x:400,y:400}})
 
   //-----------EDITING THE NODE IN THE PARAMETERS TABLE--------
   //open the parameters table via keybaord shortcut
@@ -39,27 +40,63 @@ test('Creating a Simple Graph', async ({ page }) => {
   await page.getByRole('button', { name: 'Add Parameter' }).click();
   //select the new parameter
   await page.getByRole('cell', { name: 'New Parameter' }).getByPlaceholder('New Parameter').click();
+
   //select text and replace it with a test name
   await page.getByRole('row', { name: 'New Parameter' }).getByPlaceholder('New Parameter').selectText()
   await page.getByRole('row', { name: 'New Parameter' }).getByPlaceholder('New Parameter').pressSequentially('test parameter');
+  //check that the name has been changed
+  await expect(page.getByRole('row').last().locator('.column_DisplayText input')).toHaveValue('test parameter')
 
-  await page.locator('#typeButtonFor_851fd1f0-809e-440c-acd4-4a8644368b36').click();
-  // await page.getByRole('cell', { name: 'Object arrow_drop_down' }).getByRole('button').click();
-  // await page.getByRole('row', { name: 'test parameter String' }).getByRole('combobox').first().selectOption('ApplicationArgument');
-  // await page.getByRole('row', { name: 'test parameter String' }).getByRole('combobox').nth(1).selectOption('OutputPort');
-  // await page.locator('#tableRow_851fd1f0-809e-440c-acd4-4a8644368b36 > td:nth-child(11) > .duplicate').click();
-  // await page.getByRole('cell', { name: 'test parameter copy' }).getByPlaceholder('New Parameter').click();
-  // await page.getByRole('cell', { name: 'test parameter copy' }).getByPlaceholder('New Parameter').pressSequentially('test parameter 2');
-  // await page.getByRole('button', { name: 'favorite_border' }).click();
-  // await page.getByRole('row', { name: 'test parameter String' }).getByRole('textbox').nth(1).click();
-  // await page.getByRole('row', { name: 'test parameter String' }).getByRole('textbox').nth(1).pressSequentially('1');
-  // await page.getByRole('row', { name: 'test parameter 2 favorite' }).getByRole('textbox').nth(1).pressSequentially('2');
-  // await page.getByRole('row', { name: 'test parameter 2 favorite' }).getByRole('textbox').nth(1).click();
-  // await page.getByRole('row', { name: 'test parameter 1 String' }).getByRole('textbox').nth(2).pressSequentially('1');
-  // await page.getByRole('row', { name: 'test parameter 1 String' }).getByRole('textbox').nth(2).click();
-  // await page.getByRole('row', { name: 'test parameter 2 favorite 2' }).getByRole('textbox').nth(2).click();
-  // await page.getByRole('row', { name: 'test parameter 2 favorite 2' }).getByRole('textbox').nth(2).pressSequentially('2');
-  // await page.getByRole('cell', { name: '' }).getByRole('textbox').click();
-  // await page.getByRole('row', { name: 'test parameter 1 12 String' }).getByRole('textbox').nth(3).pressSequentially('test parameter description');
-  // await page.close();
+  //change the new parameter to an integer
+  await page.getByRole('row').last().locator('.column_Type').getByRole('button').click()
+  await page.getByRole('row').last().locator('.dropdown-menu').getByText('Integer').click()
+  //check that the type selector has been changed
+  await expect(page.getByRole('row').last().locator('.typesInput')).toHaveValue('Integer')
+
+  //change parameter type then check that the value has been changed accordingly
+  await page.getByRole('row').last().locator('.column_ParamType').getByRole('combobox').selectOption('ApplicationArgument');
+  await expect(page.getByRole('row').last().locator('.column_ParamType').getByRole('combobox')).toHaveValue('ApplicationArgument')
+  
+  //change use as and then make sure that the value has been changed accordingly
+  await page.getByRole('row').last().locator('.column_Usage').getByRole('combobox').selectOption('OutputPort');
+  await expect(page.getByRole('row').last().locator('.column_Usage').getByRole('combobox')).toHaveValue('OutputPort')
+  
+  //duplicate the new custom field
+  await page.getByRole('row').last().locator('.duplicate').click();
+  
+  //test each of the flags
+  await page.getByRole('row').last().locator('.column_Flags').getByText('diamond').click()
+  await page.getByRole('row').last().locator('.column_Flags').getByText('location_on').click()
+  await page.getByRole('row').last().locator('.column_Flags').getByText('alarm_off').click()
+  await page.getByRole('row').last().locator('.column_Flags').getByText('lock_open').click()
+
+  // await expect(page.locator('.column_DisplayText').('test parameter copy'))
+
+  //count the number of fields on the node 
+  const countBefore = await page.getByRole('row').count()
+  //delete the last field added
+  await page.getByRole('row').last().locator('.delete').click();
+  //make sure the number of fields has decreased by 1
+  await expect(countBefore - await page.getByRole('row').count() === 1).toBeTruthy()
+  //making sure the correct field has been removed
+  await expect(page.getByRole('row').last().locator('.column_DisplayText input')).not.toHaveValue('test parameter copy')
+  
+  //hover on the name cell to reveal the key parameters icon
+  await page.getByRole('row').last().locator('.column_DisplayText').hover();
+  //make the field a key parameter
+  await page.getByRole('row').last().locator('.column_DisplayText button').click();
+
+  //close the parameter table modal
+  await page.locator('#parameterTableModalAffirmativeAnswer').click();
+
+  //open the key graph parameter table modal
+  await page.locator('#openKeyParameterTable').click();
+
+  await page.waitForTimeout(500);
+
+
+  //make sure the field has been added to the key graph parameter table
+  await expect(await page.locator('#parameterTableModal tbody').getByRole('row').count()===0).toBeFalsy();
+
+  await page.close();
 });
