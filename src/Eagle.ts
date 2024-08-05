@@ -1484,19 +1484,38 @@ export class Eagle {
         });
     }
 
-    displayLogicalGraphAsJson = () : void => {
-        const cloneLG: LogicalGraph = this.logicalGraph().clone();
-
+    displayObjectAsJson = (fileType: Eagle.FileType) : void => {
+        let clone: LogicalGraph | GraphConfig | Palette;
+        
+        switch(fileType){
+            case Eagle.FileType.Graph:
+                clone = this.logicalGraph().clone();
+                break;
+            case Eagle.FileType.GraphConfig:
+                clone = this.graphConfig().clone();
+                break;
+        }
+        
         // zero-out some info that isn't useful for comparison
-        cloneLG.fileInfo().repositoryUrl = "";
-        cloneLG.fileInfo().commitHash = "";
-        cloneLG.fileInfo().downloadUrl = "";
-        cloneLG.fileInfo().signature = "";
-        cloneLG.fileInfo().lastModifiedName = "";
-        cloneLG.fileInfo().lastModifiedEmail = "";
-        cloneLG.fileInfo().lastModifiedDatetime = 0;
+        clone.fileInfo().repositoryUrl = "";
+        clone.fileInfo().commitHash = "";
+        clone.fileInfo().downloadUrl = "";
+        clone.fileInfo().signature = "";
+        clone.fileInfo().lastModifiedName = "";
+        clone.fileInfo().lastModifiedEmail = "";
+        clone.fileInfo().lastModifiedDatetime = 0;
 
-        const jsonString: string = LogicalGraph.toOJSJsonString(cloneLG, false);
+        let jsonString: string;
+        
+        switch(fileType){
+            case Eagle.FileType.Graph:
+                jsonString = LogicalGraph.toOJSJsonString(clone as LogicalGraph, false);
+                break;
+            case Eagle.FileType.GraphConfig:
+                jsonString = GraphConfig.toJsonString(clone as GraphConfig);
+                break;
+        }
+        
 
         Utils.requestUserText("Export Graph to JSON", "", jsonString, null);
     }
