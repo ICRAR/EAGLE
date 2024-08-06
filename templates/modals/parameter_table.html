@@ -92,7 +92,12 @@
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().value() -->
                                         <th id="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">
-                                            Value
+                                            <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
+                                                <span>Value</span>
+                                            <!-- /ko -->
+                                            <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
+                                                <span>Configured Value</span>
+                                            <!-- /ko -->
                                             <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_value') === true}"></div>
                                         </th>
                                     <!-- /ko -->
