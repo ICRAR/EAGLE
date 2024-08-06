@@ -184,6 +184,12 @@ export class LogicalGraph {
             const sourceNode : Node = result.findNodeById(edge.getSrcNodeId());
             const destinationNode : Node = result.findNodeById(edge.getDestNodeId());
 
+            // check that source and destination nodes were found
+            if (sourceNode === null || destinationNode === null){
+                console.error("Could not find source (" + edge.getSrcNodeId() + ") or destination (" + edge.getDestNodeId() + ") node of edge " + edge.getId());
+                continue;
+            }
+
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
             if (sourceNode.getCategoryType() === Category.Type.Construct){
                 const srcIdAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPortId());
@@ -370,7 +376,7 @@ export class LogicalGraph {
         const node = this.findNodeByIdQuiet(id);
 
         if (node === null){
-            console.warn("findNodeByKey(): could not find node with id (", id, ")");
+            console.warn("findNodeById(): could not find node with id (", id, ")");
         }
 
         return node;
@@ -662,12 +668,12 @@ export class LogicalGraph {
         return depth;
     }
 
-    // similar to getChildrenOfNodeByKey() (below) except treats key as null always
+    // similar to getChildrenOfNodeById() (below) except treats id as null always
     getRootNodes = () : Node[] => {
-        return this.getChildrenOfNodeByKey(null);
+        return this.getChildrenOfNodeById(null);
     }
 
-    getChildrenOfNodeByKey = (id: NodeId) : Node[] => {
+    getChildrenOfNodeById = (id: NodeId) : Node[] => {
         const result: Node[] = [];
 
         for (const node of this.nodes()){

@@ -105,22 +105,20 @@
                     </div>
                 <!-- /ko -->
 
-                <!-- key -->
-                <!-- ko if: $root.displayNodeKeys() -->
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The Key of the component within the graph'" data-bs-placement="left">Key</span>
-                        </div>
-                        <input type="text" class="form-control" disabled id="nodeInspectorKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $data.getKey()">
+                <!-- id -->
+                <div class="input-group mb-1">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="node-id" data-bind="eagleTooltip:'The id of the component within the graph'" data-bs-placement="left">Id</span>
                     </div>
+                    <input type="text" class="form-control" disabled id="nodeInspectorId" placeholder="" aria-label="Id" aria-describedby="node-id" data-bind="value: $data.id">
+                </div>
 
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The Key of the component within the graph'" data-bs-placement="left">Parent Key</span>
-                        </div>
-                        <input type="text" class="form-control" disabled id="nodeInspectorParentKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $data.getParentKey()">
+                <div class="input-group mb-1">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="node-parent-id" data-bind="eagleTooltip:'The id of the parent of this component within the graph'" data-bs-placement="left">Parent Id</span>
                     </div>
-                <!-- /ko -->
+                    <input type="text" class="form-control" disabled id="nodeInspectorParentId" placeholder="" aria-label="Name" aria-describedby="node-parent-id" data-bind="value: $data.parentId">
+                </div>
 
                 <!-- node port multiplicity -->
                 <div class="input-group mb-1">

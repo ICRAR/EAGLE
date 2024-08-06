@@ -270,12 +270,6 @@ export class Eagle {
         return null;
     }
 
-    // TODO: move to Setting.ts, or remove the custom function entirely and just use the general-purpose settings function
-    // TODO: could be static, doesn't seem to use any state from Eagle!
-    displayNodeKeys = () : boolean => {
-        return Setting.findValue(Setting.DISPLAY_NODE_KEYS);
-    }
-
     showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return Setting.findValue(Setting.ENABLE_PERFORMANCE_DISPLAY);
     }, this);

@@ -163,12 +163,12 @@ export class Hierarchy {
         const srcId = edge.getSrcNodeId()
         const destId = edge.getDestNodeId()
 
-        const srcNodeElement = $('.hierarchyNode#'+ srcId)[0];
-        const destNodeElement = $('.hierarchyNode#'+ destId)[0];
+        const srcNodeElement = $('#hierarchy-node-'+ srcId)[0];
+        const destNodeElement = $('#hierarchy-node-'+ destId)[0];
 
         // check that HTML elements for the src and dest node already exist, otherwise we can't draw this edge, so abort
         if (typeof srcNodeElement === 'undefined' || typeof destNodeElement === 'undefined'){
-            console.warn("Hierarchy.drawEdge() srcNode or destNode element not ready");
+            console.warn("Hierarchy.drawEdge() srcNode (" + srcId + ") or destNode (" + destId + ") element not ready");
             return;
         }
 
@@ -268,16 +268,11 @@ export class Hierarchy {
         return className
     }
     
-
-    // NOTE: input type here is NOT a Node, it is a Node ViewModel as defined in components.ts
-    static selectNode(nodeViewModel: any, e : any) : void {
-        console.log("nodeViewModel", typeof nodeViewModel, nodeViewModel);
-
+    static selectNode(node: Node, e : any) : void {
         const eagle: Eagle = Eagle.getInstance();
 
-        const node : Node = eagle.logicalGraph().findNodeById(nodeViewModel.key());
         if (node === null){
-            console.warn("Unable to find node in hierarchy!");
+            console.warn("Hierarchy.selectNode(): No node provided!");
             return;
         }
 

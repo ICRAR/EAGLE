@@ -61,12 +61,11 @@
                                         Node Name
                                         <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_name') === true}"></div>
                                     </th>
-                                    <!-- ko if: $root.displayNodeKeys() -->
-                                        <th id="parameter_table_node_key" data-bind="eagleTooltip:`This Parameter's Parent Node Key`" data-bs-placement="top">
-                                            Node Key
-                                            <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_key') === true}"></div>
-                                        </th>
-                                    <!-- /ko -->
+
+                                    <th id="parameter_table_node_id" data-bind="eagleTooltip:`This Parameter's Parent Node Id`" data-bs-placement="top">
+                                        Node Id
+                                        <div data-bind="css: {resizer: $root.parameterTable().setUpColumnResizer('parameter_table_node_id') === true}"></div>
+                                    </th>
                                 <!-- /ko -->
                                 <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
                                     <th id="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">
@@ -129,11 +128,9 @@
                                         <!-- /ko -->
                                         <!-- ko if: $root.tableModalType() === 'keyParametersTableModal' -->
                                             <td class='columnCell column_NodeName'>
-                                                <input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getName(), disabled: true">
+                                                <input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeById(nodeId()).getName(), disabled: true">
                                             </td>
-                                            <!-- ko if: $root.displayNodeKeys() -->
-                                                <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getKey(), disabled: true"></td>
-                                            <!-- /ko -->
+                                            <td><input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeById(nodeId()).getId(), disabled: true"></td>
                                         <!-- /ko -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
                                             <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.selection() != null && $data == ParameterTable.selectionParent() && ParameterTable.selectionName() == 'displayText' },eagleTooltip:description">

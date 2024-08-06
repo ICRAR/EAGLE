@@ -2396,12 +2396,11 @@ export class Utils {
         }
     }
 
-    static duplicateNode(node: Node, usedKeys: number[] = []): Node {
-        const eagle: Eagle = Eagle.getInstance();
+    static duplicateNode(node: Node): Node {
         const newNode = node.clone();
         const newNodeId = Utils.generateNodeId();
-        let newInputAppId: NodeId = null;
-        let newOutputAppId: NodeId = null;
+        const newInputAppId: NodeId = Utils.generateNodeId();
+        const newOutputAppId: NodeId = Utils.generateNodeId();
 
         // set appropriate key for node (one that is not already in use)
         newNode.setId(newNodeId);
@@ -2410,9 +2409,10 @@ export class Utils {
         // set new ids for any fields in this node
         for (const field of newNode.getFields()){
             field.setId(Utils.generateFieldId());
+            field.setNodeId(newNodeId);
         }
 
-        // set new keys for embedded applications within node, and new ids for ports within those embedded nodes
+        // set new ids for embedded applications within node, and new ids for ports within those embedded nodes
         if (node.hasInputApplication()){
             const clone : Node = node.getInputApplication().clone();
             
@@ -2420,19 +2420,14 @@ export class Utils {
                 // set new ids for any fields in this node
                 for (const field of clone.getFields()){
                     field.setId(Utils.generateFieldId());
+                    field.setNodeId(newInputAppId);
                 }
             }
             newNode.setInputApplication(clone)
 
-            // find a new key (prevent re-use of newNodeKey)
-            newInputAppId = Utils.generateNodeId();
+            // use new ids for input application
             newNode.getInputApplication().setId(newInputAppId);
-            newNode.getInputApplication().setEmbedId(newNode.getId());
-
-            // set new ids for any fields in this node
-            for (const field of newNode.getInputApplication().getFields()){
-                field.setId(Utils.generateFieldId());
-            }
+            newNode.getInputApplication().setEmbedId(newNodeId);
         }
         if (node.hasOutputApplication()){
             const clone : Node = node.getOutputApplication().clone();
@@ -2441,19 +2436,14 @@ export class Utils {
                 // set new ids for any fields in this node
                 for (const field of clone.getFields()){
                     field.setId(Utils.generateFieldId());
+                    field.setNodeId(newOutputAppId);
                 }
             }
             newNode.setOutputApplication(clone)
 
-            // find a new key (prevent re-use of newNodeKey or newInputAppKey)
-            newOutputAppId = Utils.generateNodeId();
+            // use new ids for output application
             newNode.getOutputApplication().setId(newOutputAppId);
-            newNode.getOutputApplication().setEmbedId(newNode.getId());
-
-            // set new ids for any fields in this node
-            for (const field of newNode.getOutputApplication().getFields()){
-                field.setId(Utils.generateFieldId());
-            }
+            newNode.getOutputApplication().setEmbedId(newNodeId);
         }
 
         return newNode;

@@ -1,12 +1,12 @@
 
 <li>
-    <div class="hierarchyNode rightClick_hierarchyNode" data-bind="class: Hierarchy.isNodeSelected($root.objectIsSelectedById($data._id())), css:{'hierarchyCollapsed':$data.expanded()===false}, attr: {id:key} , click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false,  eagleRightClick: {data:$data,type:'rightClick_hierarchyNode'}">
+    <div class="hierarchyNode rightClick_hierarchyNode" data-bind="class: Hierarchy.isNodeSelected($root.objectIsSelectedById($data.id())), css:{'hierarchyCollapsed':$data.expanded()===false}, attr: {id:'hierarchy-node-'+$data.id()} , click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false,  eagleRightClick: {data:$data,type:'rightClick_hierarchyNode'}">
         <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
-        <div class="hierarchyNodeVisibilityIcon" data-bind="style: {'visibility': Hierarchy.nodeIsHidden($data.key())}">
+        <div class="hierarchyNodeVisibilityIcon" data-bind="style: {'visibility': Hierarchy.nodeIsHidden($data.id())}">
             <i class="material-icons md-18">visibility_off</i>
         </div>
             <!-- ko if: isGroup() -->
-                <button class="hierarchyGroupCollapse"  data-bind="click:function(){$root.logicalGraph().findNodeByKey(key()).toggleExpanded(); $root.selectedObjects.valueHasMutated()},css:{'hierarchyCollapseDisabled':$data.keepExpanded()===true}, clickBubble:false;">
+                <button class="hierarchyGroupCollapse"  data-bind="click:function(){$root.logicalGraph().findNodeById(id()).toggleExpanded(); $root.selectedObjects.valueHasMutated()},css:{'hierarchyCollapseDisabled':$data.keepExpanded()===true}, clickBubble:false;">
                     <i class="material-icons closedIcon" data-bs-placement="top" data-bs-toggle="tooltip" data-html="true" data-bs-original-title="Expand/Collapse" data-bind="css:{'hierarchyCollapseRotate':$data.expanded()===true}">keyboard_arrow_down</i>
                 </button>
             <!-- /ko -->
@@ -14,19 +14,19 @@
         <span data-bind="text: category"></span>
         <div>
             <!-- ko with: inputApplication -->
-                <div class="hierarchyNode hierarchyApplication rightClick_hierarchyNode" data-bind="class: Hierarchy.isApplicationSelected($root.objectIsSelectedById($data._id)),attr:{id:key}, style:{'background-color':$parent.color}, click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false, eagleRightClick: {data:$data,type:'rightClick_hierarchyNode'}">
+                <div class="hierarchyNode hierarchyApplication rightClick_hierarchyNode" data-bind="class: Hierarchy.isApplicationSelected($root.objectIsSelectedById($data.id)),attr:{id:'hierarchy-node-'+$data.id()}, style:{'background-color':$parent.color}, click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false, eagleRightClick: {data:$data,type:'rightClick_hierarchyNode'}">
                     <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
                     <h5 data-bind="text: name"></h5>
                     <span data-bind="text: category"></span>
                 </div>
             <!-- /ko -->
 
-            <ul class="nodes" data-bind="foreach: $root.logicalGraph().getChildrenOfNodeByKey($data.key())">
+            <ul class="nodes" data-bind="foreach: $root.logicalGraph().getChildrenOfNodeById($data.id())">
                 <hierarchy-node params="data: $data"></hierarchy-node>
             </ul>
 
             <!-- ko with: outputApplication -->
-                <div class="hierarchyNode hierarchyApplication" data-bind="class: Hierarchy.isApplicationSelected($root.objectIsSelectedById($data._id)), attr:{id:key}, style:{'background-color':$parent.color}, click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false">
+                <div class="hierarchyNode hierarchyApplication" data-bind="class: Hierarchy.isApplicationSelected($root.objectIsSelectedById($data.id)), attr:{id:'hierarchy-node-'+$data.id()}, style:{'background-color':$parent.color}, click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false">
                     <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
                     <h5 data-bind="text: name"></h5>
                     <span data-bind="text: category"></span>

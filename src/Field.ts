@@ -905,7 +905,7 @@ export class Field {
 
         // check that the fields "key" is the same as the key of the node it belongs to
         if (field.getNodeId() !== node.getId()) {
-            const issue: Errors.Issue = Errors.ShowFix("Node " + node.getId() + " (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose key (" + field.getNodeId() + ") doesn't match the node (" + node.getId() + ")", function(){Utils.showField(eagle, node.getId(),field)}, function(){Utils.fixFieldNodeId(eagle, node, field)}, "Set field node id correctly");
+            const issue: Errors.Issue = Errors.ShowFix("Node " + node.getId() + " (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose node id (" + field.getNodeId() + ") doesn't match the node (" + node.getId() + ")", function(){Utils.showField(eagle, node.getId(),field)}, function(){Utils.fixFieldNodeId(eagle, node, field)}, "Set field node id correctly");
                 field.issues().push({issue:issue,validity:Errors.Validity.Error})
         }
 
