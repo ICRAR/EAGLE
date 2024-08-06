@@ -1512,10 +1512,9 @@ export class Eagle {
                 jsonString = LogicalGraph.toOJSJsonString(clone as LogicalGraph, false);
                 break;
             case Eagle.FileType.GraphConfig:
-                jsonString = GraphConfig.toJsonString(clone as GraphConfig);
+                jsonString = GraphConfig.toJsonString(clone as GraphConfig, this.logicalGraph());
                 break;
         }
-        
 
         Utils.requestUserText("Export " + fileType + " to JSON", "", jsonString, null);
     }
@@ -1940,7 +1939,7 @@ export class Eagle {
                 jsonString = Palette.toOJSJsonString(<Palette>clone);
                 break;
             case Eagle.FileType.GraphConfig:
-                jsonString = GraphConfig.toJsonString(<GraphConfig>clone);
+                jsonString = GraphConfig.toJsonString(<GraphConfig>clone, this.logicalGraph());
                 break;
         }
 
@@ -2560,7 +2559,7 @@ export class Eagle {
         const c_clone : GraphConfig = config.clone();
         c_clone.fileInfo().removeGitInfo();
         c_clone.fileInfo().updateEagleInfo();
-        const jsonString: string = GraphConfig.toJsonString(c_clone);
+        const jsonString: string = GraphConfig.toJsonString(c_clone, this.logicalGraph());
 
         // validate json
         Utils.validateJSON(jsonString, Eagle.FileType.GraphConfig);

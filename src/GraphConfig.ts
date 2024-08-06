@@ -287,10 +287,11 @@ export class GraphConfig {
         return result;
     }
 
-    static toJson(graphConfig: GraphConfig) : object {
+    static toJson(graphConfig: GraphConfig, graph: LogicalGraph) : object {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(graphConfig.fileInfo());
+        result.graphData = FileInfo.toOJSJson(graph.fileInfo());
 
         // add nodes
         result.nodes = {};
@@ -302,14 +303,15 @@ export class GraphConfig {
         return result;
     }
 
-    static toJsonString(graphConfig: GraphConfig) : string {
+    static toJsonString(graphConfig: GraphConfig, graph: LogicalGraph) : string {
         let result: string = "";
 
-        const json: any = GraphConfig.toJson(graphConfig);
+        const json: any = GraphConfig.toJson(graphConfig, graph);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
         result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
+        result += '"graphData": ' + JSON.stringify(json.graphData, null, 4) + ",\n";
         result += '"nodes": ' + JSON.stringify(json.nodes, null, 4) + "\n";
         result += "}\n";
 
