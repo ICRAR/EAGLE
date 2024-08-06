@@ -1299,6 +1299,14 @@ export class Node {
     }
 
     static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
+        let id: NodeId = null;
+
+        if (typeof nodeData.id !== 'undefined'){
+            id = nodeData.id;
+        } else {
+            id = Utils.generateNodeId();
+        }
+
         let name = "";
         if (typeof nodeData.name !== 'undefined'){
             name = nodeData.name;
@@ -1334,6 +1342,8 @@ export class Node {
 
         const node : Node = new Node(name, "", category);
         const categoryData: Category.CategoryData = CategoryData.getCategoryData(category);
+
+        node.setId(id);
 
         // set position
         node.setPosition(x, y);
@@ -1475,12 +1485,10 @@ export class Node {
             }
         }
 
-        // set parentKey if a group is defined
-        if (typeof nodeData.group !== 'undefined'){
-            node.parentId(nodeData.group);
+        // set parentId if a parentId is defined
+        if (typeof nodeData.parentId !== 'undefined'){
+            node.parentId(nodeData.parentId);
         }
-
-        // TODO: can we read the old 'embedKey' attribute? to maintain backwards compatibility with old graphs
 
         // set embedId if defined
         if (typeof nodeData.embedId !== 'undefined'){
@@ -1757,11 +1765,11 @@ export class Node {
         result.dataHash = node.dataHash();
 
         if (node.parentId() !== null){
-            result.group = node.parentId();
+            result.parentId = node.parentId();
         }
 
         if (node.embedId() !== null){
-            result.embedKey = node.embedId();
+            result.embedId = node.embedId();
         }
 
         // add fields
@@ -1839,11 +1847,11 @@ export class Node {
 
 
         if (node.parentId() !== null){
-            result.group = node.parentId();
+            result.parentId = node.parentId();
         }
 
         if (node.embedId() !== null){
-            result.embedKey = node.embedId();
+            result.embedId = node.embedId();
         }
 
         // add fields

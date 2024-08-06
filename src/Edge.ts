@@ -87,7 +87,7 @@ export class Edge {
         return this.destNodeId;
     }
 
-    setDestNodeKey = (id: NodeId): void => {
+    setDestNodeId = (id: NodeId): void => {
         this.destNodeId = id;
     }
 

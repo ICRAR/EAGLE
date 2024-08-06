@@ -184,7 +184,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
                         const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getSrcNodeId());
                         
                         if (adjacentNode === null){
-                            console.warn("Could not find adjacentNode for inputPort or inputApp with SrcNodeKey", edge.getSrcNodeId());
+                            console.warn("Could not find adjacentNode for inputPort or inputApp with SrcNodeId", edge.getSrcNodeId());
                             return;
                         }
 
@@ -200,7 +200,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
                         const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getDestNodeId());
 
                         if (adjacentNode === null){
-                            console.warn("Could not find adjacentNode for outputPort or outputApp with DestNodeKey", edge.getDestNodeId());
+                            console.warn("Could not find adjacentNode for outputPort or outputApp with DestNodeId", edge.getDestNodeId());
                             return;
                         }
 
@@ -2300,7 +2300,7 @@ export class GraphRenderer {
         }
 
         // check if link has a warning or is invalid
-        // const linkValid : Errors.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        // const linkValid : Errors.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
         const linkValid : Errors.Validity = Utils.worstEdgeError(edge.getErrorsWarnings());
 
         if (linkValid === Errors.Validity.Error || linkValid === Errors.Validity.Impossible){

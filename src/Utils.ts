@@ -1947,7 +1947,7 @@ export class Utils {
             const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPortId());
 
             if (embeddedApplicationKeyAndPort.id !== null){
-                edge.setDestNodeKey(embeddedApplicationKeyAndPort.id);
+                edge.setDestNodeId(embeddedApplicationKeyAndPort.id);
             }
         }
     }

@@ -36,9 +36,9 @@ import { Utils } from './Utils';
 export class GraphUpdater {
 
     // NOTE: for use in translation of OJS object to internal graph representation
-    static findIndexOfNodeDataArrayWithKey(nodeDataArray : any[], key: number) : number {
+    static findIndexOfNodeDataArrayWithId(nodeDataArray: any[], id: NodeId) : number {
         for (let i = 0 ; i < nodeDataArray.length ; i++){
-            if (nodeDataArray[i].key === key){
+            if (nodeDataArray[i].id === id){
                 return i;
             }
         }

@@ -151,7 +151,7 @@ export class LogicalGraph {
         // make sure to set parentId for all nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             const nodeData = dataObject.nodeDataArray[i];
-            const parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.group);
+            const parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithId(dataObject.nodeDataArray, nodeData.parentId);
 
             if (parentIndex !== -1){
                 result.nodes()[i].setParentId(result.nodes()[parentIndex].getId());
@@ -201,7 +201,7 @@ export class LogicalGraph {
                 const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPortId());
                 const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNodeId() + " to embedded application " + destKeyAndPort.id;
                 errorsWarnings.warnings.push(Errors.Message(warning));
-                edge.setDestNodeKey(destKeyAndPort.id);
+                edge.setDestNodeId(destKeyAndPort.id);
             }
         }
 

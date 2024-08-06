@@ -317,7 +317,7 @@ export class Modals {
             const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
             const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
-            edge.setDestNodeKey(destNodeId);
+            edge.setDestNodeId(destNodeId);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
         });
