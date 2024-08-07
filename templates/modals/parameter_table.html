@@ -120,7 +120,10 @@
                                             Comment
                                             <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_comment') === true}"></div>
                                         </th>
-                                        <th>Remove</th>
+                                        <th id="parameter_table_remove" data-bind="eagleTooltip:'Remove this field from the graph configuration'" data-bs-placement="top">
+                                            Remove
+                                            <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_remove') === true}"></div>
+                                        </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->

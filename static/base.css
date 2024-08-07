@@ -536,7 +536,7 @@ td:first-child input {
     padding-top: 3px;
 }
 
-#rightWindowContainer .inspectorDescriptionDragHnadle{
+#rightWindowContainer .inspectorDescriptionDragHandle{
     position: absolute;
     bottom: -9px;
     right: -8px;
@@ -664,6 +664,10 @@ td:first-child input {
 
 #parameter_table_name{
     width: 160px;
+}
+
+#parameter_table_remove{
+    width: 80px;
 }
 
 #parameterTableModal .modal-header{
