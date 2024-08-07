@@ -2302,6 +2302,8 @@ export class Eagle {
         const graphConfig = GraphConfig.fromJson(dataObject, errorsWarnings);
         this.graphConfig(graphConfig);
 
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+
         this.rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);
     }
 
