@@ -198,6 +198,11 @@ export class LogicalGraph {
             const sourceNode : Node = result.findNodeByKey(edge.getSrcNodeKey());
             const destinationNode : Node = result.findNodeByKey(edge.getDestNodeKey());
 
+            if (sourceNode === null || destinationNode === null){
+                console.warn("Can't find sourceNode or destinationNode for edge", edge.getId());
+                continue;
+            }
+
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
             if (sourceNode.getCategoryType() === Category.Type.Construct){
                 const srcKeyAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPortId());
