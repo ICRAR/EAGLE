@@ -2302,6 +2302,16 @@ export class Eagle {
         const graphConfig = GraphConfig.fromJson(dataObject, errorsWarnings);
         this.graphConfig(graphConfig);
 
+        // set fileInfo
+        this.graphConfig().fileInfo().repositoryName = file.repository.name;
+        this.graphConfig().fileInfo().repositoryBranch = file.repository.branch;
+        this.graphConfig().fileInfo().repositoryService = file.repository.service;
+        this.graphConfig().fileInfo().path = file.path;
+        this.graphConfig().fileInfo().name = file.name;
+
+        // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
+        this.graphConfig().fileInfo.valueHasMutated();
+        
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
         this.rightWindow().mode(Eagle.RightWindowMode.TranslationMenu);
