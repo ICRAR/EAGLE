@@ -43,11 +43,9 @@ test('Creating a Simple Graph', async ({ page }) => {
     await page.mouse.wheel(0,400)
     await page.waitForTimeout(500);
   }
-
   
   //drag an edge from helloWorldApp -> File
   await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
-
 
   //click on the input port of the file to open the parameter table modal and highlight the port
   await page.locator('.inputPort').click();

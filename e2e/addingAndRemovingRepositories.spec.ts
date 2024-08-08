@@ -10,9 +10,7 @@ test('Adding and Removing Repositories', async ({ page }) => {
 
   const REPO_NAME = "ICRAR/daliuge";
   const REPO_BRANCH = "yan-812-2";
-
   const repoHTMLId = '#'+REPO_NAME.replace('/', '_') + "_" + REPO_BRANCH;
-
 
   //making sure the repo doesnt exist for some reason, if it does, remove it
   if(await page.locator('#ICRAR_daliuge_yan-812-2').count() === 1){

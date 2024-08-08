@@ -8,7 +8,6 @@ test('Creating a Simple Graph', async ({ page }) => {
   await expect(page).toHaveTitle(/EAGLE/);
 
   //--------ENABLE EXPERT MODE----------
-
   //open settings modal via keyboard shortcut
   await page.press('body','o');
 
@@ -24,12 +23,6 @@ test('Creating a Simple Graph', async ({ page }) => {
   //agree to create a new graph with it's auto-generated name
   await page.waitForTimeout(500);
   await page.getByRole('button', { name: 'OK' }).click();
-
-  //------------ADD NODE TO GRAPH-----------
-  
-  //scroll the file node into view in the palette and add to graph
-  // await page.locator('#palette_0_File').scrollIntoViewIfNeeded()
-  // await page.dragAndDrop( '#palette_0_File' ,'#graphArea', {targetPosition:{x:400,y:400}})
 
   //-----------EDITING THE NODE IN THE PARAMETERS TABLE--------
   //open the parameters table via keybaord shortcut
@@ -69,8 +62,6 @@ test('Creating a Simple Graph', async ({ page }) => {
   await page.getByRole('row').last().locator('.column_Flags').getByText('alarm_off').click()
   await page.getByRole('row').last().locator('.column_Flags').getByText('lock_open').click()
 
-  // await expect(page.locator('.column_DisplayText').('test parameter copy'))
-
   //count the number of fields on the node 
   const countBefore = await page.getByRole('row').count()
   //delete the last field added
@@ -92,7 +83,6 @@ test('Creating a Simple Graph', async ({ page }) => {
   await page.locator('#openKeyParameterTable').click();
 
   await page.waitForTimeout(500);
-
 
   //make sure the field has been added to the key graph parameter table
   await expect(await page.locator('#parameterTableModal tbody').getByRole('row').count()===0).toBeFalsy();
