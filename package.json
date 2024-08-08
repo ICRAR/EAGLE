@@ -6,9 +6,7 @@
   "directories": {
     "doc": "docs"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ICRAR/EAGLE.git"
@@ -34,6 +32,7 @@
     "showdown": "^2.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.45.3",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",
     "eslint": "^7.32.0",

@@ -82,7 +82,7 @@
                         <!-- /ko -->
                         <div id="portContainer">
                             <!-- ko foreach: $root.logicalGraph().getAllNodes() -->
-                                <div data-bind="class:$data.getId()">
+                                <div data-bind="class:$data.getId(), attr:{id:$data.getName()}">
                                     <!-- ko foreach: $data.getInputPorts() -->
                                         <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isInputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':$data.getBackgroundColor(),'left':GraphRenderer.calculatePortPositionX('input',$data,$parent),'top':GraphRenderer.calculatePortPositionY('input',$data,$parent)},graphRendererPortPosition:{n:$parent,f:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort('input', $data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <!-- ko if: $data.getIsEvent() -->
