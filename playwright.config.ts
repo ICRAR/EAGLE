@@ -4,12 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// import dotenv from 'dotenv';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
 export default defineConfig({
   testDir: './e2e',
   /* Run tests in files in parallel */
@@ -30,7 +25,6 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     launchOptions:{
-      // args:['--window-size=1920,1080'],
       // slowMo: 500 //use for debugging to more easily see what is happening
     }
   },
@@ -59,7 +53,6 @@ export default defineConfig({
       }
     },
 
-    //disabled webkit for now, as the '--window-size' argument does not work for it, i dont know how to set it to a bigger window size, and eagles tests fail because the screen is too small
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari']  ,
