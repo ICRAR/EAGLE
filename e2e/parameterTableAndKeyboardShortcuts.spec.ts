@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { setTimeout } from 'timers';
 
 test('Creating a Simple Graph', async ({ page }) => {
   
