@@ -97,18 +97,6 @@ export class Utils {
     }
 
     static generateName(fileType: Eagle.FileType): string {
-        if (fileType === Eagle.FileType.GraphConfig){
-            // get graph name
-            let graphName = Eagle.getInstance().logicalGraph().fileInfo().name;
-
-            // if empty, replace with 'graph'
-            if (graphName === ""){
-                graphName = "graph";
-            }
-
-            return graphName + "-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
-        }
-
         return fileType.toString() + "-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
     }
 
@@ -213,11 +201,11 @@ export class Utils {
     // NOTE: used for sorting files by filetype
     static getFileTypeNum(fileType: Eagle.FileType) : number {
         switch (fileType){
-            case Eagle.FileType.Graph:
+            case Eagle.FileType.Daliuge:
                 return 0;
             case Eagle.FileType.Palette:
                 return 1;
-            case Eagle.FileType.GraphConfig:
+            case Eagle.FileType.Graph:
                 return 2;
             case Eagle.FileType.JSON:
                 return 3;
@@ -292,8 +280,8 @@ export class Utils {
             return "graph";
         } else if (fileType == Eagle.FileType.Palette) {
             return "palette";
-        } else if (fileType === Eagle.FileType.GraphConfig) {
-            return "cfg";
+        } else if (fileType === Eagle.FileType.Daliuge) {
+            return "dlg";
         } else {
             console.error("Utils.getDiagramExtension() : Unknown file type! (" + fileType + ")");
             return "";
@@ -316,8 +304,8 @@ export class Utils {
         if (fileType.toLowerCase() === "json"){
             return Eagle.FileType.JSON;
         }
-        if (fileType.toLowerCase() === "graphconfig" || fileType.toLowerCase() === "cfg"){
-            return Eagle.FileType.GraphConfig;
+        if (fileType.toLowerCase() === "daliuge" || fileType.toLowerCase() === "dlg"){
+            return Eagle.FileType.Daliuge;
         }
 
         return Eagle.FileType.Unknown;
@@ -1365,11 +1353,6 @@ export class Utils {
             return Eagle.FileType.Graph;
         }
 
-        // TODO: change this to something more likely to be config-only
-        if (typeof data.nodes !== 'undefined'){
-            return Eagle.FileType.GraphConfig;
-        }
-
         console.warn("Can't determine filetype");
         return Eagle.FileType.Unknown;
     }
@@ -1553,7 +1536,7 @@ export class Utils {
         }
     }
 
-    static _validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
+    static _validateJSON(json: any, version: Daliuge.SchemaVersion, fileType: Eagle.FileType) : {valid: boolean, errors: string} {
         const ajv = new Ajv();
         let valid : boolean;
 
@@ -1566,9 +1549,9 @@ export class Utils {
                     case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
                         break;
-                    case Eagle.FileType.GraphConfig:
-                        // TODO: develop a schema for graph config flles?
-                        valid = true;
+                    case Eagle.FileType.Daliuge:
+                        // TODO: more here for the other parts of the Daliuge file, or a new schema for the whole thing
+                        valid = ajv.validate(Utils.ojsGraphSchema, json.graph) as boolean;
                         break;
                     default:
                         console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
@@ -2374,10 +2357,9 @@ export class Utils {
     static printGraphConfigurationTable() : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
-        const graphConfig: GraphConfig = eagle.graphConfig();
 
         // add logical graph nodes to table
-        for (const node of graphConfig.getNodes()){
+        for (const node of eagle.currentConfig().getNodes()){
             const graphNode: Node = eagle.logicalGraph().findNodeById(node.getId());
             for (const field of node.getFields()){
                 const graphField: Field = graphNode.findFieldById(field.getId());
