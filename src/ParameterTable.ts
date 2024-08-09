@@ -150,7 +150,7 @@ export class ParameterTable {
                 return eagle.selectedNode()?.getFields();
             
             case ParameterTable.Mode.GraphConfig:
-                const config: GraphConfig = eagle.graphConfig();
+                const config: GraphConfig = eagle.currentConfig();
                 const lg: LogicalGraph = eagle.logicalGraph();
                 const displayedFields: Field[] = [];
 
@@ -334,19 +334,27 @@ export class ParameterTable {
     }
 
     static requestAddField(currentField: Field): void {
-        const graphConfig: GraphConfig = Eagle.getInstance().graphConfig();
+        const graphConfig: GraphConfig = Eagle.getInstance().currentConfig();
 
         graphConfig.addField(currentField);
 
-        if (graphConfig.fileInfo().name === ""){
+        if (graphConfig.getName() === ""){
 
             ParameterTable.closeModal();
 
-            Utils.newDiagram(Eagle.FileType.GraphConfig, (name: string) => {
-                graphConfig.fileInfo().name = name;
-                graphConfig.fileInfo.valueHasMutated();
-
+            Utils.requestUserString("New Configuration", "Enter a name for the new configuration", "New Config", false, (completed : boolean, userString : string) : void => {
                 ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
+
+                if (!completed){
+                    return;
+                }
+                if (userString === ""){
+                    Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
+                    return;
+                }
+
+                graphConfig.setName(userString);
+                graphConfig.setIsModified(true);
             });
         }
     }
@@ -375,7 +383,7 @@ export class ParameterTable {
 
     static requestEditCommentInModal(currentField:Field) : void {
         const currentNode: Node = Eagle.getInstance().logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey());
-        const configField: GraphConfigField = Eagle.getInstance().graphConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
+        const configField: GraphConfigField = Eagle.getInstance().currentConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
 
         //ParameterTable.openModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
         ParameterTable.closeModal();

@@ -3,10 +3,7 @@ import * as ko from "knockout";
 import { Eagle } from "./Eagle";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
-import { FileInfo } from "./FileInfo";
 import { LogicalGraph } from "./LogicalGraph";
-import { ParameterTable } from "./ParameterTable";
-import { Utils } from "./Utils";
 
 export class GraphConfigField {
     private id: ko.Observable<string>;
@@ -182,28 +179,52 @@ export class GraphConfigNode {
 }
 
 export class GraphConfig {
-    fileInfo : ko.Observable<FileInfo>;
+    private name: ko.Observable<string>;
+    private description: ko.Observable<string>;
+
+    private isModified: ko.Observable<boolean>;
+    private isFavorite: ko.Observable<boolean>;
+    
     private nodes: ko.ObservableArray<GraphConfigNode>;
     
     constructor(){
-        this.fileInfo = ko.observable(new FileInfo());
-        this.fileInfo().type = Eagle.FileType.GraphConfig;
-        this.fileInfo().readonly = false;
-        this.fileInfo().builtIn = false;
+        this.name = ko.observable("");
+        this.description = ko.observable("");
+
+        this.isModified = ko.observable(false);
+        this.isFavorite = ko.observable(false);
+        
         this.nodes = ko.observableArray([]);
     }
 
     clone = () : GraphConfig => {
         const result : GraphConfig = new GraphConfig();
 
-        result.fileInfo(this.fileInfo().clone());
+        result.name(this.name());
+        result.description(this.description());
 
+        result.isModified(this.isModified());
+        result.isFavorite(this.isFavorite());
+        
         // copy nodes
         for (const node of this.nodes()){
             result.nodes.push(node.clone());
         }
 
         return result;
+    }
+
+    getName = (): string => {
+        return this.name();
+    }
+
+    setName = (name: string): GraphConfig => {
+        this.name(name);
+        return this;
+    }
+
+    setIsModified = (isModified: boolean): void => {
+        this.isModified(isModified);
     }
 
     getNodes = (): GraphConfigNode[] => {
@@ -275,6 +296,18 @@ export class GraphConfig {
     static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
         const result: GraphConfig = new GraphConfig();
 
+        if (typeof data.name !== 'undefined'){
+            result.name(data.name);
+        }
+
+        if (typeof data.description !== 'undefined'){
+            result.description(data.description);
+        }
+
+        if (typeof data.isFavorite !== 'undefined'){
+            result.isFavorite(data.isFavorite);
+        }
+
         if (typeof data.nodes !== 'undefined'){
             for (const nodeId in data.nodes){
                 const nodeData = data.nodes[nodeId];
@@ -287,11 +320,12 @@ export class GraphConfig {
         return result;
     }
 
-    static toJson(graphConfig: GraphConfig, graph: LogicalGraph) : object {
+    static toJson(graphConfig: GraphConfig) : object {
         const result : any = {};
 
-        result.modelData = FileInfo.toOJSJson(graphConfig.fileInfo());
-        result.graphData = FileInfo.toOJSJson(graph.fileInfo());
+        // NOTE: we don't write isModified to JSON, it is run-time only
+        result.isFavorite = graphConfig.isFavorite();
+        result.description = graphConfig.description();
 
         // add nodes
         result.nodes = {};
@@ -303,17 +337,13 @@ export class GraphConfig {
         return result;
     }
 
-    static toJsonString(graphConfig: GraphConfig, graph: LogicalGraph) : string {
+    static toJsonString(graphConfig: GraphConfig) : string {
         let result: string = "";
 
-        const json: any = GraphConfig.toJson(graphConfig, graph);
+        const json: any = GraphConfig.toJson(graphConfig);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
-        result += "{\n";
-        result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
-        result += '"graphData": ' + JSON.stringify(json.graphData, null, 4) + ",\n";
-        result += '"nodes": ' + JSON.stringify(json.nodes, null, 4) + "\n";
-        result += "}\n";
+        result += JSON.stringify(json, null, 4);
 
         return result;
     }
