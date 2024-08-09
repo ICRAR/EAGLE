@@ -91,6 +91,11 @@ export class KeyboardShortcut {
     }
 
     static processKey(e:KeyboardEvent) : void {
+        // skip all non-KeyboardEvent, otherwise we can't guarantee the Event has a '.key' attribute
+        if (!(e instanceof KeyboardEvent)){
+            return;
+        }
+
         // skip all repeat events, just process the initial keyup or keydown
         if (e.repeat){
             return;
@@ -207,8 +212,8 @@ export class KeyboardShortcut {
             new KeyboardShortcut("open_settings", "Open setting", ["o"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['menu','options'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.smartToggleModal('settingsModal');}),
             new KeyboardShortcut("open_help", "Open Online Documentation", ["h"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['read me','guide','documentation'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.onlineDocs();}),
             new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['shortcuts'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.smartToggleModal('shortcutsModal')}),
-            new KeyboardShortcut("open_component_parameter_table_modal", "Open Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['fields','field','node','table'], function(){return !Setting.findValue(Setting.STUDENT_SETTINGS_MODE)}, function(){return !Setting.findValue(Setting.STUDENT_SETTINGS_MODE)}, (eagle): void => {eagle.openParamsTableModal('inspectorTableModal','normal');}),
-            new KeyboardShortcut("open_key_parameter_table_modal", "Open Key Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, ['fields','field','node','graph','table','favourites'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.openParamsTableModal('keyParametersTableModal','normal');}),
+            new KeyboardShortcut("open_parameter_table_modal", "Open Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['fields','field','node','table'], function(){return !Setting.findValue(Setting.STUDENT_SETTINGS_MODE)}, function(){return !Setting.findValue(Setting.STUDENT_SETTINGS_MODE)}, (eagle): void => {ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal);}),
+            new KeyboardShortcut("open_graph_configuration_table_modal", "Open Graph Configuration Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, ['fields','field','node','graph','table','favourites'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal);}),
             new KeyboardShortcut("undo", "Undo", ["z"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['back','history'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.undo().prevSnapshot(eagle)}),
             new KeyboardShortcut("redo", "Redo", ["z"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, ['forward','history'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.undo().nextSnapshot(eagle)}),
             new KeyboardShortcut("check_graph", "Check Graph", ["!"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, ['error','errors','fix'], KeyboardShortcut.allowGraphEditing, function(){return KeyboardShortcut.graphNotEmpty && Setting.findValue(Setting.ALLOW_GRAPH_EDITING) }, (eagle): void => {eagle.showGraphErrors();}),
@@ -242,7 +247,7 @@ export class KeyboardShortcut {
             new KeyboardShortcut("loadFromRepository", "Load From Repository", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository);}),
             new KeyboardShortcut("createNewGraphFromJson", "Create New Graph From Json", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.newLogicalGraphFromJson();}),
             new KeyboardShortcut("addToGraphFromJson", "Add To Graph From Json", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.addToGraphFromJson();}),
-            new KeyboardShortcut("displayGraphAsJson", "Display Graph As Json", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.displayLogicalGraphAsJson();}),
+            new KeyboardShortcut("displayGraphAsJson", "Display Graph As Json", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph);}),
             new KeyboardShortcut("aboutEagle", "About Eagle", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.showAbout();}),
             new KeyboardShortcut("gitHubReadme", "GitHub ReadMe", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.readme();}),
             new KeyboardShortcut("submitIssue", "Submit GitHub Issue", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.submitIssue();}),
@@ -251,7 +256,17 @@ export class KeyboardShortcut {
             new KeyboardShortcut("toggleCollapseAllGroups", "Toggle Collapse All Groups", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['expand','hide','show'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.toggleCollapseAllGroups();}),
             new KeyboardShortcut("addSelectedNodeToPalette", "Add Selected Nodes To Palette", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.addSelectedNodesToPalette('normal');}),
             new KeyboardShortcut("screenshotGraph", "Save Graph as PNG (Screenshot)", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['print','printScreen','screen','save','png'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.saveGraphScreenshot();}),
-            
+
+            // graph configs
+            new KeyboardShortcut("createNewConfig", "Create New Config", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.newConfig();}),
+            /*
+            new KeyboardShortcut("createNewConfigFromJson", "Create New Config From Json", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.newConfigFromJson();}),
+            new KeyboardShortcut("saveConfig", "Save Config To Git", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.commitToGit(Eagle.FileType.GraphConfig);}),
+            new KeyboardShortcut("saveConfigAs", "Save Config To Git As", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.commitToGitAs(Eagle.FileType.GraphConfig);}),
+            new KeyboardShortcut("saveConfigLocally", "Save Config Locally", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.saveFileToLocal(Eagle.FileType.GraphConfig);}),
+            new KeyboardShortcut("loadConfigLocally", "Load Config Locally", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.getConfigFileToLoad();}),
+            */
+
             //docs
             new KeyboardShortcut("docs_load_a_palette", "Loading a Palette", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#loading-a-palette');}),
             new KeyboardShortcut("docs_creating_a_graph", "Creating a Graph", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#creating-a-new-graph');}),

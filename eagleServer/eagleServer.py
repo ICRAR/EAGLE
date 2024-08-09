@@ -24,6 +24,7 @@ This is the main module of the EAGLE server side code.
 """
 import argparse
 import base64
+import datetime
 import json
 import logging
 import os
@@ -143,6 +144,8 @@ def save():
     temp_file = tempfile.TemporaryFile()
 
     try:
+        content["modelData"]["lastModifiedDatetime"] = datetime.datetime.now().timestamp()
+
         json_string = json.dumps(content)
         if sys.version_info < (3, 2, 0):
             temp_file.write(json_string)

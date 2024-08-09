@@ -33,7 +33,7 @@ import { Errors } from './Errors';
 import * as ko from "knockout";
 
 export class Edge {
-    private _id : string
+    private id : string
     private srcNodeKey : number;
     private srcPortId : string;
     private destNodeKey : number;
@@ -45,7 +45,7 @@ export class Edge {
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of edge errors
 
     constructor(srcNodeKey : number, srcPortId : string, destNodeKey : number, destPortId : string, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
-        this._id = Utils.uuidv4();
+        this.id = Utils.uuidv4();
 
         this.srcNodeKey = srcNodeKey;
         this.srcPortId = srcPortId;
@@ -60,11 +60,11 @@ export class Edge {
     }
 
     getId = () : string => {
-        return this._id;
+        return this.id;
     }
 
     setId = (id: string) : void => {
-        this._id = id;
+        this.id = id;
     }
 
     getSrcNodeKey = () : number => {
@@ -152,7 +152,7 @@ export class Edge {
     }
 
     clear = () : void => {
-        this._id = "";
+        this.id = "";
         this.srcNodeKey = 0;
         this.srcPortId = "";
         this.destNodeKey = 0;
@@ -164,7 +164,7 @@ export class Edge {
     clone = () : Edge => {
         const result : Edge = new Edge(this.srcNodeKey, this.srcPortId, this.destNodeKey, this.destPortId, this.loopAware, this.closesLoop, this.selectionRelative);
 
-        result._id = this._id;
+        result.id = this.id;
 
         return result;
     }
@@ -181,7 +181,6 @@ export class Edge {
         })
 
         return errorsWarnings;
-
     }
 
     getIssues = () : {issue:Errors.Issue, validity:Errors.Validity}[] => {
@@ -243,21 +242,6 @@ export class Edge {
         }
 
         return new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, loopAware, closesLoop, false);
-    }
-
-    static toV3Json(edge : Edge) : object {
-        return {
-            srcNode: edge.srcNodeKey.toString(),
-            srcPort: edge.srcPortId,
-            destNode: edge.destNodeKey.toString(),
-            destPort: edge.destPortId,
-            loop_aware: edge.loopAware ? "1" : "0",
-            closesLoop: edge.closesLoop
-        }
-    }
-
-    static fromV3Json(edgeData: any, errorsWarnings: Errors.ErrorsWarnings): Edge {
-        return new Edge(edgeData.srcNode, edgeData.srcPort, edgeData.destNode, edgeData.destPort, edgeData.loop_aware === "1", edgeData.closesLoop, false);
     }
 
     static toAppRefJson(edge : Edge, lg: LogicalGraph) : object {
@@ -372,6 +356,7 @@ export class Edge {
             const issue: Errors.Issue = Errors.ShowFix("Source port (" + sourcePortId + ") doesn't exist on source node (" + sourceNode.getName() + ")", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.addSourcePortToSourceNode(eagle, edgeId)}, "Add source port to source node");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
+            return Errors.Validity.Impossible;
         }
 
         // check if destination port was found
@@ -379,6 +364,7 @@ export class Edge {
             const issue: Errors.Issue = Errors.ShowFix("Destination port (" + destinationPortId + ") doesn't exist on destination node (" + destinationNode.getName() + ")", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.addDestinationPortToDestinationNode(eagle, edgeId)}, "Add destination port to destination node");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
+            return Errors.Validity.Impossible;
         }
 
         // check that we are not connecting a port to itself

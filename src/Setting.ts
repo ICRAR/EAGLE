@@ -279,7 +279,7 @@ export class Setting {
     static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
     static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
-    static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters";
+    static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters"; // TODO: maybe rename SHOW_NON_GRAPH_CONFIG_PARAMETERS?
     static readonly FILTER_NODE_SUGGESTIONS : string = "AutoSuggestDestinationNodes";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
@@ -336,8 +336,8 @@ export namespace Setting {
         Warnings = "Warnings"
     }
 
-    export enum valueEditingPerms {
-        KeyOnly = "keyOnly",
+    export enum ValueEditingPermission {
+        ConfigOnly = "ConfigOnly",
         Normal = "Normal",
         ReadOnly = "Readonly"
     }
@@ -396,7 +396,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Allow Edge Editing", Setting.ALLOW_EDGE_EDITING, "Allow the user to edit edge attributes.", false, Setting.Type.Boolean, false, false,false, false, true),
             new Setting(true, "Filter Node Suggestions", Setting.FILTER_NODE_SUGGESTIONS, "Filter Node Options When Drawing Edges Into Empty Space", false, Setting.Type.Boolean,true,true,true,true,false),
             new Setting(false, "STUDENT_SETTINGS_MODE", Setting.STUDENT_SETTINGS_MODE, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
-            new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, Setting.Type.Select, Setting.valueEditingPerms.KeyOnly,Setting.valueEditingPerms.Normal,Setting.valueEditingPerms.Normal,Setting.valueEditingPerms.ReadOnly,Setting.valueEditingPerms.ReadOnly, Object.values(Setting.valueEditingPerms)),
+            new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, Setting.Type.Select, Setting.ValueEditingPermission.ConfigOnly,Setting.ValueEditingPermission.Normal,Setting.ValueEditingPermission.Normal,Setting.ValueEditingPermission.ReadOnly,Setting.ValueEditingPermission.ReadOnly, Object.values(Setting.ValueEditingPermission)),
             new Setting(true, "Auto-complete edges level", Setting.AUTO_COMPLETE_EDGES_LEVEL, "Specifies the minimum validity level of auto-complete edges displayed when dragging a new edge", false, Setting.Type.Select, Errors.Validity.Valid, Errors.Validity.Valid, Errors.Validity.Warning, Errors.Validity.Warning, Errors.Validity.Error, [Errors.Validity.Error, Errors.Validity.Warning, Errors.Validity.Valid]),
         ]
     ),

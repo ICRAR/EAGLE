@@ -47,6 +47,8 @@ export class LogicalGraph {
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Graph;
+        this.fileInfo().readonly = false;
+        this.fileInfo().builtIn = false;
         this.nodes = ko.observableArray([]);
         this.edges = ko.observableArray([]);
         this.issues = ko.observableArray([])
@@ -195,6 +197,11 @@ export class LogicalGraph {
             // get references to actual source and destination nodes (from the keys)
             const sourceNode : Node = result.findNodeByKey(edge.getSrcNodeKey());
             const destinationNode : Node = result.findNodeByKey(edge.getDestNodeKey());
+
+            if (sourceNode === null || destinationNode === null){
+                console.warn("Can't find sourceNode or destinationNode for edge", edge.getId());
+                continue;
+            }
 
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
             if (sourceNode.getCategoryType() === Category.Type.Construct){

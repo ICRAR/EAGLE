@@ -501,7 +501,7 @@ td:first-child input {
     color: rgb(113 113 113);
 }
 
-#parameterTableModal .modal-dialog td button.parameterTableDescriptionBtn {
+#parameterTableModal .modal-dialog td button.parameterTableDescriptionBtn, #parameterTableModal .modal-dialog td button.parameterTableCommentBtn {
     position: absolute;
     right: 4px;
     top: 2px;
@@ -536,7 +536,7 @@ td:first-child input {
     padding-top: 3px;
 }
 
-#rightWindowContainer .inspectorDescriptionDragHnadle{
+#rightWindowContainer .inspectorDescriptionDragHandle{
     position: absolute;
     bottom: -9px;
     right: -8px;
@@ -664,6 +664,10 @@ td:first-child input {
 
 #parameter_table_name{
     width: 160px;
+}
+
+#parameter_table_remove{
+    width: 80px;
 }
 
 #parameterTableModal .modal-header{
@@ -2251,7 +2255,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
     position: relative;
 }
 
-
 .translationDefault{
     position:absolute;
     top: 4px;
@@ -2262,10 +2265,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 #translationMenu .accordion-body button{
     margin-bottom: 5px;
     padding: 3px 10px;
-}
-
-#setTranslatorUrlBtn{
-    padding: 5px 10px !important;
 }
 
 .accordion-item{

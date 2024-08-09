@@ -12,6 +12,8 @@ export class RepositoryFile {
     type : Eagle.FileType;
     isFetching: ko.Observable<boolean>
 
+    static readonly DUMMY = new RepositoryFile(Repository.DUMMY, "", "");
+
     constructor(repository : Repository, path : string, name : string){
         this._id = Math.floor(Math.random() * 1000000000000);
         this.repository = repository;
@@ -30,8 +32,10 @@ export class RepositoryFile {
                 return "palette";
             case Eagle.FileType.JSON:
                 return "language";
+            case Eagle.FileType.Daliuge:
+                return "construction"; // TODO: better icon
             default:
-                return "description";
+                return this.type;
         }
     }, this);
 
