@@ -259,12 +259,13 @@ export class KeyboardShortcut {
 
             // graph configs
             new KeyboardShortcut("createNewConfig", "Create New Config", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.newConfig();}),
+            /*
             new KeyboardShortcut("createNewConfigFromJson", "Create New Config From Json", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.newConfigFromJson();}),
             new KeyboardShortcut("saveConfig", "Save Config To Git", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.commitToGit(Eagle.FileType.GraphConfig);}),
             new KeyboardShortcut("saveConfigAs", "Save Config To Git As", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.commitToGitAs(Eagle.FileType.GraphConfig);}),
             new KeyboardShortcut("saveConfigLocally", "Save Config Locally", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.saveFileToLocal(Eagle.FileType.GraphConfig);}),
             new KeyboardShortcut("loadConfigLocally", "Load Config Locally", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.getConfigFileToLoad();}),
-            new KeyboardShortcut("displayConfigAsJson", "Display Config As Json", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.GraphConfig);}),
+            */
 
             //docs
             new KeyboardShortcut("docs_load_a_palette", "Loading a Palette", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#loading-a-palette');}),
