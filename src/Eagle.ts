@@ -1618,20 +1618,6 @@ export class Eagle {
         });
     }
 
-    /**
-    * Presents the user with a textarea in which to paste JSON. Reads the JSON and parses it into a palette.
-    */
-    newConfigFromJson = () : void => {
-        Utils.requestUserText("New Graph Config from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
-            if (!completed)
-            {   // Cancelling action.
-                return;
-            }
-
-            this._loadConfigJSON(userText, "");
-        });
-    }
-
     saveGraph = () : void => {
         if (this.logicalGraph().fileInfo().repositoryService === Repository.Service.File){
             this.saveFileToLocal(Eagle.FileType.Graph);
@@ -1683,9 +1669,6 @@ export class Eagle {
                 this.savePaletteToDisk(destinationPalette);
                 break;
             }
-            case Eagle.FileType.GraphConfig:
-                this.saveConfigToDisk(this.graphConfig());
-                break;
             default:
                 Utils.showUserMessage("Not implemented", "Not sure which fileType is the right one to save locally :" + fileType);
                 break;

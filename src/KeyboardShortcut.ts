@@ -260,7 +260,6 @@ export class KeyboardShortcut {
             // graph configs
             new KeyboardShortcut("createNewConfig", "Create New Config", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.newConfig();}),
             /*
-            new KeyboardShortcut("createNewConfigFromJson", "Create New Config From Json", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.newConfigFromJson();}),
             new KeyboardShortcut("saveConfig", "Save Config To Git", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.commitToGit(Eagle.FileType.GraphConfig);}),
             new KeyboardShortcut("saveConfigAs", "Save Config To Git As", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.commitToGitAs(Eagle.FileType.GraphConfig);}),
             new KeyboardShortcut("saveConfigLocally", "Save Config Locally", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.saveFileToLocal(Eagle.FileType.GraphConfig);}),
