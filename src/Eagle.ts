@@ -1595,18 +1595,26 @@ export class Eagle {
      * Creates a new graph configuration
      */
     newConfig = () : void => {
-        Utils.newDiagram(Eagle.FileType.GraphConfig, (name : string) => {
-            const c: GraphConfig = new GraphConfig();
-            c.fileInfo().name = name;
+        // TODO: check if existing config has been modified, prompt user to save changes
 
-            // mark the config as modified and readwrite
-            c.fileInfo().modified = true;
-            c.fileInfo().readonly = false;
+        Utils.requestUserString("New Config", "Enter Config name", "", false, (completed : boolean, userString : string) : void => {
+            if (!completed)
+            {   // Cancelling action.
+                return;
+            }
+            if (userString === ""){
+            Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
+                return;
+            }
+
+            const c: GraphConfig = new GraphConfig();
+            c.setName(userString);
+            c.setIsModified(false);
 
             // replace existing config
-            this.graphConfig(c);
+            this.currentConfig(c);
 
-            Utils.showNotification("New Graph Config Created", name, "success");
+            Utils.showNotification("New Graph Config Created", userString, "success");
         });
     }
 
@@ -1932,7 +1940,7 @@ export class Eagle {
     saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette | Eagle) : void => {
         console.log("saveDiagramToGit() repositoryName", repository.name, "fileType", fileType, "filePath", filePath, "fileName", fileName, "commitMessage", commitMessage);
 
-        const clone: LogicalGraph | Palette = obj.clone();
+        const clone: LogicalGraph | Palette | Eagle = obj.clone();
         clone.fileInfo().updateEagleInfo();
 
         let jsonString: string = "";
