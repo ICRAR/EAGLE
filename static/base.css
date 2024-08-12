@@ -2128,6 +2128,16 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     color: white !important;
 }
 
+#statusBar{
+    position: fixed;
+    bottom: 0px;
+    height: 25px;
+    left: 310px;
+    right: 400px;
+    background-color: #282828;
+    color: white;
+}
+
 .inactiveLink {
     pointer-events: none;
     cursor: default;

@@ -231,6 +231,11 @@
                 </div>
             </div>
         </div>
+        <div id="statusBar">
+            <!-- ko foreach: StatusEntry.getStatusEntries() -->
+                <span data-bind="text: $data.action"></span>
+            <!-- /ko -->
+        </div>
 
         {% include 'modals.html' %} 
         {% include 'quickAction.html' %}
