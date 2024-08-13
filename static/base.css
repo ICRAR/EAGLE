@@ -2132,10 +2132,9 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     position: fixed;
     bottom: 0px;
     height: 25px;
-    left: 310px;
-    right: 400px;
     background-color: #282828;
     color: white;
+    visibility: hidden;
 }
 
 .inactiveLink {
