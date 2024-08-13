@@ -214,22 +214,6 @@
                             <a class="dropdown-item" id="createNewConfig" href="#" data-bind="click: newConfig">Create</a>
                         </div>
                     </span>
-                    <div class="dropdown-divider"></div>
-                    <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
-                        <div class="dropDropDown">
-                            <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.GraphConfig)}">Save</a>
-                            <a class="dropdown-item" id="commitToGitAsConfig" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.GraphConfig)}">Save As</a>
-                            <a class="dropdown-item" id="loadConfigFromGitRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}">Load From Repository</a>
-                        </div>
-                    </span>
-                    <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
-                        <div class="dropDropDown">
-                            <a class="dropdown-item" id="saveConfig" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.GraphConfig)}">Save</a>
-                            <a class="dropdown-item" id="loadConfig" href="#" data-bind="click: getConfigFileToLoad">Load</a>
-                        </div>
-                    </span>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: function(){displayObjectAsJson(Eagle.FileType.GraphConfig);}">Display As Json</a>
                 </div>
             </li>
             <li class="nav-item dropdown">

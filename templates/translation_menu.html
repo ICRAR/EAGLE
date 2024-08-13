@@ -251,12 +251,12 @@
 
     <div class="row mt-2">
         <div class="alert alert-light noselect mb-1" role="alert">
-            <!-- ko if: graphConfig().numFields() === 0 -->
+            <!-- ko if: currentConfig().numFields() === 0 -->
                 <span>No (or empty) Graph Config loaded.</span>
             <!-- /ko -->
-            <!-- ko if: graphConfig().numFields() > 0 -->
+            <!-- ko if: currentConfig().numFields() > 0 -->
                 <span>Graph Config overwrites</span>
-                <span data-bind="text: graphConfig().numFields()"></span>
+                <span data-bind="text: currentConfig().numFields()"></span>
                 <span>fields.</span>
             <!-- /ko -->
         </div>

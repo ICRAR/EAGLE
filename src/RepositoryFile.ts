@@ -10,9 +10,7 @@ export class RepositoryFile {
     name : string
     path : string
     type : Eagle.FileType;
-    isFetching: ko.Observable<boolean>
-
-    static readonly DUMMY = new RepositoryFile(Repository.DUMMY, "", "");
+    isFetching: ko.Observable<boolean>;
 
     constructor(repository : Repository, path : string, name : string){
         this._id = Math.floor(Math.random() * 1000000000000);
