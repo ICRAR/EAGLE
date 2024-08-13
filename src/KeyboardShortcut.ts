@@ -7,6 +7,7 @@ import { Setting } from './Setting';
 import { TutorialSystem } from './Tutorial';
 import { Utils } from './Utils';
 import { GraphRenderer } from './GraphRenderer';
+import { GraphConfigurationsTable } from './GraphConfigurationsTable';
 
 
 let currentEvent:any  = null // this is used for keyboard shortcut functions that need the event object to function
@@ -214,6 +215,7 @@ export class KeyboardShortcut {
             new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", ["k"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['shortcuts'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.smartToggleModal('shortcutsModal')}),
             new KeyboardShortcut("open_parameter_table_modal", "Open Parameter Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['fields','field','node','table'], function(){return !Setting.findValue(Setting.STUDENT_SETTINGS_MODE)}, function(){return !Setting.findValue(Setting.STUDENT_SETTINGS_MODE)}, (eagle): void => {ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal);}),
             new KeyboardShortcut("open_graph_configuration_table_modal", "Open Graph Configuration Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, ['fields','field','node','graph','table','favourites'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal);}),
+            new KeyboardShortcut("open_graph_configurations_table_modal", "Open Graph Configurations Table Modal", ["c"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, [], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {GraphConfigurationsTable.openModal();}),
             new KeyboardShortcut("undo", "Undo", ["z"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['back','history'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.undo().prevSnapshot(eagle)}),
             new KeyboardShortcut("redo", "Redo", ["z"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, ['forward','history'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.undo().nextSnapshot(eagle)}),
             new KeyboardShortcut("check_graph", "Check Graph", ["!"], "keydown", KeyboardShortcut.Modifier.Shift, KeyboardShortcut.true, ['error','errors','fix'], KeyboardShortcut.allowGraphEditing, function(){return KeyboardShortcut.graphNotEmpty && Setting.findValue(Setting.ALLOW_GRAPH_EDITING) }, (eagle): void => {eagle.showGraphErrors();}),

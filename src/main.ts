@@ -37,6 +37,7 @@ import { Errors } from './Errors';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
 import { GraphConfig } from "./GraphConfig";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
@@ -76,6 +77,7 @@ $(function(){
     (<any>window).EagleConfig = EagleConfig;
     (<any>window).Errors = Errors;
     (<any>window).GraphConfig = GraphConfig;
+    (<any>window).GraphConfigurationsTable = GraphConfigurationsTable;
     (<any>window).Hierarchy = Hierarchy;
     (<any>window).ParameterTable = ParameterTable;
     (<any>window).Repositories = Repositories;
