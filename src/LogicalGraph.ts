@@ -32,6 +32,7 @@ import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
+import { GraphConfig } from './GraphConfig';
 import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
@@ -42,6 +43,7 @@ export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
     private nodes : ko.ObservableArray<Node>;
     private edges : ko.ObservableArray<Edge>;
+    private graphConfigs : ko.ObservableArray<GraphConfig>;
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
 
     constructor(){
@@ -51,6 +53,7 @@ export class LogicalGraph {
         this.fileInfo().builtIn = false;
         this.nodes = ko.observableArray([]);
         this.edges = ko.observableArray([]);
+        this.graphConfigs = ko.observableArray([]);
         this.issues = ko.observableArray([])
     }
 

@@ -65,7 +65,6 @@ export class Eagle {
 
     palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
-    graphConfigs : ko.ObservableArray<GraphConfig>;
     currentConfig : ko.Observable<GraphConfig>;
     tutorial : ko.Observable<Tutorial>;
 
@@ -145,7 +144,6 @@ export class Eagle {
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
-        this.graphConfigs = ko.observableArray();
         this.currentConfig = ko.observable(new GraphConfig());
         this.eagleIsReady = ko.observable(false);
 
@@ -1318,6 +1316,7 @@ export class Eagle {
     loadLocalDaliugeFile = () : void => {
         const daliugeFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("daliugeFileToLoad");
         const fileFullPath : string = daliugeFileInputElement.value;
+        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const eagle: Eagle = this;
 
         // abort if value is empty string
@@ -1335,11 +1334,17 @@ export class Eagle {
             reader.onload = function (evt) {
                 const data: string = evt.target.result.toString();
 
-                eagle._loadDaliugeJSON(data, fileFullPath);
-
-                // TODO: should fineInfo(modelData) be in the LG or the EAGLE object
-                eagle.logicalGraph().fileInfo().repositoryService = Repository.Service.File;
-                eagle.logicalGraph().fileInfo.valueHasMutated();
+                eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                    const parentNode: Node = new Node(Utils.uuidv4(), Utils.newKey(eagle.logicalGraph().getNodes()), lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+    
+                    eagle.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
+    
+                    // TODO: handle errors and warnings
+    
+                    eagle.checkGraph();
+                    eagle.undo().pushSnapshot(eagle, "Insert Logical Graph");
+                    eagle.logicalGraph.valueHasMutated();
+                });
             }
             reader.onerror = function (evt) {
                 console.error("error reading file", evt);
@@ -1348,47 +1353,6 @@ export class Eagle {
         
         // reset file selection element
         daliugeFileInputElement.value = "";
-    }
-
-    private _loadDaliugeJSON = (data: string, fileFullPath: string) => {
-        let dataObject;
-
-        // attempt to parse the JSON
-        try {
-            dataObject = JSON.parse(data);
-        }
-        catch(err){
-            Utils.showUserMessage("Error parsing file JSON", err.message);
-            return;
-        }
-
-        // determine file type
-        const loadedFileType : Eagle.FileType = Utils.determineFileType(dataObject);
-
-        // abort if not a daliuge file
-        if (loadedFileType !== Eagle.FileType.Daliuge){
-            Utils.showUserMessage("Error", "This is not a config file! Looks like a " + loadedFileType);
-            return;
-        }
-
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const logicalGraph: LogicalGraph = LogicalGraph.fromOJSJson(dataObject.graph, RepositoryFile.DUMMY, errorsWarnings);
-
-        const graphConfigs : GraphConfig[] = [];
-        for (const configObject of dataObject.configurations){
-            graphConfigs.push(GraphConfig.fromJson(dataObject, errorsWarnings));
-        }
-
-        // show errors (if found)
-        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
-
-        // update attributes of eagle
-        this.graphConfigs(graphConfigs);
-
-        // show the left window
-        this.leftWindow().shown(true);
-
-        Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
     }
 
     /**
@@ -1755,11 +1719,12 @@ export class Eagle {
 
             console.log("commitToGitAs()");
             let fileInfo : ko.Observable<FileInfo>;
-            let obj : LogicalGraph | Palette | Eagle;
+            let obj : LogicalGraph | Palette;
 
             // determine which object of the given filetype we are committing
             switch (fileType){
                 case Eagle.FileType.Graph:
+                case Eagle.FileType.Daliuge:
                     fileInfo = this.logicalGraph().fileInfo;
                     obj = this.logicalGraph();
                     break;
@@ -1775,10 +1740,6 @@ export class Eagle {
                     obj = palette;
                     break;
                 }
-                case Eagle.FileType.Daliuge:
-                    fileInfo = this.logicalGraph().fileInfo;
-                    obj = this;
-                    break;
                 default:
                     Utils.showUserMessage("Not implemented", "Not sure which fileType to commit :" + fileType);
                     reject("Not sure which fileType to commit:" + fileType);
@@ -1837,11 +1798,12 @@ export class Eagle {
      */
     commitToGit = async (fileType : Eagle.FileType) : Promise<void> => {
         let fileInfo : ko.Observable<FileInfo>;
-        let obj : LogicalGraph | Palette | Eagle;
+        let obj : LogicalGraph | Palette;
 
         // determine which object of the given filetype we are committing
         switch (fileType){
             case Eagle.FileType.Graph:
+            case Eagle.FileType.Daliuge:
                 fileInfo = this.logicalGraph().fileInfo;
                 obj = this.logicalGraph();
                 break;
@@ -1858,10 +1820,6 @@ export class Eagle {
                 obj = palette;
                 break;
             }
-            case Eagle.FileType.Daliuge:
-                fileInfo = this.logicalGraph().fileInfo;
-                obj = this;
-                break;
             default:
                 Utils.showUserMessage("Not implemented", "Not sure which fileType is the right one to commit :" + fileType);
                 break;
@@ -1907,7 +1865,7 @@ export class Eagle {
         this._commit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, commitMessage, obj);
     }
 
-    _commit = (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette | Eagle) : void => {
+    _commit = (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : void => {
         // check that repository was found, if not try "save as"!
         if (repository === null){
             this.commitToGitAs(fileType);
@@ -1920,7 +1878,7 @@ export class Eagle {
     /**
      * Saves a graph/palette file to the GitHub repository.
      */
-    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette | Eagle) : void => {
+    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette) : void => {
         console.log("saveDiagramToGit() repositoryName", repository.name, "fileType", fileType, "filePath", filePath, "fileName", fileName, "commitMessage", commitMessage);
 
         const clone: LogicalGraph | Palette | Eagle = obj.clone();
