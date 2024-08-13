@@ -17,9 +17,10 @@ export class StatusEntry {
     static getStatusEntries() : StatusEntry[] {
         return [
             // new KeyboardShortcut("collapse_all_nodes", "Collapse All Nodes", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['hide','show','expand'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.toggleCollapseAllNodes();}),
-            new StatusEntry("Click",' on a node in the graph to select it.','', Eagle.getInstance().selectedObjects === null ),
-            new StatusEntry("Press ` ",' on your keyboard to search and execute functions','', Eagle.getInstance().selectedObjects === null ),
-            new StatusEntry("Right Click",' on Objects in the graph to see more options.','', Eagle.getInstance().selectedObjects != null ),
+            new StatusEntry("Click ",' on a node in the graph to select it.','', Eagle.getInstance().selectedObjects().length === 0),
+            new StatusEntry("",' shortcut to search and run functions','[ ` ]', Eagle.getInstance().selectedObjects().length === 0),
+            new StatusEntry("",' shortcut to access graph config','[ shift + T ]', Eagle.getInstance().logicalGraph() != null ),
+            new StatusEntry("Right Click ",' on Objects in the graph to see more options.','', Eagle.getInstance().selectedObjects().length > 0),
         ];
     }
 }

@@ -2137,6 +2137,18 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     visibility: hidden;
 }
 
+#statusBar h5{
+    display: inline;
+    font-size: .8rem;
+    font-weight: bolder;
+}
+
+#statusBar span{
+    display: inline;
+    margin-right: 5px;
+    font-size: .75rem;
+}
+
 .inactiveLink {
     pointer-events: none;
     cursor: default;
