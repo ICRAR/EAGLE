@@ -288,6 +288,10 @@ export class LogicalGraph {
         return commentNodes;
     }
 
+    setGraphConfigs = (graphConfigs: GraphConfig[]): void => {
+        this.graphConfigs(graphConfigs);
+    }
+
     countEdgesIncidentOnNode = (node : Node) : number => {
         let result: number = 0;
 

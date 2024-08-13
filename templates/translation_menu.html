@@ -250,16 +250,8 @@
     </div>
 
     <div class="row mt-2">
-        <div class="alert alert-light noselect mb-1" role="alert">
-            <!-- ko if: currentConfig().numFields() === 0 -->
-                <span>No (or empty) Graph Config loaded.</span>
-            <!-- /ko -->
-            <!-- ko if: currentConfig().numFields() > 0 -->
-                <span>Graph Config overwrites</span>
-                <span data-bind="text: currentConfig().numFields()"></span>
-                <span>fields.</span>
-            <!-- /ko -->
-        </div>
+        <select id="currentConfigSelect" class="form-control" data-bind="options: logicalGraph().graphConfigs, optionsText: 'name'">
+        </select>
         <button class="btn btn-primary btn-block" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Configuration ` + Utils.getKeyboardShortcutTextByKey('open_graph_configuration_table_modal', true)">Open Graph Configuration</button>
     </div>
 </div>

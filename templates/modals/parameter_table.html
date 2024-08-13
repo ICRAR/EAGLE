@@ -6,7 +6,7 @@
                 <div class="modal-header" data-bind="click: function(){ParameterTable.resetSelection()}">
                     <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
                         <h5 class="modal-title" id="parameterTableModalTitle">
-                            Graph Configuration Table: <span data-bind="html: $root.graphConfig().fileInfo().name"></span>
+                            Graph Configuration Table: <span data-bind="html: $root.currentConfig().name()"></span>
                         </h5>
                     <!-- /ko -->
                     <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
@@ -149,7 +149,7 @@
                             </thead>
                             <tbody data-bind="foreach: ParameterTable.getTableFields()">
                                 <!-- ko if: $data.fitsTableSearchQuery() -->
-                                    <!-- ko if: Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || $root.graphConfig().hasField($data) -->
+                                    <!-- ko if: Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || $root.currentConfig().hasField($data) -->
                                         <tr data-bind="attr: {'id' : 'tableRow_'+$data.getId()}">
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
                                             <td class='columnCell column_KeyAttr'>
@@ -166,13 +166,13 @@
                                                     <input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}}">
                                                     
                                                     <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
-                                                        <!-- ko ifnot: $root.graphConfig().hasField($data) -->
+                                                        <!-- ko ifnot: $root.currentConfig().hasField($data) -->
                                                         <button data-bind="click: function(){ParameterTable.requestAddField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Add Field to Graph Config', style:{'visibility':'hidden'}, clickBubble:false">
                                                             <i class="material-icons">favorite_border</i>
                                                         </button>
                                                         <!-- /ko -->
-                                                        <!-- ko if: $root.graphConfig().hasField($data) -->
-                                                        <button data-bind="click: function(){$root.graphConfig().removeField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Remove Field from Graph Config', style:{'visibility':'visible'}, clickBubble:false">
+                                                        <!-- ko if: $root.currentConfig().hasField($data) -->
+                                                        <button data-bind="click: function(){$root.currentConfig().removeField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Remove Field from Graph Config', style:{'visibility':'visible'}, clickBubble:false">
                                                             <i class="material-icons">favorite</i>
                                                         </button>
                                                         <!-- /ko -->
@@ -301,7 +301,7 @@
                                                 <button class="parameterTableCommentBtn icon-pencil" data-bind="click:function(data,event){ParameterTable.requestEditCommentInModal($data)}"></button>
                                             </td>
                                             <td class='columnCell column_Remove'>
-                                                <button data-bind="click: function(){$root.graphConfig().removeField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Remove Field from Graph Config', clickBubble:false">
+                                                <button data-bind="click: function(){$root.currentConfig().removeField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Remove Field from Graph Config', clickBubble:false">
                                                     <i class="material-icons">remove</i>
                                                 </button>
                                             </td>

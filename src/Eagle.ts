@@ -2026,7 +2026,7 @@ export class Eagle {
         }
     }
 
-    openRemoteFile = (file : RepositoryFile) : void => {
+    openRemoteFile =(file : RepositoryFile) : void => {
         // flag file as being fetched
         file.isFetching(true);
 
@@ -2105,7 +2105,7 @@ export class Eagle {
                     break;
 
                 case Eagle.FileType.Daliuge:
-                    this._remoteDaliugeLoaded(file, data);
+                    this._remoteDaliugeLoaded(file, dataObject);
                     break;
 
                 default:
@@ -2240,9 +2240,26 @@ export class Eagle {
         }
     }
 
-    private _remoteDaliugeLoaded = (file: RepositoryFile, data: string): void => {
-        console.log("Not implemented");
-        Utils.showNotification("Not implemented", "Can't load daliuge files yet", "danger");
+    private _remoteDaliugeLoaded = (file: RepositoryFile, dataObject: any): void => {
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+
+        //console.log("Not implemented");
+        //errorsWarnings.errors.push(Errors.Message("Daliuge file loading not implemented"));
+
+        // load graph
+        this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
+        
+        // load configs
+        const graphConfigs: GraphConfig[] = [];
+        for (const gco of dataObject["graphConfigurations"]){
+            const gc = GraphConfig.fromJson(gco, errorsWarnings);
+            graphConfigs.push(gc);
+        }
+
+        this.logicalGraph().setGraphConfigs(graphConfigs);
+
+        // show errors/warnings
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
     }
 
     private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {

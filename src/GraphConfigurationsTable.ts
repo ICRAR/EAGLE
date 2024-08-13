@@ -6,6 +6,8 @@ import { Node } from "./Node";
 export class GraphConfigurationsTable {
 
     static openModal = () : void => {
+        console.log("GraphConfigurationsTable.openModal()");
+
         const eagle: Eagle = Eagle.getInstance();
 
         eagle.showEagleIsLoading()
