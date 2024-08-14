@@ -2,8 +2,11 @@ import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
 import { Node } from "./Node";
+import { Utils } from "./Utils";
 
 export class GraphConfigurationsTable {
+
+    static showTableModal : ko.Observable<boolean> = ko.observable(false);
 
     static openModal = () : void => {
         console.log("GraphConfigurationsTable.openModal()");
@@ -14,23 +17,25 @@ export class GraphConfigurationsTable {
 
         setTimeout(function(){
             if($('.modal.show').length>0){
-                if($('.modal.show').attr('id')==='parameterTableModal'){
+                if($('.modal.show').attr('id')==='graphConfigurationsTableModal'){
                     // TODO: use closeModal here!
-                    $('#parameterTableModal').modal('hide')
-                    eagle.showTableModal(false)
+                    $('#graphConfigurationsTableModal').modal('hide')
+                    GraphConfigurationsTable.showTableModal(false)
                 }else{
                     return
                 }
             }
 
-            eagle.showTableModal(true)
+            Utils.showOpenGraphConfigurationsTableModal();
+
+            GraphConfigurationsTable.showTableModal(true)
 
         },5)
     }
 
     static closeModal = (): void => {
-        $('#parameterTableModal').modal('hide')
-        Eagle.getInstance().showTableModal(false)
+        $('#graphConfigurationsTableModal').modal('hide')
+        GraphConfigurationsTable.showTableModal(false)
     }
 
     static addEmptyTableRow = () : void => {
