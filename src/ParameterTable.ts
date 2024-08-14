@@ -14,6 +14,8 @@ import { GraphConfig, GraphConfigField } from "./GraphConfig";
 
 export class ParameterTable {
 
+    static showTableModal : ko.Observable<boolean> = ko.observable(false);
+
     static mode: ko.Observable<ParameterTable.Mode>;
     static selectionParent : ko.Observable<Field | null>; // row in the parameter table that is currently selected
     static selectionParentIndex : ko.Observable<number> // id of the selected field
@@ -481,7 +483,7 @@ export class ParameterTable {
                 if($('.modal.show').attr('id')==='parameterTableModal'){
                     // TODO: use closeModal here!
                     $('#parameterTableModal').modal('hide')
-                    eagle.showTableModal(false)
+                    ParameterTable.showTableModal(false)
                 }else{
                     return
                 }
@@ -492,17 +494,19 @@ export class ParameterTable {
                 RightClick.closeCustomContextMenu(true);
 
                 setTimeout(function() {
-                    Utils.showOpenParamsTableModal(mode);
+                    ParameterTable.mode(mode);
+                    $('#parameterTableModal').modal("show");
                 }, 30);
             }else{
                 if (mode=== ParameterTable.Mode.NodeFields && !eagle.selectedNode()){
                     eagle.hideEagleIsLoading()
                     Utils.showNotification("Error", "No Node Is Selected", "warning");
                 }else{
-                    Utils.showOpenParamsTableModal(mode);
+                    ParameterTable.mode(mode);
+                    $('#parameterTableModal').modal("show");
                 }
             }
-            eagle.showTableModal(true)
+            ParameterTable.showTableModal(true)
 
         },5)
     }
@@ -522,7 +526,7 @@ export class ParameterTable {
 
     static closeModal = (): void => {
         $('#parameterTableModal').modal('hide')
-        Eagle.getInstance().showTableModal(false)
+        ParameterTable.showTableModal(false)
     }
 
     static addEmptyTableRow = () : void => {

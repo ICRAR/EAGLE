@@ -79,10 +79,6 @@ export class KeyboardShortcut {
         return Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
     }
 
-    static showTableModal(eagle: Eagle) : boolean {
-        return eagle.showTableModal()
-    }
-
     static graphNotEmpty(eagle: Eagle) : boolean {
         if (eagle.logicalGraph() === null){
             return false;
@@ -233,7 +229,7 @@ export class KeyboardShortcut {
             new KeyboardShortcut("select_all_in_graph", "Select all in graph", ["a"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.true, [''], KeyboardShortcut.true, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.selectAllInGraph(); }),
             new KeyboardShortcut("select_none_in_graph", "Select none in graph", ["Escape"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['deselect'], KeyboardShortcut.true, KeyboardShortcut.somethingIsSelected, (eagle): void => { eagle.selectNoneInGraph(); }),
             new KeyboardShortcut("fix_all", "Fix all errors in graph", ["f"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [''], KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => { Errors.fixAll(); }),
-            new KeyboardShortcut("table_move_down", "Table move down one cell", ["Enter"], "keydown", KeyboardShortcut.Modifier.Input, KeyboardShortcut.true, ['controls'], KeyboardShortcut.false, KeyboardShortcut.showTableModal, (eagle): void => { ParameterTable.tableEnterShortcut(currentEvent);}),
+            new KeyboardShortcut("table_move_down", "Table move down one cell", ["Enter"], "keydown", KeyboardShortcut.Modifier.Input, KeyboardShortcut.true, ['controls'], KeyboardShortcut.false, ParameterTable.showTableModal, (eagle): void => { ParameterTable.tableEnterShortcut(currentEvent);}),
         ];
     }
 

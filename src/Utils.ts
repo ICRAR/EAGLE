@@ -764,6 +764,7 @@ export class Utils {
         $('#settingsModal').modal("hide");
     }
 
+    /*
     static showOpenParamsTableModal(mode: ParameterTable.Mode) : void {
         ParameterTable.mode(mode);
         $('#parameterTableModal').modal("show");
@@ -772,6 +773,7 @@ export class Utils {
     static showOpenGraphConfigurationsTableModal() : void {
         $('#graphConfigurationsTableModal').modal("show");
     }
+    */
 
     static showShortcutsModal() : void {
         $('#shortcutsModal').modal("show");

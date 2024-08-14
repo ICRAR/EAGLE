@@ -26,7 +26,7 @@ export class GraphConfigurationsTable {
                 }
             }
 
-            Utils.showOpenGraphConfigurationsTableModal();
+            $('#graphConfigurationsTableModal').modal("show");
 
             GraphConfigurationsTable.showTableModal(true)
 
