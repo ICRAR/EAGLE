@@ -231,7 +231,7 @@
                 </div>
             </div>
         </div>
-        <div id="statusBar" data-bind="style: { 'visibility':eagle.getEagleIsReady(), left: leftWindow().width(), right: rightWindow().width()}">
+        <div id="statusBar" data-bind="style: { 'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth(), right: Utils.getRightWindowWidth()}">
             <!-- ko foreach: StatusEntry.getStatusEntries() -->
                 <!-- ko if: $data.visibility -->
                     <h5 data-bind="text: $data.action"></h5>

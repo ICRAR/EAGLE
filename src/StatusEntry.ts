@@ -2,7 +2,6 @@ import { Eagle } from './Eagle';
 import * as ko from "knockout";
 import { Setting } from './Setting';
 
-
 export class StatusEntry {
     action:string;
     message:string;
@@ -19,10 +18,11 @@ export class StatusEntry {
     static getStatusEntries() : StatusEntry[] {
         return [
             //nothing is selected
+            new StatusEntry('Right Click ',' on the empty canvas to add nodes.','', Eagle.getInstance().selectedObjects().length === 0),
             new StatusEntry('',' search and run functions.','[ ` ]', Eagle.getInstance().selectedObjects().length === 0),
             new StatusEntry('Click ',' on a node in the graph to select it.','', Eagle.getInstance().selectedObjects().length === 0),
             //a graph is created or loaded
-            new StatusEntry('',' access graph config.','[ shift + T ]', Eagle.getInstance().logicalGraph().fileInfo().name != ""),
+            new StatusEntry('',' access graph config.','[ shift + T ]', Eagle.getInstance().logicalGraph().fileInfo().name != "" && Eagle.getInstance().selectedObjects().length === 0),
             //No Graph loaded or created
             new StatusEntry('',' new graph.','[ N ]', Eagle.getInstance().logicalGraph().fileInfo().name === ""),
             //something is selected
