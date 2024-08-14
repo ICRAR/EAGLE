@@ -31,16 +31,24 @@
                         <thead>
                             <tr>
                                 <th data-bind="eagleTooltip:''" data-bs-placement="top"></th>
-                                <th data-bind="eagleTooltip:''" data-bs-placement="top">Config Name</th>
+                                <th data-bind="eagleTooltip:''" data-bs-placement="top">Name</th>
+                                <th data-bind="eagleTooltip:''" data-bs-placement="top">Description</th>
+                                <th data-bind="eagleTooltip:''" data-bs-placement="top">Favourite</th>
                             </tr>
                         </thead>
                         <tbody data-bind="foreach: logicalGraph().graphConfigs()">
                             <tr data-bind="attr: {'id' : 'tableRow_'+$data.getName()}">
-                                <td class='columnCell column_KeyAttr'>
+                                <td class='columnCell column-sort'>
                                     <!-- kept for now as we will need the space for the row drag handle -->
                                 </td>
-                                <td class='columnCell column_NodeName'>
-                                    <input class="tableParameter" type="string" data-bind="value: '', disabled: true, eagleTooltip: ''">
+                                <td class='columnCell column-name'>
+                                    <input class="tableParameter" type="string" data-bind="value: $data.getName(), disabled: true, eagleTooltip: ''">
+                                </td>
+                                <td class='columnCell column-description'>
+                                    <input class="tableParameter" type="string" data-bind="value: $data.getDescription(), disabled: true, eagleTooltip: ''">
+                                </td>
+                                <td class='columnCell column-favourite'>
+                                    
                                 </td>
                             </tr>
                         </tbody>
@@ -48,7 +56,6 @@
                 <!-- /ko -->
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="graphConfigurationsTableModalAddParameterButton" data-bind="click: GraphConfigurationsTable.addEmptyTableRow, clickBubble:false" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
                 <button type="button" class="btn btn-primary" id="graphConfigurationsTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="graphConfigurationsTableModalAffirmativeAnswer">Close</span></button>
             </div>
         </div>

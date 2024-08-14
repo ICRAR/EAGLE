@@ -223,6 +223,15 @@ export class GraphConfig {
         return this;
     }
 
+    getDescription = (): string => {
+        return this.description();
+    }
+
+    setDescription = (description: string): GraphConfig => {
+        this.description(description);
+        return this;
+    }
+
     setIsModified = (isModified: boolean): void => {
         this.isModified(isModified);
     }
