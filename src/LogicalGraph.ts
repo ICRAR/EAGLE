@@ -292,6 +292,10 @@ export class LogicalGraph {
         this.graphConfigs(graphConfigs);
     }
 
+    addGraphConfig = (config: GraphConfig): void => {
+        this.graphConfigs.push(config);
+    }
+
     countEdgesIncidentOnNode = (node : Node) : number => {
         let result: number = 0;
 
