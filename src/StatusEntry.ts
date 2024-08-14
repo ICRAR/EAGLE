@@ -1,5 +1,7 @@
 import { Eagle } from './Eagle';
 import * as ko from "knockout";
+import { Setting } from './Setting';
+
 
 export class StatusEntry {
     action:string;
@@ -16,11 +18,22 @@ export class StatusEntry {
 
     static getStatusEntries() : StatusEntry[] {
         return [
-            // new KeyboardShortcut("collapse_all_nodes", "Collapse All Nodes", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['hide','show','expand'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.toggleCollapseAllNodes();}),
-            new StatusEntry("Click ",' on a node in the graph to select it.','', Eagle.getInstance().selectedObjects().length === 0),
-            new StatusEntry("",' shortcut to search and run functions','[ ` ]', Eagle.getInstance().selectedObjects().length === 0),
-            new StatusEntry("",' shortcut to access graph config','[ shift + T ]', Eagle.getInstance().logicalGraph() != null ),
-            new StatusEntry("Right Click ",' on Objects in the graph to see more options.','', Eagle.getInstance().selectedObjects().length > 0),
+            //nothing is selected
+            new StatusEntry('',' search and run functions.','[ ` ]', Eagle.getInstance().selectedObjects().length === 0),
+            new StatusEntry('Click ',' on a node in the graph to select it.','', Eagle.getInstance().selectedObjects().length === 0),
+            //a graph is created or loaded
+            new StatusEntry('',' access graph config.','[ shift + T ]', Eagle.getInstance().logicalGraph().fileInfo().name != ""),
+            //No Graph loaded or created
+            new StatusEntry('',' new graph.','[ N ]', Eagle.getInstance().logicalGraph().fileInfo().name === ""),
+            //something is selected
+            new StatusEntry('Right Click ',' on Objects in the graph to see more options.','', Eagle.getInstance().selectedObjects().length > 0),
+            //node is selected
+            new StatusEntry('',' delete selected node.','[ Del ]', Eagle.getInstance().selectedNode() != null),
+            new StatusEntry('',' open fields table.','[ T ]', Eagle.getInstance().selectedNode() != null && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)),
+            //edge is selected
+            new StatusEntry('',' delete selected edge.','[ Del ]', Eagle.getInstance().selectedEdge() != null),
+            //more than one thing is selected
+            new StatusEntry('',' delete selected objects.','[ Del ]', Eagle.getInstance().selectedObjects().length >1),
         ];
     }
 }
