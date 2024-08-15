@@ -2135,6 +2135,7 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     background-color: #282828;
     color: white;
     visibility: hidden;
+    padding-left: 3px;
 }
 
 #statusBar h5{
