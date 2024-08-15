@@ -24,7 +24,6 @@
 
 import * as Ajv from "ajv";
 import * as Showdown from "showdown";
-import * as ko from "knockout";
 
 import { Category } from './Category';
 import { CategoryData } from "./CategoryData";
