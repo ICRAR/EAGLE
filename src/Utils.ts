@@ -1679,21 +1679,21 @@ export class Utils {
     static getKeyboardShortcutTextByKey(key: string, addBrackets: boolean) : string {
         for (const shortcut of Eagle.shortcuts){
             if (shortcut.key === key){
-                const k = shortcut.keys[0] // we only return the first shortcut option set for this shortcut
+                const firstKeyboardShortcut = shortcut.keys[0] // we only return the first shortcut option set for this shortcut
                 if (shortcut.modifier === KeyboardShortcut.Modifier.None||shortcut.modifier === KeyboardShortcut.Modifier.Input||shortcut.modifier === KeyboardShortcut.Modifier.quickAction){
                     //some processing of the return
                     //if the return should have brackets they are added here
                     //the first letter of the string returned is also capitalised
                     if (addBrackets){
-                        return "[ " + k.charAt(0).toUpperCase() + k.slice(1) + " ]"
+                        return "[ " + firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1) + " ]"
                     } else {
-                        return k.charAt(0).toUpperCase() + k.slice(1)
+                        return firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1)
                     }
                 } else {
                     if (addBrackets){
-                        return "[ " + shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1) + " ]"
+                        return "[ " + shortcut.modifier + " + " + firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1) + " ]"
                     } else {
-                        return shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1)
+                        return shortcut.modifier + " + " + firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1)
                     }
                 }
             }
