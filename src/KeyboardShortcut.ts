@@ -98,6 +98,8 @@ export class KeyboardShortcut {
             return;
         }
 
+        //console.log("event", e.key, "meta", e.metaKey, "shift", e.shiftKey, "ctrl", e.ctrlKey, "alt", e.altKey);
+
         // get reference to eagle
         const eagle: Eagle = Eagle.getInstance();
 
@@ -230,6 +232,8 @@ export class KeyboardShortcut {
             new KeyboardShortcut("select_none_in_graph", "Select none in graph", ["Escape"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['deselect'], KeyboardShortcut.true, KeyboardShortcut.somethingIsSelected, (eagle): void => { eagle.selectNoneInGraph(); }),
             new KeyboardShortcut("fix_all", "Fix all errors in graph", ["f"], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [''], KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => { Errors.fixAll(); }),
             new KeyboardShortcut("table_move_down", "Table move down one cell", ["Enter"], "keydown", KeyboardShortcut.Modifier.Input, KeyboardShortcut.true, ['controls'], KeyboardShortcut.false, ParameterTable.showTableModal, (eagle): void => { ParameterTable.tableEnterShortcut(currentEvent);}),
+
+            new KeyboardShortcut("open_graph_configurations_table_modal", "Open Graph Configurations Table Modal", ["t"], "keydown", KeyboardShortcut.Modifier.Ctrl, KeyboardShortcut.true, ['config','graph','table'], KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {GraphConfigurationsTable.openModal();}),
         ];
     }
 
