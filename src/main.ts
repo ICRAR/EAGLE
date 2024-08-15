@@ -39,6 +39,7 @@ import { GitLab } from './GitLab';
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
+import { StatusEntry } from './StatusEntry';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from './Modals';
 import { Palette } from './Palette';
@@ -87,6 +88,7 @@ $(function(){
     (<any>window).UiModeSystem = UiModeSystem;
     (<any>window).Utils = Utils;
     (<any>window).KeyboardShortcut = KeyboardShortcut;
+    (<any>window).StatusEntry = StatusEntry;
     (<any>window).QuickActions = QuickActions;
     (<any>window).Modals = Modals;
 

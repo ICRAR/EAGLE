@@ -2128,6 +2128,28 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     color: white !important;
 }
 
+#statusBar{
+    position: fixed;
+    bottom: 0px;
+    height: 25px;
+    background-color: #282828;
+    color: white;
+    visibility: hidden;
+    padding-left: 3px;
+}
+
+#statusBar h5{
+    display: inline;
+    font-size: .8rem;
+    font-weight: bolder;
+}
+
+#statusBar span{
+    display: inline;
+    margin-right: 5px;
+    font-size: .75rem;
+}
+
 .inactiveLink {
     pointer-events: none;
     cursor: default;
@@ -3309,3 +3331,9 @@ palette-component input.form-control.selected {
       transform: rotate(0deg);
     }
   }
+
+  /* re-usable classes for various things */
+
+.linearTransition250{
+    transition: linear 250ms;
+}
