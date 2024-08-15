@@ -15,8 +15,10 @@ export class StatusEntry {
     }
 
     static constructIsSelected():boolean {
-        if(Eagle.getInstance().selectedNode() != null){
-            return Eagle.getInstance().selectedNode().isConstruct()
+        const selectedNode = Eagle.getInstance().selectedNode()
+
+        if(selectedNode != null){
+            return selectedNode.isConstruct()
         }
 
         return false
