@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('Creating a Simple Graph', async ({ page }) => {
+test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   
   await page.goto('http://localhost:8888/');
 
@@ -66,8 +66,10 @@ test('Creating a Simple Graph', async ({ page }) => {
   const countBefore = await page.getByRole('row').count()
   //delete the last field added
   await page.getByRole('row').last().locator('.delete').click();
+  //count the number of fields on the node again
+  const countAfter = await page.getByRole('row').count()
   //make sure the number of fields has decreased by 1
-  await expect(countBefore - await page.getByRole('row').count() === 1).toBeTruthy()
+  await expect(countBefore - countAfter === 1).toBeTruthy()
   //making sure the correct field has been removed
   await expect(page.getByRole('row').last().locator('.column_DisplayText input')).not.toHaveValue('test parameter copy')
   
