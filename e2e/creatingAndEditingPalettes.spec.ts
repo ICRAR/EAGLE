@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('Creating a Simple Graph', async ({ page }) => {
+test('Creating and editing Palettes', async ({ page }) => {
   
   await page.goto('http://localhost:8888/');
 
@@ -18,7 +18,7 @@ test('Creating a Simple Graph', async ({ page }) => {
   await page.waitForTimeout(500);
   await page.getByRole('button', { name: 'OK' }).click()
 
-  //right click the hellow world app in the palette
+  //right click the hello world app in the palette
   await page.locator('#palette_0_CopyApp').click({
     button: 'right'
   });
