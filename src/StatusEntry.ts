@@ -1,27 +1,26 @@
 import { Eagle } from './Eagle';
-import * as ko from "knockout";
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 
 export class StatusEntry {
     action:string;
     message:string;
-    visibility:ko.Observable<boolean>;
+    visibility:boolean;
 
     constructor(action:string,message:string,visibility:boolean){
-        this.action = action //write an action of get a shortcut
-        this.message = message
-        this.visibility = ko.observable(visibility)
+        this.action = action; //write an action of get a shortcut
+        this.message = message;
+        this.visibility = visibility;
     }
 
     static constructIsSelected():boolean {
-        const selectedNode = Eagle.getInstance().selectedNode()
+        const selectedNode = Eagle.getInstance().selectedNode();
 
         if(selectedNode != null){
-            return selectedNode.isConstruct()
+            return selectedNode.isConstruct();
         }
 
-        return false
+        return false;
     }
 
     static getStatusEntries() : StatusEntry[] {

@@ -3331,3 +3331,9 @@ palette-component input.form-control.selected {
       transform: rotate(0deg);
     }
   }
+
+  /* re-usable classes for various things */
+
+.linearTransition250{
+    transition: linear 250ms;
+}
