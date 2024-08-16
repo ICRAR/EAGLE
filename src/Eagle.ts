@@ -41,6 +41,7 @@ import { GitLab } from './GitLab';
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
+import { StatusEntry } from './StatusEntry';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';

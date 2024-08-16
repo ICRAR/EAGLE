@@ -1212,6 +1212,9 @@ export class Utils {
     }
 
     static getRightWindowWidth() : number {
+        if(Eagle.getInstance().eagleIsReady() && !Eagle.getInstance().rightWindow().shown()){
+            return 0
+        }
         return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH_KEY)
     }
 
@@ -1221,6 +1224,9 @@ export class Utils {
     }
 
     static getLeftWindowWidth() : number {
+        if(Eagle.getInstance().eagleIsReady() && !Eagle.getInstance().leftWindow().shown()){
+            return 0
+        }
         return Setting.findValue(Setting.LEFT_WINDOW_WIDTH_KEY)
     }
 
@@ -1627,26 +1633,23 @@ export class Utils {
     static getKeyboardShortcutTextByKey(key: string, addBrackets: boolean) : string {
         for (const shortcut of Eagle.shortcuts){
             if (shortcut.key === key){
-                const ks = [];
-                for (const k of shortcut.keys){
-                    if (shortcut.modifier === KeyboardShortcut.Modifier.None||shortcut.modifier === KeyboardShortcut.Modifier.Input||shortcut.modifier === KeyboardShortcut.Modifier.quickAction){
-                        //some processing of the return
-                        //if the return should have brackets they are added here
-                        //the first letter of the string returned is also capitalised
-                        if (addBrackets){
-                            ks.push("[" + k.charAt(0).toUpperCase() + k.slice(1) + "]");
-                        } else {
-                            ks.push(k.charAt(0).toUpperCase() + k.slice(1));
-                        }
+                const firstKeyboardShortcut = shortcut.keys[0] // we only return the first shortcut option set for this shortcut
+                if (shortcut.modifier === KeyboardShortcut.Modifier.None||shortcut.modifier === KeyboardShortcut.Modifier.Input||shortcut.modifier === KeyboardShortcut.Modifier.quickAction){
+                    //some processing of the return
+                    //if the return should have brackets they are added here
+                    //the first letter of the string returned is also capitalised
+                    if (addBrackets){
+                        return "[ " + firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1) + " ]"
                     } else {
-                        if (addBrackets){
-                            ks.push("[" + shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1) + "]");
-                        } else {
-                            ks.push(shortcut.modifier + " + " + k.charAt(0).toUpperCase() + k.slice(1));
-                        }
+                        return firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1)
+                    }
+                } else {
+                    if (addBrackets){
+                        return "[ " + shortcut.modifier + " + " + firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1) + " ]"
+                    } else {
+                        return shortcut.modifier + " + " + firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1)
                     }
                 }
-                return ks.join(",");
             }
         }
 

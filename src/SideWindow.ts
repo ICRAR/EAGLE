@@ -18,7 +18,13 @@ export class SideWindow {
     }
 
     toggleShown = (): void => {
+        //we are toggling the visibility of the left or right window
+        //but we also need to temporarily add a transition effect to the statusBar so it moves as one with the window
+        $('#statusBar').addClass('linearTransition250')
         this.shown(!this.shown());
+        setTimeout(function(){
+            $('#statusBar').removeClass('linearTransition250')
+        },300)
     }
 
     // drag drop

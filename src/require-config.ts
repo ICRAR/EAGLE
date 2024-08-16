@@ -43,6 +43,7 @@ require.config({
         "tutorials/graphBuilding": "./static/built/tutorials/graphBuilding",
         "SideWindow": "./static/built/SideWindow",
         "KeyboardShortcut": "./static/built/KeyboardShortcut",
+        "StatusEntry": "./static/built/StatusEntry",
         "QuickActions": "./static/built/QuickActions",
         "PaletteInfo": "./static/built/PaletteInfo",
         "ExplorePalettes": "./static/built/ExplorePalettes",
