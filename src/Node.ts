@@ -2035,6 +2035,10 @@ export class Node {
             if (!hasInputEdge && edge.getDestNodeKey() === node.getKey()){
                 hasInputEdge = true;
             }
+            // abort loop if we've found both input and output already
+            if (hasInputEdge && hasOutputEdge) {
+                break;
+            }
         }
         const isConnected: boolean = hasInputEdge || hasOutputEdge;
 
