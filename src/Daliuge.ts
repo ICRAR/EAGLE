@@ -41,6 +41,8 @@ export class Daliuge {
 }
 
 export namespace Daliuge {
+    export const DEFAULT_PYDATA_VALUE: string = "None";
+
     export enum FieldName {
         DATA_VOLUME = "data_volume",
         DROP_CLASS = "dropclass",
@@ -75,7 +77,12 @@ export namespace Daliuge {
         FALSE = "false",
 
         // dummy
-        DUMMY = "dummy"
+        DUMMY = "dummy",
+
+        // python
+        FUNC_CODE = "func_code",
+        FUNC_NAME = "func_name",
+        PYDATA = "pydata"
     }
 
     export enum DataType {

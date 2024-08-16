@@ -2026,11 +2026,26 @@ export class Node {
         }
 
         // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
-        let isConnected: boolean = false;
+        let hasInputEdge: boolean = false;
+        let hasOutputEdge: boolean = false;
         for (const edge of eagle.logicalGraph().getEdges()){
-            if (edge.getSrcNodeKey() === node.getKey() || edge.getDestNodeKey() === node.getKey()){
-                isConnected = true;
-                break;
+            if (!hasOutputEdge && edge.getSrcNodeKey() === node.getKey()){
+                hasOutputEdge = true;
+            }
+            if (!hasInputEdge && edge.getDestNodeKey() === node.getKey()){
+                hasInputEdge = true;
+            }
+        }
+        const isConnected: boolean = hasInputEdge || hasOutputEdge;
+
+        // check that Memory and SharedMemory nodes have at least one input OR have a pydata field with a non-"None" value
+        if (node.category() === Category.Memory || node.category() === Category.SharedMemory){
+            const hasPydataValue: boolean = node.getFieldByDisplayText(Daliuge.FieldName.PYDATA)?.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
+
+            if (!hasInputEdge && !hasPydataValue){
+                const message: string = node.category() + " node " + node.getKey() + " (" + node.getName() + ") contents is not specified. It has no input edges, and its '" + Daliuge.FieldName.PYDATA + "' field contains the default value.";
+                const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, null, "");
+                node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
         }
 
