@@ -968,6 +968,11 @@ export class Eagle {
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
+        // check if we need to update the graph from keys to ids
+        if (GraphUpdater.usesNodeKeys(dataObject)){
+            GraphUpdater.updateKeysToIds(dataObject);
+        }
+
         // use the correct parsing function based on schema version
         switch (schemaVersion){
             case Daliuge.SchemaVersion.OJS:
