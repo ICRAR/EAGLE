@@ -58,6 +58,7 @@ import { Tutorial, tutorialArray } from './Tutorial';
 import { Undo } from './Undo';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
+import { GraphUpdater } from "./GraphUpdater";
 
 
 export class Eagle {
@@ -1992,6 +1993,9 @@ export class Eagle {
                 case Eagle.FileType.Graph: {
                     // attempt to determine schema version from FileInfo
                     const eagleVersion: string = Utils.determineEagleVersion(dataObject);
+
+                    // HACK
+                    GraphUpdater.updateKeysToIds(dataObject);
 
                     // warn user if file newer than EAGLE
                     if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){

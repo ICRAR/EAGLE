@@ -84,6 +84,63 @@ export class GraphUpdater {
         return true;
     }
 
+    // Takes a graph that is using keys and updates it to use ids only
+    // - edges .from and .to attributes refer to keys, so we change to ids
+    static updateKeysToIds(graphObject: any): void {
+        const keyToId: Map<number, string> = new Map<number, string>();
+
+        //console.log("graphObject", graphObject);
+
+        // build keyToId map from nodes
+        for (const node of graphObject["nodeDataArray"]){
+            console.log("node", node);
+            const newId = Utils.generateNodeId();
+
+            keyToId.set(node.key, newId);
+            node.id = newId;
+
+            // input app
+            if (node.inputApplicationKey !== null){
+                const inputAppId = Utils.generateNodeId();
+                keyToId.set(node.inputApplicationKey, inputAppId);
+                node.inputApplicationId = inputAppId;
+            }
+            // output app
+            if (node.outputApplicationKey !== null){
+                const outputAppId = Utils.generateNodeId();
+                keyToId.set(node.outputApplicationKey, outputAppId);
+                node.inputApplicationId = outputAppId;
+            }
+        }
+
+        console.log("map", keyToId);
+
+        // use map to update parentKeys
+        for (const node of graphObject["nodeDataArray"]){
+            if (typeof node.group !== "undefined"){
+                node.parentId = keyToId.get(node.group);
+                console.log("node had parentKey", node.parentKey, "changed to parentId", node.parentId);
+            } else {
+                node.parentId = null;
+            }
+        }
+
+        // use map to update edges
+        for (const edge of graphObject["linkDataArray"]){
+            //console.log("edge", edge);
+
+            if (!keyToId.has(edge.from)){
+                console.log("!!Can't find Id for from key", edge.from, edge);
+            }
+            if (!keyToId.has(edge.to)){
+                console.log("!!Can't find Id for to key", edge.to, edge);
+            }
+
+            edge.from = keyToId.get(edge.from);
+            edge.to = keyToId.get(edge.to);
+        }
+    }
+
     static generateLogicalGraphsTable() : any[] {
         // check that all repos have been fetched
         let foundNotFetched = false;
