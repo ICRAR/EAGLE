@@ -84,16 +84,24 @@ export class GraphUpdater {
         return true;
     }
 
+    static usesNodeKeys(graphObject: any): boolean {
+        for (const node of graphObject["nodeDataArray"]){
+            if (typeof node.key !== 'undefined'){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // Takes a graph that is using keys and updates it to use ids only
     // - edges .from and .to attributes refer to keys, so we change to ids
     static updateKeysToIds(graphObject: any): void {
+        console.log("GraphUpdater.updateKeysToIds()");
         const keyToId: Map<number, string> = new Map<number, string>();
-
-        //console.log("graphObject", graphObject);
 
         // build keyToId map from nodes
         for (const node of graphObject["nodeDataArray"]){
-            console.log("node", node);
             const newId = Utils.generateNodeId();
 
             keyToId.set(node.key, newId);
@@ -113,8 +121,6 @@ export class GraphUpdater {
             }
         }
 
-        console.log("map", keyToId);
-
         // use map to update parentKeys
         for (const node of graphObject["nodeDataArray"]){
             if (typeof node.group !== "undefined"){
@@ -127,7 +133,6 @@ export class GraphUpdater {
 
         // use map to update edges
         for (const edge of graphObject["linkDataArray"]){
-            //console.log("edge", edge);
 
             if (!keyToId.has(edge.from)){
                 console.log("!!Can't find Id for from key", edge.from, edge);

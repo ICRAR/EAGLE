@@ -1994,8 +1994,10 @@ export class Eagle {
                     // attempt to determine schema version from FileInfo
                     const eagleVersion: string = Utils.determineEagleVersion(dataObject);
 
-                    // HACK
-                    GraphUpdater.updateKeysToIds(dataObject);
+                    // check if we need to update the graph from keys to ids
+                    if (GraphUpdater.usesNodeKeys(dataObject)){
+                        GraphUpdater.updateKeysToIds(dataObject);
+                    }
 
                     // warn user if file newer than EAGLE
                     if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
