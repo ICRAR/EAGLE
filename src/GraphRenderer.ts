@@ -51,6 +51,9 @@ ko.bindingHandlers.nodeRenderHandler = {
 
         // set size
         $(element).css({'height':node.getRadius()*2+'px','width':node.getRadius()*2+'px'});
+        if(node.isConstruct()){
+            $(element).find('.constructInputApp').css({'height':EagleConfig.EMBEDDED_APPLICATION_RADIUS*2+'px','width':EagleConfig.EMBEDDED_APPLICATION_RADIUS*2+'px'})
+        }
 
         if(node.isLoop()){
             $(element).children().children().children('.body').css({'border-style':'dotted','border-width':'4px'})
@@ -83,7 +86,14 @@ ko.bindingHandlers.embeddedAppPosition = {
         const input: boolean = ko.utils.unwrapObservable(valueAccessor()).input;
 
         // find the node in which the applicationNode has been embedded
-        const parentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(applicationNode.getEmbedKey());
+        let graphConstructNode : Node
+        //HERE
+        if($(element).hasClass('constructInputApp')){
+            //if we are trying to determine the location of an input app, use the current node. input apps and constructs are one and the same
+            graphConstructNode = applicationNode
+        }else{
+            graphConstructNode = eagle.logicalGraph().findNodeByKeyQuiet(applicationNode.getEmbedKey());
+        }
 
         // determine all the adjacent nodes
         // TODO: earlier abort if field is null
@@ -91,10 +101,10 @@ ko.bindingHandlers.embeddedAppPosition = {
         const connectedField: boolean = adjacentNodes.length > 0;
 
         // for branch nodes the ports are inset from the outer radius a little bit in their design
-        const parentNodeRadius = parentNode.getRadius();
+        const parentNodeRadius = graphConstructNode.getRadius();
 
         // determine port position
-        const parentNodePosition = parentNode.getPosition();
+        const parentNodePosition = graphConstructNode.getPosition();
         let portPosition;
 
         if(connectedField){

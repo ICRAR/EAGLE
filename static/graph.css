@@ -246,6 +246,11 @@
     position: absolute;
     transform: translate(-50%, -50%);
 }
+.node .construct_node .constructInputApp{
+    border: 1.5px solid var(--nodeBorder);
+    border-radius: 50%;
+    background-color: var(--embeddedApp);
+}
 
 .node .branch_node .body span{
     font-size: 100px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
