@@ -125,7 +125,6 @@ export class GraphUpdater {
         for (const node of graphObject["nodeDataArray"]){
             if (typeof node.group !== "undefined"){
                 node.parentId = keyToId.get(node.group);
-                console.log("node had parentKey", node.parentKey, "changed to parentId", node.parentId);
             } else {
                 node.parentId = null;
             }
@@ -135,10 +134,10 @@ export class GraphUpdater {
         for (const edge of graphObject["linkDataArray"]){
 
             if (!keyToId.has(edge.from)){
-                console.log("!!Can't find Id for from key", edge.from, edge);
+                console.warn("GraphUpdater.updateKeysToIds() : Can't find Id for from key", edge.from, edge);
             }
             if (!keyToId.has(edge.to)){
-                console.log("!!Can't find Id for to key", edge.to, edge);
+                console.warn("GraphUpdater.updateKeysToIds() : Can't find Id for to key", edge.to, edge);
             }
 
             edge.from = keyToId.get(edge.from);
