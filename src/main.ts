@@ -317,6 +317,12 @@ function autoTutorial(): void {
 declare const __brand: unique symbol
 type Brand<B> = { [__brand]: B }
 
+/**
+ * Creates a branded type, combining a base type T with a unique brand B.
+ * This pattern enhances type safety by creating nominally unique types,
+ * preventing accidental use of structurally similar but semantically
+ * different values (e.g., different types of IDs).
+ */
 export type Branded<T, B> = T & Brand<B>
 
 declare global {
