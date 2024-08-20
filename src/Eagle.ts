@@ -2111,6 +2111,11 @@ export class Eagle {
             // attempt to determine schema version from FileInfo
             const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
+            // check if we need to update the graph from keys to ids
+            if (GraphUpdater.usesNodeKeys(dataObject)){
+                GraphUpdater.updateKeysToIds(dataObject);
+            }
+
             const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
             // use the correct parsing function based on schema version
