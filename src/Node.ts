@@ -75,6 +75,9 @@ export class Node {
     private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
     private peek : ko.Observable<boolean>;     // true if we are temporarily showing the ports based on the users mouse position
     private radius : ko.Observable<number>;
+    private inputAppX : number;
+    private inputAppY : number;
+
     
     private color : ko.Observable<string>;
     private drawOrderHint : ko.Observable<number>; // a secondary sorting hint when ordering the nodes for drawing
@@ -123,6 +126,9 @@ export class Node {
         this.color = ko.observable(Utils.getColorForNode(category));
         this.drawOrderHint = ko.observable(0);
         this.radius = ko.observable(EagleConfig.NORMAL_NODE_RADIUS);
+        this.inputAppX = 0
+        this.inputAppY = 0
+
     }
 
     getId = () : string => {
@@ -200,6 +206,15 @@ export class Node {
     changePosition = (dx : number, dy : number) : void => {
         this.x(this.x()+dx)
         this.y(this.y()+dy)
+    }
+
+    getInputAppPos = () : {x:number,y:number} => {
+        return {x:this.inputAppX,y:this.inputAppY}
+    }
+
+    setInputAppPos = (x:number, y:number) : void => {
+        this.inputAppX = x;
+        this.inputAppY = y;
     }
 
     getRadius = () : number => {

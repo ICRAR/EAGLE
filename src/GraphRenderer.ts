@@ -97,54 +97,54 @@ ko.bindingHandlers.embeddedAppPosition = {
 
         // determine all the adjacent nodes
         // TODO: earlier abort if field is null
-        const adjacentNodes: Node[] = GraphRenderer.getAdjacentNodes(applicationNode, input);
-        const connectedField: boolean = adjacentNodes.length > 0;
+        // const adjacentNodes: Node[] = GraphRenderer.getAdjacentNodes(applicationNode, input);
+        // const connectedField: boolean = adjacentNodes.length > 0;
 
-        // for branch nodes the ports are inset from the outer radius a little bit in their design
-        const parentNodeRadius = graphConstructNode.getRadius();
+        // // for branch nodes the ports are inset from the outer radius a little bit in their design
+        // const parentNodeRadius = graphConstructNode.getRadius();
 
-        // determine port position
-        const parentNodePosition = graphConstructNode.getPosition();
-        let portPosition;
+        // // determine port position
+        // const parentNodePosition = graphConstructNode.getPosition();
+        // let portPosition;
 
-        if(connectedField){
-            // calculate angles to all adjacent nodes
-            const angles: number[] = [];
-            for (const adjacentNode of adjacentNodes){
-                const adjacentNodePos = adjacentNode.getPosition()
-                const edgeAngle = GraphRenderer.calculateConnectionAngle(parentNodePosition, adjacentNodePos)
-                angles.push(edgeAngle);
-            }
+        // if(connectedField){
+        //     // calculate angles to all adjacent nodes
+        //     const angles: number[] = [];
+        //     for (const adjacentNode of adjacentNodes){
+        //         const adjacentNodePos = adjacentNode.getPosition()
+        //         const edgeAngle = GraphRenderer.calculateConnectionAngle(parentNodePosition, adjacentNodePos)
+        //         angles.push(edgeAngle);
+        //     }
 
-            // average the angles
-            const averageAngle = GraphRenderer.averageAngles(angles);
-            portPosition = GraphRenderer.calculatePortPos(averageAngle, parentNodeRadius, parentNodeRadius)
-        }else{
-            // find a default position for the port when not connected
-            if (input){
-                portPosition=GraphRenderer.calculatePortPos(Math.PI, parentNodeRadius, parentNodeRadius)
-            } else {
-                portPosition=GraphRenderer.calculatePortPos(0, parentNodeRadius, parentNodeRadius)
-            }
-        }
+        //     // average the angles
+        //     const averageAngle = GraphRenderer.averageAngles(angles);
+        //     portPosition = GraphRenderer.calculatePortPos(averageAngle, parentNodeRadius, parentNodeRadius)
+        // }else{
+        //     // find a default position for the port when not connected
+        //     if (input){
+        //         portPosition=GraphRenderer.calculatePortPos(Math.PI, parentNodeRadius, parentNodeRadius)
+        //     } else {
+        //         portPosition=GraphRenderer.calculatePortPos(0, parentNodeRadius, parentNodeRadius)
+        //     }
+        // }
 
-        // we are saving the embedded application's position data here using the offset we calculated
-        const newPos = {
-            x: parentNodePosition.x - parentNodeRadius + portPosition.x,
-            y: parentNodePosition.y - parentNodeRadius + portPosition.y
-        }
-        applicationNode.setPosition(newPos.x,newPos.y)
+        // // we are saving the embedded application's position data here using the offset we calculated
+        // const newPos = {
+        //     x: parentNodePosition.x - parentNodeRadius + portPosition.x,
+        //     y: parentNodePosition.y - parentNodeRadius + portPosition.y
+        // }
+        // // applicationNode.setInputAppPos(newPos.x,newPos.y)
 
-        portPosition = {
-            x: portPosition.x - parentNodeRadius,
-            y: portPosition.y - parentNodeRadius
-        }
+        // portPosition = {
+        //     x: portPosition.x - parentNodeRadius,
+        //     y: portPosition.y - parentNodeRadius
+        // }
 
-        // applying the offset to the element
-        $(element).css({
-            'top': portPosition.y+'px',
-            'left':portPosition.x+'px'
-        });
+        // // applying the offset to the element
+        // $(element).css({
+        //     'top': portPosition.y+'px',
+        //     'left':portPosition.x+'px'
+        // });
     }
 };
 
