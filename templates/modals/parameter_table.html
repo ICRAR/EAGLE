@@ -1,5 +1,5 @@
 <!-- Parameter/arguments table Modal -->
-<div class="modal fade" id="parameterTableModal" tabindex="-1" role="dialog" aria-labelledby="parameterTableModalTitle" aria-hidden="true">
+<div class="modal fade eagleTableModal" id="parameterTableModal" tabindex="-1" role="dialog" aria-labelledby="parameterTableModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <!-- ko if: ParameterTable.showTableModal() -->
@@ -60,7 +60,7 @@
                         </div>
                     <!-- /ko -->
                     <!-- ko if: ParameterTable.getTableFields().length !== 0 -->
-                        <table id="paramsTableWrapper">
+                        <table class="eagleTableWrapper" id="paramsTableWrapper">
                             <div id="tableInspector">
                                 <input id="tableInspectorSelection" type="text" placeholder="Selection" data-bind="value: ParameterTable.formatTableInspectorSelection()" readonly>
                                 <input id="tableInspectorValue" type="text" placeholder="Content" data-bind="value: ParameterTable.formatTableInspectorValue(), readonly: ParameterTable.selectionReadonly(), event: {keyup: ParameterTable.tableInspectorUpdateSelection($element.value)}">

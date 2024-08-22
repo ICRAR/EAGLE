@@ -1,5 +1,5 @@
 <!-- Graph Configurations Table Modal -->
-<div class="modal fade" id="graphConfigurationsTableModal" tabindex="-1" role="dialog" aria-labelledby="graphConfigurationsTableModalTitle" aria-hidden="true">
+<div class="modal fade eagleTableModal" id="graphConfigurationsTableModal" tabindex="-1" role="dialog" aria-labelledby="graphConfigurationsTableModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -27,10 +27,10 @@
                     </div>
                 <!-- /ko -->
                 <!-- ko if: logicalGraph().graphConfigs().length !== 0 -->
-                    <table id="paramsTableWrapper">
+                    <table class="eagleTableWrapper" id="graphConfigurationsTableWrapper">
                         <thead>
                             <tr>
-                                <th data-bind="eagleTooltip:''" data-bs-placement="top"></th>
+                                <th id="graph_configurations_table_sort_column" data-bind="eagleTooltip:''" data-bs-placement="top"></th>
                                 <th data-bind="eagleTooltip:''" data-bs-placement="top">Name</th>
                                 <th data-bind="eagleTooltip:''" data-bs-placement="top">Description</th>
                                 <th data-bind="eagleTooltip:''" data-bs-placement="top">Favourite</th>
@@ -47,8 +47,17 @@
                                 <td class='columnCell column-description'>
                                     <input class="tableParameter" type="string" data-bind="value: $data.getDescription(), disabled: true, eagleTooltip: ''">
                                 </td>
-                                <td class='columnCell column-favourite'>
-                                    
+                                <td class='columnCell column-favorite'>
+                                    <!-- ko if: $data.isFavorite() -->
+                                    <button data-bind="click: function(){$data.setIsFavorite(false);}, eagleTooltip:'Remove favorite flag on this configuration', clickBubble:false">
+                                        <i class="material-icons">favorite</i>
+                                    </button>
+                                    <!-- /ko -->
+                                    <!-- ko ifnot: $data.isFavorite() -->
+                                    <button data-bind="click: function(){$data.setIsFavorite(true);}, eagleTooltip:'Set favorite flag on this configuration', clickBubble:false">
+                                        <i class="material-icons">favorite_border</i>
+                                    </button>
+                                    <!-- /ko -->
                                 </td>
                             </tr>
                         </tbody>
