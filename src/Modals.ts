@@ -359,7 +359,7 @@ export class Modals {
             eagle.checkGraph();
         });
 
-        $('#parameterTableModal').on('shown.bs.modal', function(){
+        $('.eagleTableModal').on('shown.bs.modal', function(){
             eagle.hideEagleIsLoading()
             Eagle.tableSearchString('')
             $('#parameterTableModal .componentSearchBar').val('').trigger("focus").trigger("select")
