@@ -137,11 +137,15 @@
 #portContainer i {
     height: 100%;
     width: 100%;
-    font-size: 14px;
-    transform: translate(-1px,-1.5px);
+    font-size: 16px;
+    transform: translate(-2px, -2.5px);
     pointer-events: none;
     color: #2e3192;
     position: absolute;
+}
+
+#portContainer .outputPort i {
+    transform: translate(-4px, -4.5px);
 }
 
 .node {
