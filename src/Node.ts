@@ -2047,7 +2047,7 @@ export class Node {
             const hasPydataValue: boolean = node.getFieldByDisplayText(Daliuge.FieldName.PYDATA)?.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
 
             if (!hasInputEdge && !hasPydataValue){
-                const message: string = node.category() + " node " + node.getKey() + " (" + node.getName() + ") contents is not specified. It has no input edges, and its '" + Daliuge.FieldName.PYDATA + "' field contains the default value.";
+                const message: string = node.category() + " node (" + node.getName() + ") has no connected input edges, and no data in its '" + Daliuge.FieldName.PYDATA + "' field.";
                 const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, null, "");
                 node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
