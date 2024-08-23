@@ -62,16 +62,14 @@ export class Palette {
             const nodeData = dataObject.nodeDataArray[i];
 
             // read node
-            const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, true, (): number => {
-                return Utils.newKey(result.nodes());
-            });
+            const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, true);
 
             // check that node has no group
-            if (newNode.getParentKey() !== null){
-                const error : string = file.name + " Node " + i + " has parentKey: " + newNode.getParentKey() + ". Setting parentKey to null.";
+            if (newNode.getParentId() !== null){
+                const error : string = file.name + " Node " + i + " has parentKey: " + newNode.getParentId() + ". Setting parentKey to null.";
                 errorsWarnings.warnings.push(Errors.Message(error));
 
-                newNode.setParentKey(null);
+                newNode.setParentId(null);
             }
 
             // check that x, y, position is the default
@@ -177,8 +175,7 @@ export class Palette {
         const newNode : Node = node.clone();
 
         // set appropriate key for node (one that is not already in use)
-        newNode.setId(Utils.uuidv4());
-        newNode.setKey(Utils.newKey(this.getNodes()));
+        newNode.setId(Utils.generateNodeId());
 
         if (force){
             this.nodes.push(newNode);
@@ -198,24 +195,6 @@ export class Palette {
 
         // if we didn't find a matching node to replace, add it as a new node
         this.nodes.push(newNode);
-    }
-
-
-    findNodeByKey = (key : number) : Node => {
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
-            if (this.nodes()[i].getKey() === key){
-                return this.nodes()[i];
-            }
-        }
-        return null;
-    }
-
-    removeNodeByKey = (key : number) : void => {
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
-            if (this.nodes()[i].getKey() === key){
-                this.nodes.splice(i, 1);
-            }
-        }
     }
 
     findNodeById = (id : string) : Node => {

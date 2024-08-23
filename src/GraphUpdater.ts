@@ -36,9 +36,9 @@ import { Utils } from './Utils';
 export class GraphUpdater {
 
     // NOTE: for use in translation of OJS object to internal graph representation
-    static findIndexOfNodeDataArrayWithKey(nodeDataArray : any[], key: number) : number {
+    static findIndexOfNodeDataArrayWithId(nodeDataArray: any[], id: NodeId) : number {
         for (let i = 0 ; i < nodeDataArray.length ; i++){
-            if (nodeDataArray[i].key === key){
+            if (nodeDataArray[i].id === id){
                 return i;
             }
         }
@@ -82,6 +82,76 @@ export class GraphUpdater {
         }
 
         return true;
+    }
+
+    static usesNodeKeys(graphObject: any): boolean {
+        for (const node of graphObject["nodeDataArray"]){
+            if (typeof node.key !== 'undefined'){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Takes a graph that is using keys and updates it to use ids only
+    // - edges .from and .to attributes refer to keys, so we change to ids
+    static updateKeysToIds(graphObject: any): void {
+        console.log("GraphUpdater.updateKeysToIds()");
+        const keyToId: Map<number, string> = new Map<number, string>();
+
+        // build keyToId map from nodes
+        for (const node of graphObject["nodeDataArray"]){
+            const newId = Utils.generateNodeId();
+
+            keyToId.set(node.key, newId);
+            node.id = newId;
+
+            // input app
+            if (node.inputApplicationKey !== null){
+                const inputAppId = Utils.generateNodeId();
+                keyToId.set(node.inputApplicationKey, inputAppId);
+                node.inputApplicationId = inputAppId;
+            }
+            // output app
+            if (node.outputApplicationKey !== null){
+                const outputAppId = Utils.generateNodeId();
+                keyToId.set(node.outputApplicationKey, outputAppId);
+                node.inputApplicationId = outputAppId;
+            }
+        }
+
+        // use map to update parentKeys
+        for (const node of graphObject["nodeDataArray"]){
+            if (typeof node.group !== "undefined"){
+                node.parentId = keyToId.get(node.group);
+            } else {
+                node.parentId = null;
+            }
+        }
+
+        // use map to update subject
+        for (const node of graphObject["nodeDataArray"]){
+            if (typeof node.subject !== "undefined"){
+                node.subject = keyToId.get(node.subject);
+            } else {
+                node.subjectId = null;
+            }
+        }
+
+        // use map to update edges
+        for (const edge of graphObject["linkDataArray"]){
+
+            if (!keyToId.has(edge.from)){
+                console.warn("GraphUpdater.updateKeysToIds() : Can't find Id for from key", edge.from, edge);
+            }
+            if (!keyToId.has(edge.to)){
+                console.warn("GraphUpdater.updateKeysToIds() : Can't find Id for to key", edge.to, edge);
+            }
+
+            edge.from = keyToId.get(edge.from);
+            edge.to = keyToId.get(edge.to);
+        }
     }
 
     static generateLogicalGraphsTable() : any[] {

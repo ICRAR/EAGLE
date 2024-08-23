@@ -66,10 +66,10 @@ ko.bindingHandlers.nodeRenderHandler = {
         }
 
         const pos = node.getPosition() // this line is needed because referencing position here causes this update function to run when the node position gets updated aka. when we are dragging a node on the graph
-        if(node.isConstruct() || node.getParentKey() != null ){
+        if(node.isConstruct() || node.getParentId() != null ){
             if(!node.isConstruct()){
                 const eagle : Eagle = Eagle.getInstance();
-                node = eagle.logicalGraph().findNodeByKey(node.getParentKey())
+                node = eagle.logicalGraph().findNodeById(node.getParentId())
             }
             GraphRenderer.resizeConstruct(node)
         }
@@ -83,7 +83,7 @@ ko.bindingHandlers.embeddedAppPosition = {
         const input: boolean = ko.utils.unwrapObservable(valueAccessor()).input;
 
         // find the node in which the applicationNode has been embedded
-        const parentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(applicationNode.getEmbedKey());
+        const parentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(applicationNode.getEmbedId());
 
         // determine all the adjacent nodes
         // TODO: earlier abort if field is null
@@ -153,7 +153,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         switch(dataType){
             case 'inputPort':
             case 'outputPort':
-                node = eagle.logicalGraph().findNodeByKeyQuiet(f.getNodeKey())
+                node = eagle.logicalGraph().findNodeByIdQuiet(f.getNodeId())
                 field = f
                 break;
             case 'comment':
@@ -168,10 +168,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         switch(dataType){
             case 'comment': {
-                const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(n.getSubjectKey());
+                const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(n.getSubjectId());
 
                 if (adjacentNode === null){
-                    console.warn("Could not find adjacentNode for comment with subjectKey", n.getSubjectKey());
+                    console.warn("Could not find adjacentNode for comment with subjectId", n.getSubjectId());
                     return;
                 }
 
@@ -181,10 +181,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
             case 'inputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
                     if(field != null && field.getId()===edge.getDestPortId()){
-                        const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey());
+                        const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getSrcNodeId());
                         
                         if (adjacentNode === null){
-                            console.warn("Could not find adjacentNode for inputPort or inputApp with SrcNodeKey", edge.getSrcNodeKey());
+                            console.warn("Could not find adjacentNode for inputPort or inputApp with SrcNodeId", edge.getSrcNodeId());
                             return;
                         }
 
@@ -197,10 +197,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
             case 'outputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
                     if(field.getId()===edge.getSrcPortId()){
-                        const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey());
+                        const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getDestNodeId());
 
                         if (adjacentNode === null){
-                            console.warn("Could not find adjacentNode for  outputPort or outputApp with DestNodeKey", edge.getDestNodeKey());
+                            console.warn("Could not find adjacentNode for outputPort or outputApp with DestNodeId", edge.getDestNodeId());
                             return;
                         }
 
@@ -257,7 +257,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         //checking for port collisions if connected
         if(!node.isComment()){
             //checking if the ports are linked 
-            const portIsLinked = eagle.logicalGraph().portIsLinked(node.getKey(),field.getId())
+            const portIsLinked = eagle.logicalGraph().portIsLinked(node.getId(),field.getId())
             field.setInputConnected(portIsLinked.input)
             field.setOutputConnected(portIsLinked.output)
 
@@ -665,14 +665,14 @@ export class GraphRenderer {
         if (input){
             for(const edge of eagle.logicalGraph().getEdges()){
                 if(field.getId()===edge.getDestPortId()){
-                    const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey());
+                    const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getSrcNodeId());
                     adjacentNodes.push(adjacentNode);
                 }
             }
         } else {
             for(const edge of eagle.logicalGraph().getEdges()){
                 if(field.getId()===edge.getSrcPortId()){
-                    const adjacentNode: Node = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey());
+                    const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getDestNodeId());
                     adjacentNodes.push(adjacentNode);
                 }
             }
@@ -875,8 +875,8 @@ export class GraphRenderer {
     static getPath(edge: Edge) : string {
         const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
 
-        const srcNode: Node = lg.findNodeByKeyQuiet(edge.getSrcNodeKey());
-        const destNode: Node = lg.findNodeByKeyQuiet(edge.getDestNodeKey());
+        const srcNode: Node = lg.findNodeByIdQuiet(edge.getSrcNodeId());
+        const destNode: Node = lg.findNodeByIdQuiet(edge.getDestNodeId());
         if(srcNode===null||destNode===null){
             return ''
         }
@@ -890,7 +890,7 @@ export class GraphRenderer {
         const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
 
         const srcNode: Node = commentNode;
-        const destNode: Node = lg.findNodeByKeyQuiet(commentNode.getSubjectKey());
+        const destNode: Node = lg.findNodeByIdQuiet(commentNode.getSubjectId());
 
         return GraphRenderer._getPath(null,srcNode, destNode, null, null);
     }
@@ -1043,8 +1043,8 @@ export class GraphRenderer {
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
-            if(node.getParentKey() != null){
-                const parentNode = eagle.logicalGraph().findNodeByKeyQuiet(node.getParentKey())
+            if(node.getParentId() != null){
+                const parentNode = eagle.logicalGraph().findNodeByIdQuiet(node.getParentId())
                 $('#'+parentNode.getId()).removeClass('transition')
                 GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
             }
@@ -1121,15 +1121,15 @@ export class GraphRenderer {
 
                 outermostNodes.forEach(function(outerMostNode){
                     // remember node parent from before things change
-                    const oldParent: Node = eagle.logicalGraph().findNodeByKeyQuiet(outerMostNode.getParentKey());
+                    const oldParent: Node = eagle.logicalGraph().findNodeByIdQuiet(outerMostNode.getParentId());
 
                     // keep track of whether we would update any node parents
                     const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
                     //construct resizing 
-                    if(outerMostNode.getParentKey() != null){
+                    if(outerMostNode.getParentId() != null){
                         if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
                             oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag) //HERE
-                            outerMostNode.setParentKey(null)
+                            outerMostNode.setParentId(null)
                         }
                     }
 
@@ -1140,13 +1140,13 @@ export class GraphRenderer {
                     const ancestorOfParent = GraphRenderer.isAncestor(parent, outerMostNode);
 
                     // if a parent was found, update
-                    if (parent !== null && outerMostNode.getParentKey() !== parent.getKey() && outerMostNode.getKey() !== parent.getKey() && !ancestorOfParent && !outerMostNode.isEmbedded()){
-                        GraphRenderer.updateNodeParent(outerMostNode, parent.getKey(),  allowGraphEditing);
-                        GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByKeyQuiet(parent.getKey()).getRadius()
+                    if (parent !== null && outerMostNode.getParentId() !== parent.getId() && outerMostNode.getId() !== parent.getId() && !ancestorOfParent && !outerMostNode.isEmbedded()){
+                        GraphRenderer.updateNodeParent(outerMostNode, parent.getId(),  allowGraphEditing);
+                        GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByIdQuiet(parent.getId()).getRadius()
                     }
 
                     // if no parent found, update
-                    if (parent === null && outerMostNode.getParentKey() !== null && !outerMostNode.isEmbedded()){
+                    if (parent === null && outerMostNode.getParentId() !== null && !outerMostNode.isEmbedded()){
                         GraphRenderer.updateNodeParent(outerMostNode, null,  allowGraphEditing);
                     }
 
@@ -1315,7 +1315,7 @@ export class GraphRenderer {
         while(constructs.length > i){
             const construct = constructs[i]
             eagle.logicalGraph().getNodes().forEach(function(obj){
-                if(obj.getParentKey()===construct.getKey()){
+                if(obj.getParentId()===construct.getId()){
                     eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
 
                     if(obj.isGroup()){
@@ -1338,16 +1338,16 @@ export class GraphRenderer {
                 let destHasConnectedOutput: boolean = false;
 
                 for (const e of graph.getEdges()){
-                    if (e.getDestNodeKey() === edge.getSrcNodeKey()){
+                    if (e.getDestNodeId() === edge.getSrcNodeId()){
                         srcHasConnectedInput = true;
                     }
-                    if (e.getSrcNodeKey() === edge.getDestNodeKey()){
+                    if (e.getSrcNodeId() === edge.getDestNodeId()){
                         destHasConnectedOutput = true;
                     }
                 }
 
-                const srcIsDataNode: boolean = GraphRenderer.findNodeWithKey(edge.getSrcNodeKey(), graph.getNodes()).isData();
-                const destIsDataNode: boolean = GraphRenderer.findNodeWithKey(edge.getDestNodeKey(), graph.getNodes()).isData();
+                const srcIsDataNode: boolean = GraphRenderer.findNodeWithId(edge.getSrcNodeId(), graph.getNodes()).isData();
+                const destIsDataNode: boolean = GraphRenderer.findNodeWithId(edge.getDestNodeId(), graph.getNodes()).isData();
                 
                 if (destIsDataNode){
                     if (!destHasConnectedOutput){
@@ -1360,8 +1360,8 @@ export class GraphRenderer {
                 if (srcIsDataNode){
                     if (srcHasConnectedInput){
                         // build a new edge
-                        const newSrc = GraphRenderer.findInputToDataNode(graph.getEdges(), edge.getSrcNodeKey());
-                        edges.push(new Edge(newSrc.nodeKey, newSrc.portId, edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false));
+                        const newSrc = GraphRenderer.findInputToDataNode(graph.getEdges(), edge.getSrcNodeId());
+                        edges.push(new Edge(newSrc.nodeId, newSrc.portId, edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false));
                     } else {
                         // draw edge as normal
                         edges.push(edge);
@@ -1377,21 +1377,21 @@ export class GraphRenderer {
         const result: Edge[] = [];
 
         for (const edge of edges){
-            const srcKey = edge.getSrcNodeKey();
-            const destKey = edge.getDestNodeKey();
+            const srcId = edge.getSrcNodeId();
+            const destId = edge.getDestNodeId();
             let srcFound = false;
             let destFound = false;
 
             for (const node of nodes){
-                if ((node.getKey() === srcKey) ||
-                    (node.hasInputApplication() && node.getInputApplication().getKey() === srcKey) ||
-                    (node.hasOutputApplication() && node.getOutputApplication().getKey() === srcKey)){
+                if ((node.getId() === srcId) ||
+                    (node.hasInputApplication() && node.getInputApplication().getId() === srcId) ||
+                    (node.hasOutputApplication() && node.getOutputApplication().getId() === srcId)){
                     srcFound = true;
                 }
 
-                if ((node.getKey() === destKey) ||
-                    (node.hasInputApplication() && node.getInputApplication().getKey() === destKey) ||
-                    (node.hasOutputApplication() && node.getOutputApplication().getKey() === destKey)){
+                if ((node.getId() === destId) ||
+                    (node.hasInputApplication() && node.getInputApplication().getId() === destId) ||
+                    (node.hasOutputApplication() && node.getOutputApplication().getId() === destId)){
                     destFound = true;
                 }
             }
@@ -1404,12 +1404,12 @@ export class GraphRenderer {
         return result;
     }
 
-
-    static findInputToDataNode(edges: Edge[], nodeKey: number) : {nodeKey:number, portId: string}{
+    // TODO: maybe this should be in LogicalGraph.ts?
+    static findInputToDataNode(edges: Edge[], nodeId: NodeId) : {nodeId: NodeId, portId: FieldId}{
         for (const edge of edges){
-            if (edge.getDestNodeKey() === nodeKey){
+            if (edge.getDestNodeId() === nodeId){
                 return {
-                    nodeKey: edge.getSrcNodeKey(),
+                    nodeId: edge.getSrcNodeId(),
                     portId: edge.getSrcPortId()
                 };
             }
@@ -1431,17 +1431,17 @@ export class GraphRenderer {
         const orderedConstructList:Node[] = []
 
         constructsList.forEach(function(construct){
-            if(construct.getParentKey()===null){
+            if(construct.getParentId()===null){
                 let finished = false // while there are child construct found in this construct nest group
 
-                findConstructId = construct.getKey()
+                findConstructId = construct.getId()
                 orderedConstructList.unshift(construct)
                 while(!finished){
                     let found = false
                     for(const entry of constructsList){
-                        if(entry.getParentKey() === findConstructId){
+                        if(entry.getParentId() === findConstructId){
                             orderedConstructList.unshift(entry)
-                            findConstructId = entry.getKey()
+                            findConstructId = entry.getId()
                             found = true
                         }
                     }
@@ -1471,7 +1471,7 @@ export class GraphRenderer {
         let maxY : number = -Number.MAX_VALUE;
         for (const node of graphNodes){
             
-            if (!node.isEmbedded() && node.getParentKey() === construct.getKey()){
+            if (!node.isEmbedded() && node.getParentId() === construct.getId()){
                 childCount++
                 if (node.getPosition().x - node.getRadius() < minX){
                     minX = node.getPosition().x - node.getRadius();
@@ -1500,7 +1500,8 @@ export class GraphRenderer {
         GraphRenderer.resizeConstruct(construct)
     }
 
-    static setNewEmbeddedApp (nodeId:string,mode:string) :void {
+    // TODO: mode parameter could be a boolean?
+    static setNewEmbeddedApp(nodeId: NodeId, mode: string) :void {
         const eagle = Eagle.getInstance()
         const parentNode = eagle.selectedNode()
         RightClick.closeCustomContextMenu(true)
@@ -1549,11 +1550,11 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
 
         // get id of parent nodeIndex
-        const parentKey : number = node.getKey();
+        const parentId: NodeId = node.getId();
 
         // loop through all nodes, if they belong to the parent's group, move them too
         for (const node of eagle.logicalGraph().getNodes()){
-            if (node.getParentKey() === parentKey){
+            if (node.getParentId() === parentId){
                 node.changePosition(deltaX, deltaY);
                 GraphRenderer.moveChildNodes(node, deltaX, deltaY);
             }
@@ -1578,27 +1579,27 @@ export class GraphRenderer {
             iterations += 1;
 
             // check if found
-            if (n.getKey() === possibleAncestor.getKey()){
+            if (n.getId() === possibleAncestor.getId()){
                 return true;
             }
 
             // otherwise keep traversing upwards
-            const newKey = n.getParentKey();
+            const newKey: NodeId = n.getParentId();
 
             // if we reach a null parent, we are done looking
             if (newKey === null){
                 return false;
             }
 
-            n = eagle.logicalGraph().findNodeByKey(newKey);
+            n = eagle.logicalGraph().findNodeById(newKey);
         }
     }
 
     // update the parent of the given node
     // however, if allowGraphEditing is false, then don't update
-    static updateNodeParent(node: Node, parentKey: number, allowGraphEditing: boolean): void {
-        if (node.getParentKey() !== parentKey && allowGraphEditing){
-            node.setParentKey(parentKey);
+    static updateNodeParent(node: Node, parentId: NodeId, allowGraphEditing: boolean): void {
+        if (node.getParentId() !== parentId && allowGraphEditing){
+            node.setParentId(parentId);
             Eagle.getInstance().checkGraph()   
         }
     }
@@ -1611,10 +1612,10 @@ export class GraphRenderer {
 
         // loop through all children - find distance from center of construct
         for (const node of eagle.logicalGraph().getNodes()){
-            if(GraphRenderer.ctrlDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelectedByKey(node.getParentKey())){
+            if(GraphRenderer.ctrlDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelectedById(node.getParentId())){
                 continue
             }
-            if (node.getParentKey() === construct.getKey()){
+            if (node.getParentId() === construct.getId()){
                 const dx = construct.getPosition().x - node.getPosition().x;
                 const dy = construct.getPosition().y - node.getPosition().y;
                 const distance = Math.sqrt(dx*dx + dy*dy);
@@ -1649,7 +1650,7 @@ export class GraphRenderer {
         
         //preparing necessary port info
         GraphRenderer.draggingPort = true
-        GraphRenderer.portDragSourceNode(eagle.logicalGraph().findNodeByKey(port.getNodeKey()));
+        GraphRenderer.portDragSourceNode(eagle.logicalGraph().findNodeById(port.getNodeId()));
         GraphRenderer.portDragSourcePort(port);
         GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
         GraphRenderer.renderDraggingPortEdge(true);
@@ -1770,7 +1771,7 @@ export class GraphRenderer {
         }
 
         // check if link is valid
-        const linkValid : Errors.Validity = Edge.isValid(eagle, true, null, realSourceNode.getKey(), realSourcePort.getId(), realDestinationNode.getKey(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
+        const linkValid : Errors.Validity = Edge.isValid(eagle, true, null, realSourceNode.getId(), realSourcePort.getId(), realDestinationNode.getId(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
         if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Errors.Validity.Error) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning || linkValid === Errors.Validity.Fixable){
@@ -1911,11 +1912,11 @@ export class GraphRenderer {
 
             // check if node has connected input and output
             for (const edge of graph.getEdges()){
-                if (edge.getDestNodeKey() === node.getKey()){
+                if (edge.getDestNodeId() === node.getId()){
                     nodeHasConnectedInput = true;
                 }
 
-                if (edge.getSrcNodeKey() === node.getKey()){
+                if (edge.getSrcNodeId() === node.getId()){
                     nodeHasConnectedOutput = true;
                 }
             }
@@ -1952,12 +1953,12 @@ export class GraphRenderer {
 
         let depth : number = 0;
         let node : Node = nodes[index];
-        let nodeKey : number;
-        let nodeParentKey : number = node.getParentKey();
+        let nodeId: NodeId;
+        let nodeParentId: NodeId = node.getParentId();
         let iterations = 0;
 
         // follow the chain of parents
-        while (nodeParentKey != null){
+        while (nodeParentId != null){
             if (iterations > 10){
                 console.error("too many iterations in findDepthOfNode()");
                 break;
@@ -1966,17 +1967,18 @@ export class GraphRenderer {
             iterations += 1;
             depth += 1;
             depth += node.getDrawOrderHint() / 10;
-            nodeKey = node.getKey();
-            nodeParentKey = node.getParentKey();
+            nodeId = node.getId();
+            nodeParentId = node.getParentId();
 
-            if (nodeParentKey === null){
+            if (nodeParentId === null){
                 return depth;
             }
 
-            node = GraphRenderer.findNodeWithKey(nodeParentKey, nodes);
+            // TODO: could we use 
+            node = GraphRenderer.findNodeWithId(nodeParentId, nodes);
 
             if (node === null){
-                console.error("Node", nodeKey, "has parentKey", nodeParentKey, "but call to findNodeWithKey(", nodeParentKey, ") returned null");
+                console.error("Node", nodeId, "has parentId", nodeParentId, "but call to findNodeWithId(", nodeParentId, ") returned null");
                 return depth;
             }
 
@@ -1996,32 +1998,33 @@ export class GraphRenderer {
         return depth;
     }
 
-    static findNodeWithKey(key: number, nodes: Node[]) : Node {
-        if (key === null){
+    // TODO: can we just use LogicalGraph.findNodeById() instead of this function
+    static findNodeWithId(id: NodeId, nodes: Node[]) : Node {
+        if (id === null){
             return null;
         }
 
         for (const node of nodes){
-            if (node.getKey() === key){
+            if (node.getId() === id){
                 return node;
             }
 
             // check if the node's inputApp has a matching key
             if (node.hasInputApplication()){
-                if (node.getInputApplication().getKey() === key){
+                if (node.getInputApplication().getId() === id){
                     return node.getInputApplication();
                 }
             }
 
             // check if the node's outputApp has a matching key
             if (node.hasOutputApplication()){
-                if (node.getOutputApplication().getKey() === key){
+                if (node.getOutputApplication().getId() === id){
                     return node.getOutputApplication();
                 }
             }
         }
 
-        console.warn("Cannot find node with key", key);
+        console.warn("Cannot find node with id", id);
         return null;
     }
 
@@ -2048,9 +2051,9 @@ export class GraphRenderer {
             for (const port of node.getPorts()){
                 let isValid: Errors.Validity
                 if(!GraphRenderer.portDragSourcePortIsInput){
-                    isValid = Edge.isValid(eagle, true, "", sourceNode.getKey(), sourcePort.getId(), node.getKey(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
+                    isValid = Edge.isValid(eagle, true, null, sourceNode.getId(), sourcePort.getId(), node.getId(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }else{
-                    isValid = Edge.isValid(eagle, true, "", node.getKey(), port.getId(), sourceNode.getKey(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
+                    isValid = Edge.isValid(eagle, true, null, node.getId(), port.getId(), sourceNode.getId(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }
                 const isValidIndex: number = Object.values(Errors.Validity).indexOf(isValid);
 
@@ -2123,7 +2126,7 @@ export class GraphRenderer {
 
         const eagle = Eagle.getInstance();
         GraphRenderer.destinationPort = port;
-        GraphRenderer.destinationNode = eagle.logicalGraph().findNodeByKey(port.getNodeKey());
+        GraphRenderer.destinationNode = eagle.logicalGraph().findNodeById(port.getNodeId());
 
         //if the port we are dragging from and are hovering one are the same type of port return an error
         if(usage === 'input' && GraphRenderer.portDragSourcePortIsInput || usage === 'output' && !GraphRenderer.portDragSourcePortIsInput){
@@ -2137,9 +2140,9 @@ export class GraphRenderer {
         let isValid: Errors.Validity
 
         if(!GraphRenderer.portDragSourcePortIsInput){
-            isValid = Edge.isValid(eagle, true, "", GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
+            isValid = Edge.isValid(eagle, true, null, GraphRenderer.portDragSourceNode().getId(), GraphRenderer.portDragSourcePort().getId(), GraphRenderer.destinationNode.getId(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
         }else{
-            isValid = Edge.isValid(eagle, true, "", GraphRenderer.destinationNode.getKey(), GraphRenderer.destinationPort.getId(), GraphRenderer.portDragSourceNode().getKey(), GraphRenderer.portDragSourcePort().getId(), false, false, false, false, {errors:[], warnings:[]});
+            isValid = Edge.isValid(eagle, true, null, GraphRenderer.destinationNode.getId(), GraphRenderer.destinationPort.getId(), GraphRenderer.portDragSourceNode().getId(), GraphRenderer.portDragSourcePort().getId(), false, false, false, false, {errors:[], warnings:[]});
         }
         GraphRenderer.isDraggingPortValid(isValid);
     }
@@ -2260,8 +2263,8 @@ export class GraphRenderer {
 
     static setPortPeekForEdge(edge:Edge, value:boolean) : void {
         const eagle = Eagle.getInstance();
-        const inputPort = eagle.logicalGraph().findNodeByKeyQuiet(edge.getSrcNodeKey()).findFieldById(edge.getSrcPortId())
-        const outputPort = eagle.logicalGraph().findNodeByKeyQuiet(edge.getDestNodeKey()).findFieldById(edge.getDestPortId())
+        const inputPort = eagle.logicalGraph().findNodeByIdQuiet(edge.getSrcNodeId()).findFieldById(edge.getSrcPortId())
+        const outputPort = eagle.logicalGraph().findNodeByIdQuiet(edge.getDestNodeId()).findFieldById(edge.getDestPortId())
         
         // if the input port found, set peek
         if (inputPort !== null){
@@ -2285,7 +2288,7 @@ export class GraphRenderer {
         let selectedColor: string = EagleConfig.getColor('edgeDefaultSelected');
 
         // check if source node is an event, if so, draw in blue
-        const srcNode : Node = eagle.logicalGraph().findNodeByKey(edge.getSrcNodeKey());
+        const srcNode : Node = eagle.logicalGraph().findNodeById(edge.getSrcNodeId());
 
         if (srcNode !== null){
             const srcPort : Field = srcNode.findFieldById(edge.getSrcPortId());
@@ -2297,7 +2300,7 @@ export class GraphRenderer {
         }
 
         // check if link has a warning or is invalid
-        // const linkValid : Errors.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeKey(), edge.getSrcPortId(), edge.getDestNodeKey(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        // const linkValid : Errors.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
         const linkValid : Errors.Validity = Utils.worstEdgeError(edge.getErrorsWarnings());
 
         if (linkValid === Errors.Validity.Error || linkValid === Errors.Validity.Impossible){

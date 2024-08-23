@@ -215,16 +215,16 @@ class Page {
       .click(this.navbarGraphNewAddEdge)
 
       // choose source node
-      .click(Selector("#editEdgeModalSrcNodeKeySelect"))
-      .click(Selector("#editEdgeModalSrcNodeKeySelect").find('option').withText(srcNode))
+      .click(Selector("#editEdgeModalSrcNodeIdSelect"))
+      .click(Selector("#editEdgeModalSrcNodeIdSelect").find('option').withText(srcNode))
 
       // choose source port
       .click(Selector("#editEdgeModalSrcPortIdSelect"))
       .click(Selector("#editEdgeModalSrcPortIdSelect").find('option').withText(srcPort))
 
       // choose destination node
-      .click(Selector("#editEdgeModalDestNodeKeySelect"))
-      .click(Selector("#editEdgeModalDestNodeKeySelect").find('option').withText(dstNode))
+      .click(Selector("#editEdgeModalDestNodeIdSelect"))
+      .click(Selector("#editEdgeModalDestNodeIdSelect").find('option').withText(dstNode))
 
       // choose destination port
       .click(Selector("#editEdgeModalDestPortIdSelect"))

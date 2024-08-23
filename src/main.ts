@@ -228,7 +228,7 @@ $(function(){
 
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const eagle: Eagle = Eagle.getInstance();
-        const selectEdge = eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
+        const selectEdge = eagle.logicalGraph().findEdgeById(($(event.target).attr("id") as EdgeId))
 
         if(!selectEdge){
             console.log("no edge found")
@@ -312,4 +312,21 @@ function autoTutorial(): void {
             TutorialSystem.initiateTutorial(tutorialName);
         },1000)
     }
+}
+
+declare const __brand: unique symbol
+type Brand<B> = { [__brand]: B }
+
+/**
+ * Creates a branded type, combining a base type T with a unique brand B.
+ * This pattern enhances type safety by creating nominally unique types,
+ * preventing accidental use of structurally similar but semantically
+ * different values (e.g., different types of IDs).
+ */
+export type Branded<T, B> = T & Brand<B>
+
+declare global {
+    type NodeId = Branded<string, "NodeId">
+    type FieldId = Branded<string, "FieldId">
+    type EdgeId = Branded<string, "EdgeId">
 }

@@ -79,32 +79,32 @@ export class LogicalGraph {
 
             const linkData : any = Edge.toOJSJson(edge);
 
-            let srcKey = edge.getSrcNodeKey();
-            let destKey = edge.getDestNodeKey();
+            let srcId = edge.getSrcNodeId();
+            let destId = edge.getDestNodeId();
 
-            const srcNode = graph.findNodeByKey(srcKey);
-            const destNode = graph.findNodeByKey(destKey);
+            const srcNode = graph.findNodeById(srcId);
+            const destNode = graph.findNodeById(destId);
 
             // if source and destination node could not be found, skip edge
             if (srcNode === null){
-                console.warn("Could not find edge (", srcKey, "->", destKey, ") source node by key (", srcKey, "), skipping");
+                console.warn("Could not find edge (", srcId, "->", destId, ") source node by id (", srcId, "), skipping");
                 continue;
             }
             if (destNode === null){
-                console.warn("Could not find edge (", srcKey, "->", destKey, ") destination node by key (", destKey, "), skipping");
+                console.warn("Could not find edge (", srcId, "->", destId, ") destination node by key (", destId, "), skipping");
                 continue;
             }
 
             // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
             if (srcNode.isEmbedded()){
-                srcKey = srcNode.getEmbedKey();
+                srcId = srcNode.getEmbedId();
             }
             if (destNode.isEmbedded()){
-                destKey = destNode.getEmbedKey();
+                destId = destNode.getEmbedId();
             }
 
-            linkData.from = srcKey;
-            linkData.to   = destKey;
+            linkData.from = srcId;
+            linkData.to   = destId;
 
             result.linkDataArray.push(linkData);
         }
@@ -136,19 +136,7 @@ export class LogicalGraph {
 
         // add nodes
         for (const nodeData of dataObject.nodeDataArray){
-            const extraUsedKeys: number[] = [];
-
-            const newNode = Node.fromOJSJson(nodeData, errorsWarnings, false, (): number => {
-                const resultKeys: number[] = Utils.getUsedKeys(result.nodes());
-                const nodeDataKeys: number[] = Utils.getUsedKeysFromNodeData(dataObject.nodeDataArray);
-                const combinedKeys: number[] = resultKeys.concat(nodeDataKeys.concat(extraUsedKeys));
-
-                const newKey = Utils.findNewKey(combinedKeys);
-
-
-                extraUsedKeys.push(newKey);
-                return newKey;
-            });
+            const newNode = Node.fromOJSJson(nodeData, errorsWarnings, false);
 
             if (newNode === null){
                 continue;
@@ -157,16 +145,16 @@ export class LogicalGraph {
             result.nodes.push(newNode);
         }
 
-        // set keys for all embedded nodes
-        Utils.setEmbeddedApplicationNodeKeys(result);
+        // set ids for all embedded nodes
+        Utils.setEmbeddedApplicationNodeIds(result);
 
         // make sure to set parentId for all nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             const nodeData = dataObject.nodeDataArray[i];
-            const parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithKey(dataObject.nodeDataArray, nodeData.group);
+            const parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithId(dataObject.nodeDataArray, nodeData.parentId);
 
             if (parentIndex !== -1){
-                result.nodes()[i].setParentKey(result.nodes()[parentIndex].getKey());
+                result.nodes()[i].setParentId(result.nodes()[parentIndex].getId());
             }
         }
 
@@ -193,21 +181,27 @@ export class LogicalGraph {
         // add warnings to errorsWarnings
         for (const edge of result.edges()){
             // get references to actual source and destination nodes (from the keys)
-            const sourceNode : Node = result.findNodeByKey(edge.getSrcNodeKey());
-            const destinationNode : Node = result.findNodeByKey(edge.getDestNodeKey());
+            const sourceNode : Node = result.findNodeById(edge.getSrcNodeId());
+            const destinationNode : Node = result.findNodeById(edge.getDestNodeId());
+
+            // check that source and destination nodes were found
+            if (sourceNode === null || destinationNode === null){
+                console.error("Could not find source (" + edge.getSrcNodeId() + ") or destination (" + edge.getDestNodeId() + ") node of edge " + edge.getId());
+                continue;
+            }
 
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
             if (sourceNode.getCategoryType() === Category.Type.Construct){
-                const srcKeyAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPortId());
-                const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNodeKey() + " to embedded application " + srcKeyAndPort.key;
+                const srcIdAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPortId());
+                const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNodeId() + " to embedded application " + srcIdAndPort.id;
                 errorsWarnings.warnings.push(Errors.Message(warning));
-                edge.setSrcNodeKey(srcKeyAndPort.key);
+                edge.setSrcNodeId(srcIdAndPort.id);
             }
             if (destinationNode.getCategoryType() === Category.Type.Construct){
                 const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPortId());
-                const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNodeKey() + " to embedded application " + destKeyAndPort.key;
+                const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNodeId() + " to embedded application " + destKeyAndPort.id;
                 errorsWarnings.warnings.push(Errors.Message(warning));
-                edge.setDestNodeKey(destKeyAndPort.key);
+                edge.setDestNodeId(destKeyAndPort.id);
             }
         }
 
@@ -282,7 +276,7 @@ export class LogicalGraph {
         let result: number = 0;
 
         for (const edge of this.edges()){
-            if ((edge.getSrcNodeKey() === node.getKey() ) || ( edge.getDestNodeKey() === node.getKey() )){
+            if ((edge.getSrcNodeId() === node.getId() ) || ( edge.getDestNodeId() === node.getId() )){
                 result += 1;
             }
         }
@@ -352,57 +346,8 @@ export class LogicalGraph {
         return newNode;
     }
 
-    findNodeByKey = (key : number) : Node => {
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
-            // check if the node itself has a matching key
-            if (this.nodes()[i].getKey() === key){
-                return this.nodes()[i];
-            }
-            // check if the node's inputApp has a matching key
-            if (this.nodes()[i].hasInputApplication()){
-                if (this.nodes()[i].getInputApplication().getKey() === key){
-                    return this.nodes()[i].getInputApplication();
-                }
-            }
-
-            // check if the node's outputApp has a matching key
-            if (this.nodes()[i].hasOutputApplication()){
-                if (this.nodes()[i].getOutputApplication().getKey() === key){
-                    return this.nodes()[i].getOutputApplication();
-                }
-            }
-        }
-        console.warn("findNodeByKey(): could not find node with key (", key, ")");
-        return null;
-    }
-
-    findNodeByKeyQuiet = (key : number) : Node => {
+    findNodeByIdQuiet = (id: NodeId) : Node => {
         //used temporarily for the table modals to prevent console spam relating to too many calls when changing selected objects
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
-
-            // check if the node itself has a matching key
-            if (this.nodes()[i].getKey() === key){
-                return this.nodes()[i];
-            }
-
-            // check if the node's inputApp has a matching key
-            if (this.nodes()[i].hasInputApplication()){
-                if (this.nodes()[i].getInputApplication().getKey() === key){
-                    return this.nodes()[i].getInputApplication();
-                }
-            }
-
-            // check if the node's outputApp has a matching key
-            if (this.nodes()[i].hasOutputApplication()){
-                if (this.nodes()[i].getOutputApplication().getKey() === key){
-                    return this.nodes()[i].getOutputApplication();
-                }
-            }
-        }
-        return null;
-    }
-
-    findNodeById = (id : string) : Node => {
         for (let i = this.nodes().length - 1; i >= 0 ; i--){
 
             // check if the node itself has a matching key
@@ -424,8 +369,17 @@ export class LogicalGraph {
                 }
             }
         }
-        console.warn("findNodeByKey(): could not find node with key (", id, ")");
         return null;
+    }
+
+    findNodeById = (id: NodeId) : Node => {
+        const node = this.findNodeByIdQuiet(id);
+
+        if (node === null){
+            console.warn("findNodeById(): could not find node with id (", id, ")");
+        }
+
+        return node;
     }
 
     findNodeGraphIdByNodeName = (name:string) :string =>{
@@ -439,7 +393,7 @@ export class LogicalGraph {
     }
 
     removeNode = (node: Node) : void => {
-        const key = node.getKey();
+        const id = node.getId();
 
         // NOTE: this section handles an unusual case where:
         //  - the removed node is an embedded node within a construct
@@ -460,31 +414,31 @@ export class LogicalGraph {
         }
 
         // delete edges incident on this node
-        this.removeEdgesByKey(key);
+        this.removeEdgesById(id);
 
         // delete edges incident on the embedded apps of this node
         if (node.hasInputApplication()){
-            this.removeEdgesByKey(node.getInputApplication().getKey());
+            this.removeEdgesById(node.getInputApplication().getId());
         }
         if (node.hasOutputApplication()){
-            this.removeEdgesByKey(node.getOutputApplication().getKey());
+            this.removeEdgesById(node.getOutputApplication().getId());
         }
 
         // search through nodes in graph, looking for one with the correct key
         for (let i = this.nodes().length - 1; i >= 0 ; i--){
             // delete the node
-            if (this.nodes()[i].getKey() === key){
+            if (this.nodes()[i].getId() === id){
                 this.nodes.splice(i, 1);
                 continue;
             }
 
             // delete the input application
-            if (this.nodes()[i].hasInputApplication() && this.nodes()[i].getInputApplication().getKey() === key){
+            if (this.nodes()[i].hasInputApplication() && this.nodes()[i].getInputApplication().getId() === id){
                 this.nodes()[i].setInputApplication(null);
             }
 
             // delete the output application
-            if (this.nodes()[i].hasOutputApplication() && this.nodes()[i].getOutputApplication().getKey() === key){
+            if (this.nodes()[i].hasOutputApplication() && this.nodes()[i].getOutputApplication().getId() === id){
                 this.nodes()[i].setOutputApplication(null);
             }
         }
@@ -497,13 +451,13 @@ export class LogicalGraph {
                 continue;
             }
 
-            if (this.nodes()[i].getParentKey() === key){
+            if (this.nodes()[i].getParentId() === id){
                 this.removeNode(this.nodes()[i]);
             }
         }
     }
 
-    findEdgeById = (id: string) : Edge => {
+    findEdgeById = (id: EdgeId) : Edge => {
         for (let i = this.edges().length - 1; i >= 0 ; i--){
             if (this.edges()[i].getId() === id){
                 return this.edges()[i];
@@ -512,7 +466,7 @@ export class LogicalGraph {
         return null;
     }
 
-    removeEdgeById = (id: string) : void => {
+    removeEdgeById = (id: EdgeId) : void => {
         let found = false;
 
         for (let i = this.edges().length - 1; i >= 0 ; i--){
@@ -527,25 +481,25 @@ export class LogicalGraph {
         }
     }
 
-    // delete edges that start from or end at the node with the given key
-    removeEdgesByKey = (key: number) : void => {
+    // delete edges that start from or end at the node with the given id
+    removeEdgesById = (id: NodeId) : void => {
         for (let i = this.edges().length - 1 ; i >= 0; i--){
             const edge : Edge = this.edges()[i];
-            if (edge.getSrcNodeKey() === key || edge.getDestNodeKey() === key){
+            if (edge.getSrcNodeId() === id || edge.getDestNodeId() === id){
                 this.edges.splice(i, 1);
             }
         }
     }
 
-    portIsLinked = (nodeKey : number, portId : string) : any => {
+    portIsLinked = (nodeId: NodeId, portId: FieldId) : any => {
         let result:{input:boolean,output:boolean} = {'input':false,'output':false}
         let input = false
         let output = false
         for (const edge of this.edges()){
-            if(edge.getSrcNodeKey() === nodeKey && edge.getSrcPortId() === portId){
+            if(edge.getSrcNodeId() === nodeId && edge.getSrcPortId() === portId){
                 output = true
             }
-            if(edge.getDestNodeKey() === nodeKey && edge.getDestPortId() === portId){
+            if(edge.getDestNodeId() === nodeId && edge.getDestPortId() === portId){
                 input = true
             }
         }
@@ -569,7 +523,7 @@ export class LogicalGraph {
 
         // loop through all nodes, finding all children and determining minimum bounding box to contain all children
         for (const n of this.nodes()){
-            if (n.getParentKey() === node.getKey()){
+            if (n.getParentId() === node.getId()){
                 numChildren += 1;
 
                 if (n.getPosition().x < minX){
@@ -618,11 +572,11 @@ export class LogicalGraph {
 
             iterations += 1;
 
-            if (n.getParentKey() === null){
+            if (n.getParentId() === null){
                 break;
             }
 
-            n = this.findNodeByKey(n.getParentKey());
+            n = this.findNodeById(n.getParentId());
 
             if (n === null){
                 break;
@@ -647,7 +601,7 @@ export class LogicalGraph {
                 
                 for(const object of eagle.selectedObjects()){
                     // abort if checking for self!
-                    if (object instanceof Node && object.getKey() === node.getKey()){
+                    if (object instanceof Node && object.getId() === node.getId()){
                         nodeIsSelected=true
                         break
                     }
@@ -682,7 +636,7 @@ export class LogicalGraph {
         let maxDepthOverlap: Node = null;
 
         for (const overlap of overlaps){
-            const depth = this.findDepthByKey(overlap.getKey());
+            const depth = this.findDepthById(overlap.getId());
 
             if (depth > maxDepth){
                 maxDepth = depth;
@@ -694,13 +648,13 @@ export class LogicalGraph {
         return maxDepthOverlap;
     }
 
-    findDepthByKey = (key: number) : number => {
-        const node = this.findNodeByKey(key);
-        let parentKey = node.getParentKey();
+    findDepthById = (id: NodeId) : number => {
+        const node = this.findNodeById(id);
+        let parentId: NodeId = node.getParentId();
         let depth = 0;
         let iterations = 0;
 
-        while (parentKey !== null){
+        while (parentId !== null){
             if (iterations > 10){
                 console.error("too many iterations in findDepthByKey()");
                 break;
@@ -708,22 +662,22 @@ export class LogicalGraph {
 
             iterations += 1;
             depth += 1;
-            parentKey = this.findNodeByKey(parentKey).getParentKey();
+            parentId = this.findNodeById(parentId).getParentId();
         }
 
         return depth;
     }
 
-    // similar to getChildrenOfNodeByKey() (below) except treats key as null always
+    // similar to getChildrenOfNodeById() (below) except treats id as null always
     getRootNodes = () : Node[] => {
-        return this.getChildrenOfNodeByKey(null);
+        return this.getChildrenOfNodeById(null);
     }
 
-    getChildrenOfNodeByKey = (key: number) : Node[] => {
+    getChildrenOfNodeById = (id: NodeId) : Node[] => {
         const result: Node[] = [];
 
         for (const node of this.nodes()){
-            if (node.getParentKey() === key){
+            if (node.getParentId() === id){
                 result.push(node);
             }
         }
@@ -739,7 +693,7 @@ export class LogicalGraph {
         for (let i = 0 ; i < this.nodes().length ; i++){
             const node = this.nodes()[i];
 
-            const depth = this.findDepthByKey(node.getKey());
+            const depth = this.findDepthById(node.getId());
 
             indexPlusDepths.push({index:i, depth:depth});
         }
@@ -809,7 +763,7 @@ export class LogicalGraph {
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Node (" + node.getName() + ") does not have a unique id",
                     function(){Utils.showNode(eagle, node.getId())},
-                    function(){Utils.newId(node)},
+                    function(){node.setId(Utils.generateNodeId())},
                     "Assign node a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
@@ -838,7 +792,7 @@ export class LogicalGraph {
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Edge (" + edge.getId() + ") does not have a unique id",
                     function(){Utils.showEdge(eagle, edge.getId())},
-                    function(){Utils.newId(edge)},
+                    function(){edge.setId(Utils.generateEdgeId())},
                     "Assign edge a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})

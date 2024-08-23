@@ -158,10 +158,10 @@ export class ParameterTable {
             }
             return eagle.selectedNode().isLocked()
         }else{
-            if(eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()) === null){
+            if(eagle.logicalGraph().findNodeByIdQuiet(field.getNodeId()) === null){
                 return false
             }
-            return eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()).isLocked()
+            return eagle.logicalGraph().findNodeByIdQuiet(field.getNodeId()).isLocked()
         }
     }
 
@@ -179,7 +179,7 @@ export class ParameterTable {
 
     static fieldUsageChanged(field: Field) : void {
         const eagle: Eagle = Eagle.getInstance();
-        const edgesToRemove: string[] = [];
+        const edgesToRemove: EdgeId[] = [];
 
         for (const edge of eagle.logicalGraph().getEdges()){
             // check edges whose source is this field
@@ -288,7 +288,7 @@ export class ParameterTable {
         eagle.openParamsTableModal('','')
         Utils.requestUserText(
             "Edit Field Description",
-            "Please edit the description for: " + eagle.logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey()).getName() + ' - ' + currentField.getDisplayText(),
+            "Please edit the description for: " + eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId()).getName() + ' - ' + currentField.getDisplayText(),
             currentField.getDescription(),
             (completed, userText) => {
                 if (!completed){

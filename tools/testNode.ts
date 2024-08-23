@@ -118,7 +118,7 @@ function checkNode(n0 : Node, n1 : Node, displayTable : boolean){
     checkNumber("X", n0.getPosition().x, n1.getPosition().x, X);
     checkNumber("Y", n0.getPosition().y, n1.getPosition().y, Y);
 
-    checkNumber("Subject Key", n0.getSubjectKey(), n1.getSubjectKey(), SUBJECT_KEY);
+    checkNumber("Subject Id", n0.getSubjectId(), n1.getSubjectId(), SUBJECT_KEY);
     checkNumber("Width", n0.getWidth(), n1.getWidth(), WIDTH);
     checkNumber("Height", n0.getHeight(), n1.getHeight(), HEIGHT);
     checkString("Color", n0.getColor(), n1.getColor(), COLOR);
