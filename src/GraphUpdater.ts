@@ -130,6 +130,15 @@ export class GraphUpdater {
             }
         }
 
+        // use map to update subject
+        for (const node of graphObject["nodeDataArray"]){
+            if (typeof node.subject !== "undefined"){
+                node.subject = keyToId.get(node.subject);
+            } else {
+                node.subjectId = null;
+            }
+        }
+
         // use map to update edges
         for (const edge of graphObject["linkDataArray"]){
 

@@ -171,7 +171,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(n.getSubjectId());
 
                 if (adjacentNode === null){
-                    console.warn("Could not find adjacentNode for comment with subjectKey", n.getSubjectId());
+                    console.warn("Could not find adjacentNode for comment with subjectId", n.getSubjectId());
                     return;
                 }
 
