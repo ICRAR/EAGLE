@@ -1,20 +1,20 @@
 <!-- Errors Modal -->
-<div class="modal fade" id="errorsModal" tabindex="-1" role="dialog" aria-labelledby="errorsModalTitle" aria-hidden="true">
+<div class="modal fade" id="issuesModal" tabindex="-1" role="dialog" aria-labelledby="issuesModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="errorsModalTitle">Title</h5>
+                <h5 class="modal-title" id="issuesModalTitle">Graph Issues</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class='accordion' id='errorsModalAccordion'>
+                <div class='accordion' id='issuesModalAccordion'>
 
-                    <div class="accordion-item" id="errorsModalErrorsAccordionItem">
+                    <div class="accordion-item" id="issuesModalErrorsAccordionItem">
                         <h2 class="accordion-header" id="checkGraphAccordionHeadingOne">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors&nbsp;<span id="errorsModalErrorCount" data-bind="text: '[' + Errors.getErrors().length + ']'"></span></button>
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseOne" aria-expanded="true" aria-controls="checkGraphAccordionCollapseOne"> Errors&nbsp;<span id="issuesModalErrorCount" data-bind="text: '[' + Errors.getErrors().length + ']'"></span></button>
                         </h2>
                         <div id="checkGraphAccordionCollapseOne" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingOne">
-                            <div class="accordion-body" id="errorsModalErrorsAccordionBody">
+                            <div class="accordion-body" id="issuesModalErrorsAccordionBody">
                                 <ul class="list-group">
                                 <!-- ko foreach: Errors.getErrors -->
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -34,12 +34,12 @@
                         </div>
                     </div>
 
-                    <div class="accordion-item" id="errorsModalWarningsAccordionItem">
+                    <div class="accordion-item" id="issuesModalWarningsAccordionItem">
                         <h2 class="accordion-header" id="checkGraphAccordionHeadingTwo">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings&nbsp;<span id="errorsModalWarningCount" data-bind="text: '[' + Errors.getWarnings().length + ']'"></span></button>
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#checkGraphAccordionCollapseTwo" aria-expanded="true" aria-controls="checkGraphAccordionCollapseTwo"> Warnings&nbsp;<span id="issuesModalWarningCount" data-bind="text: '[' + Errors.getWarnings().length + ']'"></span></button>
                         </h2>
                         <div id="checkGraphAccordionCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="checkGraphAccordionHeadingTwo">
-                            <div class="accordion-body" id="errorsModalWarningsAccordionBody">
+                            <div class="accordion-body" id="issuesModalWarningsAccordionBody">
                                 <ul class="list-group">
                                 <!-- ko foreach: Errors.getWarnings -->
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
