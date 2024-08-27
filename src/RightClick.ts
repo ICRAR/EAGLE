@@ -333,10 +333,16 @@ export class RightClick {
                     if($('#rightClickSearchBar').val()!==''){   
                         if($(".rightClickFocus").length === 0){
                             //if there is nothing currently highlighted
-                            $('#paletteNodesSearchResult .rightClickPaletteNode:last').addClass('rightClickFocus')
+                            $('#customContextMenu #paletteNodesSearchResult a,#customContextMenu #paletteNodesSearchResult span').last().addClass('rightClickFocus')
                         }else{
                             $(".rightClickFocus").removeClass('rightClickFocus')
-                            current.prev('a, span').addClass('rightClickFocus')
+                            if(current.prev().is('a, span')){ //if the next item is an a or span tag, it is an item we want to highlight
+                                current.prev().addClass('rightClickFocus')
+                            }else if(current.prev().is('h5') && current.prev().prev().is('a ,span')){ //h5 tags are used as headers or spacers, jummp over these
+                                current.prev().prev().addClass('rightClickFocus')
+                            }else{//if neither of them are true, we are at the end of the list and should loop back to the first selectable item
+                                current.siblings('a,span').last().addClass('rightClickFocus')
+                            }
                         }
 
                     // if there is nothing in the search bar
@@ -371,17 +377,22 @@ export class RightClick {
                     if($('#rightClickSearchBar').val()!==''){   
                         if($(".rightClickFocus").length === 0){
                             //if there is nothing currently highlighted
-                            $('#paletteNodesSearchResult .rightClickPaletteNode:first').addClass('rightClickFocus')
+                            $('#customContextMenu #paletteNodesSearchResult a,#customContextMenu #paletteNodesSearchResult span').first().addClass('rightClickFocus')
                         }else{
                             $(".rightClickFocus").removeClass('rightClickFocus')
-                            current.next('a, span').addClass('rightClickFocus')
+                            if(current.next().is('a, span')){ //if the next item is an a or span tag, it is an item we want to highlight
+                                current.next().addClass('rightClickFocus')
+                            }else if(current.next().is('h5')){ //h5 tags are used as headers or spacers, jummp over these
+                                current.next().next().addClass('rightClickFocus')
+                            }else{//if neither of them are true, we are at the end of the list and should loop back to the first selectable item
+                                current.siblings('a,span').first().addClass('rightClickFocus')
+                            }
                         }
                     
                     // if there is nothing in the search bar
                     }else{
                         if($(".rightClickFocus").length === 0){
                             //if there is nothing currently highlighted
-                            console.log($('.rightClickFocusParent'))
                             if($('.rightClickFocusParent').length != 0){
                                 //if there is a rightClickFocusParent, we are moving through the sub menu of a palette
                                 $('#rightClickPaletteList .rightClickFocusParent a:first').addClass('rightClickFocus')
@@ -451,7 +462,8 @@ export class RightClick {
             }
 
             //if we are in a sub-menu, scroll the selected item into view
-            $('#rightClickPaletteList .rightClickFocusParent .contextMenuDropdown .rightClickFocus').get(0)?.scrollIntoView(false)
+            $('#rightClickPaletteList .rightClickFocusParent .contextMenuDropdown .rightClickFocus').get(0)?.scrollIntoView(false); //for the menu without search filtering
+            $('#customContextMenu #paletteNodesSearchResult .rightClickFocus').get(0)?.scrollIntoView(false); //for the menu with search filtering
         })
     }
 

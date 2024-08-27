@@ -2857,6 +2857,15 @@ palette-component input.form-control.selected {
     min-width: 200px;
 }
 
+#paletteNodesSearchResult{
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#paletteNodesSearchResult::-webkit-scrollbar-track{
+    background: #0000006b;
+}
+
 #customContextMenu a{
     color: white;  
     text-decoration: none;
