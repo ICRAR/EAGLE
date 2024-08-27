@@ -361,7 +361,7 @@ export class RightClick {
                                 current.prev().addClass('rightClickFocus')
                             }else if(current.prev().is('h5') && current.prev().prev().is('a ,span')){ //h5 tags are used as headers or spacers, jummp over these
                                 current.prev().prev().addClass('rightClickFocus')
-                            }else{//if neither of them are true, we are at the end of the list and should loop back to the first selectable item
+                            }else{//if neither of them are true, we are at the end of the list and should loop back to the first selectable items
                                 current.siblings('a,span').last().addClass('rightClickFocus')
                             }
                         }
