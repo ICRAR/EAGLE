@@ -544,6 +544,7 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(false,false,false)>Delete</a>')
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("normal")>Duplicate</a>')
                 $('#customContextMenu').append('<a onclick=eagle.copySelectionToClipboard()>Copy</a>')
+                $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("normal")>Add To Palette</a>')
             }
         }else{
             //defining the search bar as it is used in several right click menus
