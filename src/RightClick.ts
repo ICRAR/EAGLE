@@ -430,7 +430,7 @@ export class RightClick {
                     case "ArrowRight":
 
                     // if there is nothing in the search bar
-                    if($('#rightClickSearchBar').val()===''){   
+                    if($('#rightClickSearchBar').val()==='' && current.is('span')){   
                         e.preventDefault()
                         current.addClass('rightClickFocusParent')
                         $(".rightClickFocus").removeClass('rightClickFocus')
