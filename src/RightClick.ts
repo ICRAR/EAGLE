@@ -323,65 +323,122 @@ export class RightClick {
             const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
 
             switch(e.key) {
-                case "ArrowLeft":
-                if($('#rightClickSearchBar').val()===''){
+        
+                //--- ARROW UP ---
+                    case "ArrowUp":
                     e.preventDefault()
-                    if(current.hasClass('rightClickPaletteNode')){
-                        $('.rightClickFocusParent').removeClass('rightClickFocusParent')
-                        $(".rightClickFocus").removeClass('rightClickFocus')
-                        current.parent().hide()
-                        current.parent().parent().addClass('rightClickFocus')
-                    }
-                }
-                break;
-        
-                case "ArrowUp":
-                e.preventDefault()
-                if($('#rightClickSearchBar').val()!==''){   
-                    if($(".rightClickFocus").length === 0){
-                        $('#paletteNodesSearchResult .rightClickPaletteNode:last').addClass('rightClickFocus')
+
+                    // if there is something in the search bar
+                    if($('#rightClickSearchBar').val()!==''){   
+                        if($(".rightClickFocus").length === 0){
+                            //if there is nothing currently highlighted
+                            $('#customContextMenu #paletteNodesSearchResult a,#customContextMenu #paletteNodesSearchResult span').last().addClass('rightClickFocus')
+                        }else{
+                            $(".rightClickFocus").removeClass('rightClickFocus')
+                            if(current.prev().is('a, span')){ //if the next item is an a or span tag, it is an item we want to highlight
+                                current.prev().addClass('rightClickFocus')
+                            }else if(current.prev().is('h5') && current.prev().prev().is('a ,span')){ //h5 tags are used as headers or spacers, jummp over these
+                                current.prev().prev().addClass('rightClickFocus')
+                            }else{//if neither of them are true, we are at the end of the list and should loop back to the first selectable item
+                                current.siblings('a,span').last().addClass('rightClickFocus')
+                            }
+                        }
+
+                    // if there is nothing in the search bar
                     }else{
-                        $(".rightClickFocus").removeClass('rightClickFocus')
-                        current.prev().addClass('rightClickFocus')
+                        if($(".rightClickFocus").length === 0){
+                            //if there is nothing currently highlighted
+                            if($('.rightClickFocusParent').length != 0){
+                                //if there is a rightClickFocusParent, we are moving through the sub menu of a palette
+                                $('#rightClickPaletteList .rightClickFocusParent a:last').addClass('rightClickFocus')
+                            }else{
+                                $('#rightClickPaletteList .contextmenuPalette:last').addClass('rightClickFocus')
+                            }
+                        }else{
+                            $(".rightClickFocus").removeClass('rightClickFocus')
+                            if(current.prev().is('a, span')){ //if the next item is an a or span tag, it is an item we want to highlight
+                                current.prev().addClass('rightClickFocus')
+                            }else if(current.prev().is('h5') && current.prev().prev().is('a ,span')){ //h5 tags are used as headers or spacers, jummp over these
+                                current.prev().prev().addClass('rightClickFocus')
+                            }else{//if neither of them are true, we are at the end of the list and should loop back to the first selectable item
+                                current.siblings('a,span').last().addClass('rightClickFocus')
+                            }
+                        }
                     }
-                }else{
-                    if($(".rightClickFocus").length === 0){
-                        $('#rightClickPaletteList .contextmenuPalette:last').addClass('rightClickFocus')
-                    }else{
-                        $(".rightClickFocus").removeClass('rightClickFocus')
-                        current.prev().addClass('rightClickFocus')
-                    }
-                }
-                break;
+                    break;
         
-                case "ArrowRight":
-                if($('#rightClickSearchBar').val()===''){   
+
+                //--- ARROW DOWN ---
+                    case "ArrowDown":
                     e.preventDefault()
-                    current.addClass('rightClickFocusParent')
-                    $(".rightClickFocus").removeClass('rightClickFocus')
-                    current.find('.contextMenuDropdown').show()
-                    current.find('.rightClickPaletteNode:first').addClass('rightClickFocus')
-                }
-                break;
+                    
+                    // if there is something in the search bar
+                    if($('#rightClickSearchBar').val()!==''){   
+                        if($(".rightClickFocus").length === 0){
+                            //if there is nothing currently highlighted
+                            $('#customContextMenu #paletteNodesSearchResult a,#customContextMenu #paletteNodesSearchResult span').first().addClass('rightClickFocus')
+                        }else{
+                            $(".rightClickFocus").removeClass('rightClickFocus')
+                            if(current.next().is('a, span')){ //if the next item is an a or span tag, it is an item we want to highlight
+                                current.next().addClass('rightClickFocus')
+                            }else if(current.next().is('h5')){ //h5 tags are used as headers or spacers, jummp over these
+                                current.next().next().addClass('rightClickFocus')
+                            }else{//if neither of them are true, we are at the end of the list and should loop back to the first selectable item
+                                current.siblings('a,span').first().addClass('rightClickFocus')
+                            }
+                        }
+                    
+                    // if there is nothing in the search bar
+                    }else{
+                        if($(".rightClickFocus").length === 0){
+                            //if there is nothing currently highlighted
+                            if($('.rightClickFocusParent').length != 0){
+                                //if there is a rightClickFocusParent, we are moving through the sub menu of a palette
+                                $('#rightClickPaletteList .rightClickFocusParent a:first').addClass('rightClickFocus')
+                            }else{
+                                $('#rightClickPaletteList .contextmenuPalette:first').addClass('rightClickFocus')
+                            }
+                        }else{
+                            $(".rightClickFocus").removeClass('rightClickFocus')
+                            if(current.next().is('a, span')){ //if the next item is an a or span tag, it is an item we want to highlight
+                                current.next().addClass('rightClickFocus')
+                            }else if(current.next().is('h5')){ //h5 tags are used as headers or spacers, jummp over these
+                                current.next().next().addClass('rightClickFocus')
+                            }else{//if neither of them are true, we are at the end of the list and should loop back to the first selectable item
+                                current.siblings('a,span').first().addClass('rightClickFocus')
+                            }
+                        }
+                    }
+                    break;
+
+                //--- ARROW LEFT ---
+                    case "ArrowLeft":
+
+                    // if there is nothing in the search bar
+                    if($('#rightClickSearchBar').val()===''){
+                        e.preventDefault()
+                        if(current.hasClass('rightClickPaletteNode')){
+                            $('.rightClickFocusParent').removeClass('rightClickFocusParent')
+                            $(".rightClickFocus").removeClass('rightClickFocus')
+                            current.parent().hide()
+                            current.parent().parent().addClass('rightClickFocus')
+                        }
+                    }
+                    break;
+
+                //--- ARROW RIGHT ---
+                    case "ArrowRight":
+
+                    // if there is nothing in the search bar
+                    if($('#rightClickSearchBar').val()==='' && current.is('span')){   
+                        e.preventDefault()
+                        current.addClass('rightClickFocusParent')
+                        $(".rightClickFocus").removeClass('rightClickFocus')
+                        current.find('.contextMenuDropdown').show()
+                        current.find('.rightClickPaletteNode:first').addClass('rightClickFocus')
+                    }
+                    break;
         
-                case "ArrowDown":
-                e.preventDefault()
-                if($('#rightClickSearchBar').val()!==''){   
-                    if($(".rightClickFocus").length === 0){
-                        $('#paletteNodesSearchResult .rightClickPaletteNode:first').addClass('rightClickFocus')
-                    }else{
-                        $(".rightClickFocus").removeClass('rightClickFocus')
-                        current.next().addClass('rightClickFocus')
-                    }
-                }else{
-                    if($(".rightClickFocus").length === 0){
-                        $('#rightClickPaletteList .contextmenuPalette:first').addClass('rightClickFocus')
-                    }else{
-                        $(".rightClickFocus").removeClass('rightClickFocus')
-                        current.next().addClass('rightClickFocus')
-                    }
-                }
-                break;
 
                 case "Enter":
 
@@ -402,8 +459,14 @@ export class RightClick {
         
                 default: return; // exit this handler for other keys
             }
+
+            //if we are in a sub-menu, scroll the selected item into view
+            $('#rightClickPaletteList .rightClickFocusParent .contextMenuDropdown .rightClickFocus').get(0)?.scrollIntoView(false); //for the menu without search filtering
+            $('#customContextMenu #paletteNodesSearchResult .rightClickFocus').get(0)?.scrollIntoView(false); //for the menu with search filtering
         })
     }
+
+    
 
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
     static edgeDropCreateNode = (data: Node[]) : void => {
