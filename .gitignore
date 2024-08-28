@@ -14,3 +14,7 @@ static/docs/build
 package-lock.json
 prestart.sh
 docker-compose.yml
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

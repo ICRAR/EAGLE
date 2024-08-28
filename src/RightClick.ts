@@ -304,11 +304,6 @@ export class RightClick {
                     htmlNodeDescription = htmlNodeDescription + '<div class="row">'
                         htmlNodeDescription = htmlNodeDescription + "<span id='nodeInfoName'><h4>Name:  </h4>" + node.getName() + "</span>"
                     htmlNodeDescription = htmlNodeDescription+"</div>"
-                    if(eagle.displayNodeKeys()){
-                        htmlNodeDescription = htmlNodeDescription + '<div class="row">'
-                            htmlNodeDescription = htmlNodeDescription + "<span id='nodeInfoKey'><h4>Key:  </h4>" + node.getKey() + "</span>"
-                        htmlNodeDescription = htmlNodeDescription+"</div>"
-                    }
                     htmlNodeDescription = htmlNodeDescription + '<div class="row">'
                         htmlNodeDescription = htmlNodeDescription + "<span id='nodeInfoCategory'><h4>Category:  </h4>" + node.getCategory() + "</span>"
                     htmlNodeDescription = htmlNodeDescription+"</div>"

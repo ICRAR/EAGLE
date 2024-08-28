@@ -79,11 +79,11 @@ export class GraphConfigField {
 }
 
 export class GraphConfigNode {
-    private id: ko.Observable<string>;
+    private id: ko.Observable<NodeId>;
     private fields: ko.ObservableArray<GraphConfigField>;
 
     constructor(){
-        this.id = ko.observable("");
+        this.id = ko.observable(null);
         this.fields = ko.observableArray([]);
     }
 
@@ -99,12 +99,12 @@ export class GraphConfigNode {
         return result;
     }
 
-    setId = (id: string): GraphConfigNode => {
+    setId = (id: NodeId): GraphConfigNode => {
         this.id(id);
         return this;
     }
 
-    getId = (): string => {
+    getId = (): NodeId => {
         return this.id();
     }
 
@@ -245,7 +245,7 @@ export class GraphConfig {
         return this.nodes();
     }
 
-    addNode = (id: string): GraphConfigNode => {
+    addNode = (id: NodeId): GraphConfigNode => {
         // check to see if node already exists
         for (const node of this.nodes()){
             if (node.getId() === id){
@@ -261,7 +261,7 @@ export class GraphConfig {
     }
 
     addField = (field: Field): void => {
-        const node = Eagle.getInstance().logicalGraph().findNodeByKey(field.getNodeKey());
+        const node = Eagle.getInstance().logicalGraph().findNodeById(field.getNodeId());
         this.addNode(node.getId()).addField(field.getId());
     }
 
@@ -275,13 +275,13 @@ export class GraphConfig {
     }
 
     removeField = (field: Field): void => {
-        const node = Eagle.getInstance().logicalGraph().findNodeByKey(field.getNodeKey());
+        const node = Eagle.getInstance().logicalGraph().findNodeById(field.getNodeId());
         this.findNodeById(node.getId()).removeFieldById(field.getId());
 
         // TODO: do we need to check if removing the field means that the node now has zero fields?
     }
 
-    addValue = (nodeId: string, fieldId: string, value: string) => {
+    addValue = (nodeId: NodeId, fieldId: string, value: string) => {
         this.addNode(nodeId).addField(fieldId).setValue(value);
     }
 
@@ -326,7 +326,7 @@ export class GraphConfig {
             for (const nodeId in data.nodes){
                 const nodeData = data.nodes[nodeId];
                 const newNode: GraphConfigNode = GraphConfigNode.fromJson(nodeData, errorsWarnings);
-                newNode.setId(nodeId);
+                newNode.setId(nodeId as NodeId);
                 result.nodes.push(newNode);
             }
         }

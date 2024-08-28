@@ -16,11 +16,9 @@ body {
 }
 
 #graphArea {
-    /*background-color: rgb(222,222,222);*/
-    height: calc(100% - 82px);
-    position: absolute;
-    bottom: 0px;
-    overflow: hidden;
+    position: fixed;
+    top: 82px;
+    bottom:0px;
     padding-left: 0px;
     padding-right: 0px;
 }
@@ -1679,10 +1677,37 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     background: rgb(0,64,133);
     background: linear-gradient(90deg, rgba(0,64,133,1) 0%, rgba(0,52,107,1) 20%, rgba(0,35,73,1) 100%);
     visibility:hidden;
+    position:fixed;
+    top:0px;
+    left:0px;
+    right:0px;
+    z-index:100;
 }
 
 .navbar a{
     color: white !important;
+}
+
+#statusBar{
+    position: fixed;
+    bottom: 0px;
+    height: 25px;
+    background-color: #282828;
+    color: white;
+    visibility: hidden;
+    padding-left: 3px;
+}
+
+#statusBar h5{
+    display: inline;
+    font-size: .8rem;
+    font-weight: bolder;
+}
+
+#statusBar span{
+    display: inline;
+    margin-right: 5px;
+    font-size: .75rem;
 }
 
 .inactiveLink {
@@ -1977,7 +2002,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
     background-color: #002349;
     padding: 1px 9px;
     position: fixed;
-    z-index: 0;
+    z-index:99;
 }
 
 #graphNameWrapper span{
@@ -2861,3 +2886,9 @@ palette-component input.form-control.selected {
       transform: rotate(0deg);
     }
   }
+
+  /* re-usable classes for various things */
+
+.linearTransition250{
+    transition: linear 250ms;
+}

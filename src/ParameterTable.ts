@@ -194,10 +194,10 @@ export class ParameterTable {
             }
             return eagle.selectedNode().isLocked()
         }else{
-            if(eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()) === null){
+            if(eagle.logicalGraph().findNodeByIdQuiet(field.getNodeId()) === null){
                 return false
             }
-            return eagle.logicalGraph().findNodeByKeyQuiet(field.getNodeKey()).isLocked()
+            return eagle.logicalGraph().findNodeByIdQuiet(field.getNodeId()).isLocked()
         }
     }
 
@@ -216,7 +216,7 @@ export class ParameterTable {
 
     static fieldUsageChanged(field: Field) : void {
         const eagle: Eagle = Eagle.getInstance();
-        const edgesToRemove: string[] = [];
+        const edgesToRemove: EdgeId[] = [];
 
         for (const edge of eagle.logicalGraph().getEdges()){
             // check edges whose source is this field
@@ -362,7 +362,8 @@ export class ParameterTable {
     }
 
     static requestEditDescriptionInModal(currentField:Field) : void {
-        const currentNode: Node = Eagle.getInstance().logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey());
+        const eagle: Eagle = Eagle.getInstance();
+        const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
 
         //ParameterTable.openModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
         ParameterTable.closeModal();
@@ -384,8 +385,9 @@ export class ParameterTable {
     }
 
     static requestEditCommentInModal(currentField:Field) : void {
-        const currentNode: Node = Eagle.getInstance().logicalGraph().findNodeByKeyQuiet(currentField.getNodeKey());
-        const configField: GraphConfigField = Eagle.getInstance().currentConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
+        const eagle: Eagle = Eagle.getInstance();
+        const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
+        const configField: GraphConfigField = eagle.currentConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
 
         //ParameterTable.openModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
         ParameterTable.closeModal();

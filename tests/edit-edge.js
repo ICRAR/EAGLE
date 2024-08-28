@@ -50,8 +50,8 @@ test('Change destination port used by edge', async t =>{
         .click(Selector('#addEdgeToLogicalGraph'))
 
         // change destination node
-        .click('#editEdgeModalDestNodeKeySelect')
-        .click(Selector('#editEdgeModalDestNodeKeySelect').find('option').withText('CopyApp'))
+        .click('#editEdgeModalDestNodeIdSelect')
+        .click(Selector('#editEdgeModalDestNodeIdSelect').find('option').withText('CopyApp'))
 
         // close the add edge modal
         .click('#editEdgeModalAffirmativeButton')

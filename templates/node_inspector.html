@@ -96,7 +96,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'Port Multiplicity'" data-bs-placement="left">Subject Node</span>
                         </div>
-                        <input type="text" class="form-control" id="nodeSubjectValue" placeholder="" aria-label="Name" aria-describedby="node-subject" data-bind="value: $data.getSubjectKey()" readonly="">
+                        <input type="text" class="form-control" id="nodeSubjectValue" placeholder="" aria-label="Name" aria-describedby="node-subject" data-bind="value: $data.getSubjectId()" readonly="">
                         <div class="input-group-append">
                             <button class="btn btn-secondary btn-sm" id="nodeInspectorChangeSubject" type="button" data-bind="click: $root.changeNodeSubject, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('change_selected_node_subject', true)" data-bs-toggle="tooltip" data-html="true" data-bs-placement="right" data-bs-original-title="Change Node Subject [Shift + U]">
                                 <i class="material-icons md-18">edit</i>
@@ -105,22 +105,20 @@
                     </div>
                 <!-- /ko -->
 
-                <!-- key -->
-                <!-- ko if: $root.displayNodeKeys() -->
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The Key of the component within the graph'" data-bs-placement="left">Key</span>
-                        </div>
-                        <input type="text" class="form-control" disabled id="nodeInspectorKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $data.getKey()">
+                <!-- id -->
+                <div class="input-group mb-1">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="node-id" data-bind="eagleTooltip:'The id of the component within the graph'" data-bs-placement="left">Id</span>
                     </div>
+                    <input type="text" class="form-control" disabled id="nodeInspectorId" placeholder="" aria-label="Id" aria-describedby="node-id" data-bind="value: $data.id">
+                </div>
 
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="node-name" data-bind="eagleTooltip:'The Key of the component within the graph'" data-bs-placement="left">Parent Key</span>
-                        </div>
-                        <input type="text" class="form-control" disabled id="nodeInspectorParentKey" placeholder="" aria-label="Name" aria-describedby="node-name" data-bind="value: $data.getParentKey()">
+                <div class="input-group mb-1">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="node-parent-id" data-bind="eagleTooltip:'The id of the parent of this component within the graph'" data-bs-placement="left">Parent Id</span>
                     </div>
-                <!-- /ko -->
+                    <input type="text" class="form-control" disabled id="nodeInspectorParentId" placeholder="" aria-label="Name" aria-describedby="node-parent-id" data-bind="value: $data.parentId">
+                </div>
 
                 <!-- node port multiplicity -->
                 <div class="input-group mb-1">

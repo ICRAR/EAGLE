@@ -84,9 +84,9 @@
                         <!-- /ko -->
                         <div id="portContainer">
                             <!-- ko foreach: $root.logicalGraph().getAllNodes() -->
-                                <div data-bind="class:$data.getId()">
+                                <div data-bind="class:$data.getId(), attr:{id:$data.getName()}">
                                     <!-- ko foreach: $data.getInputPorts() -->
-                                        <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':$data.getBackgroundColor(),'left':GraphRenderer.calculatePortPositionX('input',$data,$parent),'top':GraphRenderer.calculatePortPositionY('input',$data,$parent)},graphRendererPortPosition:{n:$parent,f:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort($data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
+                                        <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isInputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':$data.getBackgroundColor(),'left':GraphRenderer.calculatePortPositionX('input',$data,$parent),'top':GraphRenderer.calculatePortPositionY('input',$data,$parent)},graphRendererPortPosition:{n:$parent,f:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort('input', $data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <!-- ko if: $data.getIsEvent() -->
                                                 <i class="material-icons">alarm_on</i> 
                                             <!-- /ko -->
@@ -96,7 +96,7 @@
                                         </div>
                                         <!-- /ko -->
                                     <!-- ko foreach: $data.getOutputPorts() -->
-                                        <div class="outputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isPeek()},eagleTooltip:$data.getHelpHtml(), style:{'border-color':$data.getBackgroundColor(),'left':GraphRenderer.calculatePortPositionX('output',$data,$parent),'top':GraphRenderer.calculatePortPositionY('output',$data,$parent)},graphRendererPortPosition:{n:$parent,f:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'output')}, mouseenter:function(){GraphRenderer.mouseEnterPort($data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
+                                        <div class="outputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isOutputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'border-color':$data.getBackgroundColor(),'left':GraphRenderer.calculatePortPositionX('output',$data,$parent),'top':GraphRenderer.calculatePortPositionY('output',$data,$parent)},graphRendererPortPosition:{n:$parent,f:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'output')}, mouseenter:function(){GraphRenderer.mouseEnterPort('output',$data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <!-- ko if: $data.getIsEvent() -->
                                                 <i class="material-icons">alarm_on</i> 
                                             <!-- /ko -->
@@ -232,6 +232,14 @@
                     <div class="rightWindowSizeAdjusterLine"></div>
                 </div>
             </div>
+        </div>
+        <div id="statusBar" data-bind="style: { 'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth(), right: Utils.getRightWindowWidth()}">
+            <!-- ko foreach: StatusEntry.getStatusEntries() -->
+                <!-- ko if: $data.visibility -->
+                    <h5 data-bind="text: $data.action"></h5>
+                    <span data-bind="text: $data.message"></span>
+                <!-- /ko -->
+            <!-- /ko -->
         </div>
 
         {% include 'modals.html' %} 
