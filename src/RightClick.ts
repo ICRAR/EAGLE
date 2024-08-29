@@ -297,22 +297,25 @@ export class RightClick {
         const node = Eagle.selectedRightClickObject()
 
         let htmlNodeDescription = "<span class='contextmenuNodeDescription' onmouseover='RightClick.openSubMenu(this)' onmouseleave='RightClick.closeSubMenu(this)'> Node Info"
-            htmlNodeDescription = htmlNodeDescription + '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
+            htmlNodeDescription += '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
 
-            htmlNodeDescription = htmlNodeDescription + '<div class="contextMenuDropdown">'
-                htmlNodeDescription = htmlNodeDescription + '<div class="container">'
-                    htmlNodeDescription = htmlNodeDescription + '<div class="row">'
-                        htmlNodeDescription = htmlNodeDescription + "<span id='nodeInfoName'><h4>Name:  </h4>" + node.getName() + "</span>"
-                    htmlNodeDescription = htmlNodeDescription+"</div>"
-                    htmlNodeDescription = htmlNodeDescription + '<div class="row">'
-                        htmlNodeDescription = htmlNodeDescription + "<span id='nodeInfoCategory'><h4>Category:  </h4>" + node.getCategory() + "</span>"
-                    htmlNodeDescription = htmlNodeDescription+"</div>"
-                    htmlNodeDescription = htmlNodeDescription + '<div class="row">'
-                        htmlNodeDescription = htmlNodeDescription + "<span><h4>Description:  </h4>" + node.getDescription() + "</span>"
-                    htmlNodeDescription = htmlNodeDescription+"</div>"
-                htmlNodeDescription = htmlNodeDescription+"</div>"
-            htmlNodeDescription = htmlNodeDescription+"</div>"
-        htmlNodeDescription = htmlNodeDescription+"</span>"
+            htmlNodeDescription += '<div class="contextMenuDropdown">'
+                htmlNodeDescription += '<div class="container">'
+                    htmlNodeDescription += '<div class="row">'
+                        htmlNodeDescription += "<span id='nodeInfoName'><h4>Name:  </h4>" + node.getName() + "</span>"
+                    htmlNodeDescription += "</div>"
+                    htmlNodeDescription += '<div class="row">'
+                        htmlNodeDescription += "<span id='nodeInfoId'><h4>Id:  </h4>" + node.getId() + "</span>"
+                    htmlNodeDescription += "</div>"
+                    htmlNodeDescription += '<div class="row">'
+                        htmlNodeDescription += "<span id='nodeInfoCategory'><h4>Category:  </h4>" + node.getCategory() + "</span>"
+                    htmlNodeDescription += "</div>"
+                    htmlNodeDescription += '<div class="row">'
+                        htmlNodeDescription += "<span><h4>Description:  </h4>" + node.getDescription() + "</span>"
+                    htmlNodeDescription += "</div>"
+                htmlNodeDescription += "</div>"
+            htmlNodeDescription += "</div>"
+        htmlNodeDescription += "</span>"
 
         return htmlNodeDescription
     }
