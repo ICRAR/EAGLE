@@ -305,6 +305,37 @@ color: #00bb00;}
     transform: translate(-50%, 2px);
 }
 
+#objectInspector{
+    background-color: #001933;
+    width: 300px;
+    height: 170px;
+    border-radius: 10px;
+    position: fixed;
+    bottom: 35px;
+    left: 400px;
+    color: white;
+    visibility: hidden;
+}
+
+#objectInspector .container{
+    padding: 5px 0px;
+    height: 100%;
+    width: 100%;
+}
+
+#objectInspector .row{
+    padding: 0px 5px 0px 5px;
+    margin: 0px;
+}
+
+#objectInspector .col{
+    padding: 0px;
+}
+
+#objectInspector .inspectorHeader i,h5{
+    display: inline;
+}
+
 #parameterTableModal #tableInspector{
     position: sticky;
     top: 0px;
