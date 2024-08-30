@@ -317,6 +317,11 @@ color: #00bb00;}
     visibility: hidden;
 }
 
+#objectInspectorHeaderIconRow{
+    padding-top: 3px;
+    background: rgba(255, 255, 255, 0.171);
+}
+
 #objectInspector .container{
     padding: 5px 0px;
     height: 100%;
@@ -324,7 +329,7 @@ color: #00bb00;}
 }
 
 #objectInspector .row{
-    padding: 0px 5px 0px 5px;
+    padding: 0px 8px 0px 8px;
     margin: 0px;
 }
 
@@ -332,9 +337,34 @@ color: #00bb00;}
     padding: 0px;
 }
 
-#objectInspector .inspectorHeader i,h5{
-    display: inline;
+#objectInspector .inspectorHeader i,#objectInspector .inspectorHeader h5, #objectInspector .inspectorHeader {
+    /* display: inline; */
+    margin: 0px;
 }
+
+#objectInspector .headerButtons button,.inspectorTitleBtns button {
+    background-color: transparent;
+    padding:0px 4px;
+    margin-left:-4px;
+    border: none;
+    box-shadow: none;
+}
+
+#objectInspector .headerButtons button:hover,.inspectorTitleBtns button:hover {
+    color:#001933;
+    background-color: transparent;
+}
+
+#objectInspector .headerButtons button.btn:focus, .inspectorTitleBtns button:focus {
+    box-shadow: none;
+    background-color:transparent;
+    border:none;
+}
+
+/* #objectInspector .headerButtons {
+    padding: 0px 10px;
+    position:relative;
+} */
 
 #parameterTableModal #tableInspector{
     position: sticky;
