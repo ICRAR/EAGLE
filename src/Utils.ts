@@ -74,6 +74,10 @@ export class Utils {
         return Utils._uuidv4() as EdgeId;
     }
 
+    static generateGraphConfigId(): GraphConfig.Id {
+        return Utils._uuidv4() as GraphConfig.Id;
+    }
+
     /**
      * Generates a UUID.
      * See https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript

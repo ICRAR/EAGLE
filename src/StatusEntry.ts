@@ -29,7 +29,7 @@ export class StatusEntry {
             new StatusEntry('Right Click ',' on the empty canvas to add nodes.', Eagle.getInstance().selectedObjects().length === 0),
             new StatusEntry(Utils.getKeyboardShortcutTextByKey('quick_action', true),' search and run functions.', Eagle.getInstance().selectedObjects().length === 0),
             //a graph is created or loaded
-            new StatusEntry(Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true),' access graph config.', Eagle.getInstance().logicalGraph().fileInfo().name != "" && Eagle.getInstance().selectedObjects().length === 0),
+            new StatusEntry(Utils.getKeyboardShortcutTextByKey('open_parameter_table_modal', true),' access graph config.', Eagle.getInstance().logicalGraph().fileInfo().name != "" && Eagle.getInstance().selectedObjects().length === 0),
             //No Graph loaded or created
             new StatusEntry(Utils.getKeyboardShortcutTextByKey('new_graph', true),' new graph.', Eagle.getInstance().logicalGraph().fileInfo().name === ""),
             //something is selected
@@ -37,7 +37,7 @@ export class StatusEntry {
             new StatusEntry(Utils.getKeyboardShortcutTextByKey('duplicate_selection', true),' duplicate selected objects.', Eagle.getInstance().selectedObjects().length > 0),
             new StatusEntry(Utils.getKeyboardShortcutTextByKey('delete_selection', true),' delete selected objects.', Eagle.getInstance().selectedObjects().length > 0),
             //node is selected
-            new StatusEntry(Utils.getKeyboardShortcutTextByKey('open_component_parameter_table_modal', true),' open fields table.', Eagle.getInstance().selectedNode() != null && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)),
+            new StatusEntry(Utils.getKeyboardShortcutTextByKey('open_parameter_table_modal', true),' open fields table.', Eagle.getInstance().selectedNode() != null && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)),
             //more than one thing is selected
             new StatusEntry('Shift + Drag',' Box select multiple objects.', Eagle.getInstance().selectedObjects().length >1),
             new StatusEntry('Shift + Ctrl + Drag',' Box deselect multiple objects.', Eagle.getInstance().selectedObjects().length >1),

@@ -1,17 +1,18 @@
 import * as ko from "knockout";
 
+import { Branded } from "./main";
 import { Eagle } from "./Eagle";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { LogicalGraph } from "./LogicalGraph";
 
 export class GraphConfigField {
-    private id: ko.Observable<string>;
+    private id: ko.Observable<FieldId>;
     private value: ko.Observable<string>;
     private comment: ko.Observable<string>;
 
     constructor(){
-        this.id = ko.observable("");
+        this.id = ko.observable(null);
         this.value = ko.observable("");
         this.comment = ko.observable("");
     }
@@ -26,7 +27,7 @@ export class GraphConfigField {
         return result;
     }
 
-    setId = (id: string): GraphConfigField => {
+    setId = (id: FieldId): GraphConfigField => {
         this.id(id);
         return this;
     }
@@ -108,7 +109,7 @@ export class GraphConfigNode {
         return this.id();
     }
 
-    addField = (id: string): GraphConfigField => {
+    addField = (id: FieldId): GraphConfigField => {
         // check to see if the field already exists
         for (const field of this.fields()){
             if (field.getId() === id){
@@ -123,7 +124,7 @@ export class GraphConfigNode {
         return newField;
     }
 
-    findFieldById = (id: string): GraphConfigField => {
+    findFieldById = (id: FieldId): GraphConfigField => {
         for (let i = this.fields().length - 1; i >= 0 ; i--){
             if (this.fields()[i].getId() === id){
                 return this.fields()[i];
@@ -155,7 +156,7 @@ export class GraphConfigNode {
             for (const fieldId in data.fields){
                 const fieldData = data.fields[fieldId];
                 const newField: GraphConfigField = GraphConfigField.fromJson(fieldData, errorsWarnings);
-                newField.setId(fieldId);
+                newField.setId(fieldId as FieldId);
                 result.fields.push(newField);
             }
         }
@@ -179,6 +180,7 @@ export class GraphConfigNode {
 }
 
 export class GraphConfig {
+    private id: ko.Observable<GraphConfig.Id>;
     private name: ko.Observable<string>;
     private description: ko.Observable<string>;
 
@@ -188,6 +190,7 @@ export class GraphConfig {
     private nodes: ko.ObservableArray<GraphConfigNode>;
     
     constructor(){
+        this.id = ko.observable(null);
         this.name = ko.observable("");
         this.description = ko.observable("");
 
@@ -200,6 +203,7 @@ export class GraphConfig {
     clone = () : GraphConfig => {
         const result : GraphConfig = new GraphConfig();
 
+        result.id(this.id());
         result.name(this.name());
         result.description(this.description());
 
@@ -212,6 +216,15 @@ export class GraphConfig {
         }
 
         return result;
+    }
+
+    getId = (): GraphConfig.Id => {
+        return this.id();
+    }
+
+    setId = (id: GraphConfig.Id): GraphConfig => {
+        this.id(id);
+        return this;
     }
 
     getName = (): string => {
@@ -281,7 +294,7 @@ export class GraphConfig {
         // TODO: do we need to check if removing the field means that the node now has zero fields?
     }
 
-    addValue = (nodeId: NodeId, fieldId: string, value: string) => {
+    addValue = (nodeId: NodeId, fieldId: FieldId, value: string) => {
         this.addNode(nodeId).addField(fieldId).setValue(value);
     }
 
@@ -385,4 +398,9 @@ export class GraphConfig {
             }
         }
     }
+}
+
+export namespace GraphConfig
+{
+    export type Id = Branded<string, "GraphConfigId">
 }

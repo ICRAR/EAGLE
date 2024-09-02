@@ -65,7 +65,11 @@ export class ParameterTable {
             return "";
         }
 
-        return ParameterTable.selectionParent().getDisplayText() + " - " + ParameterTable.selectionName();
+        if (ParameterTable.mode() === ParameterTable.Mode.NodeFields){
+            return ParameterTable.selectionParent().getDisplayText() + " - " + ParameterTable.selectionName();
+        } else {
+            return "Unknown";
+        }
     }
 
     static formatTableInspectorValue = () : string => {
@@ -73,7 +77,11 @@ export class ParameterTable {
             return "";
         }
 
-        return ParameterTable.selection();
+        if (ParameterTable.mode() === ParameterTable.Mode.NodeFields){
+            return ParameterTable.selection();
+        } else {
+            return "Unknown";
+        }
     }
 
     static tableEnterShortcut = (event: Event) : void => {

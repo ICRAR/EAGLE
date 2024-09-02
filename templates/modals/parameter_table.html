@@ -6,7 +6,7 @@
                 <div class="modal-header" data-bind="click: function(){ParameterTable.resetSelection()}">
                     <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
                         <h5 class="modal-title" id="parameterTableModalTitle">
-                            Graph Configuration Table: <span data-bind="html: $root.currentConfig().name()"></span>
+                            Graph Configuration Table: <span data-bind="html: $root.currentConfig() ? $root.currentConfig().name() : ''"></span>
                         </h5>
                     <!-- /ko -->
                     <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
@@ -158,7 +158,7 @@
                                             <!-- /ko -->
                                             <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
                                                 <td class='columnCell column_NodeName'>
-                                                    <input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByKey(nodeKey()).getName(), disabled: true, eagleTooltip: $root.logicalGraph().findNodeByKey(nodeKey()).getDescription()">
+                                                    <input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeById(nodeId()).getName(), disabled: true, eagleTooltip: $root.logicalGraph().findNodeById(nodeId()).getDescription()">
                                                 </td>
                                             <!-- /ko -->
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->

@@ -2249,8 +2249,10 @@ export class Eagle {
         
         // load configs
         const graphConfigs: GraphConfig[] = [];
-        for (const gco of dataObject["graphConfigurations"]){
+        for (const gcId in dataObject["graphConfigurations"]){
+            const gco = dataObject["graphConfigurations"][gcId];
             const gc = GraphConfig.fromJson(gco, errorsWarnings);
+            gc.setId(gcId as GraphConfig.Id);
             graphConfigs.push(gc);
         }
 
