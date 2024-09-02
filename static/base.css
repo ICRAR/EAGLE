@@ -337,9 +337,36 @@ color: #00bb00;}
     padding: 0px;
 }
 
-#objectInspector .inspectorHeader i,#objectInspector .inspectorHeader h5, #objectInspector .inspectorHeader {
+#objectInspector .inspectorHeader input, #objectInspector .inspectorHeader {
     /* display: inline; */
     margin: 0px;
+}
+
+#objectInspector .inspectorHeader input{
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 20px;
+}
+
+#objectInspector .inspectorHeader input:focus{
+    background: white;
+    border: none;   
+    color: black;
+}
+
+#objectInspector .inspectorHeaderButtons i{
+    font-size: 18px;
+}
+
+#objectInspector .inspectorParentId .col-8{
+    height: 20px;  
+    overflow: hidden;
+}
+
+#objectInspector .inspectorContents h5{
+    font-size: 16px;
 }
 
 #objectInspector .headerButtons button,.inspectorTitleBtns button {

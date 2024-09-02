@@ -6,7 +6,7 @@
             <div class="container">
                 <div class="row inspectorHeader">
                     <div class="col-11 col">
-                        <h5 data-bind="text:$data.getName()"></h5>
+                        <input data-bind="value:$data.name"></input>
                     </div>
                     <div class="col-1 col">
                         <i class="material-icons">close</i>
@@ -36,6 +36,18 @@
                             </button>
                             <!-- /ko -->
                         </div>
+                    </div>
+                </div>
+                <div class="inspectorContents">
+                    <div class="row inspectorParentId">
+                        <!-- ko ifnot: $data.getParentId() === null -->
+                            <div class="col-4 col">
+                                <h5>Parent Id:</h5>
+                            </div>
+                            <div class="col-8 col">
+                                <span data-bind="text:$data.getParentId(), eagleTooltip=$data.getParentId()"></span>
+                            </div>
+                        <!-- /ko -->
                     </div>
                 </div>
             </div>
