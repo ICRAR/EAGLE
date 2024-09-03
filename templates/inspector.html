@@ -1,4 +1,4 @@
-<div id="objectInspector" data-bind="style: { 'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth() + 10}">
+<div id="objectInspector" data-bind="style: { 'visibility':$root.getObjectInspectorVisibility(), left: Utils.getLeftWindowWidth() + 10}">
 
     <!-- SINGLE NODE INSPECTOR -->
     <!-- ko ifnot: $root.selectedNode() === null -->
@@ -6,7 +6,7 @@
             <div class="container">
                 <div class="row inspectorHeader">
                     <div class="col-11 col">
-                        <input data-bind="value:$data.name"></input>
+                        <input data-bind="value:$data.name, eagleTooltip: $data.getName()"></input>
                     </div>
                     <div class="col-1 col">
                         <i class="material-icons">close</i>
@@ -18,6 +18,7 @@
                         <div class="col-6 col">
                             <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">link</i>
                             <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
+                            <i class="material-icons interactive clickable" onclick=eagle.editNodeDescription() data-bs-placement="right" data-bind="eagleTooltip: $data.getDescriptionHTML()" data-bs-toggle="tooltip" data-html="true">library_books</i>
                         </div>
                         <div class="col-6 col text-right">
                             <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
@@ -39,15 +40,36 @@
                     </div>
                 </div>
                 <div class="inspectorContents">
-                    <div class="row inspectorParentId">
+                    <div class="row inspectorParentId contentObject">
                         <!-- ko ifnot: $data.getParentId() === null -->
-                            <div class="col-4 col">
+                            <div class="col-4 col contentObjectTitle">
                                 <h5>Parent Id:</h5>
                             </div>
-                            <div class="col-8 col">
-                                <span data-bind="text:$data.getParentId(), eagleTooltip=$data.getParentId()"></span>
+                            <div class="col-8 col contentObjectValue">
+                                <span data-bind="text:$data.getParentId(), eagleTooltip:$data.getParentId()"></span>
                             </div>
                         <!-- /ko -->
+                    </div>
+                    <div class="row inspectorPortMultiplicity contentObject">
+                            <div class="col-6 col contentObjectTitle">
+                                <h5>Port Multiplicity:</h5>
+                            </div>
+                            <div class="col-6 col contentObjectValue">
+                                <span data-bind="text:$root.logicalGraph().findMultiplicity($data)"></span>
+                            </div>
+                    </div>
+                    <div class="row inspectorNodeCategory contentObject">
+                        <div class="col-4 col contentObjectTitle">
+                            <h5>Category:</h5>
+                        </div>
+                        <div class="col-8 col contentObjectValue">
+                            <!-- ko if: $data.getCategoryType() === Category.Type.Data -->
+                                <select id="objectInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategoryRequest(event)}}, valueAllowUnset: true, disabled: $data.isLocked()"></select>
+                            <!-- /ko -->
+                            <!-- ko if: $data.getCategoryType() !== Category.Type.Data -->
+                                <span data-bind="text:$data.getCategory()"></span>
+                            <!-- /ko -->
+                        </div>  
                     </div>
                 </div>
             </div>

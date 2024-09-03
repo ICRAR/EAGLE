@@ -308,7 +308,7 @@ color: #00bb00;}
 #objectInspector{
     background-color: #001933;
     width: 300px;
-    height: 170px;
+    height: min-content;
     border-radius: 10px;
     position: fixed;
     bottom: 35px;
@@ -333,6 +333,10 @@ color: #00bb00;}
     margin: 0px;
 }
 
+#objectInspector .inspectorContents .row{
+    margin-bottom: 2px;
+}
+
 #objectInspector .col{
     padding: 0px;
 }
@@ -342,31 +346,42 @@ color: #00bb00;}
     margin: 0px;
 }
 
+#objectInspector .inspectorContents{
+    padding-top: 7px;
+}
+
 #objectInspector .inspectorHeader input{
     background: transparent;
     border: none;
     outline: none;
     color: white;
     font-size: 20px;
+    margin-top: -4px;
 }
 
 #objectInspector .inspectorHeader input:focus{
     background: white;
     border: none;   
     color: black;
+    font-size: 20px;
 }
 
 #objectInspector .inspectorHeaderButtons i{
     font-size: 18px;
 }
 
-#objectInspector .inspectorParentId .col-8{
+#objectInspector .contentObject  .contentObjectValue{
     height: 20px;  
     overflow: hidden;
 }
 
 #objectInspector .inspectorContents h5{
     font-size: 16px;
+    margin: 2px 0px 0px 0px;
+}
+
+#objectInspector .inspectorContents span{
+    color: rgb(175, 175, 175);
 }
 
 #objectInspector .headerButtons button,.inspectorTitleBtns button {
@@ -377,9 +392,10 @@ color: #00bb00;}
     box-shadow: none;
 }
 
-#objectInspector .headerButtons button:hover,.inspectorTitleBtns button:hover {
-    color:#001933;
+#objectInspector .headerButtons button:hover,.inspectorTitleBtns button:hover, #objectInspector .clickable:hover {
+    color: #b4d4ff;
     background-color: transparent;
+    cursor:pointer;
 }
 
 #objectInspector .headerButtons button.btn:focus, .inspectorTitleBtns button:focus {
