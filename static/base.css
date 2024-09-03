@@ -357,6 +357,7 @@ color: #00bb00;}
     color: white;
     font-size: 20px;
     margin-top: -4px;
+    text-overflow: ellipsis;
 }
 
 #objectInspector .inspectorHeader input:focus{
@@ -373,6 +374,8 @@ color: #00bb00;}
 #objectInspector .contentObject  .contentObjectValue{
     height: 20px;  
     overflow: hidden;
+    text-overflow: ellipsis;
+    color: rgb(175, 175, 175);
 }
 
 #objectInspector .inspectorContents h5{
@@ -382,6 +385,7 @@ color: #00bb00;}
 
 #objectInspector .inspectorContents span{
     color: rgb(175, 175, 175);
+    white-space: nowrap;
 }
 
 #objectInspector .headerButtons button,.inspectorTitleBtns button {
