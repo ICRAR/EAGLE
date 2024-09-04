@@ -360,6 +360,12 @@ color: #00bb00;}
     text-overflow: ellipsis;
 }
 
+#objectInspector .inspectorHeader h4{
+    color: white;
+    font-size: 20px;
+    text-overflow: ellipsis;
+}
+
 #objectInspector .inspectorHeader input:focus{
     background: white;
     border: none;   
@@ -376,6 +382,10 @@ color: #00bb00;}
     overflow: hidden;
     text-overflow: ellipsis;
     color: rgb(175, 175, 175);
+}
+
+#objectInspector .contentObject.inspectorNodeCategory  .contentObjectValue{
+    overflow: visible;
 }
 
 #objectInspector .inspectorContents h5{

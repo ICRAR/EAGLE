@@ -736,6 +736,8 @@ export class Eagle {
         if(eagle.eagleIsReady()){
             if(eagle.selectedNode() !== null){
                 return visible
+            }else if(eagle.selectedEdge !== null){
+                return visible
             }else{
                 return hidden
             }

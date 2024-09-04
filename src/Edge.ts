@@ -38,8 +38,8 @@ export class Edge {
     private srcPortId: FieldId;
     private destNodeId: NodeId;
     private destPortId: FieldId;
-    private loopAware : boolean; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
-    private closesLoop : boolean; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
+    private loopAware : ko.Observable<boolean>; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
+    private closesLoop : ko.Observable<boolean>; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
     private selectionRelative : boolean // indicates if the edge is either selected or attached to a selected node
     private isShortEdge : ko.Observable<boolean>;
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of edge errors
@@ -52,8 +52,8 @@ export class Edge {
         this.destNodeId = destNodeId;
         this.destPortId = destPortId;
 
-        this.loopAware = loopAware;
-        this.closesLoop = closesLoop;
+        this.loopAware = ko.observable(loopAware);
+        this.closesLoop = ko.observable(closesLoop);
         this.selectionRelative = selectionRelative;
         this.isShortEdge = ko.observable(false)
         this.issues = ko.observableArray([]);
@@ -104,27 +104,27 @@ export class Edge {
     }
 
     isLoopAware = () : boolean => {
-        return this.loopAware;
+        return this.loopAware();
     }
 
     setLoopAware = (value : boolean) : void => {
-        this.loopAware = value;
+        this.loopAware(value);
     }
 
     toggleLoopAware = () : void => {
-        this.loopAware = !this.loopAware;
+        this.loopAware(!this.loopAware());
     }
 
     isClosesLoop = () : boolean => {
-        return this.closesLoop;
+        return this.closesLoop();
     }
 
     setClosesLoop = (value : boolean) : void => {
-        this.closesLoop = value;
+        this.closesLoop(value);
     }
 
     toggleClosesLoop = () : void => {
-        this.closesLoop = !this.closesLoop;
+        this.closesLoop(!this.closesLoop());
     }
 
     setSelectionRelative = (value : boolean) : void => {
@@ -157,12 +157,12 @@ export class Edge {
         this.srcPortId = null;
         this.destNodeId = null;
         this.destPortId = null;
-        this.loopAware = false;
-        this.closesLoop = false;
+        this.loopAware(false);
+        this.closesLoop(false);
     }
 
     clone = () : Edge => {
-        const result : Edge = new Edge(this.srcNodeId, this.srcPortId, this.destNodeId, this.destPortId, this.loopAware, this.closesLoop, this.selectionRelative);
+        const result : Edge = new Edge(this.srcNodeId, this.srcPortId, this.destNodeId, this.destPortId, this.loopAware(), this.closesLoop(), this.selectionRelative);
 
         result.id = this.id;
 
