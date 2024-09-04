@@ -388,6 +388,19 @@ color: #00bb00;}
     overflow: visible;
 }
 
+#objectInspector .contentObject .contentObjectValue .radioBtn {
+    background-color:transparent;
+    border: none;
+}
+
+#objectInspector .contentObject .contentObjectValue .radioBtn:focus {
+    box-shadow: none;
+}
+
+#objectInspector .contentObject .contentObjectValue .radioBtn i{
+    font-size: 17px;
+}
+
 #objectInspector .inspectorContents h5{
     font-size: 16px;
     margin: 2px 0px 0px 0px;
