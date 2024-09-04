@@ -97,7 +97,6 @@ export class GraphUpdater {
     // Takes a graph that is using keys and updates it to use ids only
     // - edges .from and .to attributes refer to keys, so we change to ids
     static updateKeysToIds(graphObject: any): void {
-        console.log("GraphUpdater.updateKeysToIds()");
         const keyToId: Map<number, string> = new Map<number, string>();
 
         // build keyToId map from nodes
@@ -164,7 +163,7 @@ export class GraphUpdater {
             }
         }
         if (foundNotFetched){
-            return [];
+            //return [];
         }
 
         const tableData : any[] = [];
@@ -232,7 +231,7 @@ export class GraphUpdater {
         }
     }
     
-    attemptLoadLogicalGraphTable = async(data: any[]) : Promise<void> => {
+    static attemptLoadLogicalGraphTable = async(data: any[], outputRepoIndex: number = -1) : Promise<void> => {
         const eagle: Eagle = Eagle.getInstance();
 
         for (const row of data){
@@ -247,11 +246,14 @@ export class GraphUpdater {
             // try to load the file
             await new Promise<void>((resolve, reject) => {
                 openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file, (error: string, data: string) => {
+                    console.log("graph", row.service, row.name, row.branch, row.folder, row.file);
+
                     // if file fetched successfully
                     if (error === null){
                         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
                         const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
                         const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file, errorsWarnings);
+                        
 
                         // record number of errors
                         row.numLoadWarnings = errorsWarnings.warnings.length;
@@ -274,6 +276,12 @@ export class GraphUpdater {
                         const results: Errors.ErrorsWarnings = Utils.gatherGraphErrors();
                         row.numCheckWarnings = results.warnings.length;
                         row.numCheckErrors = results.errors.length;
+
+                        // output
+                        if (outputRepoIndex !== -1){
+                            const repository = Repositories.repositories()[outputRepoIndex];
+                            Eagle.getInstance().saveDiagramToGit(repository, Eagle.FileType.Graph, row.folder, row.file, lg.fileInfo, "GraphUpdater", lg);
+                        }
                     }
 
                     resolve();

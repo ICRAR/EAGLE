@@ -968,11 +968,6 @@ export class Eagle {
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
 
-        // check if we need to update the graph from keys to ids
-        if (GraphUpdater.usesNodeKeys(dataObject)){
-            GraphUpdater.updateKeysToIds(dataObject);
-        }
-
         // use the correct parsing function based on schema version
         switch (schemaVersion){
             case Daliuge.SchemaVersion.OJS:
@@ -1999,11 +1994,6 @@ export class Eagle {
                     // attempt to determine schema version from FileInfo
                     const eagleVersion: string = Utils.determineEagleVersion(dataObject);
 
-                    // check if we need to update the graph from keys to ids
-                    if (GraphUpdater.usesNodeKeys(dataObject)){
-                        GraphUpdater.updateKeysToIds(dataObject);
-                    }
-
                     // warn user if file newer than EAGLE
                     if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
                         Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null, (confirmed : boolean) : void => {
@@ -2110,11 +2100,6 @@ export class Eagle {
 
             // attempt to determine schema version from FileInfo
             const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
-
-            // check if we need to update the graph from keys to ids
-            if (GraphUpdater.usesNodeKeys(dataObject)){
-                GraphUpdater.updateKeysToIds(dataObject);
-            }
 
             const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 

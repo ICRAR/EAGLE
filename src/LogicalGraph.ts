@@ -128,6 +128,11 @@ export class LogicalGraph {
     }
 
     static fromOJSJson(dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+        // check if we need to update the graph from keys to ids
+        if (GraphUpdater.usesNodeKeys(dataObject)){
+            GraphUpdater.updateKeysToIds(dataObject);
+        }
+
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
