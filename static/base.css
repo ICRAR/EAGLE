@@ -431,11 +431,6 @@ color: #00bb00;}
     border:none;
 }
 
-/* #objectInspector .headerButtons {
-    padding: 0px 10px;
-    position:relative;
-} */
-
 #parameterTableModal #tableInspector{
     position: sticky;
     top: 0px;

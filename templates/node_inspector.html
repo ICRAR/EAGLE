@@ -49,6 +49,11 @@
                         </div>
                         <div class="col-6 text-right">
                             <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                            <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.openParamsTableModal('inspectorTableModal','normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
+                                <i  class="material-icons md-20">table_chart</i>
+                            </button>
+                            <!-- /ko -->
+                            <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                             <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
                                 <i  class="material-icons md-20">content_copy</i>
                             </button>
