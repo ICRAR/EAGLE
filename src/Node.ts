@@ -1158,7 +1158,7 @@ export class Node {
     }, this);
 
     getBorderColor : ko.PureComputed<string> = ko.pureComputed(() => {
-        const errorsWarnings = this.getErrorsWarnings()
+        const errorsWarnings = this.getAllErrorsWarnings()
 
         if(this.isEmbedded()){
             return '' //returning nothing lets the means we are not over writing the default css behaviour
@@ -1172,7 +1172,7 @@ export class Node {
     }, this);
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
-        const errorsWarnings = this.getErrorsWarnings()
+        const errorsWarnings = this.getAllErrorsWarnings()
         const eagle = Eagle.getInstance()
 
         if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
