@@ -375,6 +375,11 @@ color: #00bb00;}
 
 #objectInspector .inspectorHeaderButtons i{
     font-size: 18px;
+    color:rgb(175, 175, 175);
+}
+
+#objectInspector .inspectorHeaderButtons i.clickable{
+    color:white;
 }
 
 #objectInspector .contentObject  .contentObjectValue{

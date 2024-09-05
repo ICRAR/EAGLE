@@ -1171,6 +1171,18 @@ export class Node {
         }
     }, this);
 
+    getIconColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        const errorsWarnings = this.getAllErrorsWarnings()
+
+        if(errorsWarnings.errors.length>0){
+            return '#ea2727'
+        }else if(errorsWarnings.warnings.length>0){
+            return '#ffa500'
+        }else{
+            return 'transparent'
+        }
+    }, this);
+
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
         const eagle = Eagle.getInstance()
@@ -1189,6 +1201,12 @@ export class Node {
         }else{
             return '' //returning nothing lets the means we are not over writing the default css behaviour
         }
+    }, this);
+
+    getNodeIssuesHtml : ko.PureComputed<string> = ko.pureComputed(() => {
+        const errorsWarnings = this.getAllErrorsWarnings()
+        let text = 'This Node has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. \ Click to view the graph errors table.'
+        return text
     }, this);
 
     // find the right icon for this node

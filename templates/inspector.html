@@ -20,29 +20,29 @@
                             <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
                             <i class="material-icons interactive clickable" onclick=eagle.editNodeDescription() data-bs-placement="right" data-bind="eagleTooltip: $data.getDescriptionHTML()" data-bs-toggle="tooltip" data-html="true">library_books</i>
                         
-                            <!-- ko if: $data.getAllErrorsWarnings().errors.length > 0 -->
-                                <i class="material-icons interactive clickable" onclick=eagle.editNodeDescription() data-bs-placement="right" data-bind="eagleTooltip: $data.getDescriptionHTML(), style:{'color': $data.getBorderColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
+                            <!-- ko if: $data.getAllErrorsWarnings().errors.length > 0 || $data.getAllErrorsWarnings().warnings.length > 0 -->
+                                <i class="material-icons interactive clickable" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
                             <!-- /ko -->
                         </div>
                         <div class="col-6 col text-right">
                             <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                 <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.openParamsTableModal('inspectorTableModal','normal')}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + Utils.getKeyboardShortcutTextByKey('open_component_parameter_table_modal', true)" data-bs-placement="left">
-                                    <i  class="material-icons md-20">table_chart</i>
+                                    <i  class="material-icons md-20 clickable">table_chart</i>
                                 </button>
                             <!-- /ko -->
                             <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                 <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
-                                    <i  class="material-icons md-20">content_copy</i>
+                                    <i  class="material-icons md-20 clickable">content_copy</i>
                                 </button>
                             <!-- /ko -->
                             <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                 <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
-                                    <i  class="material-icons md-20">library_add</i>
+                                    <i  class="material-icons md-20 clickable">library_add</i>
                                 </button>
                             <!-- /ko -->
                             <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                 <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
-                                    <i class="material-icons md-20">delete</i>
+                                    <i class="material-icons md-20 clickable">delete</i>
                                 </button>
                             <!-- /ko -->
                         </div>
@@ -100,15 +100,20 @@
                 
                 <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
                     <div class="row">
-                        <div class="col-12 col text-right">
+                        <div class="col-4 col">
+                            <!-- ko if: $data.getErrorsWarnings().errors.length > 0 || $data.getErrorsWarnings().warnings.length > 0 -->
+                                <i class="material-icons interactive clickable" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
+                            <!-- /ko -->
+                        </div>
+                        <div class="col-8 col text-right">
                             <!-- ko if: Setting.findValue(Setting.ALLOW_EDGE_EDITING) -->
                                 <button type="button" class="btn btn-secondary btn-sm" data-bind="click: $root.editSelectedEdge, eagleTooltip: 'Edit Selected Edge ' + Utils.getKeyboardShortcutTextByKey('modify_selected_edge', true)">
-                                    <i class="material-icons md-24">edit</i>
+                                    <i class="material-icons md-24 clickable">edit</i>
                                 </button>
                             <!-- /ko -->
                             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                                 <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: 'Delete Selected Edge ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)">
-                                    <i class="material-icons md-24">delete</i>
+                                    <i class="material-icons md-24 clickable">delete</i>
                                 </button>
                             <!-- /ko -->
                         </div>

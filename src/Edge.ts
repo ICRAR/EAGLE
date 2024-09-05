@@ -188,6 +188,24 @@ export class Edge {
         return this.issues();
     }
 
+    getIconColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        const errorsWarnings = this.getErrorsWarnings()
+
+        if(errorsWarnings.errors.length>0){
+            return '#ea2727'
+        }else if(errorsWarnings.warnings.length>0){
+            return '#ffa500'
+        }else{
+            return 'transparent'
+        }
+    }, this);
+
+    getNodeIssuesHtml : ko.PureComputed<string> = ko.pureComputed(() => {
+        const errorsWarnings = this.getErrorsWarnings()
+        let text = 'This Edge has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. \ Click to view the graph errors table.'
+        return text
+    }, this);
+
     static toOJSJson(edge : Edge) : object {
         return {
             from: edge.srcNodeId,
