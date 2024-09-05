@@ -180,4 +180,55 @@
         <!-- /ko -->
     <!-- /ko -->
 
+
+    <!-- Multi Selection Inspector -->
+    <!-- ko ifnot: $root.selectedObjects().length > 1 -->
+        <!-- ko with: $root.selectedObjects() -->
+        <div class="container">
+            <div class="row inspectorHeader">
+                <div class="col-11 col">
+                    <h4>Multi Selection</h4>
+                </div>
+                <div class="col-1 col">
+                    <i class="material-icons">close</i>
+                </div>
+            </div>
+            
+            <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
+                <div class="row">
+                    <div class="col-12 col text-right">
+                        <!-- ko if: Setting.findValue(Setting.ALLOW_EDGE_EDITING) -->
+                            <button type="button" class="btn btn-secondary btn-sm" data-bind="click: $root.editSelectedEdge, eagleTooltip: 'Edit Selected Edge ' + Utils.getKeyboardShortcutTextByKey('modify_selected_edge', true)">
+                                <i class="material-icons md-24 clickable">edit</i>
+                            </button>
+                        <!-- /ko -->
+                        <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
+                            <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: 'Delete Selected Edge ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)">
+                                <i class="material-icons md-24 clickable">delete</i>
+                            </button>
+                        <!-- /ko -->
+                    </div>
+                </div>
+            </div>
+            <div class="inspectorContents">
+                <div class="row inspectorEdgeSrcNodeId contentObject">
+                    <div class="col-4 col contentObjectTitle">
+                        <h5>Nodes Selected: </h5>
+                    </div>
+                    <div class="col-8 col contentObjectValue">
+                        <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).getName(), eagleTooltip:$data.getSrcNodeId()"></span>
+                    </div>
+                </div>
+                <div class="row inspectorEdgeSrcNodeId contentObject">
+                    <div class="col-4 col contentObjectTitle">
+                        <h5>Edges Selected: </h5>
+                    </div>
+                    <div class="col-8 col contentObjectValue">
+                        <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).getName(), eagleTooltip:$data.getSrcNodeId()"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!-- /ko -->
+<!-- /ko -->
 </div>
