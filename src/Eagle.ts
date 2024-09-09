@@ -601,6 +601,28 @@ export class Eagle {
         return text
     }
 
+    getNumSelectedNodes = () : number => {
+        
+        let nodeCount = 0
+        this.selectedObjects().forEach(function(element){
+            if(element instanceof Node){
+                nodeCount++
+            }
+        })
+        return nodeCount
+    }
+
+    getNumSelectedEdges = () : number => {
+        
+        let edgeCount = 0
+        this.selectedObjects().forEach(function(element){
+            if(element instanceof Edge){
+                edgeCount++
+            }
+        })
+        return edgeCount
+    }
+    
     /**
      * This function is repeatedly called throughout the EAGLE operation.
      * It resets al fields in the editor menu.

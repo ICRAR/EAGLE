@@ -182,7 +182,7 @@
 
 
     <!-- Multi Selection Inspector -->
-    <!-- ko ifnot: $root.selectedObjects().length > 1 -->
+    <!-- ko if: $root.selectedObjects().length > 1 -->
         <!-- ko with: $root.selectedObjects() -->
         <div class="container">
             <div class="row inspectorHeader">
@@ -197,9 +197,14 @@
             <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
                 <div class="row">
                     <div class="col-12 col text-right">
-                        <!-- ko if: Setting.findValue(Setting.ALLOW_EDGE_EDITING) -->
-                            <button type="button" class="btn btn-secondary btn-sm" data-bind="click: $root.editSelectedEdge, eagleTooltip: 'Edit Selected Edge ' + Utils.getKeyboardShortcutTextByKey('modify_selected_edge', true)">
-                                <i class="material-icons md-24 clickable">edit</i>
+                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                            <button type="button" id="duplicateSelectedobjects" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
+                                <i  class="material-icons md-20 clickable">content_copy</i>
+                            </button>
+                        <!-- /ko -->
+                        <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                            <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
+                                <i  class="material-icons md-20 clickable">library_add</i>
                             </button>
                         <!-- /ko -->
                         <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
@@ -212,19 +217,19 @@
             </div>
             <div class="inspectorContents">
                 <div class="row inspectorEdgeSrcNodeId contentObject">
-                    <div class="col-4 col contentObjectTitle">
+                    <div class="col-8 col contentObjectTitle">
                         <h5>Nodes Selected: </h5>
                     </div>
-                    <div class="col-8 col contentObjectValue">
-                        <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).getName(), eagleTooltip:$data.getSrcNodeId()"></span>
+                    <div class="col-4 col contentObjectValue">
+                        <span data-bind="text:$root.getNumSelectedNodes()"></span>
                     </div>
                 </div>
                 <div class="row inspectorEdgeSrcNodeId contentObject">
-                    <div class="col-4 col contentObjectTitle">
+                    <div class="col-8 col contentObjectTitle">
                         <h5>Edges Selected: </h5>
                     </div>
-                    <div class="col-8 col contentObjectValue">
-                        <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).getName(), eagleTooltip:$data.getSrcNodeId()"></span>
+                    <div class="col-4 col contentObjectValue">
+                        <span data-bind="text:$root.getNumSelectedEdges()"></span>
                     </div>
                 </div>
             </div>
