@@ -1,239 +1,243 @@
 <div id="objectInspector" data-bind="style: { 'visibility':$root.getObjectInspectorVisibility(), left: Utils.getLeftWindowWidth() + 10}">
-
-    <!-- SINGLE NODE INSPECTOR -->
-    <!-- ko ifnot: $root.selectedNode() === null -->
-        <!-- ko with: $root.selectedNode() -->
-            <div class="container">
-                <div class="row inspectorHeader">
-                    <div class="col-11 col">
-                        <input data-bind="value:$data.name, eagleTooltip: $data.getName()"></input>
-                    </div>
-                    <div class="col-1 col">
-                        <i class="material-icons">close</i>
-                    </div>
-                </div>
-                
-                <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
-                    <div class="row">
-                        <div class="col-6 col">
-                            <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">link</i>
-                            <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
-                            <i class="material-icons interactive clickable" onclick=eagle.editNodeDescription() data-bs-placement="right" data-bind="eagleTooltip: $data.getDescriptionHTML()" data-bs-toggle="tooltip" data-html="true">library_books</i>
-                        
-                            <!-- ko if: $data.getAllErrorsWarnings().errors.length > 0 || $data.getAllErrorsWarnings().warnings.length > 0 -->
-                                <i class="material-icons interactive clickable" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
-                            <!-- /ko -->
+    <!-- ko ifnot: Setting.findValue(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE) -->
+        <!-- SINGLE NODE INSPECTOR -->
+        <!-- ko ifnot: $root.selectedNode() === null -->
+            <!-- ko with: $root.selectedNode() -->
+                <div class="container">
+                    <div class="row inspectorHeader">
+                        <div class="col-11 col">
+                            <input data-bind="value:$data.name, eagleTooltip: $data.getName()"></input>
                         </div>
-                        <div class="col-6 col text-right">
-                            <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.openParamsTableModal('inspectorTableModal','normal')}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + Utils.getKeyboardShortcutTextByKey('open_component_parameter_table_modal', true)" data-bs-placement="left">
-                                    <i  class="material-icons md-20 clickable">table_chart</i>
-                                </button>
-                            <!-- /ko -->
-                            <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
-                                    <i  class="material-icons md-20 clickable">content_copy</i>
-                                </button>
-                            <!-- /ko -->
-                            <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
-                                    <i  class="material-icons md-20 clickable">library_add</i>
-                                </button>
-                            <!-- /ko -->
-                            <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
-                                    <i class="material-icons md-20 clickable">delete</i>
-                                </button>
-                            <!-- /ko -->
-                        </div>
-                    </div>
-                </div>
-                <div class="inspectorContents">
-                    <div class="row inspectorParentId contentObject">
-                        <!-- ko ifnot: $data.getParentId() === null -->
-                            <div class="col-4 col contentObjectTitle">
-                                <h5>Parent Id:</h5>
-                            </div>         
-                            <div class="col-8 col contentObjectValue">
-                                <span data-bind="text:$data.getParentId(), eagleTooltip:$data.getParentId()"></span>
-                            </div>
-                        <!-- /ko -->
-                    </div>
-                    <div class="row inspectorPortMultiplicity contentObject">
-                            <div class="col-6 col contentObjectTitle">
-                                <h5>Port Multiplicity:</h5>
-                            </div>
-                            <div class="col-6 col contentObjectValue">
-                                <span data-bind="text:$root.logicalGraph().findMultiplicity($data)"></span>
-                            </div>
-                    </div>
-                    <div class="row inspectorNodeCategory contentObject">
-                        <div class="col-4 col contentObjectTitle">
-                            <h5>Category:</h5>
-                        </div>
-                        <div class="col-8 col contentObjectValue">
-                            <!-- ko if: $data.getCategoryType() === Category.Type.Data -->
-                                <select id="objectInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategoryRequest(event)}}, valueAllowUnset: true, disabled: $data.isLocked()"></select>
-                            <!-- /ko -->
-                            <!-- ko if: $data.getCategoryType() !== Category.Type.Data -->
-                                <span data-bind="text:$data.getCategory()"></span>
-                            <!-- /ko -->
-                        </div>  
-                    </div>
-                </div>
-            </div>
-        <!-- /ko -->
-    <!-- /ko -->
-
-    <!-- Edge Inspector -->
-    <!-- ko ifnot: $root.selectedEdge() === null -->
-        <!-- ko with: $root.selectedEdge() -->
-            <div class="container">
-                <div class="row inspectorHeader">
-                    <div class="col-11 col">
-                        <h4>Edge Attributes</h4>
-                    </div>
-                    <div class="col-1 col">
-                        <i class="material-icons">close</i>
-                    </div>
-                </div>
-                
-                <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
-                    <div class="row">
-                        <div class="col-4 col">
-                            <!-- ko if: $data.getErrorsWarnings().errors.length > 0 || $data.getErrorsWarnings().warnings.length > 0 -->
-                                <i class="material-icons interactive clickable" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
-                            <!-- /ko -->
-                        </div>
-                        <div class="col-8 col text-right">
-                            <!-- ko if: Setting.findValue(Setting.ALLOW_EDGE_EDITING) -->
-                                <button type="button" class="btn btn-secondary btn-sm" data-bind="click: $root.editSelectedEdge, eagleTooltip: 'Edit Selected Edge ' + Utils.getKeyboardShortcutTextByKey('modify_selected_edge', true)">
-                                    <i class="material-icons md-24 clickable">edit</i>
-                                </button>
-                            <!-- /ko -->
-                            <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                                <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: 'Delete Selected Edge ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)">
-                                    <i class="material-icons md-24 clickable">delete</i>
-                                </button>
-                            <!-- /ko -->
-                        </div>
-                    </div>
-                </div>
-                <div class="inspectorContents">
-                    <div class="row inspectorEdgeSrcNodeId contentObject">
-                        <div class="col-4 col contentObjectTitle">
-                            <h5>Src Node:</h5>
-                        </div>
-                        <div class="col-8 col contentObjectValue">
-                            <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).getName(), eagleTooltip:$data.getSrcNodeId()"></span>
-                        </div>
-                    </div>
-                    <div class="row inspectorEdgeSrcPortId contentObject">
-                        <div class="col-4 col contentObjectTitle">
-                            <h5>Src Port:</h5>
-                        </div>
-                        <div class="col-8 col contentObjectValue">
-                            <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).findFieldById($data.getSrcPortId()).getDisplayText(),eagleTooltip:$data.getSrcPortId()"></span>
-                        </div>
-                    </div>
-                    <div class="row inspectorEdgeDestNodeId contentObject">
-                        <div class="col-4 col contentObjectTitle">
-                            <h5>Dest Node:</h5>
-                        </div>
-                        <div class="col-8 col contentObjectValue">
-                            <span data-bind="text:$root.logicalGraph().findNodeById($data.getDestNodeId()).getName(),eagleTooltip:$data.getDestNodeId()"></span>
-                        </div>
-                    </div>
-                    <div class="row inspectorEdgeDestPortId contentObject">
-                        <div class="col-4 col contentObjectTitle">
-                            <h5>Dest Port:</h5>
-                        </div>
-                        <div class="col-8 col contentObjectValue">
-                            <span data-bind="text: $root.logicalGraph().findNodeById($data.getDestNodeId()).findFieldById($data.getDestPortId()).getDisplayText(),eagleTooltip:$data.getDestPortId()"></span>
+                        <div class="col-1 col">
+                            <i class="material-icons" data-bind="click: Setting.find(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE).toggle()">close</i>
                         </div>
                     </div>
                     
-                    <div class="row inspectorEdgeDestPortId contentObject">
-                        <div class="col-4 col contentObjectTitle">
-                            <h5>Loop Aware</h5>
-                        </div>
-                        <div class="col-8 col contentObjectValue">
-                            <button class="btn btn-secondary btn-sm radioBtn" id="objectInspectorToggleLoopAware" type="button" data-bind="click: function(){$root.selectedEdge().toggleLoopAware();},disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
-                                <i class="material-icons md-18" data-bind="visible: $root.selectedEdge().isLoopAware()">radio_button_checked</i>
-                                <i class="material-icons md-18" data-bind="hidden: $root.selectedEdge().isLoopAware()">radio_button_unchecked</i>
-                            </button>
+                    <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
+                        <div class="row">
+                            <div class="col-6 col">
+                                <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">link</i>
+                                <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
+                                <i class="material-icons interactive clickable" onclick=eagle.editNodeDescription() data-bs-placement="right" data-bind="eagleTooltip: $data.getDescriptionHTML()" data-bs-toggle="tooltip" data-html="true">library_books</i>
+                            
+                                <!-- ko if: $data.getAllErrorsWarnings().errors.length > 0 || $data.getAllErrorsWarnings().warnings.length > 0 -->
+                                    <i class="material-icons interactive clickable" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
+                                <!-- /ko -->
+                            </div>
+                            <div class="col-6 col text-right">
+                                <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                                    <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.openParamsTableModal('inspectorTableModal','normal')}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + Utils.getKeyboardShortcutTextByKey('open_component_parameter_table_modal', true)" data-bs-placement="left">
+                                        <i  class="material-icons md-20 clickable">table_chart</i>
+                                    </button>
+                                <!-- /ko -->
+                                <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                                    <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
+                                        <i  class="material-icons md-20 clickable">content_copy</i>
+                                    </button>
+                                <!-- /ko -->
+                                <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                                    <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
+                                        <i  class="material-icons md-20 clickable">library_add</i>
+                                    </button>
+                                <!-- /ko -->
+                                <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                                    <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
+                                        <i class="material-icons md-20 clickable">delete</i>
+                                    </button>
+                                <!-- /ko -->
+                            </div>
                         </div>
                     </div>
-                    <div class="row inspectorEdgeDestPortId contentObject">
-                        <div class="col-4 col contentObjectTitle">
-                            <h5>Closes Loop</h5>
+                    <div class="inspectorContents">
+                        <div class="row inspectorParentId contentObject">
+                            <!-- ko ifnot: $data.getParentId() === null -->
+                                <div class="col-4 col contentObjectTitle">
+                                    <h5>Parent Id:</h5>
+                                </div>         
+                                <div class="col-8 col contentObjectValue">
+                                    <span data-bind="text:$data.getParentId(), eagleTooltip:$data.getParentId()"></span>
+                                </div>
+                            <!-- /ko -->
                         </div>
-                        <div class="col-8 col contentObjectValue">
-                            <button class="btn btn-secondary btn-sm radioBtn" id="objectInspectorToggleClosesLoop" type="button" data-bind="click: function(){$root.selectedEdge().toggleClosesLoop();},disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
-                                <i class="material-icons md-18" data-bind="visible: $root.selectedEdge().isClosesLoop()">radio_button_checked</i>
-                                <i class="material-icons md-18" data-bind="hidden: $root.selectedEdge().isClosesLoop()">radio_button_unchecked</i>
-                            </button>
+                        <div class="row inspectorPortMultiplicity contentObject">
+                                <div class="col-6 col contentObjectTitle">
+                                    <h5>Port Multiplicity:</h5>
+                                </div>
+                                <div class="col-6 col contentObjectValue">
+                                    <span data-bind="text:$root.logicalGraph().findMultiplicity($data)"></span>
+                                </div>
+                        </div>
+                        <div class="row inspectorNodeCategory contentObject">
+                            <div class="col-4 col contentObjectTitle">
+                                <h5>Category:</h5>
+                            </div>
+                            <div class="col-8 col contentObjectValue">
+                                <!-- ko if: $data.getCategoryType() === Category.Type.Data -->
+                                    <select id="objectInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategoryRequest(event)}}, valueAllowUnset: true, disabled: $data.isLocked()"></select>
+                                <!-- /ko -->
+                                <!-- ko if: $data.getCategoryType() !== Category.Type.Data -->
+                                    <span data-bind="text:$data.getCategory()"></span>
+                                <!-- /ko -->
+                            </div>  
                         </div>
                     </div>
                 </div>
-            </div>
+            <!-- /ko -->
+        <!-- /ko -->
+
+        <!-- Edge Inspector -->
+        <!-- ko ifnot: $root.selectedEdge() === null -->
+            <!-- ko with: $root.selectedEdge() -->
+                <div class="container">
+                    <div class="row inspectorHeader">
+                        <div class="col-11 col">
+                            <h4>Edge Attributes</h4>
+                        </div>
+                        <div class="col-1 col">
+                            <i class="material-icons" data-bind="click: Setting.find(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE).toggle()">close</i>
+                        </div>
+                    </div>
+                    
+                    <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
+                        <div class="row">
+                            <div class="col-4 col">
+                                <!-- ko if: $data.getErrorsWarnings().errors.length > 0 || $data.getErrorsWarnings().warnings.length > 0 -->
+                                    <i class="material-icons interactive clickable" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
+                                <!-- /ko -->
+                            </div>
+                            <div class="col-8 col text-right">
+                                <!-- ko if: Setting.findValue(Setting.ALLOW_EDGE_EDITING) -->
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bind="click: $root.editSelectedEdge, eagleTooltip: 'Edit Selected Edge ' + Utils.getKeyboardShortcutTextByKey('modify_selected_edge', true)">
+                                        <i class="material-icons md-24 clickable">edit</i>
+                                    </button>
+                                <!-- /ko -->
+                                <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
+                                    <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: 'Delete Selected Edge ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)">
+                                        <i class="material-icons md-24 clickable">delete</i>
+                                    </button>
+                                <!-- /ko -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="inspectorContents">
+                        <div class="row inspectorEdgeSrcNodeId contentObject">
+                            <div class="col-4 col contentObjectTitle">
+                                <h5>Src Node:</h5>
+                            </div>
+                            <div class="col-8 col contentObjectValue">
+                                <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).getName(), eagleTooltip:$data.getSrcNodeId()"></span>
+                            </div>
+                        </div>
+                        <div class="row inspectorEdgeSrcPortId contentObject">
+                            <div class="col-4 col contentObjectTitle">
+                                <h5>Src Port:</h5>
+                            </div>
+                            <div class="col-8 col contentObjectValue">
+                                <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).findFieldById($data.getSrcPortId()).getDisplayText(),eagleTooltip:$data.getSrcPortId()"></span>
+                            </div>
+                        </div>
+                        <div class="row inspectorEdgeDestNodeId contentObject">
+                            <div class="col-4 col contentObjectTitle">
+                                <h5>Dest Node:</h5>
+                            </div>
+                            <div class="col-8 col contentObjectValue">
+                                <span data-bind="text:$root.logicalGraph().findNodeById($data.getDestNodeId()).getName(),eagleTooltip:$data.getDestNodeId()"></span>
+                            </div>
+                        </div>
+                        <div class="row inspectorEdgeDestPortId contentObject">
+                            <div class="col-4 col contentObjectTitle">
+                                <h5>Dest Port:</h5>
+                            </div>
+                            <div class="col-8 col contentObjectValue">
+                                <span data-bind="text: $root.logicalGraph().findNodeById($data.getDestNodeId()).findFieldById($data.getDestPortId()).getDisplayText(),eagleTooltip:$data.getDestPortId()"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="row inspectorEdgeDestPortId contentObject">
+                            <div class="col-4 col contentObjectTitle">
+                                <h5>Loop Aware</h5>
+                            </div>
+                            <div class="col-8 col contentObjectValue">
+                                <button class="btn btn-secondary btn-sm radioBtn" id="objectInspectorToggleLoopAware" type="button" data-bind="click: function(){$root.selectedEdge().toggleLoopAware();},disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
+                                    <i class="material-icons md-18" data-bind="visible: $root.selectedEdge().isLoopAware()">radio_button_checked</i>
+                                    <i class="material-icons md-18" data-bind="hidden: $root.selectedEdge().isLoopAware()">radio_button_unchecked</i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row inspectorEdgeDestPortId contentObject">
+                            <div class="col-4 col contentObjectTitle">
+                                <h5>Closes Loop</h5>
+                            </div>
+                            <div class="col-8 col contentObjectValue">
+                                <button class="btn btn-secondary btn-sm radioBtn" id="objectInspectorToggleClosesLoop" type="button" data-bind="click: function(){$root.selectedEdge().toggleClosesLoop();},disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
+                                    <i class="material-icons md-18" data-bind="visible: $root.selectedEdge().isClosesLoop()">radio_button_checked</i>
+                                    <i class="material-icons md-18" data-bind="hidden: $root.selectedEdge().isClosesLoop()">radio_button_unchecked</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <!-- /ko -->
+        <!-- /ko -->
+
+
+        <!-- Multi Selection Inspector -->
+        <!-- ko if: $root.selectedObjects().length > 1 -->
+            <!-- ko with: $root.selectedObjects() -->
+                <div class="container">
+                    <div class="row inspectorHeader">
+                        <div class="col-11 col">
+                            <h4>Multi Selection</h4>
+                        </div>
+                        <div class="col-1 col">
+                            <i class="material-icons" data-bind="click: Setting.find(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE).toggle()">close</i>
+                        </div>
+                    </div>
+                    
+                    <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
+                        <div class="row">
+                            <div class="col-12 col text-right">
+                                <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                                    <button type="button" id="duplicateSelectedobjects" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
+                                        <i  class="material-icons md-20 clickable">content_copy</i>
+                                    </button>
+                                <!-- /ko -->
+                                <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                                    <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
+                                        <i  class="material-icons md-20 clickable">library_add</i>
+                                    </button>
+                                <!-- /ko -->
+                                <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
+                                    <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: 'Delete Selected Edge ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)">
+                                        <i class="material-icons md-24 clickable">delete</i>
+                                    </button>
+                                <!-- /ko -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="inspectorContents">
+                        <div class="row inspectorEdgeSrcNodeId contentObject">
+                            <div class="col-8 col contentObjectTitle">
+                                <h5>Nodes Selected: </h5>
+                            </div>
+                            <div class="col-4 col contentObjectValue">
+                                <span data-bind="text:$root.getNumSelectedNodes()"></span>
+                            </div>
+                        </div>
+                        <div class="row inspectorEdgeSrcNodeId contentObject">
+                            <div class="col-8 col contentObjectTitle">
+                                <h5>Edges Selected: </h5>
+                            </div>
+                            <div class="col-4 col contentObjectValue">
+                                <span data-bind="text:$root.getNumSelectedEdges()"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <!-- /ko -->
         <!-- /ko -->
     <!-- /ko -->
-
-
-    <!-- Multi Selection Inspector -->
-    <!-- ko if: $root.selectedObjects().length > 1 -->
-        <!-- ko with: $root.selectedObjects() -->
-        <div class="container">
-            <div class="row inspectorHeader">
-                <div class="col-11 col">
-                    <h4>Multi Selection</h4>
-                </div>
-                <div class="col-1 col">
-                    <i class="material-icons">close</i>
-                </div>
-            </div>
-            
-            <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
-                <div class="row">
-                    <div class="col-12 col text-right">
-                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                            <button type="button" id="duplicateSelectedobjects" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
-                                <i  class="material-icons md-20 clickable">content_copy</i>
-                            </button>
-                        <!-- /ko -->
-                        <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                            <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
-                                <i  class="material-icons md-20 clickable">library_add</i>
-                            </button>
-                        <!-- /ko -->
-                        <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                            <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: 'Delete Selected Edge ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)">
-                                <i class="material-icons md-24 clickable">delete</i>
-                            </button>
-                        <!-- /ko -->
-                    </div>
-                </div>
-            </div>
-            <div class="inspectorContents">
-                <div class="row inspectorEdgeSrcNodeId contentObject">
-                    <div class="col-8 col contentObjectTitle">
-                        <h5>Nodes Selected: </h5>
-                    </div>
-                    <div class="col-4 col contentObjectValue">
-                        <span data-bind="text:$root.getNumSelectedNodes()"></span>
-                    </div>
-                </div>
-                <div class="row inspectorEdgeSrcNodeId contentObject">
-                    <div class="col-8 col contentObjectTitle">
-                        <h5>Edges Selected: </h5>
-                    </div>
-                    <div class="col-4 col contentObjectValue">
-                        <span data-bind="text:$root.getNumSelectedEdges()"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- ko ifnot: Setting.findValue(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE) -->
+        <i class="material-icons" data-bind="click: Setting.find(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE).toggle()">info</i>
     <!-- /ko -->
-<!-- /ko -->
 </div>
