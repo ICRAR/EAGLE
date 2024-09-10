@@ -476,3 +476,11 @@ td:first-child input {
 #graph_configurations_table_favourite_column{
     width: 80px;
 }
+
+#graph_configurations_table_active_column{
+    width: 80px;
+}
+
+#graph_configurations_table_remove_column{
+    width: 80px;
+}

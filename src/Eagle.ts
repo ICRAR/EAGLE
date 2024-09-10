@@ -843,21 +843,8 @@ export class Eagle {
     
                     // center graph
                     GraphRenderer.translateLegacyGraph()
-    
-                    //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
-                    setTimeout(function(){
-                        eagle.centerGraph()
-                    },50);
-    
-                    // update the activeFileInfo with details of the repository the file was loaded from
-                    if (fileFullPath !== ""){
-                        eagle.updateLogicalGraphFileInfo(Repository.Service.File, "", "", Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath));
-                    }
-    
-                    // check graph
-                    eagle.checkGraph();
-                    eagle.undo().clear();
-                    eagle.undo().pushSnapshot(eagle, "Loaded " + fileFullPath);
+
+                    eagle._postLoadGraph(new RepositoryFile(new Repository(Repository.Service.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
                 });
             }
             reader.onerror = function (evt) {
@@ -2111,7 +2098,6 @@ export class Eagle {
 
     _loadGraph = (dataObject: any, file: RepositoryFile) : void => {
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const eagle = this
 
         // load graph
         this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
@@ -2122,9 +2108,13 @@ export class Eagle {
         // center graph
         GraphRenderer.translateLegacyGraph()
 
+        this._postLoadGraph(file);
+    }
+
+    _postLoadGraph = (file: RepositoryFile) : void => {
         //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
         setTimeout(function(){
-            eagle.centerGraph()
+            Eagle.getInstance().centerGraph()
         },50)
 
         // check graph
@@ -2260,6 +2250,8 @@ export class Eagle {
 
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+
+        this._postLoadGraph(file);
     }
 
     private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {

@@ -37,6 +37,7 @@ import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
+import { Undo } from "./Undo";
 import { Utils } from './Utils';
 
 export class LogicalGraph {
@@ -288,6 +289,32 @@ export class LogicalGraph {
 
     addGraphConfig = (config: GraphConfig): void => {
         this.graphConfigs.push(config);
+    }
+
+    removeGraphConfig = (config: GraphConfig): void => {
+        // find index of graph config to remove
+        let index = -1;
+        for (let i = 0 ; i < this.graphConfigs().length ; i++){
+            if (this.graphConfigs()[i].getId() === config.getId()){
+                index = i;
+            }
+        }
+
+        // if not found, warn user and abort
+        if (index === -1){
+            console.warn("Graph config can't be removed, not found. id = ", config.getId());
+            return;
+        }
+
+        // cache name of graph configuration
+        const name: string = this.graphConfigs()[index].getName();
+
+        // remove graph config
+        this.graphConfigs.splice(index, 1);
+
+        // create undo snapshot
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.undo().pushSnapshot(eagle, "Removed graph configuration " + name);
     }
 
     countEdgesIncidentOnNode = (node : Node) : number => {
