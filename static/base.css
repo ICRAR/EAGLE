@@ -314,7 +314,24 @@ color: #00bb00;}
     bottom: 35px;
     left: 400px;
     visibility: hidden;
+    transition: width 200ms, height 200ms,visibility 200ms;
     color: white;
+}
+
+#inspector.inspectorTransition div,#inspector.inspectorTransition i{
+    visibility: hidden;
+}
+
+#inspector.inspectorCollapsed {
+    width: 50px;
+    height: 50px;
+}
+
+#inspector.inspectorCollapsed i{
+    margin-left: 50%;
+    margin-top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
 }
 
 #objectInspector{

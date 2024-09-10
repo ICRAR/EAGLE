@@ -755,6 +755,27 @@ export class Eagle {
         return eagle.selectedNode() !== null || eagle.selectedEdge() !== null || eagle.selectedObjects().length > 1
     }, this);
 
+    getInspectorCollapseBtnState : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        $('#inspector').addClass('inspectorTransition')
+        setTimeout(function(){
+            $('#inspector').removeClass('inspectorTransition')
+        },200)
+
+        if(this.getObjectInspectorVisibility()){
+            if(Setting.findValue(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE)){
+                return true
+            }else{
+                return false
+            }
+        }else{
+            if(Setting.findValue(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE)){
+                return true
+            }else{
+                return false
+            }
+        }
+    }, this);
+
     changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {
         this.rightWindow().mode(requestedMode)
         this.rightWindow().shown(true); 

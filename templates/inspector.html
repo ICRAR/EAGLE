@@ -1,4 +1,4 @@
-<div id="inspector" data-bind="style: {'visibility':eagle.getEagleIsReady(),left: Utils.getLeftWindowWidth() + 10}">
+<div id="inspector" data-bind="style: {'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth() + 10},css:{'inspectorCollapsed': $root.getInspectorCollapseBtnState()}">
     <!-- Graph object inspector -->
     <!-- ko if: $root.getObjectInspectorVisibility()-->
         <!-- ko ifnot: Setting.findValue(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE) -->
