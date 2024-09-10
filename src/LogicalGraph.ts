@@ -37,7 +37,6 @@ import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
-import { Undo } from "./Undo";
 import { Utils } from './Utils';
 
 export class LogicalGraph {
@@ -45,7 +44,10 @@ export class LogicalGraph {
     private nodes : ko.ObservableArray<Node>;
     private edges : ko.ObservableArray<Edge>;
     private graphConfigs : ko.ObservableArray<GraphConfig>;
+    private activeGraphConfig : ko.Observable<GraphConfig>;
+
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
+    
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
@@ -55,6 +57,7 @@ export class LogicalGraph {
         this.nodes = ko.observableArray([]);
         this.edges = ko.observableArray([]);
         this.graphConfigs = ko.observableArray([]);
+        this.activeGraphConfig = ko.observable();
         this.issues = ko.observableArray([])
     }
 
@@ -315,6 +318,14 @@ export class LogicalGraph {
         // create undo snapshot
         const eagle: Eagle = Eagle.getInstance();
         eagle.undo().pushSnapshot(eagle, "Removed graph configuration " + name);
+    }
+
+    getActiveGraphConfig = (): GraphConfig => {
+        return this.activeGraphConfig();
+    }
+
+    setActiveGraphConfig = (config: GraphConfig): void => {
+        this.activeGraphConfig(config);
     }
 
     countEdgesIncidentOnNode = (node : Node) : number => {

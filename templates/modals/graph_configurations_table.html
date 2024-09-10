@@ -50,10 +50,10 @@
                                     <input class="tableParameter" type="string" data-bind="value: $data.getDescription(), disabled: true, eagleTooltip: ''">
                                 </td>
                                 <td class='columnCell column-active'>
-                                    <!-- ko if: $data.id === $root.currentConfig().id -->
+                                    <!-- ko if: $data.id === $root.logicalGraph().activeGraphConfig().id -->
                                     <span>Active</span>
                                     <!-- /ko -->
-                                    <!-- ko if: $data.id !== $root.currentConfig().id -->
+                                    <!-- ko if: $data.id !== $root.logicalGraph().activeGraphConfig().id -->
                                     <span>&nbsp;</span>
                                     <!-- /ko -->
                                 </td>

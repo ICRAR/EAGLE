@@ -2319,9 +2319,10 @@ export class Utils {
     static printGraphConfigurationTable() : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
+        const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
 
         // add logical graph nodes to table
-        for (const node of eagle.currentConfig().getNodes()){
+        for (const node of activeConfig.getNodes()){
             const graphNode: Node = eagle.logicalGraph().findNodeById(node.getId());
             for (const field of node.getFields()){
                 const graphField: Field = graphNode.findFieldById(field.getId());

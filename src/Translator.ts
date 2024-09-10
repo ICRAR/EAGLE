@@ -138,10 +138,11 @@ export class Translator {
     private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
         // clone the logical graph
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
+        const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
 
         // if there is a GraphConfig, apply GraphConfig to logicalGraph
-        if (eagle.currentConfig() !== null){
-            GraphConfig.apply(lgClone, eagle.currentConfig());
+        if (activeConfig !== null){
+            GraphConfig.apply(lgClone, activeConfig);
         }
 
         // get json for logical graph

@@ -250,7 +250,7 @@
     </div>
 
     <div class="row mt-2">
-        <select id="currentConfigSelect" class="form-control" data-bind="options: logicalGraph().graphConfigs, optionsText: 'name', value: currentConfig">
+        <select id="currentConfigSelect" class="form-control" data-bind="options: logicalGraph().graphConfigs, optionsText: 'name', value: logicalGraph().activeGraphConfig">
         </select>
         <button class="btn btn-primary btn-block" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Configuration ` + Utils.getKeyboardShortcutTextByKey('open_graph_configuration_table_modal', true)">Open Graph Configuration</button>
     </div>

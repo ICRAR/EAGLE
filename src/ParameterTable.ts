@@ -160,8 +160,8 @@ export class ParameterTable {
                 return eagle.selectedNode()?.getFields();
             
             case ParameterTable.Mode.GraphConfig:
-                const config: GraphConfig = eagle.currentConfig();
                 const lg: LogicalGraph = eagle.logicalGraph();
+                const config: GraphConfig = lg.getActiveGraphConfig();
                 const displayedFields: Field[] = [];
 
                 if (!config){
@@ -344,7 +344,7 @@ export class ParameterTable {
     }
 
     static requestAddField(currentField: Field): void {
-        const graphConfig: GraphConfig = Eagle.getInstance().currentConfig();
+        const graphConfig: GraphConfig = Eagle.getInstance().logicalGraph().getActiveGraphConfig();
 
         graphConfig.addField(currentField);
 
@@ -395,7 +395,7 @@ export class ParameterTable {
     static requestEditCommentInModal(currentField:Field) : void {
         const eagle: Eagle = Eagle.getInstance();
         const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
-        const configField: GraphConfigField = eagle.currentConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
+        const configField: GraphConfigField = eagle.logicalGraph().getActiveGraphConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
 
         //ParameterTable.openModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
         ParameterTable.closeModal();

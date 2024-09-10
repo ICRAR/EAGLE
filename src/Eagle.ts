@@ -67,7 +67,6 @@ export class Eagle {
 
     palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
-    currentConfig : ko.Observable<GraphConfig>;
     tutorial : ko.Observable<Tutorial>;
 
     eagleIsReady : ko.Observable<boolean>;
@@ -145,7 +144,6 @@ export class Eagle {
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
-        this.currentConfig = ko.observable();
         this.eagleIsReady = ko.observable(false);
 
         this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
@@ -1551,7 +1549,7 @@ export class Eagle {
             this.logicalGraph().addGraphConfig(c);
 
             // replace existing config
-            this.currentConfig(c);
+            this.logicalGraph().setActiveGraphConfig(c);
 
             Utils.showNotification("New Graph Config Created", userString, "success");
         });
