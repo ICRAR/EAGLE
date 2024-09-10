@@ -334,6 +334,7 @@ export class LogicalGraph {
         this.fileInfo().type = Eagle.FileType.Graph;
         this.nodes([]);
         this.edges([]);
+        this.graphConfigs([]);
     }
 
     clone = () : LogicalGraph => {
@@ -349,6 +350,11 @@ export class LogicalGraph {
         // copy edges
         for (const edge of this.edges()){
             result.edges.push(edge.clone());
+        }
+
+        // copy graph configs
+        for (const graphConfig of this.graphConfigs()){
+            result.graphConfigs.push(graphConfig.clone());
         }
 
         return result;
