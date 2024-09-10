@@ -750,22 +750,9 @@ export class Eagle {
         this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
     }
 
-    getObjectInspectorVisibility : ko.PureComputed<string> = ko.pureComputed(() => {
+    getObjectInspectorVisibility : ko.PureComputed<boolean> = ko.pureComputed(() => {
         const eagle = Eagle.getInstance()
-        const hidden = 'hidden'
-        const visible = 'visible'
-
-        if(eagle.eagleIsReady()){
-            if(eagle.selectedNode() !== null){
-                return visible
-            }else if(eagle.selectedEdge !== null){
-                return visible
-            }else{
-                return hidden
-            }
-        }else{
-            return hidden
-        }
+        return eagle.selectedNode() !== null || eagle.selectedEdge() !== null || eagle.selectedObjects().length > 1
     }, this);
 
     changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {

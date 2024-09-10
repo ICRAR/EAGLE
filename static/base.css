@@ -305,7 +305,7 @@ color: #00bb00;}
     transform: translate(-50%, 2px);
 }
 
-#objectInspector{
+#inspector{
     background-color: #001933;
     width: 300px;
     height: min-content;
@@ -313,7 +313,11 @@ color: #00bb00;}
     position: fixed;
     bottom: 35px;
     left: 400px;
+    visibility: hidden;
     color: white;
+}
+
+#objectInspector{
     visibility: hidden;
 }
 
@@ -322,35 +326,35 @@ color: #00bb00;}
     background: rgba(255, 255, 255, 0.171);
 }
 
-#objectInspector .container{
+#inspector .container{
     padding: 5px 0px;
     height: 100%;
     width: 100%;
 }
 
-#objectInspector .row{
+#inspector .row{
     padding: 0px 8px 0px 8px;
     margin: 0px;
 }
 
-#objectInspector .inspectorContents .row{
+#inspector .inspectorContents .row{
     margin-bottom: 2px;
 }
 
-#objectInspector .col{
+#inspector .col{
     padding: 0px;
 }
 
-#objectInspector .inspectorHeader input, #objectInspector .inspectorHeader {
+#inspector .inspectorHeader input, #inspector .inspectorHeader {
     /* display: inline; */
     margin: 0px;
 }
 
-#objectInspector .inspectorContents{
+#inspector .inspectorContents{
     padding-top: 7px;
 }
 
-#objectInspector .inspectorHeader input{
+#inspector .inspectorHeader input{
     background: transparent;
     border: none;
     outline: none;
@@ -360,63 +364,63 @@ color: #00bb00;}
     text-overflow: ellipsis;
 }
 
-#objectInspector .inspectorHeader h4{
+#inspector .inspectorHeader h4{
     color: white;
     font-size: 20px;
     text-overflow: ellipsis;
 }
 
-#objectInspector .inspectorHeader input:focus{
+#inspector .inspectorHeader input:focus{
     background: white;
     border: none;   
     color: black;
     font-size: 20px;
 }
 
-#objectInspector .inspectorHeaderButtons i{
+#inspector .inspectorHeaderButtons i{
     font-size: 18px;
     color:rgb(175, 175, 175);
 }
 
-#objectInspector .inspectorHeaderButtons i.clickable{
+#inspector .inspectorHeaderButtons i.clickable{
     color:white;
 }
 
-#objectInspector .contentObject  .contentObjectValue{
+#inspector .contentObject  .contentObjectValue{
     height: 20px;  
     overflow: hidden;
     text-overflow: ellipsis;
     color: rgb(175, 175, 175);
 }
 
-#objectInspector .contentObject.inspectorNodeCategory  .contentObjectValue{
+#inspector .contentObject.inspectorNodeCategory  .contentObjectValue{
     overflow: visible;
 }
 
-#objectInspector .contentObject .contentObjectValue .radioBtn {
+#inspector .contentObject .contentObjectValue .radioBtn {
     background-color:transparent;
     border: none;
 }
 
-#objectInspector .contentObject .contentObjectValue .radioBtn:focus {
+#inspector .contentObject .contentObjectValue .radioBtn:focus {
     box-shadow: none;
 }
 
-#objectInspector .contentObject .contentObjectValue .radioBtn i{
+#inspector .contentObject .contentObjectValue .radioBtn i{
     font-size: 17px;
 }
 
-#objectInspector .inspectorContents h5{
+#inspector .inspectorContents h5{
     font-size: 16px;
     margin: 2px 0px 0px 0px;
 }
 
-#objectInspector .inspectorContents span{
+#inspector .inspectorContents span{
     color: rgb(175, 175, 175);
     white-space: nowrap;
 }
 
-#objectInspector .headerButtons button,.inspectorTitleBtns button {
+#inspector .headerButtons button,.inspectorTitleBtns button {
     background-color: transparent;
     padding:0px 4px;
     margin-left:-4px;
@@ -424,13 +428,13 @@ color: #00bb00;}
     box-shadow: none;
 }
 
-#objectInspector .headerButtons button:hover,.inspectorTitleBtns button:hover, #objectInspector .clickable:hover {
+#inspector .headerButtons button:hover,.inspectorTitleBtns button:hover, #inspector .clickable:hover {
     color: #b4d4ff;
     background-color: transparent;
     cursor:pointer;
 }
 
-#objectInspector .headerButtons button.btn:focus, .inspectorTitleBtns button:focus {
+#inspector .headerButtons button.btn:focus, .inspectorTitleBtns button:focus {
     box-shadow: none;
     background-color:transparent;
     border:none;
