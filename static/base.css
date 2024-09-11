@@ -320,6 +320,7 @@ color: #00bb00;}
 
 #inspector.inspectorTransition div,#inspector.inspectorTransition i{
     visibility: hidden;
+    height: 80px;
 }
 
 #inspector.inspectorCollapsed {
