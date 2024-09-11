@@ -1572,10 +1572,12 @@ export class Eagle {
                 return;
             }
 
+            const fileType = this.logicalGraph().fileInfo().type;
+
             if (userChoiceIndex === 0){
-                this.saveFileToLocal(Eagle.FileType.Graph);
+                this.saveFileToLocal(fileType);
             } else {
-                this.commitToGitAs(Eagle.FileType.Graph);
+                this.commitToGitAs(fileType);
             }
         });
     }
@@ -1689,8 +1691,6 @@ export class Eagle {
      */
     commitToGitAs = (fileType : Eagle.FileType) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
-
-            console.log("commitToGitAs()");
             let fileInfo : ko.Observable<FileInfo>;
             let obj : LogicalGraph | Palette;
 
@@ -1859,15 +1859,12 @@ export class Eagle {
 
         let jsonString: string = "";
         switch (fileType){
+            case Eagle.FileType.Daliuge:
             case Eagle.FileType.Graph:
                 jsonString = LogicalGraph.toOJSJsonString(<LogicalGraph>clone, false);
                 break;
             case Eagle.FileType.Palette:
                 jsonString = Palette.toOJSJsonString(<Palette>clone);
-                break;
-            case Eagle.FileType.Daliuge:
-                console.error("Not implemented!");
-                jsonString = "";
                 break;
         }
 

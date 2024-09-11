@@ -351,6 +351,7 @@ export class GraphConfig {
         const result : any = {};
 
         // NOTE: we don't write isModified to JSON, it is run-time only
+        result.name = graphConfig.name();
         result.isFavorite = graphConfig.isFavorite();
         result.description = graphConfig.description();
 

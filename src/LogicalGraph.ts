@@ -135,9 +135,9 @@ export class LogicalGraph {
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
         result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
+        result += '"graphConfigurations": ' + JSON.stringify(json.graphConfigurations, null, 4) + ",\n";
         result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
-        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + ",\n";
-        result += '"graphConfigurations": ' + JSON.stringify(json.graphConfigurations, null, 4) + "\n";
+        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
         result += "}\n";
 
         return result;
