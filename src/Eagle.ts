@@ -2053,6 +2053,7 @@ export class Eagle {
             }        
 
             switch (fileTypeLoaded){
+                case Eagle.FileType.Daliuge:
                 case Eagle.FileType.Graph: {
                     // attempt to determine schema version from FileInfo
                     const eagleVersion: string = Utils.determineEagleVersion(dataObject);
@@ -2080,10 +2081,6 @@ export class Eagle {
 
                 case Eagle.FileType.Markdown:
                     Utils.showUserMessage(file.name, Utils.markdown2html(data));
-                    break;
-
-                case Eagle.FileType.Daliuge:
-                    this._remoteDaliugeLoaded(file, dataObject);
                     break;
 
                 default:
@@ -2224,32 +2221,6 @@ export class Eagle {
         } else {
             this._reloadPalette(file, data, alreadyLoadedPalette);
         }
-    }
-
-    private _remoteDaliugeLoaded = (file: RepositoryFile, dataObject: any): void => {
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-
-        //console.log("Not implemented");
-        //errorsWarnings.errors.push(Errors.Message("Daliuge file loading not implemented"));
-
-        // load graph
-        this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
-        
-        // load configs
-        const graphConfigs: GraphConfig[] = [];
-        for (const gcId in dataObject["graphConfigurations"]){
-            const gco = dataObject["graphConfigurations"][gcId];
-            const gc = GraphConfig.fromJson(gco, errorsWarnings);
-            gc.setId(gcId as GraphConfig.Id);
-            graphConfigs.push(gc);
-        }
-
-        this.logicalGraph().setGraphConfigs(graphConfigs);
-
-        // show errors/warnings
-        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
-
-        this._postLoadGraph(file);
     }
 
     private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
@@ -2438,7 +2409,7 @@ export class Eagle {
         console.log("saveGraphToDisk()", graph.fileInfo().name, graph.fileInfo().type);
 
         // check that the fileType has been set for the logicalGraph
-        if (graph.fileInfo().type !== Eagle.FileType.Graph){
+        if (graph.fileInfo().type !== Eagle.FileType.Graph && graph.fileInfo().type !== Eagle.FileType.Daliuge){
             Utils.showUserMessage("Error", "Graph fileType not set correctly. Could not save file.");
             return;
         }

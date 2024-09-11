@@ -118,6 +118,12 @@ export class LogicalGraph {
             result.linkDataArray.push(linkData);
         }
 
+        // add graph configurations
+        result.graphConfigurations = {};
+        for (const gc of graph.graphConfigs()){
+            result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc);
+        }
+
         return result;
     }
 
@@ -130,7 +136,8 @@ export class LogicalGraph {
         result += "{\n";
         result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
         result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
-        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
+        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + ",\n";
+        result += '"graphConfigurations": ' + JSON.stringify(json.graphConfigurations, null, 4) + "\n";
         result += "}\n";
 
         return result;
@@ -176,6 +183,16 @@ export class LogicalGraph {
             }
 
             result.edges.push(newEdge);
+        }
+
+        // load configs (if present)
+        if (typeof dataObject.graphConfigurations !== 'undefined'){
+            for (const gcId in dataObject["graphConfigurations"]){
+                const gco = dataObject["graphConfigurations"][gcId];
+                const gc = GraphConfig.fromJson(gco, errorsWarnings);
+                gc.setId(gcId as GraphConfig.Id);
+                result.graphConfigs.push(gc);
+            }
         }
 
         // check for missing name
