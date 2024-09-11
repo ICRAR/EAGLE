@@ -50,12 +50,10 @@
                                     <input class="tableParameter" type="string" data-bind="value: $data.getDescription(), disabled: true, eagleTooltip: ''">
                                 </td>
                                 <td class='columnCell column-active'>
-                                    <!-- ko if: $data.id === $root.logicalGraph().activeGraphConfig().id -->
-                                    <span>Active</span>
-                                    <!-- /ko -->
-                                    <!-- ko if: $data.id !== $root.logicalGraph().activeGraphConfig().id -->
-                                    <span>&nbsp;</span>
-                                    <!-- /ko -->
+                                    <button type="button" data-bind="click: function(){$root.logicalGraph().setActiveGraphConfig($data);}">
+                                        <i class="material-icons md-18" data-bind="visible: $data.id === $root.logicalGraph().activeGraphConfig().id">radio_button_checked</i>
+                                        <i class="material-icons md-18" data-bind="hidden:  $data.id === $root.logicalGraph().activeGraphConfig().id">radio_button_unchecked</i>
+                                    </button>
                                 </td>
                                 <td class='columnCell column-favorite'>
                                     <!-- ko if: $data.isFavorite() -->
