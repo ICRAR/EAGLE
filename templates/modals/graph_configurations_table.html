@@ -35,7 +35,7 @@
                                 <th data-bind="eagleTooltip:''" data-bs-placement="top">Description</th>
                                 <th id="graph_configurations_table_active_column" data-bind="eagleTooltip:''" data-bs-placement="top">Active</th>
                                 <th id="graph_configurations_table_favourite_column" data-bind="eagleTooltip:''" data-bs-placement="top">Favourite</th>
-                                <th id="graph_configurations_table_remove_column" data-bind="eagleTooltip:''" data-bs-placement="top">Remove</th>
+                                <th id="graph_configurations_table_actions_column" data-bind="eagleTooltip:''" data-bs-placement="top">Actions</th>
                             </tr>
                         </thead>
                         <tbody data-bind="foreach: logicalGraph().graphConfigs()">
@@ -67,9 +67,12 @@
                                     </button>
                                     <!-- /ko -->
                                 </td>
-                                <td class='columnCell column-remove'>
+                                <td class='columnCell column-actions'>
+                                    <button data-bind="click: function(){$root.logicalGraph().duplicateGraphConfig($data);}, eagleTooltip:'Duplicate'">
+                                        <i class="material-icons">content_copy</i>
+                                    </button>
                                     <button data-bind="click: function(){$root.logicalGraph().removeGraphConfig($data)}, eagleTooltip:'Remove Config from Graph', clickBubble:false">
-                                        <i class="material-icons">remove</i>
+                                        <i class="material-icons">delete</i>
                                     </button>
                                 </td>
                             </tr>

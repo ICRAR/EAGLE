@@ -311,6 +311,14 @@ export class LogicalGraph {
         this.graphConfigs.push(config);
     }
 
+    duplicateGraphConfig = (config: GraphConfig): void => {
+        const clone = config.clone();
+
+        clone.setName(clone.getName() + " (Copy)");
+
+        this.graphConfigs.push(clone);
+    }
+
     removeGraphConfig = (config: GraphConfig): void => {
         // find index of graph config to remove
         let index = -1;

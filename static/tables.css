@@ -328,7 +328,7 @@ td:first-child input {
     box-shadow: 0 0 0 3px rgb(0, 89, 165);
 }
 
-.eagleTableModal .modal-dialog td{
+.eagleTableModal .modal-dialog td:not(:last-child){
     padding:0px 3px;
     /* overflow: hidden; */
     border-right: 1px solid rgb(14 2 76 / 16%);
@@ -481,6 +481,6 @@ td:first-child input {
     width: 80px;
 }
 
-#graph_configurations_table_remove_column{
+#graph_configurations_table_actions_column{
     width: 80px;
 }
