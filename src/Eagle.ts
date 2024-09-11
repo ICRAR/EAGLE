@@ -602,7 +602,6 @@ export class Eagle {
     }
 
     getNumSelectedNodes = () : number => {
-        
         let nodeCount = 0
         this.selectedObjects().forEach(function(element){
             if(element instanceof Node){
@@ -613,7 +612,6 @@ export class Eagle {
     }
 
     getNumSelectedEdges = () : number => {
-        
         let edgeCount = 0
         this.selectedObjects().forEach(function(element){
             if(element instanceof Edge){
@@ -622,7 +620,7 @@ export class Eagle {
         })
         return edgeCount
     }
-    
+
     /**
      * This function is repeatedly called throughout the EAGLE operation.
      * It resets al fields in the editor menu.
@@ -759,7 +757,7 @@ export class Eagle {
         $('#inspector').addClass('inspectorTransition')
         setTimeout(function(){
             $('#inspector').removeClass('inspectorTransition')
-        },200)
+        },100)
 
         if(this.getObjectInspectorVisibility()){
             if(Setting.findValue(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE)){
@@ -775,6 +773,10 @@ export class Eagle {
             }
         }
     }, this);
+
+    getGraphModifiedDateText = () : string => {
+        return this.logicalGraph().fileInfo().lastModifiedDatetimeText().split(',')[0]
+    }
 
     changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {
         this.rightWindow().mode(requestedMode)
