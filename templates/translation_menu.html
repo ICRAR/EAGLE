@@ -1,5 +1,6 @@
 <div id="translationMenu" class="container px-0">
     <div class="row">
+        <h5>Algorithms</h5>
         <div class="accordion" id="translatorAccordion" >
 
             <div class="accordion-item" id="agl-1" data-bind="visible: translatorAlgorithmVisible('agl-1')">
@@ -223,9 +224,11 @@
                     </div>
                 </div>
             </div>
-
         </div>
+    </div>
+    <div class="row">
         <div class="hierarchyDividerLine"></div>
+        <h5>Reproducibility</h5>
         <div class="input-group mb-1" data-bind="eagleTooltip:Utils.getRmodeTooltip()">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="alg1-rmode-label">Rmode</span>
@@ -249,8 +252,10 @@
 
     </div>
 
-    <div class="row mt-2">
-        <select id="currentConfigSelect" class="form-control" data-bind="options: logicalGraph().graphConfigs, optionsText: 'name', value: logicalGraph().activeGraphConfig">
+    <div class="row">
+        <div class="hierarchyDividerLine"></div>
+        <h5>Graph Configuration</h5>
+        <select id="currentConfigSelect" class="form-select mb-1" data-bind="options: logicalGraph().graphConfigs, optionsText: 'name', value: logicalGraph().activeGraphConfig">
         </select>
         <button class="btn btn-primary btn-block" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Configuration ` + Utils.getKeyboardShortcutTextByKey('open_graph_configuration_table_modal', true)">Open Graph Configuration</button>
     </div>
