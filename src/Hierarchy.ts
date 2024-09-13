@@ -277,15 +277,15 @@ export class Hierarchy {
         }
 
         if(!e.shiftKey && !e.altKey){
-            eagle.setSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph);
+            eagle.setSelection(node, Eagle.FileType.Graph);
 
         }else if (e.altKey && !e.shiftKey){
             GraphRenderer.selectNodeAndChildren(node, e.shiftKey)
         }else if(e.altKey && e.shiftKey){
             GraphRenderer.selectNodeAndChildren(node, e.shiftKey)
-            eagle.editSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph)
+            eagle.editSelection(node, Eagle.FileType.Graph)
         }else if(e.shiftKey){
-            eagle.editSelection(Eagle.RightWindowMode.Hierarchy, node, Eagle.FileType.Graph)
+            eagle.editSelection(node, Eagle.FileType.Graph)
         }
         
         eagle.logicalGraph.valueHasMutated();

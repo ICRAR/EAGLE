@@ -235,9 +235,9 @@ $(function(){
             return
         }
         if(!event.shiftKey){
-            eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+            eagle.setSelection(selectEdge, Eagle.FileType.Graph);
         }else{
-            eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+            eagle.editSelection(selectEdge, Eagle.FileType.Graph);
         }
     })
 

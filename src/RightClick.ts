@@ -497,7 +497,7 @@ export class RightClick {
         }
 
         if(data instanceof Edge){
-            eagle.setSelection(Eagle.RightWindowMode.Inspector,data,Eagle.FileType.Graph)
+            eagle.setSelection(data,Eagle.FileType.Graph)
         }
 
         // close any existing context menu, the close custom context menu function seems to be doing too much
@@ -604,7 +604,7 @@ export class RightClick {
 
                     //making sure the construct we are trying to add an embedded node to is selected
                     if(data instanceof Node){
-                        eagle.setSelection(Eagle.RightWindowMode.None,data,Eagle.FileType.Graph)
+                        eagle.setSelection(data,Eagle.FileType.Graph)
                     }
 
                     $('#customContextMenu').append(searchbar)

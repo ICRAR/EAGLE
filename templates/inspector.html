@@ -11,7 +11,7 @@
                                 <input data-bind="value:$data.name, eagleTooltip: $data.getName()"></input>
                             </div>
                             <div class="col-1 col">
-                                <i class="material-icons" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle">close</i>
+                                <i class="material-icons inspectorCloseBtn" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
                             </div>
                         </div>
                         
@@ -19,7 +19,7 @@
                             <div class="row">
                                 <div class="col-6 col">
                                     <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">link</i>
-                                    <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
+                                    <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'Id: '+$data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
                                     <i class="material-icons interactive clickable" onclick=eagle.editNodeDescription() data-bs-placement="right" data-bind="eagleTooltip: $data.getDescriptionHTML()" data-bs-toggle="tooltip" data-html="true">library_books</i>
                                 
                                     <!-- ko if: $data.getAllErrorsWarnings().errors.length > 0 || $data.getAllErrorsWarnings().warnings.length > 0 -->
@@ -54,10 +54,10 @@
                             <div class="row inspectorParentId contentObject">
                                 <!-- ko ifnot: $data.getParentId() === null -->
                                     <div class="col-4 col contentObjectTitle">
-                                        <h5>Parent Id:</h5>
+                                        <h5>Parent:</h5>
                                     </div>         
                                     <div class="col-8 col contentObjectValue">
-                                        <span data-bind="text:$data.getParentId(), eagleTooltip:$data.getParentId()"></span>
+                                        <span data-bind="text:eagle.logicalGraph().findNodeById($data.getParentId()).getName(), eagleTooltip:$data.getParentId()"></span>
                                     </div>
                                 <!-- /ko -->
                             </div>
@@ -75,7 +75,7 @@
                                 </div>
                                 <div class="col-8 col contentObjectValue">
                                     <!-- ko if: $data.getCategoryType() === Category.Type.Data -->
-                                        <select id="objectInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategoryRequest(event)}}, valueAllowUnset: true, disabled: $data.isLocked()"></select>
+                                        <select id="objectInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategoryRequest(event)}}, valueAllowUnset: true, disabled: $data.isLocked(), eagleTooltip:'NOTE: changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category'"></select>
                                     <!-- /ko -->
                                     <!-- ko if: $data.getCategoryType() !== Category.Type.Data -->
                                         <span data-bind="text:$data.getCategory()"></span>
@@ -96,7 +96,7 @@
                                 <h4>Edge Attributes</h4>
                             </div>
                             <div class="col-1 col">
-                                <i class="material-icons" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle">close</i>
+                                <i class="material-icons" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
                             </div>
                         </div>
                         
@@ -191,7 +191,7 @@
                                 <h4>Multi Selection</h4>
                             </div>
                             <div class="col-1 col">
-                                <i class="material-icons" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle">close</i>
+                                <i class="material-icons" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
                             </div>
                         </div>
                         
@@ -254,7 +254,7 @@
                             <h4>Graph Info</h4>
                         </div>
                         <div class="col-1 col">
-                            <i class="material-icons" data-bind="click: Setting.find(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE).toggle">close</i>
+                            <i class="material-icons" data-bind="click: Setting.find(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
                         </div>
                     </div>
                     

@@ -2068,7 +2068,7 @@ export class Utils {
         // close errors modal if visible
         $('#issuesModal').modal("hide");
 
-        eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
+        eagle.setSelection(eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
 
     static showNode(eagle: Eagle, nodeId: NodeId): void {
@@ -2100,7 +2100,7 @@ export class Utils {
             return;
         }
         
-        eagle.setSelection(Eagle.RightWindowMode.Inspector, n, location);
+        eagle.setSelection( n, location);
     }
 
     static showField(eagle: Eagle, nodeId: NodeId, field: Field) :void {

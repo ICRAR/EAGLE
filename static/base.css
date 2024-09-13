@@ -333,6 +333,7 @@ color: #00bb00;}
     margin-top: 50%;
     transform: translate(-50%, -50%);
     font-size: 32px;
+    cursor:pointer;
 }
 
 #objectInspector{
@@ -348,6 +349,10 @@ color: #00bb00;}
     padding: 5px 0px;
     height: 100%;
     width: 100%;
+}
+
+#inspector .inspectorCloseBtn{
+    cursor:pointer;
 }
 
 #inspector .row{
