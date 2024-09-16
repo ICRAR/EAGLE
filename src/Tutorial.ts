@@ -109,17 +109,6 @@ export class TutorialSystem {
             return false
         }
     }
-
-    // static findInspectorInputGroupByName = (name:string) : JQuery<HTMLElement> =>{
-    //     let requestedElement :JQuery<HTMLElement>=null
-    //     $('#nodeInspector .input-group-text').each(function(i,obj){
-    //         if($(obj).text() === name){
-    //             requestedElement = $(obj)
-    //         }
-    //     })
-    //         requestedElement = requestedElement.closest('.input-group')
-    //         return requestedElement
-    // }
 }
 
 export class Tutorial {

@@ -272,17 +272,6 @@ export class Edge {
         if(edge){
             edge.issues([]) //clear old issues
         }
-        
-        // TODO: check for problems with ids (uuid valid?)
-        /*
-        if (isNaN(sourceNodeKey)){
-            return Errors.Validity.Unknown;
-        }
-
-        if (isNaN(destinationNodeKey)){
-            return Errors.Validity.Unknown;
-        }
-        */
 
         if (sourcePortId === null){
             const issue = Errors.Fix("source port has no id", function(){Utils.fixNodeFieldIds(eagle, sourceNodeId)}, "Generate ids for ports on source node");

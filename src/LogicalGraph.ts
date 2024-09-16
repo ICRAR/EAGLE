@@ -643,7 +643,6 @@ export class LogicalGraph {
                 maxDepthOverlap = overlap;
             }
         }
-        // console.log('FINAL node at location: ', maxDepthOverlap.getName())
 
         return maxDepthOverlap;
     }
