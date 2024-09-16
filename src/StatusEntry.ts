@@ -29,7 +29,7 @@ export class StatusEntry {
             new StatusEntry('Right Click ',' on the empty canvas to add nodes.', Eagle.getInstance().selectedObjects().length === 0),
             new StatusEntry(Utils.getKeyboardShortcutTextByKey('quick_action', true),' search and run functions.', Eagle.getInstance().selectedObjects().length === 0),
             //a graph is created or loaded
-            new StatusEntry(Utils.getKeyboardShortcutTextByKey('open_parameter_table_modal', true),' access graph config.', Eagle.getInstance().logicalGraph().fileInfo().name != "" && Eagle.getInstance().selectedObjects().length === 0),
+            new StatusEntry(Utils.getKeyboardShortcutTextByKey('open_graph_configuration_table_modal', true),' access graph config.', Eagle.getInstance().logicalGraph().fileInfo().name != "" && Eagle.getInstance().selectedObjects().length === 0),
             //No Graph loaded or created
             new StatusEntry(Utils.getKeyboardShortcutTextByKey('new_graph', true),' new graph.', Eagle.getInstance().logicalGraph().fileInfo().name === ""),
             //something is selected
@@ -43,7 +43,8 @@ export class StatusEntry {
             new StatusEntry('Shift + Ctrl + Drag',' Box deselect multiple objects.', Eagle.getInstance().selectedObjects().length >1),
             //construct is selected
             new StatusEntry('Alt + click',' Select a construct and its children.', this.constructIsSelected()),
-
+            //always
+            new StatusEntry(Utils.getKeyboardShortcutTextByKey('open_graph_configurations_table_modal', true), ' display all graph configs.', true),
         ];
     }
 }
