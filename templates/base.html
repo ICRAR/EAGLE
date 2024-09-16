@@ -170,44 +170,6 @@
                     <div class="rightWindowDisplay repository" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Repository">
                         {% include 'repositories.html' %}
                     </div>
-                    <div id="nodeInspectorKOWrapper" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Inspector">
-                        <div class="rightWindowDisplay nodeInspector" data-bind="visible: selectedNode() === null && selectedObjects().length > 1">
-                            <div id="inspectorSelectionSummary">
-                                <div class="row" id="multiSelectionHeader">
-                                    <div class="col-8">
-                                        <h5>Selection Summary</h5>
-                                    </div>
-                                    <div class="col-4 text-right headerBtns">
-                                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                        <button type="button" id="duplicateSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: function(){duplicateSelection(normal)}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
-                                            <i  class="material-icons md-24">content_copy</i>
-                                        </button>
-                                        <!-- /ko -->
-                                        <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                        <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
-                                            <i  class="material-icons md-24">library_add</i>
-                                        </button>
-                                        <!-- /ko -->
-                                        <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                        <button type="button" id="deleteSelectedNodes" class="btn btn-secondary btn-sm" data-bind="click: function(){deleteSelection(false,false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + Utils.getKeyboardShortcutTextByKey('delete_selection', true)" data-bs-placement="left">
-                                            <i class="material-icons md-24">delete</i>
-                                        </button>
-                                        <!-- /ko -->
-                                    </div>
-                                </div>
-                                <span data-bind="text: $root.getSelectedText()"></span>
-                                <span id="inspectorSelectionSummaryNodes">Selected Nodes:</span>
-                                <!-- ko foreach: $root.selectedObjects -->
-                                    <!-- ko if: Utils.isTypeNode($data) -->
-                                        <div class="inspectorSelectionSummaryItem">
-                                            <h5 data-bind="text: $data.getName()"></h5>
-                                            <span data-bind="text: $data.getCategory()"></span>
-                                        </div>
-                                    <!-- /ko -->
-                                <!-- /ko -->
-                            </div>
-                        </div>
-                    </div>
                     <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
                         <!-- ko ifnot: Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Minimal-->
                             {% include 'translation_menu.html' %}

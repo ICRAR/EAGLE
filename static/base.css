@@ -451,7 +451,7 @@ color: #00bb00;}
     box-shadow: none;
 }
 
-#inspector .headerButtons button:hover,.inspectorTitleBtns button:hover, #inspector .clickable:hover {
+#inspector .headerButtons button:hover,.inspectorTitleBtns button:hover, #inspector i.clickable:hover {
     color: #b4d4ff;
     background-color: transparent;
     cursor:pointer;
@@ -690,35 +690,6 @@ td:first-child input {
     text-decoration: none;
     font-size: 24px!important;
     padding-top: 3px;
-}
-
-#rightWindowContainer .inspectorDescriptionDragHnadle{
-    position: absolute;
-    bottom: -9px;
-    right: -8px;
-    transform: rotate(-45deg);
-    pointer-events: none;
-}
-
-.rightWindow #inspectorNodeDescriptionWrapper ::-webkit-scrollbar-track, #parameterTableModal ::-webkit-scrollbar-track{
-    background: white;
-}
-
-.rightWindow #inspectorNodeDescriptionWrapper textarea{
-    background-color: white;
-    padding: 5px;
-    resize: vertical;
-    min-height: 150px;
-    height: 14em;
-    overflow-y: auto;
-    width: 100%;
-    border: none;
-}
-
-.inspectorApplicationBackground .prepend-icon span i{
-    font-size: 18px;
-    position: relative;
-    top: 2px;
 }
 
 #parameterTableVisibilityContainer .dropdown-menu{
@@ -1020,14 +991,6 @@ td:first-child input {
 #pathA1{
     stroke-dasharray: 173.44000244140625;
     stroke-dashoffset: 173.44000244140625;
-}
-
-#nodeInspectorKOWrapper{
-    height: 100%;
-}
-
-#nodeInspectorKOWrapper .accordion-item{
-    overflow: unset;
 }
 
 #rightWindowContainer{

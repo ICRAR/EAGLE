@@ -569,6 +569,10 @@ export class Node {
         return this.category() === Category.ExclusiveForceNode;
     }
 
+    isDocker = () : boolean => {
+        return this.category() === Category.Docker;
+    }
+
     isComment = () : boolean => {
         return this.category() === Category.Comment;
     }
