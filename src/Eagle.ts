@@ -3843,7 +3843,6 @@ export class Eagle {
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
-        $("#nodeInspectorAddApplicationParamDiv").show();
     }
 
     addEmptyTableRow = () : void => {
