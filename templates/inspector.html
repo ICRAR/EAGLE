@@ -31,22 +31,22 @@
                                 <div class="col-6 col text-right">
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.openParamsTableModal('inspectorTableModal','normal')}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + Utils.getKeyboardShortcutTextByKey('open_component_parameter_table_modal', true)" data-bs-placement="left">
-                                            <i  class="material-icons md-20 clickable">table_chart</i>
+                                            <i class="material-icons md-20 clickable">table_chart</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph && $data.isDocker() -->
-                                        <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: $root.fetchDockerHTML, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + Utils.getKeyboardShortcutTextByKey('open_component_parameter_table_modal', true)" data-bs-placement="left">
-                                            <i  class="icon-docker clickable"></i>
+                                        <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: $root.fetchDockerHTML, clickBubble: false, eagleTooltip: 'Browse images on docker hub'" data-bs-placement="left">
+                                            <i class="icon-docker clickable"></i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + Utils.getKeyboardShortcutTextByKey('duplicate_selection', true)" data-bs-placement="left">
-                                            <i  class="material-icons md-20 clickable">content_copy</i>
+                                            <i class="material-icons md-20 clickable">content_copy</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
-                                            <i  class="material-icons md-20 clickable">library_add</i>
+                                            <i class="material-icons md-20 clickable">library_add</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
