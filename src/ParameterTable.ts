@@ -97,7 +97,12 @@ export class ParameterTable {
             //if a cell in the table is currently selected, enter will select the next cell down
 
             //we are getting the class name of the current column's cell eg. column_Description
-            const classes = $(event.target).closest('.columnCell').attr('class').split(' ')
+            const currentColumnCell = $(event.target).closest('.columnCell');
+            if (currentColumnCell.length === 0){
+                return;
+            }
+
+            const classes = currentColumnCell.attr('class').split(' ')
             let cellTypeClass
             for(const className of classes){
                 if(className.includes('column_')){

@@ -57,7 +57,7 @@ export class LogicalGraph {
         this.nodes = ko.observableArray([]);
         this.edges = ko.observableArray([]);
         this.graphConfigs = ko.observableArray([]);
-        this.activeGraphConfig = ko.observable();
+        this.activeGraphConfig = ko.observable(new GraphConfig());
         this.issues = ko.observableArray([])
     }
 
@@ -307,6 +307,10 @@ export class LogicalGraph {
         this.graphConfigs(graphConfigs);
     }
 
+    getGraphConfigs = (): GraphConfig[] => {
+        return this.graphConfigs();
+    }
+
     addGraphConfig = (config: GraphConfig): void => {
         this.graphConfigs.push(config);
     }
@@ -350,6 +354,12 @@ export class LogicalGraph {
     }
 
     setActiveGraphConfig = (config: GraphConfig): void => {
+        // check if current active config is modified, if so, abort
+        if (this.activeGraphConfig().getIsModified()){
+            Utils.showNotification("Can't change active config", "The current graph configuration has been modified, please save changes.", "danger");
+            return;
+        }
+
         this.activeGraphConfig(config);
     }
 

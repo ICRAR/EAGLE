@@ -249,6 +249,10 @@ export class GraphConfig {
         this.isModified(isModified);
     }
 
+    getIsModified = (): boolean => {
+        return this.isModified();
+    }
+
     setIsFavorite = (favorite: boolean): void => {
         console.log("setIsFavorite(", favorite, ") for config", this.name());
         this.isFavorite(favorite);

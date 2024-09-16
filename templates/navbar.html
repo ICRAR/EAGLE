@@ -209,11 +209,12 @@
                     Config
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownConfig">
-                    <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
-                        <div class="dropDropDown">
-                            <a class="dropdown-item" id="createNewConfig" href="#" data-bind="click: newConfig">Create</a>
-                        </div>
-                    </span>
+                    <a class="dropdown-item" id="createNewConfig" href="#" data-bind="click: newConfig">New
+                        <span data-bind="text: Utils.getKeyboardShortcutTextByKey('new_config', true)"></span>
+                    </a>
+                    <a class="dropdown-item" id="saveConfig" href="#" data-bind="click: saveConfig">Save
+                        <span data-bind="text: Utils.getKeyboardShortcutTextByKey('save_config', true)"></span>
+                    </a>
                 </div>
             </li>
             <li class="nav-item dropdown">
