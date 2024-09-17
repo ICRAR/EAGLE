@@ -148,8 +148,8 @@ export class Eagle {
         this.logicalGraph = ko.observable(null);
         this.eagleIsReady = ko.observable(false);
 
-        this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth(), false));
-        this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth(), true));
+        this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth()));
+        this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth()));
 
         this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
@@ -420,8 +420,15 @@ export class Eagle {
     }, this);
 
     toggleWindows = () : void  => {
-        this.rightWindow().toggleShown()
-        this.leftWindow().toggleShown()
+        if(Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
+            //if one or both of the windows is open, we want to close them
+            SideWindow.setShown(true,false)
+            SideWindow.setShown(false,false)
+        }else{
+            //in this case both windows must be closed so open both
+            SideWindow.setShown(true,true)
+            SideWindow.setShown(false,true)
+        }
     }
 
     emptySearchBar = (target : ko.Observable,data:string, event : Event) => {
@@ -514,12 +521,12 @@ export class Eagle {
 
         //we are taking into account the current widths of the left and right windows
         let leftWindow = 0
-        if(that.leftWindow().shown()){
+        if(Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
             leftWindow = that.leftWindow().width()
         }
         
         let rightWindow = 0
-        if(that.rightWindow().shown()){
+        if(Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
             rightWindow = that.rightWindow().width()
         }
 
@@ -733,14 +740,8 @@ export class Eagle {
 
     changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {
         this.rightWindow().mode(requestedMode)
-        this.rightWindow().shown(true); 
-
-        // //if we are intentionally switching to the hierary, then we do not want the right window mode to switch to the inspector when we change node selection.
-        // if(requestedMode===Eagle.RightWindowMode.Hierarchy){
-        //     this.hierarchyMode(true)
-        // }else {
-        //     this.hierarchyMode(false)
-        // }
+        
+        SideWindow.setShown(false,true)
     }
 
     objectIsSelected = (object: Node | Edge): boolean => {
@@ -1304,9 +1305,6 @@ export class Eagle {
 
         // add new palette to the START of the palettes array
         this.palettes.unshift(p);
-
-        // show the left window
-        this.leftWindow().shown(true);
 
         Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
     }
@@ -1873,7 +1871,6 @@ export class Eagle {
                     this.palettes.push(palette);
                 }
             }
-            this.leftWindow().shown(true);
         });
     }
 
@@ -2182,8 +2179,6 @@ export class Eagle {
 
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
-
-        this.leftWindow().shown(true);
     }
 
     private updateLogicalGraphFileInfo = (repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
@@ -2297,9 +2292,6 @@ export class Eagle {
         if (openDefaultPalette){
             eagle.loadDefaultPalettes();
         }
-
-        // show/hide the left window
-        this.leftWindow().shown(openDefaultPalette);
     }
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
@@ -4374,8 +4366,8 @@ export class Eagle {
         
         while (!suitablePositionFound && numIterations <= MAX_ITERATIONS){
             // get visible screen size
-            let minX = this.leftWindow().shown() ? this.leftWindow().width()+MARGIN: 0+MARGIN;
-            let maxX = this.rightWindow().shown() ? $('#logicalGraphParent').width() - this.rightWindow().width() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
+            let minX = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? this.leftWindow().width()+MARGIN: 0+MARGIN;
+            let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? $('#logicalGraphParent').width() - this.rightWindow().width() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
             let minY = 0 + navBarHeight + MARGIN;
             let maxY = $('#logicalGraphParent').height() - MARGIN + navBarHeight;
             if(increaseSearchArea){

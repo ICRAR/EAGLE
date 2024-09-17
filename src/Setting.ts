@@ -264,6 +264,8 @@ export class Setting {
     static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
     static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
     static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
+    static readonly RIGHT_WINDOW_VISIBLE : string = "RightWindowVisible";
+    static readonly LEFT_WINDOW_VISIBLE : string = "LeftWindowVisible";
     static readonly OBJECT_INSPECTOR_COLLAPSED_STATE : string = "ObjectInspectorVisibility";
     static readonly GRAPH_INSPECTOR_COLLAPSED_STATE : string = "GraphInspectorVisibility";
 
@@ -380,6 +382,8 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Show edge/node errors/warnings in Graph", Setting.SHOW_GRAPH_WARNINGS, "Show the errors/warnings found in the graph", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
             new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_WIDTH_KEY, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
             new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH_KEY, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
+            new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_VISIBLE, "saving the width of the right window", true, Setting.Type.Boolean,false,false,false,false,false),
+            new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_VISIBLE, "saving the width of the left window", true, Setting.Type.Boolean, true, true, false, false, false),
             new Setting(false, "Graph Objects Inspector", Setting.OBJECT_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(false, "Graph Info Inspector", Setting.GRAPH_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph inspector", true, Setting.Type.Boolean, false, false, false, false, false),
         ]
