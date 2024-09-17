@@ -1209,8 +1209,7 @@ export class Node {
 
     getNodeIssuesHtml : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
-        let text = 'This Node has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. \ Click to view the graph issues table.'
-        return text
+        return 'This Node has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. \ Click to view the graph issues table.'
     }, this);
 
     // find the right icon for this node

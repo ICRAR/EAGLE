@@ -4141,10 +4141,11 @@ export class Eagle {
     paletteComponentClick = (node: Node, event: JQuery.TriggeredEvent) : void => {
         const e: PointerEvent = event.originalEvent as PointerEvent;
         
-        if (e && e.shiftKey)
+        if (e && e.shiftKey){
             this.editSelection(node, Eagle.FileType.Palette);
-        else
+        }else{
             this.setSelection(node, Eagle.FileType.Palette);
+        }
     }
 
     selectInputApplicationNode = () : void => {
