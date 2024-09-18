@@ -662,7 +662,6 @@ export class Eagle {
 
         if (selection === null){
             this.selectedObjects([]);
-            // this.rightWindow().mode(rightWindowMode);
         } else {
             this.selectedObjects([selection]);
 
