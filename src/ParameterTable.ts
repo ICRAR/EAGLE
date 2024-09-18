@@ -11,6 +11,7 @@ import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
 import { GraphConfig, GraphConfigField } from "./GraphConfig";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 
 export class ParameterTable {
 
@@ -402,6 +403,11 @@ export class ParameterTable {
                 Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig);
             });
         }
+    }
+
+    static requestEditConfig(config: GraphConfig): void {
+        GraphConfigurationsTable.closeModal();
+        ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal);
     }
 
     static requestEditDescriptionInModal(currentField:Field) : void {

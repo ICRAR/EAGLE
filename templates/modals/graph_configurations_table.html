@@ -82,6 +82,16 @@
                                         <button data-bind="click: function(){$root.logicalGraph().duplicateGraphConfig($data);}, eagleTooltip:'Duplicate'">
                                             <i class="material-icons">content_copy</i>
                                         </button>
+                                        <!-- ko if: $data.id === $root.logicalGraph().activeGraphConfig().id -->
+                                        <button data-bind="click: function(){ParameterTable.requestEditConfig($data);}, eagleTooltip:'Edit', clickBubble:false">
+                                            <i class="material-icons">edit</i>
+                                        </button>
+                                        <!-- /ko -->
+                                        <!-- ko ifnot: $data.id === $root.logicalGraph().activeGraphConfig().id -->
+                                        <button data-bind="click: function(){ParameterTable.requestEditConfig($data);}, eagleTooltip:'Unable to edit non-active graph config', clickBubble:false" disabled>
+                                            <i class="material-icons">edit</i>
+                                        </button>
+                                        <!-- /ko -->
                                         <button data-bind="click: function(){$root.logicalGraph().removeGraphConfig($data)}, eagleTooltip:'Remove Config from Graph', clickBubble:false">
                                             <i class="material-icons">delete</i>
                                         </button>
@@ -129,6 +139,9 @@
                                     <td class='columnCell column-actions'>
                                         <button data-bind="click: function(){$root.logicalGraph().duplicateGraphConfig($data);}, eagleTooltip:'Duplicate'">
                                             <i class="material-icons">content_copy</i>
+                                        </button>
+                                        <button data-bind="click: function(){ParameterTable.requestEditConfig($data);}, eagleTooltip:'Edit', clickBubble:false">
+                                            <i class="material-icons">edit</i>
                                         </button>
                                         <button data-bind="click: function(){$root.logicalGraph().discardActiveGraphConfig()}, eagleTooltip:'Discard changes', clickBubble:false">
                                             <i class="material-icons">delete</i>
