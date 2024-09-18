@@ -2068,26 +2068,26 @@ export class Utils {
         // close errors modal if visible
         $('#issuesModal').modal("hide");
 
-        eagle.setSelection(Eagle.RightWindowMode.Inspector, eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
+        eagle.setSelection(eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
 
     static showNode(eagle: Eagle, nodeId: NodeId): void {
-        let n: Node = null;
+        let node: Node = null;
         let location : Eagle.FileType
 
         // close errors modal if visible
         $('#issuesModal').modal("hide");
 
         //attempt to find node in graph
-        n = eagle.logicalGraph().findNodeById(nodeId);
+        node = eagle.logicalGraph().findNodeById(nodeId);
 
-        if(n){
+        if(node){
             location = Eagle.FileType.Graph
         }else{
             //if no node was found attempt to find the node in the palettes
             for (const palette of eagle.palettes()){
-                n = palette.findNodeById(nodeId);
-                if (n !== null){
+                node = palette.findNodeById(nodeId);
+                if (node !== null){
                     break;
                 }
             }
@@ -2095,12 +2095,12 @@ export class Utils {
         }
 
         // check that we found the node
-        if (n === null){
+        if (node === null){
             console.warn("Could not show node with id", nodeId);
             return;
         }
         
-        eagle.setSelection(Eagle.RightWindowMode.Inspector, n, location);
+        eagle.setSelection( node, location);
     }
 
     static showField(eagle: Eagle, nodeId: NodeId, field: Field) :void {

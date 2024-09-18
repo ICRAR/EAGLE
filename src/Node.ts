@@ -569,6 +569,10 @@ export class Node {
         return this.category() === Category.ExclusiveForceNode;
     }
 
+    isDocker = () : boolean => {
+        return this.category() === Category.Docker;
+    }
+
     isComment = () : boolean => {
         return this.category() === Category.Comment;
     }
@@ -1158,21 +1162,33 @@ export class Node {
     }, this);
 
     getBorderColor : ko.PureComputed<string> = ko.pureComputed(() => {
-        const errorsWarnings = this.getErrorsWarnings()
+        const errorsWarnings = this.getAllErrorsWarnings()
 
         if(this.isEmbedded()){
             return '' //returning nothing lets the means we are not over writing the default css behaviour
         }else if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
-            return '#ea2727'
+            return EagleConfig.getColor('graphError')
         }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
-            return '#ffa500'
+            return EagleConfig.getColor('graphWarning')
         }else{
-            return '#2e3192'
+            return EagleConfig.getColor('bodyBorder')
+        }
+    }, this);
+
+    getIconColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        const errorsWarnings = this.getAllErrorsWarnings()
+
+        if(errorsWarnings.errors.length>0){
+            return EagleConfig.getColor('graphError')
+        }else if(errorsWarnings.warnings.length>0){
+            return EagleConfig.getColor('graphWarning')
+        }else{
+            return 'transparent'
         }
     }, this);
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
-        const errorsWarnings = this.getErrorsWarnings()
+        const errorsWarnings = this.getAllErrorsWarnings()
         const eagle = Eagle.getInstance()
 
         if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
@@ -1189,6 +1205,11 @@ export class Node {
         }else{
             return '' //returning nothing lets the means we are not over writing the default css behaviour
         }
+    }, this);
+
+    getNodeIssuesHtml : ko.PureComputed<string> = ko.pureComputed(() => {
+        const errorsWarnings = this.getAllErrorsWarnings()
+        return 'This Node has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. \ Click to view the graph issues table.'
     }, this);
 
     // find the right icon for this node

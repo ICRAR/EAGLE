@@ -61,21 +61,25 @@ newTut.newTutStep("Graph Nodes", "Once added into your graph, the component is i
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 
-newTut.newTutStep("Editing Components", "The inspector panel provides access to the complete set of specifications of a component. The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $("#rightWindowContainer")})
-.setPreFunction(function(eagle:Eagle){eagle.rightWindow().mode(Eagle.RightWindowMode.Inspector)})
+newTut.newTutStep("Editing Components", "The inspector panel provides access to the complete set of specifications of a component.", function(){return $("#inspector")})
+.setWaitType(TutorialStep.Wait.Delay)
+.setDelayAmount(100)
 
-newTut.newTutStep("Click to open", "<em>Click to open the node fields table and continue.</em>", function(){return $("#openNodeFieldsTable")})
+newTut.newTutStep("Click to open", "<em>Click to open the node fields table and continue.</em>", function(){return $("#inspector #openNodeParamsTable")})
 .setWaitType(TutorialStep.Wait.Element)
 .setType(TutorialStep.Type.Press)
 .setBackPreFunction(function(){$('#parameterTableModal').modal('hide')})
 
-newTut.newTutStep("Enter a Name", "In case of this hello world app we can change who we are greeting. <em>Enter a name and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})
-.setType(TutorialStep.Type.Input)
+newTut.newTutStep("The Parameter Table", " The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $('#parameterTableModal .modal-content')})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(700)
 
-newTut.newTutStep("Key Attributes", "You can flag important parameters and attributes of a graph as 'Key Attributes'. These are then all available for editing in one location. <em>Click on the heart to flag this argument as key attribute.</em>", function(){return $('.column_KeyAttr button').first()})
+newTut.newTutStep("Enter a Name", "In case of this hello world app we can change who we are greeting. <em>Enter a name and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})
+.setType(TutorialStep.Type.Input)
+
+newTut.newTutStep("Key Attributes", "You can flag important parameters and attributes of a graph as 'Key Attributes'. This button appears when hovering on the field name. These are then all available for editing in one location. <em>Click on the heart to flag this argument as key attribute.</em>", function(){return $('.column_DisplayText .keyAttributeBtn').first()})
 .setType(TutorialStep.Type.Press)
+.setPreFunction(function(){$('.column_DisplayText .keyAttributeBtn').first().css('visibility','visible')})
 .setBackPreFunction(function(){$('#openNodeFieldsTable').trigger("click")})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(700)

@@ -50,14 +50,6 @@ ko.components.register('hierarchy-node', {
     template: { require: "text!static/components/hierarchy-node.html" }
 });
 
-// custom component for a component that appears in the inspector
-ko.components.register('inspector-component', {
-    viewModel: function(params : {node : any, callback: any}){
-        return params;
-    },
-    template: { require: "text!static/components/inspector-component.html" }
-});
-
 // custom component for a component that appears in the palette
 ko.components.register('palette-component', {
     viewModel: function(params : {data : any, paletteIndex : any, index : any}){

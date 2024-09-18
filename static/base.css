@@ -305,6 +305,164 @@ color: #00bb00;}
     transform: translate(-50%, 2px);
 }
 
+#inspector{
+    background-color: #001933;
+    width: 300px;
+    height: min-content;
+    border-radius: 10px;
+    position: fixed;
+    bottom: 35px;
+    left: 400px;
+    visibility: hidden;
+    transition: width 200ms, height 200ms,visibility 200ms;
+    color: white;
+}
+
+#inspector.inspectorTransition div,#inspector.inspectorTransition i{
+    visibility: hidden;
+    height: 80px;
+}
+
+#inspector.inspectorCollapsed {
+    width: 50px;
+    height: 50px;
+}
+
+#inspector.inspectorCollapsed i{
+    margin-left: 50%;
+    margin-top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    cursor:pointer;
+}
+
+#objectInspector{
+    visibility: hidden;
+}
+
+#objectInspectorHeaderIconRow{
+    padding-top: 3px;
+    background: rgba(255, 255, 255, 0.171);
+}
+
+#inspector .container{
+    padding: 5px 0px;
+    height: 100%;
+    width: 100%;
+}
+
+#inspector .inspectorCloseBtn{
+    cursor:pointer;
+}
+
+#inspector .row{
+    padding: 0px 8px 0px 8px;
+    margin: 0px;
+}
+
+#inspector .inspectorContents .row{
+    margin-bottom: 2px;
+}
+
+#inspector .col{
+    padding: 0px;
+}
+
+#inspector .inspectorHeader input, #inspector .inspectorHeader {
+    /* display: inline; */
+    margin: 0px;
+}
+
+#inspector .inspectorContents{
+    padding-top: 7px;
+}
+
+#inspector .inspectorHeader input{
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 20px;
+    margin-top: -4px;
+    text-overflow: ellipsis;
+}
+
+#inspector .inspectorHeader h4{
+    color: white;
+    font-size: 20px;
+    text-overflow: ellipsis;
+}
+
+#inspector .inspectorHeader input:focus{
+    background: white;
+    border: none;   
+    color: black;
+    font-size: 20px;
+}
+
+#inspector .inspectorHeaderButtons i{
+    font-size: 18px;
+    color:rgb(175, 175, 175);
+}
+
+#inspector .inspectorHeaderButtons i.clickable{
+    color:white;
+}
+
+#inspector .contentObject  .contentObjectValue{
+    height: 20px;  
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: rgb(175, 175, 175);
+}
+
+#inspector .contentObject.inspectorNodeCategory  .contentObjectValue{
+    overflow: visible;
+}
+
+#inspector .contentObject .contentObjectValue .radioBtn {
+    background-color:transparent;
+    border: none;
+}
+
+#inspector .contentObject .contentObjectValue .radioBtn:focus {
+    box-shadow: none;
+}
+
+#inspector .contentObject .contentObjectValue .radioBtn i{
+    font-size: 17px;
+}
+
+#inspector .inspectorContents h5{
+    font-size: 16px;
+    margin: 2px 0px 0px 0px;
+}
+
+#inspector .inspectorContents span{
+    color: rgb(175, 175, 175);
+    white-space: nowrap;
+}
+
+#inspector .headerButtons button,.inspectorTitleBtns button {
+    background-color: transparent;
+    padding:0px 4px;
+    margin-left:-4px;
+    border: none;
+    box-shadow: none;
+}
+
+#inspector .headerButtons button:hover,.inspectorTitleBtns button:hover, #inspector i.clickable:hover {
+    color: #b4d4ff;
+    background-color: transparent;
+    cursor:pointer;
+}
+
+#inspector .headerButtons button.btn:focus, .inspectorTitleBtns button:focus {
+    box-shadow: none;
+    background-color:transparent;
+    border:none;
+}
+
 #parameterTableModal #tableInspector{
     position: sticky;
     top: 0px;
@@ -532,35 +690,6 @@ td:first-child input {
     text-decoration: none;
     font-size: 24px!important;
     padding-top: 3px;
-}
-
-#rightWindowContainer .inspectorDescriptionDragHnadle{
-    position: absolute;
-    bottom: -9px;
-    right: -8px;
-    transform: rotate(-45deg);
-    pointer-events: none;
-}
-
-.rightWindow #inspectorNodeDescriptionWrapper ::-webkit-scrollbar-track, #parameterTableModal ::-webkit-scrollbar-track{
-    background: white;
-}
-
-.rightWindow #inspectorNodeDescriptionWrapper textarea{
-    background-color: white;
-    padding: 5px;
-    resize: vertical;
-    min-height: 150px;
-    height: 14em;
-    overflow-y: auto;
-    width: 100%;
-    border: none;
-}
-
-.inspectorApplicationBackground .prepend-icon span i{
-    font-size: 18px;
-    position: relative;
-    top: 2px;
 }
 
 #parameterTableVisibilityContainer .dropdown-menu{
@@ -864,14 +993,6 @@ td:first-child input {
     stroke-dashoffset: 173.44000244140625;
 }
 
-#nodeInspectorKOWrapper{
-    height: 100%;
-}
-
-#nodeInspectorKOWrapper .accordion-item{
-    overflow: unset;
-}
-
 #rightWindowContainer{
     padding: 4px;
     height: 100%;
@@ -1039,10 +1160,6 @@ td:first-child input {
 
 .leftWindow .card-header h5{
     font-weight: 400;
-}
-
-#nodeInspectorFetchDocker{
-    width:100%;
 }
 
 #shortcutsModal{
@@ -1430,10 +1547,6 @@ select.form-control{
     height: 420px;
 }
 
-#nodeInspector select{
-    padding:2px 15px;
-}
-
 .checkSettingLabel input{
     cursor: default;
 }
@@ -1615,10 +1728,6 @@ select.form-control{
     padding-right:4px;
 }
 
-#inspectorSelectionSummary{
-    padding: 10px;
-}
-
 #explorePalettesWrapper{
     width: 90%;
     display: inline-block;
@@ -1652,30 +1761,6 @@ select.form-control{
 #root span:after{
     height: 2px;
     background-color: tomato;
-}
-
-.inspectorSelectionSummaryItem {
-    margin-top: 8px;
-    background-color: #e9ecef;
-    padding: 5px 15px;
-    border-radius: 5px;
-}
-
-.inspectorSelectionSummaryItem h5{
-    margin-bottom: 0px;
-    font-size: 18px;
-}
-
-.inspectorSelectionSummaryItem span{
-    font-size:16px;
-}
-
-#inspectorSelectionSummaryNodes {
-    margin-top: 3px;
-    background-color: #c2c8dc;
-    padding: 1px 15px;
-    border-radius: 5px;
-    display: block;
 }
 
 .hierarchyDividerLine{
@@ -1816,24 +1901,12 @@ select.form-control{
     color:#212529 !important;
 }
 
-.template-palette span.input-group-text, inspector-component span.input-group-text, palette-component span.input-group-text {
-    color: white;
-
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
 .loadingSpinner{
     padding: 7px 0px 0px 7px;
 }
 
 .inputChecked{
     background-color: blue;
-}
-
-.inspectorCheckbox{
-    padding:0px;
-    margin:0px;
 }
 
 #paletteDiv {
@@ -2032,43 +2105,8 @@ select.form-control{
     color:springgreen;
 }
 
-.nodeInspectorDropdownDiv{
-    position: static;
-    position: relative;
-    z-index: 100;
-    display: none;
-}
-
 .windowDragging{
     cursor:grabbing !important;
-}
-
-.nodeInspectorDropdownDiv::before{
-    margin-bottom: 5px;
-    height: 5px;
-}
-
-.nodeInspectorDropdownInner{
-    position: absolute;
-    width: 100%;
-    background-color: #e9ecef;
-    border: solid 1px #495057;
-    border-radius: 6px;
-    max-height:200px;
-    overflow-y:scroll ;
-}
-
-.nodeInspectorDropdownDiv a{
-    padding-left:10px;
-    display: block;
-    color: #495057;
-    text-decoration: none;
-}
-
-.nodeInspectorDropdownDiv a:hover{
-    background-color: #495057;
-    color: #e9ecef;
-    text-decoration: none;
 }
 
 .leftWindow .card-header i.material-icons {
@@ -2207,66 +2245,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
     color: white;
 }
 
-#edgeInspector{
-    margin: top 1px;
-}
-
-#edgeInspector .edgeInspectorCheckboxLabel{
-    font-size: .9rem;
-}
-
-#nodeInspector .input-group-prepend, #edgeInspector .input-group-prepend, #translationMenu .input-group-prepend {
-    width:40%;
-}
-
-#nodeInspector .input-group-prepend.prepend-Icon{
-    width: auto;
-}
-
-#nodeInspector .input-application .input-group-prepend,
-#nodeInspector .output-application .input-group-prepend{
-    width:auto;
-}
-
-#nodeInspector .input-group{
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-#nodeInspector .input-group-text, #edgeInspector .input-group-text, #translationMenu .input-group-text{
-    width:100%;
-    height: 100%;
-    font-size: .9rem;
-    text-align: left;
-    white-space: normal;
-    border-radius: 0px;
-}
-
-#edgeInspectorToggleLoopAware, #edgeInspectorToggleClosesLoop, #edgeInspectorChangeDataType {
-    height:100%;
-}
-
-#edgeInspectorIcons{
-    position: absolute;
-    right:12px;
-    top:0px;
-}
-
-#edgeInspectorIcons button{
-    padding:0px;
-    color:#095cb4;
-}
-
-#edgeInspectorIcons button:hover{
-    color:#00162e;
-}
-
-#nodeInspector .input-group-text img{
-    height: 25px;
-    max-width: 100%;
-    filter: invert();
-}
-
 #translationMenu .accordion button{
     padding: 7px 30px;
     cursor: default;
@@ -2301,11 +2279,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 #translationMenu .accordion h5{
     margin-bottom: 0px;
-}
-
-#nodeInspector input{
-    height: auto;
-    font-size: .9rem;
 }
 
 .checkboxParent label{
@@ -2353,7 +2326,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
     content: "favorite_border"; 
     color: white;
     outline: none;
-  }
+}
   
 #editFieldModalKeyParameterCheckbox:checked:before {
     position: absolute;
@@ -2362,19 +2335,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
     content: "favorite"; 
     color:white;
     outline: none;
-  }
-
-#nodeInspector label{
-    width: 100%;
-    height:100%;
-    color:white;
-    border-radius:0px;
-}
-
-#nodeInspector .input-group-append button{
-    padding:4px;
-    border-radius: 0px;
-    height: 100%;
 }
 
 #rightWindowTabs{
@@ -2525,28 +2485,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 }
 
-.nodeInspectorSubTitle{
-    margin-left: 1.25rem;
-    display: block;
-    font-size: 1rem;
-    font-weight: 500;
-    color: rgb(66, 66, 66);
-}
-
-.nodeInspectorSubTitle span{
-    font-size: 1rem;
-    font-weight: 400;
-    color: #6c757d;
-}
-
-#nodeInspectorInfoCard .col-3{
-    padding: 0px;
-}
-
-#nodeInspectorInfoCard .text-right{
-    transform:translateY(-2px)
-}
-
 .node .changingHeader {
     text-align: center;
     line-height: 14px;
@@ -2556,24 +2494,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 .breakLine{
     border-top: solid 1px grey;
     margin-bottom: 5px;
-}
-
-#nodeInspectorHeading{
-    margin: 0px;
-    color: white;
-    border-radius: .25rem;
-    padding: 0px;
-}
-
-#nodeInspectorInfoCard{
-    margin-bottom: 1px;
-}
-
-#nodeInspectorHeading span {
-    font-size: 1.25em;
-    font-weight: bold;
-    user-select: none;
-    margin-left:27px;
 }
 
 .modal-dialog {
@@ -2592,120 +2512,9 @@ ul.nav.navbar-nav .dropdown-item:hover{
     padding: 10px 15px;
 }
 
-#nodeInspectorMenus{
-    padding: 0px 5px 5px 5px;
-    margin-bottom: 10px;
-}
-
-#nodeInspectorMenus .card{
-    margin-top:4px;
-    margin-right: 4px;
-}
-
 .headerBtns {
     padding: 0px 10px;
     position:relative;
-}
-
-.inspectorTextBoxWrapper{
-    position: relative;
-    border-radius: 3px; 
-    overflow: hidden;
-}
-
-.inspectorTextBoxWrapper span{
-    background-color: #e9ecef;
-    width: 100%;
-    display: inline-block;
-    padding: 5px;
-}
-
-.inspectorTextBoxWrapper div{
-    background-color: white;
-    padding: 5px;
-    resize: vertical;
-    min-height: 150px;
-    height: 14em;
-    overflow-y: auto;
-}
-
-
-.inspectorNodeApplicationWrapper{
-    position: relative;
-    border-radius: 3px; 
-    overflow: hidden;
-}
-
-.inspectorNodeApplicationWrapper span{
-    background-color: #e9ecef;
-    width: 100%;
-    display: inline-block;
-    padding: 5px;
-}
-
-.inspectorNodeApplicationWrapper .inspectorApplicationBackground{
-    background-color: white;
-    padding: 5px;
-    max-height: 500px;
-    overflow: hidden;
-}
-
-#inspectorHeaderIconRow{
-    padding-top: 3px;
-    background: rgba(255, 255, 255, 0.171);
-}
-
-#nodeInspectorHeading #nodeInspectorHeadingIcon{
-    position: absolute;
-    top: 3px;
-    right: -1px;
-}
-
-#inspectorAccordion .accordion-button::after {
-    position: absolute;
-    left: 1rem;
-}
-
-#inspectorAccordion .accordion-button {
-    padding: 5px 10px 5px 45px;
-    z-index: 0;
-    color: rgb(66, 66, 66);
-    background-color: rgba(0,0,0,.03);
-}
-
-#inspectorAccordion .accordion-header{
-    position: relative !important;
-}
-
-.headerBtns button,.inspectorTitleBtns button {
-    background-color: transparent;
-    padding:0px 4px;
-    margin-left:-4px;
-    border: none;
-    box-shadow: none;
-}
-
-.headerBtns button:hover,.inspectorTitleBtns button:hover {
-    color:#001933;
-    background-color: transparent;
-}
-
-.headerBtns button.btn:focus, .inspectorTitleBtns button:focus {
-    box-shadow: none;
-    background-color:transparent;
-    border:none;
-}
-
-.inspectorTitleBtns.inspectorTitleBtnsRight{
-    position:absolute;
-    top: 3px;
-    right: 9px;
-}
-
-.inspectorTitleBtns.inspectorTitleBtnsLeft{
-    position:absolute;
-    top: 3px;
-    left: 9px;
 }
 
 #multiSelectionHeader .headerBtns button{
@@ -2714,16 +2523,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 #multiSelectionHeader .headerBtns button:hover{
     color:#00162e;
-}
-
-.nodeInspectorSubsectionTitle{
-    font-size: 1rem;
-    padding-left:10px;
-}
-
-.nodeInspectorButton{
-    margin-left:-10px;
-    margin-right:-10px;
 }
 
 #hiddenBSTrigger{
@@ -2794,21 +2593,6 @@ palette-component input.form-control.selected {
 
 #issuesModal ul.list-group .list-group-item span {
     max-width: 80%;
-}
-
-#nodeInspectorErrorsCard{
-    background: transparent;
-    border: none;
-    margin: 0px;
-    padding: 0px;
-}
-
-#nodeInspectorErrorsCard .card-body{
-    padding:0px;
-}
-
-#nodeInspectorErrorsCard fix .alert {
-    overflow: hidden;
 }
 
 .alert{
@@ -3215,77 +2999,77 @@ palette-component input.form-control.selected {
     width: 119px;
     height:119px;
     position:relative;
-  }
+}
   
-  .wrapper .center{
+.wrapper .center{
     margin-top:50%;
     margin-left:50%;
     transform:translate(-50%,-50%);
     border-radius:50%;
     position:absolute;
-  }
-  
-  .wrapper .theSun{
+}
+
+.wrapper .theSun{
     background-color:#ffb709;
     width:21px;
     height:21px;
-  }
-  
-  .wrapper .firstRing{
+}
+
+.wrapper .firstRing{
     width:56px;
     height:56px;
-  }
+}
   
-  .wrapper .secondRing{
+.wrapper .secondRing{
     width:77px;
     height:77px;
-  }
+}
   
-  .wrapper .thirdRing{
+.wrapper .thirdRing{
     width:119px;
     height:119px;
-  }
+}
   
-  .wrapper .ring{
+.wrapper .ring{
     border: 1px solid #d8ddf0;
     display:inline-block;
     border-radius:50%;
     margin-top: 5px;
-  }
+}
 
-  .ui-draggable-dragging{
+.ui-draggable-dragging{
     pointer-events: none !important;
-  }
+}
   
-  .wrapper .planet{
+.wrapper .planet{
     border-radius:50%;
     position:absolute;
     left:0px;
     top:50%;
     transform:translate(-50%,-50%);
-  }
+}
   
-  .wrapper .firstPlanet{
+.wrapper .firstPlanet{
     width:11px;
     height:11px;
     border-radius:50%;
     background-color:#49b3ff;
-  }
+}
   
-  .wrapper .secondPlanet{
+.wrapper .secondPlanet{
     width:6px;
     height:6px;
     background-color:#ff5f20;
-  }
+}
   
-  .wrapper .thirdPlanet{
+.wrapper .thirdPlanet{
     width:14px;
     height:14px;
     background-color:#f6daa8;
     border-radius:50%;
-  }
+}
   
-  .wrapper .thirdPlanet div:nth-of-type(1){
+.wrapper .thirdPlanet div:nth-of-type(1){
     width:18px;
     height:5px;
     border:solid 1px #f6daa8;
@@ -3294,9 +3078,9 @@ palette-component input.form-control.selected {
     position:absolute;
     border-radius: 50%;
     transform:translate(-50%,-50%) rotate(340deg);
-  }
+}
 
-  .wrapper .thirdPlanet div:nth-of-type(2){
+.wrapper .thirdPlanet div:nth-of-type(2){
     width:24px;
     height:9px;
     border:solid 2px #f6daa8;
@@ -3305,43 +3089,43 @@ palette-component input.form-control.selected {
     position:absolute;
     border-radius: 50%;
     transform:translate(-50%,-50%) rotate(340deg);
-  }
+}
   
-  .rotate1{
+.rotate1{
     animation: loading 3.65s linear infinite;
-  }
+}
   
-  .rotate2{
+.rotate2{
     animation: loading 6.86s linear infinite;
-  }
+}
   
-  .rotate3{
+.rotate3{
     animation: loading 107.5s linear infinite;
-  }
+}
   
-  @keyframes loading {
+@keyframes loading {
     from { 
-      transform: rotate(0deg); 
+        transform: rotate(0deg); 
     }
     to { 
-      transform: rotate(360deg);
+        transform: rotate(360deg);
     }
-  }
+}
   
-  .counterRotate2{
+.counterRotate2{
     animation:loading2 107.5s linear infinite;
-  }
+}
   
-  @keyframes loading2 {
+@keyframes loading2 {
     from { 
-      transform: rotate(360deg); 
+        transform: rotate(360deg); 
     }
     to { 
-      transform: rotate(0deg);
+        transform: rotate(0deg);
     }
-  }
+}
 
-  /* re-usable classes for various things */
+/* re-usable classes for various things */
 
 .linearTransition250{
     transition: linear 250ms;
