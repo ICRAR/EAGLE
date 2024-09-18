@@ -113,7 +113,6 @@ export class Eagle {
     loadingErrors : ko.ObservableArray<Errors.Issue>;
     currentFileInfo : ko.Observable<FileInfo>;
     currentFileInfoTitle : ko.Observable<string>;
-    hierarchyMode : ko.Observable<boolean>; //we need this to be able to keep the right window in the hierarchy tab if the user is actively using it, but otherwise always switch the right window to the inspector.
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
@@ -202,7 +201,6 @@ export class Eagle {
 
         this.currentFileInfo = ko.observable(null);
         this.currentFileInfoTitle = ko.observable("");
-        this.hierarchyMode = ko.observable(false)
 
         this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
@@ -211,19 +209,6 @@ export class Eagle {
             //TODO check if the selectedObjects array has changed, if not, abort
             GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(this.logicalGraph(), this.showDataNodes());
             Hierarchy.updateDisplay()
-            if(this.selectedObjects().length === 0){
-                ParameterTable.mode(ParameterTable.Mode.GraphConfig);
-
-                //changing right window shortcuts depending on if right window tabs are visible or not 
-                KeyboardShortcut.changeShortcutKey(this,'open_translation','3',KeyboardShortcut.Modifier.None)
-                KeyboardShortcut.changeShortcutKey(this,'open_hierarchy','2',KeyboardShortcut.Modifier.None)
-                KeyboardShortcut.changeShortcutKey(this,'open_inspector','4',KeyboardShortcut.Modifier.None)
-            }else{
-                KeyboardShortcut.changeShortcutKey(this,'open_hierarchy','3',KeyboardShortcut.Modifier.None)
-                KeyboardShortcut.changeShortcutKey(this,'open_translation','4',KeyboardShortcut.Modifier.None)
-                KeyboardShortcut.changeShortcutKey(this,'open_inspector','2',KeyboardShortcut.Modifier.None)
-            }
-
             Hierarchy.scrollToNode()
         }, this)
 
@@ -590,18 +575,33 @@ export class Eagle {
         return text
     }
 
+    getNumSelectedNodes = () : number => {
+        let nodeCount = 0
+        this.selectedObjects().forEach(function(element){
+            if(element instanceof Node){
+                nodeCount++
+            }
+        })
+        return nodeCount
+    }
+
+    getNumSelectedEdges = () : number => {
+        let edgeCount = 0
+        this.selectedObjects().forEach(function(element){
+            if(element instanceof Edge){
+                edgeCount++
+            }
+        })
+        return edgeCount
+    }
+
     /**
      * This function is repeatedly called throughout the EAGLE operation.
-     * It resets al fields in the editor menu.
+     * It resets all fields in the editor menu.
      */
     resetEditor = () : void => {
         this.selectedObjects([]);
         Eagle.selectedLocation(Eagle.FileType.Unknown);
-
-        // Show the last open repository.
-        if(this.rightWindow().mode() === Eagle.RightWindowMode.Inspector){
-            this.rightWindow().mode(Eagle.RightWindowMode.Repository);
-        }
     }
 
     // if selectedObjects contains nothing but one node, return the node, else null
@@ -634,13 +634,12 @@ export class Eagle {
         }
     }, this);
 
-    setSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
+    setSelection = (selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
         Eagle.selectedLocation(selectedLocation);
         GraphRenderer.clearPortPeek()
 
         if (selection === null){
             this.selectedObjects([]);
-            this.rightWindow().mode(rightWindowMode);
         } else {
             this.selectedObjects([selection]);
 
@@ -648,29 +647,10 @@ export class Eagle {
             if(selection instanceof Edge){
                 GraphRenderer.setPortPeekForEdge(selection,true)
             }
-
-            //special case if we are selecting multiple things in a palette
-            if(selectedLocation === Eagle.FileType.Palette){
-                this.hierarchyMode(false)
-                this.rightWindow().mode(Eagle.RightWindowMode.Inspector) 
-                return
-            }
-            
-            //if the set selection request came from a hierarchy node, the we set the hierarchy mode to true
-            if(rightWindowMode === Eagle.RightWindowMode.Hierarchy){
-                this.hierarchyMode(true)
-            }
-            
-            //if we have not specifically asked for hierarchy mode, by either interacting with the hierarchy or selected the tab, then we always swap to the inspector.
-            if(!this.hierarchyMode()){
-                this.rightWindow().mode(Eagle.RightWindowMode.Inspector)
-            }else{
-                this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
-            }
         }
     }
 
-    editSelection = (rightWindowMode : Eagle.RightWindowMode, selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
+    editSelection = (selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
         // check that location is the same, otherwise default back to set
         if (selectedLocation !== Eagle.selectedLocation() && this.selectedObjects().length > 0){
             Utils.showNotification("Selection Error", "Can't add object from " + selectedLocation + " to existing selected objects in " + Eagle.selectedLocation(), "warning");
@@ -703,30 +683,30 @@ export class Eagle {
         if( selection instanceof Edge){
             GraphRenderer.setPortPeekForEdge(selection,!alreadySelected)
         }
+    }
 
-        //special case if we are selecting multiple things in a palette
-        if(selectedLocation === Eagle.FileType.Palette){
-            this.hierarchyMode(false)
-            this.rightWindow().mode(Eagle.RightWindowMode.Inspector) 
-            return
-        }
+    getInspectorCollapseState : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        //the addition and removal of the class is for a temporary transition effect
+        //when this function gets recalculated, the collapsed state of the inspector has changed and we need to do a transition
+        $('#inspector').addClass('inspectorTransition')
+        setTimeout(function(){
+            $('#inspector').removeClass('inspectorTransition')
+        },100)
 
-        if(rightWindowMode === Eagle.RightWindowMode.Hierarchy){
-            this.hierarchyMode(true)
+        if(this.selectedObjects().length > 0){
+            return Setting.findValue(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE)
+        }else{
+            return Setting.findValue(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE)
         }
-        this.rightWindow().mode(Eagle.RightWindowMode.Hierarchy)
+    }, this);
+
+    getGraphModifiedDateText = () : string => {
+        return this.logicalGraph().fileInfo().lastModifiedDatetimeText().split(',')[0]
     }
 
     changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {
         this.rightWindow().mode(requestedMode)
         this.rightWindow().shown(true); 
-
-        //if we are intentionally switching to the hierary, then we do not want the right window mode to switch to the inspector when we change node selection.
-        if(requestedMode===Eagle.RightWindowMode.Hierarchy){
-            this.hierarchyMode(true)
-        }else {
-            this.hierarchyMode(false)
-        }
     }
 
     objectIsSelected = (object: Node | Edge): boolean => {
@@ -1004,7 +984,6 @@ export class Eagle {
 
     checkErrorModalShowError = (data:any) :void =>{
         data.show()
-        this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
     }
 
     createConstructFromSelection = () : void => {
@@ -2586,7 +2565,7 @@ export class Eagle {
 
         //prepare the graph for a screenshot
         eagle.centerGraph()
-        eagle.setSelection(Eagle.RightWindowMode.Hierarchy,null,Eagle.FileType.Graph)
+        eagle.setSelection(null,Eagle.FileType.Graph)
         document.querySelector('body').style.cursor = 'none';//temporarily disabling the cursor so it doesnt appear in the screenshot
         
         try {        
@@ -3641,7 +3620,7 @@ export class Eagle {
 
         this.addNode(node, pos.x, pos.y, (newNode: Node) => {
             // make sure the new node is selected
-            this.setSelection(Eagle.RightWindowMode.Inspector, newNode, Eagle.FileType.Graph);
+            this.setSelection(newNode, Eagle.FileType.Graph);
 
             // expand the new node, so the user can start connecting it to other nodes
             newNode.setCollapsed(false);
@@ -3899,27 +3878,6 @@ export class Eagle {
         Utils.showPalettesModal(this);
     }
 
-    // TODO: can probably combine addFieldHTML, addApplicationArgHTML, addConstructParameterHTML, addInputPortHTML, addOutputPortHTML
-    //       they are all basically the same
-    // TODO: the #nodeInspectorAddFieldDiv, #nodeInspectorAddApplicationParamDiv, #nodeInspectorAddConstructParameterDiv, #nodeInspectorAddInputPortDiv, #nodeInspectorAddOutputPortDiv
-    //       element are all basically the same too (I think)
-
-    // Adds an field to the selected node via HTML
-    addFieldHTML = () : void => {
-        const node: Node = this.selectedNode();
-
-        if (node === null){
-            console.error("Attempt to add field when no node selected");
-            return;
-        }
-
-        this.editField(node, Eagle.ModalType.Add, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, null);
-        $("#editFieldModal").addClass("forceHide");
-        $("#editFieldModal").removeClass("fade");
-        $(".modal-backdrop").addClass("forceHide");
-        $("#nodeInspectorAddFieldDiv").show();
-    }
-
     // Adds an application param to the selected node via HTML
     addApplicationArgHTML = () : void => {
         const node: Node = this.selectedNode();
@@ -3933,109 +3891,36 @@ export class Eagle {
         $("#editFieldModal").addClass("forceHide");
         $("#editFieldModal").removeClass("fade");
         $(".modal-backdrop").addClass("forceHide");
-        $("#nodeInspectorAddApplicationParamDiv").show();
     }
 
-    // Adds an construct parameter to the selected node via HTML
-    addConstructParameterHTML = () : void => {
-        const node: Node = this.selectedNode();
+    addEmptyTableRow = () : void => {
+        let fieldIndex:number
 
-        if (node === null){
-            console.error("Attempt to add construct parameter when no node selected");
-            return;
-        }
-
-        this.editField(node, Eagle.ModalType.Add, Daliuge.FieldType.ConstructParameter, Daliuge.FieldUsage.NoPort, null);
-        $("#editFieldModal").addClass("forceHide");
-        $("#editFieldModal").removeClass("fade");
-        $(".modal-backdrop").addClass("forceHide");
-        $("#nodeInspectorAddConstructParameterDiv").show();
-    }
-
-    // Adds an output port to the selected node via HTML
-    addInputPortHTML = () : void => {
-        const node: Node = this.selectedNode();
-
-        if (node === null){
-            console.error("Attempt to add input port when no node selected");
-            return;
-        }
-
-        this.editField(node, Eagle.ModalType.Add, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputPort, null);
-        $("#editFieldModal").addClass("forceHide");
-        $("#editFieldModal").removeClass("fade");
-        $(".modal-backdrop").addClass("forceHide");
-    }
-
-    // Adds an output port to the selected node via HTML
-    addOutputPortHTML = () : void => {
-        const node: Node = this.selectedNode();
-
-        if (node === null){
-            console.error("Attempt to add output port when no node selected");
-            return;
-        }
-
-        this.editField(node, Eagle.ModalType.Add, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort, null);
-        $("#editFieldModal").addClass("forceHide");
-        $("#editFieldModal").removeClass("fade");
-        $(".modal-backdrop").addClass("forceHide");
-        $("#nodeInspectorAddOutputPortDiv").show();
-    }
-
-    getInspectorHeadingTooltip = (title:string, category:any, description:any) : string => {
-        const tooltipText = "<h5>"+title+":</h5>"+category+"<br>"+description;
-        return tooltipText;
-    }
-
-    // hide the drop down menu that appears when the user is adding a new field
-    hideDropDown = (divID:string) : void => {
-        if (divID === "nodeInspectorAddFieldDiv"){
-            //hides the dropdown node inspector elements when stopping hovering over the element
-            if(!$("#editFieldModal").hasClass("nodeSelected")){
-                $("#editFieldModal").modal('hide');
-                $("#editFieldModal").addClass("fade");
-            }
-        }
-
-        $("#editFieldModal").removeClass("nodeSelected");
-        $("#"+divID).hide();
-    }
-
-    // TODO: this is a bit difficult to understand, it seems like it is piggy-backing
-    // an old UI that is no longer used, perhaps we should just call Eagle.editField(..., 'Add', ...)
-    nodeInspectorDropdownClick = (val:number, divID:string) : void => {
-        const selectSectionID : string = "fieldModalSelect";
-        const modalID : string = "editFieldModal";
-        const submitBtnID: string = "editFieldModalAffirmativeButton";
-
-        // val -1 is an empty option, so just close the dropdown
-        if (val===-1){
-            this.hideDropDown(divID);
-            return;
-        }
-
-        if (val===0){
-            //select custom field externally and open custom properties menu
-            $("#"+divID).hide();
-            $("#"+selectSectionID).val(val).trigger('change');
-            $("#"+modalID).addClass("nodeSelected");
-
-            // triggers the 'add application argument' modal to show
-            $("#"+modalID).removeClass("forceHide");
-
-            // triggers the modal 'lightbox' to show
-            $(".modal-backdrop").removeClass("forceHide");
+        if(ParameterTable.hasSelection()){
+            // A cell in the table is selected well insert new row instead of adding at the end
+            fieldIndex = ParameterTable.selectionParentIndex() + 1
+            this.selectedNode().addEmptyField(fieldIndex)
         }else{
-            console.log('bop',this.selectedNode().getFields()[val].getDisplayText())
-            this.currentField(this.selectedNode().getFields()[val])
-            $("#"+selectSectionID).val(val).trigger('change');
-            $("#"+modalID).addClass("nodeSelected");
-            $("#"+modalID).removeClass("forceHide");   
-            $(".modal-backdrop").removeClass("forceHide");
-            $("#"+submitBtnID).trigger("click")
-            this.hideDropDown(divID)
+            this.selectedNode().addEmptyField(-1)
+
+            //getting the length of the array to use as an index to select the last row in the table
+            fieldIndex = this.selectedNode().getFields().length-1;
         }
+
+        //a timeout was necessary to wait for the element to be added before counting how many there are
+        setTimeout(function() {
+            //handling selecting and highlighting the newly created row
+            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
+
+            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
+            clickTarget.focus() // used to focus the field allowing the user to immediately start typing
+            $(clickTarget).trigger("select")
+
+            //scroll to new row
+            $("#parameterTableModal .modal-body").animate({
+                scrollTop: (fieldIndex*30)
+            }, 1000);
+        }, 100);
     }
 
     editFieldDropdownClick = (newType: string, oldType: string) : void => {
@@ -4304,18 +4189,19 @@ export class Eagle {
     paletteComponentClick = (node: Node, event: JQuery.TriggeredEvent) : void => {
         const e: PointerEvent = event.originalEvent as PointerEvent;
         
-        if (e && e.shiftKey)
-            this.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
-        else
-            this.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Palette);
+        if (e && e.shiftKey){
+            this.editSelection(node, Eagle.FileType.Palette);
+        }else{
+            this.setSelection(node, Eagle.FileType.Palette);
+        }
     }
 
     selectInputApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getInputApplication(), Eagle.FileType.Graph);
+        this.setSelection(this.selectedNode().getInputApplication(), Eagle.FileType.Graph);
     }
 
     selectOutputApplicationNode = () : void => {
-        this.setSelection(Eagle.RightWindowMode.Inspector, this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
+        this.setSelection(this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
@@ -4665,7 +4551,7 @@ export class Eagle {
             const edge : Edge = new Edge(srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
             setTimeout(() => {
-                this.setSelection(Eagle.RightWindowMode.Hierarchy, edge,Eagle.FileType.Graph)
+                this.setSelection(edge,Eagle.FileType.Graph)
             }, 30);
             if (callback !== null) callback(edge);
             return;
@@ -4764,7 +4650,6 @@ export class Eagle {
     }, this)
 
     inspectorChangeNodeCategoryRequest = (event: Event) : void => {
-
         if (Setting.findValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES)){
 
             // request confirmation from user
@@ -4835,8 +4720,8 @@ export class Eagle {
         // copy name and description from new category to old node, if old node values are defaults
         if (oldNode.getName() === oldCategoryPrototype.getName()){
             oldNode.setName(newCategoryPrototype.getName());
-
         }
+
         if (oldNode.getDescription() === oldCategoryPrototype.getDescription()){
             oldNode.setDescription(newCategoryPrototype.getDescription());
         }
@@ -4922,7 +4807,6 @@ export namespace Eagle
     export enum RightWindowMode {
         None = "None",
         Repository = "Repository",
-        Inspector = "Inspector",
         TranslationMenu = "TranslationMenu",
         Hierarchy = "Hierarchy"
     }
@@ -5048,9 +4932,9 @@ $( document ).ready(function() {
             return
         }
         if(!e.shiftKey){
-            eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+            eagle.setSelection(selectEdge, Eagle.FileType.Graph);
         }else{
-            eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+            eagle.editSelection(selectEdge, Eagle.FileType.Graph);
         }
     })
 

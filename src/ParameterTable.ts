@@ -540,7 +540,7 @@ export class ParameterTable {
                 }
             }
             if(selectType === ParameterTable.SelectType.RightClick){
-                eagle.setSelection(Eagle.RightWindowMode.Inspector, Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
+                eagle.setSelection(Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
 
                 RightClick.closeCustomContextMenu(true);
 
@@ -566,7 +566,7 @@ export class ParameterTable {
     static openModalAndSelectField = (node:Node, field:Field) : void => {
         const eagle = Eagle.getInstance()
 
-        eagle.setSelection(Eagle.RightWindowMode.None, node,Eagle.FileType.Graph)
+        eagle.setSelection(node, Eagle.FileType.Graph)
 
         ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal);
         

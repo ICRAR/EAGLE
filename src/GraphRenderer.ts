@@ -1057,9 +1057,9 @@ export class GraphRenderer {
             // check if shift key is down, if so, add or remove selected node to/from current selection | keycode 2 is the middle mouse button
             if (node !== null && event.shiftKey && !event.altKey){
                 GraphRenderer.dragSelectionHandled(true)
-                eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+                eagle.editSelection(node, Eagle.FileType.Graph);
             } else if(!eagle.objectIsSelected(node)) {
-                eagle.setSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+                eagle.setSelection(node, Eagle.FileType.Graph);
             }
 
             //check for alt clicking, if so, add the target node and its children to the selection
@@ -1087,7 +1087,7 @@ export class GraphRenderer {
                 $('#selectionRectangle').css({'right':selectionRightOffset+'px','bottom':selectionBottomOffset+'px'})
             }else{
                 //if node is null, the empty canvas has been clicked. clear the selection
-                eagle.setSelection(Eagle.RightWindowMode.Hierarchy, null, Eagle.FileType.Graph);
+                eagle.setSelection(null, Eagle.FileType.Graph);
             }
         }
 
@@ -1204,7 +1204,7 @@ export class GraphRenderer {
                 if(GraphRenderer.altSelect){
                     GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
                 }
-                eagle.editSelection(Eagle.RightWindowMode.Inspector, node,Eagle.FileType.Graph);
+                eagle.editSelection(node,Eagle.FileType.Graph);
             }else{
                 const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
                 const objects: (Node | Edge)[] = [];
@@ -1235,7 +1235,7 @@ export class GraphRenderer {
                 }
     
                 objects.forEach(function(element){
-                    eagle.editSelection(Eagle.RightWindowMode.Hierarchy, element, Eagle.FileType.Graph )
+                    eagle.editSelection(element, Eagle.FileType.Graph )
                 })
             }
             GraphRenderer.ctrlDrag = false;
@@ -1305,8 +1305,8 @@ export class GraphRenderer {
 
         //if shift is not clicked, we first clear the selection
         if(!additive){
-            eagle.setSelection(Eagle.RightWindowMode.Inspector, null, Eagle.FileType.Graph);
-            eagle.editSelection(Eagle.RightWindowMode.Inspector, node, Eagle.FileType.Graph);
+            eagle.setSelection(null, Eagle.FileType.Graph);
+            eagle.editSelection(node, Eagle.FileType.Graph);
         }
 
         //getting all children, including children of child constructs etc..
@@ -1317,7 +1317,7 @@ export class GraphRenderer {
             const construct = constructs[i]
             eagle.logicalGraph().getNodes().forEach(function(obj){
                 if(obj.getParentId()===construct.getId()){
-                    eagle.editSelection(Eagle.RightWindowMode.Inspector, obj, Eagle.FileType.Graph);
+                    eagle.editSelection(obj, Eagle.FileType.Graph);
 
                     if(obj.isGroup()){
                         constructs.push(obj)
@@ -2230,9 +2230,9 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         if (edge !== null){
             if (event.shiftKey){
-                eagle.editSelection(Eagle.RightWindowMode.Inspector, edge, Eagle.FileType.Graph);
+                eagle.editSelection(edge, Eagle.FileType.Graph);
             } else {
-                eagle.setSelection(Eagle.RightWindowMode.Inspector, edge, Eagle.FileType.Graph);
+                eagle.setSelection(edge, Eagle.FileType.Graph);
             }
         }
     }

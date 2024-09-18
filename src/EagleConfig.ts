@@ -91,7 +91,17 @@ const colors: { name: string; color: string; }[] = [
     },{
         name: 'hierarchyEdgeDefaultColor',
         color: '#000000'
+    },{
+
+    //graph issue colors
+        name: 'graphError',
+        color: '#ea2727'
+    },{
+        name: 'graphWarning',
+        color: '#ffa500'
     }
+
+
 ]
 
 export class EagleConfig {
