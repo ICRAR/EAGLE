@@ -31,6 +31,7 @@ import { Field } from './Field';
 import { Utils } from './Utils';
 import { Errors } from './Errors';
 import * as ko from "knockout";
+import { EagleConfig } from './EagleConfig';
 
 export class Edge {
     private id: EdgeId;
@@ -192,9 +193,9 @@ export class Edge {
         const errorsWarnings = this.getErrorsWarnings()
 
         if(errorsWarnings.errors.length>0){
-            return '#ea2727'
+            return EagleConfig.getColor('graphError')
         }else if(errorsWarnings.warnings.length>0){
-            return '#ffa500'
+            return EagleConfig.getColor('graphWarning')
         }else{
             return 'transparent'
         }
