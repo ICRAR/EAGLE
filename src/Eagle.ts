@@ -3985,7 +3985,7 @@ export class Eagle {
             const choice = nodeList[userChoiceIndex];
 
             // change the subject
-            const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId; //hiiiiiiiiiiiiiiiiiiiiiiiiiii
+            const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId;
             selectedNode.setSubjectId(newSubjectId);
 
             // refresh the display
