@@ -349,15 +349,18 @@ export class ParameterTable {
     }
 
     static requestAddField(currentField: Field): void {
-        const graphConfig: GraphConfig = Eagle.getInstance().logicalGraph().getActiveGraphConfig();
+        let graphConfig: GraphConfig = Eagle.getInstance().logicalGraph().getActiveGraphConfig();
 
-        graphConfig.addField(currentField);
+        // check if the graph config is being modified
+        // if so, proceed as normal
+        // if not, then we need to clone the current active graph config and modify the clone
 
-        if (graphConfig.getName() === ""){
-
+        if (graphConfig.getIsModified()){
+            graphConfig.addField(currentField);
+        } else {
             ParameterTable.closeModal();
 
-            Utils.requestUserString("New Configuration", "Enter a name for the new configuration", "New Config", false, (completed : boolean, userString : string) : void => {
+            Utils.requestUserString("New Configuration", "Enter a name for the new configuration", graphConfig.getName() + " (Copy)", false, (completed : boolean, userString : string) : void => {
                 ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
 
                 if (!completed){
@@ -368,8 +371,19 @@ export class ParameterTable {
                     return;
                 }
 
+                // clone config
+                graphConfig = graphConfig.clone();
+                graphConfig.setId(Utils.generateGraphConfigId());
+
+                // set name and set modified flag
                 graphConfig.setName(userString);
                 graphConfig.setIsModified(true);
+
+                // add the field that was requested in the first place
+                graphConfig.addField(currentField);
+
+                // make this config the active config
+                Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig);
             });
         }
     }
