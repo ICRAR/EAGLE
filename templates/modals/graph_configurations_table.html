@@ -31,8 +31,9 @@
                         <thead>
                             <tr>
                                 <th id="graph_configurations_table_sort_column" data-bind="eagleTooltip:''" data-bs-placement="top"></th>
-                                <th data-bind="eagleTooltip:''" data-bs-placement="top">Name</th>
-                                <th data-bind="eagleTooltip:''" data-bs-placement="top">Description</th>
+                                <th id="graph_configurations_table_name_column" data-bind="eagleTooltip:''" data-bs-placement="top">Name</th>
+                                <th id="graph_configurations_table_description_column" data-bind="eagleTooltip:''" data-bs-placement="top">Description</th>
+                                <th id="graph_configurations_table_fields_column" data-bind="eagleTooltip:''" data-bs-placement="top">Fields</th>
                                 <th id="graph_configurations_table_active_column" data-bind="eagleTooltip:''" data-bs-placement="top">Active</th>
                                 <th id="graph_configurations_table_modified_column" data-bind="eagleTooltip:''" data-bs-placement="top">Modified</th>
                                 <th id="graph_configurations_table_favourite_column" data-bind="eagleTooltip:''" data-bs-placement="top">Favourite</th>
@@ -51,6 +52,9 @@
                                     <td class='columnCell column-description'>
                                         <input class="tableParameter" type="string" data-bind="value: $data.getDescription(), disabled: true, eagleTooltip: ''">
                                     </td>
+                                    <td class='columnCell column-fields'>
+                                        <input class="tableParameter" type="string" data-bind="value: $data.numFields(), disabled: true, eagleTooltip: ''">
+                                    </td>
                                     <td class='columnCell column-active'>
                                         <button type="button" data-bind="click: function(){$root.logicalGraph().setActiveGraphConfig($data);}">
                                             <i class="material-icons md-18" data-bind="visible: $data.id === $root.logicalGraph().activeGraphConfig().id">radio_button_checked</i>
@@ -58,6 +62,9 @@
                                         </button>
                                     </td>
                                     <td class='columnCell column-modified'>
+                                        <button type="button" disabled>
+                                            <i class="material-icons md-18">radio_button_unchecked</i>
+                                        </button>
                                     </td>
                                     <td class='columnCell column-favorite'>
                                         <!-- ko if: $data.isFavorite() -->
@@ -93,6 +100,9 @@
                                     <td class='columnCell column-description'>
                                         <input class="tableParameter" type="string" data-bind="value: $data.getDescription(), disabled: true, eagleTooltip: ''">
                                     </td>
+                                    <td class='columnCell column-fields'>
+                                        <input class="tableParameter" type="string" data-bind="value: $data.numFields(), disabled: true, eagleTooltip: ''">
+                                    </td>
                                     <td class='columnCell column-active'>
                                         <button type="button">
                                             <i class="material-icons md-18" data-bind="visible: $data.id === $root.logicalGraph().activeGraphConfig().id">radio_button_checked</i>
@@ -100,7 +110,9 @@
                                         </button>
                                     </td>
                                     <td class='columnCell column-modified'>
-                                        <span>*</span>
+                                        <button type="button" disabled>
+                                            <i class="material-icons md-18">radio_button_checked</i>
+                                        </button>
                                     </td>
                                     <td class='columnCell column-favorite'>
                                         <!-- ko if: $data.isFavorite() -->
@@ -118,7 +130,9 @@
                                         <button data-bind="click: function(){$root.logicalGraph().duplicateGraphConfig($data);}, eagleTooltip:'Duplicate'">
                                             <i class="material-icons">content_copy</i>
                                         </button>
-                                        <!-- TODO: discard changes button? -->
+                                        <button data-bind="click: function(){$root.logicalGraph().discardActiveGraphConfig()}, eagleTooltip:'Discard changes', clickBubble:false">
+                                            <i class="material-icons">delete</i>
+                                        </button>
                                     </td>
                                 </tr>
                                 <!-- /ko -->

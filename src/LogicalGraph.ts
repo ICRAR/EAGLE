@@ -318,6 +318,7 @@ export class LogicalGraph {
     duplicateGraphConfig = (config: GraphConfig): void => {
         const clone = config.clone();
 
+        clone.setId(Utils.generateGraphConfigId());
         clone.setName(clone.getName() + " (Copy)");
 
         this.graphConfigs.push(clone);
@@ -361,6 +362,14 @@ export class LogicalGraph {
         }
 
         this.activeGraphConfig(config);
+    }
+
+    discardActiveGraphConfig = (): void => {
+        // first we have to remove the modified flag on the active config, otherwise we can't discard it
+        this.activeGraphConfig().setIsModified(false);
+
+        // set the active graph config (to the last graph config in the LG)
+        this.setActiveGraphConfig(this.graphConfigs()[this.graphConfigs().length - 1]);
     }
 
     countEdgesIncidentOnNode = (node : Node) : number => {
