@@ -11,19 +11,8 @@
                 <!-- ko if: logicalGraph().getNumNodes() === 0 -->
                 <span>No Nodes</span>
                 <!-- /ko -->
-                <!-- ko if: logicalGraph().getNumNodes() !== 0 -->
-                <div class="hierarchyGraphInfoWrapper noselect">
-                    <span class="hierarchyGraphInfoPre">Total: </span>
-                    <span id="hierarchyTotalText" data-bind="text: $root.getTotalText()"></span>
-                </div>
-                <div class="hierarchyGraphInfoWrapper noselect">
-                    <span class="hierarchyGraphInfoPre">Selected: </span>
-                    <span id="hierarchySelectedText" data-bind="text: $root.getSelectedText()"></span>
-                </div>
-                <div class="hierarchyDividerLine"></div>
 
                 <hierarchy params="data: logicalGraph()"></hierarchy>
-                <!-- /ko -->
             <!-- /ko -->
         </div>
     </div>
