@@ -265,6 +265,7 @@ export class Setting {
     static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
     static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
     static readonly RIGHT_WINDOW_VISIBLE : string = "RightWindowVisible";
+    static readonly RIGHT_WINDOW_MODE : string = "RightWindowMode";
     static readonly LEFT_WINDOW_VISIBLE : string = "LeftWindowVisible";
     static readonly OBJECT_INSPECTOR_COLLAPSED_STATE : string = "ObjectInspectorVisibility";
     static readonly GRAPH_INSPECTOR_COLLAPSED_STATE : string = "GraphInspectorVisibility";
@@ -384,6 +385,7 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH_KEY, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
             new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_VISIBLE, "saving the width of the right window", true, Setting.Type.Boolean,true,true,true,true,true),
             new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_VISIBLE, "saving the width of the left window", true, Setting.Type.Boolean, false, false, true, true, true),
+            new Setting(false, "Right Window Mode/Tab", Setting.RIGHT_WINDOW_MODE, "saving the selected mode/tab of the right window", true, Setting.Type.String,'Repository','Repository','Repository','Repository','Repository'),
             new Setting(false, "Graph Objects Inspector", Setting.OBJECT_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(false, "Graph Info Inspector", Setting.GRAPH_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph inspector", true, Setting.Type.Boolean, false, false, false, false, false),
         ]

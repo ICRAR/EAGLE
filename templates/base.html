@@ -64,7 +64,7 @@
                         </span>
                     </div>
 
-                    <div class="leftWindowDisplay palettes" data-bind="visible: leftWindow().mode() === Eagle.LeftWindowMode.Palettes">
+                    <div class="leftWindowDisplay palettes" data-bind="">
                         {% include 'palettes.html' %}
                     </div>
 
@@ -146,14 +146,14 @@
 
             <div class="rightWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), width: rightWindow().width(), right: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? 0 : -rightWindow().width()}">
                <div class="btn-group" id="rightWindowTabs" role="group" aria-label="RightWindowModeSelect">
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Repository)}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Repository)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Repository}">
                             Repositories
                         </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy}">
                             Hierarchy
                         </button>
                         <!-- ko ifnot: Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Minimal -->
-                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}">
+                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.TranslationMenu}">
                                 Translation
                             </button>
                         <!-- /ko -->
@@ -167,15 +167,15 @@
                     </span>
                 </div>
                 <div id="rightWindowContainer">
-                    <div class="rightWindowDisplay repository" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Repository">
+                    <div class="rightWindowDisplay repository" data-bind="visible: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Repository">
                         {% include 'repositories.html' %}
                     </div>
-                    <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
+                    <div class="rightWindowDisplay translationMenu" data-bind="visible: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.TranslationMenu">
                         <!-- ko ifnot: Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Minimal-->
                             {% include 'translation_menu.html' %}
                         <!-- /ko -->
                     </div>
-                    <div class="rightWindowDisplay hierarchy" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy">
+                    <div class="rightWindowDisplay hierarchy" data-bind="visible: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy">
                         {% include 'hierarchy.html' %}
                     </div>
                 </div>

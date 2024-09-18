@@ -218,14 +218,6 @@ export class Eagle {
 
             Hierarchy.scrollToNode()
         }, this)
-
-        this.rightWindow().mode.subscribe(function(newValue){
-            if (newValue === Eagle.RightWindowMode.Hierarchy){
-                window.setTimeout(function(){
-                    Hierarchy.updateDisplay()
-                }, 100)
-            }
-        }, this)
     }
 
     static getInstance() : Eagle {
@@ -738,9 +730,16 @@ export class Eagle {
     }
 
     changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {
-        this.rightWindow().mode(requestedMode)
+        Setting.setValue(Setting.RIGHT_WINDOW_MODE,requestedMode)
         
         SideWindow.setShown(false,true)
+
+        //trigger a re-render of the hierarchy
+        if (Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy){
+            window.setTimeout(function(){
+                Hierarchy.updateDisplay()
+            }, 100)
+        }
     }
 
     objectIsSelected = (object: Node | Edge): boolean => {
@@ -1604,7 +1603,7 @@ export class Eagle {
             }
 
             // show repo in the right window
-            this.rightWindow().mode(Eagle.RightWindowMode.Repository);
+            this.changeRightWindowMode(Eagle.RightWindowMode.Repository)
 
             // Show success message
             if (repository.service === Repository.Service.GitHub){
@@ -4000,7 +3999,7 @@ export class Eagle {
             const choice = nodeList[userChoiceIndex];
 
             // change the subject
-            const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId;
+            const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId; //hiiiiiiiiiiiiiiiiiiiiiiiiiii
             selectedNode.setSubjectId(newSubjectId);
 
             // refresh the display
