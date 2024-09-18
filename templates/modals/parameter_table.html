@@ -172,7 +172,7 @@
                                                         </button>
                                                         <!-- /ko -->
                                                         <!-- ko if: $root.logicalGraph().getActiveGraphConfig().hasField($data) -->
-                                                        <button data-bind="click: function(){$root.logicalGraph().getActiveGraphConfig().removeField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Remove Field from Graph Config', style:{'visibility':'visible'}, clickBubble:false">
+                                                        <button data-bind="click: function(){ParameterTable.requestRemoveField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Remove Field from Graph Config', style:{'visibility':'visible'}, clickBubble:false">
                                                             <i class="material-icons">favorite</i>
                                                         </button>
                                                         <!-- /ko -->
@@ -301,7 +301,7 @@
                                                 <button class="parameterTableCommentBtn icon-pencil" data-bind="click:function(data,event){ParameterTable.requestEditCommentInModal($data)}"></button>
                                             </td>
                                             <td class='columnCell column_Remove'>
-                                                <button data-bind="click: function(){$root.logicalGraph().getActiveGraphConfig().removeField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Remove Field from Graph Config', clickBubble:false">
+                                                <button data-bind="click: function(){ParameterTable.requestRemoveField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Remove Field from Graph Config', clickBubble:false">
                                                     <i class="material-icons">remove</i>
                                                 </button>
                                             </td>

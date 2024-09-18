@@ -349,6 +349,14 @@ export class ParameterTable {
     }
 
     static requestAddField(currentField: Field): void {
+        this._addRemoveField(currentField, true);
+    }
+
+    static requestRemoveField(currentField: Field): void {
+        this._addRemoveField(currentField, false);
+    }
+
+    static _addRemoveField(currentField: Field, add: boolean): void {
         let graphConfig: GraphConfig = Eagle.getInstance().logicalGraph().getActiveGraphConfig();
 
         // check if the graph config is being modified
@@ -356,7 +364,11 @@ export class ParameterTable {
         // if not, then we need to clone the current active graph config and modify the clone
 
         if (graphConfig.getIsModified()){
-            graphConfig.addField(currentField);
+            if (add){
+                graphConfig.addField(currentField);
+            } else {
+                graphConfig.removeField(currentField);
+            }
         } else {
             ParameterTable.closeModal();
 
@@ -379,8 +391,12 @@ export class ParameterTable {
                 graphConfig.setName(userString);
                 graphConfig.setIsModified(true);
 
-                // add the field that was requested in the first place
-                graphConfig.addField(currentField);
+                // add/remove the field that was requested in the first place
+                if (add){
+                    graphConfig.addField(currentField);
+                } else {
+                    graphConfig.removeField(currentField);
+                }
 
                 // make this config the active config
                 Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig);

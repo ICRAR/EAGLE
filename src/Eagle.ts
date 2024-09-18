@@ -1580,7 +1580,7 @@ export class Eagle {
         }
 
         // ask user for a description
-        Utils.requestUserString("Enter Config Description", "Please enter a description for this graph configuration", "", false, (completed: boolean, userString: string) => {
+        Utils.requestUserString("Enter Config Description", "Please enter a description for this graph configuration", activeConfig.getDescription(), false, (completed: boolean, userString: string) => {
             if (!completed){
                 return;
             }
