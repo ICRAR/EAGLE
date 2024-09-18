@@ -1167,11 +1167,11 @@ export class Node {
         if(this.isEmbedded()){
             return '' //returning nothing lets the means we are not over writing the default css behaviour
         }else if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
-            return '#ea2727'
+            return EagleConfig.getColor('graphError')
         }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
-            return '#ffa500'
+            return EagleConfig.getColor('graphWarning')
         }else{
-            return '#2e3192'
+            return EagleConfig.getColor('bodyBorder')
         }
     }, this);
 
@@ -1179,9 +1179,9 @@ export class Node {
         const errorsWarnings = this.getAllErrorsWarnings()
 
         if(errorsWarnings.errors.length>0){
-            return '#ea2727'
+            return EagleConfig.getColor('graphError')
         }else if(errorsWarnings.warnings.length>0){
-            return '#ffa500'
+            return EagleConfig.getColor('graphWarning')
         }else{
             return 'transparent'
         }

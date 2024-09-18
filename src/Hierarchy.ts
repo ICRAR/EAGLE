@@ -16,6 +16,7 @@ export class Hierarchy {
         })
 
         // TODO: should we move this up?
+        //return if the graph is not loaded yet
         if(eagle.logicalGraph()=== null){
             return
         }

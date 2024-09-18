@@ -372,9 +372,9 @@ export class Field {
         const errorsWarnings = this.getErrorsWarnings()
 
         if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
-            return '#ea2727'
+            return EagleConfig.getColor('graphError')
         }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
-            return '#ffa500'
+            return EagleConfig.getColor('graphWarning')
         }else{
             return ''
         }

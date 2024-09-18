@@ -115,7 +115,6 @@ export class Eagle {
     showTableModal : ko.Observable<boolean>;
     currentFileInfo : ko.Observable<FileInfo>;
     currentFileInfoTitle : ko.Observable<string>;
-    // hierarchyMode : ko.Observable<boolean>; //we need this to be able to keep the right window in the hierarchy tab if the user is actively using it, but otherwise always switch the right window to the inspector.
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
@@ -206,7 +205,6 @@ export class Eagle {
         this.showTableModal = ko.observable(false)
         this.currentFileInfo = ko.observable(null);
         this.currentFileInfoTitle = ko.observable("");
-        // this.hierarchyMode = ko.observable(false)
 
         this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
@@ -699,29 +697,18 @@ export class Eagle {
         }
     }
 
-    getObjectInspectorVisibility : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        const eagle = Eagle.getInstance()
-        return eagle.selectedNode() !== null || eagle.selectedEdge() !== null || eagle.selectedObjects().length > 1
-    }, this);
-
-    getInspectorCollapseBtnState : ko.PureComputed<boolean> = ko.pureComputed(() => {
+    getInspectorCollapseState : ko.PureComputed<boolean> = ko.pureComputed(() => {
+        //the addition and removal of the class is for a temporary transition effect
+        //when this function gets recalculated, the collapsed state of the inspector has changed and we need to do a transition
         $('#inspector').addClass('inspectorTransition')
         setTimeout(function(){
             $('#inspector').removeClass('inspectorTransition')
         },100)
 
-        if(this.getObjectInspectorVisibility()){
-            if(Setting.findValue(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE)){
-                return true
-            }else{
-                return false
-            }
+        if(this.selectedObjects().length > 0){
+            return Setting.findValue(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE)
         }else{
-            if(Setting.findValue(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE)){
-                return true
-            }else{
-                return false
-            }
+            return Setting.findValue(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE)
         }
     }, this);
 
@@ -1030,7 +1017,6 @@ export class Eagle {
 
     checkErrorModalShowError = (data:any) :void =>{
         data.show()
-        // this.rightWindow().shown(true).mode(Eagle.RightWindowMode.Inspector)
     }
 
     createConstructFromSelection = () : void => {

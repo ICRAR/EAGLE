@@ -1,6 +1,6 @@
-<div id="inspector" data-bind="style: {'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth() + 10},css:{'inspectorCollapsed': $root.getInspectorCollapseBtnState()}">
+<div id="inspector" data-bind="style: {'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth() + 10},css:{'inspectorCollapsed': $root.getInspectorCollapseState()}">
     <!-- Graph object inspector -->
-    <!-- ko if: $root.getObjectInspectorVisibility()-->
+    <!-- ko if: $root.selectedObjects().length > 0 -->
         <!-- ko ifnot: Setting.findValue(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE) -->
 
 
@@ -255,7 +255,7 @@
 
 
     <!-- Graph info inspector -->
-    <!-- ko ifnot: $root.getObjectInspectorVisibility()-->
+    <!-- ko if: $root.selectedObjects().length === 0 -->
         <!-- ko ifnot: Setting.findValue(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE) --> 
             <!-- ko if: $root.logicalGraph().fileInfo() !== null -->
                 <div class="container">
