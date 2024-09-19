@@ -410,15 +410,10 @@ export class Eagle {
     }, this);
 
     toggleWindows = () : void  => {
-        if(Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
-            //if one or both of the windows is open, we want to close them
-            SideWindow.setShown(true,false)
-            SideWindow.setShown(false,false)
-        }else{
-            //in this case both windows must be closed so open both
-            SideWindow.setShown(true,true)
-            SideWindow.setShown(false,true)
-        }
+        const setOpen = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)
+
+        SideWindow.setShown(true, setOpen);
+        SideWindow.setShown(false, setOpen);
     }
 
     emptySearchBar = (target : ko.Observable,data:string, event : Event) => {
