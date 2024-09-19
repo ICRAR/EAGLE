@@ -54,17 +54,17 @@
 
         <div class="container-fluid" id="graphArea" data-bind="event: { dragover: SideWindow.sideWindowAdjust}">
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                <div class="leftWindow" data-bind="style: { width: leftWindow().width(), left: leftWindow().shown() ? 0 : -leftWindow().width(),'visibility':eagle.getEagleIsReady()}">
-                    <div class="leftWindowHandle" data-bind="click: leftWindow().toggleShown, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_left_window', true)">
-                        <span style="display: none" data-bind="visible: leftWindow().shown()">
+                <div class="leftWindow" data-bind="style: { width: leftWindow().width(), left: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? 0 : -leftWindow().width(),'visibility':eagle.getEagleIsReady()}">
+                    <div class="leftWindowHandle" data-bind="click: function(){SideWindow.toggleShown(true)}, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_left_window', true)">
+                        <span style="display: none" data-bind="visible: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)">
                             <i class="material-icons">arrow_back</i>
                         </span>
-                        <span data-bind="visible: !leftWindow().shown()">
+                        <span data-bind="visible: !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)">
                             <i class="material-icons">arrow_forward</i>
                         </span>
                     </div>
 
-                    <div class="leftWindowDisplay palettes" data-bind="visible: leftWindow().mode() === Eagle.LeftWindowMode.Palettes">
+                    <div class="leftWindowDisplay palettes">
                         {% include 'palettes.html' %}
                     </div>
 
@@ -144,38 +144,38 @@
             </div>
             <!-- /ko -->
 
-            <div class="rightWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), width: rightWindow().width(), right: rightWindow().shown() ? 0 : -rightWindow().width()}">
+            <div class="rightWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), width: rightWindow().width(), right: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? 0 : -rightWindow().width()}">
                <div class="btn-group" id="rightWindowTabs" role="group" aria-label="RightWindowModeSelect">
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Repository)}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Repository}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Repository)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Repository}">
                             Repositories
                         </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy}">
+                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy}">
                             Hierarchy
                         </button>
                         <!-- ko ifnot: Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Minimal -->
-                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}, css: {active: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu}">
+                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.TranslationMenu}">
                                 Translation
                             </button>
                         <!-- /ko -->
                     </div>
-                <div class="rightWindowHandle" data-bind="click: rightWindow().toggleShown, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_right_window', true)">
-                    <span data-bind="visible: rightWindow().shown()">
+                <div class="rightWindowHandle" data-bind="click: function(){SideWindow.toggleShown(false)}, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_right_window', true)">
+                    <span data-bind="visible: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)">
                         <i class="material-icons">arrow_forward</i>
                     </span>
-                    <span style="display: none" data-bind="visible: !rightWindow().shown()">
+                    <span style="display: none" data-bind="visible: !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)">
                         <i class="material-icons">arrow_back</i>
                     </span>
                 </div>
                 <div id="rightWindowContainer">
-                    <div class="rightWindowDisplay repository" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Repository">
+                    <div class="rightWindowDisplay repository" data-bind="visible: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Repository">
                         {% include 'repositories.html' %}
                     </div>
-                    <div class="rightWindowDisplay translationMenu" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.TranslationMenu">
+                    <div class="rightWindowDisplay translationMenu" data-bind="visible: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.TranslationMenu">
                         <!-- ko ifnot: Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Minimal-->
                             {% include 'translation_menu.html' %}
                         <!-- /ko -->
                     </div>
-                    <div class="rightWindowDisplay hierarchy" data-bind="visible: rightWindow().mode() === Eagle.RightWindowMode.Hierarchy">
+                    <div class="rightWindowDisplay hierarchy" data-bind="visible: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy">
                         {% include 'hierarchy.html' %}
                     </div>
                 </div>
