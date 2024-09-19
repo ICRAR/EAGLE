@@ -6,14 +6,14 @@ import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 
 export class SideWindow {
-    mode : ko.Observable<Eagle.LeftWindowMode | Eagle.RightWindowMode>;
+    // mode : ko.Observable<Eagle.LeftWindowMode | Eagle.RightWindowMode>;
     // The width remains on the sidewindow, this is because when we are dragging the width of a side window, there are frequent changes to the width. 
     // We dont want these rapid changes to affect the setting and be saved into local storage, until we stop dragging.
     width : ko.Observable<number>;
     adjusting : ko.Observable<boolean>;
 
-    constructor(mode : Eagle.LeftWindowMode | Eagle.RightWindowMode, width : number){
-        this.mode = ko.observable(mode);
+    constructor(width : number){
+        // this.mode = ko.observable(mode);
         this.width = ko.observable(width);
         this.adjusting = ko.observable(false);
     }

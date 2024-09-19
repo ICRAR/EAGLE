@@ -147,8 +147,8 @@ export class Eagle {
         this.logicalGraph = ko.observable(null);
         this.eagleIsReady = ko.observable(false);
 
-        this.leftWindow = ko.observable(new SideWindow(Eagle.LeftWindowMode.Palettes, Utils.getLeftWindowWidth()));
-        this.rightWindow = ko.observable(new SideWindow(Eagle.RightWindowMode.Repository, Utils.getRightWindowWidth()));
+        this.leftWindow = ko.observable(new SideWindow(Utils.getLeftWindowWidth()));
+        this.rightWindow = ko.observable(new SideWindow(Utils.getRightWindowWidth()));
 
         this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
