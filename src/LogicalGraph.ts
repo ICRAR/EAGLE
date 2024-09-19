@@ -319,7 +319,7 @@ export class LogicalGraph {
         const clone = config.clone();
 
         clone.setId(Utils.generateGraphConfigId());
-        clone.setName(clone.getName() + " (Copy)");
+        clone.setName(Utils.generateGraphConfigName(clone));
 
         this.graphConfigs.push(clone);
     }

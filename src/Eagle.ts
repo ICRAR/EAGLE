@@ -1521,7 +1521,7 @@ export class Eagle {
         const c: GraphConfig = this.logicalGraph().getActiveGraphConfig().clone();
         c.setId(Utils.generateGraphConfigId());
 
-        Utils.requestUserString("New Config", "Enter Config name", c.getName() + " (Copy)", false, (completed : boolean, userString : string) : void => {
+        Utils.requestUserString("New Config", "Enter Config name", Utils.generateGraphConfigName(c), false, (completed : boolean, userString : string) : void => {
             if (!completed)
             {   // Cancelling action.
                 return;

@@ -2530,4 +2530,12 @@ export class Utils {
 
         return newNode;
     }
+
+    static generateGraphConfigName(config:GraphConfig): string {
+        if (config.getName() === ""){
+            return "Default Configuration";
+        } else {
+            return config.getName() + " (Copy)";
+        }
+    }
 }

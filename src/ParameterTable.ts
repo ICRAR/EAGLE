@@ -373,7 +373,7 @@ export class ParameterTable {
         } else {
             ParameterTable.closeModal();
 
-            Utils.requestUserString("New Configuration", "Enter a name for the new configuration", graphConfig.getName() + " (Copy)", false, (completed : boolean, userString : string) : void => {
+            Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
                 ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
 
                 if (!completed){
