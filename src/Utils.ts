@@ -895,6 +895,10 @@ export class Utils {
                 }));
             }
         }
+
+        // update the loopAware and closesLoop checkboxes
+        $('#editEdgeModalLoopAwareCheckbox').prop('checked', edge.isLoopAware());
+        $('#editEdgeModalClosesLoopCheckbox').prop('checked', edge.isClosesLoop());
     }
 
     /**
