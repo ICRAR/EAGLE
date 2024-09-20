@@ -128,6 +128,16 @@ export class Repositories {
         });
     };
 
+    addLocalDirectory = async () => {
+        console.log("addLocalDirectory()");
+
+        const dirHandle = await (<any>window).showDirectoryPicker();
+
+        console.log("dirHandle", dirHandle);
+
+        const x = await dirHandle.resolve();
+    };
+
     private _removeCustomRepository = (repository : Repository) : void => {
 
         // abort if the repository is one of those that is builtin to the app

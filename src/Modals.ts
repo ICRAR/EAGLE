@@ -202,12 +202,23 @@ export class Modals {
         $('#gitCustomRepositoryModalNegativeButton').on('click', function(){
             $('#gitCustomRepositoryModal').data('completed', false);
         });
+        $('#gitCustomRepositoryModalRepositoryServiceSelect').on('change', function(){
+            const repositoryService : Repository.Service = <Repository.Service>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
+            const showLocalDirectorySection = repositoryService === Repository.Service.LocalDirectory;
+
+            $('#gitCustomRepositoryModalSectionGit').toggle(!showLocalDirectorySection);
+            $('#gitCustomRepositoryModalSectionLocal').toggle(showLocalDirectorySection);
+        });
         $('#gitCustomRepositoryModal').on('shown.bs.modal', function(){
             $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
             $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
 
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', true);
             $('#gitCustomRepositoryModalAffirmativeButton').trigger("focus");
+
+            // TODO: this might not be right, depending on state
+            $('#gitCustomRepositoryModalSectionGit').show();
+            $('#gitCustomRepositoryModalSectionLocal').hide();
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');

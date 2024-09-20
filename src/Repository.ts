@@ -132,6 +132,7 @@ export namespace Repository {
         GitLab = "GitLab",
         File = "File",
         Url = "Url",
+        LocalDirectory = "LocalDirectory",
         Unknown = "Unknown"
     }
 }
