@@ -262,11 +262,14 @@ export class Setting {
 
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
     static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
-    static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
-    static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
+    static readonly RIGHT_WINDOW_WIDTH : string = "RightWindowWidth";
     static readonly RIGHT_WINDOW_VISIBLE : string = "RightWindowVisible";
     static readonly RIGHT_WINDOW_MODE : string = "RightWindowMode";
+    static readonly LEFT_WINDOW_WIDTH : string = "LeftWindowWidth";
     static readonly LEFT_WINDOW_VISIBLE : string = "LeftWindowVisible";
+    static readonly BOTTOM_WINDOW_HEIGHT : string = "BottomWindowHeight";
+    static readonly BOTTOM_WINDOW_VISIBLE : string = "BottomWindowVisible";
+    static readonly BOTTOM_WINDOW_MODE : string = "BottomWindowMode";
     static readonly OBJECT_INSPECTOR_COLLAPSED_STATE : string = "ObjectInspectorVisibility";
     static readonly GRAPH_INSPECTOR_COLLAPSED_STATE : string = "GraphInspectorVisibility";
 
@@ -381,11 +384,14 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Snap To Grid", Setting.SNAP_TO_GRID, "Align positions of nodes in graph to a grid", false, Setting.Type.Boolean,false,false,false,false,false),
             new Setting(false, "Snap To Grid Size", Setting.SNAP_TO_GRID_SIZE, "Size of grid used when aligning positions of nodes in graph (pixels)", false, Setting.Type.Number, 50, 50, 50, 50, 50),
             new Setting(true, "Show edge/node errors/warnings in Graph", Setting.SHOW_GRAPH_WARNINGS, "Show the errors/warnings found in the graph", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
-            new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_WIDTH_KEY, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
-            new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH_KEY, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
-            new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_VISIBLE, "saving the width of the right window", true, Setting.Type.Boolean,true,true,true,true,true),
-            new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_VISIBLE, "saving the width of the left window", true, Setting.Type.Boolean, false, false, true, true, true),
+            new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_WIDTH, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
+            new Setting(false, "Right Window Visibility", Setting.RIGHT_WINDOW_VISIBLE, "visibility state of the right window", true, Setting.Type.Boolean,true,true,true,true,true),
             new Setting(false, "Right Window Mode/Tab", Setting.RIGHT_WINDOW_MODE, "saving the selected mode/tab of the right window", true, Setting.Type.String,'Repository','Repository','Repository','Repository','Repository'),
+            new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
+            new Setting(false, "Left Window Visibility", Setting.LEFT_WINDOW_VISIBLE, "saving the visibility state of the left window", true, Setting.Type.Boolean, false, false, true, true, true),
+            new Setting(false, "Bottom Window Height", Setting.BOTTOM_WINDOW_HEIGHT, "saving the height of the bottom window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
+            new Setting(false, "Bottom Window Visibility", Setting.BOTTOM_WINDOW_VISIBLE, "saving the visibility state of the bottom window", true, Setting.Type.Number, false, true, true, true, true),
+            new Setting(false, "Bottom Window Mode/Tab", Setting.BOTTOM_WINDOW_MODE, "saving the mode/tab of the bottom window", true, Setting.Type.Number, false, true, true, true, true),
             new Setting(false, "Graph Objects Inspector", Setting.OBJECT_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(false, "Graph Info Inspector", Setting.GRAPH_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph inspector", true, Setting.Type.Boolean, false, false, false, false, false),
         ]

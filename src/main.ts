@@ -51,6 +51,7 @@ import { RepositoryFile } from './RepositoryFile';
 import { RightClick } from './RightClick';
 import { Setting } from './Setting';
 import { SideWindow } from "./SideWindow";
+import { BottomWindow } from "./BottomWindow";
 import { TutorialSystem } from "./Tutorial";
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
@@ -83,6 +84,7 @@ $(function(){
     (<any>window).RightClick = RightClick;
     (<any>window).Setting = Setting;
     (<any>window).SideWindow = SideWindow;
+    (<any>window).BottomWindow = BottomWindow;
     (<any>window).TutorialSystem = TutorialSystem;
     (<any>window).GraphRenderer = GraphRenderer;
     (<any>window).UiModeSystem = UiModeSystem;

@@ -53,6 +53,7 @@ import { RepositoryFile } from './RepositoryFile';
 import { RightClick } from "./RightClick";
 import { Setting, SettingsGroup } from './Setting';
 import { SideWindow } from './SideWindow';
+import { BottomWindow } from './BottomWindow';
 import { Translator } from './Translator';
 import { Tutorial, tutorialArray } from './Tutorial';
 import { Undo } from './Undo';
@@ -72,6 +73,7 @@ export class Eagle {
 
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
+    bottomWindow : ko.Observable<BottomWindow>;
 
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
@@ -149,6 +151,7 @@ export class Eagle {
 
         this.leftWindow = ko.observable(new SideWindow(Utils.getLeftWindowWidth()));
         this.rightWindow = ko.observable(new SideWindow(Utils.getRightWindowWidth()));
+        this.bottomWindow = ko.observable(new BottomWindow(Utils.getBottomWindowHeight()));
 
         this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);

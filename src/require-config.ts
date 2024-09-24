@@ -42,6 +42,7 @@ require.config({
         "tutorials/quickStart": "./static/built/tutorials/quickStart",
         "tutorials/graphBuilding": "./static/built/tutorials/graphBuilding",
         "SideWindow": "./static/built/SideWindow",
+        "BottomWindow": "./static/built/BottomWindow",
         "KeyboardShortcut": "./static/built/KeyboardShortcut",
         "StatusEntry": "./static/built/StatusEntry",
         "QuickActions": "./static/built/QuickActions",

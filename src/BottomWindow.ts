@@ -5,19 +5,19 @@ import { Utils } from './Utils';
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 
-export class SideWindow {
+export class BottomWindow {
     // The width remains on the sidewindow, this is because when we are dragging the width of a side window, there are frequent changes to the width. 
     // We dont want these rapid changes to affect the setting and be saved into local storage, until we stop dragging.
-    width : ko.Observable<number>;
+    height : ko.Observable<number>;
     adjusting : ko.Observable<boolean>;
 
-    constructor(width : number){
-        this.width = ko.observable(width);
+    constructor(height : number){
+        this.height = ko.observable(height);
         this.adjusting = ko.observable(false);
     }
 
     static toggleShown = (isLeft:boolean): void => {
-        SideWindow.toggleTransition()
+        BottomWindow.toggleTransition()
 
         if(isLeft){
             Setting.find(Setting.LEFT_WINDOW_VISIBLE).toggle()
@@ -28,7 +28,7 @@ export class SideWindow {
     }
 
     static setShown = (isLeft:boolean,value:boolean): void => {
-        SideWindow.toggleTransition()
+        BottomWindow.toggleTransition() 
 
         if(isLeft){
             Setting.setValue(Setting.LEFT_WINDOW_VISIBLE,value)
@@ -50,59 +50,6 @@ export class SideWindow {
         },300)
     }
 
-    // drag drop
-    static nodeDragStart = (node: Node, e : any) : boolean => {
-        const eagle: Eagle = Eagle.getInstance();
-
-        //for hiding any tooltips while dragging and preventing them from showing
-        eagle.draggingPaletteNode = true;
-        $(e.target).find('.input-group').tooltip('hide');
-
-        // retrieve data about the node being dragged
-        // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
-        //       Using the native javascript works better, it always fetches the current value of the attribute
-
-        //this is for dealing with drag and drop actions while there is already one ore more palette components selected
-        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
-
-            const paletteIndex = $(e.target).data("palette-index")
-            const componentIndex = $(e.target).data("component-index")
-            const draggedNode = eagle.palettes()[paletteIndex].getNodes()[componentIndex]
-
-            if(!eagle.objectIsSelected(draggedNode)){
-                $(e.target).find("div").trigger("click")
-            }
-        }
-
-        Eagle.nodeDragPaletteIndex = parseInt(e.target.getAttribute('data-palette-index'), 10);
-        Eagle.nodeDragComponentIndex = parseInt(e.target.getAttribute('data-component-index'), 10);
-
-        // discourage the rightWindow and navbar as drop targets
-        $(".rightWindow").addClass("noDropTarget");
-        $(".navbar").addClass("noDropTarget");
-
-        // grab and set the node's icon and sets it as drag image.
-        const drag = e.target.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
-        (<DragEvent> e.originalEvent).dataTransfer.setDragImage(drag, 0, 0);
-
-        return true;
-    }
-
-    static nodeDragEnd() : boolean {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.draggingPaletteNode = false;
-
-        $(".rightWindow").removeClass("noDropTarget");
-        $(".navbar").removeClass("noDropTarget");
-        Eagle.nodeDragPaletteIndex = null;
-        Eagle.nodeDragComponentIndex = null;
-
-        return true;
-    }
-
-    static nodeDragOver() : boolean {
-        return false;
-    }
 
     static rightWindowAdjustStart(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
@@ -167,17 +114,6 @@ export class SideWindow {
         }
 
         Eagle.dragStartX = e.clientX;
-
-        return true;
-    }
-
-    static leftWindowAdjustStart(eagle : Eagle, event : JQuery.TriggeredEvent) : boolean {
-        const e: DragEvent = event.originalEvent as DragEvent;
-
-        $(e.target).addClass('windowDragging')
-        Eagle.dragStartX = e.clientX;
-        eagle.leftWindow().adjusting(true);
-        eagle.rightWindow().adjusting(false);
 
         return true;
     }

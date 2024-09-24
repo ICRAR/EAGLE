@@ -54,7 +54,7 @@
 
         <div class="container-fluid" id="graphArea" data-bind="event: { dragover: SideWindow.sideWindowAdjust}">
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                <div class="leftWindow" data-bind="style: { width: leftWindow().width(), left: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? 0 : -leftWindow().width(),'visibility':eagle.getEagleIsReady()}">
+                <div class="leftWindow" data-bind="style: { width: leftWindow().width(), left: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? 0 : -leftWindow().width(),'visibility':eagle.getEagleIsReady(), bottom: Utils.getBottomWindowHeight()}">
                     <div class="leftWindowHandle" data-bind="click: function(){SideWindow.toggleShown(true)}, eagleTooltip: 'Change Node Subject ' + Utils.getKeyboardShortcutTextByKey('toggle_left_window', true)">
                         <span style="display: none" data-bind="visible: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)">
                             <i class="material-icons">arrow_back</i>
@@ -144,7 +144,7 @@
             </div>
             <!-- /ko -->
 
-            <div class="rightWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), width: rightWindow().width(), right: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? 0 : -rightWindow().width()}">
+            <div class="rightWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), width: rightWindow().width(), right: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? 0 : -rightWindow().width(), bottom: Utils.getBottomWindowHeight()}">
                <div class="btn-group" id="rightWindowTabs" role="group" aria-label="RightWindowModeSelect">
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Repository)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Repository}">
                             Repositories
@@ -183,8 +183,11 @@
                     <div class="rightWindowSizeAdjusterLine"></div>
                 </div>
             </div>
+            <div id="bottomWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), height: bottomWindow().height(), bottom: Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) ? 0 : -bottomWindow().height()}">
+
+            </div>
         </div>
-        <div id="statusBar" data-bind="style: { 'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth(), right: Utils.getRightWindowWidth()}">
+        <div id="statusBar" data-bind="style: { 'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth(), right: Utils.getRightWindowWidth()}, bottom: Utils.getBottomWindowHeight()">
             <!-- ko foreach: StatusEntry.getStatusEntries() -->
                 <!-- ko if: $data.visibility -->
                     <h5 data-bind="text: $data.action"></h5>

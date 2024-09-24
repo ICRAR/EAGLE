@@ -1215,11 +1215,11 @@ export class Utils {
         if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
             return 0
         }
-        return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH_KEY)
+        return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH)
     }
 
     static setRightWindowWidth(width : number) : void {
-        Setting.find(Setting.RIGHT_WINDOW_WIDTH_KEY).setValue(width)
+        Setting.find(Setting.RIGHT_WINDOW_WIDTH).setValue(width)
         UiModeSystem.saveToLocalStorage()
     }
 
@@ -1227,11 +1227,23 @@ export class Utils {
         if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
             return 0
         }
-        return Setting.findValue(Setting.LEFT_WINDOW_WIDTH_KEY)
+        return Setting.findValue(Setting.LEFT_WINDOW_WIDTH)
     }
 
     static setLeftWindowWidth(width : number) : void {
-        Setting.find(Setting.LEFT_WINDOW_WIDTH_KEY).setValue(width)
+        Setting.find(Setting.LEFT_WINDOW_WIDTH).setValue(width)
+        UiModeSystem.saveToLocalStorage()
+    }
+
+    static getBottomWindowHeight() : number {
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+            return 0
+        }
+        return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
+    }
+
+    static setBottomWindowHeight(width : number) : void {
+        Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).setValue(width)
         UiModeSystem.saveToLocalStorage()
     }
 
