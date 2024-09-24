@@ -188,6 +188,10 @@ export class GraphConfig {
     private isFavorite: ko.Observable<boolean>;
     
     private nodes: ko.ObservableArray<GraphConfigNode>;
+
+    private lastModifiedName : ko.Observable<string>;
+    private lastModifiedEmail : ko.Observable<string>;
+    private lastModifiedDatetime : ko.Observable<number>;
     
     constructor(){
         this.id = ko.observable(null);
@@ -198,6 +202,10 @@ export class GraphConfig {
         this.isFavorite = ko.observable(false);
         
         this.nodes = ko.observableArray([]);
+
+        this.lastModifiedName = ko.observable("");
+        this.lastModifiedEmail = ko.observable("");
+        this.lastModifiedDatetime = ko.observable(0);
     }
 
     clone = () : GraphConfig => {
@@ -214,6 +222,10 @@ export class GraphConfig {
         for (const node of this.nodes()){
             result.nodes.push(node.clone());
         }
+
+        result.lastModifiedName(this.lastModifiedName());
+        result.lastModifiedEmail(this.lastModifiedEmail());
+        result.lastModifiedDatetime(this.lastModifiedDatetime());
 
         return result;
     }
@@ -260,6 +272,12 @@ export class GraphConfig {
 
     getNodes = (): GraphConfigNode[] => {
         return this.nodes();
+    }
+
+    setLastModified = (name: string, email: string, datetime: number): void => {
+        this.lastModifiedName(name);
+        this.lastModifiedEmail(email);
+        this.lastModifiedDatetime(datetime);
     }
 
     addNode = (id: NodeId): GraphConfigNode => {
@@ -348,6 +366,16 @@ export class GraphConfig {
             }
         }
 
+        if (typeof data.lastModifiedName !== 'undefined'){
+            result.lastModifiedName(data.lastModifiedName);
+        }
+        if (typeof data.lastModifiedEmail !== 'undefined'){
+            result.lastModifiedEmail(data.lastModifiedEmail);
+        }
+        if (typeof data.lastModifiedDatetime !== 'undefined'){
+            result.lastModifiedDatetime(data.lastModifiedDatetime);
+        }
+
         return result;
     }
 
@@ -365,6 +393,10 @@ export class GraphConfig {
 
             result.nodes[node.getId()] = GraphConfigNode.toJSON(node);
         }
+
+        result.lastModifiedName = graphConfig.lastModifiedName();
+        result.lastModifiedEmail = graphConfig.lastModifiedEmail();
+        result.lastModifiedDatetime = graphConfig.lastModifiedDatetime();
 
         return result;
     }
