@@ -413,7 +413,7 @@ export class Eagle {
     }, this);
 
     toggleWindows = () : void  => {
-        const setOpen = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)
+        const setOpen = !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)
 
         SideWindow.setShown(true, setOpen);
         SideWindow.setShown(false, setOpen);
