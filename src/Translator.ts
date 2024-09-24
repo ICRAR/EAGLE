@@ -136,6 +136,12 @@ export class Translator {
     }
 
     private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
+        // check if the graph is committed before translation
+        if (eagle.logicalGraph().fileInfo().modified && !Setting.findValue(Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION)){
+            Utils.showNotification("Unable to Translate", "Please save/commit the graph before attempting translation", "danger");
+            return;
+        }
+
         // clone the logical graph
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
         const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
