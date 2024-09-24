@@ -35,9 +35,11 @@ import { FileInfo } from './FileInfo';
 import { GraphConfig } from './GraphConfig';
 import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
+import { ParameterTable } from "./ParameterTable";
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
@@ -320,8 +322,24 @@ export class LogicalGraph {
 
         clone.setId(Utils.generateGraphConfigId());
         clone.setName(Utils.generateGraphConfigName(clone));
+        clone.setIsFavorite(false);
 
-        this.graphConfigs.push(clone);
+        // if the active config is modified, we can't replace it
+        if (this.activeGraphConfig().getIsModified()){
+            // just duplicate
+            this.graphConfigs.push(clone);
+
+            Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "'", "success");
+        } else {
+            // duplicate, set active and modified
+            clone.setIsModified(true);
+            this.activeGraphConfig(clone);
+
+            Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "' and set to active config", "success");
+
+            GraphConfigurationsTable.closeModal();
+            ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal);
+        }
     }
 
     removeGraphConfig = (config: GraphConfig): void => {
