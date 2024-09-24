@@ -60,6 +60,7 @@ import { Undo } from './Undo';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 
 
 export class Eagle {
@@ -1517,9 +1518,16 @@ export class Eagle {
     };
 
     _newConfig = () : void => {
+        // close the Graph Configurations Table modal (if open)
+        const modalOpen = GraphConfigurationsTable.showTableModal()
+        if (modalOpen){
+            GraphConfigurationsTable.closeModal();
+        }
+
         // clone existing active config, assign new id
         const c: GraphConfig = this.logicalGraph().getActiveGraphConfig().clone();
         c.setId(Utils.generateGraphConfigId());
+        c.setIsFavorite(false);
 
         Utils.requestUserString("New Config", "Enter Config name", Utils.generateGraphConfigName(c), false, (completed : boolean, userString : string) : void => {
             if (!completed)
@@ -1540,6 +1548,11 @@ export class Eagle {
             this.logicalGraph().setActiveGraphConfig(c);
 
             Utils.showNotification("New Graph Config Created", userString, "success");
+
+            // re-open graph configurations modal (if required)
+            if (modalOpen){
+                GraphConfigurationsTable.openModal();
+            }
         });
     }
 

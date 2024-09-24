@@ -391,6 +391,7 @@ export class ParameterTable {
                 // set name and set modified flag
                 graphConfig.setName(userString);
                 graphConfig.setIsModified(true);
+                graphConfig.setIsFavorite(false);
 
                 // add/remove the field that was requested in the first place
                 if (add){

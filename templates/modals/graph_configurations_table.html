@@ -50,7 +50,7 @@
                                         <input class="tableParameter" type="string" data-bind="value: $data.getName(), disabled: true, eagleTooltip: ''">
                                     </td>
                                     <td class='columnCell column-description'>
-                                        <input class="tableParameter" type="string" data-bind="value: $data.getDescription(), disabled: true, eagleTooltip: ''">
+                                        <input class="tableParameter" type="string" data-bind="value: $data.description, eagleTooltip: ''">
                                     </td>
                                     <td class='columnCell column-fields'>
                                         <input class="tableParameter" type="string" data-bind="value: $data.numFields(), disabled: true, eagleTooltip: ''">
@@ -108,7 +108,7 @@
                                         <input class="tableParameter" type="string" data-bind="value: $data.getName(), disabled: true, eagleTooltip: ''">
                                     </td>
                                     <td class='columnCell column-description'>
-                                        <input class="tableParameter" type="string" data-bind="value: $data.getDescription(), disabled: true, eagleTooltip: ''">
+                                        <input class="tableParameter" type="string" data-bind="value: $data.description, eagleTooltip: ''">
                                     </td>
                                     <td class='columnCell column-fields'>
                                         <input class="tableParameter" type="string" data-bind="value: $data.numFields(), disabled: true, eagleTooltip: ''">
@@ -155,6 +155,7 @@
                 <!-- /ko -->
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="graphConfigurationsTableModalAddConfigButton" data-bind="click: newConfig, clickBubble:false, disabled: selectedNode().isLocked()" ><span id="graphConfigurationsTableModalAddConfig">Add Config</span></button>
                 <button type="button" class="btn btn-primary" id="graphConfigurationsTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="graphConfigurationsTableModalAffirmativeAnswer">Close</span></button>
             </div>
         </div>
