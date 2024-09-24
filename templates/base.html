@@ -183,11 +183,11 @@
                     <div class="rightWindowSizeAdjusterLine"></div>
                 </div>
             </div>
-            <div id="bottomWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), height: bottomWindow().height(), bottom: Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) ? 0 : -bottomWindow().height()}">
+            <div id="bottomWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), height: Utils.getBottomWindowHeight(), bottom: Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) ? 0 : -bottomWindow().height()}">
 
             </div>
         </div>
-        <div id="statusBar" data-bind="style: { 'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth(), right: Utils.getRightWindowWidth()}, bottom: Utils.getBottomWindowHeight()">
+        <div id="statusBar" data-bind="style: { 'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth(), right: Utils.getRightWindowWidth(), bottom: Utils.getBottomWindowHeight()}">
             <!-- ko foreach: StatusEntry.getStatusEntries() -->
                 <!-- ko if: $data.visibility -->
                     <h5 data-bind="text: $data.action"></h5>

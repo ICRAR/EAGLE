@@ -238,6 +238,7 @@ color: #00bb00;}
     position: absolute;
     bottom: 0px;
     z-index:100;
+    visibility:hidden;
 }
 
 #explorePalettesModal #explorePalettesPathContainer{

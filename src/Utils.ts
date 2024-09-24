@@ -24,6 +24,7 @@
 
 import * as Ajv from "ajv";
 import * as Showdown from "showdown";
+import * as ko from "knockout";
 
 import { Category } from './Category';
 import { CategoryData } from "./CategoryData";
@@ -1241,6 +1242,17 @@ export class Utils {
         }
         return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
     }
+
+    static getInspectorOffset() : number {
+        return this.getBottomWindowHeight() + $('#statusBar').height() 
+    }
+
+    // static getBottomWindowHeight : ko.PureComputed<number> = ko.pureComputed(() => {
+    //     if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+    //         return 0
+    //     }
+    //     return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
+    // }, this);
 
     static setBottomWindowHeight(width : number) : void {
         Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).setValue(width)
