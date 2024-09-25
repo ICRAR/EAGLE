@@ -3,26 +3,47 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { Utils } from './Utils';
 import { Setting } from "./Setting";
+import { UiModeSystem } from "./UiModes";
 
 export class SideWindow {
-    shown : ko.Observable<boolean>;
-    mode : ko.Observable<Eagle.LeftWindowMode | Eagle.RightWindowMode>;
+    // The width remains on the sidewindow, this is because when we are dragging the width of a side window, there are frequent changes to the width. 
+    // We dont want these rapid changes to affect the setting and be saved into local storage, until we stop dragging.
     width : ko.Observable<number>;
     adjusting : ko.Observable<boolean>;
 
-    constructor(mode : Eagle.LeftWindowMode | Eagle.RightWindowMode, width : number, shown : boolean){
-        this.shown = ko.observable(shown);
-        this.mode = ko.observable(mode);
+    constructor(width : number){
         this.width = ko.observable(width);
         this.adjusting = ko.observable(false);
     }
 
-    toggleShown = (): void => {
+    static toggleShown = (isLeft:boolean): void => {
+        SideWindow.toggleTransition()
+
+        if(isLeft){
+            Setting.find(Setting.LEFT_WINDOW_VISIBLE).toggle()
+        }else{
+            Setting.find(Setting.RIGHT_WINDOW_VISIBLE).toggle()
+        }
+        UiModeSystem.saveToLocalStorage()
+    }
+
+    static setShown = (isLeft:boolean,value:boolean): void => {
+        SideWindow.toggleTransition()
+
+        if(isLeft){
+            Setting.setValue(Setting.LEFT_WINDOW_VISIBLE,value)
+        }else{
+            Setting.setValue(Setting.RIGHT_WINDOW_VISIBLE,value)
+        }
+        UiModeSystem.saveToLocalStorage()
+    }
+
+    static toggleTransition = (): void => {
         //we are toggling the visibility of the left or right window
         //but we also need to temporarily add a transition effect to the statusBar so it moves as one with the window
         $('#statusBar').addClass('linearTransition250')
         $('#inspector').addClass('linearTransition250')
-        this.shown(!this.shown());
+
         setTimeout(function(){
             $('#statusBar').removeClass('linearTransition250')
             $('#inspector').removeClass('linearTransition250')

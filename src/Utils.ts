@@ -1262,7 +1262,7 @@ export class Utils {
     }
 
     static getRightWindowWidth() : number {
-        if(Eagle.getInstance().eagleIsReady() && !Eagle.getInstance().rightWindow().shown()){
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
             return 0
         }
         return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH_KEY)
@@ -1274,7 +1274,7 @@ export class Utils {
     }
 
     static getLeftWindowWidth() : number {
-        if(Eagle.getInstance().eagleIsReady() && !Eagle.getInstance().leftWindow().shown()){
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
             return 0
         }
         return Setting.findValue(Setting.LEFT_WINDOW_WIDTH_KEY)
