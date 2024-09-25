@@ -231,6 +231,166 @@ color: #00bb00;}
     position: relative;
 }
 
+
+
+#inspector{
+    background-color: #001933;
+    width: 300px;
+    height: min-content;
+    border-radius: 10px;
+    position: fixed;
+    bottom: 35px;
+    left: 400px;
+    visibility: hidden;
+    transition: width 200ms, height 200ms,visibility 200ms;
+    color: white;
+}
+
+#inspector.inspectorTransition div,#inspector.inspectorTransition i{
+    visibility: hidden;
+    height: 80px;
+}
+
+#inspector.inspectorCollapsed {
+    width: 50px;
+    height: 50px;
+}
+
+#inspector.inspectorCollapsed i{
+    margin-left: 50%;
+    margin-top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    cursor:pointer;
+}
+
+#objectInspector{
+    visibility: hidden;
+}
+
+#objectInspectorHeaderIconRow{
+    padding-top: 3px;
+    background: rgba(255, 255, 255, 0.171);
+}
+
+#inspector .container{
+    padding: 5px 0px;
+    height: 100%;
+    width: 100%;
+}
+
+#inspector .inspectorCloseBtn{
+    cursor:pointer;
+}
+
+#inspector .row{
+    padding: 0px 8px 0px 8px;
+    margin: 0px;
+}
+
+#inspector .inspectorContents .row{
+    margin-bottom: 2px;
+}
+
+#inspector .col{
+    padding: 0px;
+}
+
+#inspector .inspectorHeader input, #inspector .inspectorHeader {
+    /* display: inline; */
+    margin: 0px;
+}
+
+#inspector .inspectorContents{
+    padding-top: 7px;
+}
+
+#inspector .inspectorHeader input{
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 20px;
+    margin-top: -4px;
+    text-overflow: ellipsis;
+}
+
+#inspector .inspectorHeader h4{
+    color: white;
+    font-size: 20px;
+    text-overflow: ellipsis;
+}
+
+#inspector .inspectorHeader input:focus{
+    background: white;
+    border: none;   
+    color: black;
+    font-size: 20px;
+}
+
+#inspector .inspectorHeaderButtons i{
+    font-size: 18px;
+    color:rgb(175, 175, 175);
+}
+
+#inspector .inspectorHeaderButtons i.clickable{
+    color:white;
+}
+
+#inspector .contentObject  .contentObjectValue{
+    height: 20px;  
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: rgb(175, 175, 175);
+}
+
+#inspector .contentObject.inspectorNodeCategory  .contentObjectValue{
+    overflow: visible;
+}
+
+#inspector .contentObject .contentObjectValue .radioBtn {
+    background-color:transparent;
+    border: none;
+}
+
+#inspector .contentObject .contentObjectValue .radioBtn:focus {
+    box-shadow: none;
+}
+
+#inspector .contentObject .contentObjectValue .radioBtn i{
+    font-size: 17px;
+}
+
+#inspector .inspectorContents h5{
+    font-size: 16px;
+    margin: 2px 0px 0px 0px;
+}
+
+#inspector .inspectorContents span{
+    color: rgb(175, 175, 175);
+    white-space: nowrap;
+}
+
+#inspector .headerButtons button,.inspectorTitleBtns button {
+    background-color: transparent;
+    padding:0px 4px;
+    margin-left:-4px;
+    border: none;
+    box-shadow: none;
+}
+
+#inspector .headerButtons button:hover,.inspectorTitleBtns button:hover, #inspector i.clickable:hover {
+    color: #b4d4ff;
+    background-color: transparent;
+    cursor:pointer;
+}
+
+#inspector .headerButtons button.btn:focus, .inspectorTitleBtns button:focus {
+    box-shadow: none;
+    background-color:transparent;
+    border:none;
+}
+
 #explorePalettesModal #explorePalettesPathContainer{
     display: block;
     width: 100%;
@@ -2523,5 +2683,5 @@ palette-component input.form-control.selected {
 /* re-usable classes for various things */
 
 .linearTransition250{
-    transition: linear 250ms;
+    transition: linear 250ms !important; /* made important so this can temporarily overwrite existing transitions on the element*/
 }
