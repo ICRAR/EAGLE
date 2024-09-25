@@ -8,11 +8,11 @@ import { UiModeSystem } from "./UiModes";
 export class SideWindow {
     // The width remains on the sidewindow, this is because when we are dragging the width of a side window, there are frequent changes to the width. 
     // We dont want these rapid changes to affect the setting and be saved into local storage, until we stop dragging.
-    width : ko.Observable<number>;
+    size : ko.Observable<number>;
     adjusting : ko.Observable<boolean>;
 
-    constructor(width : number){
-        this.width = ko.observable(width);
+    constructor(size : number){
+        this.size = ko.observable(size);
         this.adjusting = ko.observable(false);
     }
 
@@ -134,34 +134,34 @@ export class SideWindow {
             return true;
         }
 
-        if (isNaN(eagle.leftWindow().width())){
+        if (isNaN(eagle.leftWindow().size())){
             console.warn("Had to reset left window width from invalid state (NaN)!");
-            eagle.leftWindow().width(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
+            eagle.leftWindow().size(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
         }
-        if (isNaN(eagle.rightWindow().width())){
+        if (isNaN(eagle.rightWindow().size())){
             console.warn("Had to reset right window width from invalid state (NaN)!");
-            eagle.rightWindow().width(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
+            eagle.rightWindow().size(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
         }
 
         const dragDiff : number = e.clientX - Eagle.dragStartX;
         let newWidth : number;
 
         if (eagle.leftWindow().adjusting()){
-            newWidth = eagle.leftWindow().width() + dragDiff;
+            newWidth = eagle.leftWindow().size() + dragDiff;
             if(newWidth <= Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal()){
-                eagle.leftWindow().width(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
+                eagle.leftWindow().size(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
                 Utils.setLeftWindowWidth(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
             }else{
-                eagle.leftWindow().width(newWidth);
+                eagle.leftWindow().size(newWidth);
                 Utils.setLeftWindowWidth(newWidth);
             }
         } else if(eagle.rightWindow().adjusting()) {
-            newWidth = eagle.rightWindow().width() - dragDiff;
+            newWidth = eagle.rightWindow().size() - dragDiff;
             if(newWidth <= Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal()){
-                eagle.rightWindow().width(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
+                eagle.rightWindow().size(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
                 Utils.setRightWindowWidth(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
             }else{
-                eagle.rightWindow().width(newWidth);
+                eagle.rightWindow().size(newWidth);
                 Utils.setRightWindowWidth(newWidth);
             }
         }

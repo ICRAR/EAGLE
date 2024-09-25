@@ -50,30 +50,27 @@ export class BottomWindow {
         },300)
     }
 
-
-    static rightWindowAdjustStart(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
+    static bottomWindowAdjustStart(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
 
         $(e.target).addClass('windowDragging')
-        Eagle.dragStartX = e.clientX;
-        eagle.leftWindow().adjusting(false);
-        eagle.rightWindow().adjusting(true);
+        Eagle.dragStartY = e.clientY;
+        eagle.bottomWindow().adjusting(true)
 
         return true;
     }
 
     // workaround to avoid left or right window adjusting on any and all drag events
-    static sideWindowAdjustEnd = (eagle: Eagle, event: JQuery.TriggeredEvent) : boolean => {
+    static bottomWindowAdjustEnd = (eagle: Eagle, event: JQuery.TriggeredEvent) : boolean => {
         const e: DragEvent = event.originalEvent as DragEvent;
 
         $(e.target).removeClass('windowDragging')
-        eagle.leftWindow().adjusting(false);
-        eagle.rightWindow().adjusting(false);
+        eagle.bottomWindow().adjusting(false);
 
         return true;
     }
 
-    static sideWindowAdjust(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
+    static bottomWindowAdjust(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
 
         // workaround to avoid final dragEvent at 0,0!
@@ -81,39 +78,26 @@ export class BottomWindow {
             return true;
         }
 
-        if (isNaN(eagle.leftWindow().width())){
-            console.warn("Had to reset left window width from invalid state (NaN)!");
-            eagle.leftWindow().width(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
-        }
-        if (isNaN(eagle.rightWindow().width())){
-            console.warn("Had to reset right window width from invalid state (NaN)!");
-            eagle.rightWindow().width(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
+        if (isNaN(eagle.bottomWindow().height())){
+            console.warn("Had to reset bottom window height from invalid state (NaN)!");
+            eagle.bottomWindow().height(Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal());
         }
 
-        const dragDiff : number = e.clientX - Eagle.dragStartX;
-        let newWidth : number;
+        const dragDiff : number = e.clientY - Eagle.dragStartY;
+        let newHeight : number;
 
-        if (eagle.leftWindow().adjusting()){
-            newWidth = eagle.leftWindow().width() + dragDiff;
-            if(newWidth <= Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal()){
-                eagle.leftWindow().width(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
-                Utils.setLeftWindowWidth(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
+        if (eagle.bottomWindow().adjusting()){
+            newHeight = eagle.leftWindow().size() + dragDiff;
+            if(newHeight <= Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal()){
+                eagle.bottomWindow().height(Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal());
+                Utils.setBottomWindowHeight(Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal());
             }else{
-                eagle.leftWindow().width(newWidth);
-                Utils.setLeftWindowWidth(newWidth);
-            }
-        } else if(eagle.rightWindow().adjusting()) {
-            newWidth = eagle.rightWindow().width() - dragDiff;
-            if(newWidth <= Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal()){
-                eagle.rightWindow().width(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
-                Utils.setRightWindowWidth(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
-            }else{
-                eagle.rightWindow().width(newWidth);
-                Utils.setRightWindowWidth(newWidth);
+                eagle.bottomWindow().height(newHeight);
+                Utils.setBottomWindowHeight(newHeight);
             }
         }
 
-        Eagle.dragStartX = e.clientX;
+        Eagle.dragStartY = e.clientY;
 
         return true;
     }

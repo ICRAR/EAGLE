@@ -131,6 +131,7 @@ export class Eagle {
     static tutorials : Tutorial[];
 
     static dragStartX : number;
+    static dragStartY : number;
     static lastClickTime : number = 0;
 
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
@@ -498,12 +499,12 @@ export class Eagle {
         //we are taking into account the current widths of the left and right windows
         let leftWindow = 0
         if(Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
-            leftWindow = that.leftWindow().width()
+            leftWindow = that.leftWindow().size()
         }
         
         let rightWindow = 0
         if(Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
-            rightWindow = that.rightWindow().width()
+            rightWindow = that.rightWindow().size()
         }
 
         const containerWidth = $('#logicalGraphParent').width() - leftWindow - rightWindow
@@ -2607,8 +2608,8 @@ export class Eagle {
                 const realwidth = window.innerWidth
                 const divisor = realwidth/width
 
-                const lx = (eagle.leftWindow().width()+50)/divisor
-                const rx = (eagle.rightWindow().width()+50)/divisor
+                const lx = (eagle.leftWindow().size()+50)/divisor
+                const rx = (eagle.rightWindow().size()+50)/divisor
                 const ly = 90/divisor
                 canvas.width=width-rx-lx//trimming the right window
                 ctx.translate(-lx,-ly)
@@ -4438,8 +4439,8 @@ export class Eagle {
         
         while (!suitablePositionFound && numIterations <= MAX_ITERATIONS){
             // get visible screen size
-            let minX = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? this.leftWindow().width()+MARGIN: 0+MARGIN;
-            let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? $('#logicalGraphParent').width() - this.rightWindow().width() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
+            let minX = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? this.leftWindow().size()+MARGIN: 0+MARGIN;
+            let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? $('#logicalGraphParent').width() - this.rightWindow().size() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
             let minY = 0 + navBarHeight + MARGIN;
             let maxY = $('#logicalGraphParent').height() - MARGIN + navBarHeight;
             if(increaseSearchArea){
