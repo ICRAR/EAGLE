@@ -2683,5 +2683,5 @@ palette-component input.form-control.selected {
 /* re-usable classes for various things */
 
 .linearTransition250{
-    transition: linear 250ms;
+    transition: linear 250ms !important; /* made important so this can temporarily overwrite existing transitions on the element*/
 }
