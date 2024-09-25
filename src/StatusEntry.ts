@@ -29,7 +29,7 @@ export class StatusEntry {
             new StatusEntry('Right Click ',' on the empty canvas to add nodes.', Eagle.getInstance().selectedObjects().length === 0),
             new StatusEntry(Utils.getKeyboardShortcutTextByKey('quick_action', true),' search and run functions.', Eagle.getInstance().selectedObjects().length === 0),
             //a graph is created or loaded
-            new StatusEntry(Utils.getKeyboardShortcutTextByKey('open_graph_configuration_table_modal', true),' display active graph config.', Eagle.getInstance().logicalGraph().fileInfo().name != "" && Eagle.getInstance().selectedObjects().length === 0),
+            new StatusEntry(Utils.getKeyboardShortcutTextByKey('open_graph_attributes_configuration_table_modal', true),' display active graph config.', Eagle.getInstance().logicalGraph().fileInfo().name != "" && Eagle.getInstance().selectedObjects().length === 0),
             //No Graph loaded or created
             new StatusEntry(Utils.getKeyboardShortcutTextByKey('new_graph', true),' new graph.', Eagle.getInstance().logicalGraph().fileInfo().name === ""),
             //something is selected
