@@ -9,8 +9,6 @@ export class GraphConfigurationsTable {
     static showTableModal : ko.Observable<boolean> = ko.observable(false);
 
     static openModal = () : void => {
-        console.log("GraphConfigurationsTable.openModal()");
-
         const eagle: Eagle = Eagle.getInstance();
 
         eagle.showEagleIsLoading()
