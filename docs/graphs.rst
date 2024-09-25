@@ -28,7 +28,7 @@ Logical Graph Templates are created within the EAGLE drag-and-drop interface. Th
 
   An example of a Logical Graph Template
 
-In an operational environment Logical Graph Templates represent different data processing modes, and after a period of development and use they will become quite stable. They can increase in complexity very quickly; however if developers approach them as a template and use the ability to expose adjustable parameters, this can highlight the inherent parallelism and potential bottlenecks of complex workflows. Logical Graph Templates provide a birds-eye view of an arbitrarily parallel process, even though parallelism isn't explicitly represented at this stage of the workflow.
+In an operational environment Logical Graph Templates represent different data processing modes, and after a period of development and use they will become quite stable. They can increase in complexity very quickly; however, if developers approach them as a template and use the ability to expose adjustable parameters, this can highlight the inherent parallelism and potential bottlenecks of complex workflows. Logical Graph Templates provide a birds-eye view of an arbitrarily parallel process, even though parallelism isn't explicitly represented at this stage of the workflow.
 
 Logical Graph
 -------------
@@ -46,7 +46,7 @@ Logical Graphs are constructed from Logical Graph Templates by setting the expos
 Physical Graph Template
 -----------------------
 
-Physical Graph Templates are calculated from Logical Graphs by the DALiuGE translation engine, and then displayed within the EAGLE interface. They represent a translation of a Logical Graph into a Directed Acyclic Graph, and a mapping of that graph onto a potentially available cluster.
+Physical Graph Templates are calculated from Logical Graphs by the DALiuGE translation engine, and then displayed in an additional browser tab. They represent a translation of a Logical Graph into a Directed Acyclic Graph, and a mapping of that graph onto a potentially available cluster.
 
 .. figure:: _static/images/physical_graph_template.png
   :width: 500px
