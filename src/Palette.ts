@@ -45,6 +45,8 @@ export class Palette {
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Palette;
+        this.fileInfo().readonly = false;
+        this.fileInfo().builtIn = false;
         this.nodes = ko.observableArray([]);
         this.searchExclude = ko.observable(false);
     }

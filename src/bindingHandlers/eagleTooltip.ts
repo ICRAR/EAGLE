@@ -16,7 +16,11 @@ ko.bindingHandlers.eagleTooltip = {
 
             // if tooltip id is not null, remove the tooltip from the DOM
             if (tooltipElementId !== null && tooltipElementId.startsWith('tooltip')){
-                document.getElementById(tooltipElementId).remove();
+                const tooltipElement = document.getElementById(tooltipElementId);
+
+                if (tooltipElement){
+                    tooltipElement.remove();
+                }
             }
         });
     },

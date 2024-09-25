@@ -125,6 +125,11 @@ export class Node {
 
     setId = (id: NodeId) : void => {
         this.id(id);
+
+        // go through all fields on this node, and make sure their nodeIds are all updated, important for ports
+        for (const field of this.fields()){
+            field.setNodeId(id);
+        }
     }
 
     getName = () : string => {
@@ -982,8 +987,7 @@ export class Node {
                 [],
                 false,
                 Daliuge.FieldType.ComponentParameter,
-                Daliuge.FieldUsage.NoPort,
-                false));
+                Daliuge.FieldUsage.NoPort));
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).setValue(value.toString());
         }
@@ -1003,8 +1007,7 @@ export class Node {
                 [],
                 false,
                 Daliuge.FieldType.ComponentParameter,
-                Daliuge.FieldUsage.NoPort,
-                false));
+                Daliuge.FieldUsage.NoPort));
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).setValue(value.toString());
         }
@@ -1074,7 +1077,6 @@ export class Node {
     }
 
     clone = () : Node => {
-
         const result : Node = new Node(this.name(), this.description(), this.category());
 
         result.id(this.id());
@@ -1263,7 +1265,7 @@ export class Node {
     }
 
     addEmptyField = (index:number) :void => {
-        const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false);
+        const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort);
 
         if(index === -1){
             this.addField(newField);
@@ -1576,8 +1578,7 @@ export class Node {
                 [],
                 false,
                 Daliuge.FieldType.ComponentParameter,
-                Daliuge.FieldUsage.NoPort,
-                false);
+                Daliuge.FieldUsage.NoPort);
             node.addField(preciousField);
         }
 
@@ -1595,8 +1596,7 @@ export class Node {
                 [],
                 false,
                 Daliuge.FieldType.ComponentParameter,
-                Daliuge.FieldUsage.NoPort,
-                false);
+                Daliuge.FieldUsage.NoPort);
             node.addField(streamingField);
         }
 

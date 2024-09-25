@@ -36,6 +36,7 @@ import { Node } from './Node';
 import { Utils } from './Utils';
 import { Setting } from './Setting';
 import { RightClick } from "./RightClick";
+import { ParameterTable } from "./ParameterTable";
 
 ko.bindingHandlers.nodeRenderHandler = {
     // TODO: element any (more around)
@@ -257,7 +258,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         //checking for port collisions if connected
         if(!node.isComment()){
             //checking if the ports are linked 
-            const portIsLinked = eagle.logicalGraph().portIsLinked(node.getId(),field.getId())
+            const portIsLinked = eagle.logicalGraph().portIsLinked(node.getId(), field.getId())
             field.setInputConnected(portIsLinked.input)
             field.setOutputConnected(portIsLinked.output)
 
@@ -1701,7 +1702,7 @@ export class GraphRenderer {
         //here
         if(Math.abs(GraphRenderer.portDragStartPos.x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null))+Math.abs(GraphRenderer.portDragStartPos.y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null))<3){
             //identify a click, if we click a port, we will open the parameter table and highlight the port
-            eagle.openParamsTableModalAndSelectField(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort())
+            ParameterTable.openModalAndSelectField(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort())
             GraphRenderer.clearEdgeVars();
         }else{
             if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.portMatchCloseEnough()){

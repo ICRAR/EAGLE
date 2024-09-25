@@ -26,6 +26,7 @@ import * as ko from "knockout";
 
 import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
+import { GraphConfig } from "./GraphConfig";
 import { LogicalGraph } from './LogicalGraph';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -135,11 +136,26 @@ export class Translator {
     }
 
     private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
+        // check if the graph is committed before translation
+        if (eagle.logicalGraph().fileInfo().modified && !Setting.findValue(Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION)){
+            Utils.showNotification("Unable to Translate", "Please save/commit the graph before attempting translation", "danger");
+            return;
+        }
+
+        // clone the logical graph
+        const lgClone: LogicalGraph = eagle.logicalGraph().clone();
+        const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
+
+        // if there is a GraphConfig, apply GraphConfig to logicalGraph
+        if (activeConfig !== null){
+            GraphConfig.apply(lgClone, activeConfig);
+        }
+
         // get json for logical graph
         let jsonString: string;
         switch (format){
             case Daliuge.SchemaVersion.OJS:
-                jsonString = LogicalGraph.toOJSJsonString(eagle.logicalGraph(), true);
+                jsonString = LogicalGraph.toOJSJsonString(lgClone, true);
                 break;
             default:
                 console.error("Unsupported graph format for translator!");

@@ -19,12 +19,12 @@
         <ul id="navBarToolBar" class="nav navbar-nav navbar-center">
 
             <!-- navbar category -->
-            <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example">
+            <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example">
                 <span class="navBarToolBarTitle">Graph</span>
                 <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
                     <i class="material-icons md-18">info</i>
                 </button>
-                <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.openParamsTableModal('keyParametersTableModal', 'normal')}, eagleTooltip: `Configure Key Graph Attributes ` + Utils.getKeyboardShortcutTextByKey('open_key_parameter_table_modal', true)">
+                <button id="openKeyParameterTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Attributes Configuration ` + Utils.getKeyboardShortcutTextByKey('open_graph_attributes_configuration_table_modal', true)">
                     <i class="md-18 icon-key_attribute_table"></i>
                 </button>
                 <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >
@@ -33,11 +33,11 @@
             </div>
 
             <!-- navbar category -->
-            <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example">
+            <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example">
                 <button id="centerGraph" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, eagleTooltip: 'Center Graph ' + Utils.getKeyboardShortcutTextByKey('center_graph', true)" >
                     <i class="material-icons md-18">filter_center_focus</i>
                 </button>
-                <button id="screenshot" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: saveGraphScreenshot, eagleTooltip: 'Screenshot the graph <br><br><em>This will ask for permission to record the screen. If it doesnt, your browser may lack permissions or might be blocked from asking for them.<br> If the current tab is not automatically selected, please select this tab, window or screen. Note, in this case cropping of the graph may not be accuate.</em>' " >
+                <button id="screenshot" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: saveGraphScreenshot, eagleTooltip: 'Screenshot the graph <br><br><em>This will ask for permission to record the screen. If it doesn`t, your browser may lack permissions or might be blocked from asking for them.<br> If the current tab is not automatically selected, please select this tab, window or screen. Note, in this case cropping of the graph may not be accurate.</em>' " >
                     <i class="material-icons md-18">photo_camera</i>
                 </button>                
                 <!--
@@ -65,7 +65,7 @@
             </div>
 
             <!-- navbar category -->
-            <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example">
+            <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example">
                 <span class="navBarToolBarTitle">Editing</span>
                 <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                     <!--
@@ -86,7 +86,7 @@
 
             <!-- navbar category -->
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                <div class="btn-group  ms-4 navbarGroup" role="group" aria-label="Basic example" data-bind="css: {'navbarGroupWarning': graphWarnings().length > 0, 'navbarGroupError': graphErrors().length > 0,'navbarGroupSuccess':graphWarnings().length === 0 && graphErrors().length === 0}">
+                <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example" data-bind="css: {'navbarGroupWarning': graphWarnings().length > 0, 'navbarGroupError': graphErrors().length > 0,'navbarGroupSuccess':graphWarnings().length === 0 && graphErrors().length === 0}">
                     <span class="navBarToolBarTitle">Issues</span>
                     <!-- ko if: graphWarnings().length === 0 && graphErrors().length === 0 -->
                         <button id="checkGraphDone" class="btn navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, eagleTooltip: 'Check Graph for Errors'">
@@ -134,8 +134,8 @@
                         <div class="dropdown-divider"></div>
                         <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                             <div class="dropDropDown">
-                                <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Graph)}">Save</a>
-                                <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Graph)}">Save As</a>
+                                <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(eagle.logicalGraph().fileInfo().type)}">Save</a>
+                                <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(eagle.logicalGraph().fileInfo().type)}">Save As</a>
                                 <a class="dropdown-item" id="gitLoadGraphFromRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}">Load From Repository</a>
                             </div>
                         </span>
@@ -151,7 +151,7 @@
                             </div>
                         </span>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: displayLogicalGraphAsJson">Display As Json</a>
+                        <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: function(){displayObjectAsJson(Eagle.FileType.Graph);}">Display As Json</a>
                     <!-- /ko -->
                     <!-- ko ifnot: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                         <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save</a>
@@ -205,6 +205,23 @@
             </li>
             <!-- /ko -->
             <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle ms-auto" href="#" id="navbarDropdownConfig" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Config
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownConfig">
+                    <a class="dropdown-item" id="createNewConfig" href="#" data-bind="click: newConfig">New
+                        <span data-bind="text: Utils.getKeyboardShortcutTextByKey('new_config', true)"></span>
+                    </a>
+                    <a class="dropdown-item" id="saveConfig" href="#" data-bind="click: saveConfig">Save
+                        <span data-bind="text: Utils.getKeyboardShortcutTextByKey('save_config', true)"></span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" id="displayAllConfigs" href="#" data-bind="click: GraphConfigurationsTable.openModal">Display All
+                        <span data-bind="text: Utils.getKeyboardShortcutTextByKey('open_graph_configurations_table_modal', true)"></span>
+                    </a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownHelp" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Help
                 </a>
@@ -212,7 +229,7 @@
                     <a class="dropdown-item" id="about" href="#" data-bind="click: showAbout">About</a>
                     <span class="dropdown-item dropDropDownParent" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownTutorials">Tutorials
                         <div class="dropDropDown">
-                            <a class="dropdown-item" id="quickIntroTutBtn" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Quick Start')}">Quick Intoduction</a>
+                            <a class="dropdown-item" id="quickIntroTutBtn" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Quick Start')}">Quick Introduction</a>
                             <a class="dropdown-item" id="graphBuildingTutBtn" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Graph Building')}">Graph Building</a>
                         </div>
                     </span>

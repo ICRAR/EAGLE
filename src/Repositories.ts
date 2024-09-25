@@ -32,7 +32,7 @@ export class Repositories {
     static selectFile(file : RepositoryFile) : void {
         const eagle: Eagle = Eagle.getInstance();
 
-        if(file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.JSON){
+        if(file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.JSON || file.type === Eagle.FileType.Daliuge){
             eagle.showEagleIsLoading()
         }
 
@@ -48,6 +48,9 @@ export class Repositories {
                 break;
             }
             case Eagle.FileType.JSON:
+                isModified = eagle.logicalGraph().fileInfo().modified;
+                break;
+            case Eagle.FileType.Daliuge:
                 isModified = eagle.logicalGraph().fileInfo().modified;
                 break;
         }
