@@ -249,10 +249,6 @@ export class KeyboardShortcut {
             new KeyboardShortcut("addSelectedNodeToPalette", "Add Selected Nodes To Palette", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.addSelectedNodesToPalette('normal');}),
             new KeyboardShortcut("screenshotGraph", "Save Graph as PNG (Screenshot)", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['print','printScreen','screen','save','png'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.saveGraphScreenshot();}),
 
-            // graph configs
-            new KeyboardShortcut("newConfig", "Create New Config", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.newConfig();}),
-            new KeyboardShortcut("saveConfig", "Save Config", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, [], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.saveConfig();}),
-
             //docs
             new KeyboardShortcut("docs_load_a_palette", "Loading a Palette", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#loading-a-palette');}),
             new KeyboardShortcut("docs_creating_a_graph", "Creating a Graph", [""], "keydown", KeyboardShortcut.Modifier.None, KeyboardShortcut.true, ['documentation','help'], KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink('https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#creating-a-new-graph');}),

@@ -266,7 +266,6 @@ export class GraphConfig {
     }
 
     setIsFavorite = (favorite: boolean): void => {
-        console.log("setIsFavorite(", favorite, ") for config", this.name());
         this.isFavorite(favorite);
     }
 
