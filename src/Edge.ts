@@ -182,7 +182,6 @@ export class Edge {
         })
 
         return errorsWarnings;
-
     }
 
     getIssues = () : {issue:Errors.Issue, validity:Errors.Validity}[] => {
@@ -338,6 +337,7 @@ export class Edge {
             const issue: Errors.Issue = Errors.ShowFix("Source port (" + sourcePortId + ") doesn't exist on source node (" + sourceNode.getName() + ")", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.addSourcePortToSourceNode(eagle, edgeId)}, "Add source port to source node");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
+            return Errors.Validity.Impossible;
         }
 
         // check if destination port was found
@@ -345,6 +345,7 @@ export class Edge {
             const issue: Errors.Issue = Errors.ShowFix("Destination port (" + destinationPortId + ") doesn't exist on destination node (" + destinationNode.getName() + ")", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.addDestinationPortToDestinationNode(eagle, edgeId)}, "Add destination port to destination node");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
+            return Errors.Validity.Impossible;
         }
 
         // check that we are not connecting a port to itself
