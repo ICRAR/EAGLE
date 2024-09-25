@@ -2145,7 +2145,14 @@ export class Eagle {
     _postLoadGraph = (file: RepositoryFile) : void => {
         // set the active graph config (to the last graph config in the LG)
         const graphConfigs: GraphConfig[] = this.logicalGraph().getGraphConfigs();
-        this.logicalGraph().setActiveGraphConfig(graphConfigs[graphConfigs.length - 1]);
+
+        // if there is at least one graph config, make the last one active
+        // if there are no graph configs, make a new empty graph config and set active
+        if (graphConfigs.length > 0){
+            this.logicalGraph().setActiveGraphConfig(graphConfigs[graphConfigs.length - 1]);
+        } else {
+            this.logicalGraph().setActiveGraphConfig(new GraphConfig());
+        }
 
         //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
         setTimeout(function(){
