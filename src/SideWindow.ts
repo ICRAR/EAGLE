@@ -4,6 +4,7 @@ import { Eagle } from './Eagle';
 import { Utils } from './Utils';
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
+import { GraphRenderer } from "./GraphRenderer";
 
 export class SideWindow {
     // The width remains on the sidewindow, this is because when we are dragging the width of a side window, there are frequent changes to the width. 
@@ -16,10 +17,10 @@ export class SideWindow {
         this.adjusting = ko.observable(false);
     }
 
-    static toggleShown = (isLeft:boolean): void => {
+    static toggleShown = (window:string): void => {
         SideWindow.toggleTransition()
 
-        if(isLeft){
+        if(window === 'left'){
             Setting.find(Setting.LEFT_WINDOW_VISIBLE).toggle()
         }else{
             Setting.find(Setting.RIGHT_WINDOW_VISIBLE).toggle()
@@ -27,10 +28,10 @@ export class SideWindow {
         UiModeSystem.saveToLocalStorage()
     }
 
-    static setShown = (isLeft:boolean,value:boolean): void => {
+    static setShown = (window:string,value:boolean): void => {
         SideWindow.toggleTransition()
 
-        if(isLeft){
+        if(window === 'left'){
             Setting.setValue(Setting.LEFT_WINDOW_VISIBLE,value)
         }else{
             Setting.setValue(Setting.RIGHT_WINDOW_VISIBLE,value)
@@ -115,6 +116,29 @@ export class SideWindow {
         return true;
     }
 
+    static leftWindowAdjustStart(eagle : Eagle, event : JQuery.TriggeredEvent) : boolean {
+        const e: DragEvent = event.originalEvent as DragEvent;
+
+        $(e.target).addClass('windowDragging')
+        Eagle.dragStartX = e.clientX;
+        eagle.leftWindow().adjusting(true);
+        eagle.rightWindow().adjusting(false);
+
+        return true;
+    }
+
+    static bottomWindowAdjustStart(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
+        const e: DragEvent = event.originalEvent as DragEvent;
+        $(e.target).addClass('windowDragging')
+        Eagle.dragStartY = e.clientY;
+        eagle.leftWindow().adjusting(false);
+        eagle.rightWindow().adjusting(false);
+        eagle.bottomWindow().adjusting(true)
+        console.log('bottom window is adjusting',eagle.bottomWindow().adjusting())
+
+        return true;
+    }
+
     // workaround to avoid left or right window adjusting on any and all drag events
     static sideWindowAdjustEnd = (eagle: Eagle, event: JQuery.TriggeredEvent) : boolean => {
         const e: DragEvent = event.originalEvent as DragEvent;
@@ -122,6 +146,7 @@ export class SideWindow {
         $(e.target).removeClass('windowDragging')
         eagle.leftWindow().adjusting(false);
         eagle.rightWindow().adjusting(false);
+        eagle.bottomWindow().adjusting(false)
 
         return true;
     }
@@ -130,7 +155,8 @@ export class SideWindow {
         const e: DragEvent = event.originalEvent as DragEvent;
 
         // workaround to avoid final dragEvent at 0,0!
-        if (e.clientX === 0){
+        if (e.clientX === 0 || e.clientY === 0){
+            console.log('returning due to a no mouse tracking issue')
             return true;
         }
 
@@ -142,42 +168,55 @@ export class SideWindow {
             console.warn("Had to reset right window width from invalid state (NaN)!");
             eagle.rightWindow().size(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
         }
-
-        const dragDiff : number = e.clientX - Eagle.dragStartX;
-        let newWidth : number;
+        if (isNaN(eagle.bottomWindow().size())){
+            console.warn("Had to reset bottom window height from invalid state (NaN)!");
+            eagle.bottomWindow().size(Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal());
+        }
+    
+        let dragDiff : number = 0
+        let newSize : number;
 
         if (eagle.leftWindow().adjusting()){
-            newWidth = eagle.leftWindow().size() + dragDiff;
-            if(newWidth <= Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal()){
+            // dragDiff = e.clientX - Eagle.dragStartX;
+            // newSize = eagle.leftWindow().size() + dragDiff;
+            newSize = e.clientX
+
+            if(newSize <= Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal()){
                 eagle.leftWindow().size(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
                 Utils.setLeftWindowWidth(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
             }else{
-                eagle.leftWindow().size(newWidth);
-                Utils.setLeftWindowWidth(newWidth);
+                eagle.leftWindow().size(newSize);
+                Utils.setLeftWindowWidth(newSize);
             }
-        } else if(eagle.rightWindow().adjusting()) {
-            newWidth = eagle.rightWindow().size() - dragDiff;
-            if(newWidth <= Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal()){
+        } else if(eagle.rightWindow().adjusting()){
+            // dragDiff = e.clientX - Eagle.dragStartX;
+            // newSize = eagle.rightWindow().size() - dragDiff;
+            newSize = window.innerWidth - e.clientX
+
+            if(newSize <= Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal()){
                 eagle.rightWindow().size(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
                 Utils.setRightWindowWidth(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
             }else{
-                eagle.rightWindow().size(newWidth);
-                Utils.setRightWindowWidth(newWidth);
+                eagle.rightWindow().size(newSize);
+                Utils.setRightWindowWidth(newSize);
+            }
+        }else if(eagle.bottomWindow().adjusting()){
+            // dragDiff = e.clientY - Eagle.dragStartY;
+            // newSize = eagle.bottomWindow().size() - dragDiff;
+            newSize = window.innerHeight - e.clientY
+
+            
+            if(newSize <= Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal()){
+                eagle.bottomWindow().size(Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal());
+                Utils.setBottomWindowHeight(Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal());
+            }else{
+                eagle.bottomWindow().size(newSize);
+                Utils.setBottomWindowHeight(newSize);
             }
         }
 
         Eagle.dragStartX = e.clientX;
-
-        return true;
-    }
-
-    static leftWindowAdjustStart(eagle : Eagle, event : JQuery.TriggeredEvent) : boolean {
-        const e: DragEvent = event.originalEvent as DragEvent;
-
-        $(e.target).addClass('windowDragging')
-        Eagle.dragStartX = e.clientX;
-        eagle.leftWindow().adjusting(true);
-        eagle.rightWindow().adjusting(false);
+        Eagle.dragStartY = e.clientY;
 
         return true;
     }

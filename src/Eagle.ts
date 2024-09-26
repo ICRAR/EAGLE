@@ -54,7 +54,6 @@ import { RepositoryFile } from './RepositoryFile';
 import { RightClick } from "./RightClick";
 import { Setting, SettingsGroup } from './Setting';
 import { SideWindow } from './SideWindow';
-import { BottomWindow } from './BottomWindow';
 import { Translator } from './Translator';
 import { Tutorial, tutorialArray } from './Tutorial';
 import { Undo } from './Undo';
@@ -75,7 +74,7 @@ export class Eagle {
 
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
-    bottomWindow : ko.Observable<BottomWindow>;
+    bottomWindow : ko.Observable<SideWindow>;
 
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
@@ -151,7 +150,7 @@ export class Eagle {
 
         this.leftWindow = ko.observable(new SideWindow(Utils.getLeftWindowWidth()));
         this.rightWindow = ko.observable(new SideWindow(Utils.getRightWindowWidth()));
-        this.bottomWindow = ko.observable(new BottomWindow(Utils.getBottomWindowHeight()));
+        this.bottomWindow = ko.observable(new SideWindow(Utils.getBottomWindowHeight()));
 
         this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
@@ -404,8 +403,8 @@ export class Eagle {
     toggleWindows = () : void  => {
         const setOpen = !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)
 
-        SideWindow.setShown(true, setOpen);
-        SideWindow.setShown(false, setOpen);
+        SideWindow.setShown('left', setOpen);
+        SideWindow.setShown('right', setOpen);
     }
 
     emptySearchBar = (target : ko.Observable,data:string, event : Event) => {
@@ -706,7 +705,7 @@ export class Eagle {
     changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {
         Setting.setValue(Setting.RIGHT_WINDOW_MODE,requestedMode)
         
-        SideWindow.setShown(false,true)
+        SideWindow.setShown('right',true)
 
         //trigger a re-render of the hierarchy
         if (Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy){
