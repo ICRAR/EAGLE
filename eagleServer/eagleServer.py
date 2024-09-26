@@ -736,6 +736,29 @@ def open_git_hub_file():
     return response
 
 
+@app.route("/deleteRemoteGithubFile", methods=["POST"])
+def delete_git_hub_file():
+    """
+    FLASK POST routing method for '/deleteRemoteGithubFile'
+
+    Deletes a file from a GitHub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
+    """
+    content = request.get_json(silent=True)
+    repo_name = content["repositoryName"]
+    repo_branch = content["repositoryBranch"]
+    repo_service = content["repositoryService"]
+    repo_token = content["token"]
+    filename = content["filename"]
+    extension = os.path.splitext(filename)[1]
+
+    print("delete_git_hub_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
+
+    import time
+    time.sleep(3)
+
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
+
 @app.route("/openRemoteGitlabFile", methods=["POST"])
 def open_git_lab_file():
     """

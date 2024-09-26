@@ -82,6 +82,30 @@ export class Repository {
         }
     }
 
+    deleteFile = (file: RepositoryFile) : void => {
+        let pointer: Repository | RepositoryFolder = this;
+
+        if (file.path !== ""){
+            // traverse down the folder structure
+            const pathParts: string[] = file.path.split('/');
+            for (const pathPart of pathParts){
+                for (const folder of pointer.folders()){
+                    if (folder.name === pathPart){
+                        pointer = folder;
+                    }
+                }
+            }
+        }
+
+        // remove the file here
+        for (let i = 0 ; i < pointer.files().length; i++){
+            if (pointer.files()[i]._id === file._id){
+                pointer.files.splice(i, 1);
+                break;
+            }
+        }
+    }
+
     // sorting order
     // 1. alphabetically by service
     // 2. alphabetically by name
