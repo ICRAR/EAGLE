@@ -1664,8 +1664,8 @@ export class Utils {
         });
     }
 
-    static getShortcutDisplay() : {description: string, shortcut: string, function: (eagle:Eagle) => void}[] {
-        const displayShortcuts : {description: string, shortcut: string, function: (eagle: Eagle) => void} []=[];
+    static getShortcutDisplay() : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void}[] {
+        const displayShortcuts : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void} []=[];
         const eagle: Eagle = Eagle.getInstance();
 
         for (const object of Eagle.shortcuts){
@@ -1685,11 +1685,12 @@ export class Utils {
         return displayShortcuts;
     }
 
+    // TODO: could be in KeyboardShortcuts
     static getKeyboardShortcutTextByKey(key: string, addBrackets: boolean) : string {
         for (const shortcut of Eagle.shortcuts){
             if (shortcut.key === key){
                 const firstKeyboardShortcut = shortcut.keys[0] // we only return the first shortcut option set for this shortcut
-                if (shortcut.modifier === KeyboardShortcut.Modifier.None||shortcut.modifier === KeyboardShortcut.Modifier.Input||shortcut.modifier === KeyboardShortcut.Modifier.quickAction){
+                if (shortcut.modifier === KeyboardShortcut.Modifier.None||shortcut.modifier === KeyboardShortcut.Modifier.Input||shortcut.modifier === KeyboardShortcut.Modifier.QuickAction){
                     //some processing of the return
                     //if the return should have brackets they are added here
                     //the first letter of the string returned is also capitalised

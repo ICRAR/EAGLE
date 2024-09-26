@@ -26,7 +26,7 @@ type QuickActionsMatch = {
 
 type QuickActionsResult = {
     title: string,
-    action: (eagle: Eagle) => void
+    action: (eagle: Eagle, event: KeyboardEvent) => void
     shortcut: string,
     icon: string
 }
@@ -216,7 +216,7 @@ export class QuickActions {
     static executeQuickAction(result: QuickActionsResult) : void {
         const eagle: Eagle = Eagle.getInstance();
         QuickActions.initiateQuickAction()
-        result.action(eagle)
+        result.action(eagle, null)
     }
 
     static getQuickActionShortcutHtml(result: QuickActionsResult) : string {
