@@ -84,13 +84,16 @@ export class Repository {
 
     deleteFile = (file: RepositoryFile) : void => {
         let pointer: Repository | RepositoryFolder = this;
+        let lastPointer: Repository | RepositoryFolder = null;
+        const fileIsInTopLevelOfRepo: boolean = file.path === "";
 
-        if (file.path !== ""){
+        if (!fileIsInTopLevelOfRepo){
             // traverse down the folder structure
             const pathParts: string[] = file.path.split('/');
             for (const pathPart of pathParts){
                 for (const folder of pointer.folders()){
                     if (folder.name === pathPart){
+                        lastPointer = pointer;
                         pointer = folder;
                     }
                 }
@@ -102,6 +105,18 @@ export class Repository {
             if (pointer.files()[i]._id === file._id){
                 pointer.files.splice(i, 1);
                 break;
+            }
+        }
+
+        // check if we removed the last file in the folder
+        // if so, the remove the folder too
+        if (!fileIsInTopLevelOfRepo){
+            if (pointer.files().length === 0){
+                for (let i = 0; i < lastPointer.folders().length ; i++){
+                    if (lastPointer.folders()[i].name === pointer.name){
+                        lastPointer.folders.splice(i, 1);
+                    }
+                }
             }
         }
     }
