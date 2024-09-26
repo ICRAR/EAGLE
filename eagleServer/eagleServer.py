@@ -858,6 +858,48 @@ def open_git_lab_file():
     return response
 
 
+@app.route("/deleteRemoteGitlabFile", methods=["POST"])
+def delete_git_lab_file():
+    """
+    FLASK POST routing method for '/deleteRemoteGitlabFile'
+
+    Deletes a file from a GitLab repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
+    """
+    content = request.get_json(silent=True)
+    repo_name = content["repositoryName"]
+    repo_branch = content["repositoryBranch"]
+    repo_service = content["repositoryService"]
+    repo_token = content["token"]
+    filename = content["filename"]
+    extension = os.path.splitext(filename)[1]
+
+    #print("delete_git_lab_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
+
+    # Extracting the true repo name and repo folder.
+    folder_name, repo_name = extract_folder_and_repo_names(repo_name)
+    if folder_name != "":
+        filename = folder_name + "/" + filename
+
+    # get the data from gitlab
+    gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
+
+    try:
+        gl.auth()
+    except Exception as e:
+        print(e)
+        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+
+    project = gl.projects.get(repo_name)
+
+    try:
+        project.files.delete(file_path=filename, branch=repo_branch, commit_message="File removed by EAGLE")
+    except gitlab.exceptions.GitlabDeleteError as gle:
+        print("GitLabDeleteError {0}/{1}/{2}: {3}".format(repo_name, repo_branch, filename, str(gle)))
+        return app.response_class(response=json.dumps({"error":str(gle)}), status=404, mimetype="application/json")
+
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
+
 @app.route("/openRemoteUrlFile", methods=["POST"])
 def open_url_file():
     """
