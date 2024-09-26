@@ -751,10 +751,26 @@ def delete_git_hub_file():
     filename = content["filename"]
     extension = os.path.splitext(filename)[1]
 
-    print("delete_git_hub_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
+    #print("delete_git_hub_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
 
-    import time
-    time.sleep(3)
+    g = github.Github(repo_token)
+
+    try:
+        repo = g.get_repo(repo_name)
+    except Exception as e:
+        print(e)
+        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+
+    # get commits
+    commits = repo.get_commits(sha=repo_branch, path=filename)
+    most_recent_commit = commits[0]
+
+    # get the file from this commit
+    try:
+        f = repo.get_contents(filename, ref=most_recent_commit.sha)
+        repo.delete_file(f.path, "File removed by EAGLE", f.sha, branch=repo_branch)
+    except github.GithubException as e:
+        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
 
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
