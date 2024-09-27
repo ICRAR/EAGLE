@@ -1670,11 +1670,11 @@ export class Utils {
 
         for (const object of Eagle.shortcuts){
             // skip if shortcut should not be displayed
-            if (!object.display(eagle)){
+            if (!object.shortcutListDisplay(eagle)){
                 continue;
             }
 
-            const shortcut: string = Utils.getKeyboardShortcutTextByKey(object.key, false);
+            const shortcut: string = KeyboardShortcut.idToText(object.id, false);
             displayShortcuts.push({
                 description: object.name,
                 shortcut: shortcut,
@@ -1683,34 +1683,6 @@ export class Utils {
         }
 
         return displayShortcuts;
-    }
-
-    // TODO: could be in KeyboardShortcuts
-    static getKeyboardShortcutTextByKey(key: string, addBrackets: boolean) : string {
-        for (const shortcut of Eagle.shortcuts){
-            if (shortcut.key === key){
-                const firstKeyboardShortcut = shortcut.keys[0] // we only return the first shortcut option set for this shortcut
-                if (shortcut.modifier === KeyboardShortcut.Modifier.None||shortcut.modifier === KeyboardShortcut.Modifier.Input||shortcut.modifier === KeyboardShortcut.Modifier.QuickAction){
-                    //some processing of the return
-                    //if the return should have brackets they are added here
-                    //the first letter of the string returned is also capitalised
-                    if (addBrackets){
-                        return "[ " + firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1) + " ]"
-                    } else {
-                        return firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1)
-                    }
-                } else {
-                    if (addBrackets){
-                        return "[ " + shortcut.modifier + " + " + firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1) + " ]"
-                    } else {
-                        return shortcut.modifier + " + " + firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1)
-                    }
-                }
-            }
-        }
-
-        console.warn("Could not find keyboard shortcut text for key", key);
-        return "";
     }
 
     static markdown2html(markdown: string) : string {

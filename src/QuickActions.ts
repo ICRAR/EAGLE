@@ -117,6 +117,7 @@ export class QuickActions {
         }
     }
 
+    // TODO: maybe look at this
     static matchAndSortFunction(func: KeyboardShortcut, searchTerm: string) : QuickActionsMatch {
         let result: QuickActionsMatch;
         let funcElement: QuickActionsResult;
@@ -129,7 +130,7 @@ export class QuickActions {
             match = true
         }
         
-        func.quickActionTags.forEach(function(tag){
+        func.tags.forEach(function(tag){
             if(tag.toLocaleLowerCase().includes(searchTerm)){
                 match = true
             }
@@ -150,13 +151,17 @@ export class QuickActions {
                 icon: ""
             };
 
+            // TODO: this is not ideal, we're introducing an extra loop to search by id, when we already have func!
+            funcElement.shortcut = KeyboardShortcut.idToText(func.id, true);
+            /*
             if(func.modifier != 'none'){
                 funcElement.shortcut = func.modifier + " " + func.keys
             }else{
                 funcElement.shortcut = func.keys.toString()
             }
+            */
 
-            if(func.key.startsWith('docs_')){
+            if(func.id.startsWith('docs_')){
                 funcElement.icon = 'icon-book'
             }else{
                 funcElement.icon = 'icon-build'
@@ -184,7 +189,7 @@ export class QuickActions {
 
                 //checking priority for function tags
                 if(!wordMatched){
-                    for(const tag of func.quickActionTags){
+                    for(const tag of func.tags){
                         if(searchWord.toLocaleLowerCase() === tag.toLocaleLowerCase()){
                             tagMatched = true
                             break
@@ -219,6 +224,8 @@ export class QuickActions {
         result.action(eagle, null)
     }
 
+    // TODO: this seems unnecessary
+    /*
     static getQuickActionShortcutHtml(result: QuickActionsResult) : string {
         if(result.shortcut != ''){
             return ' ['+result.shortcut+']'
@@ -226,6 +233,7 @@ export class QuickActions {
             return ''
         }
     }
+    */
 
     static updateQuickActionSearchTerm(eagle: Eagle, event: KeyboardEvent ): void {
         const searchTerm: string = $(event.target).val().toString();
