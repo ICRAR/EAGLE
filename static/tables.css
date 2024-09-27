@@ -207,6 +207,7 @@ td:first-child input {
     border: none;
     justify-content: unset;
     border-top: solid 2px black;
+    height: 46px;
 }
 
 #parameterTable .eagleTableHeader button{
@@ -222,7 +223,7 @@ td:first-child input {
     transform: translateY(2px);
 }
 
-#parameterTable .modal-body{
+#parameterTable .tableBody{
     padding: 0px;
 }
 
@@ -235,6 +236,7 @@ td:first-child input {
 .eagleTableWrapper thead{
     position: sticky;
     z-index: 111;
+    top: 24px;
 }
 
 .eagleTableWrapper th{
@@ -269,6 +271,15 @@ td:first-child input {
     position: unset;
     top: 0px;
     padding: 3px;
+}
+
+#parameterTable .tableBody{
+    background-color: aliceblue;
+    overflow: auto;
+    width: 100%;
+    position: absolute;
+    top: 53px;
+    height: calc(100% - 46px);
 }
 
 .eagleTableWrapper tr:nth-child(even) {
@@ -360,7 +371,7 @@ td:first-child input {
     position: relative;
 }
 
-.eagleTableModal  td i, #editFieldModal .modal-body .dropdown-item i{
+.eagleTableModal  td i, #editFieldModal .tableBody .dropdown-item i{
     margin-left: 50%;
     transform: translate(-50%, 2px);
 }
@@ -489,7 +500,7 @@ td:first-child input {
 #graphConfigurationsTableWrapper {
 }
 
-#graphConfigurationsTableModal .modal-body{
+#graphConfigurationsTableModal .tableBody{
     padding: 0px;
 }
 

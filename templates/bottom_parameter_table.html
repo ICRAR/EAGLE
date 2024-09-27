@@ -60,7 +60,7 @@
             <input class="componentSearchBar" type="text" placeholder="Search: eg. app, string" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.tableSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}},eagleTooltip:`Search for names, types, anything really! You may enter several terms that should match separated by a ','`">
         </div>
     </div>
-    <div class="modal-body">
+    <div class="tableBody">
         <!-- ko if: ParameterTable.getTableFields().length === 0 -->
             <div class="container h-100">
                 <div class="row align-items-center h-100">
