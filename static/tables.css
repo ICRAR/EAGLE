@@ -2,7 +2,7 @@
     top: 24px;
 }
 
-#parameterTableModal #tableInspector{
+#parameterTable #tableInspector{
     position: sticky;
     top: 0px;
     z-index: 111;
@@ -32,9 +32,9 @@
     outline: none;
 }
 
-#parameterTableModalAddParameterButton{
+#parameterTableAddParameterButton{
     left: 15px;
-    position: absolute;
+    /* position: absolute; */
 }
 
 #tableInspectorSelection{
@@ -65,7 +65,7 @@
     color: black;
 }
 
-#parameterTableModal .column_Actions {
+#parameterTable .column_Actions {
     overflow: hidden;
 }
 
@@ -80,6 +80,7 @@ td:first-child input {
     width: 34px;
     padding: 5px;
     cursor: pointer;
+    top: 9px;
 }
 
 #parameterTableVisibilityContainer .dropdown-toggle::after{
@@ -180,17 +181,17 @@ td:first-child input {
     max-width: 27px;
 }
 
-#parameterTableModal .column_DisplayText button{
+#parameterTable .column_DisplayText button{
     position: absolute;
     right: 2px;
     top: 2px;
 }
 
-#parameterTableModal .column_DisplayText:hover button{
+#parameterTable .column_DisplayText:hover button{
     visibility:visible !important;
 }
 
-#parameterTableModal .column_Encoding .faded{
+#parameterTable .column_Encoding .faded{
     color: #5b5b5b;
 }
 
@@ -202,23 +203,26 @@ td:first-child input {
     width: 80px;
 }
 
-#parameterTableModal .modal-header{
+#parameterTable .eagleTableHeader{
     border: none;
     justify-content: unset;
+    border-top: solid 2px black;
 }
 
-#parameterTableModal .modal-header button{
+#parameterTable .eagleTableHeader button{
     background: transparent;
     border: none;
     padding: 0px;
     margin-left: 5px;
+    top: 11px;
+    position: absolute;
 }
 
-#parameterTableModal .modal-header button i{
+#parameterTable .eagleTableHeader button i{
     transform: translateY(2px);
 }
 
-#parameterTableModal .modal-body{
+#parameterTable .modal-body{
     padding: 0px;
 }
 
@@ -246,11 +250,25 @@ td:first-child input {
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
-
 }
 
 .eagleTableWrapper tr {
     background-color: white;
+}
+
+.header-center{
+    position: absolute;
+    left: 50%;
+    transform: translatex(-50%) !important;
+    top: 9px;
+}
+
+#parameterTable .header-center button{
+    background-color: #001933;
+    border: solid 2px white;
+    position: unset;
+    top: 0px;
+    padding: 3px;
 }
 
 .eagleTableWrapper tr:nth-child(even) {
@@ -304,38 +322,45 @@ td:first-child input {
     outline: none;
 }
 
-.eagleTableModal .modal-dialog{
-    max-width: 1230px;
+.eagleTableModal {
+    width: 100%;
+    height: 100%;
+    color: white;
 }
 
-.eagleTableModal .modal-dialog input, #editFieldModal .modal-dialog .dropdown input{
+.eagleTableModal #parameterTableTitle{
+    padding:11px;
+    margin-left: 24px;
+}
+
+.eagleTableModal  input, #editFieldModal  .dropdown input{
     border: none;
     width:100%;
 }
 
-.eagleTableModal .modal-dialog input:read-only{
+.eagleTableModal  input:read-only{
     color: rgb(91 91 91);
 }
 
-.eagleTableModal .modal-dialog input[type="checkbox"]{
+.eagleTableModal  input[type="checkbox"]{
     height:fit-content;
     width: fit-content;
     margin-left: 50%;
     transform: translateX(-50%);
 }
 
-.eagleTableModal .modal-dialog input[type="checkbox"]:focus{
+.eagleTableModal  input[type="checkbox"]:focus{
     box-shadow: 0 0 0 3px rgb(0, 89, 165);
 }
 
-.eagleTableModal .modal-dialog td:not(:last-child){
+.eagleTableModal  td:not(:last-child){
     padding:0px 3px;
     /* overflow: hidden; */
     border-right: 1px solid rgb(14 2 76 / 16%);
     position: relative;
 }
 
-.eagleTableModal .modal-dialog td i, #editFieldModal .modal-body .dropdown-item i{
+.eagleTableModal  td i, #editFieldModal .modal-body .dropdown-item i{
     margin-left: 50%;
     transform: translate(-50%, 2px);
 }
@@ -363,7 +388,7 @@ td:first-child input {
     overflow-y: auto;
 }
 
-.eagleTableModal .modal-dialog .typesInput{
+.eagleTableModal  .typesInput{
     padding: 0px;
     height: 35px;
     width: 100%;
@@ -373,7 +398,7 @@ td:first-child input {
     border-right: solid 1px #bbbbbb;
 }
 
-.eagleTableModal .modal-dialog .input-group{
+.eagleTableModal  .input-group{
     border:black solid 1px;
     border-radius: 2px;
     flex-wrap: unset;
@@ -382,7 +407,7 @@ td:first-child input {
     padding-left:2px;
 }
 
-.eagleTableModal .modal-dialog td button, #editFieldModal .dropdown-menu button{
+.eagleTableModal  td button, #editFieldModal .dropdown-menu button{
     border: none;
     background-color: transparent;
     color: #002e5f;
@@ -393,11 +418,11 @@ td:first-child input {
     border-radius: 10px;
 }
 
-.eagleTableModal .modal-dialog td button:disabled{
+.eagleTableModal  td button:disabled{
     color: rgb(113 113 113);
 }
 
-.eagleTableModal .modal-dialog td button.parameterTableDescriptionBtn, .eagleTableModal .modal-dialog td button.parameterTableCommentBtn {
+.eagleTableModal  td button.parameterTableDescriptionBtn, .eagleTableModal  td button.parameterTableCommentBtn {
     position: absolute;
     right: 4px;
     top: 2px;
@@ -412,6 +437,7 @@ td:first-child input {
     position: absolute;
     right: 20px;
     width: 300px;
+    top: 9px;
 }
 
 @media only screen and (max-width: 2010px) {

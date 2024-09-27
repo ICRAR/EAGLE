@@ -3931,7 +3931,7 @@ export class Eagle {
             $(clickTarget).trigger("select")
 
             //scroll to new row
-            $("#parameterTableModal .modal-body").animate({
+            $("#parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
@@ -4232,7 +4232,7 @@ export class Eagle {
 
         // if we are summoning this editField modal from the params table, close the params table
         if (modalType === Eagle.ModalType.Field){
-            $('#parameterTableModal').modal("hide");
+            $('#parameterTable').modal("hide");
         }
 
         //if creating a new field
@@ -4305,7 +4305,7 @@ export class Eagle {
 
                 // if we summoned this editField modal from the params table, now that we are done, re-open the params table
                 if (modalType === Eagle.ModalType.Field){
-                    $('#parameterTableModal').modal("show");
+                    $('#parameterTable').modal("show");
                 }
             });
         }
@@ -4334,7 +4334,7 @@ export class Eagle {
             clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
             $(clickTarget).trigger("select")
 
-            $("#parameterTableModal .modal-body").animate({
+            $("#parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);

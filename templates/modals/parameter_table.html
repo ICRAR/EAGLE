@@ -1,16 +1,16 @@
 <!-- Parameter/arguments table Modal -->
-<div class="modal fade eagleTableModal" id="parameterTableModal" tabindex="-1" role="dialog" aria-labelledby="parameterTableModalTitle" aria-hidden="true">
+<div class="modal fade eagleTableModal" id="parameterTable" tabindex="-1" role="dialog" aria-labelledby="parameterTableTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <!-- ko if: ParameterTable.showTableModal() -->
                 <div class="modal-header" data-bind="click: function(){ParameterTable.resetSelection()}">
                     <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
-                        <h5 class="modal-title" id="parameterTableModalTitle">
+                        <h5 class="modal-title" id="parameterTableTitle">
                             Graph Attributes Configuration Table: <span data-bind="html: $root.logicalGraph().getActiveGraphConfig() ? $root.logicalGraph().getActiveGraphConfig().name() : ''"></span>
                         </h5>
                     <!-- /ko -->
                     <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
-                        <h5 class="modal-title" id="parameterTableModalTitle">Fields Table: <span data-bind="html: selectedNode().getName()"></span></h5>
+                        <h5 class="modal-title" id="parameterTableTitle">Fields Table: <span data-bind="html: selectedNode().getName()"></span></h5>
                         <!-- ko if: selectedNode() != null -->
                             <!-- ko if: selectedNode().isLocked() -->
                                 <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: Utils.getReadOnlyText()">
@@ -453,7 +453,7 @@
                 <div class="modal-footer"  data-bind="click: ParameterTable.resetSelection">
                     <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) -->
                         <!-- ko if: selectedNode() != null -->
-                        <button type="button" class="btn btn-primary" id="parameterTableModalAddParameterButton" data-bind="click: ParameterTable.addEmptyTableRow, clickBubble:false, disabled: selectedNode().isLocked()" ><span id="parameterTableModalAddParameter">Add Parameter</span></button>
+                        <button type="button" class="btn btn-primary" id="parameterTableAddParameterButton" data-bind="click: ParameterTable.addEmptyTableRow, clickBubble:false, disabled: selectedNode().isLocked()" ><span id="parameterTableAddParameter">Add Parameter</span></button>
                         <!-- /ko -->
                         <!-- ko if: selectedNode() != null && selectedNode().getCategory() === Category.Docker -->
                             <button id="tableOpenDocker" class="btn btn-primary float-left" data-bind="click: ParameterTable.initiateBrowseDocker, clickBubble: false, eagleTooltip: `Browse images on dockerhub`" data-bs-toggle="tooltip" data-html="true" data-bs-placement="right" data-bs-original-title="">
@@ -461,7 +461,7 @@
                             </button>
                         <!-- /ko -->
                     <!-- /ko -->
-                    <button type="button" class="btn btn-primary" id="parameterTableModalAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="parameterTableModalAffirmativeAnswer">Close</span></button>
+                    <button type="button" class="btn btn-primary" id="parameterTableAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="parameterTableAffirmativeAnswer">Close</span></button>
                 </div>
             <!-- /ko -->
         </div>

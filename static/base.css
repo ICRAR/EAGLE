@@ -742,12 +742,12 @@ color: #00bb00;}
     background: white;
 }
 
-.rightWindow ::-webkit-scrollbar-thumb, #parameterTableModal ::-webkit-scrollbar-thumb{
+.rightWindow ::-webkit-scrollbar-thumb, #parameterTable ::-webkit-scrollbar-thumb{
     background: #002349;
     border-radius: 5px;
 }
 
-.rightWindow ::-webkit-scrollbar-track, #parameterTableModal ::-webkit-scrollbar-track{
+.rightWindow ::-webkit-scrollbar-track, #parameterTable ::-webkit-scrollbar-track{
     background: rgb(216 221 240);
     border-radius: 5px;
 }

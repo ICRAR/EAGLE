@@ -188,8 +188,9 @@
             <div id="bottomWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), height: Utils.getBottomWindowHeight(), bottom: Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) ? 0 : -bottomWindow().height()}">
                 <div class="wrapper">
                     <div class="dragHandle" draggable="true" data-bind="event: { dragstart: SideWindow.bottomWindowAdjustStart, dragend: SideWindow.sideWindowAdjustEnd }"></div>
-                    <div class="tabs"></div>
+                    <!-- <div class="tabs"></div> -->
                     <div class="content">
+                        {% include 'bottom_parameter_table.html' %}
     
                     </div>
                 </div>
