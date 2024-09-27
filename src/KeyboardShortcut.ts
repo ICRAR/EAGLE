@@ -53,6 +53,29 @@ export class KeyboardShortcut {
         this.run = run;
     }
 
+    getText(addBrackets: boolean): string {
+        const texts: string[] = [];
+        
+        for (const key of this.keys){
+            // add actual key (capitalized)
+            let result = key.key.charAt(0).toUpperCase() + key.key.slice(1);
+
+            // prepend modifier if required
+            if (key.modifier !== KeyboardShortcut.Modifier.None){
+                result = key.modifier + "+" + result;
+            }
+
+            texts.push(result);
+        }
+
+        // surround with brackets if required
+        if (addBrackets){
+            return "[ " + texts.join(', ') + " ]";       
+        } else {
+            return texts.join(', ');
+        }
+    }
+
     static nodeIsSelected(eagle: Eagle) : boolean {
         return eagle.selectedNode() !== null;
     }
@@ -312,22 +335,7 @@ export class KeyboardShortcut {
     static idToText(id: string, addBrackets: boolean) : string {
         for (const shortcut of Eagle.shortcuts){
             if (shortcut.id === id){
-                const firstKeyboardShortcutKey: Key = shortcut.keys[0]; // we only return the first shortcut option set for this shortcut
-
-                // add actual key (capitalized)
-                let result = firstKeyboardShortcutKey.key.charAt(0).toUpperCase() + firstKeyboardShortcutKey.key.slice(1);
-
-                // prepend modifier if required
-                if (firstKeyboardShortcutKey.modifier !== KeyboardShortcut.Modifier.None){
-                    result = firstKeyboardShortcutKey.modifier + " + " + result;
-                }
-
-                // surround with brackets if required
-                if (addBrackets){
-                    result = "[ " + result + " ]";
-                }
-
-                return result;
+                return shortcut.getText(addBrackets);
             }
         }
 
@@ -342,15 +350,7 @@ export namespace KeyboardShortcut{
         Ctrl = "Ctrl",
         Meta = "Meta",
         Shift = "Shift",
-        None = "none",
+        None = "None",
         MetaShift = "Meta + Shift",
-
-        //Input = "Input", //special case for shortcuts in the table modal that allow the user to move from cell to cell
-        //QuickAction = "QuickAction" // determines when a shortcut should be usable when the quick actions system is active
-
-        // we are filtering out all shortcuts that shouldn't run if an input or text field is selected
-        //if(dataEntryElementInFocus && shortcut.modifier !== KeyboardShortcut.Modifier.Input && shortcut.modifier !== KeyboardShortcut.Modifier.QuickAction){
-        //    continue;
-        //}
     }
 }

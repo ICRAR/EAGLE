@@ -151,15 +151,8 @@ export class QuickActions {
                 icon: ""
             };
 
-            // TODO: this is not ideal, we're introducing an extra loop to search by id, when we already have func!
-            funcElement.shortcut = KeyboardShortcut.idToText(func.id, true);
-            /*
-            if(func.modifier != 'none'){
-                funcElement.shortcut = func.modifier + " " + func.keys
-            }else{
-                funcElement.shortcut = func.keys.toString()
-            }
-            */
+            // generate text for this shortcut
+            funcElement.shortcut = func.getText(true);
 
             if(func.id.startsWith('docs_')){
                 funcElement.icon = 'icon-book'
