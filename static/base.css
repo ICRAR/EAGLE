@@ -1603,7 +1603,6 @@ select.form-control{
 
 #repositoryList .col-9{
     max-width: 79%;
-    width: auto;
 }
 
 #repositoryList .col-10{
@@ -1635,6 +1634,15 @@ select.form-control{
 #repositoryList ul.repositories i.material-icons.md-18 {
     position: relative;
     top: 4px;
+    font-size: 22px;
+}
+
+#repositoryList ul.repositories .repo-actions i.material-icons.md-18 {
+    visibility: hidden;
+}
+
+#repositoryList ul.repositories .repoFile:hover .repo-actions i.material-icons.md-18 {
+    visibility: visible;
 }
 
 #nodeList ul.nodes {

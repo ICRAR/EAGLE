@@ -1,4 +1,4 @@
-<div class="repoIndent">
+<div class="repoIndent repoFile">
     <div class="row">
         <div class="col col-1">
             <!-- ko if: isFetching -->
@@ -9,17 +9,15 @@
             <i class="material-icons md-18" data-bind="text: getIconUrl"></i>
             <!-- /ko -->
         </div>
-        <div class="col col-10">
+        <div class="col col-9">
             <a href="#" data-bind="click: Repositories.selectFile, attr: {id: htmlId}, eagleTooltip: $data.name" data-bs-placement="left">
                 <span data-bind="text: $data.name"></span>
             </a>
         </div>
-        <!-- ko if: getIconUrl() === "device_hub" -->
-            <div class="col col-1">
+        <div class="col col-2 repo-actions">
+            <!-- ko if: getIconUrl() === "device_hub" -->
                 <i class="material-icons md-18" data-bs-placement="left" style="cursor:pointer;top:3px;" data-bind="click: $root.insertRemoteFile, eagleTooltip: 'Insert'">add_box</i>
-            </div>
-        <!-- /ko -->
-        <div class="col col-1">
+            <!-- /ko -->
             <i class="material-icons md-18" data-bs-placement="left" style="cursor:pointer;top:3px;" data-bind="click: $root.deleteRemoteFile, eagleTooltip: 'Delete'">delete</i>
         </div>
     </div>
