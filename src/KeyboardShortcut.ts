@@ -354,8 +354,9 @@ export class KeyboardShortcut {
     }
 
     static detectPlatform(): KeyboardShortcut.Platform {
-        const userAgent = (<any>navigator).userAgentData.platform.toLowerCase();
-        
+        // if a browser has no support for navigator.userAgentData.platform use platform as fallback
+        const userAgent = ((<any>navigator).userAgentData.platform ?? navigator.platform).toLowerCase();
+
         if (userAgent.includes('win')) {
             return KeyboardShortcut.Platform.Windows;
         } else if (userAgent.includes('mac')) {
@@ -367,6 +368,8 @@ export class KeyboardShortcut {
     }
 
     static modifierOKForPlatform(modifier: KeyboardShortcut.Modifier, platform: KeyboardShortcut.Platform): boolean {
+        // TODO: anything we should do for Linux?
+
         if (modifier === KeyboardShortcut.Modifier.Ctrl && platform === KeyboardShortcut.Platform.Windows){
             return false;
         }
