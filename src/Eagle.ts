@@ -2250,6 +2250,49 @@ export class Eagle {
         });
     };
 
+    deleteRemoteFile = (file : RepositoryFile) : void => {
+        // request confirmation from user
+        Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_FILES), (confirmed : boolean) : void => {
+            if (!confirmed){
+                console.log("User aborted deleteRemoteFile()");
+                return;
+            }
+
+            this._deleteRemoteFile(file);
+        });
+    }
+
+    private _deleteRemoteFile = (file: RepositoryFile): void => {
+        // check the service required to delete the file
+        let deleteRemoteFileFunc;
+
+        switch (file.repository.service){
+            case Repository.Service.GitHub:
+                deleteRemoteFileFunc = GitHub.deleteRemoteFile;
+                break;
+            case Repository.Service.GitLab:
+                deleteRemoteFileFunc = GitLab.deleteRemoteFile;
+                break;
+            default:
+                console.warn("Unsure how to delete file with unknown service ", file.repository.service);
+                break;
+        }
+
+        // run the delete file function
+        deleteRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string) : void => {
+            // display error if one occurred
+            if (error != null){
+                Utils.showNotification("Error deleting file", error, "danger");
+                console.error(error);
+                return;
+            }
+
+            Utils.showNotification("Success", "File deleted", "success");
+            
+            file.repository.deleteFile(file);
+        });
+    }
+
     private _remotePaletteLoaded = (file : RepositoryFile, data : string) : void => {
         // load the remote palette into EAGLE's palettes object.
 
@@ -2357,6 +2400,7 @@ export class Eagle {
     }
 
     resetActionConfirmations = () : void => {
+        Setting.setValue(Setting.CONFIRM_DELETE_FILES, true)
         Setting.setValue(Setting.CONFIRM_DELETE_OBJECTS,true)
         Setting.setValue(Setting.CONFIRM_DISCARD_CHANGES,true)
         Setting.setValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES,true)
