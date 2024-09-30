@@ -550,13 +550,8 @@ export class ParameterTable {
                     // $('#parameterTableModal').modal("show");
                 }, 30);
             }else{
-                if (mode=== ParameterTable.Mode.NodeFields && !eagle.selectedNode()){
-                    // eagle.hideEagleIsLoading()
-                    Utils.showNotification("Error", "No Node Is Selected", "warning");
-                }else{
-                    ParameterTable.mode(mode);
-                    // $('#parameterTableModal').modal("show");
-                }
+                ParameterTable.mode(mode);
+                // $('#parameterTableModal').modal("show");
             }
             ParameterTable.showTableModal(true)
 

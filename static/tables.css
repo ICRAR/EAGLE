@@ -339,6 +339,10 @@ td:first-child input {
     color: white;
 }
 
+.eagleTableModal .text-center{
+    color:#002e5f;
+}
+
 .eagleTableModal #parameterTableTitle{
     padding:11px;
     margin-left: 24px;
