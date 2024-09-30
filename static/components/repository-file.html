@@ -19,8 +19,10 @@
                 <i class="material-icons md-18" data-bs-placement="left" style="cursor:pointer;top:3px;" data-bind="click: $root.insertRemoteFile, eagleTooltip: 'Insert'">add_box</i>
             </div>
         <!-- /ko -->
-        <div class="col col-1">
-            <i class="material-icons md-18" data-bs-placement="left" style="cursor:pointer;top:3px;" data-bind="click: $root.deleteRemoteFile, eagleTooltip: 'Delete'">delete</i>
-        </div>
+        <!-- ko if: type === Eagle.FileType.Daliuge || type === Eagle.FileType.Graph || type === Eagle.FileType.Palette -->
+            <div class="col col-1">
+                <i class="material-icons md-18" data-bs-placement="left" style="cursor:pointer;top:3px;" data-bind="click: $root.deleteRemoteFile, eagleTooltip: 'Delete'">delete</i>
+            </div>
+        <!-- /ko -->
     </div>
 </div>
