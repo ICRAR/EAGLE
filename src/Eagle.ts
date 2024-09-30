@@ -1594,10 +1594,17 @@ export class Eagle {
     }
 
     saveGraph = () : void => {
-        if (this.logicalGraph().fileInfo().repositoryService === Repository.Service.File){
-            this.saveFileToLocal(Eagle.FileType.Graph);
-        } else {
-            this.commitToGit(Eagle.FileType.Graph);
+        switch (this.logicalGraph().fileInfo().repositoryService){
+            case Repository.Service.File:
+                this.saveFileToLocal(Eagle.FileType.Graph);
+                break;
+            case Repository.Service.GitHub:
+            case Repository.Service.GitLab:
+                this.commitToGit(Eagle.FileType.Graph);
+                break;
+            default:
+                this.saveGraphAs();
+                break;
         }
     }
 
@@ -2505,6 +2512,12 @@ export class Eagle {
             return;
         }
 
+        // abort if graph empty
+        if (graph.getNumNodes() === 0){
+            Utils.showNotification("Error", "Can't save an empty graph", "danger");
+            return;
+        }
+
         // clone the logical graph and remove github info ready for local save
         const lg_clone : LogicalGraph = this.logicalGraph().clone();
         lg_clone.fileInfo().removeGitInfo();
@@ -3368,7 +3381,6 @@ export class Eagle {
 
         GraphRenderer.clearPortPeek()
 
-        // if no objects selected, warn user
         if (rightClick){
             data.push(Eagle.selectedRightClickObject())
             location = Eagle.selectedRightClickLocation();
@@ -3383,6 +3395,7 @@ export class Eagle {
             return;
         }
 
+        // if no objects selected, warn user
         if (data.length === 0){
             console.warn("Unable to delete selection: Nothing selected");
             Utils.showNotification("Warning", "Unable to delete selection: Nothing selected", "warning");
