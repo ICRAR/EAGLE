@@ -256,18 +256,34 @@ color: #00bb00;}
 }
 
 #bottomWindow div.tabs{
+    position: absolute;
+    width: 40px;
+    height: 100%;
+    border-right-width: 2px 0px;
+    border-right-style: solid;
+    border-right-color: #4c536d;
+}
+
+#bottomWindow div.tabs button{
     position: relative;
     width: 100%;
-    height: 30px;
-    border-width: 2px 0px;
-    border-style: solid;
-    border-color: #4c536d;
+    background-color: #000;
+    border: none;
+    font-size:24px;    
+    border-bottom: solid 2px white;
+    border-radius: 0px;
+    padding: 2px;
+}
+
+#bottomWindow div.tabs button:focus{
+    outline: none;
 }
 
 #bottomWindow div.content{
     position: relative;
-    width: 100%;
+    width: calc(100% - 40px);
     height: 100%;
+    margin-left: 40px;
 }
 
 #explorePalettesModal #explorePalettesPathContainer{
