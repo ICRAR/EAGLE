@@ -288,7 +288,7 @@ export class KeyboardShortcut {
             new KeyboardShortcut("open_graph_configurations_table_modal", "Open Graph Configurations Table Modal", [new Key("t", KeyboardShortcut.Modifier.Alt), new Key("t", KeyboardShortcut.Modifier.Ctrl)], "keydown", true, false, ['config','graph','table'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {GraphConfigurationsTable.openModal();}),
 
             // shortcuts for use while an input element in focused (inputOK: true)
-            new KeyboardShortcut("quick_action", "Quick Action", [new Key("`")], "keydown", true, true, [''], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.quickActionsClosed, (eagle): void => { QuickActions.initiateQuickAction();}),
+            new KeyboardShortcut("quick_action", "Quick Action", [new Key("`"), new Key("\\")], "keydown", true, true, [''], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.quickActionsClosed, (eagle): void => { QuickActions.initiateQuickAction();}),
             new KeyboardShortcut("table_move_down", "Table move down one cell", [new Key("Enter")], "keydown", false, true, ['controls'], KeyboardShortcut.true, KeyboardShortcut.false, (eagle): boolean => {return ParameterTable.showTableModal();}, (eagle, event): void => { ParameterTable.tableEnterShortcut(event);}),
         ];
     }
