@@ -13,15 +13,11 @@ import { SideWindow } from './SideWindow';
 export class Key {
     key: string;
     modifier: KeyboardShortcut.Modifier;
-    os: string;
 
     constructor(key: string, modifier: KeyboardShortcut.Modifier = KeyboardShortcut.Modifier.None){
         this.key = key;
         this.modifier = modifier;
-        this.os;
     }
-
-    // TODO: getCode? or just use os?
 }
 
 export class KeyboardShortcut {
@@ -55,8 +51,14 @@ export class KeyboardShortcut {
 
     getText(addBrackets: boolean): string {
         const texts: string[] = [];
-        
+        const platform = KeyboardShortcut.detectPlatform();
+
         for (const key of this.keys){
+            // skip key if its not OK for this platform
+            if (!KeyboardShortcut.modifierOKForPlatform(key.modifier, platform)){
+                continue;
+            }
+
             // add actual key (capitalized)
             let result = key.key.charAt(0).toUpperCase() + key.key.slice(1);
 
@@ -149,6 +151,9 @@ export class KeyboardShortcut {
         // get reference to eagle
         const eagle: Eagle = Eagle.getInstance();
 
+        // detect platform
+        const platform = KeyboardShortcut.detectPlatform();
+
         // is a input or textarea in focus
         const inputElementInFocus = $("input,textarea").is(":focus");
 
@@ -167,6 +172,11 @@ export class KeyboardShortcut {
             for (const key of shortcut.keys){
                 // abort if key does not match
                 if (key.key.toLowerCase() !== e.key.toLowerCase()){
+                    continue;
+                }
+
+                // skip key if its not OK for this platform
+                if (!KeyboardShortcut.modifierOKForPlatform(key.modifier, platform)){
                     continue;
                 }
 
@@ -332,7 +342,7 @@ export class KeyboardShortcut {
         ];
     }
 
-    static idToText(id: string, addBrackets: boolean) : string {
+    static idToText(id: string, addBrackets: boolean): string {
         for (const shortcut of Eagle.shortcuts){
             if (shortcut.id === id){
                 return shortcut.getText(addBrackets);
@@ -341,6 +351,30 @@ export class KeyboardShortcut {
 
         console.warn("Could not find keyboard shortcut text for id", id);
         return "";
+    }
+
+    static detectPlatform(): KeyboardShortcut.Platform {
+        const userAgent = (<any>navigator).userAgentData.platform.toLowerCase();
+        
+        if (userAgent.includes('win')) {
+            return KeyboardShortcut.Platform.Windows;
+        } else if (userAgent.includes('mac')) {
+            return KeyboardShortcut.Platform.Mac;
+        } else if (userAgent.includes('linux')) {
+            return KeyboardShortcut.Platform.Linux;
+        }
+        return KeyboardShortcut.Platform.Unknown;
+    }
+
+    static modifierOKForPlatform(modifier: KeyboardShortcut.Modifier, platform: KeyboardShortcut.Platform): boolean {
+        if (modifier === KeyboardShortcut.Modifier.Ctrl && platform === KeyboardShortcut.Platform.Windows){
+            return false;
+        }
+        if (modifier === KeyboardShortcut.Modifier.Alt && platform === KeyboardShortcut.Platform.Mac){
+            return false;
+        }
+
+        return true;
     }
 }
 
@@ -352,5 +386,13 @@ export namespace KeyboardShortcut{
         Shift = "Shift",
         None = "None",
         MetaShift = "Meta + Shift",
+    }
+
+    export enum Platform {
+        All = "All",
+        Linux = "Linux",
+        Mac = "Mac",
+        Windows = "Windows",
+        Unknown = "Unknown"
     }
 }

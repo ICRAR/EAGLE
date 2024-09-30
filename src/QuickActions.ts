@@ -117,7 +117,6 @@ export class QuickActions {
         }
     }
 
-    // TODO: maybe look at this
     static matchAndSortFunction(func: KeyboardShortcut, searchTerm: string) : QuickActionsMatch {
         let result: QuickActionsMatch;
         let funcElement: QuickActionsResult;
@@ -216,17 +215,6 @@ export class QuickActions {
         QuickActions.initiateQuickAction()
         result.action(eagle, null)
     }
-
-    // TODO: this seems unnecessary
-    /*
-    static getQuickActionShortcutHtml(result: QuickActionsResult) : string {
-        if(result.shortcut != ''){
-            return ' ['+result.shortcut+']'
-        }else{
-            return ''
-        }
-    }
-    */
 
     static updateQuickActionSearchTerm(eagle: Eagle, event: KeyboardEvent ): void {
         const searchTerm: string = $(event.target).val().toString();
