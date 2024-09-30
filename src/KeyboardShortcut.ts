@@ -355,7 +355,10 @@ export class KeyboardShortcut {
 
     static detectPlatform(): KeyboardShortcut.Platform {
         // if a browser has no support for navigator.userAgentData.platform use platform as fallback
-        const userAgent = ((<any>navigator).userAgentData.platform ?? navigator.platform).toLowerCase();
+        let userAgent = (<any>navigator)?.userAgentData?.platform?.toLowerCase();
+        if (typeof userAgent === "undefined"){
+            userAgent = navigator.platform.toLowerCase();
+        }
 
         if (userAgent.includes('win')) {
             return KeyboardShortcut.Platform.Windows;
