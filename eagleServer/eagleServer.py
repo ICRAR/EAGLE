@@ -86,9 +86,8 @@ try:
                 continue
             if "COMMIT_HASH" in line:
                 commit_hash = line.split("COMMIT_HASH ")[1].strip()[1:-1]
-                continue
-except:
-    print("Unable to load VERSION file")
+except Exception as e:
+    print(f"Unable to load VERSION file: {e}")
 
 # if the first method was unsuccessful, then run some git commands
 # to find the version and commit_hash
