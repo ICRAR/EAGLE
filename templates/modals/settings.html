@@ -98,7 +98,7 @@
                 <!-- ko if: Setting.findValue( Setting.STUDENT_SETTINGS_MODE) -->
                     <!-- we are displaying some settings here in student mode for the admin to double check everything is set up correctly -->
                     <div class="settingStudentWrapper">
-
+                        <form>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
                                 <span class="input-group-text" data-bind="eagleTooltip: Setting.find(Setting.TRANSLATOR_URL).getDescription()" data-bs-placement="left">Translator url</span>
@@ -109,13 +109,13 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" data-bind="eagleTooltip: Setting.find(Setting.GITHUB_ACCESS_TOKEN_KEY).getDescription()" data-bs-placement="left">GitHub Access Token</span>
                             </div>
-                            <input type="password" class="form-control" disabled data-bind="value: Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY)">
+                            <input type="password" class="form-control" disabled data-bind="value: Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY)" autocomplete="off">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
                                 <span class="input-group-text" data-bind="eagleTooltip: Setting.find(Setting.GITLAB_ACCESS_TOKEN_KEY).getDescription()" data-bs-placement="left">GitLab Access Token</span>
                             </div>
-                            <input type="password" class="form-control" disabled data-bind="value: Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY)">
+                            <input type="password" class="form-control" disabled data-bind="value: Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY)" autocomplete="off">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
@@ -129,6 +129,7 @@
                             </div>
                             <input type="text" class="form-control" disabled data-bind="value: Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY)">
                         </div>
+                        </form>
                     </div>
                 <!-- /ko -->
             </div>
