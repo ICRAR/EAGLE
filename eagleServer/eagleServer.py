@@ -31,6 +31,7 @@ import os
 import sys
 import tempfile
 import six
+import subprocess
 
 import urllib.request
 import ssl
@@ -74,6 +75,9 @@ app.config.from_object("config")
 
 version = "Unknown"
 commit_hash = "Unknown"
+
+# first look for the version and commit_hash in the VERSION file
+# that was generated during the build process
 try:
     with open(staticdir+"/VERSION") as vfile:
         for line in vfile.readlines():
@@ -85,6 +89,12 @@ try:
                 continue
 except:
     print("Unable to load VERSION file")
+
+# if the first method was unsuccessful, then run some git commands
+# to find the version and commit_hash
+if version == "Unknown" and commit_hash == "Unknown":
+    version = subprocess.check_output("git describe --abbrev=0 --tags", shell=True).decode("utf-8").strip() + " (dev)"
+    commit_hash = subprocess.check_output("git rev-parse --short=8 HEAD", shell=True).decode("utf-8").strip()
 
 print("Version: " + version + " Commit Hash: " + commit_hash)
 
