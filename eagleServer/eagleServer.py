@@ -96,8 +96,12 @@ if version == "Unknown" and commit_hash == "Unknown":
     try:
         version = subprocess.run(["git", "describe", "--abbrev=0", "--tags"], capture_output=True, text=True).stdout.strip() + " (dev)"
         commit_hash = subprocess.run(["git", "rev-parse", "--short=8", "HEAD"], capture_output=True, text=True).stdout.strip()
-    except:
-        print("Unable to run git commands to determine version")
+    except subprocess.CalledProcessError as e:
+        print(f"Error running git command: {e}")
+    except FileNotFoundError:
+        print("Git executable not found. Ensure git is installed and in the system PATH.")
+    except Exception as e:
+        print(f"Unexpected error determining version: {e}")
 
 print("Version: " + version + " Commit Hash: " + commit_hash)
 
