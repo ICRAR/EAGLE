@@ -817,6 +817,11 @@ color: #00bb00;}
     overflow-y: scroll;
 }
 
+#settingsModal .settingStudentWrapper form{
+    padding: unset;
+    overflow-y: unset;
+}
+
 #settingsModal .modal-body{
     padding: 0px;
     height: unset;
