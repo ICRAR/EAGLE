@@ -535,7 +535,7 @@ export class ParameterTable {
                 if($('.modal.show').attr('id')==='parameterTable'){
                     // TODO: use closeModal here!
                     $('#parameterTable').modal('hide')
-                    ParameterTable.showTableModal(false)
+                    // ParameterTable.showTableModal(false)
                 }else{
                     return
                 }
@@ -553,7 +553,8 @@ export class ParameterTable {
                 ParameterTable.mode(mode);
                 // $('#parameterTableModal').modal("show");
             }
-            ParameterTable.showTableModal(true)
+            // ParameterTable.showTableModal(true)
+            Setting.find(Setting.BOTTOM_WINDOW_VISIBLE).setValue(true)
 
         },5)
     }

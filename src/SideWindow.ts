@@ -22,8 +22,10 @@ export class SideWindow {
 
         if(window === 'left'){
             Setting.find(Setting.LEFT_WINDOW_VISIBLE).toggle()
-        }else{
+        }else if (window === 'right'){
             Setting.find(Setting.RIGHT_WINDOW_VISIBLE).toggle()
+        }else{
+            Setting.find(Setting.BOTTOM_WINDOW_VISIBLE).toggle()
         }
         UiModeSystem.saveToLocalStorage()
     }
