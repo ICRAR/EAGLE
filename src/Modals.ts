@@ -360,7 +360,7 @@ export class Modals {
             eagle.checkGraph();
         });
 
-        $('.eagleTableModal').on('shown.bs.modal', function(){
+        $('.eagleTableDisplay').on('shown.bs.modal', function(){
             eagle.hideEagleIsLoading()
             Eagle.tableSearchString('')
             $('#parameterTable .componentSearchBar').val('').trigger("focus").trigger("select")

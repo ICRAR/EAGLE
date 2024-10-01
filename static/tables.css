@@ -328,73 +328,73 @@ td:first-child input {
     transform: translate(-50%, 2px);
 }
 
-.eagleTableModal .componentSearchBar{
+.eagleTableDisplay .componentSearchBar{
     border: none;
     outline: none;
 }
 
-.eagleTableModal {
+.eagleTableDisplay {
     width: 100%;
     height: 100%;
     color: white;
 }
 
-.eagleTableModal .text-center{
+.eagleTableDisplay .text-center{
     color:#002e5f;
 }
 
-.eagleTableModal #parameterTableTitle{
+.eagleTableDisplay #parameterTableTitle{
     padding:11px;
     margin-left: 24px;
 }
 
-.eagleTableModal  input, #editFieldModal  .dropdown input{
+.eagleTableDisplay  input, #editFieldModal  .dropdown input{
     border: none;
     width:100%;
 }
 
-.eagleTableModal  input:read-only{
+.eagleTableDisplay  input:read-only{
     color: rgb(91 91 91);
 }
 
-.eagleTableModal  input[type="checkbox"]{
+.eagleTableDisplay  input[type="checkbox"]{
     height:fit-content;
     width: fit-content;
     margin-left: 50%;
     transform: translateX(-50%);
 }
 
-.eagleTableModal  input[type="checkbox"]:focus{
+.eagleTableDisplay  input[type="checkbox"]:focus{
     box-shadow: 0 0 0 3px rgb(0, 89, 165);
 }
 
-.eagleTableModal  td:not(:last-child){
+.eagleTableDisplay  td:not(:last-child){
     padding:0px 3px;
     /* overflow: hidden; */
     border-right: 1px solid rgb(14 2 76 / 16%);
     position: relative;
 }
 
-.eagleTableModal  td i, #editFieldModal .tableBody .dropdown-item i{
+.eagleTableDisplay  td i, #editFieldModal .tableBody .dropdown-item i{
     margin-left: 50%;
     transform: translate(-50%, 2px);
 }
 
-.eagleTableModal .typeSelectDelete, #editFieldModal .typeSelectDelete{
+.eagleTableDisplay .typeSelectDelete, #editFieldModal .typeSelectDelete{
     position: absolute;
     right:5px
 }
 
-.eagleTableModal .dropdown-item, #editFieldModal .dropdown-item{
+.eagleTableDisplay .dropdown-item, #editFieldModal .dropdown-item{
     padding:1px 5px;
 }
 
-.eagleTableModal .dropdown-item.add, #editFieldModal .dropdown-item.add{
+.eagleTableDisplay .dropdown-item.add, #editFieldModal .dropdown-item.add{
     background-color: rgb(235 236 241);
     cursor: pointer;
 }
 
-.eagleTableModal .dropdown-menu, #editFieldModal .dropdown-menu{
+.eagleTableDisplay .dropdown-menu, #editFieldModal .dropdown-menu{
     padding: 0px;
     border:1px solid black;
     overflow: hidden;
@@ -403,7 +403,7 @@ td:first-child input {
     overflow-y: auto;
 }
 
-.eagleTableModal  .typesInput{
+.eagleTableDisplay  .typesInput{
     padding: 0px;
     height: 35px;
     width: 100%;
@@ -413,7 +413,7 @@ td:first-child input {
     border-right: solid 1px #bbbbbb;
 }
 
-.eagleTableModal  .input-group{
+.eagleTableDisplay  .input-group{
     border:black solid 1px;
     border-radius: 2px;
     flex-wrap: unset;
@@ -422,7 +422,7 @@ td:first-child input {
     padding-left:2px;
 }
 
-.eagleTableModal  td button, #editFieldModal .dropdown-menu button{
+.eagleTableDisplay  td button, #editFieldModal .dropdown-menu button{
     border: none;
     background-color: transparent;
     color: #002e5f;
@@ -433,11 +433,11 @@ td:first-child input {
     border-radius: 10px;
 }
 
-.eagleTableModal  td button:disabled{
+.eagleTableDisplay  td button:disabled{
     color: rgb(113 113 113);
 }
 
-.eagleTableModal  td button.parameterTableDescriptionBtn, .eagleTableModal  td button.parameterTableCommentBtn {
+.eagleTableDisplay  td button.parameterTableDescriptionBtn, .eagleTableDisplay  td button.parameterTableCommentBtn {
     position: absolute;
     right: 4px;
     top: 2px;
@@ -448,7 +448,7 @@ td:first-child input {
     font-size: 12px;
 }
 
-.eagleTableModal .searchBarContainer{
+.eagleTableDisplay .searchBarContainer{
     position: absolute;
     right: 20px;
     width: 300px;

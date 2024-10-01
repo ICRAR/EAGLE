@@ -486,23 +486,24 @@ export class Eagle {
         const centroidX = minX + ((maxX - minX) / 2);
         const centroidY = minY + ((maxY - minY) / 2);
         
+        let bottomWindow = Utils.getBottomWindowHeight()
 
         //calculating scale multipliers needed for each, height and width in order to fit the graph
-        const containerHeight = $('#logicalGraphParent').height()
+        const containerHeight = $('#logicalGraphParent').height() - bottomWindow
         const graphHeight = maxY-minY+200
         const graphYScale = containerHeight/graphHeight
         
 
         //we are taking into account the current widths of the left and right windows
-        let leftWindow = 0
-        if(Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
-            leftWindow = that.leftWindow().size()
-        }
+        let leftWindow = Utils.getLeftWindowWidth()
+        // if(Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
+        //     leftWindow = that.leftWindow().size()
+        // }
         
-        let rightWindow = 0
-        if(Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
-            rightWindow = that.rightWindow().size()
-        }
+        let rightWindow = Utils.getRightWindowWidth()
+        // if(Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
+        //     rightWindow = that.rightWindow().size()
+        // }
 
         const containerWidth = $('#logicalGraphParent').width() - leftWindow - rightWindow
         const graphWidth = maxX-minX+200
@@ -513,7 +514,7 @@ export class Eagle {
 
         //determine center of the display area
         const displayCenterX : number = (containerWidth / that.globalScale() / 2);
-        const displayCenterY : number = $('#logicalGraphParent').height() / that.globalScale() / 2;
+        const displayCenterY : number = containerHeight / that.globalScale() / 2;
 
         // translate display to center the graph centroid
         that.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
