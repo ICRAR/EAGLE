@@ -93,8 +93,11 @@ except:
 # if the first method was unsuccessful, then run some git commands
 # to find the version and commit_hash
 if version == "Unknown" and commit_hash == "Unknown":
-    version = subprocess.check_output("git describe --abbrev=0 --tags", shell=True).decode("utf-8").strip() + " (dev)"
-    commit_hash = subprocess.check_output("git rev-parse --short=8 HEAD", shell=True).decode("utf-8").strip()
+    try:
+        version = subprocess.check_output("git describe --abbrev=0 --tags", shell=True).decode("utf-8").strip() + " (dev)"
+        commit_hash = subprocess.check_output("git rev-parse --short=8 HEAD", shell=True).decode("utf-8").strip()
+    except:
+        print("Unable to run git commands to determine version")
 
 print("Version: " + version + " Commit Hash: " + commit_hash)
 
