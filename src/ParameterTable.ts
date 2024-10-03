@@ -12,6 +12,7 @@ import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
 import { GraphConfig, GraphConfigField } from "./GraphConfig";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { SideWindow } from "./SideWindow";
 
 export class ParameterTable {
 
@@ -554,8 +555,7 @@ export class ParameterTable {
                 // $('#parameterTableModal').modal("show");
             }
             // ParameterTable.showTableModal(true)
-            Setting.find(Setting.BOTTOM_WINDOW_VISIBLE).setValue(true)
-
+            SideWindow.toggleShown('bottom')
         },5)
     }
     
