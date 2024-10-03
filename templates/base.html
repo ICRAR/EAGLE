@@ -190,7 +190,7 @@
                     <div class="dragHandle" draggable="true" data-bind="event: { dragstart: SideWindow.bottomWindowAdjustStart, dragend: SideWindow.sideWindowAdjustEnd }"></div>
                     <div class="tabs">
                         <div class="wrapper">
-                            <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + Utils.getKeyboardShortcutTextByKey('open_component_parameter_table', true)" data-bs-placement="left">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + Utils.getKeyboardShortcutTextByKey('open_parameter_table', true)" data-bs-placement="left">
                                 <i class="material-icons md-20 clickable">table_chart</i>
                             </button>
                             <button class="btn btn-secondary btn-sm" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Attributes Configuration ` + Utils.getKeyboardShortcutTextByKey('open_graph_attributes_configuration_table_modal', true)">
@@ -199,7 +199,13 @@
                         </div>
                     </div>
                     <div class="content">
-                        {% include 'bottom_parameter_table.html' %}
+                        <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigAttributesTable -->
+                            {% include 'parameter_table.html' %}
+                        <!-- /ko -->
+                        <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable -->
+                            {% include 'bottom_graph_configurations_table.html' %}
+                        <!-- /ko -->
+
     
                     </div>
                 </div>

@@ -239,6 +239,10 @@ td:first-child input {
     top: 24px;
 }
 
+#graphConfigurationsTableWrapper thead{
+    top: 0px;
+}
+
 .eagleTableWrapper th{
     background-color: #002349;
     color: white;
@@ -265,7 +269,7 @@ td:first-child input {
     top: 9px;
 }
 
-#parameterTable .header-center button{
+.eagleTableDisplay .header-center button{
     background-color: #001933;
     border: solid 2px white;
     position: unset;
@@ -273,7 +277,7 @@ td:first-child input {
     padding: 3px;
 }
 
-#parameterTable .tableBody{
+.eagleTableDisplay .tableBody{
     background-color: aliceblue;
     overflow: auto;
     width: 100%;
@@ -504,7 +508,7 @@ td:first-child input {
 #graphConfigurationsTableWrapper {
 }
 
-#graphConfigurationsTableModal .tableBody{
+#graphConfigurationsTable .tableBody{
     padding: 0px;
 }
 
@@ -532,9 +536,4 @@ td:first-child input {
 
 #graph_configurations_table_actions_column{
     width: 80px;
-}
-
-#graphConfigurationsTableModalAddConfigButton{
-    left: 15px;
-    position: absolute;
 }

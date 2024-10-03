@@ -372,8 +372,6 @@ export class ParameterTable {
                 graphConfig.removeField(currentField);
             }
         } else {
-            ParameterTable.closeModal();
-
             Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
                 ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
 
@@ -416,9 +414,6 @@ export class ParameterTable {
         const eagle: Eagle = Eagle.getInstance();
         const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
 
-        //ParameterTable.openModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
-        ParameterTable.closeModal();
-
         Utils.requestUserText(
             "Edit Field Description",
             "Please edit the description for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(),
@@ -428,9 +423,6 @@ export class ParameterTable {
                 if (completed){
                     currentField.setDescription(userText);
                 }
-
-                // always re-open the ParameterTable
-                ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
             }
         )
     }
@@ -439,9 +431,6 @@ export class ParameterTable {
         const eagle: Eagle = Eagle.getInstance();
         const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
         const configField: GraphConfigField = eagle.logicalGraph().getActiveGraphConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
-
-        //ParameterTable.openModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
-        ParameterTable.closeModal();
 
         Utils.requestUserText(
             "Edit Field Comment",
@@ -452,9 +441,6 @@ export class ParameterTable {
                 if (completed){
                     configField.setComment(userText);
                 }
-
-                // always re-open the ParameterTable
-                ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
             }
         )
     }
@@ -541,6 +527,13 @@ export class ParameterTable {
                     return
                 }
             }
+
+            if(mode === ParameterTable.Mode.NodeFields){
+                Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.ParameterTable)
+            }else{
+                Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphConfigAttributesTable)
+            }
+
             if(selectType === ParameterTable.SelectType.RightClick){
                 eagle.setSelection(Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
 
@@ -555,7 +548,7 @@ export class ParameterTable {
                 // $('#parameterTableModal').modal("show");
             }
             // ParameterTable.showTableModal(true)
-            SideWindow.toggleShown('bottom')
+            SideWindow.setShown('bottom',true)
         },5)
     }
     
@@ -570,11 +563,6 @@ export class ParameterTable {
         setTimeout(function(){
             $('#tableRow_'+field.getId()).addClass('highlighted')
         },200)
-    }
-
-    static closeModal = (): void => {
-        $('#parameterTable').modal('hide')
-        ParameterTable.showTableModal(false)
     }
 
     static addEmptyTableRow = () : void => {

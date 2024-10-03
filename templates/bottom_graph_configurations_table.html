@@ -1,8 +1,6 @@
 <!-- Graph Configurations Table Modal -->
-<div class="modal fade eagleTableDisplay" id="graphConfigurationsTable" tabindex="-1" role="dialog" aria-labelledby="graphConfigurationsTableTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
+<div class="eagleTableDisplay" id="graphConfigurationsTable" tabindex="-1" role="dialog" aria-labelledby="graphConfigurationsTableTitle">
+            <div class="eagleTableHeader">
                 <h5 class="modal-title">
                     Graph Configurations Table
                 </h5>
@@ -13,8 +11,14 @@
                     </a>
                     <input class="componentSearchBar" type="text" placeholder="Search: eg. app, string" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.tableSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}},eagleTooltip:`Search for names, types, anything really! You may enter several terms that should match separated by a ','`">
                 </div>
+
+                <div class="header-center">
+                    <button type="button" class="btn btn-primary" id="graphConfigurationsTableAddConfigButton" data-bind="click: newConfig, clickBubble:false" ><span id="graphConfigurationsTableAddConfig">Add Config</span></button>
+                    <button type="button" class="btn btn-primary" id="graphConfigurationsTableAffirmativeButton" data-bind="clickBubble:false"><span id="graphConfigurationsTableAffirmativeAnswer">Close</span></button>
+                </div> 
+
             </div>
-            <div class="modal-body">
+            <div class="tableBody">
                 <!-- ko if: logicalGraph().graphConfigs().length === 0 && !$root.logicalGraph().activeGraphConfig().isModified() -->
                     <div class="container h-100">
                         <div class="row align-items-center h-100">
@@ -154,10 +158,4 @@
                     </table>
                 <!-- /ko -->
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="graphConfigurationsTableAddConfigButton" data-bind="click: newConfig, clickBubble:false" ><span id="graphConfigurationsTableAddConfig">Add Config</span></button>
-                <button type="button" class="btn btn-primary" id="graphConfigurationsTableAffirmativeButton" data-bs-dismiss="modal" data-bind="clickBubble:false"><span id="graphConfigurationsTableAffirmativeAnswer">Close</span></button>
-            </div>
-        </div>
-    </div>
 </div>

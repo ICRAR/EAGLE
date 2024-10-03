@@ -4826,6 +4826,14 @@ export namespace Eagle
         Hierarchy = "Hierarchy"
     }
 
+    export enum BottomWindowMode {
+        None = "None",
+        ParameterTable = "ParameterTable",
+        GraphConfigsTable = "GraphConfigsTable",
+        GraphConfigAttributesTable = "GraphConfigAttributesTable",
+        GraphErrors = "GraphErrors"
+    }
+
     export enum AddNodeMode {
         ContextMenu = "ContextMenu",
         Default = "Default"

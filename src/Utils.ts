@@ -728,8 +728,8 @@ export class Utils {
         $('#parameterTableModal').modal("show");
     }
 
-    static showOpenGraphConfigurationsTableModal() : void {
-        $('#graphConfigurationsTableModal').modal("show");
+    static showOpengraphConfigurationsTable() : void {
+        $('#graphConfigurationsTable').modal("show");
     }
     */
 

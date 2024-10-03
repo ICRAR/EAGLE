@@ -37,7 +37,7 @@ export class StatusEntry {
             new StatusEntry(Utils.getKeyboardShortcutTextByKey('duplicate_selection', true),' duplicate selected objects.', Eagle.getInstance().selectedObjects().length > 0),
             new StatusEntry(Utils.getKeyboardShortcutTextByKey('delete_selection', true),' delete selected objects.', Eagle.getInstance().selectedObjects().length > 0),
             //node is selected
-            new StatusEntry(Utils.getKeyboardShortcutTextByKey('open_parameter_table_modal', true),' open fields table.', Eagle.getInstance().selectedNode() != null && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)),
+            new StatusEntry(Utils.getKeyboardShortcutTextByKey('open_parameter_table', true),' open fields table.', Eagle.getInstance().selectedNode() != null && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)),
             //more than one thing is selected
             new StatusEntry('Shift + Drag',' Box select multiple objects.', Eagle.getInstance().selectedObjects().length >1),
             new StatusEntry('Shift + Ctrl + Drag',' Box deselect multiple objects.', Eagle.getInstance().selectedObjects().length >1),

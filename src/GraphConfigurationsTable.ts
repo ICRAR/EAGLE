@@ -3,6 +3,8 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { Node } from "./Node";
 import { Utils } from "./Utils";
+import { Setting } from "./Setting";
+import { SideWindow } from "./SideWindow";
 
 export class GraphConfigurationsTable {
 
@@ -11,28 +13,31 @@ export class GraphConfigurationsTable {
     static openModal = () : void => {
         const eagle: Eagle = Eagle.getInstance();
 
-        eagle.showEagleIsLoading()
+        // eagle.showEagleIsLoading()
 
         setTimeout(function(){
             if($('.modal.show').length>0){
-                if($('.modal.show').attr('id')==='graphConfigurationsTableModal'){
+                if($('.modal.show').attr('id')==='graphConfigurationsTable'){
                     // TODO: use closeModal here!
-                    $('#graphConfigurationsTableModal').modal('hide')
+                    $('#graphConfigurationsTable').modal('hide')
                     GraphConfigurationsTable.showTableModal(false)
                 }else{
                     return
                 }
             }
 
-            $('#graphConfigurationsTableModal').modal("show");
+            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphConfigsTable)
+            SideWindow.setShown('bottom',true)
 
-            GraphConfigurationsTable.showTableModal(true)
+            // $('#graphConfigurationsTable').modal("show");
+
+            // GraphConfigurationsTable.showTableModal(true)
 
         },5)
     }
 
     static closeModal = (): void => {
-        $('#graphConfigurationsTableModal').modal('hide')
+        $('#graphConfigurationsTable').modal('hide')
         GraphConfigurationsTable.showTableModal(false)
     }
 }
