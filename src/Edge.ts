@@ -211,8 +211,8 @@ export class Edge {
             fromPort: edge.srcPortId,
             to: edge.destNodeId,
             toPort: edge.destPortId,
-            loop_aware: edge.loopAware ? "1" : "0",
-            closesLoop: edge.closesLoop
+            loop_aware: edge.loopAware() ? "1" : "0",
+            closesLoop: edge.closesLoop()
         };
     }
 
