@@ -4649,15 +4649,24 @@ export class Eagle {
             y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
         };
 
-        const memoryComponent = Utils.getPaletteComponentByName(Category.Memory);
+        // Normally we can use a Memory component in-between two apps
+        // but if the destination app is a BashShellApp, then a Memory component will cause an error
+        // since the BashShellApp can't read from a memory location
+        // Instead, we use a File component as the intermediary
+        let intermediaryComponent;
+        if (destNode.getCategory() === Category.BashShellApp){
+            intermediaryComponent = Utils.getPaletteComponentByName(Category.File);
+        } else {
+            intermediaryComponent = Utils.getPaletteComponentByName(Category.Memory);
+        }
 
         // if node not found, exit
-        if (memoryComponent === null) {
+        if (intermediaryComponent === null) {
             return;
         }
 
         // Add a duplicate of the memory component to the graph
-        const newNode : Node = this.logicalGraph().addDataComponentToGraph(Utils.duplicateNode(memoryComponent), dataComponentPosition);
+        const newNode : Node = this.logicalGraph().addDataComponentToGraph(Utils.duplicateNode(intermediaryComponent), dataComponentPosition);
 
         // set name of new node (use user-facing name)
         newNode.setName(srcPort.getDisplayText());
