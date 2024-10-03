@@ -4616,8 +4616,21 @@ export class Eagle {
 
         const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
 
+        // Normally we can use a Memory component in-between two apps
+        // but if the destination app is a BashShellApp, then a Memory component will cause an error
+        // since the BashShellApp can't read from a memory location
+        // Instead, we use a File component as the intermediary
+        let intermediaryComponent;
+        if (destNode.getCategory() === Category.BashShellApp){
+            intermediaryComponent = Utils.getPaletteComponentByName(Category.File);
+        } else {
+            intermediaryComponent = Utils.getPaletteComponentByName(Category.Memory);
+        }
+
         // if edge DOES NOT connect two applications, process normally
-        if (!edgeConnectsTwoApplications || twoEventPorts){
+        // if edge connects two event ports, process normally
+        // if the definition of the intermediaryComponent cannot be found, process normally
+        if (!edgeConnectsTwoApplications || twoEventPorts || (edgeConnectsTwoApplications && intermediaryComponent === null)){
             const edge : Edge = new Edge(srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
             setTimeout(() => {
@@ -4648,22 +4661,6 @@ export class Eagle {
             x: (srcNodePosition.x + destNodePosition.x) / 2.0,
             y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
         };
-
-        // Normally we can use a Memory component in-between two apps
-        // but if the destination app is a BashShellApp, then a Memory component will cause an error
-        // since the BashShellApp can't read from a memory location
-        // Instead, we use a File component as the intermediary
-        let intermediaryComponent;
-        if (destNode.getCategory() === Category.BashShellApp){
-            intermediaryComponent = Utils.getPaletteComponentByName(Category.File);
-        } else {
-            intermediaryComponent = Utils.getPaletteComponentByName(Category.Memory);
-        }
-
-        // if node not found, exit
-        if (intermediaryComponent === null) {
-            return;
-        }
 
         // Add a duplicate of the memory component to the graph
         const newNode : Node = this.logicalGraph().addDataComponentToGraph(Utils.duplicateNode(intermediaryComponent), dataComponentPosition);
