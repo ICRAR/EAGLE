@@ -309,6 +309,11 @@ export class Edge {
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, Errors.Show("Data nodes may not be connected directly to other Data nodes", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
+        // check that we are not connecting an Application component to an Application component, that is not supported
+        if (sourceNode.getCategoryType() === Category.Type.Application && destinationNode.getCategoryType() === Category.Type.Application){
+            Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, Errors.Show("Application nodes may not be connected directly to other Application nodes", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+        }
+
         // if source node or destination node is a construct, then something is wrong, constructs should not have ports
         if (sourceNode.getCategoryType() === Category.Type.Construct){
             const issue: Errors.Issue = Errors.ShowFix("Edge (" + edgeId + ") cannot have a source node (" + sourceNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
@@ -468,7 +473,7 @@ export class Edge {
             }
         }
 
-        //the worst edge errror function can only check for entries in errors or warnings, it isnt able to distinguish impossible from invalid
+        //the worst edge error function can only check for entries in errors or warnings, it isn't able to distinguish impossible from invalid
         if(impossibleEdge){
             return Errors.Validity.Impossible
         }else if(draggingEdgeFixable){
