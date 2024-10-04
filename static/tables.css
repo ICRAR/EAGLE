@@ -270,7 +270,7 @@ td:first-child input {
 }
 
 .eagleTableDisplay .header-center button{
-    background-color: #001933;
+    background-color: #002349;
     border: solid 2px white;
     position: unset;
     top: 0px;
@@ -347,9 +347,8 @@ td:first-child input {
     color:#002e5f;
 }
 
-.eagleTableDisplay #parameterTableTitle{
+.eagleTableDisplay .table-title{
     padding:11px;
-    margin-left: 24px;
 }
 
 .eagleTableDisplay  input, #editFieldModal  .dropdown input{
