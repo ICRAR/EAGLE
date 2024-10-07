@@ -98,11 +98,6 @@ export class Eagle {
     explorePalettes : ko.Observable<ExplorePalettes>;
     dockerHubBrowser : ko.Observable<DockerHubBrowser>;
 
-    // TODO: move these to GraphRenderer.ts
-    isDragging : ko.Observable<boolean>;
-    draggingNode : ko.Observable<Node>;
-    draggingPaletteNode : boolean;
-
     errorsMode : ko.Observable<Errors.Mode>;
     graphWarnings : ko.ObservableArray<Errors.Issue>;
     graphErrors : ko.ObservableArray<Errors.Issue>;
@@ -184,9 +179,6 @@ export class Eagle {
         this.explorePalettes = ko.observable(new ExplorePalettes());
         this.dockerHubBrowser = ko.observable(new DockerHubBrowser());
 
-        this.isDragging = ko.observable(false);
-        this.draggingNode = ko.observable(null);
-        this.draggingPaletteNode = false;
         this.errorsMode = ko.observable(Errors.Mode.Loading);
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);

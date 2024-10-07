@@ -302,6 +302,10 @@ export class GraphRenderer {
     static createEdgeSuggestedPorts : {field:Field,node:Node,validity: Errors.Validity}[] = []
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
+    static isDragging : ko.Observable<boolean> = ko.observable(false);
+    static draggingNode : ko.Observable<Node> = ko.observable(null);
+    static draggingPaletteNode : boolean = false;
+
     //node drag handler globals
     static NodeParentRadiusPreDrag : number = null;
     static nodeDragElement : any = null
@@ -1034,11 +1038,11 @@ export class GraphRenderer {
         // if no node is selected, or we are dragging using middle mouse, then we are dragging the background
         if(node === null || event.button === 1){
             GraphRenderer.dragSelectionHandled(true)
-            eagle.isDragging(true);
+            GraphRenderer.isDragging(true);
         } else if(!node.isEmbedded()){
             // embedded nodes, aka input and output applications of constructs, cant be dragged
-            eagle.isDragging(true);
-            eagle.draggingNode(node);
+            GraphRenderer.isDragging(true);
+            GraphRenderer.draggingNode(node);
             GraphRenderer.nodeDragElement = event.target
             GraphRenderer.nodeDragNode = node
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
@@ -1103,13 +1107,13 @@ export class GraphRenderer {
         GraphRenderer.ctrlDrag = event.ctrlKey;
 
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
-        if (eagle.isDragging()){
-            if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
+        if (GraphRenderer.isDragging()){
+            if (GraphRenderer.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
 
                 //creating an array that contains all of the outermost nodes in the selected array
                 const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
 
-                const node:Node = eagle.draggingNode()
+                const node: Node = GraphRenderer.draggingNode()
                 $('.node.transition').removeClass('transition') //this is for the bubble jump effect which we dont want here
 
 
@@ -1264,8 +1268,8 @@ export class GraphRenderer {
         }
 
         GraphRenderer.dragSelectionHandled(true)
-        eagle.isDragging(false);
-        eagle.draggingNode(null);
+        GraphRenderer.isDragging(false);
+        GraphRenderer.draggingNode(null);
         
         //this is to make affected constructs re calculate their size
         eagle.selectedObjects.valueHasMutated()

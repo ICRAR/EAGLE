@@ -1,6 +1,7 @@
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
+import { GraphRenderer } from "./GraphRenderer";
 import { Utils } from './Utils';
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
@@ -55,7 +56,7 @@ export class SideWindow {
         const eagle: Eagle = Eagle.getInstance();
 
         //for hiding any tooltips while dragging and preventing them from showing
-        eagle.draggingPaletteNode = true;
+        GraphRenderer.draggingPaletteNode = true;
         $(e.target).find('.input-group').tooltip('hide');
 
         // retrieve data about the node being dragged
@@ -89,8 +90,7 @@ export class SideWindow {
     }
 
     static nodeDragEnd() : boolean {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.draggingPaletteNode = false;
+        GraphRenderer.draggingPaletteNode = false;
 
         $(".rightWindow").removeClass("noDropTarget");
         $(".navbar").removeClass("noDropTarget");
