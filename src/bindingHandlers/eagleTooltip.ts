@@ -1,6 +1,7 @@
 import * as ko from "knockout";
 
 import { GraphRenderer } from "../GraphRenderer";
+import { Eagle } from "../Eagle";
 import { Utils } from '../Utils';
 
 ko.bindingHandlers.eagleTooltip = {
@@ -25,6 +26,7 @@ ko.bindingHandlers.eagleTooltip = {
         });
     },
     update: function (element, valueAccessor) {
+        const eagle: Eagle = Eagle.getInstance();
         const jQueryElement = $(element);
         
         // manual tooltip open system to allow for hovering on the tooltips
