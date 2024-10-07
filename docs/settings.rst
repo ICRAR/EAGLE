@@ -14,7 +14,7 @@ The settings in Eagle include user experience and interface related options. By 
 UI Modes
 --------
 
-Ui modes are collections of settings creating seperate workspaces, each designed with a specific use case in mind.
+Ui modes are collections of settings creating separate workspaces, each designed with a specific use case in mind.
 
 **Minimal** - Designed for student use or when the goal is loading a graph, tweaking its key attributes and executing it through the translator.
 
@@ -111,9 +111,9 @@ Developer
 
 **Translate With New Categories** - Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.
 
-**Open Tanslator In Current Tab** - When translating a graph, display the output of the translator in the current tab.
+**Open Translator In Current Tab** - When translating a graph, display the output of the translator in the current tab.
 
-**Creat Applications For Construct Ports** - When loading old graph files with ports on construct nodes, move the port to an embedded application.
+**Create Applications For Construct Ports** - When loading old graph files with ports on construct nodes, move the port to an embedded application.
 
 **Skip 'Closes Loop' Edges In JSON Output** - We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.
 
