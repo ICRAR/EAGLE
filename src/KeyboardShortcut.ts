@@ -120,7 +120,7 @@ export class KeyboardShortcut {
     }
 
     static quickActionsClosed(eagle: Eagle): boolean {
-        return !eagle.quickActionOpen();
+        return !QuickActions.open();
     }
 
     static notInStudentMode(eagle: Eagle): boolean {

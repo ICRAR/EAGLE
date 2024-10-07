@@ -1,3 +1,5 @@
+import * as ko from "knockout";
+
 import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
 
@@ -33,14 +35,16 @@ type QuickActionsResult = {
 
 export class QuickActions {
 
+    static searchTerm : ko.Observable<string> = ko.observable('');
+    static open : ko.Observable<boolean> = ko.observable(false);
+
     static initiateQuickAction() : void {
         //function to both start and close the quick action menu
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.quickActionOpen(!eagle.quickActionOpen())
+        QuickActions.open(!QuickActions.open())
         $('#quickActionSearchbar').val('')
 
         setTimeout(function(){
-            if(eagle.quickActionOpen()){
+            if(QuickActions.open()){
                 $('#quickActionContainer').show()
                 $('#quickActionBackground').show()
                 $('#quickActionSearchbar').trigger("focus")
@@ -55,8 +59,7 @@ export class QuickActions {
     }
 
     static findQuickActionResults() : QuickActionsResult[] {
-        const eagle: Eagle = Eagle.getInstance();
-        const searchTerm :string = eagle.quickActionSearchTerm().toLocaleLowerCase()
+        const searchTerm :string = QuickActions.searchTerm().toLocaleLowerCase()
         const resultsList: QuickActionsResult[] = []
 
         wordMatch = []
@@ -218,7 +221,7 @@ export class QuickActions {
 
     static updateQuickActionSearchTerm(eagle: Eagle, event: KeyboardEvent ): void {
         const searchTerm: string = $(event.target).val().toString();
-        eagle.quickActionSearchTerm(searchTerm);
+        QuickActions.searchTerm(searchTerm);
     }
     
     // TODO: event not passed as an argument here! (used as both 'e' and 'event'?)

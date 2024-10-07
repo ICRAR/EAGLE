@@ -42,7 +42,6 @@ import { GraphConfig } from "./GraphConfig";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
-import { StatusEntry } from './StatusEntry';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
@@ -90,9 +89,6 @@ export class Eagle {
     globalOffsetX : ko.Observable<number>;
     globalOffsetY : ko.Observable<number>;
     globalScale : ko.Observable<number>;
-
-    quickActionSearchTerm : ko.Observable<string>;
-    quickActionOpen : ko.Observable<boolean>;
 
     rendererFrameDisplay : ko.Observable<string>;
     rendererFrameMax : number;
@@ -179,9 +175,6 @@ export class Eagle {
         this.globalOffsetX = ko.observable(0);
         this.globalOffsetY = ko.observable(0);
         this.globalScale = ko.observable(1.0);
-
-        this.quickActionSearchTerm = ko.observable('')
-        this.quickActionOpen = ko.observable(false)
 
         this.rendererFrameDisplay = ko.observable("");
         this.rendererFrameMax = 0;
@@ -3021,7 +3014,7 @@ export class Eagle {
         }
         
         let location: string;
-        let incomingNodes = []; // TODO: declare type
+        let incomingNodes: (Node | Edge)[] = [];
 
         if(mode === 'normal'){
             location = Eagle.selectedLocation()
