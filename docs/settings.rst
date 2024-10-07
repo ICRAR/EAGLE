@@ -109,8 +109,6 @@ External Services
 Developer
 """""""""
 
-**Enable Performance Display** - Display the frame time of the graph renderer.
-
 **Translate With New Categories** - Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.
 
 **Open Tanslator In Current Tab** - When translating a graph, display the output of the translator in the current tab.

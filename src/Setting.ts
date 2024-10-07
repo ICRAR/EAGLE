@@ -310,7 +310,6 @@ export class Setting {
     static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
     static readonly OPEN_TRANSLATOR_IN_CURRENT_TAB: string = "OpenTranslatorInCurrentTab";
     static readonly OVERWRITE_TRANSLATION_TAB: string = "OverwriteTranslationTab";
-    static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
     static readonly SHOW_DEVELOPER_TAB: string = "ShowDeveloperTab";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
@@ -428,7 +427,6 @@ const settings : SettingsGroup[] = [
         "Developer",
         () => {return false;},
         [
-            new Setting(true, "Enable Performance Display", Setting.ENABLE_PERFORMANCE_DISPLAY, "Display the frame time of the graph renderer", false, Setting.Type.Boolean, false,false,false, false, false),
             new Setting(true, "Show File Loading Warnings", Setting.SHOW_FILE_LOADING_ERRORS, "Display list of issues with files encountered during loading.", false, Setting.Type.Boolean, false,false, false, false, false),
             new Setting(true, "Open Translator In Current Tab", Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, "When translating a graph, display the output of the translator in the current tab", false, Setting.Type.Boolean, false,false,false, false, false),
             new Setting(true, "Create Applications for Construct Ports", Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, "When loading old graph files with ports on construct nodes, move the port to an embedded application",false, Setting.Type.Boolean, true,true,true, true, true),

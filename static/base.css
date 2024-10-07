@@ -23,17 +23,6 @@ body {
     padding-right: 0px;
 }
 
-#performance {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
-    background-color: black;
-    z-index: 1000;
-    padding: 2px;
-    color: white;
-    font-family: monospace;
-}
-
 .navbar-light .navbar-brand {
     color: rgba(230, 230, 230, 1);
 }
