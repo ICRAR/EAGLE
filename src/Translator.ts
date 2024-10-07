@@ -60,6 +60,30 @@ export class Translator {
         this.isTranslating = ko.observable(false);
     }
 
+    setUrl = () : void => {
+        const translatorURLSetting : Setting = Setting.find(Setting.TRANSLATOR_URL);
+
+        Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false, (completed : boolean, userString : string) : void => {
+            // abort if user cancelled the action
+            if (!completed)
+                return;
+
+            translatorURLSetting.value(userString);
+        });
+    };
+
+    algorithmVisible = (currentAlgorithm: string) : boolean => {
+        const normalTranslatorMode: boolean = Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Normal;
+        if(!normalTranslatorMode){
+            return true
+        }
+        if(currentAlgorithm === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)){
+            return true
+        }
+    
+        return false
+    }
+
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
         // consult EAGLE settings to determine whether to open the translator in a new tab
         const translateInCurrentTab: boolean = Setting.findValue(Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB);
