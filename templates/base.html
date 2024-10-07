@@ -199,7 +199,7 @@
                             <button class="btn btn-secondary btn-sm" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable}, click: function(){GraphConfigurationsTable.openModal()}, eagleTooltip: `Display all Graph Configurations ` + Utils.getKeyboardShortcutTextByKey('open_graph_attributes_configuration_table_modal', true)">
                                 <i class="md-20 icon-config_table clickable"></i>
                             </button>
-                            <button class="btn btn-secondary btn-sm" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors}, click: function(){GraphConfigurationsTable.openModal()}, eagleTooltip: `Display all Graph Configurations ` + Utils.getKeyboardShortcutTextByKey('open_graph_attributes_configuration_table_modal', true)">
+                            <button class="btn btn-secondary btn-sm" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors}, click: function(){Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)}, eagleTooltip: `Display all Graph Configurations ` + Utils.getKeyboardShortcutTextByKey('open_graph_attributes_configuration_table_modal', true)">
                                 <i class="md-20 icon-question_mark clickable"></i>
                             </button>
                         </div>
@@ -209,10 +209,11 @@
                             {% include 'parameter_table.html' %}
                         <!-- /ko -->
                         <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable -->
-                            {% include 'bottom_graph_configurations_table.html' %}
+                            {% include 'graph_configurations_table.html' %}
                         <!-- /ko -->
-
-    
+                        <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors -->
+                            {% include 'issues.html' %}
+                        <!-- /ko -->                        
                     </div>
                 </div>
             </div>
