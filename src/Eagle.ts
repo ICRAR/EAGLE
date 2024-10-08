@@ -4496,7 +4496,7 @@ export class Eagle {
         graph_url += "&branch=" + fileInfo.repositoryBranch;
         graph_url += "&path=" + encodeURI(fileInfo.path);
         graph_url += "&filename=" + encodeURI(fileInfo.name);
-
+ 
         // copy to clipboard
         navigator.clipboard.writeText(graph_url);
 
@@ -4518,8 +4518,10 @@ export class Eagle {
             // switch to graph errors mode
             this.errorsMode(Errors.Mode.Graph);
 
+            Setting.findValue(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)
+            SideWindow.setShown('bottom',true)
             // show graph modal
-            this.smartToggleModal('issuesModal')
+            // this.smartToggleModal('issuesModal')
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
