@@ -265,7 +265,9 @@ $(function(){
     //applying html ko bindings
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
     ko.applyBindings(eagle);
-
+    
+    //changing errors mode from loading to graph as eagle is now ready and finished loading
+    eagle.errorsMode(Errors.Mode.Graph);
 });
 
 function autoLoad(): void {
