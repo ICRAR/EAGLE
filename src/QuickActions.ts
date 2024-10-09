@@ -26,7 +26,7 @@ type QuickActionsMatch = {
 
 type QuickActionsResult = {
     title: string,
-    action: (eagle: Eagle) => void
+    action: (eagle: Eagle, event: KeyboardEvent) => void
     shortcut: string,
     icon: string
 }
@@ -129,7 +129,7 @@ export class QuickActions {
             match = true
         }
         
-        func.quickActionTags.forEach(function(tag){
+        func.tags.forEach(function(tag){
             if(tag.toLocaleLowerCase().includes(searchTerm)){
                 match = true
             }
@@ -150,13 +150,10 @@ export class QuickActions {
                 icon: ""
             };
 
-            if(func.modifier != 'none'){
-                funcElement.shortcut = func.modifier + " " + func.keys
-            }else{
-                funcElement.shortcut = func.keys.toString()
-            }
+            // generate text for this shortcut
+            funcElement.shortcut = func.getText(true);
 
-            if(func.key.startsWith('docs_')){
+            if(func.id.startsWith('docs_')){
                 funcElement.icon = 'icon-book'
             }else{
                 funcElement.icon = 'icon-build'
@@ -184,7 +181,7 @@ export class QuickActions {
 
                 //checking priority for function tags
                 if(!wordMatched){
-                    for(const tag of func.quickActionTags){
+                    for(const tag of func.tags){
                         if(searchWord.toLocaleLowerCase() === tag.toLocaleLowerCase()){
                             tagMatched = true
                             break
@@ -216,15 +213,7 @@ export class QuickActions {
     static executeQuickAction(result: QuickActionsResult) : void {
         const eagle: Eagle = Eagle.getInstance();
         QuickActions.initiateQuickAction()
-        result.action(eagle)
-    }
-
-    static getQuickActionShortcutHtml(result: QuickActionsResult) : string {
-        if(result.shortcut != ''){
-            return ' ['+result.shortcut+']'
-        }else{
-            return ''
-        }
+        result.action(eagle, null)
     }
 
     static updateQuickActionSearchTerm(eagle: Eagle, event: KeyboardEvent ): void {

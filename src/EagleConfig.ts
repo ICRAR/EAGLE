@@ -37,6 +37,12 @@ const colors: { name: string; color: string; }[] = [
         name: 'selectConstructBackground',
         color: '#85b9ff94'
     },{
+        name: 'errorBackground',
+        color: '#ffdcdc'
+    },{
+        name: 'warningBackground',
+        color: '#ffeac4'
+    },{
 
     //edge colors
         name: 'edgeDefault',

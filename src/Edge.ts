@@ -211,8 +211,8 @@ export class Edge {
             fromPort: edge.srcPortId,
             to: edge.destNodeId,
             toPort: edge.destPortId,
-            loop_aware: edge.loopAware ? "1" : "0",
-            closesLoop: edge.closesLoop
+            loop_aware: edge.loopAware() ? "1" : "0",
+            closesLoop: edge.closesLoop()
         };
     }
 
@@ -478,9 +478,7 @@ export class Edge {
         }
     }
 
-    private static isValidLog(edge : Edge,draggingPortMode:boolean, linkValid : Errors.Validity, issue: Errors.Issue, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : void {
-       
-
+    private static isValidLog(edge: Edge, draggingPortMode: boolean, linkValid: Errors.Validity, issue: Errors.Issue, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings): void {
         // determine correct title
         let title = "Edge Valid";
         let type : "success" | "info" | "warning" | "danger" = "success";
@@ -520,8 +518,11 @@ export class Edge {
             errorsWarnings.warnings.push(issue);
         }
 
+        // TODO: maybe this should not be in the logging function, but there doesn't seem to be a better place for it?
         if(!draggingPortMode){
-            edge.issues().push({issue:issue, validity:linkValid})
+            if (edge !== null){
+                edge.issues.push({issue:issue, validity:linkValid})
+            }
         }
     }
 }

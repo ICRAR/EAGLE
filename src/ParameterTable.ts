@@ -86,7 +86,7 @@ export class ParameterTable {
         }
     }
 
-    static tableEnterShortcut = (event: Event) : void => {
+    static tableEnterShortcut = (event: KeyboardEvent) : void => {
 
         //if the table parameter search bar is selected
         if($('#parameterTable .componentSearchBar')[0] === event.target){
