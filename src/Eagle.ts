@@ -486,7 +486,7 @@ export class Eagle {
         const centroidX = minX + ((maxX - minX) / 2);
         const centroidY = minY + ((maxY - minY) / 2);
         
-        let bottomWindow = Utils.getBottomWindowHeight()
+        const bottomWindow = Utils.getBottomWindowHeight()
 
         //calculating scale multipliers needed for each, height and width in order to fit the graph
         const containerHeight = $('#logicalGraphParent').height() - bottomWindow
@@ -495,15 +495,8 @@ export class Eagle {
         
 
         //we are taking into account the current widths of the left and right windows
-        let leftWindow = Utils.getLeftWindowWidth()
-        // if(Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
-        //     leftWindow = that.leftWindow().size()
-        // }
-        
-        let rightWindow = Utils.getRightWindowWidth()
-        // if(Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
-        //     rightWindow = that.rightWindow().size()
-        // }
+        const leftWindow = Utils.getLeftWindowWidth()
+        const rightWindow = Utils.getRightWindowWidth()
 
         const containerWidth = $('#logicalGraphParent').width() - leftWindow - rightWindow
         const graphWidth = maxX-minX+200
