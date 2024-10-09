@@ -48,10 +48,14 @@ export class SideWindow {
         //but we also need to temporarily add a transition effect to the statusBar so it moves as one with the window
         $('#statusBar').addClass('linearTransition250')
         $('#inspector').addClass('linearTransition250')
+        $('.rightWindow').addClass('linearTransition250')
+        $('.leftWindow').addClass('linearTransition250')
 
         setTimeout(function(){
             $('#statusBar').removeClass('linearTransition250')
             $('#inspector').removeClass('linearTransition250')
+            $('.rightWindow').removeClass('linearTransition250')
+            $('.leftWindow').removeClass('linearTransition250')
         },300)
     }
 

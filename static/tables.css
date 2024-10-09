@@ -210,15 +210,6 @@ td:first-child input {
     height: 46px;
 }
 
-#parameterTable .bottomWindowHeaderWrap button{
-    background: transparent;
-    border: none;
-    padding: 0px;
-    margin-left: 5px;
-    top: 11px;
-    position: absolute;
-}
-
 #parameterTable .bottomWindowHeaderWrap button i{
     transform: translateY(2px);
 }
