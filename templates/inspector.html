@@ -1,4 +1,4 @@
-<div id="inspector" data-bind="style: {'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth() + 10},css:{'inspectorCollapsed': $root.getInspectorCollapseState()}">
+<div id="inspector" data-bind="style: {'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth() + 10, bottom: Utils.getInspectorOffset() + 10},css:{'inspectorCollapsed': $root.getInspectorCollapseState()}">
     <!-- Graph object inspector -->
     <!-- ko if: $root.selectedObjects().length > 0 -->
         <!-- ko ifnot: Setting.findValue(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE) -->
@@ -30,7 +30,7 @@
                                 </div>
                                 <div class="col-6 col text-right">
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                        <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.openParamsTableModal('inspectorTableModal','normal')}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + KeyboardShortcut.idToText('open_component_parameter_table_modal', true)" data-bs-placement="left">
+                                        <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + KeyboardShortcut.idToText('open_parameter_table', true)" data-bs-placement="left">
                                             <i class="material-icons md-20 clickable">table_chart</i>
                                         </button>
                                     <!-- /ko -->

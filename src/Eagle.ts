@@ -74,6 +74,7 @@ export class Eagle {
 
     leftWindow : ko.Observable<SideWindow>;
     rightWindow : ko.Observable<SideWindow>;
+    bottomWindow : ko.Observable<SideWindow>;
 
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
@@ -128,7 +129,6 @@ export class Eagle {
     static shortcuts : KeyboardShortcut[];
     static tutorials : Tutorial[];
 
-    static dragStartX : number;
     static lastClickTime : number = 0;
 
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
@@ -148,6 +148,7 @@ export class Eagle {
 
         this.leftWindow = ko.observable(new SideWindow(Utils.getLeftWindowWidth()));
         this.rightWindow = ko.observable(new SideWindow(Utils.getRightWindowWidth()));
+        this.bottomWindow = ko.observable(new SideWindow(Utils.getBottomWindowHeight()));
 
         this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
@@ -398,10 +399,10 @@ export class Eagle {
     }, this);
 
     toggleWindows = () : void  => {
-        const setOpen = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)
+        const setOpen = !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)
 
-        SideWindow.setShown(true, setOpen);
-        SideWindow.setShown(false, setOpen);
+        SideWindow.setShown('left', setOpen);
+        SideWindow.setShown('right', setOpen);
     }
 
     emptySearchBar = (target : ko.Observable,data:string, event : Event) => {
@@ -485,23 +486,17 @@ export class Eagle {
         const centroidX = minX + ((maxX - minX) / 2);
         const centroidY = minY + ((maxY - minY) / 2);
         
+        const bottomWindow = Utils.getBottomWindowHeight()
 
         //calculating scale multipliers needed for each, height and width in order to fit the graph
-        const containerHeight = $('#logicalGraphParent').height()
+        const containerHeight = $('#logicalGraphParent').height() - bottomWindow
         const graphHeight = maxY-minY+200
         const graphYScale = containerHeight/graphHeight
         
 
         //we are taking into account the current widths of the left and right windows
-        let leftWindow = 0
-        if(Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
-            leftWindow = that.leftWindow().width()
-        }
-        
-        let rightWindow = 0
-        if(Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
-            rightWindow = that.rightWindow().width()
-        }
+        const leftWindow = Utils.getLeftWindowWidth()
+        const rightWindow = Utils.getRightWindowWidth()
 
         const containerWidth = $('#logicalGraphParent').width() - leftWindow - rightWindow
         const graphWidth = maxX-minX+200
@@ -512,7 +507,7 @@ export class Eagle {
 
         //determine center of the display area
         const displayCenterX : number = (containerWidth / that.globalScale() / 2);
-        const displayCenterY : number = $('#logicalGraphParent').height() / that.globalScale() / 2;
+        const displayCenterY : number = containerHeight / that.globalScale() / 2;
 
         // translate display to center the graph centroid
         that.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
@@ -702,7 +697,7 @@ export class Eagle {
     changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {
         Setting.setValue(Setting.RIGHT_WINDOW_MODE,requestedMode)
         
-        SideWindow.setShown(false,true)
+        SideWindow.setShown('right',true)
 
         //trigger a re-render of the hierarchy
         if (Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy){
@@ -2661,8 +2656,8 @@ export class Eagle {
                 const realwidth = window.innerWidth
                 const divisor = realwidth/width
 
-                const lx = (eagle.leftWindow().width()+50)/divisor
-                const rx = (eagle.rightWindow().width()+50)/divisor
+                const lx = (eagle.leftWindow().size()+50)/divisor
+                const rx = (eagle.rightWindow().size()+50)/divisor
                 const ly = 90/divisor
                 canvas.width=width-rx-lx//trimming the right window
                 ctx.translate(-lx,-ly)
@@ -3987,7 +3982,7 @@ export class Eagle {
             $(clickTarget).trigger("select")
 
             //scroll to new row
-            $("#parameterTableModal .modal-body").animate({
+            $("#parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
@@ -4288,7 +4283,7 @@ export class Eagle {
 
         // if we are summoning this editField modal from the params table, close the params table
         if (modalType === Eagle.ModalType.Field){
-            $('#parameterTableModal').modal("hide");
+            $('#parameterTable').modal("hide");
         }
 
         //if creating a new field
@@ -4361,7 +4356,7 @@ export class Eagle {
 
                 // if we summoned this editField modal from the params table, now that we are done, re-open the params table
                 if (modalType === Eagle.ModalType.Field){
-                    $('#parameterTableModal').modal("show");
+                    $('#parameterTable').modal("show");
                 }
             });
         }
@@ -4390,7 +4385,7 @@ export class Eagle {
             clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
             $(clickTarget).trigger("select")
 
-            $("#parameterTableModal .modal-body").animate({
+            $("#parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
@@ -4492,8 +4487,8 @@ export class Eagle {
         
         while (!suitablePositionFound && numIterations <= MAX_ITERATIONS){
             // get visible screen size
-            let minX = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? this.leftWindow().width()+MARGIN: 0+MARGIN;
-            let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? $('#logicalGraphParent').width() - this.rightWindow().width() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
+            let minX = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? this.leftWindow().size()+MARGIN: 0+MARGIN;
+            let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? $('#logicalGraphParent').width() - this.rightWindow().size() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
             let minY = 0 + navBarHeight + MARGIN;
             let maxY = $('#logicalGraphParent').height() - MARGIN + navBarHeight;
             if(increaseSearchArea){
@@ -4551,7 +4546,7 @@ export class Eagle {
         graph_url += "&branch=" + fileInfo.repositoryBranch;
         graph_url += "&path=" + encodeURI(fileInfo.path);
         graph_url += "&filename=" + encodeURI(fileInfo.name);
-
+ 
         // copy to clipboard
         navigator.clipboard.writeText(graph_url);
 
@@ -4573,8 +4568,10 @@ export class Eagle {
             // switch to graph errors mode
             this.errorsMode(Errors.Mode.Graph);
 
-            // show graph modal
-            this.smartToggleModal('issuesModal')
+            //switch bottom window mode
+            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)
+            //show bottom window
+            SideWindow.setShown('bottom',true)
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
@@ -4881,6 +4878,14 @@ export namespace Eagle
         Hierarchy = "Hierarchy"
     }
 
+    export enum BottomWindowMode {
+        None = "None",
+        ParameterTable = "ParameterTable",
+        GraphConfigsTable = "GraphConfigsTable",
+        GraphConfigAttributesTable = "GraphConfigAttributesTable",
+        GraphErrors = "GraphErrors"
+    }
+
     export enum AddNodeMode {
         ContextMenu = "ContextMenu",
         Default = "Default"
@@ -4922,7 +4927,7 @@ $( document ).ready(function() {
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
-        $("#issuesModalAccordion").parent().parent().attr('style','')
+        $("#issuesDisplayAccordion").parent().parent().attr('style','')
 
         //reset parameter table selection
         ParameterTable.resetSelection()

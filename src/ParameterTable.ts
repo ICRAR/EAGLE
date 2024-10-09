@@ -12,6 +12,7 @@ import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
 import { GraphConfig, GraphConfigField } from "./GraphConfig";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { SideWindow } from "./SideWindow";
 
 export class ParameterTable {
 
@@ -88,8 +89,8 @@ export class ParameterTable {
     static tableEnterShortcut = (event: KeyboardEvent) : void => {
 
         //if the table parameter search bar is selected
-        if($('#parameterTableModal .componentSearchBar')[0] === event.target){
-            const targetCell = $('#parameterTableModal td.column_Value').first().children().first()
+        if($('#parameterTable .componentSearchBar')[0] === event.target){
+            const targetCell = $('#parameterTable td.column_Value').first().children().first()
             targetCell.trigger("focus");
             $('.selectedTableParameter').removeClass('selectedTableParameter')
             targetCell.parent().addClass('selectedTableParameter')
@@ -289,7 +290,7 @@ export class ParameterTable {
         ParameterTable.selection(selection);
         ParameterTable.selectionReadonly(eagle.getCurrentParamValueReadonly(selectionParent));
 
-        $('#parameterTableModal tr.highlighted').removeClass('highlighted')
+        $('#parameterTable tr.highlighted').removeClass('highlighted')
     }
 
     static isSelected(selectionName: string, selectionParent: Field): boolean {
@@ -371,8 +372,6 @@ export class ParameterTable {
                 graphConfig.removeField(currentField);
             }
         } else {
-            ParameterTable.closeModal();
-
             Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
                 ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
 
@@ -415,9 +414,6 @@ export class ParameterTable {
         const eagle: Eagle = Eagle.getInstance();
         const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
 
-        //ParameterTable.openModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
-        ParameterTable.closeModal();
-
         Utils.requestUserText(
             "Edit Field Description",
             "Please edit the description for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(),
@@ -427,9 +423,6 @@ export class ParameterTable {
                 if (completed){
                     currentField.setDescription(userText);
                 }
-
-                // always re-open the ParameterTable
-                ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
             }
         )
     }
@@ -438,9 +431,6 @@ export class ParameterTable {
         const eagle: Eagle = Eagle.getInstance();
         const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
         const configField: GraphConfigField = eagle.logicalGraph().getActiveGraphConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
-
-        //ParameterTable.openModal(ParameterTable.Mode.Unknown, ParameterTable.SelectType.Normal);
-        ParameterTable.closeModal();
 
         Utils.requestUserText(
             "Edit Field Comment",
@@ -451,9 +441,6 @@ export class ParameterTable {
                 if (completed){
                     configField.setComment(userText);
                 }
-
-                // always re-open the ParameterTable
-                ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
             }
         )
     }
@@ -528,18 +515,25 @@ export class ParameterTable {
     static openModal = (mode: ParameterTable.Mode, selectType: ParameterTable.SelectType) : void => {
         const eagle: Eagle = Eagle.getInstance();
 
-        eagle.showEagleIsLoading()
+        // eagle.showEagleIsLoading()
 
         setTimeout(function(){
             if($('.modal.show').length>0){
-                if($('.modal.show').attr('id')==='parameterTableModal'){
+                if($('.modal.show').attr('id')==='parameterTable'){
                     // TODO: use closeModal here!
-                    $('#parameterTableModal').modal('hide')
-                    ParameterTable.showTableModal(false)
+                    $('#parameterTable').modal('hide')
+                    // ParameterTable.showTableModal(false)
                 }else{
                     return
                 }
             }
+
+            if(mode === ParameterTable.Mode.NodeFields){
+                Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.ParameterTable)
+            }else{
+                Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphConfigAttributesTable)
+            }
+
             if(selectType === ParameterTable.SelectType.RightClick){
                 eagle.setSelection(Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
 
@@ -547,19 +541,14 @@ export class ParameterTable {
 
                 setTimeout(function() {
                     ParameterTable.mode(mode);
-                    $('#parameterTableModal').modal("show");
+                    // $('#parameterTableModal').modal("show");
                 }, 30);
             }else{
-                if (mode=== ParameterTable.Mode.NodeFields && !eagle.selectedNode()){
-                    eagle.hideEagleIsLoading()
-                    Utils.showNotification("Error", "No Node Is Selected", "warning");
-                }else{
-                    ParameterTable.mode(mode);
-                    $('#parameterTableModal').modal("show");
-                }
+                ParameterTable.mode(mode);
+                // $('#parameterTableModal').modal("show");
             }
-            ParameterTable.showTableModal(true)
-
+            // ParameterTable.showTableModal(true)
+            SideWindow.setShown('bottom',true)
         },5)
     }
     
@@ -574,11 +563,6 @@ export class ParameterTable {
         setTimeout(function(){
             $('#tableRow_'+field.getId()).addClass('highlighted')
         },200)
-    }
-
-    static closeModal = (): void => {
-        $('#parameterTableModal').modal('hide')
-        ParameterTable.showTableModal(false)
     }
 
     static addEmptyTableRow = () : void => {
@@ -606,7 +590,7 @@ export class ParameterTable {
             $(clickTarget).trigger("select")
 
             //scroll to new row
-            $("#parameterTableModal .modal-body").animate({
+            $("#parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);

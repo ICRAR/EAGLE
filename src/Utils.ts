@@ -24,6 +24,7 @@
 
 import * as Ajv from "ajv";
 import * as Showdown from "showdown";
+import * as ko from "knockout";
 
 import { Category } from './Category';
 import { CategoryData } from "./CategoryData";
@@ -459,13 +460,13 @@ export class Utils {
 
         console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
 
-        $('#issuesModalTitle').text(title);
+        $('#issuesDisplayTitle').text(title);
 
         // hide whole errors or warnings sections if none are found
-        $('#issuesModalErrorsAccordionItem').toggle(errors.length > 0);
-        $('#issuesModalWarningsAccordionItem').toggle(warnings.length > 0);
+        $('#issuesDisplayErrorsAccordionItem').toggle(errors.length > 0);
+        $('#issuesDisplayWarningsAccordionItem').toggle(warnings.length > 0);
 
-        $('#issuesModal').modal("show");
+        $('#issuesDisplay').modal("show");
     }
 
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
@@ -727,8 +728,8 @@ export class Utils {
         $('#parameterTableModal').modal("show");
     }
 
-    static showOpenGraphConfigurationsTableModal() : void {
-        $('#graphConfigurationsTableModal').modal("show");
+    static showOpengraphConfigurationsTable() : void {
+        $('#graphConfigurationsTable').modal("show");
     }
     */
 
@@ -741,7 +742,7 @@ export class Utils {
     }
 
     static closeErrorsModal() : void {
-        $('#issuesModal').modal("hide");
+        $('#issuesDisplay').modal("hide");
     }
 
     static preparePalette(palette: Palette, paletteListItem: {name:string, filename:string, readonly:boolean}) : void {
@@ -1269,11 +1270,11 @@ export class Utils {
         if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
             return 0
         }
-        return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH_KEY)
+        return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH)
     }
 
     static setRightWindowWidth(width : number) : void {
-        Setting.find(Setting.RIGHT_WINDOW_WIDTH_KEY).setValue(width)
+        Setting.find(Setting.RIGHT_WINDOW_WIDTH).setValue(width)
         UiModeSystem.saveToLocalStorage()
     }
 
@@ -1281,12 +1282,28 @@ export class Utils {
         if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
             return 0
         }
-        return Setting.findValue(Setting.LEFT_WINDOW_WIDTH_KEY)
+        return Setting.findValue(Setting.LEFT_WINDOW_WIDTH)
     }
 
     static setLeftWindowWidth(width : number) : void {
-        Setting.find(Setting.LEFT_WINDOW_WIDTH_KEY).setValue(width)
+        Setting.find(Setting.LEFT_WINDOW_WIDTH).setValue(width)
         UiModeSystem.saveToLocalStorage()
+    }
+
+    static getBottomWindowHeight() : number {
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+            return 0
+        }
+        return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
+    }
+
+    static setBottomWindowHeight(width : number) : void {
+        Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).setValue(width)
+        UiModeSystem.saveToLocalStorage()
+    }
+
+    static getInspectorOffset() : number {
+        return this.getBottomWindowHeight() + $('#statusBar').height() 
     }
 
     static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
@@ -2098,7 +2115,7 @@ export class Utils {
     
     static showEdge(eagle: Eagle, edgeId: EdgeId): void {
         // close errors modal if visible
-        $('#issuesModal').modal("hide");
+        $('#issuesDisplay').modal("hide");
 
         eagle.setSelection(eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
@@ -2108,7 +2125,7 @@ export class Utils {
         let location : Eagle.FileType
 
         // close errors modal if visible
-        $('#issuesModal').modal("hide");
+        $('#issuesDisplay').modal("hide");
 
         //attempt to find node in graph
         node = eagle.logicalGraph().findNodeById(nodeId);

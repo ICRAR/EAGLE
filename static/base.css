@@ -211,7 +211,7 @@ color: #00bb00;}
     position:absolute;
     top: 0px;
     right: -300px;
-    height: 100%;
+    /* height: 100%; */
     transition: right 0.25s linear;
     border-left: 2px solid rgba(0, 36, 74, 0.95);
     visibility: hidden;
@@ -231,10 +231,78 @@ color: #00bb00;}
     position: relative;
 }
 
+#bottomWindow{
+    background-color: #002349;
+    width: 100%;
+    height: 150px;
+    position: absolute;
+    bottom: 0px;
+    z-index:100;
+    visibility:hidden;
+    transition: bottom 0.25s linear;
+}
 
+#bottomWindow div.wrapper{
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#bottomWindow div.dragHandle{
+    position: absolute;
+    width: 100%;
+    top: -5px;
+    height: 10px;
+    cursor: ns-resize;
+}
+
+#bottomWindow div.tabs{
+    position: absolute;
+    width: 40px;
+    height: 100%;
+    margin-top: 53px;
+}
+
+#bottomWindow div.tabs button{
+    position: relative;
+    width: 100%;
+    background-color: #002349;
+    border: none;
+    font-size:24px;    
+    border-bottom: solid 2px white;
+    border-radius: 0px;
+    padding: 2px;
+}
+
+#bottomWindow div.tabs button:focus{
+    box-shadow: none;
+}
+
+#bottomWindow div.tabs button.activeTab{
+    background-color: #f0f8ff;
+    color: #002349;
+}
+
+#bottomWindow div.content{
+    position: relative;
+    width: calc(100% - 40px);
+    height: 100%;
+    margin-left: 40px;
+}
+
+#explorePalettesModal #explorePalettesPathContainer{
+    display: block;
+    width: 100%;
+    height: 25px;
+    padding: 0px 15px;
+    margin-top: 50px;
+    background-color: #002349;
+    z-index: 10;
+    color: white;
+}
 
 #inspector{
-    background-color: #001933;
+    background-color: #002349;
     width: 300px;
     height: min-content;
     border-radius: 10px;
@@ -666,7 +734,7 @@ color: #00bb00;}
     position: absolute;
     top: 0px;
     left: -250px;
-    height: 100%;
+    /* height: 100%; */
     transition: left 0.25s linear;
     padding:0px 2px 0px 6px;
     visibility:hidden;
@@ -694,12 +762,12 @@ color: #00bb00;}
     background: white;
 }
 
-.rightWindow ::-webkit-scrollbar-thumb, #parameterTableModal ::-webkit-scrollbar-thumb{
+.rightWindow ::-webkit-scrollbar-thumb, #parameterTable ::-webkit-scrollbar-thumb{
     background: #002349;
     border-radius: 5px;
 }
 
-.rightWindow ::-webkit-scrollbar-track, #parameterTableModal ::-webkit-scrollbar-track{
+.rightWindow ::-webkit-scrollbar-track, #parameterTable ::-webkit-scrollbar-track{
     background: rgb(216 221 240);
     border-radius: 5px;
 }
@@ -958,29 +1026,29 @@ select.form-control{
     border: 1px solid #c2c8dc;
 }
 
-#issuesModalAccordion .accordion-button{
+#issuesDisplayAccordion .accordion-button{
     color: white;
     background-color: #4a6b8f;
 }
 
-#issuesModalAccordion .accordion-button::after{
+#issuesDisplayAccordion .accordion-button::after{
     background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
 }
 
-#issuesModalAccordion .accordion-button:focus{
+#issuesDisplayAccordion .accordion-button:focus{
     border-color: transparent;
     box-shadow: none !important;
 }
 
-#issuesModalAccordion .accordion-item{
+#issuesDisplayAccordion .accordion-item{
     margin-bottom: 10px;
 }
 
-#issuesModalErrorCount{
+#issuesDisplayErrorCount{
     color: #dc3545;
 }
 
-#issuesModalWarningCount{
+#issuesDisplayWarningCount{
     color: #ffc107;
 }
 
@@ -1742,6 +1810,7 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     color: white;
     visibility: hidden;
     padding-left: 3px;
+    pointer-events: none;
 }
 
 #statusBar h5{
@@ -2154,7 +2223,7 @@ palette-component input.form-control.selected {
     text-align: left;
 }
 
-#issuesModal ul.list-group .list-group-item span {
+#issuesDisplay ul.list-group .list-group-item span {
     max-width: 80%;
 }
 

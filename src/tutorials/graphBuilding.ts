@@ -68,9 +68,9 @@ newTut.newTutStep("Editing Components", "The inspector panel provides access to 
 newTut.newTutStep("Click to open", "<em>Click to open the node fields table and continue.</em>", function(){return $("#inspector #openNodeParamsTable")})
 .setWaitType(TutorialStep.Wait.Element)
 .setType(TutorialStep.Type.Press)
-.setBackPreFunction(function(){$('#parameterTableModal').modal('hide')})
+.setBackPreFunction(function(){$('#parameterTable').modal('hide')})
 
-newTut.newTutStep("The Parameter Table", " The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $('#parameterTableModal .modal-content')})
+newTut.newTutStep("The Parameter Table", " The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $('#parameterTable .modal-content')})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(700)
 
@@ -85,7 +85,7 @@ newTut.newTutStep("Key Attributes", "You can flag important parameters and attri
 .setDelayAmount(700)
 
 newTut.newTutStep("Key Attributes", "You can view the key attributes of a graph by opening the key attributes table located here.", function(){return $("#openGraphConfigurationTable")})
-.setPreFunction(function(){$('#parameterTableModal').modal('hide')})
+.setPreFunction(function(){$('#parameterTable').modal('hide')})
 
 newTut.newTutStep("Right Click to add nodes", "There are also various right click options available in EAGLE. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})
 .setType(TutorialStep.Type.Condition)
@@ -128,7 +128,7 @@ newTut.newTutStep("Graph Errors and warnings", "This is the error checking syste
 // .setType(TutorialStep.Type.Press)
 // .setWaitType(TutorialStep.Wait.Modal)
 // .setAlternateHighlightTargetFunc(function(){return $("#errorModalFixAll").parent().parent()})
-// .setBackPreFunction(function(){$('#issuesModal').modal('show')})
+// .setBackPreFunction(function(){$('#issuesDisplay').modal('show')})
 
 newTut.newTutStep("Saving a Graph", "Options to save your graph are available in the graph menu <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
 .setType(TutorialStep.Type.Press)

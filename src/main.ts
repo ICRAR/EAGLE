@@ -173,7 +173,7 @@ $(function(){
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
-        $("#issuesModalAccordion").parent().parent().attr('style','')
+        $("#issuesDisplayAccordion").parent().parent().attr('style','')
 
         //reset parameter table selection
         ParameterTable.resetSelection()
@@ -265,7 +265,9 @@ $(function(){
     //applying html ko bindings
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
     ko.applyBindings(eagle);
-
+    
+    //changing errors mode from loading to graph as eagle is now ready and finished loading
+    eagle.errorsMode(Errors.Mode.Graph);
 });
 
 function autoLoad(): void {
