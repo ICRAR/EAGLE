@@ -4518,10 +4518,10 @@ export class Eagle {
             // switch to graph errors mode
             this.errorsMode(Errors.Mode.Graph);
 
-            Setting.findValue(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)
+            //switch bottom window mode
+            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)
+            //show bottom window
             SideWindow.setShown('bottom',true)
-            // show graph modal
-            // this.smartToggleModal('issuesDisplay')
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
