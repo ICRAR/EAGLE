@@ -203,14 +203,14 @@ td:first-child input {
     width: 80px;
 }
 
-#parameterTable .eagleTableHeader{
+#parameterTable .bottomWindowHeaderWrap{
     border: none;
     justify-content: unset;
     border-top: solid 2px black;
     height: 46px;
 }
 
-#parameterTable .eagleTableHeader button{
+#parameterTable .bottomWindowHeaderWrap button{
     background: transparent;
     border: none;
     padding: 0px;
@@ -219,7 +219,7 @@ td:first-child input {
     position: absolute;
 }
 
-#parameterTable .eagleTableHeader button i{
+#parameterTable .bottomWindowHeaderWrap button i{
     transform: translateY(2px);
 }
 
@@ -269,7 +269,7 @@ td:first-child input {
     top: 9px;
 }
 
-.eagleTableDisplay .header-center button{
+.issuesDisplay .header-center button, .eagleTableDisplay .header-center button{
     background-color: #002349;
     border: solid 2px white;
     position: unset;
@@ -277,7 +277,7 @@ td:first-child input {
     padding: 3px;
 }
 
-.eagleTableDisplay .tableBody{
+.eagleTableDisplay .tableBody, .issuesDisplay .issuesBody{
     background-color: aliceblue;
     overflow: auto;
     width: 100%;
@@ -337,17 +337,17 @@ td:first-child input {
     outline: none;
 }
 
-.eagleTableDisplay {
+.issuesDisplay, .eagleTableDisplay {
     width: 100%;
     height: 100%;
     color: white;
 }
 
-.eagleTableDisplay .text-center{
+.issuesDisplay  .text-center, .eagleTableDisplay .text-center{
     color:#002e5f;
 }
 
-.eagleTableDisplay .table-title{
+.issuesDisplay .bottomWindowHeader, .eagleTableDisplay .bottomWindowHeader{
     padding:11px;
 }
 

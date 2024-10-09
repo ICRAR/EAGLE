@@ -1,13 +1,13 @@
 <!-- Parameter/arguments table -->
 <div class="eagleTableDisplay" id="parameterTable" tabindex="-1" role="dialog" aria-labelledby="parameterTableTitle">
-    <div class="eagleTableHeader" data-bind="click: function(){ParameterTable.resetSelection()}">
+    <div class="bottomWindowHeaderWrap" data-bind="click: function(){ParameterTable.resetSelection()}">
         <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) -->
-            <h5 class="table-title">
+            <h5 class="bottomWindowHeader">
                 Graph Attributes Configuration Table: <span data-bind="html: $root.logicalGraph().getActiveGraphConfig() ? $root.logicalGraph().getActiveGraphConfig().name() : ''"></span>
             </h5>
         <!-- /ko -->
         <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) && eagle.selectedNode() != null -->
-            <h5 class="table-title">Fields Table: <span data-bind="html: selectedNode().getName()"></span></h5>
+            <h5 class="bottomWindowHeader">Fields Table: <span data-bind="html: selectedNode().getName()"></span></h5>
             <!-- ko if: selectedNode() != null -->
                 <!-- ko if: selectedNode().isLocked() -->
                     <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: Utils.getReadOnlyText()">
@@ -22,7 +22,7 @@
             <!-- /ko -->
         <!-- /ko -->
         <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.NodeFields) && eagle.selectedNode() === null -->
-            <h5 class="table-title">Fields Table: </h5>
+            <h5 class="bottomWindowHeader">Fields Table: </h5>
         <!-- /ko -->
 
 

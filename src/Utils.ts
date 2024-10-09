@@ -460,13 +460,13 @@ export class Utils {
 
         console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
 
-        $('#issuesModalTitle').text(title);
+        $('#issuesDisplayTitle').text(title);
 
         // hide whole errors or warnings sections if none are found
-        $('#issuesModalErrorsAccordionItem').toggle(errors.length > 0);
-        $('#issuesModalWarningsAccordionItem').toggle(warnings.length > 0);
+        $('#issuesDisplayErrorsAccordionItem').toggle(errors.length > 0);
+        $('#issuesDisplayWarningsAccordionItem').toggle(warnings.length > 0);
 
-        $('#issuesModal').modal("show");
+        $('#issuesDisplay').modal("show");
     }
 
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
@@ -742,7 +742,7 @@ export class Utils {
     }
 
     static closeErrorsModal() : void {
-        $('#issuesModal').modal("hide");
+        $('#issuesDisplay').modal("hide");
     }
 
     static preparePalette(palette: Palette, paletteListItem: {name:string, filename:string, readonly:boolean}) : void {
@@ -2138,7 +2138,7 @@ export class Utils {
     
     static showEdge(eagle: Eagle, edgeId: EdgeId): void {
         // close errors modal if visible
-        $('#issuesModal').modal("hide");
+        $('#issuesDisplay').modal("hide");
 
         eagle.setSelection(eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
@@ -2148,7 +2148,7 @@ export class Utils {
         let location : Eagle.FileType
 
         // close errors modal if visible
-        $('#issuesModal').modal("hide");
+        $('#issuesDisplay').modal("hide");
 
         //attempt to find node in graph
         node = eagle.logicalGraph().findNodeById(nodeId);

@@ -4521,7 +4521,7 @@ export class Eagle {
             Setting.findValue(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)
             SideWindow.setShown('bottom',true)
             // show graph modal
-            // this.smartToggleModal('issuesModal')
+            // this.smartToggleModal('issuesDisplay')
         } else {
             Utils.showNotification("Check Graph", "Graph OK", "success");
         }
@@ -4877,7 +4877,7 @@ $( document ).ready(function() {
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
-        $("#issuesModalAccordion").parent().parent().attr('style','')
+        $("#issuesDisplayAccordion").parent().parent().attr('style','')
 
         //reset parameter table selection
         ParameterTable.resetSelection()

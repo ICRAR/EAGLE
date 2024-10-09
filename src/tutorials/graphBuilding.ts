@@ -128,7 +128,7 @@ newTut.newTutStep("Graph Errors and warnings", "This is the error checking syste
 // .setType(TutorialStep.Type.Press)
 // .setWaitType(TutorialStep.Wait.Modal)
 // .setAlternateHighlightTargetFunc(function(){return $("#errorModalFixAll").parent().parent()})
-// .setBackPreFunction(function(){$('#issuesModal').modal('show')})
+// .setBackPreFunction(function(){$('#issuesDisplay').modal('show')})
 
 newTut.newTutStep("Saving a Graph", "Options to save your graph are available in the graph menu <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
 .setType(TutorialStep.Type.Press)
