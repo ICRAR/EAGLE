@@ -95,11 +95,6 @@ export class Eagle {
     quickActionSearchTerm : ko.Observable<string>;
     quickActionOpen : ko.Observable<boolean>;
 
-    rendererFrameDisplay : ko.Observable<string>;
-    rendererFrameMax : number;
-    rendererFrameCountRender : number;
-    rendererFrameCountTick : number;
-
     explorePalettes : ko.Observable<ExplorePalettes>;
     dockerHubBrowser : ko.Observable<DockerHubBrowser>;
 
@@ -184,11 +179,6 @@ export class Eagle {
         this.quickActionSearchTerm = ko.observable('')
         this.quickActionOpen = ko.observable(false)
 
-        this.rendererFrameDisplay = ko.observable("");
-        this.rendererFrameMax = 0;
-        this.rendererFrameCountRender = 0;
-        this.rendererFrameCountTick = 0;
-
         this.explorePalettes = ko.observable(new ExplorePalettes());
         this.dockerHubBrowser = ko.observable(new DockerHubBrowser());
 
@@ -247,10 +237,6 @@ export class Eagle {
 
         return null;
     }
-
-    showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Setting.findValue(Setting.ENABLE_PERFORMANCE_DISPLAY);
-    }, this);
 
     types : ko.PureComputed<string[]> = ko.pureComputed(() => {
         // add all the built-in types
