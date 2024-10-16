@@ -31,6 +31,7 @@ import os
 import sys
 import tempfile
 import six
+import subprocess
 
 import urllib.request
 import ssl
@@ -74,6 +75,9 @@ app.config.from_object("config")
 
 version = "Unknown"
 commit_hash = "Unknown"
+
+# first look for the version and commit_hash in the VERSION file
+# that was generated during the build process
 try:
     with open(staticdir+"/VERSION") as vfile:
         for line in vfile.readlines():
@@ -82,9 +86,21 @@ try:
                 continue
             if "COMMIT_HASH" in line:
                 commit_hash = line.split("COMMIT_HASH ")[1].strip()[1:-1]
-                continue
-except:
-    print("Unable to load VERSION file")
+except Exception as e:
+    print(f"Unable to load VERSION file: {e}")
+
+# if the first method was unsuccessful, then run some git commands
+# to find the version and commit_hash
+if version == "Unknown" and commit_hash == "Unknown":
+    try:
+        version = subprocess.run(["git", "describe", "--abbrev=0", "--tags"], capture_output=True, text=True).stdout.strip() + " (dev)"
+        commit_hash = subprocess.run(["git", "rev-parse", "--short=8", "HEAD"], capture_output=True, text=True).stdout.strip()
+    except subprocess.CalledProcessError as e:
+        print(f"Error running git command: {e}")
+    except FileNotFoundError:
+        print("Git executable not found. Ensure git is installed and in the system PATH.")
+    except Exception as e:
+        print(f"Unexpected error determining version: {e}")
 
 print("Version: " + version + " Commit Hash: " + commit_hash)
 

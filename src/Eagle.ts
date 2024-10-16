@@ -95,11 +95,6 @@ export class Eagle {
     quickActionSearchTerm : ko.Observable<string>;
     quickActionOpen : ko.Observable<boolean>;
 
-    rendererFrameDisplay : ko.Observable<string>;
-    rendererFrameMax : number;
-    rendererFrameCountRender : number;
-    rendererFrameCountTick : number;
-
     explorePalettes : ko.Observable<ExplorePalettes>;
     dockerHubBrowser : ko.Observable<DockerHubBrowser>;
 
@@ -184,11 +179,6 @@ export class Eagle {
         this.quickActionSearchTerm = ko.observable('')
         this.quickActionOpen = ko.observable(false)
 
-        this.rendererFrameDisplay = ko.observable("");
-        this.rendererFrameMax = 0;
-        this.rendererFrameCountRender = 0;
-        this.rendererFrameCountTick = 0;
-
         this.explorePalettes = ko.observable(new ExplorePalettes());
         this.dockerHubBrowser = ko.observable(new DockerHubBrowser());
 
@@ -247,10 +237,6 @@ export class Eagle {
 
         return null;
     }
-
-    showPerformanceDisplay : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Setting.findValue(Setting.ENABLE_PERFORMANCE_DISPLAY);
-    }, this);
 
     types : ko.PureComputed<string[]> = ko.pureComputed(() => {
         // add all the built-in types
@@ -4613,8 +4599,21 @@ export class Eagle {
 
         const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
 
+        // Normally we can use a Memory component in-between two apps
+        // but if the destination app is a BashShellApp, then a Memory component will cause an error
+        // since the BashShellApp can't read from a memory location
+        // Instead, we use a File component as the intermediary
+        let intermediaryComponent;
+        if (destNode.getCategory() === Category.BashShellApp){
+            intermediaryComponent = Utils.getPaletteComponentByName(Category.File);
+        } else {
+            intermediaryComponent = Utils.getPaletteComponentByName(Category.Memory);
+        }
+
         // if edge DOES NOT connect two applications, process normally
-        if (!edgeConnectsTwoApplications || twoEventPorts){
+        // if edge connects two event ports, process normally
+        // if the definition of the intermediaryComponent cannot be found, process normally
+        if (!edgeConnectsTwoApplications || twoEventPorts || (edgeConnectsTwoApplications && intermediaryComponent === null)){
             const edge : Edge = new Edge(srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
             this.logicalGraph().addEdgeComplete(edge);
             setTimeout(() => {
@@ -4646,15 +4645,8 @@ export class Eagle {
             y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
         };
 
-        const memoryComponent = Utils.getPaletteComponentByName(Category.Memory);
-
-        // if node not found, exit
-        if (memoryComponent === null) {
-            return;
-        }
-
         // Add a duplicate of the memory component to the graph
-        const newNode : Node = this.logicalGraph().addDataComponentToGraph(Utils.duplicateNode(memoryComponent), dataComponentPosition);
+        const newNode : Node = this.logicalGraph().addDataComponentToGraph(Utils.duplicateNode(intermediaryComponent), dataComponentPosition);
 
         // set name of new node (use user-facing name)
         newNode.setName(srcPort.getDisplayText());
