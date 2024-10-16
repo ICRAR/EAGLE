@@ -393,8 +393,8 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
             new Setting(false, "Left Window Visibility", Setting.LEFT_WINDOW_VISIBLE, "saving the visibility state of the left window", true, Setting.Type.Boolean, false, false, true, true, true),
             new Setting(false, "Bottom Window Height", Setting.BOTTOM_WINDOW_HEIGHT, "saving the height of the bottom window", true, Setting.Type.Number, 250, 250, 250, 250, 250),
-            new Setting(false, "Bottom Window Visibility", Setting.BOTTOM_WINDOW_VISIBLE, "saving the visibility state of the bottom window", true, Setting.Type.Boolean, false, true, true, true, true),
-            new Setting(false, "Bottom Window Mode/Tab", Setting.BOTTOM_WINDOW_MODE, "saving the mode/tab of the bottom window", true, Setting.Type.Number, false, true, true, true, true),
+            new Setting(false, "Bottom Window Visibility", Setting.BOTTOM_WINDOW_VISIBLE, "saving the visibility state of the bottom window", true, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(false, "Bottom Window Mode/Tab", Setting.BOTTOM_WINDOW_MODE, "saving the mode/tab of the bottom window", true, Setting.Type.Number, 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable'),
             new Setting(false, "Graph Objects Inspector", Setting.OBJECT_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(false, "Graph Info Inspector", Setting.GRAPH_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph inspector", true, Setting.Type.Boolean, false, false, false, false, false),
         ]

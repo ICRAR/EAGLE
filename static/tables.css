@@ -269,6 +269,7 @@ td:first-child input {
 }
 
 .eagleTableDisplay .tableBody, .issuesDisplay .issuesBody{
+    padding:10px;
     background-color: aliceblue;
     overflow: auto;
     width: 100%;
