@@ -109,13 +109,13 @@ newTut.newTutStep("Quickly adding nodes", "If you already know what you want you
 
 newTut.newTutStep("Connecting nodes", "To save the output of the hello world app onto the file we need to draw an edge from the 'Hello World' node's output port to the 'File' node's input port.", function(){return $("#logicalGraphParent")})
 
-newTut.newTutStep("Node Ports", "This is the output port of the Hello world app, Output ports are always shown in orange and are initially on the right side of the node.",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('HelloWorldApp')+' .outputPort')})
+newTut.newTutStep("Node Ports", "This is the output port of the Hello world app, Output ports are always shown with a blue outline and are initially on the right side of the node.",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('HelloWorldApp')+' .outputPort')})
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp')})
 .setWaitType(TutorialStep.Wait.Element)
 
-newTut.newTutStep("Node Ports", "And this is the input port for the file storage node, Input ports are always shown in green and are initially on the left side of the node.",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('File')+' .inputPort')})
+newTut.newTutStep("Node Ports", "And this is the input port for the file storage node, Input ports are always shown as solid green and are initially on the left side of the node.",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('File')+' .inputPort')})
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File')})
