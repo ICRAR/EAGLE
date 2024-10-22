@@ -1,8 +1,8 @@
 import { Eagle } from '../Eagle';
 import { RightClick } from '../RightClick';
-import { TutorialStep, TutorialSystem } from '../Tutorial';
+import { Tutorial, TutorialStep, TutorialSystem } from '../Tutorial';
 import { SideWindow } from '../SideWindow';
-
+import { Setting } from '../Setting';
 
 const newTut = TutorialSystem.newTutorial('Graph Configurations', 'An introduction to using graph configurations.')
 
@@ -57,6 +57,62 @@ newTut.newTutStep("add a file node", "look for and add a file node by using the 
 .setExpectedInput('file')
 .setBackSkip(true)
 
+newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over to the file node's input port, then release.</em>",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('HelloWorldApp')+' .outputPort')})
+.setType(TutorialStep.Type.Condition)
+.setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
+.setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getEdges().length != 0){return true}else{return false}}) //check if there are any edges present in the graph
+
+newTut.newTutStep("Graph Configurations", "Now that we have a working hello world graph, we should set up a graph configuration and flag the important parameters", function(){return $("#logicalGraphParent")})
+
+newTut.newTutStep("Adding Key Parameters", "<em>Click on the HelloWorldApp node to select it.</em>",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp')})
+.setType(TutorialStep.Type.Condition)
+.setWaitType(TutorialStep.Wait.Element)
+.setConditionFunction(function(){return TutorialSystem.isRequestedNodeSelected('HelloWorldApp')})
+.setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
+.setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
+
+newTut.newTutStep("Adding Key Parameters", "<em>Click to open the node fields table and continue.</em>", function(){return $("#inspector #openNodeParamsTable")})
+.setWaitType(TutorialStep.Wait.Element)
+.setType(TutorialStep.Type.Press)
+.setPreFunction(function(){Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).setValue(false)})
+.setWaitType(TutorialStep.Wait.Delay)
+.setDelayAmount(200)
+
+newTut.newTutStep("Creating Graph Configurations", "Lets flag the name parameter of who we are greeting as a key attribute. This button appears when hovering on the field name. <em>Click on the heart to flag this field as key attribute.</em>", function(){return $('.column_DisplayText button').first()})
+.setType(TutorialStep.Type.Press)
+.setPreFunction(function(){setTimeout(function(){$('.column_DisplayText button').first().css('visibility','visible')},200)})
+// .setBackPreFunction(function(){$('#openNodeFieldsTable').trigger("click")})
+.setWaitType(TutorialStep.Wait.Delay)
+.setDelayAmount(700)
+
+newTut.newTutStep("Creating Graph Configurations", "A graph may have many configurations for different purposes on separate runs. <em>Enter a name and click OK",function(){return $('#inputModal .affirmativeBtn')})
+.setType(TutorialStep.Type.Press)
+.setAlternateHighlightTargetFunc(function(){return $('#inputModal .modal-content')})
+.setWaitType(TutorialStep.Wait.Delay)
+.setDelayAmount(200)
+
+newTut.newTutStep("Graph Configurations", "You can view the key graph attributes by opening the Graph Configurations table here.", function(){return $("#openGraphConfigurationTable")})
+.setType(TutorialStep.Type.Press)
+// .setPreFunction(function(){$('#parameterTable').modal('hide')})
+
+newTut.newTutStep("Graph Configurations", "Our name field has been added to the graph configuration where we can quickly change it for future runs of the graph.", function(){return $('#parameterTable')})
+.setWaitType(TutorialStep.Wait.Delay)
+.setDelayAmount(200)
+
+newTut.newTutStep("Adjusting Graph Configurations", "For this configuration, lets greet John. <em>Enter a 'John' and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})
+.setType(TutorialStep.Type.Input)
+
+newTut.newTutStep("Adjusting Graph Configurations", "We should also describe what the parameter does for our graph. <em>Enter 'Change the name of who we are greeting'</em>", function(){return $('.tableFieldCommentInput').first()})
+.setType(TutorialStep.Type.Input)
+
+newTut.newTutStep("Saving Graph Configurations", "<em>Save the configuration</em>", function(){return $('#parameterTableSaveGraphConfig')})
+.setType(TutorialStep.Type.Press)
+
+newTut.newTutStep("Saving Graph Configurations", "You must enter a descripiton of what this graph config is designed to do. <em>Enter a description and click OK",function(){return $('#inputModal .affirmativeBtn')})
+.setType(TutorialStep.Type.Press)
+.setAlternateHighlightTargetFunc(function(){return $('#inputModal .modal-content')})
+.setWaitType(TutorialStep.Wait.Delay)
+.setDelayAmount(200)
 
 newTut.newTutStep("Well Done!", "You have completed the Hello world graph creation tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance.", function(){return $("#logicalGraphParent")})
 .setPreFunction(function(){$('.forceShow').removeClass('forceShow')}) //allowing the graph navbar dropdown to hide

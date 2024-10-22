@@ -87,7 +87,7 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await page.locator('#parameterTableAffirmativeAnswer').click();
 
   //open the key graph parameter table modal
-  await page.locator('#openKeyParameterTable').click();
+  await page.locator('#openGraphConfigurationTable').click();
 
   await page.waitForTimeout(500);
 
