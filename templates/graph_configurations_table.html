@@ -83,7 +83,7 @@
                                 <!-- /ko -->
                             </td>
                             <td class='columnCell column-actions'>
-                                <button data-bind="click: function(){$root.logicalGraph().duplicateGraphConfig($data);}, eagleTooltip:'Duplicate'">
+                                <button class="btmWindowDuplicateBtn" data-bind="click: function(){$root.logicalGraph().duplicateGraphConfig($data);}, eagleTooltip:'Duplicate'">
                                     <i class="material-icons">content_copy</i>
                                 </button>
                                 <!-- ko if: $data.id === $root.logicalGraph().activeGraphConfig().id -->
