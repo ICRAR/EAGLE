@@ -117,7 +117,6 @@ export class Tutorial {
     private name: string;
     private description: string;
     private tutorialSteps: TutorialStep[];
-    private tutSystemReady : boolean = true;
 
     constructor(name: string, description: string, tutorialSteps: TutorialStep[]) {
         this.name = name;
@@ -153,17 +152,14 @@ export class Tutorial {
     }
 
     unlockEagleUi = () :void => {
-
         $('div, button').css('pointer-events', '');
         $('body').off('keydown.lockUi');
     }
 
     initiateTutStep = (direction: TutorialStep.Direction): void => {
-        // if(!this.tutSystemReady){
-        //     return
-        // }
-
-        this.tutSystemReady = false
+        //the lock function locks down the entire ui, preventing all clicks and key presses while the tutorial system is getting a step ready.
+        //this is because there were many bugs, because eagles' actual ui is faster than the tutorial system. thats because the tutorial system reacts to and waits for the eagle ui.
+        //the unlock happens after the waits for target elements in the ui, transitions of the tutorial visuals and changes of content and positioning has all been finished, this is when the tut system is ready to proceed.
         this.lockEagleUi()
 
         const eagle = Eagle.getInstance()
@@ -475,7 +471,6 @@ export class Tutorial {
 
         $('body').append(tooltipPopUp)
         this.unlockEagleUi()
-        this.tutSystemReady = true
     }
 
     closeInfoPopUp = (): void => {
