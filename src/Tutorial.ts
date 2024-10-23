@@ -32,6 +32,8 @@ export class TutorialSystem {
             const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
 
             if(TutorialSystem.activeTut===null){return} //catching a niche error
+            if($("input,textarea").is(":focus")){return} //if an input or textfield is active we want to ignore the arrows, as the user might be using them to correct mistakes in typing
+
 
             switch (e.key) {
                 case "ArrowLeft":
@@ -115,12 +117,12 @@ export class Tutorial {
     private name: string;
     private description: string;
     private tutorialSteps: TutorialStep[];
+    private tutSystemReady : boolean = true;
 
     constructor(name: string, description: string, tutorialSteps: TutorialStep[]) {
         this.name = name;
         this.description = description;
         this.tutorialSteps = tutorialSteps;
-
     }
 
     getTutorialSteps = (): TutorialStep[] => {
@@ -141,7 +143,28 @@ export class Tutorial {
         return x
     }
 
+    lockEagleUi = () :void => {
+        $('div, button').css('pointer-events', 'none');
+        $("body").on('keydown.lockUi', function (event: JQuery.TriggeredEvent) {
+            event.preventDefault()
+            event.stopImmediatePropagation()
+            event.stopPropagation()
+        })
+    }
+
+    unlockEagleUi = () :void => {
+
+        $('div, button').css('pointer-events', '');
+        $('body').off('keydown.lockUi');
+    }
+
     initiateTutStep = (direction: TutorialStep.Direction): void => {
+        // if(!this.tutSystemReady){
+        //     return
+        // }
+
+        this.tutSystemReady = false
+        this.lockEagleUi()
 
         const eagle = Eagle.getInstance()
         TutorialSystem.activeTutCurrentStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
@@ -335,6 +358,12 @@ export class Tutorial {
             target = TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc()()
         }
 
+        //if the selector is not working, we end the tutorial because it is broken
+        if(target.length === 0){
+            this.tutButtonEnd()
+            return
+        }
+
         //in order to darken the screen save the selection target, we must add divs on each side of the element.
         const coords = target.offset()
         const docWidth = window.innerWidth
@@ -445,6 +474,8 @@ export class Tutorial {
         tooltipPopUp = tooltipPopUp + "</div>"
 
         $('body').append(tooltipPopUp)
+        this.unlockEagleUi()
+        this.tutSystemReady = true
     }
 
     closeInfoPopUp = (): void => {
@@ -490,6 +521,7 @@ export class Tutorial {
         TutorialSystem.conditionCheck = null;
         clearTimeout(TutorialSystem.waitForElementTimer);
         TutorialSystem.waitForElementTimer = null;
+        this.unlockEagleUi()
     }
 
     tutPressStepListener = (): void => {
