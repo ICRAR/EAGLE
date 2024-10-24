@@ -298,6 +298,7 @@ export class KeyboardShortcut {
             KeyboardShortcut.QUICK_ACTION("collapse_all_nodes", "Collapse All Nodes", ['hide','show','expand'], (eagle): void => {eagle.toggleCollapseAllNodes();}),
             KeyboardShortcut.QUICK_ACTION("quickIntroTut", "Start UI Quick Intro Tutorial", ['ui','interface'], (eagle): void => {TutorialSystem.initiateTutorial('Quick Start');}),
             KeyboardShortcut.QUICK_ACTION("graphBuildingTut", "Start Graph Building Tutorial", [], (eagle): void => {TutorialSystem.initiateTutorial('Graph Building');}),
+            KeyboardShortcut.QUICK_ACTION("graphConfigTut", "Start Graph Configuration Tutorial", [], (eagle): void => {TutorialSystem.initiateTutorial('Graph Configurations');}),
             KeyboardShortcut.QUICK_ACTION("savePaletteLocally", "Save Palette Locally", [], (eagle): void => {eagle.saveFileToLocal(Eagle.FileType.Palette);}),
             KeyboardShortcut.QUICK_ACTION("createNewPaletteFromJson", "Create New Palette From Json", [], (eagle): void => {eagle.newPaletteFromJson();}),
             KeyboardShortcut.QUICK_ACTION("savePaletteAs", "Save Palette To Git", [], (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Palette);}),
