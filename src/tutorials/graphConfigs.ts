@@ -156,7 +156,7 @@ newTut.newTutStep("Adjusting Graph Configurations", "We can see that the FilePat
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(200)
 
-newTut.newTutStep("Saving Graph Configurations", "Dont forget to save the new config</em>", function(){return $('#parameterTableSaveGraphConfig')})
+newTut.newTutStep("Saving Graph Configurations", "Don't forget to save the new config</em>", function(){return $('#parameterTableSaveGraphConfig')})
 .setType(TutorialStep.Type.Press)
 
 newTut.newTutStep("Saving Graph Configurations", "update the description to better describe the new purpose of the configuration 'with control over the name of who we are greeting and output file path' <em>Enter a description and click OK",function(){return $('#inputModal .affirmativeBtn')})

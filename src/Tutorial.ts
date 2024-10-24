@@ -1,5 +1,5 @@
 import {Eagle} from './Eagle';
-
+import { Utils } from './Utils';
 
 export class TutorialSystem {
 
@@ -357,6 +357,7 @@ export class Tutorial {
         //if the selector is not working, we end the tutorial because it is broken
         if(target.length === 0){
             this.tutButtonEnd()
+            Utils.showNotification("Tutorial Error", "There was an error in the tutorial, if this persists, please let our team know.", "warning");
             return
         }
 
