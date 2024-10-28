@@ -17,34 +17,26 @@ development environment.
 
 The breadth and depth of a palette is completely up to the palette developers.
 One palette could contain every possible component for a domain, or it could be
-much more narrow and cover a single sub-domain.
+much more narrow and cover a single sub-domain or software package.
 
-A palette developed for astronomy could potentially contain hundreds of radio
+A palette developed for astronomy could potentially contain hundreds or thousands of radio
 astronomy components, which would make it difficult to zero in on components
 necessary to process an optical image. A more focused sub-domain palette could,
 for instance, focus on one single experiment or instrument and only offer
-components relevant to processing that data.
+components relevant to processing that data for a specific science goal.
+
+Palettes can be generated/developed in two main ways, automatic and manual in EAGLE.
 
 
 Creating Palettes Automatically from Source Code
 ------------------------------------------------
 
-We have a method for automatically generating component descriptions from source code. It involves:
-
-* Adding Doxygen comments to the source code
-* Adding a CI task to the code repository, which:
-
-  * Uses doxygen to process the source code and output XML documentation
-  * Processes the XML with a EAGLE script called xml2palette.py
-  * Commit/push the resulting palette JSON to the ICRAR/EAGLE-graph-repo repository inside a directory named after the project
-
-This process is described in further detail within the `DALiuGE Documentation <https://daliuge.readthedocs.io/en/latest/development/app_development/eagle_app_integration.html>`_
-
+We have developed a stand-alone `tool <https://icrar.github.io/dlg_paletteGen/>`_ to automatically generate palettes from source code. It has been used to create palettes for a number of small and large code repositories and works without any modification of the code. In addition it can also extract the more dedicated component descriptions specifically written for DALiuGE.
 
 Creating Palettes within EAGLE
 ------------------------------
 
-EAGLE can be used to create new palettes. To create Palettes within EAGLE,
+EAGLE can also be used to create new palettes from scratch. To create Palettes within EAGLE,
 first open the EAGLE settings and enable the "Allow Palette Editing" setting.
 
 The next step is to create a component you would like to place in a palette
@@ -54,13 +46,13 @@ create a component for some Python code, a user would drag a "Python App" from
 the "All Nodes" palette into the graph editor as a starting point.
 
 Next, the user would customise the "Python App" component, changing the name and
-description, and adding parameters and ports as appropriate.
+description as well as the *Application Class* component argument, and adding parameters and ports as appropriate.
 
 Once the component is complete, it should be saved to a palette using the
 "Add Selected Node to Palette" button at the top of the node inspector.
 Since graphs usually require many components, a user could create and modify
 multiple components within the graph editor, then add them all to a palette at
-once, using the "Add Graph Nodes to Palette" button in the navbar.
+once, using the "Add Graph Nodes to Palette" button in the navbar. Obviously this process is quite hands-on and tedious and thus not really suited to create many components from scratch. However, it is very useful for fine-tuing existing components parameters, default values and ports.
 
 .. figure:: _static/images/components/navbar_button.png
   :width: 240px
@@ -71,12 +63,12 @@ once, using the "Add Graph Nodes to Palette" button in the navbar.
   Click the "Add graph nodes to Palette" button in the navbar
 
 The user can then click the "cloud" icon to save to git, or the "floppy disk" icon to save locally.
-As with other components, we'd recommend saving to ICRAR/EAGLE_test_repo in a directory named after the project
+As with other components, we'd recommend saving to your own EAGLE GitHub or GitLab repository in a folder named after the palettes focus or use.
 
 .. figure:: _static/images/components/new_palette.png
   :width: 500px
   :align: center
-  :alt: The new palette containing the Docker component description
+  :alt: The new palette containing a Docker component description
   :figclass: align-center
 
-  The new palette containing the Docker component description
+  The new palette containing a Docker component description
