@@ -10,10 +10,10 @@
             <i class="material-icons md-18 interactive" data-bs-placement="bottom" data-bind="click: refresh, visible: (folders().length != 0 || files().length != 0)&& fetched, eagleTooltip: 'Refresh'">cloud_done</i>
 
             <!-- ko ifnot: fetched -->
-            <!-- ko if: service === Eagle.RepositoryService.GitHub -->
+            <!-- ko if: service === Repository.Service.GitHub -->
             <img src="static/assets/img/GitHub-Mark-32px.png" data-bind="click: select" width="18px" />
             <!-- /ko -->
-            <!-- ko if: service === Eagle.RepositoryService.GitLab -->
+            <!-- ko if: service === Repository.Service.GitLab -->
             <img src="static/assets/img/fi-cnsuxt-gitlab-alt-solid.png" data-bind="click: select" width="18px"/>
             <!-- /ko -->
             <!-- /ko -->

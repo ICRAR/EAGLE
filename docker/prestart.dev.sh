@@ -10,7 +10,7 @@ echo "This will take a bit..."
 echo "<<<<<"
 echo ""
 pip install -e .
-python updateVersion.py
+#python updateVersion.py
 #npm install --production-only 
 npm install
 # compile the typescript code

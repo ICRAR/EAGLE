@@ -28,25 +28,41 @@ import "jqueryMigrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
-import {Category} from './Category';
-import {Config} from './Config';
-import {Eagle} from './Eagle';
-import {Errors} from './Errors';
-import {GitHub} from './GitHub';
-import {GitLab} from './GitLab';
-import {Hierarchy} from './Hierarchy';
-import {RightClick} from './RightClick';
-import {KeyboardShortcut} from './KeyboardShortcut';
-import {LogicalGraph} from './LogicalGraph';
-import {Modals} from './Modals';
-import {Palette} from './Palette';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
-import {Repositories} from './Repositories';
-import {Repository} from './Repository';
-import {RepositoryFile} from './RepositoryFile';
-import {ParameterTable} from "./ParameterTable";
-import {SideWindow} from "./SideWindow";
+import { Category } from './Category';
+import { CategoryData } from './CategoryData';
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
+import { Errors } from './Errors';
+import { GitHub } from './GitHub';
+import { GitLab } from './GitLab';
+import { GraphConfig } from "./GraphConfig";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { GraphRenderer } from "./GraphRenderer";
+import { Hierarchy } from './Hierarchy';
+import { KeyboardShortcut } from './KeyboardShortcut';
+import { StatusEntry } from './StatusEntry';
+import { LogicalGraph } from './LogicalGraph';
+import { Modals } from './Modals';
+import { ParameterTable } from "./ParameterTable";
+import { QuickActions } from './QuickActions';
+import { Repositories } from './Repositories';
+import { Repository } from './Repository';
+import { RepositoryFile } from './RepositoryFile';
+import { RightClick } from './RightClick';
+import { Setting } from './Setting';
+import { SideWindow } from "./SideWindow";
+import { TutorialSystem } from "./Tutorial";
+import { UiModeSystem } from './UiModes';
+import { Utils } from './Utils';
+
+import * as quickStart from './tutorials/quickStart'
+import * as graphBuilding from './tutorials/graphBuilding'
+import * as graphConfigs from './tutorials/graphConfigs'
+
+console.assert(quickStart != null) //this is needed to run the tutorial file
+console.assert(graphBuilding != null) //this is needed to run the tutorial file
+console.assert(graphConfigs != null) //this is needed to run the tutorial file
 
 let eagle : Eagle;
 
@@ -55,26 +71,39 @@ $(function(){
     eagle = new Eagle();
 
     // add eagle to the window object, slightly hacky, but useful for debugging
+    // TODO: remove this when possible, use Eagle.getInstance() if we can
     (<any>window).eagle = eagle;
-    (<any>window).Eagle = Eagle;
-    (<any>window).Utils = Utils;
-    (<any>window).Config = Config;
+
     (<any>window).Category = Category;
+    (<any>window).Daliuge = Daliuge;
+    (<any>window).Eagle = Eagle;
+    (<any>window).EagleConfig = EagleConfig;
     (<any>window).Errors = Errors;
+    (<any>window).GraphConfig = GraphConfig;
+    (<any>window).GraphConfigurationsTable = GraphConfigurationsTable;
     (<any>window).Hierarchy = Hierarchy;
+    (<any>window).ParameterTable = ParameterTable;
+    (<any>window).Repositories = Repositories;
+    (<any>window).Repository = Repository;
     (<any>window).RightClick = RightClick;
     (<any>window).Setting = Setting;
-    (<any>window).Repositories = Repositories;
-    (<any>window).ParameterTable = ParameterTable;
     (<any>window).SideWindow = SideWindow;
+    (<any>window).TutorialSystem = TutorialSystem;
+    (<any>window).GraphRenderer = GraphRenderer;
+    (<any>window).UiModeSystem = UiModeSystem;
+    (<any>window).Utils = Utils;
+    (<any>window).KeyboardShortcut = KeyboardShortcut;
+    (<any>window).StatusEntry = StatusEntry;
+    (<any>window).QuickActions = QuickActions;
+    (<any>window).Modals = Modals;
 
     ko.options.deferUpdates = true;
-    ko.applyBindings(eagle);
-    ko.applyBindings(eagle, document.getElementById("tabTitle"));
 
     // Code responsible for displaying the EAGLE.
     console.log("Initialising EAGLE");
     eagle.resetEditor();
+
+    EagleConfig.initCSS();
 
     // init empty data structures
     eagle.logicalGraph(new LogicalGraph());
@@ -87,10 +116,10 @@ $(function(){
     const user_interface_mode = (<any>window).mode;
     if (typeof user_interface_mode !== 'undefined' && user_interface_mode !== ""){
         // make sure that the specified user interface mode is a known mode
-        if (Object.values(Eagle.UIMode).includes(user_interface_mode)){
-            Setting.find(Utils.USER_INTERFACE_MODE).setValue(user_interface_mode);
+        if (UiModeSystem.getFullUiModeNamesList().includes(user_interface_mode)){
+            UiModeSystem.setActiveUiModeByName(user_interface_mode)
         } else {
-            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", Object.values(Eagle.UIMode).join(','));
+            console.warn("Unknown user_interface_mode:", user_interface_mode, ". Known types are:", UiModeSystem.getFullUiModeNamesList().join(','));
         }
 
         // hide the ?mode=x part of the url
@@ -98,7 +127,7 @@ $(function(){
     }
 
     // Get the list of git repos
-    if (Eagle.isInUIMode(Eagle.UIMode.Minimal)){
+    if (UiModeSystem.getActiveUiMode().getName()==='Student'){
         GitHub.loadStudentRepoList();
     } else {
         GitHub.loadRepoList();
@@ -106,18 +135,13 @@ $(function(){
     }
 
     // load the default palette
-    if (Setting.findValue(Utils.OPEN_DEFAULT_PALETTE)){
-        eagle.loadPalettes([
-            {name:"Builtin Components", filename:Config.DALIUGE_PALETTE_URL, readonly:true},
-            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Config.DALIUGE_TEMPLATE_URL, readonly:true}
-        ], (palettes: Palette[]):void => {
-            for (const palette of palettes){
-                if (palette !== null){
-                    eagle.palettes.push(palette);
-                }
-            }
-            eagle.leftWindow().shown(true);
-        });
+    if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
+        eagle.loadDefaultPalettes();
+    }
+
+    // set other state based on settings values
+    if (Setting.findValue(Setting.SNAP_TO_GRID)){
+        eagle.snapToGrid(Setting.findValue(Setting.SNAP_TO_GRID));
     }
 
     // load schemas
@@ -130,77 +154,66 @@ $(function(){
     Modals.init(eagle);
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
-    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Setting.findValue(Utils.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
+    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
 
     // keyboard shortcut event listener
     document.onkeydown = KeyboardShortcut.processKey;
     document.onkeyup = KeyboardShortcut.processKey;
 
-    // HACK: without this global wheel event handler, d3 does not receive zoom events
-    //       not sure why, this wasn't always the case
-    document.onwheel = () => {return;};
-
-    const auto_load_service    = (<any>window).auto_load_service;
-    const auto_load_repository = (<any>window).auto_load_repository;
-    const auto_load_branch     = (<any>window).auto_load_branch;
-    const auto_load_path       = (<any>window).auto_load_path;
-    const auto_load_filename   = (<any>window).auto_load_filename;
-    //console.log("auto_load_service", auto_load_service, "auto_load_repository", auto_load_repository, "auto_load_branch", auto_load_branch, "auto_load_path", auto_load_path, "auto_load_filename", auto_load_filename);=
-
-    // cast the service string to an enum
-    const service: Eagle.RepositoryService = Eagle.RepositoryService[auto_load_service as keyof typeof Eagle.RepositoryService];
-
     // auto load the file
-    autoLoad(eagle, service, auto_load_repository, auto_load_branch, auto_load_path, auto_load_filename);
+    autoLoad();
+
+    // auto load a tutorial, if specified on the url
+    autoTutorial();
 
     //hides the dropdown navbar elements when stopping hovering over the element
-    $(".dropdown-menu").mouseleave(function(){
+    $(".dropdown-menu").on("mouseleave", function(){
         $(".dropdown-toggle").removeClass("show")
         $(".dropdown-menu").removeClass("show")
-     })
+    })
   
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
-        $("#errorsModalAccordion").parent().parent().attr('style','')
+        $("#issuesDisplayAccordion").parent().parent().attr('style','')
 
-        //reset parameter table selecction
+        //reset parameter table selection
         ParameterTable.resetSelection()
     });
 
     $('.modal').on('shown.bs.modal',function(){
         // modal draggables
-        //the any type is required so we dont have an error when building. at runtime on eagle this actually functions without it.
+        //the any type is required so we don't have an error when building. at runtime on eagle this actually functions without it.
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
         });
     })
 
     //increased click bubble for edit modal flag booleans
-    $(".componentCheckbox").on("click",function(){
-        $(event.target).find("input").click()
+    $(".componentCheckbox").on("click",function(event: JQuery.TriggeredEvent){
+        $(event.target).find("input").trigger("click")
     })
 
-    $('#editFieldModalValueInputCheckbox').on("change",function(){
+    $('#editFieldModalValueInputCheckbox').on("change",function(event: JQuery.TriggeredEvent){
         $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
 
-    $('#editFieldModalDefaultValueInputCheckbox').on("change",function(){
+    $('#editFieldModalDefaultValueInputCheckbox').on("change",function(event: JQuery.TriggeredEvent){
         $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
 
-    $('#componentDefaultValueCheckbox').on('click',function(){
-        $((event.target)).find('input').click()
+    $('#componentDefaultValueCheckbox').on('click',function(event: JQuery.TriggeredEvent){
+        $((event.target)).find('input').trigger("click")
     })
 
-    $('#componentValueCheckbox').on('click',function(){
-        $((event.target)).find('input').click()
+    $('#componentValueCheckbox').on('click',function(event: JQuery.TriggeredEvent){
+        $((event.target)).find('input').trigger("click")
     })
 
     //removes focus from input and textareas when using the canvas
     $("#logicalGraphParent").on("mousedown", function(){
-        $("input").blur();
-        $("textarea").blur();
+        $("input").trigger("blur");
+        $("textarea").trigger("blur");
     });
 
     $(".tableParameter").on("click", function(){
@@ -211,41 +224,116 @@ $(function(){
     $("#paletteList .componentSearchBar").on("keyup",function(){
         if ($("#paletteList .componentSearchBar").val() !== ""){
             $("#paletteList .accordion-button.collapsed").addClass("wasCollapsed")
-            $("#paletteList .accordion-button.collapsed").click()
+            $("#paletteList .accordion-button.collapsed").trigger("click")
         }else{
-            $("#paletteList .accordion-button.wasCollapsed").click()
+            $("#paletteList .accordion-button.wasCollapsed").trigger("click")
             $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
         }
     })
 
-    $(document).on('click', '.hierarchyEdgeExtra', function(){
-        const selectEdge = (<any>window).eagle.logicalGraph().findEdgeById(($(event.target).attr("id")))
+    $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
+        const eagle: Eagle = Eagle.getInstance();
+        const selectEdge = eagle.logicalGraph().findEdgeById(($(event.target).attr("id") as EdgeId))
 
         if(!selectEdge){
             console.log("no edge found")
             return
         }
-        if(!(<PointerEvent>event).shiftKey){
-            (<any>window).eagle.setSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+        if(!event.shiftKey){
+            eagle.setSelection(selectEdge, Eagle.FileType.Graph);
         }else{
-            (<any>window).eagle.editSelection(Eagle.RightWindowMode.Inspector, selectEdge, Eagle.FileType.Graph);
+            eagle.editSelection(selectEdge, Eagle.FileType.Graph);
         }
+    })
 
-    })
     $(".hierarchy").on("click", function(){
-        (<any>window).eagle.selectedObjects([]);
+        Eagle.getInstance().selectedObjects([]);
     })
+
+    // check that all categories have category data
+    for (const category of Utils.enumKeys(Category)){
+        CategoryData.getCategoryData(<Category>category);
+
+        // exit after the last category
+        if (category === Category.Component){
+            break;
+        }
+    }
+
+    
+    //initiating all the eagle ui when the graph is ready
+    eagle.eagleIsReady = ko.observable(true)
+
+    //applying html ko bindings
+    ko.applyBindings(eagle, document.getElementById("tabTitle"));
+    ko.applyBindings(eagle);
+    
+    //changing errors mode from loading to graph as eagle is now ready and finished loading
+    eagle.errorsMode(Errors.Mode.Graph);
 });
 
-function autoLoad(eagle: Eagle, service: Eagle.RepositoryService, repository: string, branch: string, path: string, filename: string) {
-    console.log("autoLoad()", service, repository, branch, path, filename);
+function autoLoad(): void {
+    const service    = (<any>window).auto_load_service;
+    const repository = (<any>window).auto_load_repository;
+    const branch     = (<any>window).auto_load_branch;
+    const path       = (<any>window).auto_load_path;
+    const filename   = (<any>window).auto_load_filename;
+    const url        = (<any>window).auto_load_url;
 
-    // skip empty string urls
-    if (service === Eagle.RepositoryService.Unknown || repository === "" || branch === "" || filename === ""){
-        console.log("No auto load");
+    // cast the service string to an enum
+    const realService: Repository.Service = Repository.Service[service as keyof typeof Repository.Service];
+
+    // skip unknown services
+    if (typeof realService === "undefined" || realService === Repository.Service.Unknown){
+        console.log("No auto load. Service Unknown");
+        return;
+    }
+
+    // skip empty strings
+    if ([Repository.Service.GitHub, Repository.Service.GitLab].includes(realService) && (repository === "" || branch === "" || filename === "")){
+        console.log("No auto load. Repository, branch or filename not specified");
+        return;
+    }
+
+    // skip url if url is not specified
+    if (realService === Repository.Service.Url && url === ""){
+        console.log("No auto load. Url not specified");
         return;
     }
 
     // load
-    Repositories.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+    if (service === Repository.Service.Url){
+        Repositories.selectFile(new RepositoryFile(new Repository(service, "", "", false), "", url));
+    } else {
+        Repositories.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+    }
+}
+
+function autoTutorial(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tutorialName = urlParams.get('tutorial');
+
+    if (tutorialName !== null){
+        console.log("Running tutorial:", tutorialName);
+        setTimeout(function () {
+            TutorialSystem.initiateTutorial(tutorialName);
+        },1000)
+    }
+}
+
+declare const __brand: unique symbol
+type Brand<B> = { [__brand]: B }
+
+/**
+ * Creates a branded type, combining a base type T with a unique brand B.
+ * This pattern enhances type safety by creating nominally unique types,
+ * preventing accidental use of structurally similar but semantically
+ * different values (e.g., different types of IDs).
+ */
+export type Branded<T, B> = T & Brand<B>
+
+declare global {
+    type NodeId = Branded<string, "NodeId">
+    type FieldId = Branded<string, "FieldId">
+    type EdgeId = Branded<string, "EdgeId">
 }

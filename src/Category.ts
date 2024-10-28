@@ -1,8 +1,6 @@
 export enum Category {
-    Start = "Start",
-    End = "End",
     Comment = "Comment",
-    Description = "Description",
+
     Scatter = "Scatter",
     Gather = "Gather",
     MKN = "MKN",
@@ -13,8 +11,11 @@ export enum Category {
     BashShellApp = "BashShellApp",
     DynlibApp = "DynlibApp",
     DynlibProcApp = "DynlibProcApp",
-    MPI = "Mpi",
+    Mpi = "Mpi",
     Docker = "Docker",
+
+    PythonMemberFunction = "PythonMemberFunction",
+    PythonObject = "PythonObject",
 
     NGAS = "NGAS",
     S3 = "S3",
@@ -37,25 +38,26 @@ export enum Category {
 
     Unknown = "Unknown",
     None = "None",
-    UnknownApplication = "UnknownApplication", // when we know the component is an application, but know wlmost nothing else about it
+    UnknownApplication = "UnknownApplication", // when we know the component is an application, but know almost nothing else about it
 
-    Component = "Component" // legacy only
+    // legacy only
+    Component = "Component",
+    Description = "Description",
 }
 
 export namespace Category {
 
     export type CategoryData = {
         categoryType: Type,
-        isResizable:boolean,
-        canContainComponents:boolean,
+
+        isGroup:boolean,
         minInputs: number,
         maxInputs: number,
         minOutputs: number,
         maxOutputs: number,
-        canHaveInputApplication: boolean,
-        canHaveOutputApplication: boolean,
         canHaveComponentParameters: boolean,
         canHaveApplicationArguments: boolean,
+        canHaveConstructParameters: boolean, 
         icon: string,
         color: string,
         collapsedHeaderOffsetY: number,
@@ -66,10 +68,10 @@ export namespace Category {
     // TODO: add to CategoryData somehow? use in Node.isData() etc?
     export enum Type {
         Application = "Application",
+        Construct = "Construct",
         Container = "Container",
         Control = "Control",
         Data = "Data",
-        Construct = "Construct",
         Other = "Other",
         Service = "Service",
         Socket = "Socket",
@@ -77,12 +79,14 @@ export namespace Category {
     }
 
     export enum Color {
-        Data = "#2c2c2c",
         Application = "#0059a5",
-        Group = "rgb(211 165 0)",
+        Control = "rgb(46 161 55)",
+        Data = "#2c2c2c",
         Description = "rgb(157 43 96)",
         Error = "#FF66CC",
-        Control = "rgb(88 167 94)",
+        Group = "rgb(227 189 100)",
+        Legacy = "#FF66CC",
+        Object = "#00bfa6",
         Service = "purple"
     }
 
@@ -90,10 +94,12 @@ export namespace Category {
     export enum SortOrder {
         Control,
         Application,
+        Object,
         Data,
         Construct,
         Documentation,
         Service,
-        Other
+        Other,
+        Legacy
     }
 }

@@ -7,7 +7,7 @@ import fs from 'fs';
     testcafe chrome tests/load-local-json-export-match.js
 */
 
-const LG_PATH = "tests/data/cont_img_YAN-970.old.graph";
+const LG_PATH = "tests/data/cont_img_YAN-970.graph";
 
 let graphJSON = "input";
 

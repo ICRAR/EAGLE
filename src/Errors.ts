@@ -10,14 +10,17 @@ export class Errors {
     static Show(message: string, show: () => void): Errors.Issue {
         return {message: message, show: show, fix: null, fixDescription:""};
     }
-    static Fix(message: string, show: () => void, fix: () => void, fixDescription: string): Errors.Issue {
+    static Fix(message: string, fix: () => void, fixDescription: string): Errors.Issue {
+        return {message: message, show: null, fix: fix, fixDescription: fixDescription};
+    }
+    static ShowFix(message: string, show: () => void, fix: () => void, fixDescription: string): Errors.Issue {
         return {message: message, show: show, fix: fix, fixDescription: fixDescription};
     }
 
-    static fixAll = () : void => {
+    static fixAll() : void {
         const eagle: Eagle = Eagle.getInstance();
-
-        console.log("fixAll()");
+        const initialNumWarnings = eagle.graphWarnings().length;
+        const initialNumErrors = eagle.graphErrors().length;
         let numErrors   = Infinity;
         let numWarnings = Infinity;
         let numIterations = 0;
@@ -47,16 +50,27 @@ export class Errors {
             eagle.checkGraph();
         }
 
+        // show notification
+        Utils.showNotification("Fix All Graph Errors", initialNumErrors + " error(s), " + numErrors + " remain. " + initialNumWarnings + " warning(s), " + numWarnings + " remain.", "info");
+
         Utils.postFixFunc(eagle);
+    }
+
+    static hasWarnings(errorsWarnings: Errors.ErrorsWarnings) : boolean {
+        return errorsWarnings.warnings.length > 0;
+    }
+
+    static hasErrors(errorsWarnings: Errors.ErrorsWarnings) : boolean {
+        return errorsWarnings.errors.length > 0;
     }
 
     static getWarnings : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
         switch (eagle.errorsMode()){
-            case Eagle.ErrorsMode.Loading:
+            case Errors.Mode.Loading:
                 return eagle.loadingWarnings();
-            case Eagle.ErrorsMode.Graph:
+            case Errors.Mode.Graph:
                 return eagle.graphWarnings();
             default:
                 console.warn("Unknown errorsMode (" + eagle.errorsMode() + "). Unable to getWarnings()");
@@ -68,9 +82,9 @@ export class Errors {
         const eagle: Eagle = Eagle.getInstance();
 
         switch (eagle.errorsMode()){
-            case Eagle.ErrorsMode.Loading:
+            case Errors.Mode.Loading:
                 return eagle.loadingErrors();
-            case Eagle.ErrorsMode.Graph:
+            case Errors.Mode.Graph:
                 return eagle.graphErrors();
             default:
                 console.warn("Unknown errorsMode (" + eagle.errorsMode() + "). Unable to getErrors()");
@@ -105,4 +119,18 @@ export namespace Errors
 {
     export type Issue = {message: string, show: () => void, fix: () => void, fixDescription: string};
     export type ErrorsWarnings = {warnings: Issue[], errors: Issue[]};
+    
+    export enum Validity {
+        Unknown = "Unknown",        // validity of the edge is unknown
+        Impossible = "Impossible",  // never useful or valid
+        Error = "Error",        // invalid, but possibly useful for expert users?   change to error
+        Warning = "Warning",        // valid, but some issue that the user should be aware of
+        Fixable = "Fixable",        // there is an issue with the connection but for drawing edges eagle will fix this for you
+        Valid = "Valid"             // fine
+    }
+    
+    export enum Mode {
+        Loading = "Loading",
+        Graph = "Graph"
+    }
 }

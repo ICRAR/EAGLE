@@ -10,7 +10,7 @@ export class RepositoryFile {
     name : string
     path : string
     type : Eagle.FileType;
-    isFetching: ko.Observable<boolean>
+    isFetching: ko.Observable<boolean>;
 
     constructor(repository : Repository, path : string, name : string){
         this._id = Math.floor(Math.random() * 1000000000000);
@@ -18,21 +18,22 @@ export class RepositoryFile {
         this.name = name;
         this.path = path;
         this.isFetching = ko.observable(false);
-        this.type = Eagle.FileType.Unknown;
+        this.type = Utils.getFileTypeFromFileName(this.name);
     }
 
-    getIconUrl : ko.PureComputed<string> = ko.pureComputed(() => {
-        const fileType: Eagle.FileType = Utils.getFileTypeFromFileName(this.name);
+    getIconUrl : ko.PureComputed<string> = ko.pureComputed(() : string => {
 
-        switch (fileType){
+        switch (this.type){
             case Eagle.FileType.Graph:
                 return "device_hub";
             case Eagle.FileType.Palette:
                 return "palette";
             case Eagle.FileType.JSON:
                 return "language";
+            case Eagle.FileType.Daliuge:
+                return "construction"; // TODO: better icon
             default:
-                return "description";
+                return this.type;
         }
     }, this);
 

@@ -1,8 +1,9 @@
-import {Category} from '../src/Category';
-import {Eagle} from '../src/Eagle';
-import {Node} from '../src/Node';
-import {Field} from '../src/Field';
-import {Utils} from '../src/Utils';
+import { Category } from '../src/Category';
+import { Daliuge } from '../src/Daliuge';
+import { Errors } from '../src/Errors';
+import { Field } from '../src/Field';
+import { Node } from '../src/Node';
+import { Utils } from '../src/Utils';
 
 const KEY : number = -9;
 const NAME : string = "Test Node";
@@ -40,15 +41,15 @@ const OUTPUT_PORT_NAME : string = "Output Port";
 const OUTPUT_PORT_TYPE : string = "Boolean";
 const OUTPUT_PORT_DESCRIPTION : string = "Out Description";
 
-const FIELD : Field = new Field(Utils.uuidv4(), "Field Display Text", "Field Id Text", "Field Value", "Field Default Value", "Field Desc", true, Eagle.DataType_String, false, [], false);
-const INPUT_APP_FIELD : Field = new Field(Utils.uuidv4(), "Input App Field Display Text", "Input App Field Id Text", "Input App Field Value", "Input App Field Default Value", "Input App Field Desc", false, Eagle.DataType_Integer, false, [], false);
-const OUTPUT_APP_FIELD : Field = new Field(Utils.uuidv4(), "Output App Field Display Text", "Output App Field Id Text", "Output App Field Value", "Output App Field Default Value", "Output App Field Desc", false, Eagle.DataType_Boolean, false, [], false);
+const FIELD : Field = new Field(Utils.uuidv4(), "Field Display Text", "Field Value", "Field Default Value", "Field Desc", true, Daliuge.DataType.String, false, [], false);
+const INPUT_APP_FIELD : Field = new Field(Utils.uuidv4(), "Input App Field Display Text", "Input App Field Value", "Input App Field Default Value", "Input App Field Desc", false, Daliuge.DataType.Integer, false, [], false);
+const OUTPUT_APP_FIELD : Field = new Field(Utils.uuidv4(), "Output App Field Display Text", "Output App Field Value", "Output App Field Default Value", "Output App Field Desc", false, Daliuge.DataType.Boolean, false, [], false);
 
 // create table to contain results
-var table : any[] = [];
+let table : any[] = [];
 
 // create a node
-var primaryNode : Node = new Node(KEY, NAME, DESCRIPTION, CATEGORY);
+const primaryNode : Node = new Node(KEY, NAME, DESCRIPTION, CATEGORY);
 
 // set values for node
 primaryNode.setPosition(X, Y);
@@ -59,16 +60,15 @@ primaryNode.setColor(COLOR);
 primaryNode.setDrawOrderHint(DRAW_ORDER_HINT);
 primaryNode.setParentKey(PARENT_KEY);
 primaryNode.setCollapsed(COLLAPSED);
-primaryNode.setStreaming(STREAMING);
 primaryNode.setExpanded(EXPANDED);
 
 // input app
-let inputApplication = Node.createEmbeddedApplicationNode(INPUT_APPLICATION_KEY, INPUT_APPLICATION_NAME, INPUT_APPLICATION_CATEGORY, INPUT_APPLICATION_DESCRIPTION, primaryNode.getKey());
+const inputApplication = Node.createEmbeddedApplicationNode(INPUT_APPLICATION_KEY, INPUT_APPLICATION_NAME, INPUT_APPLICATION_CATEGORY, INPUT_APPLICATION_DESCRIPTION, primaryNode.getKey());
 inputApplication.addField(INPUT_APP_FIELD.clone());
 inputApplication.addPort(new Port(INPUT_PORT_ID, INPUT_PORT_NAME, INPUT_PORT_NAME, true, INPUT_PORT_TYPE, INPUT_PORT_DESCRIPTION), true);
 
 // output app
-let outputApplication = Node.createEmbeddedApplicationNode(OUTPUT_APPLICATION_KEY, OUTPUT_APPLICATION_NAME, OUTPUT_APPLICATION_CATEGORY, OUTPUT_APPLICATION_DESCRIPTION, primaryNode.getKey());
+const outputApplication = Node.createEmbeddedApplicationNode(OUTPUT_APPLICATION_KEY, OUTPUT_APPLICATION_NAME, OUTPUT_APPLICATION_CATEGORY, OUTPUT_APPLICATION_DESCRIPTION, primaryNode.getKey());
 outputApplication.addField(OUTPUT_APP_FIELD.clone());
 outputApplication.addPort(new Port(OUTPUT_PORT_ID, OUTPUT_PORT_NAME, OUTPUT_PORT_NAME, false, OUTPUT_PORT_TYPE, OUTPUT_PORT_DESCRIPTION), false);
 
@@ -79,12 +79,12 @@ primaryNode.addField(FIELD.clone());
 
 console.log("Test toOJSJson/fromOJSJson");
 // write node to JSON
-var json : object = Node.toOJSGraphJson(primaryNode);
+const json : object = Node.toOJSGraphJson(primaryNode);
 console.log(json);
 
 // read the node back from JSON
-const errorsWarnings: Eagle.ErrorsWarnings = {errors: [], warnings: []};
-let secondaryNode : Node = Node.fromOJSJson(json, errorsWarnings, function(){return -1;});
+const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+const secondaryNode : Node = Node.fromOJSJson(json, errorsWarnings, function(){return -1;});
 
 console.log("secondaryNode has:");
 console.log("inputPorts", secondaryNode.getInputPorts().length);
@@ -100,7 +100,7 @@ console.log("outputApp fields", secondaryNode.getOutputApplication()?.getFields(
 checkNode(primaryNode, secondaryNode, true);
 
 console.log("Test clone");
-var clonedNode : Node = primaryNode.clone();
+const clonedNode : Node = primaryNode.clone();
 checkNode(primaryNode, clonedNode, true);
 
 
@@ -118,7 +118,7 @@ function checkNode(n0 : Node, n1 : Node, displayTable : boolean){
     checkNumber("X", n0.getPosition().x, n1.getPosition().x, X);
     checkNumber("Y", n0.getPosition().y, n1.getPosition().y, Y);
 
-    checkNumber("Subject Key", n0.getSubjectKey(), n1.getSubjectKey(), SUBJECT_KEY);
+    checkNumber("Subject Id", n0.getSubjectId(), n1.getSubjectId(), SUBJECT_KEY);
     checkNumber("Width", n0.getWidth(), n1.getWidth(), WIDTH);
     checkNumber("Height", n0.getHeight(), n1.getHeight(), HEIGHT);
     checkString("Color", n0.getColor(), n1.getColor(), COLOR);
@@ -135,25 +135,22 @@ function checkNode(n0 : Node, n1 : Node, displayTable : boolean){
 
     // ports
     checkString("Input Port Id",    n0.getInputApplication().getInputPorts()[0].getId(), n1.getInputApplication().getInputPorts()[0].getId(), INPUT_PORT_ID);
-    checkString("Input Port IdText",  n0.getInputApplication().getInputPorts()[0].getIdText(), n1.getInputApplication().getInputPorts()[0].getIdText(), INPUT_PORT_NAME);
+    checkString("Input Port Display Text",  n0.getInputApplication().getInputPorts()[0].getDisplayText(), n1.getInputApplication().getInputPorts()[0].getDisplayText(), INPUT_PORT_NAME);
     checkString("output Port Id",     n0.getOutputApplication().getOutputPorts()[0].getId(), n1.getOutputApplication().getOutputPorts()[0].getId(), OUTPUT_PORT_ID);
-    checkString("output Port IdText",   n0.getOutputApplication().getOutputPorts()[0].getIdText(), n1.getOutputApplication().getOutputPorts()[0].getIdText(), OUTPUT_PORT_NAME);
+    checkString("output Port Display Text",   n0.getOutputApplication().getOutputPorts()[0].getDisplayText(), n1.getOutputApplication().getOutputPorts()[0].getDisplayText(), OUTPUT_PORT_NAME);
 
     // fields
     checkString("Field Display Text", n0.getFields()[0].getDisplayText(), n1.getFields()[0].getDisplayText(), FIELD.getDisplayText());
-    checkString("Field Id Text", n0.getFields()[0].getIdText(), n1.getFields()[0].getIdText(), FIELD.getIdText());
     checkString("Field Value", n0.getFields()[0].getValue(), n1.getFields()[0].getValue(), FIELD.getValue());
     checkString("Field Description", n0.getFields()[0].getDescription(), n1.getFields()[0].getDescription(), FIELD.getDescription());
 
     // app fields
     checkString("Input App Field Display Text",        n0.getInputApplication().getFields()[0].getDisplayText(),        n1.getInputApplication().getFields()[0].getDisplayText(),        INPUT_APP_FIELD.getDisplayText());
-    checkString("Input App Field Id Text",        n0.getInputApplication().getFields()[0].getIdText(),        n1.getInputApplication().getFields()[0].getIdText(),        INPUT_APP_FIELD.getIdText());
     checkString("Input App Field Value",       n0.getInputApplication().getFields()[0].getValue(),       n1.getInputApplication().getFields()[0].getValue(),       INPUT_APP_FIELD.getValue());
     checkString("Input App Field Description", n0.getInputApplication().getFields()[0].getDescription(), n1.getInputApplication().getFields()[0].getDescription(), INPUT_APP_FIELD.getDescription());
     // TODO: readonly, type
 
     checkString("output App Field Display Text",        n0.getOutputApplication().getFields()[0].getDisplayText(),        n1.getOutputApplication().getFields()[0].getDisplayText(),        OUTPUT_APP_FIELD.getDisplayText());
-    checkString("output App Field Id Text",        n0.getOutputApplication().getFields()[0].getIdText(),        n1.getOutputApplication().getFields()[0].getIdText(),        OUTPUT_APP_FIELD.getIdText());
     checkString("output App Field Value",       n0.getOutputApplication().getFields()[0].getValue(),       n1.getOutputApplication().getFields()[0].getValue(),       OUTPUT_APP_FIELD.getValue());
     checkString("output App Field Description", n0.getOutputApplication().getFields()[0].getDescription(), n1.getOutputApplication().getFields()[0].getDescription(), OUTPUT_APP_FIELD.getDescription());
     // TODO: readonly, type

@@ -24,10 +24,12 @@
 
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {LogicalGraph} from './LogicalGraph';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Daliuge } from "./Daliuge";
+import { Eagle } from './Eagle';
+import { GraphConfig } from "./GraphConfig";
+import { LogicalGraph } from './LogicalGraph';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class Translator {
     numberOfIslands : ko.Observable<number>;
@@ -41,7 +43,6 @@ export class Translator {
     searchSpaceDimension : ko.Observable<number>;
     numberOfParallelTaskStreams : ko.Observable<number>;
     rmode : ko.Observable<number>;
-
     isTranslating: ko.Observable<boolean>
 
     constructor(){
@@ -60,9 +61,9 @@ export class Translator {
     }
 
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
-        // consult EAGLE settings to determine whether to open the transator in a new tab
-        const translateInCurrentTab: boolean = Setting.findValue(Utils.OPEN_TRANSLATOR_IN_CURRENT_TAB);
-        const overwriteTranslationTab: boolean = Setting.findValue(Utils.OVERWRITE_TRANSLATION_TAB);
+        // consult EAGLE settings to determine whether to open the translator in a new tab
+        const translateInCurrentTab: boolean = Setting.findValue(Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB);
+        const overwriteTranslationTab: boolean = Setting.findValue(Setting.OVERWRITE_TRANSLATION_TAB);
 
         // create form element
         const form = document.createElement("form");
@@ -114,7 +115,7 @@ export class Translator {
      * @param testingMode
      * @param format
      */
-     genPGT = (algorithmName : string, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
+     genPGT = (algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
         const eagle: Eagle = Eagle.getInstance();
 
         if (eagle.logicalGraph().getNumNodes() === 0) {
@@ -127,38 +128,34 @@ export class Translator {
             return;
         }
 
-        const translatorURL : string = Setting.findValue(Utils.TRANSLATOR_URL);
+        const translatorURL : string = Setting.findValue(Setting.TRANSLATOR_URL);
         console.log("Eagle.getPGT() : ", "algorithm name:", algorithmName, "translator URL", translatorURL);
 
-        // set the schema version
-        format = Eagle.DALiuGESchemaVersion.OJS;
-
-        /*
-        if (format === Eagle.DALiuGESchemaVersion.Unknown){
-            const schemas: Eagle.DALiuGESchemaVersion[] = [Eagle.DALiuGESchemaVersion.OJS];
-
-            // ask user to specify graph format to be sent to translator
-            Utils.requestUserChoice("Translation format", "Please select the format for the graph that will be sent to the translator", schemas, 0, false, "", (completed: boolean, userChoiceIndex: number) => {
-                if (!completed){
-                    console.log("User aborted translation.");
-                    return;
-                }
-
-                this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, schemas[userChoiceIndex]);
-            });
-        } else {
-            this._genPGT(eagle, translatorURL, algorithmIndex, testingMode, format);
-        }
-        */
-        this._genPGT(eagle, translatorURL, algorithmName, testingMode, format);
+        // NOTE: we always set the schema version to OJS here, we used to have multiple versions
+        this._genPGT(eagle, translatorURL, algorithmName, testingMode, Daliuge.SchemaVersion.OJS);
     }
 
-    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Eagle.DALiuGESchemaVersion) : void => {
+    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
+        // check if the graph is committed before translation
+        if (eagle.logicalGraph().fileInfo().modified && !Setting.findValue(Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION)){
+            Utils.showNotification("Unable to Translate", "Please save/commit the graph before attempting translation", "danger");
+            return;
+        }
+
+        // clone the logical graph
+        const lgClone: LogicalGraph = eagle.logicalGraph().clone();
+        const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
+
+        // if there is a GraphConfig, apply GraphConfig to logicalGraph
+        if (activeConfig !== null){
+            GraphConfig.apply(lgClone, activeConfig);
+        }
+
         // get json for logical graph
-        let json;
+        let jsonString: string;
         switch (format){
-            case Eagle.DALiuGESchemaVersion.OJS:
-                json = LogicalGraph.toOJSJson(eagle.logicalGraph(), true);
+            case Daliuge.SchemaVersion.OJS:
+                jsonString = LogicalGraph.toOJSJsonString(lgClone, true);
                 break;
             default:
                 console.error("Unsupported graph format for translator!");
@@ -166,20 +163,12 @@ export class Translator {
         }
 
         // validate json
-        if (!Setting.findValue(Utils.DISABLE_JSON_VALIDATION)){
-            const validatorResult : {valid: boolean, errors: string} = Utils.validateJSON(json, format, Eagle.FileType.Graph);
-            if (!validatorResult.valid){
-                const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-                console.error(message, validatorResult.errors);
-                Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
-                //return;
-            }
-        }
+        Utils.validateJSON(jsonString, Eagle.FileType.Graph);
 
         const translatorData = {
             algo: algorithmName,
             lg_name: eagle.logicalGraph().fileInfo().name,
-            json_data: JSON.stringify(json),
+            json_data: jsonString,
             test: testingMode.toString()
         };
 
@@ -190,7 +179,7 @@ export class Translator {
         console.log("---------");
         console.log(translatorData);
         console.log("---------");
-        console.log(json);
+        console.log(JSON.parse(jsonString));
         console.log("---------");
     }
 }

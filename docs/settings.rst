@@ -3,10 +3,18 @@ Settings
 
 The settings in Eagle include user experience and interface related options. By default, Eagle is simplified by hiding a lot of functionality via the UI modes. These settings may also affect permissions of what may be modified. The settings menu can be found in the nav-bar as a cog icon, or by pressing the keyboard shortcut 'O'.
 
+.. figure:: _static/images/eagle_settings_screenshot.png
+  :width: 90%
+  :align: center
+  :alt: An example of a palette in EAGLE
+  :figclass: align-center
+
+  An example of a palette with a focused set of components for a single workflow
+
 UI Modes
 --------
 
-Ui modes are collections of settings creating seperate workspaces, each designed with a specific use case in mind.
+Ui modes are collections of settings creating separate workspaces, each designed with a specific use case in mind.
 
 **Minimal** - Designed for student use or when the goal is loading a graph, tweaking its key attributes and executing it through the translator.
 
@@ -70,6 +78,8 @@ UI options
 
 **Graph Zoom Divisor** - The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.
 
+**Show edge/node errors/warnings in inspector** - Show the errors/warnings found for the selected node/edge in the inspector, below the other editor widgets. Errors and warnings are always shown the the checkGraph display in the navbar.
+
 Advanced Editing
 """"""""""""""""
 
@@ -99,13 +109,11 @@ External Services
 Developer
 """""""""
 
-**Enable Performance Display** - Display the frame time of the graph renderer.
-
 **Translate With New Categories** - Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.
 
-**Open Tanslator In Current Tab** - When translating a graph, display the output of the translator in the current tab.
+**Open Translator In Current Tab** - When translating a graph, display the output of the translator in the current tab.
 
-**Creat Applications For Construct Ports** - When loading old graph files with ports on construct nodes, move the port to an embedded application.
+**Create Applications For Construct Ports** - When loading old graph files with ports on construct nodes, move the port to an embedded application.
 
 **Skip 'Closes Loop' Edges In JSON Output** - We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.
 

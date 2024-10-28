@@ -24,27 +24,25 @@
 
 import * as ko from "knockout";
 
-import {Config} from './Config';
 import {Eagle} from './Eagle';
-import {Errors} from './Errors';
 import {LogicalGraph} from './LogicalGraph';
-import {Repository} from './Repository';
-import {RepositoryFile} from './RepositoryFile';
 import {Setting} from './Setting';
 import {Utils} from './Utils';
 
 
 class Snapshot {
     description: ko.Observable<string>;
-    data : ko.Observable<string>; // TODO: can we store the data as an object, must we go to JSON?
+    data : ko.Observable<LogicalGraph>;
 
-    constructor(description: string, data: string){
+    constructor(description: string, data: LogicalGraph){
         this.description = ko.observable(description);
         this.data = ko.observable(data);
     }
 }
 
 export class Undo {
+    static readonly MEMORY_SIZE : number = 10;
+
     memory: ko.ObservableArray<Snapshot>;
     front: ko.Observable<number>; // place where next snapshot will go
     rear: ko.Observable<number>;
@@ -52,7 +50,7 @@ export class Undo {
 
     constructor(){
         this.memory = ko.observableArray([]);
-        for (let i = 0 ; i < Config.UNDO_MEMORY_SIZE ; i++){
+        for (let i = 0 ; i < Undo.MEMORY_SIZE ; i++){
             this.memory.push(null);
         }
 
@@ -62,7 +60,7 @@ export class Undo {
     }
 
     clear = () : void => {
-        for (let i = 0 ; i < Config.UNDO_MEMORY_SIZE ; i++){
+        for (let i = 0 ; i < Undo.MEMORY_SIZE ; i++){
             this.memory()[i] = null;
         }
         this.memory.valueHasMutated();
@@ -72,9 +70,9 @@ export class Undo {
     }
 
     pushSnapshot = (eagle: Eagle, description: string) : void => {
-        const previousIndex = (this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE;
+        const previousIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
         const previousSnapshot : Snapshot = this.memory()[previousIndex];
-        const newContent : string = JSON.stringify(LogicalGraph.toOJSJson(eagle.logicalGraph(), false));
+        const newContent : LogicalGraph = eagle.logicalGraph().clone();
 
         // check if newContent matches old content, if so, no need to push
         // TODO: maybe speed this up with checksums? or maybe not required
@@ -85,26 +83,26 @@ export class Undo {
 
         this.memory()[this.current()] = new Snapshot(description, newContent);
         this.memory.valueHasMutated();
-        this.front((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
+        this.front((this.current() + 1) % Undo.MEMORY_SIZE);
         this.current(this.front());
 
         // update rear
         if (this.rear() === this.front()){
-            this.rear((this.rear() + 1) % Config.UNDO_MEMORY_SIZE);
+            this.rear((this.rear() + 1) % Undo.MEMORY_SIZE);
         }
 
         // delete items from current to rear
-        for (let i = 0 ; i < Config.UNDO_MEMORY_SIZE ; i++){
-            const index = (this.current() + i) % Config.UNDO_MEMORY_SIZE;
+        for (let i = 0 ; i < Undo.MEMORY_SIZE ; i++){
+            const index = (this.current() + i) % Undo.MEMORY_SIZE;
 
-            if (((index + 1) % Config.UNDO_MEMORY_SIZE) === this.rear()){
+            if (((index + 1) % Undo.MEMORY_SIZE) === this.rear()){
                 break;
             }
 
             this.memory()[index] = null;
         }
 
-        if (Setting.findValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+        if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
             Undo.printTable();
         }
     }
@@ -116,16 +114,18 @@ export class Undo {
             return;
         }
 
-        const prevprevIndex = (this.current() + Config.UNDO_MEMORY_SIZE - 2) % Config.UNDO_MEMORY_SIZE;
+        const prevprevIndex = (this.current() + Undo.MEMORY_SIZE - 2) % Undo.MEMORY_SIZE;
 
         this._loadFromIndex(prevprevIndex, eagle);
-        this.current((this.current() + Config.UNDO_MEMORY_SIZE - 1) % Config.UNDO_MEMORY_SIZE);
+        this.current((this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE);
 
-        if (Setting.findValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+        if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
             Undo.printTable();
         }
 
         eagle.checkGraph();
+
+        this._updateSelection();
     }
 
     nextSnapshot = (eagle: Eagle) : void => {
@@ -136,19 +136,21 @@ export class Undo {
         }
 
         this._loadFromIndex(this.current(), eagle);
-        this.current((this.current() + 1) % Config.UNDO_MEMORY_SIZE);
+        this.current((this.current() + 1) % Undo.MEMORY_SIZE);
 
-        if (Setting.findValue(Utils.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+        if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
             Undo.printTable();
         }
 
         eagle.checkGraph();
+
+        this._updateSelection();
     }
 
     toString = () : string => {
         const result = [];
 
-        for (let i = 0; i < Config.UNDO_MEMORY_SIZE ; i++){
+        for (let i = 0; i < Undo.MEMORY_SIZE ; i++){
             let suffix = "";
 
             if (i === this.rear()){
@@ -175,19 +177,46 @@ export class Undo {
             return;
         }
 
-        const dataObject = JSON.parse(snapshot.data());
-        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
-        const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", "");
-
-        eagle.logicalGraph(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
+        const dataObject: LogicalGraph = snapshot.data();
+        eagle.logicalGraph(dataObject.clone());
     }
 
-    static printTable = () : void => {
+    // if we undo, or redo, then the objects in selectedObject are from the graph prior to the new snapshot
+    // so the references will be to non-existent objects
+    // in this function, we use the ids of the old selectedObjects, and attempt to add the matching objects in the new snapshot to the selectedObjects list
+    _updateSelection = () : void => {
+        const eagle: Eagle = Eagle.getInstance();
+        const objectIds: (NodeId | EdgeId)[] = [];
+
+        // build a list of the ids of the selected objects
+        for (const object of eagle.selectedObjects()){
+            objectIds.push(object.getId());
+        }
+
+        // clear selection
+        eagle.setSelection(null, Eagle.FileType.Graph);
+
+        // find the objects in the ids list, and add them to the selection
+        for (const id of objectIds){
+            const node = eagle.logicalGraph().findNodeById(id as NodeId);
+            const edge = eagle.logicalGraph().findEdgeById(id as EdgeId);
+            const object = node || edge;
+
+            // abort if no edge or node exists fot that id
+            if (node === null && edge === null){
+                continue;
+            }
+
+            eagle.editSelection(object, Eagle.selectedLocation());
+        }
+    }
+
+    static printTable() : void {
         const eagle: Eagle = Eagle.getInstance();
         const tableData : any[] = [];
-        const realCurrent: number = (eagle.undo().current() - 1 + Config.UNDO_MEMORY_SIZE) % Config.UNDO_MEMORY_SIZE;
+        const realCurrent: number = (eagle.undo().current() - 1 + Undo.MEMORY_SIZE) % Undo.MEMORY_SIZE;
 
-        for (let i = Config.UNDO_MEMORY_SIZE - 1 ; i >= 0 ; i--){
+        for (let i = Undo.MEMORY_SIZE - 1 ; i >= 0 ; i--){
             const snapshot = eagle.undo().memory()[i];
 
             if (snapshot === null){
@@ -198,6 +227,8 @@ export class Undo {
                 "current": realCurrent === i ? "->" : "",
                 "description": snapshot.description(),
                 "buffer position": i,
+                "nodes": snapshot.data().getNodes().length,
+                "edges": snapshot.data().getEdges().length
             });
         }
 

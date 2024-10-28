@@ -1,28 +1,26 @@
+html {
+    height:100%
+}
+
 body {
     /* prevent window from ever scrolling the whole page */
     overflow: hidden; 
+    height:100%
     /* zoom: 75%; */
 }
 
-#graphArea {
-    /*background-color: rgb(222,222,222);*/
-    height: calc(100% - 82px);
-    position: absolute;
-    bottom: 0px;
-    overflow: hidden;
-    padding-left: 0px;
-    padding-right: 0px;
+* {
+    font-family: Ubuntu Sans;
+    font-style: normal;
+    font-weight:400;
 }
 
-#performance {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
-    background-color: black;
-    z-index: 1000;
-    padding: 2px;
-    color: white;
-    font-family: monospace;
+#graphArea {
+    position: fixed;
+    top: 82px;
+    bottom:0px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 .navbar-light .navbar-brand {
@@ -39,12 +37,147 @@ body {
     margin-right: 0.6rem;
 }
 
-#openKeyParameterTable{
-    margin-left:20px;
-}
-
 .navbar #navDeployBtn{
     padding: 8px;
+}
+
+#navBarToolBar .navbarGroup{
+    border: 2px white solid;
+    border-top: none;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 0px 0px 2px 0px;
+    height: 100%;
+    position: relative;
+    min-width: 100px;
+    white-space: nowrap;
+}
+
+#navBarToolBar .navbarGroupWarning{
+    color: white;
+    border-color: #ffc107;
+}
+
+#navBarToolBar .navbarGroupError{
+    color: white;
+    border-color: red;
+}
+
+.navbar .dropdown-item{
+    padding: .05rem 1rem;
+}
+
+.navbar .dropdown-divider{
+    margin:.3rem 0;
+}
+
+#checkGraphWarnings span{
+    top: -3px;
+}
+
+#quickActionContainer {
+    z-index: 101;
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 25rem;
+    transform: translateX(-50%);
+}
+
+#quickActionInput{
+    width: 50rem;
+    height:4rem;
+    border: 2px solid #002349;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#quickActionContainer input{
+    width: 100%;
+    height: 100%;
+    background-color: #003f84;
+    color: white;
+    font-size: 2.5rem;
+    padding: 5px;
+    border: none;
+}
+
+#quickActionContainer input::placeholder{
+    color: rgb(204, 204, 204);
+}
+
+#quickActionResults{
+    width: 50rem;
+    margin-top: 5px;
+    background: #003f84;
+    border: 2px solid #002349;
+    border-radius: 5px;
+    max-height: 30rem;
+    overflow: auto;
+}
+
+#quickActionResults a{
+    display: block;
+    color: white;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    text-decoration: none;
+}
+
+#quickActionResults a.quickActionsFocus{
+    background-color: #002349;
+}
+
+#quickActionResults a:hover{
+    background-color: #002349;
+}
+
+#quickActionBackground{
+    position: absolute;
+    inset: 0px 0px 0px 0px;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.288);
+}
+
+#quickActionResults a i{
+    margin-right: 5px;
+    font-size: 1.1rem;
+}
+
+#navBarToolBar .navbarGroupSuccess{
+    border-color: #00bb00;
+    color: white;
+}
+
+#navBarToolBar .navbarGroup button{
+    border:none;
+    padding: 0px 10px;
+    margin-top: -3px;
+    height: 30px;
+    color: white;
+}
+
+#navBarToolBar .navbarGroup i{
+    font-size: 20px;
+}
+
+#checkGraphDone i{
+color: #00bb00;}
+
+#navBarToolBar .navbarGroup button:first-of-type{
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+#navBarToolBar .navbarGroup .navBarToolBarTitle{
+    color: white;
+    position: absolute;
+    bottom: -12px;
+    background-color: #002d5d;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0px 5px;
+    font-size: 13px;
 }
 
 .navbar #navDeployBtn a{
@@ -63,13 +196,14 @@ body {
 
 .rightWindow {
     background-color: rgba(214, 219, 239, 0.95);
-    z-index: 1;
+    z-index: 10;
     position:absolute;
     top: 0px;
     right: -300px;
-    height: 100%;
+    /* height: 100%; */
     transition: right 0.25s linear;
     border-left: 2px solid rgba(0, 36, 74, 0.95);
+    visibility: hidden;
 }
 
 .rightWindow.show {
@@ -84,6 +218,234 @@ body {
 
 .rightWindowDisplay.hierarchy #nodeList{
     position: relative;
+}
+
+#bottomWindow{
+    background-color: #002349;
+    width: 100%;
+    height: 150px;
+    position: absolute;
+    bottom: 0px;
+    z-index:100;
+    visibility:hidden;
+    transition: bottom 0.25s linear;
+}
+
+#bottomWindow div.wrapper{
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#bottomWindow div.dragHandle{
+    position: absolute;
+    width: 100%;
+    top: -5px;
+    height: 10px;
+    cursor: ns-resize;
+}
+
+#bottomWindow div.tabs{
+    position: absolute;
+    width: 40px;
+    height: 100%;
+    margin-top: 53px;
+}
+
+#bottomWindow div.tabs button{
+    position: relative;
+    width: 100%;
+    background-color: #002349;
+    border: none;
+    font-size:24px;    
+    border-bottom: solid 2px white;
+    border-radius: 0px;
+    padding: 2px;
+}
+
+#bottomWindow div.tabs button:focus{
+    box-shadow: none;
+}
+
+#bottomWindow div.tabs button.activeTab{
+    background-color: #f0f8ff;
+    color: #002349;
+}
+
+#bottomWindow div.content{
+    position: relative;
+    width: calc(100% - 40px);
+    height: 100%;
+    margin-left: 40px;
+}
+
+#explorePalettesModal #explorePalettesPathContainer{
+    display: block;
+    width: 100%;
+    height: 25px;
+    padding: 0px 15px;
+    margin-top: 50px;
+    background-color: #002349;
+    z-index: 10;
+    color: white;
+}
+
+#inspector{
+    background-color: #002349;
+    width: 300px;
+    height: min-content;
+    border-radius: 10px;
+    position: fixed;
+    bottom: 35px;
+    left: 400px;
+    visibility: hidden;
+    transition: width 200ms, height 200ms,visibility 200ms;
+    color: white;
+}
+
+#inspector.inspectorTransition div,#inspector.inspectorTransition i{
+    visibility: hidden;
+    height: 80px;
+}
+
+#inspector.inspectorCollapsed {
+    width: 50px;
+    height: 50px;
+}
+
+#inspector.inspectorCollapsed i{
+    margin-left: 50%;
+    margin-top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    cursor:pointer;
+}
+
+#objectInspector{
+    visibility: hidden;
+}
+
+#objectInspectorHeaderIconRow{
+    padding-top: 3px;
+    background: rgba(255, 255, 255, 0.171);
+}
+
+#inspector .container{
+    padding: 5px 0px;
+    height: 100%;
+    width: 100%;
+}
+
+#inspector .inspectorCloseBtn{
+    cursor:pointer;
+}
+
+#inspector .row{
+    padding: 0px 8px 0px 8px;
+    margin: 0px;
+}
+
+#inspector .inspectorContents .row{
+    margin-bottom: 2px;
+}
+
+#inspector .col{
+    padding: 0px;
+}
+
+#inspector .inspectorHeader input, #inspector .inspectorHeader {
+    /* display: inline; */
+    margin: 0px;
+}
+
+#inspector .inspectorContents{
+    padding-top: 7px;
+}
+
+#inspector .inspectorHeader input{
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 20px;
+    margin-top: -4px;
+    text-overflow: ellipsis;
+}
+
+#inspector .inspectorHeader h4{
+    color: white;
+    font-size: 20px;
+    text-overflow: ellipsis;
+}
+
+#inspector .inspectorHeader input:focus{
+    background: white;
+    border: none;   
+    color: black;
+    font-size: 20px;
+}
+
+#inspector .inspectorHeaderButtons i{
+    font-size: 18px;
+    color:rgb(175, 175, 175);
+}
+
+#inspector .inspectorHeaderButtons i.clickable{
+    color:white;
+}
+
+#inspector .contentObject  .contentObjectValue{
+    height: 20px;  
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: rgb(175, 175, 175);
+}
+
+#inspector .contentObject.inspectorNodeCategory  .contentObjectValue{
+    overflow: visible;
+}
+
+#inspector .contentObject .contentObjectValue .radioBtn {
+    background-color:transparent;
+    border: none;
+}
+
+#inspector .contentObject .contentObjectValue .radioBtn:focus {
+    box-shadow: none;
+}
+
+#inspector .contentObject .contentObjectValue .radioBtn i{
+    font-size: 17px;
+}
+
+#inspector .inspectorContents h5{
+    font-size: 16px;
+    margin: 2px 0px 0px 0px;
+}
+
+#inspector .inspectorContents span{
+    color: rgb(175, 175, 175);
+    white-space: nowrap;
+}
+
+#inspector .headerButtons button,.inspectorTitleBtns button {
+    background-color: transparent;
+    padding:0px 4px;
+    margin-left:-4px;
+    border: none;
+    box-shadow: none;
+}
+
+#inspector .headerButtons button:hover,.inspectorTitleBtns button:hover, #inspector i.clickable:hover {
+    color: #b4d4ff;
+    background-color: transparent;
+    cursor:pointer;
+}
+
+#inspector .headerButtons button.btn:focus, .inspectorTitleBtns button:focus {
+    box-shadow: none;
+    background-color:transparent;
+    border:none;
 }
 
 #explorePalettesModal #explorePalettesPathContainer{
@@ -121,7 +483,7 @@ body {
     font-size: 9px;
     position: absolute;
     padding: 3px 4px;
-    right: 20px;
+    right: 1rem;
     top: 2px;
 }
 
@@ -149,296 +511,41 @@ body {
     pointer-events: none;
 }
 
-#paramsTableWrapper {
-    width: 100%;
-    top: 24px;
-    position: absolute;
-}
-
-#parameterTableModal .tableReadonlyCell button{
-    margin-left: 50%;
-    transform: translate(-50%, 2px);
-}
-
-#parameterTableModal #tableInspector{
-    position: sticky;
-    top: 0px;
-    z-index: 111;
-}
-
-#parameterTableModal thead{
-    position: sticky;
-    z-index: 111;
-    top: 24px;
-}
-
-#tableInspector{
-    width:100%;
-    padding:0px;
-    background: white;
-}
-
-#tableInspectorSelection{
-    width: 299px !important;
-    padding: 0px 5px;
-    margin: 0px;
-    border-right:1px solid rgba(0, 0, 0, 0.336) !important;
-}
-
-#tableInspectorValue{
-    width: calc(100% - 305px) !important;
-    padding: 0px 5px;
-    margin: 0px;
-}
-
-#parameterTableModal .componentSearchBar{
-    border: none;
-    outline: none;
-}
-
-#tableInspectorValue:focus, #tableInspectorSelection:focus {
-    border: none;
-    outline: none;
-}
-
-#parameterTableModalAddParameterButton{
-    left: 15px;
-    position: absolute;
-}
-
-#parameterTableModal .modal-dialog{
-    max-width: 70vw;
-}
-
-#parameterTableModal .modal-dialog input{
-    border: none;
-    width:100%;
-}
-
-#parameterTableModal .modal-dialog input:read-only{
-    color: rgb(91 91 91);
-}
-
-#tableInspectorSelection{
-    color: black !important;
-    font-weight: 500;
-}
-
-#parameterTableModal .modal-dialog input[type="checkbox"]{
-    height:fit-content;
-    width: fit-content;
-    margin-left: 50%;
-    transform: translateX(-50%);
-}
-
-#parameterTableModal .modal-dialog input[type="checkbox"]:focus{
-    box-shadow: 0 0 0 3px rgb(0, 89, 165);
-}
-
-#parameterTableModal .modal-dialog td{
-    padding:0px 3px;
-    overflow: hidden;
-    border-right: 1px solid rgb(14 2 76 / 16%);
-}
-
-#parameterTableModal .modal-dialog td i{
-    margin-left: 50%;
-    transform: translate(-50%, 2px);
-}
-
-td:first-child input {
-    font-weight: 700;
-}
-
-#parameterTableModal .modal-dialog td button{
-    border: none;
-    background-color: transparent;
-    color: #002e5f;
-    display: inline-block;
-    padding: 0px;
-}
-
-#parameterTableModal .modal-dialog td button:disabled{
-    color: rgb(113 113 113);
-}
-
-#parameter_table_actions{
-    width: 123px;
-}
-
-#parameter_table_usage{
-    width: 107px;
-}
-
-#parameter_table_parameter_type{
-    width: 171px;
-}
-
-#parameter_table_precious{
-    width: 71px;
-}
-
-#parameter_table_positional{
-    width: 79px;
-}
-
-#parameter_table_isPort{
-    width: 173px;
-}
-
-#parameter_table_read_only{
-    width: 81px;
-}
-
-#parameter_table_type{
-    width: 100px;
-}
-
-#parameter_table_text{
-    width: 160px;
-}
-
-#parameter_table_node_name{
-    width: 160px;
-}
-
-#parameter_table_node_key{
-    width: 76px;
-}
-
-#parameter_table_isKeyAttribute{
-    width: 27px;
-    min-width: 27px;
-    max-width: 27px;
-}
-
-#parameter_table_name{
-    width: 160px;
-}
-
-#parameterTableModal .modal-header{
-    border: none;
-    justify-content: unset;
-}
-
-#parameterTableModal .searchBarContainer{
-    position: absolute;
-    right: 20px;
-}
-
-#parameterTableModal .modal-header button{
+#editFieldModal .defaultSelectCustom{
     background: transparent;
-    border: none;
-    padding: 0px;
-    margin-left: 5px;
 }
 
-#parameterTableModal .modal-header button i{
-    transform: translateY(2px);
-}
-
-#parameterTableModal .modal-body{
-    padding: 0px;
-}
-
-#paramsTableWrapper{
-    width: 100%;
-    table-layout: fixed;
-}
-
-#paramsTableWrapper th{
-    background-color: #002349;
-    color: white;
-    padding: 5px;
-    position:relative;
-
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Old versions of Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome, Edge, Opera and Firefox */
-
-}
-
-#paramsTableWrapper tr {
-    background-color: white;
-}
-
-#paramsTableWrapper tr:nth-child(even) {
-    background-color: rgba(214, 219, 239, 0.95);
-}
-
-#paramsTableWrapper td.selectedTableParameter {
-    background-color: rgb(162 202 255 / 95%);
-    border: #002e5f 2px solid;
-}
-
-#paramsTableWrapper td:nth-child(even).selectedTableParameter {
-    background-color: rgb(162 202 255 / 95%);
-    border: #002e5f 2px solid;
-}
-
-#paramsTableWrapper select{
-    padding: 0px;
-    height: fit-content;
+#editFieldModal select{
     margin: 0px;
+}
+
+#editFieldModal .modal-dialog .typesInput{
+    padding: 0px;
+    height: 35px;
+    width: 100%;
+    outline: none;
+    color: black;
+    height: fit-content;
+    border-right: solid 1px #bbbbbb;
+}
+
+#editFieldModal .parameterTableTypeCustomSelect a {    
+    border: 1px solid #ced4da;
+    height: 38px;
+    padding: 6px 15px;
+    font-size: 16px;
+}
+
+#editFieldModal .dropdown {
+    width:100%;
+}
+
+#modelDataModal .modal-body tr td input{
     width: 100%;
 }
-
-#paramsTableWrapper input{
-    background-color: transparent;
-}
-
-#paramsTableWrapper th, #paramsTableWrapper td, #paramsTableWrapper input{
-    font-size: 14px;
-}
-
-#paramsTableWrapper i{
-    font-size:20px;
-}
-
-#paramsTableWrapper input:focus{
-    outline: none;
-}
-
-@media only screen and (max-width: 2010px) {
-
-    #parameter_table_isPort{
-        width: 90px;
-    }
-
-    #parameter_table_type{
-        width: 100px;
-    }
-
-    #parameter_table_text{
-        width: 150px;
-    }
-
-    #parameter_table_name{
-        width: 53px;
-    }
-
-    #parameter_table_description{
-        width:91px;
-    }
-}
-
-.resizer{
-    position: absolute;
-    right:0px;
-    top: 0px;
-    border-right: 5px solid #204267;
-    z-index:10;
-    height: 100%;
-}
-  
-.resizer:hover,
-.resizing {
-    border-right: 3px solid whitesmoke;
-    cursor: col-resize;
+#modelDataModal .modal-body tr td textarea{
+    width: 100%;
+    height: 200px;
 }
 
 /*Animation must have unfill path strokes to work*/
@@ -458,6 +565,7 @@ td:first-child input {
     height:100%;
     top:0px;
     left:0px;
+    pointer-events: none;
 }
 
 #eagleIconAnimation svg{
@@ -502,10 +610,6 @@ td:first-child input {
     stroke-dashoffset: 173.44000244140625;
 }
 
-#nodeInspectorKOWrapper{
-    height: 100%;
-}
-
 #rightWindowContainer{
     padding: 4px;
     height: 100%;
@@ -514,6 +618,11 @@ td:first-child input {
 .rightWindow .btn-primary, .leftWindow .btn-primary {
     background-color: #0059a5;
     border-color: #0059a5;
+}
+
+.rightWindow .btn-primary:hover, .leftWindow .btn-primary:hover {
+    background-color: #002f57;
+    border-color: #002f57;
 }
 
 .rightWindow .rightWindowHandle {
@@ -558,6 +667,10 @@ td:first-child input {
     font-size: 12px;
     top: -6px;
     right: 100%;
+}
+
+.dropDropDown .dropdown-item:focus{
+    background-color: #004d91;
 }
 
 .dropDropDownParent:hover .dropDropDown {
@@ -610,9 +723,10 @@ td:first-child input {
     position: absolute;
     top: 0px;
     left: -250px;
-    height: 100%;
+    /* height: 100%; */
     transition: left 0.25s linear;
     padding:0px 2px 0px 6px;
+    visibility:hidden;
 }
 
 /* width */
@@ -637,12 +751,12 @@ td:first-child input {
     background: white;
 }
 
-.rightWindow ::-webkit-scrollbar-thumb, #parameterTableModal ::-webkit-scrollbar-thumb{
+.rightWindow ::-webkit-scrollbar-thumb, #parameterTable ::-webkit-scrollbar-thumb{
     background: #002349;
     border-radius: 5px;
 }
 
-.rightWindow ::-webkit-scrollbar-track, #parameterTableModal ::-webkit-scrollbar-track{
+.rightWindow ::-webkit-scrollbar-track, #parameterTable ::-webkit-scrollbar-track{
     background: rgb(216 221 240);
     border-radius: 5px;
 }
@@ -665,10 +779,6 @@ td:first-child input {
     font-weight: 400;
 }
 
-#nodeInspectorFetchDocker{
-    width:100%;
-}
-
 #shortcutsModal{
     transition: none;
 }
@@ -686,9 +796,27 @@ td:first-child input {
     background-color:#002349;
 }
 
+#settingsModal #uiModeDiv {
+    display: flex;
+}
+
+#settingsModal #uiModeDiv span,#settingsModal #uiModeDiv select{
+    display: inline-block;
+}
+
+#settingsModal #uiModeDiv select{
+    padding: 0px;
+    height: 27px;
+    margin-left: 5px;
+}
+
 .settingsModalCategoryWrapper{
     display: none;
     width: 100%;
+}
+
+.settingStudentWrapper{
+    padding: 20px;
 }
 
 .settingsModalButton{
@@ -714,6 +842,11 @@ td:first-child input {
     z-index:10;
 }
 
+#tableOpenDocker{
+    position: absolute;
+    left: 160px;
+}
+
 .settingCategoryActive{
     display: inline-block;
 }
@@ -724,13 +857,26 @@ td:first-child input {
 
 }
 
-#settingsModal .btn-secondary{
+#settingsModal .modal-body .btn-secondary{
     height:100%;
+    width: 40px;
+}
+
+#settingsModal .btn-secondary i {
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
 }
 
 #settingsModal form{
     padding:30px 20px 30px 20px;
     overflow-y: scroll;
+}
+
+#settingsModal .settingStudentWrapper form{
+    padding: unset;
+    overflow-y: unset;
 }
 
 #settingsModal .modal-body{
@@ -874,29 +1020,29 @@ select.form-control{
     border: 1px solid #c2c8dc;
 }
 
-#errorsModalAccordion .accordion-button{
+#issuesDisplayAccordion .accordion-button{
     color: white;
     background-color: #4a6b8f;
 }
 
-#errorsModalAccordion .accordion-button::after{
+#issuesDisplayAccordion .accordion-button::after{
     background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
 }
 
-#errorsModalAccordion .accordion-button:focus{
+#issuesDisplayAccordion .accordion-button:focus{
     border-color: transparent;
     box-shadow: none !important;
 }
 
-#errorsModalAccordion .accordion-item{
+#issuesDisplayAccordion .accordion-item{
     margin-bottom: 10px;
 }
 
-#errorsModalErrorCount{
+#issuesDisplayErrorCount{
     color: #dc3545;
 }
 
-#errorsModalWarningCount{
+#issuesDisplayWarningCount{
     color: #ffc107;
 }
 
@@ -913,7 +1059,7 @@ select.form-control{
     position: absolute;
     top: 0;
     width: 100%;
-    z-index: 111;
+    z-index: 112;
     border: none;
 }
 
@@ -927,6 +1073,7 @@ select.form-control{
     margin-left: 50%;
     transform: translateX(-50%);
     position:absolute;
+    filter: drop-shadow(2px 7px 10px #000);
 }
 
 .modal-body{
@@ -949,8 +1096,31 @@ select.form-control{
     z-index:10;
 }
 
+#confirmModal{
+    z-index: 1056;
+}
+
 #confirmModal .modal-content{
     height: 20vh;
+}
+
+#confirmModalDontShowAgain{
+    position: absolute;
+    bottom: 0px;
+    right: 40px;
+}
+
+#confirmModalDontShowAgain p{
+    position: relative;
+}
+
+#confirmModalDontShowAgain button{
+    border: none;
+    padding: 0px;
+    background: none;
+    top: 55%;
+    transform: translateY(-50%);
+    position: absolute;
 }
 
 #aboutModal .modal-content{
@@ -975,8 +1145,28 @@ select.form-control{
     height:40vh;
 }
 
-#nodeInspector select{
-    padding:2px 15px;
+#inputTextModal .modal-body .container{
+    height:100%;
+}
+
+#inputTextModal .inputModalTextAreaWrapper{
+    height:calc(100% - 40px);
+}
+
+#inputTextModal .inputModalTextAreaWrapper div{
+    height:100%;
+}
+
+#inputTextModal #inputTextModalInput{
+    height: 100%;
+}
+
+#inputTextModalInput {
+    font-family: monospace;
+}
+
+#gitCommitModal .modal-content{
+    height: 420px;
 }
 
 .checkSettingLabel input{
@@ -1013,7 +1203,7 @@ select.form-control{
 .paletteTrippleDot{
     position: absolute;
     right: 35px;
-    margin-top: 13px;
+    margin-top: 10px;
     background: none;
     border: none;
     z-index: 3;
@@ -1160,10 +1350,6 @@ select.form-control{
     padding-right:4px;
 }
 
-#inspectorSelectionSummary{
-    padding: 10px;
-}
-
 #explorePalettesWrapper{
     width: 90%;
     display: inline-block;
@@ -1197,30 +1383,6 @@ select.form-control{
 #root span:after{
     height: 2px;
     background-color: tomato;
-}
-
-.inspectorSelectionSummaryItem {
-    margin-top: 8px;
-    background-color: #e9ecef;
-    padding: 5px 15px;
-    border-radius: 5px;
-}
-
-.inspectorSelectionSummaryItem h5{
-    margin-bottom: 0px;
-    font-size: 18px;
-}
-
-.inspectorSelectionSummaryItem span{
-    font-size:16px;
-}
-
-#inspectorSelectionSummaryNodes {
-    margin-top: 3px;
-    background-color: #c2c8dc;
-    padding: 1px 15px;
-    border-radius: 5px;
-    display: block;
 }
 
 .hierarchyDividerLine{
@@ -1361,24 +1523,12 @@ select.form-control{
     color:#212529 !important;
 }
 
-.template-palette span.input-group-text, inspector-component span.input-group-text, palette-component span.input-group-text {
-    color: white;
-
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-#loadPaletteText{
+.loadingSpinner{
     padding: 7px 0px 0px 7px;
 }
 
 .inputChecked{
     background-color: blue;
-}
-
-.inspectorCheckbox{
-    padding:0px;
-    margin:0px;
 }
 
 #paletteDiv {
@@ -1469,23 +1619,17 @@ select.form-control{
     height: 100%;
 }
 
-#logicalGraphD3Div {
+#logicalGraph {
     position: relative;
     width: 100%;
     height: 100%;
     background-color: white;
 }
 
-#paletteD3Div {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background-color: #dddddd;
-}
-
 .navbar-btn i.material-icons.md-18 {
     position: relative;
     top: 3px;
+    font-size: 20px;
 }
 
 .navbar-center .navbar-btn.navbar-btn-active{
@@ -1521,7 +1665,6 @@ select.form-control{
 
 #repositoryList .col-9{
     max-width: 79%;
-    width: auto;
 }
 
 #repositoryList .col-10{
@@ -1553,6 +1696,15 @@ select.form-control{
 #repositoryList ul.repositories i.material-icons.md-18 {
     position: relative;
     top: 4px;
+    font-size: 22px;
+}
+
+#repositoryList ul.repositories .repo-actions i.material-icons.md-18 {
+    visibility: hidden;
+}
+
+#repositoryList ul.repositories .repoFile:hover .repo-actions i.material-icons.md-18 {
+    visibility: visible;
 }
 
 #nodeList ul.nodes {
@@ -1569,59 +1721,22 @@ select.form-control{
     position: relative;
 }
 
-#nodeInspectorAddField, #nodeInspectorAddApplicationParam{
-    padding:0px;
-}
-
-#nodeInspectorAddInputPort{
-    padding:0px;
-}
-
-#nodeInspectorAddOutputPort{
-    padding:0px;
-}
-
 .forceHide{
     display: none !important;
 }
 
-.nodeInspectorDropdownDiv{
-    position: static;
-    position: relative;
-    z-index: 100;
-    display: none;
+.forceShow{
+    display: block !important;
+    visibility: visible !important;
+}
+
+.tutorialContent em{
+    font-style: normal;
+    color:springgreen;
 }
 
 .windowDragging{
     cursor:grabbing !important;
-}
-
-.nodeInspectorDropdownDiv::before{
-    margin-bottom: 5px;
-    height: 5px;
-}
-
-.nodeInspectorDropdownInner{
-    position: absolute;
-    width: 100%;
-    background-color: #e9ecef;
-    border: solid 1px #495057;
-    border-radius: 6px;
-    max-height:200px;
-    overflow-y:scroll ;
-}
-
-.nodeInspectorDropdownDiv a{
-    padding-left:10px;
-    display: block;
-    color: #495057;
-    text-decoration: none;
-}
-
-.nodeInspectorDropdownDiv a:hover{
-    background-color: #495057;
-    color: #e9ecef;
-    text-decoration: none;
 }
 
 .leftWindow .card-header i.material-icons {
@@ -1650,6 +1765,8 @@ div.rightWindow h5.card-header {
 .rightWindow button i.material-icons.md-18 {
     position: relative;
     top: 2px;
+    font-size: 18px;
+    pointer-events: none;
 }
 
 ul.nav.navbar-nav .btn-outline-secondary {
@@ -1667,14 +1784,39 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     padding-left:10px;
     background: rgb(0,64,133);
     background: linear-gradient(90deg, rgba(0,64,133,1) 0%, rgba(0,52,107,1) 20%, rgba(0,35,73,1) 100%);
+    visibility:hidden;
+    position:fixed;
+    top:0px;
+    left:0px;
+    right:0px;
+    z-index:100;
 }
 
 .navbar a{
     color: white !important;
 }
 
-.navbar .introjs-tooltipbuttons a{
-    color: #002349 !important;
+#statusBar{
+    position: fixed;
+    bottom: 0px;
+    height: 25px;
+    background-color: #282828;
+    color: white;
+    visibility: hidden;
+    padding-left: 3px;
+    pointer-events: none;
+}
+
+#statusBar h5{
+    display: inline;
+    font-size: .8rem;
+    font-weight: bolder;
+}
+
+#statusBar span{
+    display: inline;
+    margin-right: 5px;
+    font-size: .75rem;
 }
 
 .inactiveLink {
@@ -1703,6 +1845,11 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
      white-space: pre;
  }
 
+ #eagleAndVersion sup{
+    font-family: 'EB Garamond', serif;
+    font-size: 1em;
+ }
+
  #brandEagleIcon{
      margin-left:4px;
  }
@@ -1729,62 +1876,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
     color: white;
 }
 
-#edgeInspector{
-    margin: top 1px;
-}
-
-#edgeInspector .edgeInspectorCheckboxLabel{
-    font-size: .9rem;
-}
-
-#nodeInspector .input-group-prepend, #edgeInspector .input-group-prepend, #translationMenu .input-group-prepend {
-    width:40%;
-}
-
-#nodeInspector .input-application .input-group-prepend,
-#nodeInspector .output-application .input-group-prepend{
-    width:auto;
-}
-
-#nodeInspector .input-group{
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-#nodeInspector .input-group-text, #edgeInspector .input-group-text, #translationMenu .input-group-text{
-    width:100%;
-    height: 100%;
-    font-size: .9rem;
-    text-align: left;
-    white-space: normal;
-    border-radius: 0px;
-}
-
-#edgeInspectorToggleLoopAware, #edgeInspectorToggleClosesLoop, #edgeInspectorChangeDataType {
-    height:100%;
-}
-
-#edgeInspectorIcons{
-    position: absolute;
-    right:12px;
-    top:0px;
-}
-
-#edgeInspectorIcons button{
-    padding:0px;
-    color:#095cb4;
-}
-
-#edgeInspectorIcons button:hover{
-    color:#00162e;
-}
-
-#nodeInspector .input-group-text img{
-    height: 25px;
-    max-width: 100%;
-    filter: invert();
-}
-
 #translationMenu .accordion button{
     padding: 7px 30px;
     cursor: default;
@@ -1794,10 +1885,9 @@ ul.nav.navbar-nav .dropdown-item:hover{
     position: relative;
 }
 
-
 .translationDefault{
     position:absolute;
-    top: 5px;
+    top: 4px;
     left:10px;
     z-index: 99;
 }
@@ -1805,10 +1895,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 #translationMenu .accordion-body button{
     margin-bottom: 5px;
     padding: 3px 10px;
-}
-
-#setTranslatorUrlBtn{
-    padding: 5px 10px !important;
 }
 
 .accordion-item{
@@ -1819,11 +1905,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 #translationMenu .accordion h5{
     margin-bottom: 0px;
-}
-
-#nodeInspector input{
-    height: auto;
-    font-size: .9rem;
 }
 
 .checkboxParent label{
@@ -1871,7 +1952,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
     content: "favorite_border"; 
     color: white;
     outline: none;
-  }
+}
   
 #editFieldModalKeyParameterCheckbox:checked:before {
     position: absolute;
@@ -1880,19 +1961,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
     content: "favorite"; 
     color:white;
     outline: none;
-  }
-
-#nodeInspector label{
-    width: 100%;
-    height:100%;
-    color:white;
-    border-radius:0px;
-}
-
-#nodeInspector .input-group-append button{
-    padding:4px;
-    border-radius: 0px;
-    height: 100%;
 }
 
 #rightWindowTabs{
@@ -1959,13 +2027,13 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 #graphNameWrapper{
     top: 56px;
-    display: block;
+    visibility: hidden;
     width: 100%;
     height:26px;
     background-color: #002349;
-    padding: 0px 16px;
+    padding: 1px 9px;
     position: fixed;
-    z-index: 0;
+    z-index:99;
 }
 
 #graphNameWrapper span{
@@ -1981,10 +2049,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
 
 .ports-row h5 {
     margin-top: 5px;
-}
-
-nav.navbar .introjs-helperLayer {
-    background-color: rgba(255, 255, 255, 0.5);
 }
 
 .navbar-nav.navbar-center {
@@ -2012,12 +2076,13 @@ nav.navbar .introjs-helperLayer {
     padding:0px 5px;
 }
 
-.closedIcon{
-    transform:rotate(270deg)
+.openIcon{
+    transform:rotate(180deg)
 }
 
 .hierarchyCollapseRotate{
     transform: rotate(90deg);
+    user-select: none;
 }
 
 .hierarchyCollapseDisabled{
@@ -2046,48 +2111,15 @@ nav.navbar .introjs-helperLayer {
 
 }
 
-.nodeInspectorSubTitle{
-    margin-left: 1.25rem;
-    display: block;
-    font-size: 1rem;
-    font-weight: 500;
-    color: rgb(66, 66, 66);
-}
-
-.nodeInspectorSubTitle span{
-    font-size: 1rem;
-    font-weight: 400;
-    color: #6c757d;
-}
-
-#nodeInspectorInfoCard .col-3{
-    padding: 0px;
-}
-
-#nodeInspectorInfoCard .text-right{
-    transform:translateY(-2px)
+.node .changingHeader {
+    text-align: center;
+    line-height: 14px;
+    
 }
 
 .breakLine{
     border-top: solid 1px grey;
     margin-bottom: 5px;
-}
-
-#nodeInspectorHeading{
-    margin: 0px;
-    color: white;
-    border-radius: .25rem;
-    padding: 0px;
-}
-
-#nodeInspectorInfoCard{
-    margin-bottom: 1px;
-}
-
-#nodeInspectorHeading span {
-    font-size: 1.25em;
-    font-weight: bold;
-    user-select: none;
 }
 
 .modal-dialog {
@@ -2106,42 +2138,9 @@ nav.navbar .introjs-helperLayer {
     padding: 10px 15px;
 }
 
-#nodeInspectorMenus{
-    padding: 0px 5px 5px 5px;
-    margin-bottom: 10px;
-}
-
-#nodeInspectorMenus .card{
-    margin-top:4px;
-    margin-right: 4px;
-}
-
 .headerBtns {
     padding: 0px 10px;
-}
-
-#inspectorHeaderIconRow{
-    padding-top: 3px;
-    background: rgba(255, 255, 255, 0.171);
-}
-
-.headerBtns button {
-    background-color: transparent;
-    padding:0px 4px;
-    margin-left:-4px;
-    border: none;
-    box-shadow: none;
-}
-
-.headerBtns button:hover {
-    color:#001933;
-    background-color: transparent;
-}
-
-.headerBtns button.btn:focus {
-    box-shadow: none;
-    background-color:transparent;
-    border:none;
+    position:relative;
 }
 
 #multiSelectionHeader .headerBtns button{
@@ -2152,16 +2151,6 @@ nav.navbar .introjs-helperLayer {
     color:#00162e;
 }
 
-.nodeInspectorSubsectionTitle{
-    font-size: 1rem;
-    padding-left:5px;
-}
-
-.nodeInspectorButton{
-    margin-left:-10px;
-    margin-right:-10px;
-}
-
 #hiddenBSTrigger{
     visibility: hidden;
 }
@@ -2170,29 +2159,70 @@ palette-component input.form-control.selected {
     background-color: lightgrey;
 }
 
+#browseDockerHubModalCustomChoiceText{
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.tooltip-inner h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 5px 0px;
+}
+
+.tooltip-inner h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 5px 0px;
+}
+
+.tooltip-inner h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 5px 0px;
+}
+
+.tooltip-inner h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 5px 0px;
+}
+
 .tooltip-inner h5 {
     font-size: 1rem;
     font-weight: 600;
-    margin: 0px;
+    margin: 5px 0px;
+}
+
+.tooltip-inner strong{
+    font-weight: 600;
 }
 
 .tooltip-inner p {
-    font-size: .85rem;
+    font-size: 1rem;
     font-weight: 300;
     margin-bottom: 10px;
+}
+
+.tooltip-inner em {
+    font-style:italic;
 }
 
 .tooltip-inner{
     transition: 0s visibility;
     visibility: visible;
+    max-height: 400px;
+    max-width: 300px;
+    overflow: auto;
+    text-align: left;
 }
 
-#errorsModal ul.list-group .list-group-item span {
+#issuesDisplay ul.list-group .list-group-item span {
     max-width: 80%;
 }
 
-#nodeInspectorErrorsCard fix .alert {
-    overflow: hidden;
+.alert{
+    z-index: 2000!important;
 }
 
 #customContextMenu{
@@ -2234,6 +2264,16 @@ palette-component input.form-control.selected {
     display: none;
     max-height: 400px;
     overflow-y: auto;
+    min-width: 200px;
+}
+
+#paletteNodesSearchResult{
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#paletteNodesSearchResult::-webkit-scrollbar-track{
+    background: #0000006b;
 }
 
 #customContextMenu a{
@@ -2241,8 +2281,72 @@ palette-component input.form-control.selected {
     text-decoration: none;
 }
 
+.contextmenuNodeDescription{
+    border-bottom: 1px solid white;
+}
+
+.contextmenuNodeDescription .contextMenuDropdown{
+    width: 300px;
+}
+
+.contextmenuNodeDescription .contextMenuDropdown span:hover{
+    background-color: transparent!important;
+    cursor: default!important;
+}
+
+#customContextMenu h4 {
+    font-size:14px;
+    font-weight: bold;
+    display: inline;
+}
+
+#customContextMenu #nodeInfoName{
+    display: inline-block;
+}
+
+#customContextMenu #nodeInfoKey{
+    display: inline-block;
+}
+
+#customContextMenu #nodeInfoCategory{
+    display: block;
+}
+
+#customContextMenu #nodeInfoDescription{
+    display: block;
+}
+
 .rightClickFocus,.rightClickFocusParent{
     background-color: #001d3b;
+}
+
+.rightClickDropdownDividerTitle{
+    position: relative;
+    font-size: 12px;
+    z-index: 1;
+    overflow: hidden;
+    text-align: center;
+    margin-top: 3px;
+    margin-bottom: 5px;
+}
+
+.rightClickDropdownDividerTitle:before, .rightClickDropdownDividerTitle:after{
+    position: absolute;
+    top: 51%;
+    overflow: hidden;
+    width: 50%;
+    height: 1px;
+    content: '\a0';
+    background-color: rgb(230, 230, 230);
+}
+
+.rightClickDropdownDividerTitle:before {
+    margin-left: -57%;
+    text-align: right;
+}
+
+.rightClickDropdownDividerTitle:after {
+    margin-left: 7%;
 }
 
 .componentSearchBar{
@@ -2273,6 +2377,191 @@ palette-component input.form-control.selected {
 
 .searchBarContainer{
     position: relative;
+}
+
+#customContextMenu.leftBoundContextMenu{
+    transform:translateX(-100%);
+    width:max-content;
+}
+
+#customContextMenu.leftBoundContextMenu .contextMenuDropdown{
+    right: 100%;
+    left: auto;
+}
+
+#customContextMenu.topBoundContextMenu{
+    transform:translateY(-100%);
+}
+
+#customContextMenu.topBoundContextMenu .contextMenuDropdown{
+    bottom: 0%;
+    top: auto;
+}
+
+#customContextMenu.topBoundContextMenu.leftBoundContextMenu{
+    transform:translate(-100%, -100%);
+}
+
+.tutorialHighlight{
+    position:absolute;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index:2000;
+    transition: 0.5s ease;
+}
+
+#tutorialInfoPopUp{
+    position:absolute;
+    width:700px;
+    height:250px;
+    z-index:2001;
+    color:white;
+    font-family:'Comic Neue';
+    pointer-events: none;
+}
+
+#tutorialInfoPopUp .tutorialArrowContainer{
+    position:relative; 
+    height:100%;
+    width:100%;
+}
+
+#tutorialInfoPopUp.tutorialRight img{
+    transform:scale(1,1);
+    position:absolute; 
+    top:0px; 
+    left:0px; 
+    width: 160px;
+    z-index: 1;
+}
+
+#tutorialInfoPopUp.tutorialRightTop img{
+    transform:scale(1,-1);
+    position:absolute; 
+    bottom:0px; 
+    left:0px; 
+    width: 160px;
+    z-index: 1;
+}
+
+#tutorialInfoPopUp.tutorialMiddle .tutorialContent{
+    background-color: rgb(0 0 0 / 60%);
+    box-shadow: 0px 0px 25px 25px rgb(0 0 0 / 60%);
+}
+
+.tutorialContent{
+    background: rgba(1,1,1,0.6);
+    border-radius: 10px;
+    box-shadow: 0px 0px 25px 25px rgba(1,1,1,0.6);
+    pointer-events: all;
+}
+
+#tutorialInfoPopUp.tutorialRight .tutorialContent,#tutorialInfoPopUp.tutorialRightTop .tutorialContent{
+    position: absolute;
+    left: 170px;
+    top: 96px;
+    min-width: 70%;
+}
+
+#tutorialInfoPopUp.tutorialRight .tutorialInfoButtons,#tutorialInfoPopUp.tutorialRightTop .tutorialInfoButtons{
+    position: relative;
+    height:50px;
+}
+
+#tutorialInfoPopUp.tutorialLeft img{
+    position:absolute; 
+    top:0px; 
+    right:0px; 
+    transform:scale(-1,1);
+    width: 160px;
+    z-index: 1;
+}
+
+#tutorialInfoPopUp.tutorialLeftTop img{
+    transform:scale(-1,-1);
+    position:absolute; 
+    bottom:0px; 
+    right:0px; 
+    width: 160px;
+    z-index: 1;
+}
+
+#tutorialInfoPopUp.tutorialLeft .tutorialContent,#tutorialInfoPopUp.tutorialLeftTop .tutorialContent{
+    position: absolute;
+    right: 170px;
+    top: 96px;
+}
+
+#tutorialInfoPopUp.tutorialLeft .tutorialInfoTitle,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoTitle{
+    text-align: right;
+}
+
+#tutorialInfoPopUp.tutorialLeft .tutorialInfoText,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoText{
+    text-align: right;
+    min-width: 450px;
+}
+
+#tutorialInfoPopUp.tutorialLeft .tutorialInfoButtons,#tutorialInfoPopUp.tutorialLeftTop .tutorialInfoButtons{
+    position: relative;
+    height:50px;
+}
+
+#tutorialInfoPopUp .tutorialInfoTitle h4{
+    font-size:30px;
+    text-shadow: black 1px 0 10px,black 1px 0px 10px,black 1px 0px 10px;
+}
+
+#tutorialInfoPopUp span, #tutorialInfoPopUp a{
+    text-shadow: black 1px 0 10px,black 1px 0px 10px,black 1px 0px 10px;
+}
+#tutorialInfoPopUp a{
+    color: #ffc437;
+}
+
+#tutorialInfoPopUp .tutorialInfoButtons button{
+    background-color: transparent;
+    border: none;
+    color: white;
+    padding: 0px;
+    bottom: 0px;
+    font-size:22px ;
+    text-shadow: black 1px 0 10px,black 1px 0px 10px,black 1px 0px 10px;
+}
+
+#tutorialInfoPopUp .tutorialInfoButtons button:hover{
+    text-decoration: underline;
+}
+
+#tutorialInfoPopUp .tutPreviousBtn{
+    position: absolute;
+    left: 0px;
+}
+
+#tutorialInfoPopUp .tutNextBtn{
+    position: absolute;
+    right: 60px;
+}
+
+#tutorialInfoPopUp .tutProgress{
+    left: 50%;
+    transform: translateX(-80%);
+    bottom: 2px;
+    position: absolute;
+}
+
+#tutorialInfoPopUp .tutEndBtn{
+    position: absolute;
+    right: 0px;
+    color: #ff3e3e !important;
+}
+
+
+@keyframes tutFadeInAnimation {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+     }
 }
 
 .rightWindow .searchBarContainer{
@@ -2318,4 +2607,152 @@ palette-component input.form-control.selected {
 
 .inputNoArrows[type=number] {
     -moz-appearance: textfield;
+}
+
+/* eagle loading animation pop up stuff */
+#loadingContainer{
+    position: absolute;
+    left: 50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    background-color: #002e5f;
+    border-radius: 20px;
+    padding: 20px;
+    display:none;
+}
+
+.wrapper{
+    width: 119px;
+    height:119px;
+    position:relative;
+}
+  
+.wrapper .center{
+    margin-top:50%;
+    margin-left:50%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    position:absolute;
+}
+
+.wrapper .theSun{
+    background-color:#ffb709;
+    width:21px;
+    height:21px;
+}
+
+.wrapper .firstRing{
+    width:56px;
+    height:56px;
+}
+  
+.wrapper .secondRing{
+    width:77px;
+    height:77px;
+}
+  
+.wrapper .thirdRing{
+    width:119px;
+    height:119px;
+}
+  
+.wrapper .ring{
+    border: 1px solid #d8ddf0;
+    display:inline-block;
+    border-radius:50%;
+    margin-top: 5px;
+}
+
+.ui-draggable-dragging{
+    pointer-events: none !important;
+}
+  
+.wrapper .planet{
+    border-radius:50%;
+    position:absolute;
+    left:0px;
+    top:50%;
+    transform:translate(-50%,-50%);
+}
+  
+.wrapper .firstPlanet{
+    width:11px;
+    height:11px;
+    border-radius:50%;
+    background-color:#49b3ff;
+}
+  
+.wrapper .secondPlanet{
+    width:6px;
+    height:6px;
+    background-color:#ff5f20;
+}
+  
+.wrapper .thirdPlanet{
+    width:14px;
+    height:14px;
+    background-color:#f6daa8;
+    border-radius:50%;
+}
+  
+.wrapper .thirdPlanet div:nth-of-type(1){
+    width:18px;
+    height:5px;
+    border:solid 1px #f6daa8;
+    top:50%;
+    left:50%;
+    position:absolute;
+    border-radius: 50%;
+    transform:translate(-50%,-50%) rotate(340deg);
+}
+
+.wrapper .thirdPlanet div:nth-of-type(2){
+    width:24px;
+    height:9px;
+    border:solid 2px #f6daa8;
+    top:50%;
+    left:50%;
+    position:absolute;
+    border-radius: 50%;
+    transform:translate(-50%,-50%) rotate(340deg);
+}
+  
+.rotate1{
+    animation: loading 3.65s linear infinite;
+}
+  
+.rotate2{
+    animation: loading 6.86s linear infinite;
+}
+  
+.rotate3{
+    animation: loading 107.5s linear infinite;
+}
+  
+@keyframes loading {
+    from { 
+        transform: rotate(0deg); 
+    }
+    to { 
+        transform: rotate(360deg);
+    }
+}
+  
+.counterRotate2{
+    animation:loading2 107.5s linear infinite;
+}
+  
+@keyframes loading2 {
+    from { 
+        transform: rotate(360deg); 
+    }
+    to { 
+        transform: rotate(0deg);
+    }
+}
+
+/* re-usable classes for various things */
+
+.linearTransition250{
+    transition: linear 250ms !important; /*this requires an important tag to over ride existing transition effects for a few moments */
 }

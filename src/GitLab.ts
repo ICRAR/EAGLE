@@ -44,13 +44,14 @@ export class GitLab {
 
             // remove all GitLab repos from the list of repositories
             for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-                if (Repositories.repositories()[i].service === Eagle.RepositoryService.GitLab)
+                if (Repositories.repositories()[i].service === Repository.Service.GitLab){
                     Repositories.repositories.splice(i, 1);
+                }
             }
 
             // add the repositories from the POST response
             for (const d of data){
-                Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitLab, d.repository, d.branch, true));
+                Repositories.repositories.push(new Repository(Repository.Service.GitLab, d.repository, d.branch, true));
             }
 
             // search for custom repositories, and add them into the list.
@@ -61,14 +62,14 @@ export class GitLab {
 
                 // handle legacy repositories where the branch is not specified (assume master)
                 if (keyExtension === "gitlab_repository"){
-                    Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitLab, value, "master", false));
+                    Repositories.repositories.push(new Repository(Repository.Service.GitLab, value, "master", false));
                 }
 
                 // handle the current method of storing repositories where both the service and branch are specified
                 if (keyExtension === "gitlab_repository_and_branch") {
                     const repositoryName = value.split("|")[0];
                     const repositoryBranch = value.split("|")[1];
-                    Repositories.repositories.push(new Repository(Eagle.RepositoryService.GitLab, repositoryName, repositoryBranch, false));
+                    Repositories.repositories.push(new Repository(Repository.Service.GitLab, repositoryName, repositoryBranch, false));
                 }
             }
 
@@ -81,7 +82,7 @@ export class GitLab {
      * Shows the remote files
      */
     static loadRepoContent(repository : Repository) : void {
-        const token = Setting.findValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+        const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitLab access token is not set! To access GitLab repository, set the token via settings.");
@@ -182,8 +183,8 @@ export class GitLab {
      * Gets the specified remote file from the server
      * @param filePath File path.
      */
-    static openRemoteFile(repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        const token = Setting.findValue(Utils.GITLAB_ACCESS_TOKEN_KEY);
+    static openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
+        const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
             Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");
@@ -202,5 +203,27 @@ export class GitLab {
         };
 
         Utils.httpPostJSON('/openRemoteGitlabFile', jsonData, callback);
+    }
+
+    static deleteRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string) => void ) : void {
+        const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
+
+        if (token === null || token === "") {
+            Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");
+            return;
+        }
+
+        const fullFileName : string = Utils.joinPath(filePath, fileName);
+
+        // Add parameters in json data.
+        const jsonData = {
+            repositoryName: repositoryName,
+            repositoryBranch: repositoryBranch,
+            repositoryService: repositoryService,
+            token: token,
+            filename: fullFileName
+        };
+
+        Utils.httpPostJSON('/deleteRemoteGitlabFile', jsonData, callback);
     }
 }

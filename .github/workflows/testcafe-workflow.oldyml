@@ -1,0 +1,47 @@
+name: TestCafe
+on: [push]
+
+jobs:
+  test:
+    name: Run Simple Test
+    runs-on: ubuntu-latest
+    services:
+      translator:
+        image: icrar/daliuge-translator:2.2.0
+        ports:
+          - 6379:8084
+      engine:
+        image: icrar/daliuge-engine:2.2.0
+        ports:
+          - 5555:5555
+          - 6666:6666
+          - 8000:8000
+          - 8001:8001
+          - 8002:8002
+          - 9000:9000
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+      - name: NPM install
+        run: npm install
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: PIP install
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+      - name: Compile Typescript
+        run: tsc
+      - name: Start server
+        run: python eagleServer/eagleServer.py -t /tmp &
+      #- name: Run tests
+      #  uses: DevExpress/testcafe-action@latest
+      #  env:
+      #      EAGLE_GITHUB_ACCESS_TOKEN: ${{secrets.EAGLE_GITHUB_ACCESS_TOKEN}}
+      #  with:
+      #      # args: "chrome tests/simple.js tests/drag-and-drop.js tests/add-node-parameter.js tests/create-custom-palette.js tests/edit-edge.js tests/load-local-json-export-match.js tests/component-update.js tests/add-remove-repository.js"
+      #      args: "chrome tests/drag-and-drop.js tests/add-node-parameter.js tests/create-custom-palette.js tests/edit-edge.js"

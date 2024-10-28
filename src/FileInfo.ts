@@ -1,20 +1,27 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
-import {Errors} from './Errors';
+import { Daliuge } from "./Daliuge";
+import { Eagle } from './Eagle';
+import { Errors } from './Errors';
+import { Repository } from "./Repository";
+import { Utils } from './Utils';
+
 
 export class FileInfo {
     private _name : ko.Observable<string>;
+    private _shortDescription : ko.Observable<string>;
+    private _detailedDescription : ko.Observable<string>;
+
     private _path : ko.Observable<string>;
     private _type : ko.Observable<Eagle.FileType>;
-    private _repositoryService : ko.Observable<Eagle.RepositoryService>;
+    private _repositoryService : ko.Observable<Repository.Service>;
     private _repositoryBranch : ko.Observable<string>;
     private _repositoryName : ko.Observable<string>;
     private _modified : ko.Observable<boolean>;
-    private _eagleVersion : ko.Observable<string>;
-    private _eagleCommitHash : ko.Observable<string>;
-    private _schemaVersion : ko.Observable<Eagle.DALiuGESchemaVersion>;
+    private _generatorVersion : ko.Observable<string>;
+    private _generatorCommitHash : ko.Observable<string>;
+    private _generatorName : ko.Observable<string>;
+    private _schemaVersion : ko.Observable<Daliuge.SchemaVersion>;
     private _readonly : ko.Observable<boolean>;
     private _builtIn : ko.Observable<boolean>;
 
@@ -31,15 +38,19 @@ export class FileInfo {
 
     constructor(){
         this._name = ko.observable("");
+        this._shortDescription = ko.observable("");
+        this._detailedDescription = ko.observable("");
+
         this._path = ko.observable("");
         this._type = ko.observable(Eagle.FileType.Unknown);
-        this._repositoryService = ko.observable(Eagle.RepositoryService.Unknown);
+        this._repositoryService = ko.observable(Repository.Service.Unknown);
         this._repositoryBranch = ko.observable("");
         this._repositoryName = ko.observable("");
         this._modified = ko.observable(false);
-        this._eagleVersion = ko.observable("");
-        this._eagleCommitHash = ko.observable("");
-        this._schemaVersion = ko.observable(Eagle.DALiuGESchemaVersion.Unknown);
+        this._generatorVersion = ko.observable("");
+        this._generatorCommitHash = ko.observable("");
+        this._generatorName = ko.observable("");
+        this._schemaVersion = ko.observable(Daliuge.SchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
 
@@ -63,6 +74,22 @@ export class FileInfo {
         this._name(name);
     }
 
+    get shortDescription() : string{
+        return this._shortDescription();
+    }
+
+    set shortDescription(shortDescription : string){
+        this._shortDescription(shortDescription);
+    }
+
+    get detailedDescription() : string{
+        return this._detailedDescription();
+    }
+
+    set detailedDescription(detailedDescription : string){
+        this._detailedDescription(detailedDescription);
+    }
+
     get path() : string{
         return this._path();
     }
@@ -79,11 +106,11 @@ export class FileInfo {
         this._type(type);
     }
 
-    get repositoryService() : Eagle.RepositoryService {
+    get repositoryService() : Repository.Service {
         return this._repositoryService();
     }
 
-    set repositoryService(repositoryService : Eagle.RepositoryService){
+    set repositoryService(repositoryService : Repository.Service){
         this._repositoryService(repositoryService);
     }
 
@@ -111,27 +138,35 @@ export class FileInfo {
         this._modified(modified);
     }
 
-    get eagleVersion() : string{
-        return this._eagleVersion();
+    get generatorVersion() : string{
+        return this._generatorVersion();
     }
 
-    set eagleVersion(version : string){
-        this._eagleVersion(version);
+    set generatorVersion(version : string){
+        this._generatorVersion(version);
     }
 
-    get eagleCommitHash() : string{
-        return this._eagleCommitHash();
+    get generatorCommitHash() : string{
+        return this._generatorCommitHash();
     }
 
-    set eagleCommitHash(hash : string){
-        this._eagleCommitHash(hash);
+    set generatorCommitHash(hash : string){
+        this._generatorCommitHash(hash);
     }
 
-    get schemaVersion(): Eagle.DALiuGESchemaVersion{
+    get generatorName() : string{
+        return this._generatorName();
+    }
+
+    set generatorName(hash : string){
+        this._generatorName(hash);
+    }
+
+    get schemaVersion(): Daliuge.SchemaVersion{
         return this._schemaVersion();
     }
 
-    set schemaVersion(version: Eagle.DALiuGESchemaVersion){
+    set schemaVersion(version: Daliuge.SchemaVersion){
         this._schemaVersion(version);
     }
 
@@ -217,15 +252,19 @@ export class FileInfo {
 
     clear = () : void => {
         this._name("");
+        this._shortDescription("");
+        this._detailedDescription("");
+
         this._path("");
         this._type(Eagle.FileType.Unknown);
-        this._repositoryService(Eagle.RepositoryService.Unknown);
+        this._repositoryService(Repository.Service.Unknown);
         this._repositoryBranch("");
         this._repositoryName("");
         this._modified(false);
-        this._eagleVersion("");
-        this._eagleCommitHash("");
-        this._schemaVersion(Eagle.DALiuGESchemaVersion.Unknown);
+        this._generatorVersion("");
+        this._generatorCommitHash("");
+        this._generatorName("");
+        this._schemaVersion(Daliuge.SchemaVersion.Unknown);
         this._readonly(true);
         this._builtIn(true);
 
@@ -245,14 +284,18 @@ export class FileInfo {
         const result : FileInfo = new FileInfo();
 
         result.name = this._name();
+        result.shortDescription = this._shortDescription();
+        result.detailedDescription = this._detailedDescription();
+
         result.path = this._path();
         result.type = this._type();
         result.repositoryService = this._repositoryService();
         result.repositoryBranch = this._repositoryBranch();
         result.repositoryName = this._repositoryName();
         result.modified = this._modified();
-        result.eagleVersion = this._eagleVersion();
-        result.eagleCommitHash = this._eagleCommitHash();
+        result.generatorVersion = this._generatorVersion();
+        result.generatorCommitHash = this._generatorCommitHash();
+        result.generatorName = this._generatorName();
         result.schemaVersion = this._schemaVersion();
         result.readonly = this._readonly();
         result.builtIn = this._builtIn();
@@ -280,7 +323,7 @@ export class FileInfo {
     }
 
     removeGitInfo = () : void => {
-        this._repositoryService(Eagle.RepositoryService.Unknown);
+        this._repositoryService(Repository.Service.Unknown);
         this._repositoryBranch("");
         this._repositoryName("");
         this._path("");
@@ -295,17 +338,28 @@ export class FileInfo {
     }
 
     updateEagleInfo = () : void => {
-        this.eagleVersion = (<any>window).version;
-        this.eagleCommitHash = (<any>window).commit_hash;
+        this.generatorVersion = (<any>window).version;
+        this.generatorCommitHash = (<any>window).commit_hash;
+        this.generatorName = "EAGLE";
+    }
+
+    updateGeneratorInfo = (version: string, commitHash: string, name: string) => {
+        this.generatorVersion = version;
+        this.generatorCommitHash = commitHash;
+        this.generatorName = name;
     }
 
     nameAndModifiedIndicator : ko.PureComputed<string> = ko.pureComputed(() => {
         return this._name() + (this._modified() ? "*" : "");
     }, this);
 
+    lastModifiedDatetimeText : ko.PureComputed<string> = ko.pureComputed(() => {
+        return new Date(this._lastModifiedDatetime() * 1000).toLocaleString();
+    }, this);
+
     getSummaryHTML = (title : string) : string => {
         let text
-        if (this._repositoryService() === Eagle.RepositoryService.Unknown){
+        if (this._repositoryService() === Repository.Service.Unknown){
             text = "- Location -</br>Url:&nbsp;" + this._repositoryUrl() + "</br>Hash:&nbsp;" + this._commitHash();
         } else {
             text = "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
@@ -330,14 +384,18 @@ export class FileInfo {
         let s = "";
 
         s += "Name:" + this._name();
+        s += " Short Description:" + this._shortDescription();
+        s += " Detailed Description:" + this._detailedDescription();
+
         s += " Path:" + this._path();
         s += " Type:" + this._type();
         s += " Repository Service:" + this._repositoryService();
         s += " Repository Name:" + this._repositoryName();
         s += " Repository Branch:" + this._repositoryBranch();
         s += " Modified:" + this._modified();
-        s += " EAGLE Version:" + this._eagleVersion();
-        s += " EAGLE Commit Hash:" + this._eagleCommitHash();
+        s += " Generator Name:" + this._generatorName();
+        s += " Generator Version:" + this._generatorVersion();
+        s += " Generator Commit Hash:" + this._generatorCommitHash();
         s += " Schema Version:" + this._schemaVersion();
         s += " readonly:" + this._readonly();
         s += " builtIn:" + this._builtIn();
@@ -356,15 +414,22 @@ export class FileInfo {
         return s;
     }
 
-    static toOJSJson = (fileInfo : FileInfo) : object => {
+    static toOJSJson(fileInfo : FileInfo) : object {
         return {
+            // name and path variables are written together into fullPath
+            filePath: fileInfo.fullPath(),
             fileType: fileInfo.type,
+
+            shortDescription: fileInfo.shortDescription,
+            detailedDescription: fileInfo.detailedDescription,
+
             repoService: fileInfo.repositoryService,
             repoBranch: fileInfo.repositoryBranch,
             repo: fileInfo.repositoryName,
-            filePath: fileInfo.fullPath(),
-            eagleVersion: fileInfo.eagleVersion,
-            eagleCommitHash: fileInfo.eagleCommitHash,
+            
+            generatorVersion: fileInfo.generatorVersion,
+            generatorCommitHash: fileInfo.generatorCommitHash,
+            generatorName: fileInfo.generatorName,
             schemaVersion: fileInfo.schemaVersion,
             readonly: fileInfo.readonly,
 
@@ -382,32 +447,42 @@ export class FileInfo {
     }
 
     // TODO: use errors array if attributes cannot be found
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    static fromOJSJson = (modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo => {
+    static fromOJSJson(modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo {
         const result : FileInfo = new FileInfo();
 
         result.path = Utils.getFilePathFromFullPath(modelData.filePath);
         result.name = Utils.getFileNameFromFullPath(modelData.filePath);
         result.type = Utils.translateStringToFileType(modelData.fileType);
 
-        result.repositoryService = modelData.repoService == undefined ? Eagle.RepositoryService.Unknown : modelData.repoService;
-        result.repositoryBranch = modelData.repoBranch == undefined ? "" : modelData.repoBranch;
-        result.repositoryName = modelData.repo == undefined ? "" : modelData.repo;
+        result.shortDescription = modelData.shortDescription ?? "";
+        result.detailedDescription = modelData.detailedDescription ?? "";
 
-        result.eagleVersion = modelData.eagleVersion == undefined ? "" : modelData.eagleVersion;
-        result.eagleCommitHash = modelData.eagleCommitHash == undefined ? "" : modelData.eagleCommitHash;
-        result.schemaVersion = modelData.schemaVersion == undefined ? "" : modelData.schemaVersion;
+        // if shortDescription is not set, and detailed description is set, then use first sentence of detailed as the short
+        // NOTE: doesn't actually do any semantic analysis of text, just grabs everything before the first '.' in the detailed description
+        if (result.shortDescription === "" && result.detailedDescription !== ""){
+            result.shortDescription = result.detailedDescription.split('. ', 1)[0];
+        }
 
-        result.readonly = modelData.readonly == undefined ? true : modelData.readonly;
+        result.repositoryService = modelData.repoService ?? Repository.Service.Unknown;
+        result.repositoryBranch = modelData.repoBranch ?? "";
+        result.repositoryName = modelData.repo ?? "";
 
-        result.repositoryUrl = modelData.repositoryUrl == undefined ? "" : modelData.repositoryUrl;
-        result.commitHash = modelData.commitHash == undefined ? "" : modelData.commitHash;
-        result.downloadUrl = modelData.downloadUrl == undefined ? "" : modelData.downloadUrl;
-        result.signature = modelData.signature == undefined ? "" : modelData.signature;
+        // look for deprecated attributes (eagleVersion and eagleCommitHash) too
+        result.generatorVersion = modelData.generatorVersion ?? modelData.eagleVersion ?? "";
+        result.generatorCommitHash = modelData.generatorCommitHash ?? modelData.eagleCommitHash ?? "";
+        result.generatorName = modelData.generatorName ?? "";
+        result.schemaVersion = modelData.schemaVersion ?? "";
 
-        result.lastModifiedName = modelData.lastModifiedName == undefined ? "" : modelData.lastModifiedName;
-        result.lastModifiedEmail = modelData.lastModifiedEmail == undefined ? "" : modelData.lastModifiedEmail;
-        result.lastModifiedDatetime = modelData.lastModifiedDatetime == undefined ? 0 : modelData.lastModifiedDatetime;
+        result.readonly = modelData.readonly ?? true;
+
+        result.repositoryUrl = modelData.repositoryUrl ?? "";
+        result.commitHash = modelData.commitHash ?? "";
+        result.downloadUrl = modelData.downloadUrl ?? "";
+        result.signature = modelData.signature ?? "";
+
+        result.lastModifiedName = modelData.lastModifiedName ?? "";
+        result.lastModifiedEmail = modelData.lastModifiedEmail ?? "";
+        result.lastModifiedDatetime = modelData.lastModifiedDatetime ?? 0;
 
         // check that lastModifiedDatetime is a Number, if not correct
         if (typeof result.lastModifiedDatetime !== 'number'){
@@ -415,7 +490,7 @@ export class FileInfo {
             errorsWarnings.errors.push(Errors.Message("Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value."));
         }
 
-        result.numLGNodes = modelData.numLGNodes == undefined ? 0 : modelData.numLGNodes;
+        result.numLGNodes = modelData.numLGNodes ?? 0;
 
         return result;
     }

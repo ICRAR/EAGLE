@@ -1,0 +1,48 @@
+<div class="nodeContent construct_node">
+    <div class="container" data-bind="css: {selected: $root.objectIsSelected($data)}">
+        <div class="header" data-bind="eagleTooltip:$data.getHelpHTML()">
+            <div data-bind="style: {transform: 'scale('+$root.getGraphTextScale()+')'}">
+                <div class="header-name" data-bind="html: $data.name,event: {click: GraphRenderer.editNodeTitleInGraph}"></div>
+                <input type="text" onmousedown="GraphRenderer.preventBubbling()" onmousemove="GraphRenderer.preventBubbling()" onmouseup="GraphRenderer.preventBubbling()" data-bind="value:$data.name, readonly: $data.isLocked, style:{display:'none'},event:{click:function(){$(event.target).focus()},keyup:GraphRenderer.nodeNameEditorKeybinds}" class="header-input">    
+            </div>
+        </div>
+    
+        <div class="body"  data-bind="eagleRightClick: {data:$data,type:'rightClick_graphNode'}, event: {mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false">
+            <span data-bind="class: $data.getIcon()"></span>
+        </div> 
+
+        <!-- ko if: $data.isConstruct() && Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
+            <!-- ko ifnot: $data.hasInputApplication() -->
+                <!-- triggerHandler('context menu') is a way to trigger right click, we want both left and right click to trigger the right click menu to add embedded apps -->
+                <div class="inputSocket socket" onmousedown="GraphRenderer.preventBubbling()" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')},eagleTooltip:'Click to add an input application', eagleRightClick: {data:$data,type:'addEmbeddedInputApp'},style:{'border-color':EagleConfig.getColor('nodeInputPort')}">
+                    <div>
+                        <i class="material-icons md-18">add</i>
+                    </div>
+                </div>
+            <!-- /ko -->
+        <!-- /ko -->
+
+        <!-- ko if: $data.isConstruct() && Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
+            <!-- ko ifnot: $data.hasOutputApplication() -->
+                <div class="outputSocket socket" onmousedown="GraphRenderer.preventBubbling()" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')},eagleTooltip:'Click to add an output application', eagleRightClick: {data:$data,type:'addEmbeddedOutputApp'},style:{'border-color':EagleConfig.getColor('nodeOutputPort')}">
+                    <div>
+                        <i class="material-icons md-18">add</i>
+                    </div>
+                </div>
+            <!-- /ko -->
+        <!-- /ko -->
+    </div>
+
+    <!-- ko with: $data.getInputApplication() -->
+        <div class="constructInputApp" data-bind="embeddedAppPosition:{applicationNode:$data, input:true},nodeRenderHandler:$data">
+            {% include 'basic_node.html' %}
+        </div>
+    <!-- /ko -->
+
+
+    <!-- ko with: $data.getOutputApplication() -->
+        <div class="constructOutputApp" data-bind="embeddedAppPosition:{applicationNode:$data, input:false}, nodeRenderHandler:$data">
+            {% include 'basic_node.html' %}
+        </div>
+    <!-- /ko -->
+</div>

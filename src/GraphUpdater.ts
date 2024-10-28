@@ -22,199 +22,23 @@
 #
 */
 
-import {Category} from './Category';
-import {Eagle} from './Eagle';
-import {Errors} from './Errors';
-import {GitHub} from './GitHub';
-import {GitLab} from './GitLab';
-import {LogicalGraph} from './LogicalGraph';
-import {Repositories} from './Repositories';
-import {Repository} from './Repository';
-import {RepositoryFolder} from './RepositoryFolder';
-import {RepositoryFile} from './RepositoryFile';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
+import { Errors } from './Errors';
+import { GitHub } from './GitHub';
+import { GitLab } from './GitLab';
+import { LogicalGraph } from './LogicalGraph';
+import { Repositories } from './Repositories';
+import { Repository } from './Repository';
+import { RepositoryFolder } from './RepositoryFolder';
+import { RepositoryFile } from './RepositoryFile';
+import { Utils } from './Utils';
 
 export class GraphUpdater {
 
-    static OLD_ATTRIBUTES : {text:string, name:string, description:string}[] = [
-        {
-            text:"Data Volume",
-            name:"data_volume",
-            description:""
-        },
-        {
-            text:"Number of Splits",
-            name:"num_of_splits",
-            description:""
-        },
-        {
-            text:"Scatter Axis",
-            name:"scatter_axis",
-            description:""
-        },
-        {
-            text:"Execution Time",
-            name:"execution_time",
-            description:""
-        },
-        {
-            text:"Number of Inputs",
-            name:"num_of_inputs",
-            description:""
-        },
-        {
-            text:"Gather Axis",
-            name:"gather_axis",
-            description:""
-        },
-        {
-            text:"Group Start",
-            name:"group_start",
-            description:""
-        },
-        {
-            text:"Group End",
-            name:"group_end",
-            description:""
-        },
-        {
-            text:"Number of Iterations",
-            name:"num_of_iter",
-            description:""
-        },
-        {
-            text:"Number of CPUs",
-            name:"num_cpus",
-            description:""
-        },
-        {
-            text:"Library Path",
-            name:"libpath",
-            description:""
-        },
-        {
-            text:"Number of Procs",
-            name:"num_of_procs",
-            description:""
-        },
-        {
-            text:"Number of copies",
-            name:"num_of_copies",
-            description:""
-        },
-        {
-            text:"Arg 01",
-            name:"Arg01",
-            description:""
-        },
-        {
-            text:"Arg 02",
-            name:"Arg02",
-            description:""
-        },
-        {
-            text:"Arg 03",
-            name:"Arg03",
-            description:""
-        },
-        {
-            text:"Arg 04",
-            name:"Arg04",
-            description:""
-        },
-        {
-            text:"Arg 05",
-            name:"Arg05",
-            description:""
-        },
-        {
-            text:"Arg 06",
-            name:"Arg06",
-            description:""
-        },
-        {
-            text:"Arg 07",
-            name:"Arg07",
-            description:""
-        },
-        {
-            text:"Arg 08",
-            name:"Arg08",
-            description:""
-        },
-        {
-            text:"Arg 09",
-            name:"Arg09",
-            description:""
-        },
-        {
-            text:"Arg 10",
-            name:"Arg10",
-            description:""
-        }
-    ];
-
-    static translateOldCategory(category : string) : Category {
-        if (typeof category === "undefined"){
-            return Category.Unknown;
-        }
-
-        if (category === "SplitData"){
-            return Category.Scatter;
-        }
-
-        if (category === "DataGather"){
-            return Category.Gather;
-        }
-
-        if (category === "Component"){
-            return Category.PythonApp;
-        }
-
-        if (category === "ngas"){
-            return Category.NGAS;
-        }
-
-        if (category === "s3"){
-            return Category.S3;
-        }
-
-        if (category === "mpi"){
-            return Category.MPI;
-        }
-
-        if (category === "docker"){
-            return Category.Docker;
-        }
-
-        if (category === "memory"){
-            return Category.Memory;
-        }
-
-        if (category === "file"){
-            return Category.File;
-        }
-
-        if (category === "Data"){
-            return Category.File;
-        }
-
-        return <Category>category;
-    }
-
-    static translateNewCategory(category : string) : string {
-        if (category === Category.PythonApp){
-            console.warn("Translated category from", category, "to Component");
-            return "Component";
-        }
-
-        return category;
-    }
-
     // NOTE: for use in translation of OJS object to internal graph representation
-    static findIndexOfNodeDataArrayWithKey(nodeDataArray : any[], key: number) : number {
+    static findIndexOfNodeDataArrayWithId(nodeDataArray: any[], id: NodeId) : number {
         for (let i = 0 ; i < nodeDataArray.length ; i++){
-            if (nodeDataArray[i].key === key){
+            if (nodeDataArray[i].id === id){
                 return i;
             }
         }
@@ -260,16 +84,86 @@ export class GraphUpdater {
         return true;
     }
 
-    static generateLogicalGraphsTable = () : any[] => {
-        // check that all repos have been fetched
-        let foundUnfetched = false;
-        for (const repo of Repositories.repositories()){
-            if (!repo.fetched()){
-                foundUnfetched = true;
-                console.warn("Unfetched repo:" + repo.getNameAndBranch());
+    static usesNodeKeys(graphObject: any): boolean {
+        for (const node of graphObject["nodeDataArray"]){
+            if (typeof node.key !== 'undefined'){
+                return true;
             }
         }
-        if (foundUnfetched){
+
+        return false;
+    }
+
+    // Takes a graph that is using keys and updates it to use ids only
+    // - edges .from and .to attributes refer to keys, so we change to ids
+    static updateKeysToIds(graphObject: any): void {
+        console.log("GraphUpdater.updateKeysToIds()");
+        const keyToId: Map<number, string> = new Map<number, string>();
+
+        // build keyToId map from nodes
+        for (const node of graphObject["nodeDataArray"]){
+            const newId = Utils.generateNodeId();
+
+            keyToId.set(node.key, newId);
+            node.id = newId;
+
+            // input app
+            if (node.inputApplicationKey !== null){
+                const inputAppId = Utils.generateNodeId();
+                keyToId.set(node.inputApplicationKey, inputAppId);
+                node.inputApplicationId = inputAppId;
+            }
+            // output app
+            if (node.outputApplicationKey !== null){
+                const outputAppId = Utils.generateNodeId();
+                keyToId.set(node.outputApplicationKey, outputAppId);
+                node.inputApplicationId = outputAppId;
+            }
+        }
+
+        // use map to update parentKeys
+        for (const node of graphObject["nodeDataArray"]){
+            if (typeof node.group !== "undefined"){
+                node.parentId = keyToId.get(node.group);
+            } else {
+                node.parentId = null;
+            }
+        }
+
+        // use map to update subject
+        for (const node of graphObject["nodeDataArray"]){
+            if (typeof node.subject !== "undefined"){
+                node.subject = keyToId.get(node.subject);
+            } else {
+                node.subjectId = null;
+            }
+        }
+
+        // use map to update edges
+        for (const edge of graphObject["linkDataArray"]){
+
+            if (!keyToId.has(edge.from)){
+                console.warn("GraphUpdater.updateKeysToIds() : Can't find Id for from key", edge.from, edge);
+            }
+            if (!keyToId.has(edge.to)){
+                console.warn("GraphUpdater.updateKeysToIds() : Can't find Id for to key", edge.to, edge);
+            }
+
+            edge.from = keyToId.get(edge.from);
+            edge.to = keyToId.get(edge.to);
+        }
+    }
+
+    static generateLogicalGraphsTable() : any[] {
+        // check that all repos have been fetched
+        let foundNotFetched = false;
+        for (const repo of Repositories.repositories()){
+            if (!repo.fetched()){
+                foundNotFetched = true;
+                console.warn("Not fetched repo:" + repo.getNameAndBranch());
+            }
+        }
+        if (foundNotFetched){
             return [];
         }
 
@@ -311,7 +205,7 @@ export class GraphUpdater {
     // recursive traversal through the folder structure to find all graph files
     private static _addGraphs = (repository: Repository, folder: RepositoryFolder, path: string, data: any[]) : void => {
         for (const subfolder of folder.folders()){
-            this._addGraphs(repository, subfolder, path + "/" + subfolder.name, data);
+            GraphUpdater._addGraphs(repository, subfolder, path + "/" + subfolder.name, data);
         }
 
         for (const file of folder.files()){
@@ -344,7 +238,7 @@ export class GraphUpdater {
         for (const row of data){
             // determine the correct function to load the file
             let openRemoteFileFunc: any;
-            if (row.service === Eagle.RepositoryService.GitHub){
+            if (row.service === Repository.Service.GitHub){
                 openRemoteFileFunc = GitHub.openRemoteFile;
             } else {
                 openRemoteFileFunc = GitLab.openRemoteFile;
@@ -364,7 +258,7 @@ export class GraphUpdater {
                         row.numLoadErrors = errorsWarnings.errors.length;
 
                         // use git-related info within file
-                        row.eagleVersion = lg.fileInfo().eagleVersion;
+                        row.generatorVersion = lg.fileInfo().generatorVersion;
                         row.lastModifiedBy = lg.fileInfo().lastModifiedName;
                         row.repositoryUrl = lg.fileInfo().repositoryUrl;
                         row.commitHash = lg.fileInfo().commitHash;
@@ -376,7 +270,8 @@ export class GraphUpdater {
                         row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
 
                         // check the graph once loaded
-                        const results: Errors.ErrorsWarnings = Utils.checkGraph(eagle);
+                        Utils.checkGraph(eagle);
+                        const results: Errors.ErrorsWarnings = Utils.gatherGraphErrors();
                         row.numCheckWarnings = results.warnings.length;
                         row.numCheckErrors = results.errors.length;
                     }

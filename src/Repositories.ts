@@ -20,22 +20,21 @@ export class Repositories {
     }
 
     refreshRepositoryList = () : void => {
-        console.log("refreshRepositoryList()");
-
         GitHub.loadRepoList();
         GitLab.loadRepoList();
     };
 
-    static selectFolder = (folder : RepositoryFolder) : void => {
-        console.log("selectFolder()", folder.name);
-
+    static selectFolder(folder : RepositoryFolder) : void {
         // toggle expanded state
         folder.expanded(!folder.expanded());
     }
 
-    static selectFile = (file : RepositoryFile) : void => {
-        console.log("selectFile() service:", file.repository.service, "repo:", file.repository.name, "branch:", file.repository.branch, "path:", file.path, "file:", file.name, "type:", file.type);
+    static selectFile(file : RepositoryFile) : void {
         const eagle: Eagle = Eagle.getInstance();
+
+        if(file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.JSON || file.type === Eagle.FileType.Daliuge){
+            eagle.showEagleIsLoading()
+        }
 
         // check if the current file has been modified
         let isModified = false;
@@ -43,18 +42,23 @@ export class Repositories {
             case Eagle.FileType.Graph:
                 isModified = eagle.logicalGraph().fileInfo().modified;
                 break;
-            case Eagle.FileType.Palette:
+            case Eagle.FileType.Palette: {
                 const palette: Palette = eagle.findPalette(file.name, false);
                 isModified = palette !== null && palette.fileInfo().modified;
                 break;
+            }
             case Eagle.FileType.JSON:
+                isModified = eagle.logicalGraph().fileInfo().modified;
+                break;
+            case Eagle.FileType.Daliuge:
                 isModified = eagle.logicalGraph().fileInfo().modified;
                 break;
         }
 
         // if the file is modified, get the user to confirm they want to overwrite changes
-        if (isModified && Setting.findValue(Utils.CONFIRM_DISCARD_CHANGES)){
-            Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", (confirmed : boolean) : void => {
+        const confirmDiscardChanges: Setting = Setting.find(Setting.CONFIRM_DISCARD_CHANGES);
+        if (isModified && confirmDiscardChanges.value()){
+            Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChanges, (confirmed : boolean) : void => {
                 if (!confirmed){
                     console.log("selectFile() cancelled");
                     return;
@@ -69,7 +73,7 @@ export class Repositories {
 
     // use a custom modal to ask user for repository service and url at the same time
     addCustomRepository = () : void => {
-        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string) : void => {
+        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : void => {
             console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
 
             if (!completed){
@@ -87,9 +91,6 @@ export class Repositories {
                 return;
             }
 
-            // debug
-            console.log("User entered new repo name:", repositoryService, repositoryName, repositoryBranch);
-
             // add extension to userString to indicate repository service
             const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
             if (localStorageKey === null){
@@ -101,22 +102,26 @@ export class Repositories {
             localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
 
             // Reload the repository lists
-            if (repositoryService === Eagle.RepositoryService.GitHub)
+            if (repositoryService === Repository.Service.GitHub){
                 GitHub.loadRepoList();
-            if (repositoryService === Eagle.RepositoryService.GitLab)
+            }
+            if (repositoryService === Repository.Service.GitLab){
                 GitLab.loadRepoList();
+            }
         });
     };
 
     removeCustomRepository = (repository : Repository) : void => {
+        const confirmRemoveRepositories: Setting = Setting.find(Setting.CONFIRM_REMOVE_REPOSITORIES);
+
         // if settings dictates that we don't confirm with user, remove immediately
-        if (!Setting.findValue(Utils.CONFIRM_REMOVE_REPOSITORES)){
+        if (!confirmRemoveRepositories.value()){
             this._removeCustomRepository(repository);
             return;
         }
 
         // otherwise, check with user
-        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", (confirmed : boolean) =>{
+        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", confirmRemoveRepositories, (confirmed : boolean) =>{
             if (!confirmed){
                 console.log("User aborted removeCustomRepository()");
                 return;
@@ -136,13 +141,13 @@ export class Repositories {
 
         // remove from localStorage
         switch(repository.service){
-            case Eagle.RepositoryService.GitHub:
+            case Repository.Service.GitHub:
                 localStorage.removeItem(repository.name + ".repository");
                 localStorage.removeItem(repository.name + ".github_repository");
                 localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
                 GitHub.loadRepoList();
                 break;
-            case Eagle.RepositoryService.GitLab:
+            case Repository.Service.GitLab:
                 localStorage.removeItem(repository.name + ".gitlab_repository");
                 localStorage.removeItem(repository.name + "|" + repository.branch + ".gitlab_repository_and_branch");
                 GitLab.loadRepoList();
@@ -153,12 +158,11 @@ export class Repositories {
         }
     }
 
-    // TODO: the name seems weird here, does it need to be 
-    static sort = () : void => {
-        Repositories.repositories().sort(Repository.repositoriesSortFunc);
+    static sort() : void {
+        Repositories.repositories.sort(Repository.repositoriesSortFunc);
     }
 
-    static getList = (service : Eagle.RepositoryService) : Repository[] => {
+    static getList(service : Repository.Service) : Repository[]{
         const list : Repository[] = [];
 
         for (const repository of Repositories.repositories()){
@@ -168,11 +172,9 @@ export class Repositories {
         }
 
         return list;
-    };
+    }
 
-    static get = (service : Eagle.RepositoryService, name : string, branch : string) : Repository | null => {
-        console.log("getRepository()", service, name, branch);
-
+    static get(service : Repository.Service, name : string, branch : string) : Repository | null {
         for (const repository of Repositories.repositories()){
             if (repository.service === service && repository.name === name && repository.branch === branch){
                 return repository;
@@ -180,9 +182,9 @@ export class Repositories {
         }
         console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
         return null;
-    };
+    }
 
-    static fetchAll = () : void => {
+    static fetchAll() : void {
         for (const repository of Repositories.repositories()){
             if (!repository.fetched()){
                 repository.select();

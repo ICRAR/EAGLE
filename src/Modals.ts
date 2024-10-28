@@ -1,11 +1,15 @@
-import {Eagle} from './Eagle';
-import {Edge} from './Edge';
-import {Field} from './Field';
-import {LogicalGraph} from './LogicalGraph';
-import {Repositories} from './Repositories';
-import {Repository} from './Repository';
-import {RepositoryFile} from './RepositoryFile';
-import {Utils} from './Utils';
+import { Daliuge } from './Daliuge';
+import { Eagle } from './Eagle';
+import { Edge } from './Edge';
+import { Field } from './Field';
+import { LogicalGraph } from './LogicalGraph';
+import { ParameterTable } from './ParameterTable';
+import { Repositories } from './Repositories';
+import { Repository } from './Repository';
+import { RepositoryFile } from './RepositoryFile';
+import { TutorialSystem } from './Tutorial';
+import { UiModeSystem } from './UiModes';
+import { Utils } from './Utils';
 
 export class Modals {
 
@@ -18,25 +22,29 @@ export class Modals {
             const returnType = $('#inputModal').data('returnType');
 
             switch (returnType){
-                case "string":
+                case "string": {
                     const stringCallback : (completed : boolean, userString : string) => void = $('#inputModal').data('callback');
                     stringCallback($('#inputModal').data('completed'), $('#inputModalInput').val().toString());
                     break;
-                case "number":
+                }
+                case "number": {
                     const numberCallback : (completed : boolean, userNumber : number) => void = $('#inputModal').data('callback');
                     numberCallback($('#inputModal').data('completed'), parseInt($('#inputModalInput').val().toString(), 10));
                     break;
+                }
                 default:
                     console.error("Unknown return type for inputModal!");
             }
         });
         $('#inputModal').on('shown.bs.modal', function(){
-            $('#inputModalInput').focus();
+            $('#inputModalInput').trigger("focus");
         });
         $('#inputModalInput').on('keypress', function(e){
-            if (e.which === 13){
-                $('#inputModal').data('completed', true);
-                $('#inputModal').modal('hide');
+            if(TutorialSystem.activeTut === null){
+                if (e.key === "Enter"){
+                    $('#inputModal').data('completed', true);
+                    $('#inputModal').modal('hide');
+                }
             }
         });
 
@@ -55,12 +63,14 @@ export class Modals {
             callback($('#inputTextModal').data('completed'), $('#inputTextModalInput').val().toString());
         });
         $('#inputTextModal').on('shown.bs.modal', function(){
-            $('#inputTextModalInput').focus();
+            $('#inputTextModalInput').trigger("focus");
         });
         $('#inputTextModalInput').on('keypress', function(e){
-            if (e.which === 13){
-                $('#inputTextModal').data('completed', true);
-                $('#inputTextModal').modal('hide');
+            if(TutorialSystem.activeTut === null){
+                if (e.key === "Enter"){
+                    $('#inputTextModal').data('completed', true);
+                    $('#inputTextModal').modal('hide');
+                }
             }
         });
 
@@ -69,7 +79,7 @@ export class Modals {
             $('#choiceModal').data('completed', true);
         });
         $('#choiceModal').on('shown.bs.modal', function(){
-            $('#choiceModalAffirmativeButton').focus();
+            $('#choiceModalAffirmativeButton').trigger("focus");
         });
         $('#choiceModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => void = $('#choiceModal').data('callback');
@@ -95,16 +105,25 @@ export class Modals {
             }
         });
         $('#choiceModalString').on('keypress', function(e){
-            if (e.which === 13){
-                $('#choiceModal').data('completed', true);
-                $('#choiceModal').modal('hide');
+            if(TutorialSystem.activeTut === null){
+                if (e.key === "Enter"){
+                    $('#choiceModal').data('completed', true);
+                    $('#choiceModal').modal('hide');
+                }
             }
         });
 
         $('#choiceModalSelect').on('change', function(){
+            const choice : number = parseInt($('#choiceModalSelect').val().toString(), 10);
+
+            //checking if the value of the select element is valid
+            if(!$('#choiceModalSelect').val() || choice > $('#choiceModalSelect option').length){
+                $('#choiceModalSelect').val(0)
+                console.warn('Invalid selection value (', choice, '), resetting to 0')
+            }
+
             // check selected option in select tag
             const choices : string[] = $('#choiceModal').data('choices');
-            const choice : number = parseInt($('#choiceModalSelect').val().toString(), 10);
 
             // hide the custom text input unless the last option in the select is chosen
             $('#choiceModalStringRow').toggle(choice === choices.length);
@@ -120,7 +139,7 @@ export class Modals {
             callback(false);
         });
         $('#confirmModal').on('shown.bs.modal', function(){
-            $('#confirmModalAffirmativeButton').focus();
+            $('#confirmModalAffirmativeButton').trigger("focus");
         });
 
         // #gitCommitModal - requestUserGitCommit()
@@ -131,20 +150,21 @@ export class Modals {
             $('#gitCommitModal').data('completed', false);
         });
         $('#gitCommitModal').on('shown.bs.modal', function(){
-            $('#gitCommitModalAffirmativeButton').focus();
+            $('#gitCommitModalAffirmativeButton').trigger("focus");
         });
         $('#gitCommitModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, repositoryService : Eagle.RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
+            const callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
             const completed : boolean = $('#gitCommitModal').data('completed');
+            const fileType : Eagle.FileType = $('#gitCommitModal').data('fileType');
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
-                callback(false, Eagle.RepositoryService.Unknown, "", "", "", "", "");
+                callback(false, Repository.Service.Unknown, "", "", "", "", "");
                 return;
             }
 
             // check selected option in select tag
-            const repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
+            const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
             const repositories : Repository[] = $('#gitCommitModal').data('repositories');
             const repositoryNameChoice : number = parseInt($('#gitCommitModalRepositoryNameSelect').val().toString(), 10);
 
@@ -153,13 +173,19 @@ export class Modals {
             const repositoryBranch : string = repositories[repositoryNameChoice].branch;
 
             const filePath : string = $('#gitCommitModalFilePathInput').val().toString();
-            const fileName : string = $('#gitCommitModalFileNameInput').val().toString();
+            let fileName : string = $('#gitCommitModalFileNameInput').val().toString();
             const commitMessage : string = $('#gitCommitModalCommitMessageInput').val().toString();
+
+            // ensure that the graph filename ends with ".graph" or ".palette" as appropriate
+            if ((fileType === Eagle.FileType.Graph && !fileName.endsWith('.graph')) ||
+                (fileType === Eagle.FileType.Palette && !fileName.endsWith('.palette'))) {
+                fileName += fileType === Eagle.FileType.Graph ? '.graph' : '.palette';
+            }
 
             callback(true, repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage);
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
-            const repositoryService : Eagle.RepositoryService = <Eagle.RepositoryService>$('#gitCommitModalRepositoryServiceSelect').val();
+            const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
             const repositories: Repository[] = Repositories.getList(repositoryService);
             $('#gitCommitModal').data('repositories', repositories);
             Utils.updateGitCommitRepositoriesList(repositories, null);
@@ -170,7 +196,6 @@ export class Modals {
             // show/hide OK button
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', !Utils.validateCustomRepository());
         });
-
 
         $('#gitCustomRepositoryModalAffirmativeButton').on('click', function(){
             $('#gitCustomRepositoryModal').data('completed', true);
@@ -183,7 +208,7 @@ export class Modals {
             $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
 
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', true);
-            $('#gitCustomRepositoryModalAffirmativeButton').focus();
+            $('#gitCustomRepositoryModalAffirmativeButton').trigger("focus");
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
@@ -207,17 +232,15 @@ export class Modals {
         $('#settingsModal').on('shown.bs.modal', function(){
             $('#settingsModal').data('completed', false);
             eagle.copyCurrentSettings()
-            $('#settingsModalAffirmativeButton').focus();
+            if(TutorialSystem.activeTut===null){
+                $('#settingsModalAffirmativeButton').trigger("focus");
+            }
         });
-
-        // $("#settingsModalNegativeButton").on('click', function(){
-        //     eagle.cancelSettingChanges()
-        // })
 
         $("#settingsModalAffirmativeButton").on('click', function(){
             $('#settingsModal').data('completed', true);
+            UiModeSystem.saveToLocalStorage()
         })
-
 
         $('#settingsModal').on('hidden.bs.modal', function () {
             const completed : boolean = $('#settingsModal').data('completed');
@@ -226,152 +249,26 @@ export class Modals {
             }
         })
 
-        $('#settingsModal').on("keydown", function (event) {
+        $('#settingsModal').on("keydown", function (event: JQuery.TriggeredEvent) {
             if (event.key === "Enter") {
                 // if pressing enter in the setting modal save settings
-                event.preventDefault()
-                $("#settingsModalAffirmativeButton").focus().click();
-                //pressing excape cancels setting changes
+                if(TutorialSystem.activeTut===null){
+                    event.preventDefault()
+                    $("#settingsModalAffirmativeButton").trigger("focus").trigger("click");
+                }
+                
+            // pressing escape cancels setting changes
             }else if(event.key === "Escape"){
-                $("#settingsModalNegativeButton").focus().click();
+                $("#settingsModalNegativeButton").trigger("focus").trigger("click");
             }
-        });
-
-        // #editFieldModal - requestUserEditField()
-        $('#editFieldModalAffirmativeButton').on('click', function(){
-            $('#editFieldModal').data('completed', true);
-        });
-        $('#editFieldModalResetToDefaultButton').on('click', function(){
-            const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
-            const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
-            const type: string = $('#editFieldModalTypeInput').val().toString();
-            const parameterType: string = $('#editFieldModalParameterTypeSelect').val().toString();
-            const parameterUsage: string = $('#editFieldModalParameterUsageSelect').val().toString();
-
-            // translate type
-            const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
-
         });
 
         $('#editFieldModal').on('shown.bs.modal', function(){
-            $('#editFieldModalAffirmativeButton').focus();
+            $('#editFieldModalAffirmativeButton').trigger("focus");
         });
-        $('#fieldModalSelect').on('change', function(){
-            // check selected option in select tag
-            const choice : number = parseInt($('#fieldModalSelect').val().toString(), 10);
 
-            // hide the custom text input unless the last option in the select is chosen
-            if (choice === 0){
-                $('#customParameterOptionsWrapper').slideDown();
-            } else {
-                $('#customParameterOptionsWrapper').slideUp();
-            }
-        });
         $('#editFieldModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
-            const completed : boolean = $('#editFieldModal').data('completed');
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                callback(false, null);
-                return;
-            }
-
-            // extract field data from HTML elements
-            const id : string = Utils.uuidv4();
-            const idText : string = $('#editFieldModalIdTextInput').val().toString();
-            const displayText : string = $('#editFieldModalDisplayTextInput').val().toString();
-
-            // only one of these three ui elements contains the "real" value,
-            // but we get all three and then choose correctly based on field type
-            const valueText : string = $('#editFieldModalValueInputText').val().toString();
-            const valueNumber : string = $('#editFieldModalValueInputNumber').val().toString();
-            const valueCheckbox : boolean = $('#editFieldModalValueInputCheckbox').prop('checked');
-            let valueSelect : string = "";
-            if ($('#editFieldModalValueInputSelect').val()){
-                valueSelect = $('#editFieldModalValueInputSelect').val().toString();
-            }
-
-            // only one of these three ui elements contains the "real" default value,
-            // but we get all three and then choose correctly based on field type
-            const defaultValueText : string = $('#editFieldModalDefaultValueInputText').val().toString();
-            const defaultValueNumber : string = $('#editFieldModalDefaultValueInputNumber').val().toString();
-            const defaultValueCheckbox : boolean = $('#editFieldModalDefaultValueInputCheckbox').prop('checked');
-            let defaultValueSelect : string = "";
-            if ($('#editFieldModalDefaultValueInputSelect').val()){
-                defaultValueSelect = $('#editFieldModalDefaultValueInputSelect').val().toString();
-            }
-
-            const description: string = $('#editFieldModalDescriptionInput').val().toString();
-            const type: string = $('#editFieldModalTypeInput').val().toString();
-            let parameterType: string = "";
-            if ($('#editFieldModalParameterTypeSelect').val()){
-                parameterType = $('#editFieldModalParameterTypeSelect').val().toString();
-            }
-            let parameterUsage: string = "";
-            if ($('#editFieldModalParameterUsageSelect').val()){
-                parameterUsage = $('#editFieldModalParameterUsageSelect').val().toString();
-            }
-
-            // NOTE: currently no way to edit options in the "select"-type fields
-            const options: string[] = [];
-
-            const precious: boolean = $('#editFieldModalPreciousInputCheckbox').prop('checked');
-            const readonly: boolean = $('#editFieldModalAccessInputCheckbox').prop('checked');
-            const keyParameter: boolean = $('#editFieldModalKeyParameterCheckbox').prop('checked');
-            const positional: boolean = $('#editFieldModalPositionalInputCheckbox').prop('checked');
-
-            // translate type
-            const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
-            const realParameterType: Eagle.ParameterType = Utils.translateStringToParameterType(parameterType);
-            const realParameterUsage: Eagle.ParameterUsage = Utils.translateStringToParameterUsage(parameterUsage);
-            let newField;
-
-            switch(realType){
-                case Eagle.DataType_Boolean:
-                    newField = new Field(id, displayText, idText, valueCheckbox.toString(), defaultValueCheckbox.toString(), description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
-                    break;
-                case Eagle.DataType_Select:
-                    newField = new Field(id, displayText, idText, valueSelect, defaultValueSelect, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
-                    break;
-                case Eagle.DataType_Integer:
-                    newField = new Field(id, displayText, idText, valueNumber, defaultValueNumber, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
-                    break;
-                case Eagle.DataType_Float:
-                    newField = new Field(id, displayText, idText, valueNumber, defaultValueNumber, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
-                    break;
-                default:
-                    newField = new Field(id, displayText, idText, valueText, defaultValueText, description, readonly, type, precious, options, positional, realParameterType, realParameterUsage, keyParameter);
-                    break;
-            }
-
-            callback(true, newField);
-        });
-
-        $('#editFieldModal').on('shown.bs.modal', function(){
-            const type: string = $('#editFieldModalTypeInput').val().toString();
-            const realType = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
-
-            Modals._updateFieldModalDataType(realType);
-        });
-        $('#editFieldModalTypeInput').on('change', function(){
-            // show the correct entry field based on the field type
-            const type: string = $('#editFieldModalTypeInput').val().toString();
-            const realType = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
-
-            Modals._updateFieldModalDataType(realType);
-
-            // re-validate, given the new type
-            Modals._validateFieldModalValueInputText();
-        });
-        // add some validation of the idText
-        $('#editFieldModalIdTextInput').on('keyup', function(){
-            Modals._validateFieldModalIdText();
-        });
-
-        // add some validation to the value entry field
-        $('#editFieldModalValueInputText').on('keyup', function(){
-            Modals._validateFieldModalValueInputText();
+            ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal)
         });
 
         // #editEdgeModal - requestUserEditEdge()
@@ -382,7 +279,7 @@ export class Modals {
             $('#editEdgeModal').data('completed', false);
         });
         $('#editEdgeModal').on('shown.bs.modal', function(){
-            $('#editEdgeModalAffirmativeButton').focus();
+            $('#editEdgeModalAffirmativeButton').trigger("focus");
         });
         $('#editEdgeModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, edge: Edge) => void = $('#editEdgeModal').data('callback');
@@ -395,44 +292,44 @@ export class Modals {
             }
 
             // extract field data from HTML elements
-            const srcNodeKey : number = parseInt($('#editEdgeModalSrcNodeKeySelect').val().toString(), 10);
-            const srcPortId : string = $('#editEdgeModalSrcPortIdSelect').val().toString();
-            const destNodeKey : number = parseInt($('#editEdgeModalDestNodeKeySelect').val().toString(), 10);
-            const destPortId: string = $('#editEdgeModalDestPortIdSelect').val().toString();
-            const dataType: string = $('#editEdgeModalDataTypeInput').val().toString();
+            // TODO: validate ids
+            const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
+            const srcPortId: FieldId = $('#editEdgeModalSrcPortIdSelect').val().toString() as FieldId;
+            const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
+            const destPortId: FieldId = $('#editEdgeModalDestPortIdSelect').val().toString() as FieldId;
             const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
             const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
 
-            const newEdge = new Edge(srcNodeKey, srcPortId, destNodeKey, destPortId, dataType, loopAware, closesLoop,false);
+            const newEdge = new Edge(srcNodeId, srcPortId, destNodeId, destPortId, loopAware, closesLoop, false);
 
             callback(true, newEdge);
         });
-        $('#editEdgeModalSrcNodeKeySelect').on('change', function(){
+        $('#editEdgeModalSrcNodeIdSelect').on('change', function(){
             const edge: Edge = $('#editEdgeModal').data('edge');
             const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
-            const srcNodeKey : number = parseInt($('#editEdgeModalSrcNodeKeySelect').val().toString(), 10);
-            edge.setSrcNodeKey(srcNodeKey);
+            const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
+            edge.setSrcNodeId(srcNodeId);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
         });
-        $('#editEdgeModalDestNodeKeySelect').on('change', function(){
+        $('#editEdgeModalDestNodeIdSelect').on('change', function(){
             const edge: Edge = $('#editEdgeModal').data('edge');
             const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
-            const destNodeKey : number = parseInt($('#editEdgeModalDestNodeKeySelect').val().toString(), 10);
-            edge.setDestNodeKey(destNodeKey);
+            const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
+            edge.setDestNodeId(destNodeId);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
         });
 
         // #messageModal - showUserMessage()
         $('#messageModal').on('shown.bs.modal', function(){
-            $('#messageModal .modal-footer button').focus();
+            $('#messageModal .modal-footer button').trigger("focus");
         });
 
         $('#explorePalettesModal').on('shown.bs.modal', function(){
-            $('#explorePalettesModal .modal-footer button').focus();
+            $('#explorePalettesModal .modal-footer button').trigger("focus");
         });
         $('#explorePalettesModalAffirmativeButton').on('click', function(){
             $('#explorePalettesModal').data('completed', true);
@@ -458,44 +355,104 @@ export class Modals {
             }
         });
 
-        $('#parameterTableModal').on('hidden.bs.modal', function(){
-            //console.log("parameterTableModal hidden");
-
+        $('#parameterTable').on('hidden.bs.modal', function(){
+            ParameterTable.showTableModal(false)
             eagle.checkGraph();
+        });
+
+        $('.eagleTableDisplay').on('shown.bs.modal', function(){
+            eagle.hideEagleIsLoading()
+            Eagle.tableSearchString('')
+            $('#parameterTable .componentSearchBar').val('').trigger("focus").trigger("select")
+        });
+
+        // #browseDockerHubModal - Modals.showBrowseDockerHub()
+        $('#browseDockerHubModalAffirmativeButton').on('click', function(){
+            $('#browseDockerHubModal').data('completed', true);
+        });
+        $('#browseDockerHubModalNegativeButton').on('click', function(){
+            $('#browseDockerHubModal').data('completed', false);
+        });
+        $('#browseDockerHubModal').on('shown.bs.modal', function(){
+            $('#browseDockerHubModalAffirmativeButton').trigger("focus");
+        });
+        $('#browseDockerHubModal').on('hidden.bs.modal', function(){
+            const callback : (completed : boolean) => void = $('#browseDockerHubModal').data('callback');
+            const completed : boolean = $('#browseDockerHubModal').data('completed');
+
+            callback(completed);
+        });
+        $('#browseDockerHubModalString').on('keypress', function(e){
+            if(TutorialSystem.activeTut === null){
+                if (e.key === "Escape"){
+                    $('#browseDockerHubModal').data('completed', true); 
+                    $('#browseDockerHubModal').modal('hide');
+                }
+            }
         });
     }
 
-    static _validateFieldModalIdText(){
-        const idText: string = $('#editFieldModalIdTextInput').val().toString();
-        const isValid = Utils.validateIdText(idText);
-
-        Modals._setValidClasses('#editFieldModalIdTextInput', isValid);
-    }
-
-    static _validateFieldModalValueInputText(){
-        const type: string = $('#editFieldModalTypeInput').val().toString();
-        const value: string = $('#editFieldModalValueInputText').val().toString();
+    static validateFieldModalValueInputText(data: Field, event: Event): void {
+        const type: string = data.getType()
+        const value: any = $(event.target).val();
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
         // only validate Json fields
-        if (realType !== Eagle.DataType_Json){
-            $('#editFieldModalValueInputText').removeClass('is-valid');
-            $('#editFieldModalValueInputText').removeClass('is-invalid');
+        if (realType !== Daliuge.DataType.Json){
+            $(event.target).removeClass('is-valid');
+            $(event.target).removeClass('is-invalid');
             return;
         }
 
         const isValid = Utils.validateField(realType, value);
 
-        Modals._setValidClasses('#editFieldModalValueInputText', isValid);
+        Modals._setValidClasses($(event.target), isValid);
     }
 
-    static _setValidClasses(id: string, isValid: boolean){
+    static validateCommitModalFileNameInputText(): void {
+        const inputElement = $("#gitCommitModalFileNameInput");
+        const fileTypeData = $('#gitCommitModal').data('fileType');
+        const fileType: Eagle.FileType = fileTypeData ? fileTypeData : Eagle.FileType.Unknown;
+        
+        const isValid = (fileType === Eagle.FileType.Unknown) ||
+            (fileType === Eagle.FileType.Graph && inputElement.val().toString().endsWith(".graph")) ||
+            (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette")) ||
+            (fileType === Eagle.FileType.Daliuge && inputElement.val().toString().endsWith(".dlg"));
+
+        Modals._setValidClasses(inputElement, isValid);
+    }
+
+    static showBrowseDockerHub(image: string, tag: string, callback : (completed : boolean) => void ) : void {
+        const dockerHubBrowser = Eagle.getInstance().dockerHubBrowser();
+
+        // check if supplied values are usable, populate the UI,
+        if (image !== ""){
+            const username: string = image.split('/')[0];
+            dockerHubBrowser.populate(username, image, tag);
+        }
+        else // otherwise, a fetch is required
+        {
+            Eagle.getInstance().dockerHubBrowser().fetchImages(null, null);
+        }
+
+        // store data about the callback, result on the modal HTML element
+        // so that the info is available to event handlers
+        $('#browseDockerHubModal').data('completed', false);
+        $('#browseDockerHubModal').data('callback', callback);
+
+        // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
+        $('#browseDockerHubModalSelect').trigger('change');
+
+        $('#browseDockerHubModal').modal("toggle");
+    }
+
+    static _setValidClasses(target: JQuery<EventTarget>, isValid: boolean){
         if (isValid){
-            $(id).addClass('is-valid');
-            $(id).removeClass('is-invalid');
+            target.addClass('is-valid');
+            target.removeClass('is-invalid');
         } else {
-            $(id).removeClass('is-valid');
-            $(id).addClass('is-invalid');
+            target.removeClass('is-valid');
+            target.addClass('is-invalid');
         }
     }
 
@@ -509,22 +466,22 @@ export class Modals {
         
 
         //toggle on the correct value input fields depending on type
-        $('#editFieldModalValueInputText').toggle(dataType !== Eagle.DataType_Boolean && dataType !== Eagle.DataType_Select && dataType !== Eagle.DataType_Float && dataType !== Eagle.DataType_Integer);
-        $('#editFieldModalValueInputNumber').toggle(dataType === Eagle.DataType_Float || dataType === Eagle.DataType_Integer);
-        $('#editFieldModalValueInputCheckbox').parent().toggle(dataType === Eagle.DataType_Boolean);
-        $('#editFieldModalValueInputSelect').toggle(dataType === Eagle.DataType_Select);
+        $('#editFieldModalValueInputText').toggle(dataType !== Daliuge.DataType.Boolean && dataType !== Daliuge.DataType.Select && dataType !== Daliuge.DataType.Float && dataType !== Daliuge.DataType.Integer);
+        $('#editFieldModalValueInputNumber').toggle(dataType === Daliuge.DataType.Float || dataType === Daliuge.DataType.Integer);
+        $('#editFieldModalValueInputCheckbox').parent().toggle(dataType === Daliuge.DataType.Boolean);
+        $('#editFieldModalValueInputSelect').toggle(dataType === Daliuge.DataType.Select);
 
-        $('#editFieldModalDefaultValueInputText').toggle(dataType !== Eagle.DataType_Boolean && dataType !== Eagle.DataType_Select && dataType !== Eagle.DataType_Float && dataType !== Eagle.DataType_Integer);
-        $('#editFieldModalDefaultValueInputNumber').toggle(dataType === Eagle.DataType_Float || dataType === Eagle.DataType_Integer);
-        $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === Eagle.DataType_Boolean);
-        $('#editFieldModalDefaultValueInputSelect').toggle(dataType === Eagle.DataType_Select);
+        $('#editFieldModalDefaultValueInputText').toggle(dataType !== Daliuge.DataType.Boolean && dataType !== Daliuge.DataType.Select && dataType !== Daliuge.DataType.Float && dataType !== Daliuge.DataType.Integer);
+        $('#editFieldModalDefaultValueInputNumber').toggle(dataType === Daliuge.DataType.Float || dataType === Daliuge.DataType.Integer);
+        $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === Daliuge.DataType.Boolean);
+        $('#editFieldModalDefaultValueInputSelect').toggle(dataType === Daliuge.DataType.Select);
 
         //setting up number value input specific things that are different for integers of floats 
-        if(dataType === Eagle.DataType_Integer){
+        if(dataType === Daliuge.DataType.Integer){
             $('#editFieldModalValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
             $('#editFieldModalDefaultValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
 
-        }else if (dataType === Eagle.DataType_Float){
+        }else if (dataType === Daliuge.DataType.Float){
             $('#editFieldModalValueInputNumber').addClass('inputNoArrows')
             $('#editFieldModalDefaultValueInputNumber').addClass('inputNoArrows')
         }

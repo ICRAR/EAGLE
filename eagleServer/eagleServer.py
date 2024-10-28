@@ -24,12 +24,14 @@ This is the main module of the EAGLE server side code.
 """
 import argparse
 import base64
+import datetime
 import json
 import logging
 import os
 import sys
 import tempfile
 import six
+import subprocess
 
 import urllib.request
 import ssl
@@ -73,6 +75,9 @@ app.config.from_object("config")
 
 version = "Unknown"
 commit_hash = "Unknown"
+
+# first look for the version and commit_hash in the VERSION file
+# that was generated during the build process
 try:
     with open(staticdir+"/VERSION") as vfile:
         for line in vfile.readlines():
@@ -81,20 +86,23 @@ try:
                 continue
             if "COMMIT_HASH" in line:
                 commit_hash = line.split("COMMIT_HASH ")[1].strip()[1:-1]
-                continue
-except:
-    print("Unable to load VERSION file")
+except Exception as e:
+    print(f"Unable to load VERSION file: {e}")
+
+# if the first method was unsuccessful, then run some git commands
+# to find the version and commit_hash
+if version == "Unknown" and commit_hash == "Unknown":
+    try:
+        version = subprocess.run(["git", "describe", "--abbrev=0", "--tags"], capture_output=True, text=True).stdout.strip() + " (dev)"
+        commit_hash = subprocess.run(["git", "rev-parse", "--short=8", "HEAD"], capture_output=True, text=True).stdout.strip()
+    except subprocess.CalledProcessError as e:
+        print(f"Error running git command: {e}")
+    except FileNotFoundError:
+        print("Git executable not found. Ensure git is installed and in the system PATH.")
+    except Exception as e:
+        print(f"Unexpected error determining version: {e}")
 
 print("Version: " + version + " Commit Hash: " + commit_hash)
-
-
-# NOTE: for some reason, EAGLE client requests intro.js from the root URL,
-#       so we need a separate dedicated route fot this file.
-#       the reason for this is not understood
-@app.route("/intro.js")
-def serve_intro_js():
-    return app.send_static_file("externals/intro.min.js")
-
 
 @app.route("/")
 def index():
@@ -117,17 +125,17 @@ def index():
     branch     = request.args.get("branch")
     path       = request.args.get("path")
     filename   = request.args.get("filename")
+    url        = request.args.get("url")
     mode       = request.args.get("mode")
 
     # if the url does not specify a graph to load, just send render the default template with no additional information
-    if service is None or repository is None or branch is None or path is None or filename is None:
-
+    if service is None:
         if mode is None:
             return render_template("base.html", version=version, commit_hash=commit_hash)
         else:
             return render_template("base.html", version=version, commit_hash=commit_hash, mode=mode)
 
-    return render_template("base.html", version=version, commit_hash=commit_hash, auto_load_service=service, auto_load_repository=repository, auto_load_branch=branch, auto_load_path=path, auto_load_filename=filename)
+    return render_template("base.html", version=version, commit_hash=commit_hash, auto_load_service=service, auto_load_repository=repository, auto_load_branch=branch, auto_load_path=path, auto_load_filename=filename, auto_load_url=url)
 
 
 @app.route('/src/<path:filename>')
@@ -141,21 +149,6 @@ def send_src(filename):
     return send_from_directory(srcdir, filename)
 
 
-@app.route("/uploadFile", methods=["POST"])
-def upload_file():
-    """
-    FLASK POST routing method for '/uploadFile'
-
-    Uploads a custom file from local computer.
-    """
-    f = request.files["file"]
-    buffer_ = list()
-    buffer_.append("Content-type: %s" % f.content_type)
-    result_string = f.stream.read()
-    buffer_.append("File content: %s" % f.stream.read())
-    return result_string
-
-
 @app.route("/saveFileToLocal", methods=["POST"])
 def save():
     """
@@ -167,6 +160,8 @@ def save():
     temp_file = tempfile.TemporaryFile()
 
     try:
+        content["modelData"]["lastModifiedDatetime"] = datetime.datetime.now().timestamp()
+
         json_string = json.dumps(content)
         if sys.version_info < (3, 2, 0):
             temp_file.write(json_string)
@@ -459,6 +454,8 @@ def get_explore_palettes():
     content = request.get_json(silent=True)
 
     try:
+        # NOTE: repo_service is not currently used
+        repo_service = content["service"]
         repo_name = content["repository"]
         repo_branch = content["branch"]
         repo_token = content["token"]
@@ -467,6 +464,7 @@ def get_explore_palettes():
         return jsonify({"error":"Repository, Branch or Token not specified in request"})
 
     # Extracting the true repo name and repo folder.
+    # TODO: Only GitHub supported here, add GitLab
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
     g = github.Github(repo_token)
 
@@ -474,7 +472,7 @@ def get_explore_palettes():
         repo = g.get_repo(repo_name)
     except github.UnknownObjectException as uoe:
         print("UnknownObjectException {1}: {0}".format(str(uoe), repo_name))
-        return jsonify({"error":uoe.message})
+        return jsonify({"error":str(uoe)}), 400
 
     # get results
     d = find_github_palettes(repo, "", repo_branch)
@@ -673,7 +671,12 @@ def open_git_hub_file():
         filename = folder_name + "/" + filename
 
     g = github.Github(repo_token)
-    repo = g.get_repo(repo_name)
+    try:
+        repo = g.get_repo(repo_name)
+    except Exception as e:
+        print(e)
+        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+
 
     # get commits
     commits = repo.get_commits(sha=repo_branch, path=filename)
@@ -749,6 +752,45 @@ def open_git_hub_file():
     return response
 
 
+@app.route("/deleteRemoteGithubFile", methods=["POST"])
+def delete_git_hub_file():
+    """
+    FLASK POST routing method for '/deleteRemoteGithubFile'
+
+    Deletes a file from a GitHub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
+    """
+    content = request.get_json(silent=True)
+    repo_name = content["repositoryName"]
+    repo_branch = content["repositoryBranch"]
+    repo_service = content["repositoryService"]
+    repo_token = content["token"]
+    filename = content["filename"]
+    extension = os.path.splitext(filename)[1]
+
+    #print("delete_git_hub_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
+
+    g = github.Github(repo_token)
+
+    try:
+        repo = g.get_repo(repo_name)
+    except Exception as e:
+        print(e)
+        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+
+    # get commits
+    commits = repo.get_commits(sha=repo_branch, path=filename)
+    most_recent_commit = commits[0]
+
+    # get the file from this commit
+    try:
+        f = repo.get_contents(filename, ref=most_recent_commit.sha)
+        repo.delete_file(f.path, "File removed by EAGLE", f.sha, branch=repo_branch)
+    except github.GithubException as e:
+        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
+
 @app.route("/openRemoteGitlabFile", methods=["POST"])
 def open_git_lab_file():
     """
@@ -775,7 +817,12 @@ def open_git_lab_file():
 
     # get the data from gitlab
     gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
-    gl.auth()
+
+    try:
+        gl.auth()
+    except Exception as e:
+        print(e)
+        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
 
     project = gl.projects.get(repo_name)
 
@@ -827,6 +874,48 @@ def open_git_lab_file():
     return response
 
 
+@app.route("/deleteRemoteGitlabFile", methods=["POST"])
+def delete_git_lab_file():
+    """
+    FLASK POST routing method for '/deleteRemoteGitlabFile'
+
+    Deletes a file from a GitLab repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
+    """
+    content = request.get_json(silent=True)
+    repo_name = content["repositoryName"]
+    repo_branch = content["repositoryBranch"]
+    repo_service = content["repositoryService"]
+    repo_token = content["token"]
+    filename = content["filename"]
+    extension = os.path.splitext(filename)[1]
+
+    #print("delete_git_lab_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
+
+    # Extracting the true repo name and repo folder.
+    folder_name, repo_name = extract_folder_and_repo_names(repo_name)
+    if folder_name != "":
+        filename = folder_name + "/" + filename
+
+    # get the data from gitlab
+    gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
+
+    try:
+        gl.auth()
+    except Exception as e:
+        print(e)
+        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+
+    project = gl.projects.get(repo_name)
+
+    try:
+        project.files.delete(file_path=filename, branch=repo_branch, commit_message="File removed by EAGLE")
+    except gitlab.exceptions.GitlabDeleteError as gle:
+        print("GitLabDeleteError {0}/{1}/{2}: {3}".format(repo_name, repo_branch, filename, str(gle)))
+        return app.response_class(response=json.dumps({"error":str(gle)}), status=404, mimetype="application/json")
+
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
+
 @app.route("/openRemoteUrlFile", methods=["POST"])
 def open_url_file():
     """
@@ -841,7 +930,11 @@ def open_url_file():
     # download via http get
     import certifi
     import ssl
-    raw_data = urllib.request.urlopen(url, context=ssl.create_default_context(cafile=certifi.where())).read()
+    try:
+        raw_data = urllib.request.urlopen(url, context=ssl.create_default_context(cafile=certifi.where())).read()
+    except Exception as e:
+        print(e)
+        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
 
     # parse JSON
     graph = json.loads(raw_data)

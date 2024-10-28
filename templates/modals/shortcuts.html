@@ -1,0 +1,27 @@
+<!-- Shortcuts Modal -->
+<div class="modal fade" id="shortcutsModal" tabindex="-1" role="dialog" aria-labelledby="shortcutsModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shortcutsModalTitle">Keyboard Shortcuts</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <!-- ko foreach: Utils.getShortcutDisplay() -->
+                        <div class="col-lg-6">
+                            <div class="shortCutsModalItem" data-bind="click: function(){$root.triggerShortcut($data.function)}">
+                                <span data-bind="text: $data.description"></span>
+                                <span class="shortCutsModalItemRight" data-bind="text: $data.shortcut"></span>
+                            </div>
+                        </div>
+                    <!-- /ko -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="shortcutsModalAffirmativeButton" data-bs-dismiss="modal"><span id="shortcutsModalAffirmativeAnswer">OK</span></button>
+            </div>
+        </div>
+    </div>
+</div>

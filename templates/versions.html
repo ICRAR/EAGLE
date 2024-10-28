@@ -1,3 +1,104 @@
+v6.4.2 (2024/07/23)
+- Better sizing of modal dialogs
+- Right window displays the correct tab more of the time
+- Added more checks for PythonObject and PythonMemberFunction nodes
+- Fixes for Undo when selecting/deleting all nodes, and when adding/removing nodes from constructs
+- Hierarchy now scrolls to make a newly selected node visible
+- New styling for "loop aware" edges
+- Improvements to "loop aware" edge checking
+- Major revision to graph checking for warnings and errors
+- Re-use graph checking to give user feedback when creating new edges
+- Better automatic suggestions and styling when dragging a new edge
+- Better port highlighting
+- Better delete message that doesn't "double count" children of selected objects
+- Updated to use newer docker compose options
+- Updated custom font and icons
+v6.4.1 (2024/06/25)
+- Branch components now use 'true' and 'false' ports instead of 'yes' and 'no'
+- Fixed port hover text
+- Tooltips on embedded app sockets
+- Hide 'encoding' attribute for non-port fields
+- Minor fixes
+v6.4.0 (2024/06/25)
+- Updated all constructs to have input and output applications
+- Detection of more types of graph errors and warnings
+- Improved fix functions for graph errors and warnings
+- Ctrl + Shift + drag to deselect multiple nodes from current selection
+- Improved "Browse DockerHub" modal
+- Re-implemented screenshot button in navbar
+- Improved display of construct embedded applications, and empty slots when no application is specified
+- Additional embedded application related items in right click menu
+- Added 'encoding' attribute to fields(ports)
+- Validation of filenames when saving/committing graphs and palettes
+- Big improvement to the visualisation of graph errors
+v6.3.0 (2024/05/22)
+- Fix for poor performance when opening fields table with large number of fields
+- New loading animation "planets", used when loading the fields table etc
+- Fixed node selection in hierarchy
+- Better positioning of ports, especially unconnected ports
+- Improvements to Shift, Ctrl and Alt object selection and dragging
+- Code quality and linting pass
+- Fixed "Exclusive Force Node" bug
+- Disabled testcafe unit tests
+- Prevent popups at several times when they get in the way of the user's mouse
+- Improvements to mixed text and markdown popups
+- Completely client-side graph loading
+- Caching of palettes/schemas in localStorage
+- Better centering of subgraph constructs
+- Added options and improved layout of the right click menus
+- Editing of node names directly above nodes
+- Inspector description is editable or displays markdown
+- Better user feedback in situations where user actions are not possible
+- Fix function for missing fields on nodes
+- Re-added "Browse DockerHub" button
+- Fixed issues with Palette search
+- New font
+v6.2.8 (2024/03/26)
+- EAGLEpi, the new html graph renderer
+- countless fixes and improvements
+v6.2.0 (2023/07/03)
+- Fixed to the "edit field" modal
+- Improvements to field table, including searching
+- Re-design of node/edge inspector (most information is now in the field table)
+- Improvements to graph checking, additional warnings about missing fields for different node categories
+- Context menu when dropping an edge in empty space on the graph
+- New icons!
+v6.1.1 (2023/05/23)
+- Initial functionality to add options to select-type fields
+- Fix for broken translator buttons
+v6.1.0 (2023/05/15)
+- Big revision of settings, user interface modes and editing permissions
+- Hide/show columns in parameters table
+v6.0.0 (2023/05/08)
+- Remove idText from nodes and fields
+- Check correctness of embedded applications within construct components
+- Added loading on graphs from url within the EAGLE url
+- Check graph now includes rules for missing fields on components
+v5.1.1 (2023/04/17)
+- Fixed issue where '+' button within inspector became obscured by accordion
+- Minor tutorial fixes
+- CSS fix for display of embedded applications in the inspector
+- Whole header of inspector now expands accordion
+v5.1.0 (2023/04/14)
+- Snap-to-grid mode
+- Users can now set attributes as 'key attributes' as view only those in a key attributes table
+- Improvements to right-click context menu in graph editor
+- Useful parts of 'Graph Components' palette moved to other palettes, and the 'Graph Components' palette now no longer loaded at startup
+- Documentation updates
+- Added button to delete embedded applications in the inspector
+- Improvements to graph checking and automatic fixing
+- Render markdown to html in component descriptions
+- Tutorial System with new Introduction and HelloWorld tutorials
+- Added PythonMemberFunction and PythonObject categories
+- ModelData modal dialog to show information about graph/palette files
+- Ctrl-C now also copies children of selected objects, use Shift-Ctrl-C to copy objects without children
+- Fixes for edge rendering when connected to InputOutput ports, and within constructs
+- Improvements to edge auto-completion and component suggestions
+- Disable spammy error messages when dragging edges
+- Improvements to port type matching, especially ports with 'Object' type or prefix
+- Fixed bug where changing a component parameter usage would remove a port and therefore orphan an edge
+- Added support for ConstructParameter parameter type
+- Improvements to accordion UI in inspector
 v5.0.2 (2023/01/12)
 - Fixed an issue with edge selection
 - Featureful "right click" context menu
