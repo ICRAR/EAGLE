@@ -137,13 +137,18 @@ export class LogicalGraph {
         result += "{\n";
         result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
 
-        // if we are sending this graph for translation, then only provide the "active" graph configuration
+        // if we are sending this graph for translation, then only provide the "active" graph configuration, or an empty array if none exist
         // otherwise, add all graph configurations
         if (forTranslation){
-            const graphConfigurations: any = {};
-            graphConfigurations[graph.activeGraphConfig().getId().toString()] = GraphConfig.toJson(graph.activeGraphConfig());
 
-            result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, 4) + ",\n";
+            if (graph.activeGraphConfig().getId() === null){
+                result += '"graphConfigurations": {},\n';
+            } else {
+                const graphConfigurations: any = {};
+                graphConfigurations[graph.activeGraphConfig().getId().toString()] = GraphConfig.toJson(graph.activeGraphConfig());
+
+                result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, 4) + ",\n";
+            }
         } else {
             result += '"graphConfigurations": ' + JSON.stringify(json.graphConfigurations, null, 4) + ",\n";
         }
