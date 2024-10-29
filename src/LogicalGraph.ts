@@ -131,13 +131,23 @@ export class LogicalGraph {
 
     static toOJSJsonString(graph : LogicalGraph, forTranslation : boolean) : string {
         let result: string = "";
-
         const json: any = LogicalGraph.toOJSJson(graph, forTranslation);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
         result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
-        result += '"graphConfigurations": ' + JSON.stringify(json.graphConfigurations, null, 4) + ",\n";
+
+        // if we are sending this graph for translation, then only provide the "active" graph configuration
+        // otherwise, add all graph configurations
+        if (forTranslation){
+            const graphConfigurations: any = {};
+            graphConfigurations[graph.activeGraphConfig().getId().toString()] = GraphConfig.toJson(graph.activeGraphConfig());
+
+            result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, 4) + ",\n";
+        } else {
+            result += '"graphConfigurations": ' + JSON.stringify(json.graphConfigurations, null, 4) + ",\n";
+        }
+
         result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
         result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
         result += "}\n";
@@ -429,6 +439,9 @@ export class LogicalGraph {
         for (const graphConfig of this.graphConfigs()){
             result.graphConfigs.push(graphConfig.clone());
         }
+
+        // copy active graph config
+        result.activeGraphConfig(this.activeGraphConfig().clone());
 
         return result;
     }
