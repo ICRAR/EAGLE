@@ -140,7 +140,6 @@ export class LogicalGraph {
         // if we are sending this graph for translation, then only provide the "active" graph configuration, or an empty array if none exist
         // otherwise, add all graph configurations
         if (forTranslation){
-
             if (graph.activeGraphConfig().getId() === null){
                 result += '"graphConfigurations": {},\n';
             } else {
