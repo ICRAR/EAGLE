@@ -3,14 +3,22 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { Edge } from "./Edge";
 import { Field } from './Field';
+import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
 import { Palette } from "./Palette";
+import { RightClick } from "./RightClick";
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
+import { GraphConfig, GraphConfigField } from "./GraphConfig";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { SideWindow } from "./SideWindow";
 
 export class ParameterTable {
 
+    static showTableModal : ko.Observable<boolean> = ko.observable(false);
+
+    static mode: ko.Observable<ParameterTable.Mode>;
     static selectionParent : ko.Observable<Field | null>; // row in the parameter table that is currently selected
     static selectionParentIndex : ko.Observable<number> // id of the selected field
     static selection : ko.Observable<string | null>; // cell in the parameter table that is currently selected
@@ -22,13 +30,14 @@ export class ParameterTable {
     static tableHeaderX : any;
     static tableHeaderW : any;
 
-    constructor(){
+    static init(){
+        ParameterTable.mode = ko.observable(ParameterTable.Mode.GraphConfig);
+
         ParameterTable.selectionParent = ko.observable(null);
         ParameterTable.selectionParentIndex = ko.observable(-1);
         ParameterTable.selection = ko.observable(null);
         ParameterTable.selectionName = ko.observable('');
         ParameterTable.selectionReadonly = ko.observable(false);
-
     }
 
     static setActiveColumnVisibility = () :void => {
@@ -49,36 +58,53 @@ export class ParameterTable {
        return columnVisibilities
     } 
 
-    formatTableInspectorSelection = () : string => {
+    static inMode = (mode: ParameterTable.Mode): boolean => {
+        return mode === ParameterTable.mode();
+    }
+
+    static formatTableInspectorSelection = () : string => {
         if (ParameterTable.selection() === null){
             return "";
         }
 
-        return ParameterTable.selectionParent().getDisplayText() + " - " + ParameterTable.selectionName();
+        if (ParameterTable.mode() === ParameterTable.Mode.NodeFields){
+            return ParameterTable.selectionParent().getDisplayText() + " - " + ParameterTable.selectionName();
+        } else {
+            return "Unknown";
+        }
     }
 
-    formatTableInspectorValue = () : string => {
+    static formatTableInspectorValue = () : string => {
         if (ParameterTable.selection() === null){
             return "";
         }
 
-        return ParameterTable.selection();
+        if (ParameterTable.mode() === ParameterTable.Mode.NodeFields){
+            return ParameterTable.selection();
+        } else {
+            return "Unknown";
+        }
     }
 
-    static tableEnterShortcut = (event: Event) : void => {
+    static tableEnterShortcut = (event: KeyboardEvent) : void => {
 
         //if the table parameter search bar is selected
-        if($('#parameterTableModal .componentSearchBar')[0] === event.target){
-            const targetCell = $('#parameterTableModal td.column_Value').first().children().first()
+        if($('#parameterTable .componentSearchBar')[0] === event.target){
+            const targetCell = $('#parameterTable td.column_Value').first().children().first()
             targetCell.trigger("focus");
             $('.selectedTableParameter').removeClass('selectedTableParameter')
             targetCell.parent().addClass('selectedTableParameter')
         }else if ($(event.target).closest('.columnCell')){
 
-        //if a cell in the table is currently selected, enter will select the next cell down
+            //if a cell in the table is currently selected, enter will select the next cell down
 
             //we are getting the class name of the current column's cell eg. column_Description
-            const classes = $(event.target).closest('.columnCell').attr('class').split(' ')
+            const currentColumnCell = $(event.target).closest('.columnCell');
+            if (currentColumnCell.length === 0){
+                return;
+            }
+
+            const classes = currentColumnCell.attr('class').split(' ')
             let cellTypeClass
             for(const className of classes){
                 if(className.includes('column_')){
@@ -113,7 +139,7 @@ export class ParameterTable {
         }
     }
 
-    tableInspectorUpdateSelection = (value:string) : void => {
+    static tableInspectorUpdateSelection = (value:string) : void => {
         // abort update if nothing is selected
         if (!ParameterTable.hasSelection()){
             return;
@@ -132,25 +158,50 @@ export class ParameterTable {
         }
     }
 
-    getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
+    // TODO: could be renamed to getFields()
+    static getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
-        const tableModalType = eagle.tableModalType()
-        let displayedFields:any = []
-        if(tableModalType === 'inspectorTableModal'){
-            displayedFields = eagle.selectedNode().getFields()
-        }else if (tableModalType === 'keyParametersTableModal'){
-            eagle.logicalGraph().getNodes().forEach(function(node){
-                node.getFields().forEach(function(field){
-                    if(field.isKeyAttribute()){
-                        displayedFields.push(field)
+
+        switch (ParameterTable.mode()){
+            case ParameterTable.Mode.NodeFields:
+                return eagle.selectedNode()?.getFields();
+            
+            case ParameterTable.Mode.GraphConfig:
+                const lg: LogicalGraph = eagle.logicalGraph();
+                const config: GraphConfig = lg.getActiveGraphConfig();
+                const displayedFields: Field[] = [];
+
+                if (!config){
+                    return [];
+                }
+
+                for (const node of config.getNodes()){
+                    const lgNode = lg.findNodeById(node.getId());
+        
+                    if (lgNode === null){
+                        console.warn("ParameterTable.getTableFields(): Could not find node", node.getId());
+                        continue;
                     }
-                })
-            })
+        
+                    for (const field of node.getFields()){
+                        const lgField = lgNode.findFieldById(field.getId());
+        
+                        if (lgField === null){
+                            console.warn("ParameterTable.getTableFields(): Could not find field", field.getId(), "on node", lgNode.getName());
+                            continue;
+                        }
+        
+                        displayedFields.push(lgField);
+                    }
+                }
+
+                return displayedFields;
         }
-        return displayedFields
     }, this);
 
-    getNodeLockedState = (field:Field) : boolean => {
+    // TODO: move to Eagle.ts?
+    //       doesn't seem to depend on any ParameterTable state, only Eagle state
+    static getNodeLockedState = (field:Field) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(eagle.selectedNode() === null){
@@ -165,7 +216,8 @@ export class ParameterTable {
         }
     }
 
-    getParamsTableEditState = () : boolean => {
+    // TODO: move to Eagle.ts? only depends on Eagle state and settings
+    static getParamsTableEditState = () : boolean => {
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             return !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
         }else{
@@ -229,14 +281,20 @@ export class ParameterTable {
         eagle.selectedObjects.valueHasMutated();
     }
 
-    static select(selection:string, selectionName:string, readOnlyState:boolean, selectionParent:Field, selectionIndex:number) : void {
+    static select(selection: string, selectionName: string, selectionParent: Field, selectionIndex: number) : void {
+        const eagle: Eagle = Eagle.getInstance();
+
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);
         ParameterTable.selectionParentIndex(selectionIndex);
         ParameterTable.selection(selection);
-        ParameterTable.selectionReadonly(readOnlyState);
+        ParameterTable.selectionReadonly(eagle.getCurrentParamValueReadonly(selectionParent));
 
-        $('#parameterTableModal tr.highlighted').removeClass('highlighted')
+        $('#parameterTable tr.highlighted').removeClass('highlighted')
+    }
+
+    static isSelected(selectionName: string, selectionParent: Field): boolean {
+        return ParameterTable.selection() != null && selectionParent == ParameterTable.selectionParent() && ParameterTable.selectionName() == selectionName;
     }
 
     static resetSelection() : void {
@@ -248,7 +306,9 @@ export class ParameterTable {
         return ParameterTable.selectionParentIndex() !== -1;
     }
 
-    setUpColumnResizer = (headerId:string) : boolean => {
+    // NOTE: Always returns true, so that a CSS class 'resizer' will be applied to an element
+    //       I think setting the class and initialising the resizers should be separated, for clarity
+    static setUpColumnResizer = (headerId:string) : boolean => {
         // little helper function that sets up resizable columns. this is called by ko on the headers when they are created
         ParameterTable.initiateResizableColumns(headerId)
         return true
@@ -260,6 +320,14 @@ export class ParameterTable {
 
     static hideEditDescription(description: HTMLElement) : void {
         $(description).find('.parameterTableDescriptionBtn').hide()
+    }
+
+    static showEditComment(comment: HTMLElement) : void {
+        $(comment).find('.parameterTableCommentBtn').show()
+    }
+
+    static hideEditComment(comment: HTMLElement) : void {
+        $(comment).find('.parameterTableCommentBtn').hide()
     }
 
     static initiateBrowseDocker() : void {
@@ -282,21 +350,97 @@ export class ParameterTable {
         return result
     }
 
-    static requestEditDescriptionInModal(currentField:Field) : void {
-        const eagle: Eagle = Eagle.getInstance();
-        const tableType = eagle.tableModalType()
-        eagle.openParamsTableModal('','')
-        Utils.requestUserText(
-            "Edit Field Description",
-            "Please edit the description for: " + eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId()).getName() + ' - ' + currentField.getDisplayText(),
-            currentField.getDescription(),
-            (completed, userText) => {
+    static requestAddField(currentField: Field): void {
+        this._addRemoveField(currentField, true);
+    }
+
+    static requestRemoveField(currentField: Field): void {
+        this._addRemoveField(currentField, false);
+    }
+
+    static _addRemoveField(currentField: Field, add: boolean): void {
+        let graphConfig: GraphConfig = Eagle.getInstance().logicalGraph().getActiveGraphConfig();
+
+        // check if the graph config is being modified
+        // if so, proceed as normal
+        // if not, then we need to clone the current active graph config and modify the clone
+
+        if (graphConfig.getIsModified()){
+            if (add){
+                graphConfig.addField(currentField);
+            } else {
+                graphConfig.removeField(currentField);
+            }
+        } else {
+            Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
+                ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
+
                 if (!completed){
                     return;
                 }
+                if (userString === ""){
+                    Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
+                    return;
+                }
 
-                currentField.setDescription(userText);
-                eagle.openParamsTableModal(tableType,'')
+                // clone config
+                graphConfig = graphConfig.clone();
+                graphConfig.setId(Utils.generateGraphConfigId());
+
+                // set name and set modified flag
+                graphConfig.setName(userString);
+                graphConfig.setIsModified(true);
+                graphConfig.setIsFavorite(false);
+
+                // add/remove the field that was requested in the first place
+                if (add){
+                    graphConfig.addField(currentField);
+                } else {
+                    graphConfig.removeField(currentField);
+                }
+
+                // make this config the active config
+                Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig);
+            });
+        }
+    }
+
+    static requestEditConfig(config: GraphConfig): void {
+        GraphConfigurationsTable.closeModal();
+        ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal);
+    }
+
+    static requestEditDescriptionInModal(currentField:Field) : void {
+        const eagle: Eagle = Eagle.getInstance();
+        const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
+
+        Utils.requestUserText(
+            "Edit Field Description",
+            "Please edit the description for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(),
+            currentField.getDescription(),
+            (completed, userText) => {
+                // if completed successfully, set the description on the field
+                if (completed){
+                    currentField.setDescription(userText);
+                }
+            }
+        )
+    }
+
+    static requestEditCommentInModal(currentField:Field) : void {
+        const eagle: Eagle = Eagle.getInstance();
+        const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
+        const configField: GraphConfigField = eagle.logicalGraph().getActiveGraphConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
+
+        Utils.requestUserText(
+            "Edit Field Comment",
+            "Please edit the comment for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(),
+            configField.getComment(),
+            (completed, userText) => {
+                // if completed successfully, set the description on the field
+                if (completed){
+                    configField.setComment(userText);
+                }
             }
         )
     }
@@ -364,8 +508,104 @@ export class ParameterTable {
                 downresizer.removeClass('resizing');
             };
         
-            //doing it this way because it makes it simpler to have the header in quetion in hand. the ko events proved difficult to pass events and objects with
+            //doing it this way because it makes it simpler to have the header in question in hand. the ko events proved difficult to pass events and objects with
             upresizer.on('mousedown', mouseDownHandler);
+    }
+
+    static openModal = (mode: ParameterTable.Mode, selectType: ParameterTable.SelectType) : void => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        // eagle.showEagleIsLoading()
+
+        setTimeout(function(){
+            if($('.modal.show').length>0){
+                if($('.modal.show').attr('id')==='parameterTable'){
+                    // TODO: use closeModal here!
+                    $('#parameterTable').modal('hide')
+                    // ParameterTable.showTableModal(false)
+                }else{
+                    return
+                }
+            }
+
+            if(mode === ParameterTable.Mode.NodeFields){
+                Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.ParameterTable)
+            }else{
+                Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphConfigAttributesTable)
+            }
+
+            if(selectType === ParameterTable.SelectType.RightClick){
+                eagle.setSelection(Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
+
+                RightClick.closeCustomContextMenu(true);
+
+                setTimeout(function() {
+                    ParameterTable.mode(mode);
+                    // $('#parameterTableModal').modal("show");
+                }, 30);
+            }else{
+                ParameterTable.mode(mode);
+                // $('#parameterTableModal').modal("show");
+            }
+            // ParameterTable.showTableModal(true)
+            SideWindow.setShown('bottom',true)
+        },5)
+    }
+    
+    // TODO: can we combine this with openModal(), maybe use an extra parameter to the function?
+    static openModalAndSelectField = (node:Node, field:Field) : void => {
+        const eagle = Eagle.getInstance()
+
+        eagle.setSelection(node, Eagle.FileType.Graph)
+
+        ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal);
+        
+        setTimeout(function(){
+            $('#tableRow_'+field.getId()).addClass('highlighted')
+        },200)
+    }
+
+    static addEmptyTableRow = () : void => {
+        let fieldIndex:number
+        const selectedNode: Node = Eagle.getInstance().selectedNode();
+
+        if(ParameterTable.hasSelection()){
+            // A cell in the table is selected well insert new row instead of adding at the end
+            fieldIndex = ParameterTable.selectionParentIndex() + 1
+            selectedNode.addEmptyField(fieldIndex)
+        }else{
+            selectedNode.addEmptyField(-1)
+
+            //getting the length of the array to use as an index to select the last row in the table
+            fieldIndex = selectedNode.getFields().length-1;
+        }
+
+        //a timeout was necessary to wait for the element to be added before counting how many there are
+        setTimeout(function() {
+            //handling selecting and highlighting the newly created row
+            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
+
+            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
+            clickTarget.focus() // used to focus the field allowing the user to immediately start typing
+            $(clickTarget).trigger("select")
+
+            //scroll to new row
+            $("#parameterTable .modal-body").animate({
+                scrollTop: (fieldIndex*30)
+            }, 1000);
+        }, 100);
+    }
+}
+
+export namespace ParameterTable {
+    export enum Mode {
+        NodeFields = "NodeFields", //inspectorTableModal
+        GraphConfig = "GraphConfig", //keyParametersTableModal
+    }
+
+    export enum SelectType {
+        Normal = "Normal",
+        RightClick = "RightClick",
     }
 }
 
@@ -485,8 +725,8 @@ export class ColumnVisibilities {
 
     //these toggle functions are used in the knockout for the ui elements
     private toggleKeyAttribute = () : void => {
-            this.keyAttribute(!this.keyAttribute());
-            this.saveToLocalStorage()
+        this.keyAttribute(!this.keyAttribute());
+        this.saveToLocalStorage()
     }
 
     private toggleDisplayText = () : void => {
@@ -580,46 +820,46 @@ export class ColumnVisibilities {
         if(columnVisibilitiesObjArray === null){
             return
         }else{
-            columnVisibilitiesObjArray.forEach(function(columnvisibility){
-                const columnVisActual:ColumnVisibilities = that.getModeByName(columnvisibility.name)
-                if(columnvisibility.keyAttribute){
-                    columnVisActual.setKeyAttribute(columnvisibility.keyAttribute)
+            columnVisibilitiesObjArray.forEach(function(columnVisibility){
+                const columnVisActual:ColumnVisibilities = that.getModeByName(columnVisibility.name)
+                if(columnVisibility.keyAttribute){
+                    columnVisActual.setKeyAttribute(columnVisibility.keyAttribute)
                 }
-                if(columnvisibility.displayText){
-                    columnVisActual.setDisplayText(columnvisibility.displayText)
+                if(columnVisibility.displayText){
+                    columnVisActual.setDisplayText(columnVisibility.displayText)
                 }
-                if(columnvisibility.fieldId){
-                    columnVisActual.setFieldId(columnvisibility.fieldId)
+                if(columnVisibility.fieldId){
+                    columnVisActual.setFieldId(columnVisibility.fieldId)
                 }
-                if(columnvisibility.value){
-                    columnVisActual.setValue(columnvisibility.value)
+                if(columnVisibility.value){
+                    columnVisActual.setValue(columnVisibility.value)
                 }
-                if(columnvisibility.readOnly){
-                    columnVisActual.setReadOnly(columnvisibility.readOnly)
+                if(columnVisibility.readOnly){
+                    columnVisActual.setReadOnly(columnVisibility.readOnly)
                 }
-                if(columnvisibility.defaultValue){
-                    columnVisActual.setDefaultValue(columnvisibility.defaultValue)
+                if(columnVisibility.defaultValue){
+                    columnVisActual.setDefaultValue(columnVisibility.defaultValue)
                 }
-                if(columnvisibility.description){
-                    columnVisActual.setDescription(columnvisibility.description)
+                if(columnVisibility.description){
+                    columnVisActual.setDescription(columnVisibility.description)
                 }
-                if(columnvisibility.type){
-                    columnVisActual.setType(columnvisibility.type)
+                if(columnVisibility.type){
+                    columnVisActual.setType(columnVisibility.type)
                 }
-                if(columnvisibility.parameterType){
-                    columnVisActual.setParameterType(columnvisibility.parameterType)
+                if(columnVisibility.parameterType){
+                    columnVisActual.setParameterType(columnVisibility.parameterType)
                 }
-                if(columnvisibility.usage){
-                    columnVisActual.setUsage(columnvisibility.usage)
+                if(columnVisibility.usage){
+                    columnVisActual.setUsage(columnVisibility.usage)
                 }
-                if(columnvisibility.encoding){
-                    columnVisActual.setEncoding(columnvisibility.encoding)
+                if(columnVisibility.encoding){
+                    columnVisActual.setEncoding(columnVisibility.encoding)
                 }
-                if(columnvisibility.flags){
-                    columnVisActual.setFlags(columnvisibility.flags)
+                if(columnVisibility.flags){
+                    columnVisActual.setFlags(columnVisibility.flags)
                 }
-                if(columnvisibility.actions){
-                    columnVisActual.setActions(columnvisibility.actions)
+                if(columnVisibility.actions){
+                    columnVisActual.setActions(columnVisibility.actions)
                 }
             })
         }

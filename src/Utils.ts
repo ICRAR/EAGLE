@@ -24,6 +24,7 @@
 
 import * as Ajv from "ajv";
 import * as Showdown from "showdown";
+import * as ko from "knockout";
 
 import { Category } from './Category';
 import { CategoryData } from "./CategoryData";
@@ -33,6 +34,7 @@ import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from "./FileInfo";
+import { GraphConfig } from "./GraphConfig";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
@@ -42,6 +44,7 @@ import { PaletteInfo } from './PaletteInfo';
 import { Repository } from './Repository';
 import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
+import { ParameterTable } from "./ParameterTable";
 
 export class Utils {
     // Allowed file extensions
@@ -50,7 +53,9 @@ export class Utils {
         "diagram",
         "graph",
         "palette",
-        "md" // for markdown e.g. README.md
+        "cfg", // for graph config files
+        "md", // for markdown e.g. README.md
+        "daliuge", "dlg" // for logical graphs templates containing graph configurations
     ];
 
     static ojsGraphSchema : object = {};
@@ -68,6 +73,10 @@ export class Utils {
 
     static generateEdgeId(): EdgeId {
         return Utils._uuidv4() as EdgeId;
+    }
+
+    static generateGraphConfigId(): GraphConfig.Id {
+        return Utils._uuidv4() as GraphConfig.Id;
     }
 
     /**
@@ -105,8 +114,8 @@ export class Utils {
         return now.getFullYear() + "-" + Utils.padStart(now.getMonth() + 1, 2) + "-" + Utils.padStart(now.getDate(), 2) + "-" + Utils.padStart(now.getHours(), 2) + "-" + Utils.padStart(now.getMinutes(), 2) + "-" + Utils.padStart(now.getSeconds(), 2);
     }
 
-    static generateGraphName(): string {
-        return "Diagram-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(Eagle.FileType.Graph);
+    static generateName(fileType: Eagle.FileType): string {
+        return fileType.toString() + "-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
     }
 
     // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids)
@@ -151,17 +160,45 @@ export class Utils {
     // NOTE: used for sorting files by filetype
     static getFileTypeNum(fileType: Eagle.FileType) : number {
         switch (fileType){
-            case Eagle.FileType.Graph:
+            case Eagle.FileType.Daliuge:
                 return 0;
             case Eagle.FileType.Palette:
                 return 1;
-            case Eagle.FileType.JSON:
+            case Eagle.FileType.Graph:
                 return 2;
-            case Eagle.FileType.Markdown:
+            case Eagle.FileType.JSON:
                 return 3;
-            case Eagle.FileType.Unknown:
+            case Eagle.FileType.Markdown:
                 return 4;
+            case Eagle.FileType.Unknown:
+                return 5;
         }
+    }
+
+    /**
+     * Create a new diagram (graph, palette, config).
+     */
+    static newDiagram(fileType : Eagle.FileType, callbackAction : (name : string) => void ) : void {
+        const defaultName: string = Utils.generateName(fileType);
+
+        Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false, (completed : boolean, userString : string) : void => {
+            if (!completed)
+            {   // Cancelling action.
+                return;
+            }
+            if (userString === ""){
+            Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
+                return;
+            }
+
+            // Adding file extension to the title if it does not have it.
+            if (!Utils.verifyFileExtension(userString)) {
+                userString = userString + "." + Utils.getDiagramExtension(fileType);
+            }
+
+            // Callback.
+            callbackAction(userString);
+        });
     }
 
     /**
@@ -202,6 +239,8 @@ export class Utils {
             return "graph";
         } else if (fileType == Eagle.FileType.Palette) {
             return "palette";
+        } else if (fileType === Eagle.FileType.Daliuge) {
+            return "dlg";
         } else {
             console.error("Utils.getDiagramExtension() : Unknown file type! (" + fileType + ")");
             return "";
@@ -211,15 +250,22 @@ export class Utils {
     static translateStringToFileType(fileType : string) : Eagle.FileType {
         // check input parameter is a string
         if (typeof fileType !== 'string'){
+            console.warn("Can't determine file type, not a string");
             return Eagle.FileType.Unknown;
         }
 
-        if (fileType.toLowerCase() === "graph")
+        if (fileType.toLowerCase() === "graph"){
             return Eagle.FileType.Graph;
-        if (fileType.toLowerCase() === "palette")
+        }
+        if (fileType.toLowerCase() === "palette"){
             return Eagle.FileType.Palette;
-        if (fileType.toLowerCase() === "json")
+        }
+        if (fileType.toLowerCase() === "json"){
             return Eagle.FileType.JSON;
+        }
+        if (fileType.toLowerCase() === "daliuge" || fileType.toLowerCase() === "dlg"){
+            return Eagle.FileType.Daliuge;
+        }
 
         return Eagle.FileType.Unknown;
     }
@@ -414,13 +460,13 @@ export class Utils {
 
         console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
 
-        $('#issuesModalTitle').text(title);
+        $('#issuesDisplayTitle').text(title);
 
         // hide whole errors or warnings sections if none are found
-        $('#issuesModalErrorsAccordionItem').toggle(errors.length > 0);
-        $('#issuesModalWarningsAccordionItem').toggle(warnings.length > 0);
+        $('#issuesDisplayErrorsAccordionItem').toggle(errors.length > 0);
+        $('#issuesDisplayWarningsAccordionItem').toggle(warnings.length > 0);
 
-        $('#issuesModal').modal("show");
+        $('#issuesDisplay').modal("show");
     }
 
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
@@ -676,11 +722,16 @@ export class Utils {
         $('#settingsModal').modal("hide");
     }
 
-    static showOpenParamsTableModal(mode:string) : void {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.tableModalType(mode)
+    /*
+    static showOpenParamsTableModal(mode: ParameterTable.Mode) : void {
+        ParameterTable.mode(mode);
         $('#parameterTableModal').modal("show");
     }
+
+    static showOpengraphConfigurationsTable() : void {
+        $('#graphConfigurationsTable').modal("show");
+    }
+    */
 
     static showShortcutsModal() : void {
         $('#shortcutsModal').modal("show");
@@ -691,7 +742,7 @@ export class Utils {
     }
 
     static closeErrorsModal() : void {
-        $('#issuesModal').modal("hide");
+        $('#issuesDisplay').modal("hide");
     }
 
     static preparePalette(palette: Palette, paletteListItem: {name:string, filename:string, readonly:boolean}) : void {
@@ -895,6 +946,10 @@ export class Utils {
                 }));
             }
         }
+
+        // update the loopAware and closesLoop checkboxes
+        $('#editEdgeModalLoopAwareCheckbox').prop('checked', edge.isLoopAware());
+        $('#editEdgeModalClosesLoopCheckbox').prop('checked', edge.isClosesLoop());
     }
 
     /**
@@ -1215,11 +1270,11 @@ export class Utils {
         if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
             return 0
         }
-        return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH_KEY)
+        return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH)
     }
 
     static setRightWindowWidth(width : number) : void {
-        Setting.find(Setting.RIGHT_WINDOW_WIDTH_KEY).setValue(width)
+        Setting.find(Setting.RIGHT_WINDOW_WIDTH).setValue(width)
         UiModeSystem.saveToLocalStorage()
     }
 
@@ -1227,12 +1282,28 @@ export class Utils {
         if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
             return 0
         }
-        return Setting.findValue(Setting.LEFT_WINDOW_WIDTH_KEY)
+        return Setting.findValue(Setting.LEFT_WINDOW_WIDTH)
     }
 
     static setLeftWindowWidth(width : number) : void {
-        Setting.find(Setting.LEFT_WINDOW_WIDTH_KEY).setValue(width)
+        Setting.find(Setting.LEFT_WINDOW_WIDTH).setValue(width)
         UiModeSystem.saveToLocalStorage()
+    }
+
+    static getBottomWindowHeight() : number {
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+            return 0
+        }
+        return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
+    }
+
+    static setBottomWindowHeight(width : number) : void {
+        Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).setValue(width)
+        UiModeSystem.saveToLocalStorage()
+    }
+
+    static getInspectorOffset() : number {
+        return this.getBottomWindowHeight() + $('#statusBar').height() 
     }
 
     static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
@@ -1274,6 +1345,7 @@ export class Utils {
             return Eagle.FileType.Graph;
         }
 
+        console.warn("Can't determine filetype");
         return Eagle.FileType.Unknown;
     }
 
@@ -1456,7 +1528,7 @@ export class Utils {
         }
     }
 
-    static _validateJSON(json : object, version : Daliuge.SchemaVersion, fileType : Eagle.FileType) : {valid: boolean, errors: string} {
+    static _validateJSON(json: any, version: Daliuge.SchemaVersion, fileType: Eagle.FileType) : {valid: boolean, errors: string} {
         const ajv = new Ajv();
         let valid : boolean;
 
@@ -1468,6 +1540,10 @@ export class Utils {
                         break;
                     case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
+                        break;
+                    case Eagle.FileType.Daliuge:
+                        // TODO: more here for the other parts of the Daliuge file, or a new schema for the whole thing
+                        valid = ajv.validate(Utils.ojsGraphSchema, json.graph) as boolean;
                         break;
                     default:
                         console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
@@ -1609,17 +1685,17 @@ export class Utils {
         });
     }
 
-    static getShortcutDisplay() : {description: string, shortcut: string, function: (eagle:Eagle) => void}[] {
-        const displayShortcuts : {description: string, shortcut: string, function: (eagle: Eagle) => void} []=[];
+    static getShortcutDisplay() : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void}[] {
+        const displayShortcuts : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void} []=[];
         const eagle: Eagle = Eagle.getInstance();
 
         for (const object of Eagle.shortcuts){
             // skip if shortcut should not be displayed
-            if (!object.display(eagle)){
+            if (!object.shortcutListDisplay(eagle)){
                 continue;
             }
 
-            const shortcut: string = Utils.getKeyboardShortcutTextByKey(object.key, false);
+            const shortcut: string = KeyboardShortcut.idToText(object.id, false);
             displayShortcuts.push({
                 description: object.name,
                 shortcut: shortcut,
@@ -1628,33 +1704,6 @@ export class Utils {
         }
 
         return displayShortcuts;
-    }
-
-    static getKeyboardShortcutTextByKey(key: string, addBrackets: boolean) : string {
-        for (const shortcut of Eagle.shortcuts){
-            if (shortcut.key === key){
-                const firstKeyboardShortcut = shortcut.keys[0] // we only return the first shortcut option set for this shortcut
-                if (shortcut.modifier === KeyboardShortcut.Modifier.None||shortcut.modifier === KeyboardShortcut.Modifier.Input||shortcut.modifier === KeyboardShortcut.Modifier.quickAction){
-                    //some processing of the return
-                    //if the return should have brackets they are added here
-                    //the first letter of the string returned is also capitalised
-                    if (addBrackets){
-                        return "[ " + firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1) + " ]"
-                    } else {
-                        return firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1)
-                    }
-                } else {
-                    if (addBrackets){
-                        return "[ " + shortcut.modifier + " + " + firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1) + " ]"
-                    } else {
-                        return shortcut.modifier + " + " + firstKeyboardShortcut.charAt(0).toUpperCase() + firstKeyboardShortcut.slice(1)
-                    }
-                }
-            }
-        }
-
-        console.warn("Could not find keyboard shortcut text for key", key);
-        return "";
     }
 
     static markdown2html(markdown: string) : string {
@@ -1904,7 +1953,7 @@ export class Utils {
         const srcPortType = destPort.getType() === undefined ? Daliuge.DataType.Object : destPort.getType();
 
         // create new source port
-        const srcPort = new Field(edge.getSrcPortId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort, false);
+        const srcPort = new Field(edge.getSrcPortId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort);
 
         // add port to source node
         srcNode.addField(srcPort);
@@ -1925,7 +1974,7 @@ export class Utils {
         const destPortType = srcPort.getType() === undefined ? Daliuge.DataType.Object : srcPort.getType();
 
         // create new destination port
-        const destPort = new Field(edge.getDestPortId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort, false);
+        const destPort = new Field(edge.getDestPortId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort);
 
         // add port to destination node
         destNode.addField(destPort);
@@ -2066,7 +2115,7 @@ export class Utils {
     
     static showEdge(eagle: Eagle, edgeId: EdgeId): void {
         // close errors modal if visible
-        $('#issuesModal').modal("hide");
+        $('#issuesDisplay').modal("hide");
 
         eagle.setSelection(eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
@@ -2076,7 +2125,7 @@ export class Utils {
         let location : Eagle.FileType
 
         // close errors modal if visible
-        $('#issuesModal').modal("hide");
+        $('#issuesDisplay').modal("hide");
 
         //attempt to find node in graph
         node = eagle.logicalGraph().findNodeById(nodeId);
@@ -2107,7 +2156,7 @@ export class Utils {
         this.showNode(eagle, nodeId)
         setTimeout(function(){
             const node = eagle.selectedNode()
-            eagle.openParamsTableModalAndSelectField(node, field)
+            ParameterTable.openModalAndSelectField(node, field)
         },100)
     }
 
@@ -2256,6 +2305,30 @@ export class Utils {
                 "defaultValue": field.getDefaultValue(),
                 "readonly":field.isReadonly()
             });
+        }
+
+        console.table(tableData);
+    }
+
+    static printGraphConfigurationTable() : void {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+        const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
+
+        // add logical graph nodes to table
+        for (const node of activeConfig.getNodes()){
+            const graphNode: Node = eagle.logicalGraph().findNodeById(node.getId());
+            for (const field of node.getFields()){
+                const graphField: Field = graphNode.findFieldById(field.getId());
+                tableData.push({
+                    "nodeName": graphNode.getName(),
+                    "nodeId": node.getId(),
+                    "fieldName": graphField.getDisplayText(),
+                    "fieldId": field.getId(),
+                    "value": field.getValue(),
+                    "comment": field.getComment()
+                });
+            }
         }
 
         console.table(tableData);
@@ -2450,5 +2523,13 @@ export class Utils {
         }
 
         return newNode;
+    }
+
+    static generateGraphConfigName(config:GraphConfig): string {
+        if (config.getName() === ""){
+            return "Default Configuration";
+        } else {
+            return config.getName() + " (Copy)";
+        }
     }
 }

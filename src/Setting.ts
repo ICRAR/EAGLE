@@ -262,11 +262,14 @@ export class Setting {
 
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
     static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
-    static readonly RIGHT_WINDOW_WIDTH_KEY : string = "RightWindowWidth";
-    static readonly LEFT_WINDOW_WIDTH_KEY : string = "LeftWindowWidth";
+    static readonly RIGHT_WINDOW_WIDTH : string = "RightWindowWidth";
     static readonly RIGHT_WINDOW_VISIBLE : string = "RightWindowVisible";
     static readonly RIGHT_WINDOW_MODE : string = "RightWindowMode";
+    static readonly LEFT_WINDOW_WIDTH : string = "LeftWindowWidth";
     static readonly LEFT_WINDOW_VISIBLE : string = "LeftWindowVisible";
+    static readonly BOTTOM_WINDOW_HEIGHT : string = "BottomWindowHeight";
+    static readonly BOTTOM_WINDOW_VISIBLE : string = "BottomWindowVisible";
+    static readonly BOTTOM_WINDOW_MODE : string = "BottomWindowMode";
     static readonly OBJECT_INSPECTOR_COLLAPSED_STATE : string = "ObjectInspectorVisibility";
     static readonly GRAPH_INSPECTOR_COLLAPSED_STATE : string = "GraphInspectorVisibility";
 
@@ -275,6 +278,7 @@ export class Setting {
     static readonly CONFIRM_NODE_CATEGORY_CHANGES : string = "ConfirmNodeCategoryChanges";
     static readonly CONFIRM_REMOVE_REPOSITORIES : string = "ConfirmRemoveRepositories";
     static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
+    static readonly CONFIRM_DELETE_FILES : string = "ConfirmDeleteFiles";
     static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
 
     static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
@@ -283,7 +287,7 @@ export class Setting {
     static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
     static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
-    static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters";
+    static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters"; // TODO: maybe rename SHOW_NON_GRAPH_CONFIG_PARAMETERS?
     static readonly FILTER_NODE_SUGGESTIONS : string = "AutoSuggestDestinationNodes";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
@@ -309,7 +313,6 @@ export class Setting {
     static readonly DOCKER_HUB_USERNAME: string = "DockerHubUserName";
     static readonly OPEN_TRANSLATOR_IN_CURRENT_TAB: string = "OpenTranslatorInCurrentTab";
     static readonly OVERWRITE_TRANSLATION_TAB: string = "OverwriteTranslationTab";
-    static readonly ENABLE_PERFORMANCE_DISPLAY: string = "EnablePerformanceDisplay";
     static readonly SHOW_DEVELOPER_TAB: string = "ShowDeveloperTab";
 
     static readonly GRAPH_ZOOM_DIVISOR: string = "GraphZoomDivisor";
@@ -321,6 +324,8 @@ export class Setting {
     static readonly SNAP_TO_GRID_SIZE: string = "SnapToGridSize";
     static readonly SHOW_GRAPH_WARNINGS: string = "ShowInspectorWarnings";
     static readonly SHOW_ALL_CATEGORY_OPTIONS: string = "ShowAllCategoryOptions";
+
+    static readonly ALLOW_MODIFIED_GRAPH_TRANSLATION: string = "AllowModifiedGraphTranslation";
 }
 
 export namespace Setting {
@@ -339,8 +344,8 @@ export namespace Setting {
         Warnings = "Warnings"
     }
 
-    export enum valueEditingPerms {
-        KeyOnly = "keyOnly",
+    export enum ValueEditingPermission {
+        ConfigOnly = "ConfigOnly",
         Normal = "Normal",
         ReadOnly = "Readonly"
     }
@@ -363,8 +368,8 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.",false, Setting.Type.Boolean, true, true,true,true,true),
             new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORIES, "Prompt user to confirm removing a repository from the list of known repositories.",false , Setting.Type.Boolean, true,true,true,true,true),
             new Setting(false, "Confirm Reload Palettes", Setting.CONFIRM_RELOAD_PALETTES, "Prompt user to confirm when loading a palette that is already loaded.",false , Setting.Type.Boolean,true,true,true,true,true),
-            new Setting(false, "Confirm Delete", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
-            new Setting(false, "Confirm Delete", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
+            new Setting(false, "Confirm Delete Files", Setting.CONFIRM_DELETE_FILES, "Prompt user to confirm when deleting files from a repository.", false, Setting.Type.Boolean, true,true,true,true,true),
+            new Setting(false, "Confirm Delete Objects", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
             new Setting(true, "Open Default Palette on Startup", Setting.OPEN_DEFAULT_PALETTE, "Open a default palette on startup. The palette contains an example of all known node categories", false, Setting.Type.Boolean, false,false,true,true,true, [], function(){Eagle.getInstance().toggleDefaultPalettes();}),
             new Setting(true, "Disable JSON Validation", Setting.DISABLE_JSON_VALIDATION, "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", false, Setting.Type.Boolean, false,false,false,false,false),
             new Setting(true, "Overwrite Existing Translator Tab", Setting.OVERWRITE_TRANSLATION_TAB, "When translating a graph, overwrite an existing translator tab", false, Setting.Type.Boolean, true,true,true,true,true),
@@ -381,11 +386,14 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Snap To Grid", Setting.SNAP_TO_GRID, "Align positions of nodes in graph to a grid", false, Setting.Type.Boolean,false,false,false,false,false),
             new Setting(false, "Snap To Grid Size", Setting.SNAP_TO_GRID_SIZE, "Size of grid used when aligning positions of nodes in graph (pixels)", false, Setting.Type.Number, 50, 50, 50, 50, 50),
             new Setting(true, "Show edge/node errors/warnings in Graph", Setting.SHOW_GRAPH_WARNINGS, "Show the errors/warnings found in the graph", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
-            new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_WIDTH_KEY, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
-            new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH_KEY, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
-            new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_VISIBLE, "saving the width of the right window", true, Setting.Type.Boolean,true,true,true,true,true),
-            new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_VISIBLE, "saving the width of the left window", true, Setting.Type.Boolean, false, false, true, true, true),
+            new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_WIDTH, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
+            new Setting(false, "Right Window Visibility", Setting.RIGHT_WINDOW_VISIBLE, "visibility state of the right window", true, Setting.Type.Boolean,true,true,true,true,true),
             new Setting(false, "Right Window Mode/Tab", Setting.RIGHT_WINDOW_MODE, "saving the selected mode/tab of the right window", true, Setting.Type.String,'Repository','Repository','Repository','Repository','Repository'),
+            new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
+            new Setting(false, "Left Window Visibility", Setting.LEFT_WINDOW_VISIBLE, "saving the visibility state of the left window", true, Setting.Type.Boolean, false, false, true, true, true),
+            new Setting(false, "Bottom Window Height", Setting.BOTTOM_WINDOW_HEIGHT, "saving the height of the bottom window", true, Setting.Type.Number, 250, 250, 250, 250, 250),
+            new Setting(false, "Bottom Window Visibility", Setting.BOTTOM_WINDOW_VISIBLE, "saving the visibility state of the bottom window", true, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(false, "Bottom Window Mode/Tab", Setting.BOTTOM_WINDOW_MODE, "saving the mode/tab of the bottom window", true, Setting.Type.Number, 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable'),
             new Setting(false, "Graph Objects Inspector", Setting.OBJECT_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(false, "Graph Info Inspector", Setting.GRAPH_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph inspector", true, Setting.Type.Boolean, false, false, false, false, false),
         ]
@@ -403,7 +411,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Allow Edge Editing", Setting.ALLOW_EDGE_EDITING, "Allow the user to edit edge attributes.", false, Setting.Type.Boolean, false, false,false, false, true),
             new Setting(true, "Filter Node Suggestions", Setting.FILTER_NODE_SUGGESTIONS, "Filter Node Options When Drawing Edges Into Empty Space", false, Setting.Type.Boolean,true,true,true,true,false),
             new Setting(false, "STUDENT_SETTINGS_MODE", Setting.STUDENT_SETTINGS_MODE, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
-            new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, Setting.Type.Select, Setting.valueEditingPerms.KeyOnly,Setting.valueEditingPerms.Normal,Setting.valueEditingPerms.Normal,Setting.valueEditingPerms.ReadOnly,Setting.valueEditingPerms.ReadOnly, Object.values(Setting.valueEditingPerms)),
+            new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, Setting.Type.Select, Setting.ValueEditingPermission.ConfigOnly,Setting.ValueEditingPermission.Normal,Setting.ValueEditingPermission.Normal,Setting.ValueEditingPermission.ReadOnly,Setting.ValueEditingPermission.ReadOnly, Object.values(Setting.ValueEditingPermission)),
             new Setting(true, "Auto-complete edges level", Setting.AUTO_COMPLETE_EDGES_LEVEL, "Specifies the minimum validity level of auto-complete edges displayed when dragging a new edge", false, Setting.Type.Select, Errors.Validity.Valid, Errors.Validity.Valid, Errors.Validity.Warning, Errors.Validity.Warning, Errors.Validity.Error, [Errors.Validity.Error, Errors.Validity.Warning, Errors.Validity.Valid]),
         ]
     ),
@@ -425,13 +433,13 @@ const settings : SettingsGroup[] = [
         "Developer",
         () => {return false;},
         [
-            new Setting(true, "Enable Performance Display", Setting.ENABLE_PERFORMANCE_DISPLAY, "Display the frame time of the graph renderer", false, Setting.Type.Boolean, false,false,false, false, false),
             new Setting(true, "Show File Loading Warnings", Setting.SHOW_FILE_LOADING_ERRORS, "Display list of issues with files encountered during loading.", false, Setting.Type.Boolean, false,false, false, false, false),
             new Setting(true, "Open Translator In Current Tab", Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, "When translating a graph, display the output of the translator in the current tab", false, Setting.Type.Boolean, false,false,false, false, false),
             new Setting(true, "Create Applications for Construct Ports", Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, "When loading old graph files with ports on construct nodes, move the port to an embedded application",false, Setting.Type.Boolean, true,true,true, true, true),
             new Setting(true, "Skip 'closes loop' edges in JSON output", Setting.SKIP_CLOSE_LOOP_EDGES, "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", false, Setting.Type.Boolean, true, true, true,true,true),
             new Setting(true, "Print Undo state to JS Console", Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", false, Setting.Type.Boolean, false,false ,false, false, false),
             new Setting(true, "Display all Category options", Setting.SHOW_ALL_CATEGORY_OPTIONS, "Displays all category options when changing the category of a node", false, Setting.Type.Boolean, false,false ,false, false, false),
+            new Setting(true, "Allow modified graph translation", Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, "Allow users to submit graphs for translation even when not saved or committed", true, Setting.Type.Boolean, false, false ,false, false, false),
         ]
     )
 ];

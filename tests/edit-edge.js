@@ -38,7 +38,7 @@ test('Change destination port used by edge', async t =>{
         .wait(1000)
 
         //confirm creating new graph
-        .click('#inputModal .affermativeBtn')
+        .click('#inputModal .affirmativeBtn')
 
         // add CopyApp component to graph
         .click('#addPaletteNodeCopyApp')

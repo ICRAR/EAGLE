@@ -125,6 +125,11 @@ export class Node {
 
     setId = (id: NodeId) : void => {
         this.id(id);
+
+        // go through all fields on this node, and make sure their nodeIds are all updated, important for ports
+        for (const field of this.fields()){
+            field.setNodeId(id);
+        }
     }
 
     getName = () : string => {
@@ -982,8 +987,7 @@ export class Node {
                 [],
                 false,
                 Daliuge.FieldType.ComponentParameter,
-                Daliuge.FieldUsage.NoPort,
-                false));
+                Daliuge.FieldUsage.NoPort));
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).setValue(value.toString());
         }
@@ -1003,8 +1007,7 @@ export class Node {
                 [],
                 false,
                 Daliuge.FieldType.ComponentParameter,
-                Daliuge.FieldUsage.NoPort,
-                false));
+                Daliuge.FieldUsage.NoPort));
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).setValue(value.toString());
         }
@@ -1074,7 +1077,6 @@ export class Node {
     }
 
     clone = () : Node => {
-
         const result : Node = new Node(this.name(), this.description(), this.category());
 
         result.id(this.id());
@@ -1192,15 +1194,15 @@ export class Node {
         const eagle = Eagle.getInstance()
 
         if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
-            return '#ffdcdc'
+            return EagleConfig.getColor('errorBackground');
         }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
-            return '#ffeac4'
+            return EagleConfig.getColor('warningBackground');
         }else if(this.isBranch()){
-            //for some reason branch nodes dont want to behave like other nodes, i need to return their background or selected color manually
+            //for some reason branch nodes don't want to behave like other nodes, i need to return their background or selected color manually
             if(eagle.objectIsSelectedById(this.id())){
-                return '#b4d4ff'
+                return EagleConfig.getColor('selectBackground')
             }else{
-                return '#ffffff'
+                return EagleConfig.getColor('nodeBg');
             }
         }else{
             return '' //returning nothing lets the means we are not over writing the default css behaviour
@@ -1263,7 +1265,7 @@ export class Node {
     }
 
     addEmptyField = (index:number) :void => {
-        const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort, false);
+        const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort);
 
         if(index === -1){
             this.addField(newField);
@@ -1576,8 +1578,7 @@ export class Node {
                 [],
                 false,
                 Daliuge.FieldType.ComponentParameter,
-                Daliuge.FieldUsage.NoPort,
-                false);
+                Daliuge.FieldUsage.NoPort);
             node.addField(preciousField);
         }
 
@@ -1595,8 +1596,7 @@ export class Node {
                 [],
                 false,
                 Daliuge.FieldType.ComponentParameter,
-                Daliuge.FieldUsage.NoPort,
-                false);
+                Daliuge.FieldUsage.NoPort);
             node.addField(streamingField);
         }
 

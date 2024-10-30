@@ -182,7 +182,6 @@ export class Edge {
         })
 
         return errorsWarnings;
-
     }
 
     getIssues = () : {issue:Errors.Issue, validity:Errors.Validity}[] => {
@@ -212,8 +211,8 @@ export class Edge {
             fromPort: edge.srcPortId,
             to: edge.destNodeId,
             toPort: edge.destPortId,
-            loop_aware: edge.loopAware ? "1" : "0",
-            closesLoop: edge.closesLoop
+            loop_aware: edge.loopAware() ? "1" : "0",
+            closesLoop: edge.closesLoop()
         };
     }
 
@@ -310,6 +309,11 @@ export class Edge {
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, Errors.Show("Data nodes may not be connected directly to other Data nodes", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
         }
 
+        // check that we are not connecting an Application component to an Application component, that is not supported
+        if (sourceNode.getCategoryType() === Category.Type.Application && destinationNode.getCategoryType() === Category.Type.Application){
+            Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, Errors.Show("Application nodes may not be connected directly to other Application nodes", function(){Utils.showEdge(eagle, edgeId);}), showNotification, showConsole, errorsWarnings);
+        }
+
         // if source node or destination node is a construct, then something is wrong, constructs should not have ports
         if (sourceNode.getCategoryType() === Category.Type.Construct){
             const issue: Errors.Issue = Errors.ShowFix("Edge (" + edgeId + ") cannot have a source node (" + sourceNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
@@ -338,6 +342,7 @@ export class Edge {
             const issue: Errors.Issue = Errors.ShowFix("Source port (" + sourcePortId + ") doesn't exist on source node (" + sourceNode.getName() + ")", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.addSourcePortToSourceNode(eagle, edgeId)}, "Add source port to source node");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
+            return Errors.Validity.Impossible;
         }
 
         // check if destination port was found
@@ -345,6 +350,7 @@ export class Edge {
             const issue: Errors.Issue = Errors.ShowFix("Destination port (" + destinationPortId + ") doesn't exist on destination node (" + destinationNode.getName() + ")", function(){Utils.showEdge(eagle, edgeId)}, function(){Utils.addDestinationPortToDestinationNode(eagle, edgeId)}, "Add destination port to destination node");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
+            return Errors.Validity.Impossible;
         }
 
         // check that we are not connecting a port to itself
@@ -467,7 +473,7 @@ export class Edge {
             }
         }
 
-        //the worst edge errror function can only check for entries in errors or warnings, it isnt able to distinguish impossible from invalid
+        //the worst edge error function can only check for entries in errors or warnings, it isn't able to distinguish impossible from invalid
         if(impossibleEdge){
             return Errors.Validity.Impossible
         }else if(draggingEdgeFixable){
@@ -477,9 +483,7 @@ export class Edge {
         }
     }
 
-    private static isValidLog(edge : Edge,draggingPortMode:boolean, linkValid : Errors.Validity, issue: Errors.Issue, showNotification : boolean, showConsole : boolean, errorsWarnings: Errors.ErrorsWarnings) : void {
-       
-
+    private static isValidLog(edge: Edge, draggingPortMode: boolean, linkValid: Errors.Validity, issue: Errors.Issue, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings): void {
         // determine correct title
         let title = "Edge Valid";
         let type : "success" | "info" | "warning" | "danger" = "success";
@@ -519,8 +523,11 @@ export class Edge {
             errorsWarnings.warnings.push(issue);
         }
 
+        // TODO: maybe this should not be in the logging function, but there doesn't seem to be a better place for it?
         if(!draggingPortMode){
-            edge.issues().push({issue:issue, validity:linkValid})
+            if (edge !== null){
+                edge.issues.push({issue:issue, validity:linkValid})
+            }
         }
     }
 }

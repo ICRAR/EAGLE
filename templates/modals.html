@@ -39,7 +39,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary affermativeBtn" data-bs-dismiss="modal">OK</button>
+                <button type="button" class="btn btn-primary affirmativeBtn" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
     </div>
@@ -193,7 +193,7 @@
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control" id="gitCommitModalFileNameInput" data-bind="event: {input: Modals.validateCommitModalFileNameInputText}">
                                 <div id="validationFeedback" class="invalid-feedback">
-                                    Graph file name must end with '.graph'. Palette file name must end with '.palette'.
+                                    Graph file name must end with '.graph', Palette with '.palette', Graph config with '.cfg'.
                                 </div>
                             </div>
                         </div>
@@ -310,12 +310,8 @@
 
 {% include 'modals/browse_dockerhub.html' %}
 
-{% include 'modals/errors.html' %}
-
 {% include 'modals/settings.html' %}
 {% include 'modals/shortcuts.html' %}
-
-{% include 'modals/parameter_table.html' %}
 
 {% include 'modals/edit_edge.html' %}
 {% include 'modals/edit_field.html' %}

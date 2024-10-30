@@ -240,4 +240,26 @@ export class GitHub {
 
         Utils.httpPostJSON('/openRemoteGithubFile', jsonData, callback);
     }
+
+    static deleteRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string) => void ) : void {
+        const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+
+        if (token === null || token === "") {
+            Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
+            return;
+        }
+
+        const fullFileName : string = Utils.joinPath(filePath, fileName);
+
+        // Add parameters in json data.
+        const jsonData = {
+            repositoryName: repositoryName,
+            repositoryBranch: repositoryBranch,
+            repositoryService: repositoryService,
+            token: token,
+            filename: fullFileName
+        };
+
+        Utils.httpPostJSON('/deleteRemoteGithubFile', jsonData, callback);
+    }
 }

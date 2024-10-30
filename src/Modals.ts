@@ -3,6 +3,7 @@ import { Eagle } from './Eagle';
 import { Edge } from './Edge';
 import { Field } from './Field';
 import { LogicalGraph } from './LogicalGraph';
+import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
@@ -278,7 +279,7 @@ export class Modals {
         });
 
         $('#editFieldModal').on('hidden.bs.modal', function(){
-            eagle.openParamsTableModal('inspectorTableModal','normal')
+            ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal)
         });
 
         // #editEdgeModal - requestUserEditEdge()
@@ -365,15 +366,15 @@ export class Modals {
             }
         });
 
-        $('#parameterTableModal').on('hidden.bs.modal', function(){
-            eagle.showTableModal(false)
+        $('#parameterTable').on('hidden.bs.modal', function(){
+            ParameterTable.showTableModal(false)
             eagle.checkGraph();
         });
 
-        $('#parameterTableModal').on('shown.bs.modal', function(){
+        $('.eagleTableDisplay').on('shown.bs.modal', function(){
             eagle.hideEagleIsLoading()
             Eagle.tableSearchString('')
-            $('#parameterTableModal .componentSearchBar').val('').trigger("focus").trigger("select")
+            $('#parameterTable .componentSearchBar').val('').trigger("focus").trigger("select")
         });
 
         // #browseDockerHubModal - Modals.showBrowseDockerHub()
@@ -426,7 +427,8 @@ export class Modals {
         
         const isValid = (fileType === Eagle.FileType.Unknown) ||
             (fileType === Eagle.FileType.Graph && inputElement.val().toString().endsWith(".graph")) ||
-            (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette"));
+            (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette")) ||
+            (fileType === Eagle.FileType.Daliuge && inputElement.val().toString().endsWith(".dlg"));
 
         Modals._setValidClasses(inputElement, isValid);
     }

@@ -25,7 +25,9 @@ test('Creating a Simple Graph', async ({ page }) => {
 
   //scroll the file node into view in the palette
   await page.locator('#palette_0_File').scrollIntoViewIfNeeded()
-  await page.dragAndDrop( '#palette_0_File' ,'#graphArea', {targetPosition:{x:400,y:400}})
+  await page.locator('#addPaletteNodeFile').click();
+
+  // await page.dragAndDrop( '#palette_0_File' ,'#graphArea', {targetPosition:{x:400,y:400}})
 
   //center the graph
   await page.getByRole('button', { name: 'filter_center_focus' }).click();
@@ -54,7 +56,7 @@ test('Creating a Simple Graph', async ({ page }) => {
 
   //wait for bootstrap modal then close
   await page.waitForTimeout(500);
-  await page.locator('#parameterTableModal').getByRole('button', { name: 'Close' }).click();
+  await page.locator('#parameterTable').getByRole('button', { name: 'Close' }).click();
 
   await page.close();
 });

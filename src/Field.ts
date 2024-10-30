@@ -6,9 +6,11 @@ import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
+import { GraphConfigField } from "./GraphConfig";
 import { Node } from './Node';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
+import { ParameterTable } from "./ParameterTable";
 
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
@@ -20,7 +22,6 @@ export class Field {
     private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
     private options : ko.ObservableArray<string>;
     private positional : ko.Observable<boolean>;
-    private keyAttribute : ko.Observable<boolean>;
     private encoding : ko.Observable<Daliuge.Encoding>;
 
     // port-specific attributes
@@ -44,7 +45,7 @@ export class Field {
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}>//keeps track of issues on the field
 
-    constructor(id: FieldId, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, keyAttribute: boolean){
+    constructor(id: FieldId, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
         this.displayText = ko.observable(displayText);
         this.value = ko.observable(value);
         this.defaultValue = ko.observable(defaultValue);
@@ -54,7 +55,6 @@ export class Field {
         this.precious = ko.observable(precious);
         this.options = ko.observableArray(options);
         this.positional = ko.observable(positional);
-        this.keyAttribute = ko.observable(keyAttribute);
         this.encoding = ko.observable(Daliuge.Encoding.Pickle);
 
         this.id = ko.observable(id);
@@ -182,26 +182,6 @@ export class Field {
 
     isType = (type: string) => {
         return Utils.dataTypePrefix(this.type()) === type;
-    }
-
-    isKeyAttribute = () : boolean => {
-        return this.keyAttribute();
-    }
-
-    setKeyAttribute = (keyAttribute: boolean) => {
-        this.keyAttribute(keyAttribute);
-    }
-
-    toggleKeyAttribute = () => {
-        this.keyAttribute(!this.keyAttribute())
-    }
-
-    getKeyAttrVis = () : string => {
-        if(this.keyAttribute()){
-            return 'visible'
-        }else{
-            return 'hidden'
-        }
     }
     
     setEncoding = (encoding: Daliuge.Encoding) => {
@@ -368,6 +348,7 @@ export class Field {
         this.issues().push({issue:issue,validity:validity})
     }
 
+    // TODO: these colors could be added to EagleConfig.ts
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getErrorsWarnings()
 
@@ -394,6 +375,10 @@ export class Field {
         this.nodeId(id);
     }
 
+    getGraphConfigField : ko.PureComputed<GraphConfigField> = ko.pureComputed(() => {
+        return Eagle.getInstance().logicalGraph().getActiveGraphConfig().findNodeById(this.nodeId())?.findFieldById(this.id());
+    }, this);
+
     clear = () : void => {
         this.displayText("");
         this.value("");
@@ -406,7 +391,6 @@ export class Field {
         this.positional(false);
         this.parameterType(Daliuge.FieldType.Unknown);
         this.usage(Daliuge.FieldUsage.NoPort);
-        this.keyAttribute(false);
         this.encoding(Daliuge.Encoding.Pickle);
 
         this.id(null);
@@ -420,7 +404,7 @@ export class Field {
             options.push(option);
         }
 
-        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage(), this.keyAttribute());
+        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage());
         f.encoding(this.encoding());
         f.isEvent(this.isEvent());
         f.nodeId(this.nodeId());
@@ -451,7 +435,6 @@ export class Field {
         this.positional(src.positional());
         this.parameterType(src.parameterType());
         this.usage(src.usage());
-        this.keyAttribute(src.keyAttribute());
         this.encoding(src.encoding());
         this.isEvent(src.isEvent());
 
@@ -498,12 +481,12 @@ export class Field {
         }
     },this)
 
+    // TODO: move to ParameterTable class?
     fitsTableSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if (Eagle.tableSearchString() === ""){
             return true;
         }
 
-        const eagle: Eagle = Eagle.getInstance();
         let searchTermNo : number = 0
         let searchTermTrueNo : number = 0
         const that = this
@@ -519,7 +502,7 @@ export class Field {
             }
 
             //check if the node name matches, but only if using the key parameter table modal
-            if(eagle.tableModalType() === 'keyParametersTableModal'){
+            if(ParameterTable.mode() === ParameterTable.Mode.GraphConfig){
                 if(Eagle.getInstance().logicalGraph().findNodeById(that.nodeId()).getName().toLowerCase().indexOf(term) >= 0){
                     result = true
                 }
@@ -550,6 +533,7 @@ export class Field {
         return searchTermNo === searchTermTrueNo
     }, this);
 
+    // TODO: move to Daliuge.ts?
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
         return Object.values<string>(Daliuge.FieldName).includes(this.displayText());
     }, this);
@@ -656,33 +640,11 @@ export class Field {
             precious:field.precious(),
             options:field.options(),
             positional:field.positional(),
-            keyAttribute:field.keyAttribute(),
             encoding:field.encoding(),
             id: field.id(),
             parameterType: field.parameterType(),
             usage: field.usage(),
         }
-
-        return result;
-    }
-
-    static toV3Json(field : Field) : object {
-        const result : any =  {
-            name:field.displayText(),
-            value:Field.stringAsType(field.value(), field.type()),
-            defaultValue:field.defaultValue(),
-            description:field.description(),
-            readonly:field.readonly(),
-            type:field.isEvent() ? "Event" : field.type(),
-            precious:field.precious(),
-            options:field.options(),
-            positional: field.positional(),
-            keyAttribute:field.keyAttribute(),
-            encoding:field.encoding(),
-            id: field.id(),
-            parameterType: field.parameterType(),
-            usage: field.usage()
-        };
 
         return result;
     }
@@ -694,7 +656,6 @@ export class Field {
             event:field.isEvent(),
             type:field.type(),
             description:field.description(),
-            keyAttribute:field.keyAttribute(),
             encoding:field.encoding()
         };
     }
@@ -713,7 +674,6 @@ export class Field {
         let parameterType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
         let usage: Daliuge.FieldUsage = Daliuge.FieldUsage.NoPort;
         let isEvent: boolean = false;
-        let keyAttribute: boolean = false;
         let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
 
         if (typeof data.id !== 'undefined')
@@ -783,11 +743,9 @@ export class Field {
             usage = data.usage;
         if (typeof data.event !== 'undefined')
             isEvent = data.event;
-        if (typeof data.keyAttribute !== 'undefined')
-            keyAttribute = data.keyAttribute;
         if (typeof data.encoding !== 'undefined')
             encoding = data.encoding;
-        const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage, keyAttribute);
+        const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         result.isEvent(isEvent);
         result.encoding(encoding);
         return result;
@@ -798,7 +756,6 @@ export class Field {
         let event: boolean = false;
         let type: string;
         let description: string = "";
-        let keyAttribute: boolean = false;
         let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
 
         if (typeof data.name !== 'undefined')
@@ -809,8 +766,6 @@ export class Field {
             type = data.type;
         if (typeof data.description !== 'undefined')
             description = data.description;
-        if (typeof data.keyAttribute !== 'undefined')
-            keyAttribute = data.keyAttribute;
         if (typeof data.encoding !== 'undefined')
             encoding = data.encoding;
 
@@ -819,7 +774,7 @@ export class Field {
             name = data.IdText;
         }
      
-        const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort, keyAttribute);
+        const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
         f.isEvent(event);
         f.encoding(encoding);
         return f;

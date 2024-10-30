@@ -36,13 +36,14 @@ import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
+import { GraphConfig } from "./GraphConfig";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { StatusEntry } from './StatusEntry';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from './Modals';
-import { Palette } from './Palette';
 import { ParameterTable } from "./ParameterTable";
 import { QuickActions } from './QuickActions';
 import { Repositories } from './Repositories';
@@ -57,9 +58,11 @@ import { Utils } from './Utils';
 
 import * as quickStart from './tutorials/quickStart'
 import * as graphBuilding from './tutorials/graphBuilding'
+import * as graphConfigs from './tutorials/graphConfigs'
 
 console.assert(quickStart != null) //this is needed to run the tutorial file
 console.assert(graphBuilding != null) //this is needed to run the tutorial file
+console.assert(graphConfigs != null) //this is needed to run the tutorial file
 
 let eagle : Eagle;
 
@@ -76,6 +79,8 @@ $(function(){
     (<any>window).Eagle = Eagle;
     (<any>window).EagleConfig = EagleConfig;
     (<any>window).Errors = Errors;
+    (<any>window).GraphConfig = GraphConfig;
+    (<any>window).GraphConfigurationsTable = GraphConfigurationsTable;
     (<any>window).Hierarchy = Hierarchy;
     (<any>window).ParameterTable = ParameterTable;
     (<any>window).Repositories = Repositories;
@@ -170,7 +175,7 @@ $(function(){
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
-        $("#issuesModalAccordion").parent().parent().attr('style','')
+        $("#issuesDisplayAccordion").parent().parent().attr('style','')
 
         //reset parameter table selection
         ParameterTable.resetSelection()
@@ -262,7 +267,9 @@ $(function(){
     //applying html ko bindings
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
     ko.applyBindings(eagle);
-
+    
+    //changing errors mode from loading to graph as eagle is now ready and finished loading
+    eagle.errorsMode(Errors.Mode.Graph);
 });
 
 function autoLoad(): void {

@@ -1,7 +1,8 @@
 import { Eagle } from '../Eagle';
 import { RightClick } from '../RightClick';
 import { TutorialStep, TutorialSystem } from '../Tutorial';
-
+import { SideWindow } from '../SideWindow';
+import { Setting } from '../Setting';
 
 const newTut = TutorialSystem.newTutorial('Graph Building', 'An introduction to graph building.')
 
@@ -13,7 +14,7 @@ newTut.newTutStep("Creating a New Graph", "First we are going to create a new gr
 
 newTut.newTutStep("Creating a New Graph", "<em>Click on 'New'.</em>", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-item').first()})
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')}) //keeping the navbar graph doropdown open
+.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')}) //keeping the navbar graph dropdown open
 .setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('#createNewGraph').removeClass('forceShow')})//allowing the 'new' drop drop down section to close
 .setBackSkip(true)
 
@@ -29,7 +30,7 @@ newTut.newTutStep("Creating a new graph", "Then just <em>give it a name and pres
 .setPreFunction(function(){$('.forceShow').removeClass('forceShow')}) //allowing the graph navbar dropdown to hide
 .setBackSkip(true)
 
-newTut.newTutStep("Creating a new graph", "<em>And 'Ok' to save!</em>", function(){return $("#inputModal .affermativeBtn")})
+newTut.newTutStep("Creating a new graph", "<em>And 'Ok' to save!</em>", function(){return $("#inputModal .affirmativeBtn")})
 .setWaitType(TutorialStep.Wait.Modal)
 .setType(TutorialStep.Type.Press)
 .setBackSkip(true)
@@ -38,7 +39,7 @@ newTut.newTutStep("Graph Model Data", "This button brings up the 'Graph Modal Da
 .setType(TutorialStep.Type.Press)
 .setBackPreFunction(function(){$('.modal').modal("hide");}) //hiding open modals
 
-newTut.newTutStep("Editing Graph Descriptions", "You are able to enter a simple first glance and a more detailed decription in addition to description nodes in the graph, should you need it.", function(){return $("#modelDataDescription")})
+newTut.newTutStep("Editing Graph Descriptions", "You are able to enter a simple first glance and a more detailed description in addition to description nodes in the graph, should you need it.", function(){return $("#modelDataDescription")})
 .setWaitType(TutorialStep.Wait.Modal)
 
 newTut.newTutStep("Other Graph Information", "Most of the other information is automatically filled out when saving a graph, such as the version of EAGLE used for creating it.", function(){return $("#modelDataEagleVersion")})
@@ -50,6 +51,9 @@ newTut.newTutStep("Close the Modal", "<em>Press OK to close the modal and contin
 .setBackPreFunction(function(){$('#modelDataModal').modal('show')})
 
 newTut.newTutStep("Palette Components", "Each of these components in a palette performs a function that can be used in your graph", function(){return $("#palette_0_HelloWorldApp")})
+.setPreFunction(function(){SideWindow.setShown('left', true)})
+.setWaitType(TutorialStep.Wait.Delay)
+.setDelayAmount(450)
 
 newTut.newTutStep("Adding base components into the graph", "To add one into the graph, simply click on the icon or drag the component into the graph.<em> Click on the icon to continue.</em>", function(){return $("#addPaletteNodeHelloWorldApp")})
 .setType(TutorialStep.Type.Press)
@@ -63,34 +67,24 @@ newTut.newTutStep("Graph Nodes", "Once added into your graph, the component is i
 
 newTut.newTutStep("Editing Components", "The inspector panel provides access to the complete set of specifications of a component.", function(){return $("#inspector")})
 .setWaitType(TutorialStep.Wait.Delay)
-.setDelayAmount(100)
+.setDelayAmount(200)
+.setPreFunction(function(){Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).setValue(false)})
 
 newTut.newTutStep("Click to open", "<em>Click to open the node fields table and continue.</em>", function(){return $("#inspector #openNodeParamsTable")})
 .setWaitType(TutorialStep.Wait.Element)
 .setType(TutorialStep.Type.Press)
-.setBackPreFunction(function(){$('#parameterTableModal').modal('hide')})
 
-newTut.newTutStep("The Parameter Table", " The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $('#parameterTableModal .modal-content')})
+newTut.newTutStep("The Parameter Table", " The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $('#parameterTable')})
 .setWaitType(TutorialStep.Wait.Delay)
-.setDelayAmount(700)
+.setDelayAmount(200)
 
 newTut.newTutStep("Enter a Name", "In case of this hello world app we can change who we are greeting. <em>Enter a name and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})
 .setType(TutorialStep.Type.Input)
 
-newTut.newTutStep("Key Attributes", "You can flag important parameters and attributes of a graph as 'Key Attributes'. This button appears when hovering on the field name. These are then all available for editing in one location. <em>Click on the heart to flag this argument as key attribute.</em>", function(){return $('.column_DisplayText .keyAttributeBtn').first()})
-.setType(TutorialStep.Type.Press)
-.setPreFunction(function(){$('.column_DisplayText .keyAttributeBtn').first().css('visibility','visible')})
-.setBackPreFunction(function(){$('#openNodeFieldsTable').trigger("click")})
-.setWaitType(TutorialStep.Wait.Delay)
-.setDelayAmount(700)
-
-newTut.newTutStep("Key Attributes", "You can view the key attributes of a graph by opening the key attributes table located here.", function(){return $("#openKeyParameterTable")})
-.setPreFunction(function(){$('#parameterTableModal').modal('hide')})
-
-newTut.newTutStep("Right Click to add nodes", "There are also various right click options available in EAGLE. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})
+newTut.newTutStep("Right Click to add nodes", "There are various right click options available in EAGLE. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(){ if($('#customContextMenu').length){return true}else{return false}})
-.setPreFunction(function(){$('.modal').modal("hide");}) //hiding open moddals
+.setPreFunction(function(){$('.modal').modal("hide");}) //hiding open modals
 .setBackPreFunction(function(){RightClick.closeCustomContextMenu(true);})
 
 newTut.newTutStep("Graph Context menu", "all of your loaded palettes and their contents will appear here", function(){return $("#rightClickPaletteList")})
@@ -105,13 +99,13 @@ newTut.newTutStep("Quickly adding nodes", "If you already know what you want you
 
 newTut.newTutStep("Connecting nodes", "To save the output of the hello world app onto the file we need to draw an edge from the 'Hello World' node's output port to the 'File' node's input port.", function(){return $("#logicalGraphParent")})
 
-newTut.newTutStep("Node Ports", "This is the output port of the Hello world app, Output ports are always shown in orange and are initially on the right side of the node.",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('HelloWorldApp')+' .outputPort')})
+newTut.newTutStep("Node Ports", "This is the output port of the Hello world app, Output ports are always shown with a blue outline and are initially on the right side of the node.",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('HelloWorldApp')+' .outputPort')})
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('HelloWorldApp')})
 .setWaitType(TutorialStep.Wait.Element)
 
-newTut.newTutStep("Node Ports", "And this is the input port for the file storage node, Iutput ports are always shown in green and are initially on the left side of the node.",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('File')+' .inputPort')})
+newTut.newTutStep("Node Ports", "And this is the input port for the file storage node, Input ports are always shown as solid green and are initially on the left side of the node.",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('File')+' .inputPort')})
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File')})
@@ -128,7 +122,7 @@ newTut.newTutStep("Graph Errors and warnings", "This is the error checking syste
 // .setType(TutorialStep.Type.Press)
 // .setWaitType(TutorialStep.Wait.Modal)
 // .setAlternateHighlightTargetFunc(function(){return $("#errorModalFixAll").parent().parent()})
-// .setBackPreFunction(function(){$('#issuesModal').modal('show')})
+// .setBackPreFunction(function(){$('#issuesDisplay').modal('show')})
 
 newTut.newTutStep("Saving a Graph", "Options to save your graph are available in the graph menu <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
 .setType(TutorialStep.Type.Press)
@@ -136,7 +130,7 @@ newTut.newTutStep("Saving a Graph", "Options to save your graph are available in
 .setBackPreFunction(function(){$('.forceShow').removeClass('forceShow');$(".dropdown-toggle").removeClass("show");$(".dropdown-menu").removeClass("show")}) //allowing the graph navbar dropdown to hide
 
 newTut.newTutStep("Saving a Graph", "You are able to download the graph in the 'local storage' section, or save the graph into your github repository under 'git storage'", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-menu')})
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().addClass('forceShow')}) //keeping the navbar graph doropdown open
+.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().addClass('forceShow')}) //keeping the navbar graph dropdown open
 .setBackSkip(true)
 
 newTut.newTutStep("Well Done!", "You have completed the Hello world graph creation tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance.", function(){return $("#logicalGraphParent")})

@@ -77,17 +77,22 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await page.getByRole('row').last().locator('.column_DisplayText').hover();
   //make the field a key parameter
   await page.getByRole('row').last().locator('.column_DisplayText button').click();
-
+  
+  //confirm the default name for the new graph config
+  await page.waitForTimeout(500);
+  await page.getByRole('button', { name: 'OK' }).click();
+  
   //close the parameter table modal
-  await page.locator('#parameterTableModalAffirmativeAnswer').click();
+  await page.waitForTimeout(800);
+  await page.locator('#parameterTableAffirmativeAnswer').click();
 
   //open the key graph parameter table modal
-  await page.locator('#openKeyParameterTable').click();
+  await page.locator('#openGraphConfigurationTable').click();
 
   await page.waitForTimeout(500);
 
   //make sure the field has been added to the key graph parameter table
-  await expect(await page.locator('#parameterTableModal tbody').getByRole('row').count()===0).toBeFalsy();
+  await expect(await page.locator('#parameterTable tbody').getByRole('row').count()===0).toBeFalsy();
 
   await page.close();
 });
