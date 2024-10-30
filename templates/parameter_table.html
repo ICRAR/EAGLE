@@ -38,9 +38,6 @@
                 <!-- /ko -->
             <!-- /ko -->
             <button type="button" class="btn btn-primary" id="parameterTableAffirmativeButton" data-bind="click:  function(){SideWindow.toggleShown('bottom')}, clickBubble:false"><span id="parameterTableAffirmativeAnswer">Close</span></button>
-            <!-- ko if: ParameterTable.inMode(ParameterTable.Mode.GraphConfig) && $root.logicalGraph().getActiveGraphConfig().isModified() -->
-                <button id="parameterTableSaveGraphConfig" type="button" class="btn btn-primary" data-bind="click: $root.saveConfig, clickBubble:false"><span>Save</span></button>
-            <!-- /ko -->
         </div> 
 
         <div class="dropdown" id="parameterTableVisibilityContainer">

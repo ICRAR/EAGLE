@@ -365,44 +365,44 @@ export class ParameterTable {
         // if so, proceed as normal
         // if not, then we need to clone the current active graph config and modify the clone
 
-        if (graphConfig.getIsModified()){
+        // if (graphConfig.getIsModified()){
             if (add){
                 graphConfig.addField(currentField);
             } else {
                 graphConfig.removeField(currentField);
             }
-        } else {
-            Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
-                ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
+        // } else {
+        //     Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
+        //         ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
 
-                if (!completed){
-                    return;
-                }
-                if (userString === ""){
-                    Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
-                    return;
-                }
+        //         if (!completed){
+        //             return;
+        //         }
+        //         if (userString === ""){
+        //             Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
+        //             return;
+        //         }
 
-                // clone config
-                graphConfig = graphConfig.clone();
-                graphConfig.setId(Utils.generateGraphConfigId());
+        //         // clone config
+        //         graphConfig = graphConfig.clone();
+        //         graphConfig.setId(Utils.generateGraphConfigId());
 
-                // set name and set modified flag
-                graphConfig.setName(userString);
-                graphConfig.setIsModified(true);
-                graphConfig.setIsFavorite(false);
+        //         // set name and set modified flag
+        //         graphConfig.setName(userString);
+        //         graphConfig.setIsModified(true);
+        //         graphConfig.setIsFavorite(false);
 
-                // add/remove the field that was requested in the first place
-                if (add){
-                    graphConfig.addField(currentField);
-                } else {
-                    graphConfig.removeField(currentField);
-                }
+        //         // add/remove the field that was requested in the first place
+        //         if (add){
+        //             graphConfig.addField(currentField);
+        //         } else {
+        //             graphConfig.removeField(currentField);
+        //         }
 
-                // make this config the active config
-                Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig);
-            });
-        }
+        //         // make this config the active config
+        //         Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig);
+        //     });
+        // }
     }
 
     static requestEditConfig(config: GraphConfig): void {

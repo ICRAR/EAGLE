@@ -46,7 +46,8 @@ export class LogicalGraph {
     private nodes : ko.ObservableArray<Node>;
     private edges : ko.ObservableArray<Edge>;
     private graphConfigs : ko.ObservableArray<GraphConfig>;
-    private activeGraphConfig : ko.Observable<GraphConfig>;
+    // private activeGraphConfig : ko.Observable<GraphConfig>;
+    private activeGraphConfigId : ko.Observable<GraphConfig.Id>
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
     
@@ -59,7 +60,7 @@ export class LogicalGraph {
         this.nodes = ko.observableArray([]);
         this.edges = ko.observableArray([]);
         this.graphConfigs = ko.observableArray([]);
-        this.activeGraphConfig = ko.observable(new GraphConfig());
+        this.activeGraphConfigId = ko.observable()
         this.issues = ko.observableArray([])
     }
 
@@ -313,6 +314,23 @@ export class LogicalGraph {
         return this.graphConfigs();
     }
 
+    getGraphConfigById = (requestedConifgId:GraphConfig.Id): GraphConfig => {
+        const graphConfigs = this.getGraphConfigs()
+        let requestedGraphConfig : GraphConfig = null
+
+        for(let i = 0 ; i < graphConfigs.length ; i++){
+            if(graphConfigs[i].getId() === requestedConifgId){
+                requestedGraphConfig = graphConfigs[i]
+            }
+        }
+
+        if(requestedGraphConfig === null){
+            console.warn('could not find a graph config using the requested id; ',requestedConifgId)
+        }
+
+        return requestedGraphConfig
+    }
+
     addGraphConfig = (config: GraphConfig): void => {
         this.graphConfigs.push(config);
     }
@@ -322,24 +340,16 @@ export class LogicalGraph {
 
         clone.setId(Utils.generateGraphConfigId());
         clone.setName(Utils.generateGraphConfigName(clone));
-        clone.setIsFavorite(false);
 
-        // if the active config is modified, we can't replace it
-        if (this.activeGraphConfig().getIsModified()){
-            // just duplicate
-            this.graphConfigs.push(clone);
-
-            Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "'", "success");
-        } else {
-            // duplicate, set active and modified
-            clone.setIsModified(true);
-            this.activeGraphConfig(clone);
+            // duplicate, set active and graph as modified
+            this.addGraphConfig(clone)
+            this.setActiveGraphConfig(clone.getId())
+            this.fileInfo().modified = true;
 
             Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "' and set to active config", "success");
 
             GraphConfigurationsTable.closeModal();
             ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal);
-        }
     }
 
     removeGraphConfig = (config: GraphConfig): void => {
@@ -369,25 +379,11 @@ export class LogicalGraph {
     }
 
     getActiveGraphConfig = (): GraphConfig => {
-        return this.activeGraphConfig();
+        return this.getGraphConfigById(this.activeGraphConfigId())
     }
 
-    setActiveGraphConfig = (config: GraphConfig): void => {
-        // check if current active config is modified, if so, abort
-        if (this.activeGraphConfig().getIsModified()){
-            Utils.showNotification("Can't change active config", "The current graph configuration has been modified, please save changes.", "danger");
-            return;
-        }
-
-        this.activeGraphConfig(config);
-    }
-
-    discardActiveGraphConfig = (): void => {
-        // first we have to remove the modified flag on the active config, otherwise we can't discard it
-        this.activeGraphConfig().setIsModified(false);
-
-        // set the active graph config (to the last graph config in the LG)
-        this.setActiveGraphConfig(this.graphConfigs()[this.graphConfigs().length - 1]);
+    setActiveGraphConfig = (configId: GraphConfig.Id): void => {
+        this.activeGraphConfigId(configId)
     }
 
     countEdgesIncidentOnNode = (node : Node) : number => {

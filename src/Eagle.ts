@@ -1488,16 +1488,8 @@ export class Eagle {
     /**
      * Creates a new graph configuration
      */
-    newConfig = () : void => {
-        // check if existing config has been modified, prompt user to save changes
-        if (this.logicalGraph().getActiveGraphConfig().getIsModified()){
-            Utils.showNotification("Existing Modified Config", "Please save or discard the existing modified config before creating a new config", "danger");
-        } else {
-            this._newConfig();
-        }
-    };
 
-    _newConfig = () : void => {
+    newConfig = () : void => {
         // close the Graph Configurations Table modal (if open)
         const modalOpen = GraphConfigurationsTable.showTableModal()
         if (modalOpen){
@@ -1507,7 +1499,6 @@ export class Eagle {
         // clone existing active config, assign new id
         const c: GraphConfig = this.logicalGraph().getActiveGraphConfig().clone();
         c.setId(Utils.generateGraphConfigId());
-        c.setIsFavorite(false);
 
         Utils.requestUserString("New Config", "Enter Config name", Utils.generateGraphConfigName(c), false, (completed : boolean, userString : string) : void => {
             if (!completed)
@@ -1520,12 +1511,12 @@ export class Eagle {
             }
 
             c.setName(userString);
-            c.setIsModified(true);
 
             // NOTE: don't add new config to the list of configs in the LogicalGraph until it is saved!
 
-            // replace existing config
-            this.logicalGraph().setActiveGraphConfig(c);
+            // adding a new graph config to the array, then setting it as active
+            this.logicalGraph().addGraphConfig(c)
+            this.logicalGraph().setActiveGraphConfig(c.getId());
 
             Utils.showNotification("New Graph Config Created", userString, "success");
 
@@ -1536,43 +1527,43 @@ export class Eagle {
         });
     }
 
-    saveConfig = () : void => {
-        const activeConfig: GraphConfig = this.logicalGraph().getActiveGraphConfig();
+    // saveConfig = () : void => {
+    //     const activeConfig: GraphConfig = this.logicalGraph().getActiveGraphConfig();
 
-        // check if config is not modified
-        if (!activeConfig.getIsModified()){
-            Utils.showNotification("Can't Save Config", "The Active Graph Configuration is unmodified", "danger");
-            return;
-        }
+    //     // check if config is not modified
+    //     if (!activeConfig.getIsModified()){
+    //         Utils.showNotification("Can't Save Config", "The Active Graph Configuration is unmodified", "danger");
+    //         return;
+    //     }
 
-        // check if config is empty
-        if (activeConfig.getName() === ""){
-            Utils.showNotification("Can't Save Config", "The Active Graph Configuration is empty", "danger");
-            return;
-        }
+    //     // check if config is empty
+    //     if (activeConfig.getName() === ""){
+    //         Utils.showNotification("Can't Save Config", "The Active Graph Configuration is empty", "danger");
+    //         return;
+    //     }
 
-        // ask user for a description
-        Utils.requestUserString("Enter Config Description", "Please enter a description for this graph configuration", activeConfig.getDescription(), false, (completed: boolean, userString: string) => {
-            if (!completed){
-                return;
-            }
+    //     // ask user for a description
+    //     Utils.requestUserString("Enter Config Description", "Please enter a description for this graph configuration", activeConfig.getDescription(), false, (completed: boolean, userString: string) => {
+    //         if (!completed){
+    //             return;
+    //         }
 
-            if (userString === ""){
-                Utils.showNotification("Empty description", "Please enter a helpful description for this graph configuration", "danger");
-                return;
-            }
+    //         if (userString === ""){
+    //             Utils.showNotification("Empty description", "Please enter a helpful description for this graph configuration", "danger");
+    //             return;
+    //         }
 
-            // copy active config into the list of configs in the LG
-            activeConfig.setIsModified(false);
-            this.logicalGraph().addGraphConfig(activeConfig);
-            this.logicalGraph().setActiveGraphConfig(activeConfig);
-            activeConfig.setDescription(userString);
+    //         // copy active config into the list of configs in the LG
+    //         activeConfig.setIsModified(false);
+    //         this.logicalGraph().addGraphConfig(activeConfig);
+    //         this.logicalGraph().setActiveGraphConfig(activeConfig);
+    //         activeConfig.setDescription(userString);
 
-            Utils.showNotification("Graph Config Saved", "Config '" + activeConfig.getName() + "' saved to Logical Graph", "success");
-        });
+    //         Utils.showNotification("Graph Config Saved", "Config '" + activeConfig.getName() + "' saved to Logical Graph", "success");
+    //     });
 
        
-    }
+    // }
 
     saveGraph = () : void => {
         switch (this.logicalGraph().fileInfo().repositoryService){
@@ -2134,11 +2125,6 @@ export class Eagle {
 
         // if there is at least one graph config, make the last one active
         // if there are no graph configs, make a new empty graph config and set active
-        if (graphConfigs.length > 0){
-            this.logicalGraph().setActiveGraphConfig(graphConfigs[graphConfigs.length - 1]);
-        } else {
-            this.logicalGraph().setActiveGraphConfig(new GraphConfig());
-        }
 
         //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
         setTimeout(function(){
