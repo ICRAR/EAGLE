@@ -134,6 +134,9 @@ export class EagleConfig {
     public static readonly CONSTRUCT_MARGIN: number = 30;
     public static readonly CONSTRUCT_DRAG_OUT_DISTANCE: number = 200;
 
+    // number of spaces used for indenting output JSON, makes everything human-readable
+    public static readonly JSON_INDENT: number = 4;
+
     static getColor(name:string) : string {
         let result: string = null;
 

@@ -3,6 +3,7 @@ import * as fs from "fs";
 import { Category } from '../src/Category';
 import { Daliuge } from "../src/Daliuge";
 import { Eagle } from '../src/Eagle';
+import { EagleConfig } from "../src/EagleConfig";
 import { Edge } from '../src/Edge';
 import { Field } from '../src/Field';
 import { FileInfo } from '../src/FileInfo';
@@ -74,7 +75,7 @@ for (const node of outputGraph.getNodes()){
 }
 
 // write the logical graph to disk using the outputFilename
-fs.writeFileSync(outputFilename, JSON.stringify(LogicalGraph.toOJSJson(outputGraph, false), null, 4));
+fs.writeFileSync(outputFilename, JSON.stringify(LogicalGraph.toOJSJson(outputGraph, false), null, EagleConfig.JSON_INDENT));
 
 // finish
 process.exit();

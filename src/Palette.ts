@@ -27,6 +27,7 @@ import * as ko from "knockout";
 import { Category } from './Category';
 import { CategoryData } from './CategoryData';
 import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { FileInfo } from './FileInfo';
 import { Node } from './Node';
@@ -127,9 +128,9 @@ export class Palette {
 
         // manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
-        result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
-        result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
-        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
+        result += '"modelData": ' + JSON.stringify(json.modelData, null, EagleConfig.JSON_INDENT) + ",\n";
+        result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, EagleConfig.JSON_INDENT) + ",\n";
+        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, EagleConfig.JSON_INDENT) + "\n";
         result += "}\n";
 
         return result;
