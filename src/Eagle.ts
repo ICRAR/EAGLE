@@ -2037,6 +2037,9 @@ export class Eagle {
             case Repository.Service.Url:
                 openRemoteFileFunc = Utils.openRemoteFileFromUrl;
                 break;
+            case Repository.Service.LocalDirectory:
+                openRemoteFileFunc = Repository.openLocalFile;
+                break;
             default:
                 console.warn("Unsure how to fetch file with unknown service ", file.repository.service);
                 break;

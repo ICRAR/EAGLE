@@ -1,11 +1,12 @@
 import * as ko from "knockout";
 
-import {RepositoryFolder} from './RepositoryFolder';
-import {RepositoryFile} from './RepositoryFile';
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
-import {GitHub} from './GitHub';
-import {GitLab} from "./GitLab";
+import { Eagle } from './Eagle';
+import { GitHub } from './GitHub';
+import { GitLab } from "./GitLab";
+import { Repositories } from "./Repositories";
+import { RepositoryFolder } from './RepositoryFolder';
+import { RepositoryFile } from './RepositoryFile';
+import { Utils } from './Utils';
 
 export class Repository {
     _id : number
@@ -18,6 +19,8 @@ export class Repository {
     expanded : ko.Observable<boolean>
     files : ko.ObservableArray<RepositoryFile>
     folders : ko.ObservableArray<RepositoryFolder>
+
+    dirHandle : FileSystemDirectoryHandle
 
     // NOTE: I think we should be able to use the Repository.Service.Unknown enum here, but it causes a javascript error. Not sure why.
     static readonly DUMMY = new Repository(<Repository.Service>"Unknown", "", "", false);
@@ -37,6 +40,15 @@ export class Repository {
 
     htmlId : ko.PureComputed<string> = ko.pureComputed(()=>{
         return this.name.replace('/', '_') + '_' + this.branch;
+    }, this);
+
+    htmlName: ko.PureComputed<string> = ko.pureComputed(() => {
+        switch (this.service){
+            case Repository.Service.LocalDirectory:
+                return this.name;
+            default:
+                return this.name + ' (' + this.branch + ')';
+        }
     }, this);
 
     clear = () : void => {
@@ -62,6 +74,9 @@ export class Repository {
                     break;
                 case Repository.Service.GitLab:
                     GitLab.loadRepoContent(this);
+                    break;
+                case Repository.Service.LocalDirectory:
+                    Repository.loadLocalRepository(this);
                     break;
                 default:
                     Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + this.service + ")");
@@ -162,6 +177,50 @@ export class Repository {
         }
 
         return fileNameA.toLowerCase() > fileNameB.toLowerCase() ? 1 : -1;
+    }
+
+    public static async loadLocalRepository(repository: Repository): Promise<void> {
+        // flag the repository as being fetched
+        repository.isFetching(true);
+
+        const dirHandle = repository.dirHandle;
+
+        for await (const [key, value] of (<any>dirHandle).entries()) {
+            console.log({ key, value });
+
+            // add files to repo
+            if (value.kind === 'file'){
+                // if file is not a .graph, .palette, or .json, just ignore it!
+                if (Utils.verifyFileExtension(key)){
+                    repository.files.push(new RepositoryFile(repository, "", key));
+                }
+            }
+
+            // add folders to repo
+            if (value.find === 'directory'){
+                repository.folders.push(new RepositoryFolder(key));
+            }
+        }
+        
+        // flag the repository as fetched and expand by default
+        repository.isFetching(false);
+        repository.fetched(true);
+        repository.expanded(true);
+    }
+
+    static openLocalFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
+        // find the repository
+        const localDirectory = Repositories.get(repositoryService, repositoryName, repositoryBranch);
+
+        // check we found it
+        if (localDirectory === null){
+            console.error("Repository.openLocalFile(): can't find Repository. Service:", repositoryService, "Name:", repositoryName, "Branch:", repositoryBranch);
+            return;
+        }
+
+        const dirHandle: FileSystemDirectoryHandle = localDirectory.dirHandle;
+
+        // TODO: open file
     }
 }
 

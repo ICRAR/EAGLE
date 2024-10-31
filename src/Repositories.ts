@@ -1,14 +1,15 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {GitHub} from './GitHub';
-import {GitLab} from './GitLab';
-import {Palette} from './Palette';
-import {Repository} from './Repository';
-import {RepositoryFolder} from './RepositoryFolder';
-import {RepositoryFile} from './RepositoryFile';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
+import { GitHub } from './GitHub';
+import { GitLab } from './GitLab';
+import { Palette } from './Palette';
+import { Repository } from './Repository';
+import { RepositoryFolder } from './RepositoryFolder';
+import { RepositoryFile } from './RepositoryFile';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class Repositories {
 
@@ -81,14 +82,16 @@ export class Repositories {
                 return;
             }
 
-            if (repositoryName.trim() == ""){
-                Utils.showUserMessage("Error", "Repository name is empty!");
-                return;
-            }
+            if (repositoryService === Repository.Service.GitHub || repositoryService === Repository.Service.GitLab){
+                if (repositoryName.trim() == ""){
+                    Utils.showUserMessage("Error", "Repository name is empty!");
+                    return;
+                }
 
-            if (repositoryBranch.trim() == ""){
-                Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
-                return;
+                if (repositoryBranch.trim() == ""){
+                    Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
+                    return;
+                }
             }
 
             // add extension to userString to indicate repository service
@@ -107,6 +110,17 @@ export class Repositories {
             }
             if (repositoryService === Repository.Service.GitLab){
                 GitLab.loadRepoList();
+            }
+            if (repositoryService === Repository.Service.LocalDirectory){
+                // fetch FileSystemDirectoryHandle from a data attribute on the 'custom repository' modal
+                const dirHandle: FileSystemDirectoryHandle = $('#gitCustomRepositoryModal').data('dirHandle');
+
+                // create a new Repository and add the dirHandle
+                const newRepo = new Repository(Repository.Service.LocalDirectory, dirHandle.name, "", false);
+                newRepo.dirHandle = dirHandle;
+    
+                // add new Repository to the repositories list
+                Repositories.repositories.push(newRepo);
             }
         });
     };
@@ -133,12 +147,22 @@ export class Repositories {
 
     addLocalDirectory = async () => {
         console.log("addLocalDirectory()");
+        let dirHandle: FileSystemDirectoryHandle;
 
-        const dirHandle = await (<any>window).showDirectoryPicker();
+        try {
+            dirHandle = await (<any>window).showDirectoryPicker({
+                id: EagleConfig.DIRECTORY_PICKER_ID,
+                mode: "readwrite"
+            });
+        } catch (err) {
+            console.error(err.name, err.message);
+            return;
+        }
 
         console.log("dirHandle", dirHandle);
 
-        const x = await dirHandle.resolve();
+        $('#gitCustomRepositoryModal').data('dirHandle', dirHandle);
+        $('#gitCustomRepositoryModalDirectoryNameInput').val(dirHandle.name).trigger('change');
     };
 
     private _removeCustomRepository = (repository : Repository) : void => {

@@ -134,6 +134,10 @@ export class EagleConfig {
     public static readonly CONSTRUCT_MARGIN: number = 30;
     public static readonly CONSTRUCT_DRAG_OUT_DISTANCE: number = 200;
 
+    // a id used when asking the browser for a directory picker
+    // by re-using this id, we ask the browser to re-open at disk location previously browsed-to by the user
+    public static readonly DIRECTORY_PICKER_ID: string = "EagleDirectoryPicker";
+
     static getColor(name:string) : string {
         let result: string = null;
 

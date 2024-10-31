@@ -21,6 +21,7 @@ ko.components.register('repository', {
         this.service = params.data.service;
         this.branch = params.data.branch;
         this.htmlId = params.data.htmlId;
+        this.htmlName = params.data.htmlName;
         this.fetched = params.data.fetched;
         this.isFetching = params.data.isFetching;
         this.isBuiltIn = params.data.isBuiltIn;

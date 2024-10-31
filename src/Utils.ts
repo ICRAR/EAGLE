@@ -654,6 +654,7 @@ export class Utils {
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) => void) : void {
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
         $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
+        $('#gitCustomRepositoryModalDirectoryNameInput').val("");
 
         $('#gitCustomRepositoryModal').data('completed', false);
         $('#gitCustomRepositoryModal').data('callback', callback);
@@ -661,34 +662,45 @@ export class Utils {
     }
 
     static validateCustomRepository() : boolean {
-        const repositoryService : string = <string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
-        const repositoryName : string = <string>$('#gitCustomRepositoryModalRepositoryNameInput').val();
-        const repositoryBranch : string = <string>$('#gitCustomRepositoryModalRepositoryBranchInput').val();
+        const repositoryService : string = (<string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val()).trim();
+        const repositoryName : string = (<string>$('#gitCustomRepositoryModalRepositoryNameInput').val()).trim();
+        const repositoryBranch : string = (<string>$('#gitCustomRepositoryModalRepositoryBranchInput').val()).trim();
+        const directoryName : string = (<string>$('#gitCustomRepositoryModalDirectoryNameInput').val()).trim();
 
         $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
         $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
 
         // check service
-        if (repositoryService.trim() !== Repository.Service.GitHub && repositoryService.trim() !== Repository.Service.GitLab){
+        if (repositoryService !== Repository.Service.GitHub &&
+            repositoryService !== Repository.Service.GitLab &&
+            repositoryService !== Repository.Service.LocalDirectory){
             return false;
         }
 
-        // check if name is empty
-        if (repositoryName.trim() == ""){
-            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
-            return false;
+        if (repositoryService === Repository.Service.GitHub || repositoryService === Repository.Service.GitLab){
+            // check if name is empty
+            if (repositoryName == ""){
+                $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+                return false;
+            }
+
+            // check if name starts with http:// or https://, or ends with .git
+            if (repositoryName.startsWith('http://') || repositoryName.startsWith('https://') || repositoryName.endsWith('.git')){
+                $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+                return false;
+            }
+
+            // check if branch is empty
+            if (repositoryBranch == ""){
+                $('#gitCustomRepositoryModalRepositoryBranchInput').addClass('is-invalid');
+                return false;
+            }
         }
 
-        // check if name starts with http:// or https://, or ends with .git
-        if (repositoryName.startsWith('http://') || repositoryName.startsWith('https://') || repositoryName.endsWith('.git')){
-            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
-            return false;
-        }
-
-        // check if branch is empty
-        if (repositoryBranch.trim() == ""){
-            $('#gitCustomRepositoryModalRepositoryBranchInput').addClass('is-invalid');
-            return false;
+        if (repositoryService === Repository.Service.LocalDirectory){
+            if (directoryName === ""){
+                return false;
+            }
         }
 
         return true;
@@ -1312,6 +1324,8 @@ export class Utils {
                 return repositoryName + "|" + repositoryBranch + ".github_repository_and_branch";
             case Repository.Service.GitLab:
                 return repositoryName + "|" + repositoryBranch + ".gitlab_repository_and_branch";
+            case Repository.Service.LocalDirectory:
+                return repositoryName + ".local_directory";
             default:
                 return null;
         }

@@ -196,6 +196,10 @@ export class Modals {
             // show/hide OK button
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', !Utils.validateCustomRepository());
         });
+        $('#gitCustomRepositoryModalDirectoryNameInput').on('change', function(){
+            // show/hide OK button
+            $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', !Utils.validateCustomRepository());
+        })
 
         $('#gitCustomRepositoryModalAffirmativeButton').on('click', function(){
             $('#gitCustomRepositoryModal').data('completed', true);
