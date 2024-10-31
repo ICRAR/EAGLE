@@ -246,4 +246,5 @@
 </nav>
 <div id="graphNameWrapper" data-bind="style: { 'visibility':eagle.getEagleIsReady()}">
     <span id="filename" data-bind="text: repositoryFileName"></span>
+    <span id="fileIsModified" class="material-icons md-18" data-bind="visible: eagle.logicalGraph().fileInfo().modified">draw</span>
 </div>

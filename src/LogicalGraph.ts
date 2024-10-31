@@ -46,7 +46,6 @@ export class LogicalGraph {
     private nodes : ko.ObservableArray<Node>;
     private edges : ko.ObservableArray<Edge>;
     private graphConfigs : ko.ObservableArray<GraphConfig>;
-    // private activeGraphConfig : ko.Observable<GraphConfig>;
     private activeGraphConfigId : ko.Observable<GraphConfig.Id>
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
@@ -422,6 +421,7 @@ export class LogicalGraph {
         this.nodes([]);
         this.edges([]);
         this.graphConfigs([]);
+        this.activeGraphConfigId(undefined)
     }
 
     clone = () : LogicalGraph => {
@@ -443,6 +443,9 @@ export class LogicalGraph {
         for (const graphConfig of this.graphConfigs()){
             result.graphConfigs.push(graphConfig.clone());
         }
+
+        //copy active graph config id state
+        result.activeGraphConfigId(this.activeGraphConfigId());
 
         return result;
     }
