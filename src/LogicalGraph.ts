@@ -339,10 +339,6 @@ export class LogicalGraph {
             }
         }
 
-        if(requestedGraphConfig === null){
-            console.warn('could not find a graph config using the requested id; ',requestedConifgId)
-        }
-
         return requestedGraphConfig
     }
 
