@@ -273,9 +273,17 @@
                         </div>
                     </div>
                     <div id="gitCustomRepositoryModalSectionLocal">
-                        <span>Select Local Directory</span>
-                        <input type="text" class="form-control" id="gitCustomRepositoryModalDirectoryNameInput" placeholder="" readonly>
-                        <button type="button" class="btn btn-primary" id="gitCommitModalLocalDirectoryButton" data-bind="click: $root.repositories().addLocalDirectory">Select</button>
+                        <div class="row">
+                            <div class="col-3">
+                                <span>Directory *</span>
+                            </div>
+                            <div class="col-9">
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="gitCustomRepositoryModalDirectoryNameInput" placeholder="" readonly>
+                                    <button type="button" class="btn btn-primary" id="gitCommitModalLocalDirectoryButton" data-bind="click: $root.repositories().addLocalDirectory">Select</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
