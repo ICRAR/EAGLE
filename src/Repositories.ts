@@ -75,8 +75,6 @@ export class Repositories {
     // use a custom modal to ask user for repository service and url at the same time
     addCustomRepository = () : void => {
         Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : void => {
-            console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
-
             if (!completed){
                 console.log("No repo entered");
                 return;
@@ -146,7 +144,6 @@ export class Repositories {
     };
 
     addLocalDirectory = async () => {
-        console.log("addLocalDirectory()");
         let dirHandle: FileSystemDirectoryHandle;
 
         try {
@@ -158,8 +155,6 @@ export class Repositories {
             console.error(err.name, err.message);
             return;
         }
-
-        console.log("dirHandle", dirHandle);
 
         $('#gitCustomRepositoryModal').data('dirHandle', dirHandle);
         $('#gitCustomRepositoryModalDirectoryNameInput').val(dirHandle.name).trigger('change');

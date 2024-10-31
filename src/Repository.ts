@@ -19,7 +19,6 @@ export class Repository {
     expanded : ko.Observable<boolean>
     files : ko.ObservableArray<RepositoryFile>
     folders : ko.ObservableArray<RepositoryFolder>
-
     dirHandle : FileSystemDirectoryHandle
 
     // NOTE: I think we should be able to use the Repository.Service.Unknown enum here, but it causes a javascript error. Not sure why.
@@ -36,6 +35,7 @@ export class Repository {
         this.expanded = ko.observable(false);
         this.files = ko.observableArray();
         this.folders = ko.observableArray();
+        this.dirHandle = null;
     }
 
     htmlId : ko.PureComputed<string> = ko.pureComputed(()=>{
@@ -183,21 +183,23 @@ export class Repository {
         // flag the repository as being fetched
         repository.isFetching(true);
 
-        const dirHandle = repository.dirHandle;
+        const dirHandle: FileSystemDirectoryHandle = repository.dirHandle;
 
-        for await (const [key, value] of (<any>dirHandle).entries()) {
-            console.log({ key, value });
+        for await (const [key, value] of dirHandle.entries()) {
+            console.log(key, value);
 
             // add files to repo
             if (value.kind === 'file'){
                 // if file is not a .graph, .palette, or .json, just ignore it!
                 if (Utils.verifyFileExtension(key)){
-                    repository.files.push(new RepositoryFile(repository, "", key));
+                    const newFile = new RepositoryFile(repository, "", key);
+                    newFile.fileHandle = value as FileSystemFileHandle;
+                    repository.files.push(newFile);
                 }
             }
 
             // add folders to repo
-            if (value.find === 'directory'){
+            if (value.kind === 'directory'){
                 repository.folders.push(new RepositoryFolder(key));
             }
         }
@@ -208,19 +210,36 @@ export class Repository {
         repository.expanded(true);
     }
 
-    static openLocalFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
+    static async openLocalFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ): Promise<void> {
         // find the repository
         const localDirectory = Repositories.get(repositoryService, repositoryName, repositoryBranch);
 
         // check we found it
         if (localDirectory === null){
-            console.error("Repository.openLocalFile(): can't find Repository. Service:", repositoryService, "Name:", repositoryName, "Branch:", repositoryBranch);
+            callback("Repository.openLocalFile(): can't find Repository. Service: " + repositoryService + " Name: " + repositoryName + " Branch: " + repositoryBranch, null);
             return;
         }
 
-        const dirHandle: FileSystemDirectoryHandle = localDirectory.dirHandle;
+        let fileHandle: FileSystemFileHandle = null;
 
-        // TODO: open file
+        // find the file in the repository
+        for (const file of localDirectory.files()){
+            if (file.path === filePath && file.name === fileName){
+                fileHandle = file.fileHandle;
+            }
+        }
+
+        // abort if file not found
+        if (fileHandle === null){
+            callback("openLocalFile(): can't find file in directory: " + filePath + " " + fileName, null);
+            return;
+        }
+
+        // open file
+        const file: File = await fileHandle.getFile();
+        const fileData = await file.text();
+
+        callback(null, fileData);
     }
 }
 
