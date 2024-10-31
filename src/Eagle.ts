@@ -1490,41 +1490,56 @@ export class Eagle {
      */
 
     newConfig = () : void => {
-        // close the Graph Configurations Table modal (if open)
-        const modalOpen = GraphConfigurationsTable.showTableModal()
-        if (modalOpen){
-            GraphConfigurationsTable.closeModal();
-        }
 
         // clone existing active config, assign new id
         const c: GraphConfig = this.logicalGraph().getActiveGraphConfig().clone();
         c.setId(Utils.generateGraphConfigId());
 
-        Utils.requestUserString("New Config", "Enter Config name", Utils.generateGraphConfigName(c), false, (completed : boolean, userString : string) : void => {
-            if (!completed)
-            {   // Cancelling action.
-                return;
-            }
-            if (userString === ""){
-            Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
-                return;
-            }
+        
+        c.setName('newConfig');
 
-            c.setName(userString);
+        // NOTE: don't add new config to the list of configs in the LogicalGraph until it is saved!
 
-            // NOTE: don't add new config to the list of configs in the LogicalGraph until it is saved!
+        // adding a new graph config to the array, then setting it as active
+        this.logicalGraph().addGraphConfig(c)
+        this.logicalGraph().setActiveGraphConfig(c.getId());
 
-            // adding a new graph config to the array, then setting it as active
-            this.logicalGraph().addGraphConfig(c)
-            this.logicalGraph().setActiveGraphConfig(c.getId());
+        Utils.showNotification("New Graph Config Created", 'newConfig', "success");
 
-            Utils.showNotification("New Graph Config Created", userString, "success");
+        // open the graph configurations table
+        GraphConfigurationsTable.openModal();
 
-            // re-open graph configurations modal (if required)
-            if (modalOpen){
-                GraphConfigurationsTable.openModal();
-            }
-        });
+        //focus on and select the name field of the newly added config in the configurations table, ready to rename. this requires a little wait, to allow the ui to update
+        setTimeout(() => {
+            $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
+        }, 100);
+
+
+        // Utils.requestUserString("New Config", "Enter Config name", Utils.generateGraphConfigName(c), false, (completed : boolean, userString : string) : void => {
+        //     if (!completed)
+        //     {   // Cancelling action.
+        //         return;
+        //     }
+        //     if (userString === ""){
+        //     Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
+        //         return;
+        //     }
+
+        //     c.setName(userString);
+
+        //     // NOTE: don't add new config to the list of configs in the LogicalGraph until it is saved!
+
+        //     // adding a new graph config to the array, then setting it as active
+        //     this.logicalGraph().addGraphConfig(c)
+        //     this.logicalGraph().setActiveGraphConfig(c.getId());
+
+        //     Utils.showNotification("New Graph Config Created", userString, "success");
+
+        //     // re-open graph configurations modal (if required)
+        //     if (modalOpen){
+        //         GraphConfigurationsTable.openModal();
+        //     }
+        // });
     }
 
     // saveConfig = () : void => {
