@@ -348,6 +348,7 @@ export class LogicalGraph {
 
     addGraphConfig = (config: GraphConfig): void => {
         this.graphConfigs.push(config);
+        Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Added a new graph config");
     }
 
     duplicateGraphConfig = (config: GraphConfig): void => {
@@ -367,6 +368,8 @@ export class LogicalGraph {
             setTimeout(() => {
                 $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
             }, 100);
+
+        Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Duplicated a graph config" + clone.getName());
     }
 
     removeGraphConfig = (config: GraphConfig): void => {

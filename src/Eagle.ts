@@ -2901,6 +2901,7 @@ export class Eagle {
             this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Add edge");
+                this.logicalGraph().fileInfo().modified = true;
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -2947,6 +2948,7 @@ export class Eagle {
             this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit edge");
+                this.logicalGraph().fileInfo().modified = true;
                 // trigger the diagram to re-draw with the modified edge
                 this.logicalGraph.valueHasMutated();
             });
@@ -3530,6 +3532,7 @@ export class Eagle {
                 this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false, (edge: Edge) => {
                     this.checkGraph();
                     this.undo().pushSnapshot(this, "Add edge " + edge.getId());
+                    this.logicalGraph().fileInfo().modified = true;
                     this.logicalGraph.valueHasMutated();
                 });
 
@@ -3543,6 +3546,7 @@ export class Eagle {
                 this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, (edge: Edge) => {
                     this.checkGraph();
                     this.undo().pushSnapshot(this, "Add edge " + edge.getId());
+                    this.logicalGraph().fileInfo().modified = true;
                     this.logicalGraph.valueHasMutated();
                 });
 
@@ -4000,6 +4004,7 @@ export class Eagle {
             // refresh the display
             this.checkGraph();
             this.undo().pushSnapshot(this, "Change Node Parent");
+            this.logicalGraph().fileInfo().modified = true;
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -4048,6 +4053,7 @@ export class Eagle {
             // refresh the display
             this.checkGraph();
             this.undo().pushSnapshot(this, "Change Node Subject");
+            this.logicalGraph().fileInfo().modified = true;
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
@@ -4246,6 +4252,7 @@ export class Eagle {
                 }
 
                 this.checkGraph();
+                this.logicalGraph().fileInfo().modified = true;
                 this.undo().pushSnapshot(this, "Add field");
             });
 
@@ -4724,6 +4731,7 @@ export class Eagle {
         this.flagActiveFileModified();
         this.checkGraph();
         this.undo().pushSnapshot(this, "Edit Node Category");
+        this.logicalGraph().fileInfo().modified = true;
         this.logicalGraph.valueHasMutated();
     }
     
