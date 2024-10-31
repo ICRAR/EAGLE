@@ -364,8 +364,10 @@ export class LogicalGraph {
 
             Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "' and set to active config", "success");
 
-            GraphConfigurationsTable.closeModal();
-            ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal);
+            //focus on and select the name field of the newly duplicated config, ready to rename. this requires a little wait, to allow the ui to update
+            setTimeout(() => {
+                $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
+            }, 100);
     }
 
     removeGraphConfig = (config: GraphConfig): void => {

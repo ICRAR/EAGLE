@@ -44,7 +44,7 @@
                 </thead>
                 <tbody>
                     <!-- ko foreach: logicalGraph().graphConfigs() -->
-                        <tr data-bind="attr: {'id' : 'tableRow_'+$data.getName()}">
+                        <tr data-bind="attr: {'id' : 'tableRow_'+$data.getName()}, css: {activeConfig: $data.id() === $root.logicalGraph().activeGraphConfigId()}">
                             <td class='columnCell column-sort'>
                                 <!-- kept for now as we will need the space for the row drag handle -->
                             </td>
