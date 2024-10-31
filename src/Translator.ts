@@ -144,12 +144,6 @@ export class Translator {
 
         // clone the logical graph
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
-        const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
-
-        // if there is a GraphConfig, apply GraphConfig to logicalGraph
-        if (activeConfig !== null){
-            GraphConfig.apply(lgClone, activeConfig);
-        }
 
         // get json for logical graph
         let jsonString: string;
