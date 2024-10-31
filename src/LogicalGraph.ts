@@ -127,6 +127,14 @@ export class LogicalGraph {
             result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc);
         }
 
+        // saving the id of the active graph configuration
+        const activeGraphConfigId = Eagle.getInstance().logicalGraph().activeGraphConfigId()
+        if(activeGraphConfigId === undefined){
+            result.activeGraphConfigId = ''
+        }else{
+            result.activeGraphConfigId = activeGraphConfigId
+        }
+
         return result;
     }
 
@@ -138,6 +146,7 @@ export class LogicalGraph {
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
         result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
+        result += '"activeGraphConfigId": "' + json.activeGraphConfigId + '",\n';
         result += '"graphConfigurations": ' + JSON.stringify(json.graphConfigurations, null, 4) + ",\n";
         result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
         result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
@@ -195,6 +204,13 @@ export class LogicalGraph {
                 const gc = GraphConfig.fromJson(gco, errorsWarnings);
                 gc.setId(gcId as GraphConfig.Id);
                 result.graphConfigs.push(gc);
+            }
+
+            //if the saved 'activeGraphConfigId' is empty or missing, we use the last one in the array, else we set the saved one as active                
+            if(dataObject["activeGraphConfigId"] === '' || dataObject["activeGraphConfigId"] === undefined){
+                result.activeGraphConfigId(result.graphConfigs()[result.graphConfigs().length - 1].getId() as GraphConfig.Id)
+            }else{
+                result.activeGraphConfigId(dataObject["activeGraphConfigId"] as GraphConfig.Id)
             }
         }
 
