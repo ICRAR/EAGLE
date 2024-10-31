@@ -19,7 +19,7 @@ export class Repository {
     expanded : ko.Observable<boolean>
     files : ko.ObservableArray<RepositoryFile>
     folders : ko.ObservableArray<RepositoryFolder>
-    dirHandle : FileSystemDirectoryHandle
+    handle : FileSystemDirectoryHandle
 
     // NOTE: I think we should be able to use the Repository.Service.Unknown enum here, but it causes a javascript error. Not sure why.
     static readonly DUMMY = new Repository(<Repository.Service>"Unknown", "", "", false);
@@ -35,7 +35,7 @@ export class Repository {
         this.expanded = ko.observable(false);
         this.files = ko.observableArray();
         this.folders = ko.observableArray();
-        this.dirHandle = null;
+        this.handle = null;
     }
 
     htmlId : ko.PureComputed<string> = ko.pureComputed(()=>{
@@ -95,6 +95,30 @@ export class Repository {
             default:
                 Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
         }
+    }
+
+    // find a single file within the repo, based on the path and filename
+    findFile = (path: string, filename: string): RepositoryFile => {
+        const pathParts: string[] = path.split('/');
+        let pointer: Repository | RepositoryFolder = this;
+
+        // traverse down the folder structure
+        for (const pathPart of pathParts){
+            for (const folder of pointer.folders()){
+                if (folder.name === pathPart){
+                    pointer = folder;
+                }
+            }
+        }
+
+        // find the file here
+        for (const file of pointer.files()){
+            if (file.name === filename){
+                return file;
+            }
+        }
+
+        return null;
     }
 
     deleteFile = (file: RepositoryFile) : void => {
@@ -183,26 +207,8 @@ export class Repository {
         // flag the repository as being fetched
         repository.isFetching(true);
 
-        const dirHandle: FileSystemDirectoryHandle = repository.dirHandle;
-
-        for await (const [key, value] of dirHandle.entries()) {
-            console.log(key, value);
-
-            // add files to repo
-            if (value.kind === 'file'){
-                // if file is not a .graph, .palette, or .json, just ignore it!
-                if (Utils.verifyFileExtension(key)){
-                    const newFile = new RepositoryFile(repository, "", key);
-                    newFile.fileHandle = value as FileSystemFileHandle;
-                    repository.files.push(newFile);
-                }
-            }
-
-            // add folders to repo
-            if (value.kind === 'directory'){
-                repository.folders.push(new RepositoryFolder(key));
-            }
-        }
+        // parse the folder
+        Repository._parseFolder(repository, repository, [], repository.handle);
         
         // flag the repository as fetched and expand by default
         repository.isFetching(false);
@@ -210,9 +216,32 @@ export class Repository {
         repository.expanded(true);
     }
 
+    static async _parseFolder(repository: Repository, parent: Repository | RepositoryFolder, pathParts: string[], dirHandle: FileSystemDirectoryHandle){
+
+        for await (const [name, handle] of dirHandle.entries()) {
+            // add files to repo
+            if (handle.kind === 'file'){
+                // if file is not a .graph, .palette, or .json, just ignore it!
+                if (Utils.verifyFileExtension(name)){
+                    const newFile = new RepositoryFile(repository, pathParts.join('/'), name);
+                    newFile.handle = handle as FileSystemFileHandle;
+                    parent.files.push(newFile);
+                }
+            }
+
+            // add folders to repo
+            if (handle.kind === 'directory'){
+                const newFolder: RepositoryFolder = new RepositoryFolder(name);
+                newFolder.handle = handle as FileSystemDirectoryHandle;
+                await Repository._parseFolder(repository, newFolder, pathParts.concat([name]), handle as FileSystemDirectoryHandle);
+                parent.folders.push(newFolder);
+            }
+        }
+    }
+
     static async openLocalFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ): Promise<void> {
         // find the repository
-        const localDirectory = Repositories.get(repositoryService, repositoryName, repositoryBranch);
+        const localDirectory: Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
 
         // check we found it
         if (localDirectory === null){
@@ -220,18 +249,21 @@ export class Repository {
             return;
         }
 
-        let fileHandle: FileSystemFileHandle = null;
-
         // find the file in the repository
-        for (const file of localDirectory.files()){
-            if (file.path === filePath && file.name === fileName){
-                fileHandle = file.fileHandle;
-            }
-        }
+        const repositoryFile: RepositoryFile = localDirectory.findFile(filePath, fileName)
 
         // abort if file not found
-        if (fileHandle === null){
+        if (repositoryFile === null){
             callback("openLocalFile(): can't find file in directory: " + filePath + " " + fileName, null);
+            return;
+        }
+        
+        // get the fileHandle from the file
+        const fileHandle: FileSystemFileHandle = repositoryFile.handle;
+
+        // abort if file doesn't have a fileHandle
+        if (fileHandle === null){
+            callback("openLocalFile(): no handle attached to RepositoryFile: " + filePath + " " + fileName, null);
             return;
         }
 

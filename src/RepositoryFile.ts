@@ -11,7 +11,7 @@ export class RepositoryFile {
     path : string
     type : Eagle.FileType;
     isFetching: ko.Observable<boolean>;
-    fileHandle: FileSystemFileHandle;
+    handle: FileSystemFileHandle;
 
     constructor(repository : Repository, path : string, name : string){
         this._id = Math.floor(Math.random() * 1000000000000);
@@ -20,7 +20,7 @@ export class RepositoryFile {
         this.path = path;
         this.isFetching = ko.observable(false);
         this.type = Utils.getFileTypeFromFileName(this.name);
-        this.fileHandle = null;
+        this.handle = null;
     }
 
     getIconUrl : ko.PureComputed<string> = ko.pureComputed(() : string => {

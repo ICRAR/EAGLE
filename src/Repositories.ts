@@ -115,7 +115,7 @@ export class Repositories {
 
                 // create a new Repository and add the dirHandle
                 const newRepo = new Repository(Repository.Service.LocalDirectory, dirHandle.name, "", false);
-                newRepo.dirHandle = dirHandle;
+                newRepo.handle = dirHandle;
     
                 // add new Repository to the repositories list
                 Repositories.repositories.push(newRepo);
