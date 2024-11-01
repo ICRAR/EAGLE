@@ -1570,8 +1570,6 @@ export class Eagle {
 
             Utils.showNotification("Graph Config Saved", "Config '" + activeConfig.getName() + "' saved to Logical Graph", "success");
         });
-
-       
     }
 
     saveGraph = () : void => {
@@ -1583,6 +1581,9 @@ export class Eagle {
             case Repository.Service.GitLab:
                 this.commitToGit(Eagle.FileType.Graph);
                 break;
+            case Repository.Service.LocalDirectory:
+                this.saveFileToLocalDirectory(Eagle.FileType.Graph);
+                break;
             default:
                 this.saveGraphAs();
                 break;
@@ -1590,9 +1591,20 @@ export class Eagle {
     }
 
     saveGraphAs = () : void => {
-        const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
+        let defaultSelection: number = 0;
+        switch (this.logicalGraph().fileInfo().repositoryService){
+            case Repository.Service.File:
+                defaultSelection = 0;
+                break;
+            case Repository.Service.LocalDirectory:
+                defaultSelection = 1;
+                break;
+            default:
+                defaultSelection = 2;
+                break;
+        }
 
-        Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "", (completed: boolean, userChoiceIndex: number) => {
+        Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Local Directory", "Remote Git Repository"], defaultSelection, false, "", (completed: boolean, userChoiceIndex: number) => {
             if (!completed)
             {   // Cancelling action.
                 return;
@@ -1600,10 +1612,16 @@ export class Eagle {
 
             const fileType = this.logicalGraph().fileInfo().type;
 
-            if (userChoiceIndex === 0){
-                this.saveFileToLocal(fileType);
-            } else {
-                this.commitToGitAs(fileType);
+            switch (userChoiceIndex){
+                case 0:
+                    this.saveFileToLocal(fileType);
+                    break;
+                case 1:
+                    this.saveFileToLocalDirectory(fileType);
+                    break;
+                default:
+                    this.commitToGitAs(fileType);
+                    break;
             }
         });
     }
@@ -1641,6 +1659,49 @@ export class Eagle {
     }
 
     /**
+     * Saves the file to a repository that is actually a "LocalDirectory"-type
+     */
+    saveFileToLocalDirectory = async (fileType: Eagle.FileType) : Promise<void> => {
+        let fileInfo: FileInfo = null;
+
+        switch(fileType){
+            case Eagle.FileType.Graph:
+                fileInfo = this.logicalGraph().fileInfo();
+                break;
+            default:
+                console.error("Only graph saving supported here!")
+                return;
+        }
+
+        // find repo by name
+        const defaultRepository = Repositories.get(Repository.Service.LocalDirectory, fileInfo.repositoryName, fileInfo.repositoryBranch);
+
+        Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Repository.Service.LocalDirectory), fileInfo.path, fileInfo.name, fileType, (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
+            // check completed boolean
+            if (!completed){
+                console.log("Abort save!");
+                return;
+            }
+
+            // check repository name
+            const repository : Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
+
+            // write logical graph contents to a string
+            const contents: string = LogicalGraph.toOJSJsonString(this.logicalGraph(), false);
+
+            // save
+            Repository.saveLocalDirectoryFile(repositoryService, repositoryName, filePath, fileName, contents, (error: string) => {
+                if (error !== null){
+                    console.error(error);
+                }
+
+                // refresh the repository
+                repository.refresh();
+            });
+        });
+    }
+
+    /**
      * Saves a file to the remote server repository.
      */
     saveFileToRemote = (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, jsonString : string) : void => {
@@ -1659,7 +1720,6 @@ export class Eagle {
                 Utils.showUserMessage("Error", "Unknown repository service : " + repository.service);
                 return;
         }
-
 
         Utils.httpPostJSONString(url, jsonString, (error : string, data: string) : void => {
             if (error !== null){
@@ -1832,6 +1892,7 @@ export class Eagle {
             fileInfo().repositoryService === Repository.Service.Unknown ||
             fileInfo().repositoryService === Repository.Service.File ||
             fileInfo().repositoryService === Repository.Service.Url ||
+            fileInfo().repositoryService === Repository.Service.LocalDirectory ||
             fileInfo().repositoryName === null
         ) {
             this.commitToGitAs(fileType);
@@ -2038,7 +2099,7 @@ export class Eagle {
                 openRemoteFileFunc = Utils.openRemoteFileFromUrl;
                 break;
             case Repository.Service.LocalDirectory:
-                openRemoteFileFunc = Repository.openLocalFile;
+                openRemoteFileFunc = Repository.loadLocalDirectoryFile;
                 break;
             default:
                 console.warn("Unsure how to fetch file with unknown service ", file.repository.service);

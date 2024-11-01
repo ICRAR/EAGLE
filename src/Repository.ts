@@ -107,6 +107,7 @@ export class Repository {
             for (const folder of pointer.folders()){
                 if (folder.name === pathPart){
                     pointer = folder;
+                    break;
                 }
             }
         }
@@ -134,6 +135,7 @@ export class Repository {
                     if (folder.name === pathPart){
                         lastPointer = pointer;
                         pointer = folder;
+                        break;
                     }
                 }
             }
@@ -158,6 +160,35 @@ export class Repository {
                 }
             }
         }
+    }
+
+    getDirectoryHandleFromPath = async (path: string): Promise<FileSystemDirectoryHandle> => {
+        const pathParts: string[] = path.split('/');
+        let pointer: Repository | RepositoryFolder = this;
+
+        // traverse down the folder structure
+        for (const pathPart of pathParts){
+            let found: boolean = false;
+
+            for (const folder of pointer.folders()){
+                if (folder.name === pathPart){
+                    pointer = folder;
+                    found = true;
+                    break;
+                }
+            }
+
+            // if this step in the path hierarchy was not found, create a new FileSystemDirectoryHandle here
+            if (!found){
+                const handle: FileSystemDirectoryHandle = await pointer.handle.getDirectoryHandle(pathPart, {create: true});
+
+                // store the handle in an orphaned RepositoryFolder
+                pointer = new RepositoryFolder(pathPart);
+                pointer.handle = handle;
+            }
+        }
+
+        return pointer.handle;
     }
 
     // sorting order
@@ -239,13 +270,14 @@ export class Repository {
         }
     }
 
-    static async openLocalFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ): Promise<void> {
+    // load a file from a "LocalDirectory"-type repository
+    static async loadLocalDirectoryFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ): Promise<void> {
         // find the repository
         const localDirectory: Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
 
         // check we found it
         if (localDirectory === null){
-            callback("Repository.openLocalFile(): can't find Repository. Service: " + repositoryService + " Name: " + repositoryName + " Branch: " + repositoryBranch, null);
+            callback("Can't find Repository. Service: " + repositoryService + " Name: " + repositoryName + " Branch: " + repositoryBranch, null);
             return;
         }
 
@@ -254,7 +286,7 @@ export class Repository {
 
         // abort if file not found
         if (repositoryFile === null){
-            callback("openLocalFile(): can't find file in directory: " + filePath + " " + fileName, null);
+            callback("Can't find file in directory: " + filePath + " " + fileName, null);
             return;
         }
         
@@ -263,7 +295,7 @@ export class Repository {
 
         // abort if file doesn't have a fileHandle
         if (fileHandle === null){
-            callback("openLocalFile(): no handle attached to RepositoryFile: " + filePath + " " + fileName, null);
+            callback("No handle attached to RepositoryFile: " + filePath + " " + fileName, null);
             return;
         }
 
@@ -272,6 +304,35 @@ export class Repository {
         const fileData = await file.text();
 
         callback(null, fileData);
+    }
+
+    // save a file to a "LocalDirectory"-type repository
+    static async saveLocalDirectoryFile(repositoryService : Repository.Service, repositoryName : string, filePath : string, fileName : string, contents: string, callback: (error : string) => void ): Promise<void> {
+        // find the repository
+        const localDirectory: Repository = Repositories.get(repositoryService, repositoryName, "");
+
+        // check we found it
+        if (localDirectory === null){
+            callback("Can't find Repository. Service: " + repositoryService + " Name: " + repositoryName);
+            return;
+        }
+
+        // get (or create) a FileSystemDirectoryHandle for the directory containing the file
+        const pathDirectoryHandle: FileSystemDirectoryHandle = await localDirectory.getDirectoryHandleFromPath(filePath);
+
+        // create a fileHandle for the new file
+        const fileHandle: FileSystemFileHandle = await pathDirectoryHandle.getFileHandle(fileName, {create: true});
+
+        // create a FileSystemWritableFileStream to write to
+        const writable = await fileHandle.createWritable();
+
+        // write the contents of the file to the stream
+        await writable.write(contents);
+
+        // Close the file and write the contents to disk
+        await writable.close();
+
+        callback(null);
     }
 }
 
