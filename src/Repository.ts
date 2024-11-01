@@ -92,6 +92,9 @@ export class Repository {
             case Repository.Service.GitLab:
                 GitLab.loadRepoContent(this);
                 break;
+            case Repository.Service.LocalDirectory:
+                Repository.loadLocalRepository(this);
+                break;
             default:
                 Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
         }
@@ -234,9 +237,34 @@ export class Repository {
         return fileNameA.toLowerCase() > fileNameB.toLowerCase() ? 1 : -1;
     }
 
+    // > 0	sort a after b, e.g. [b, a]
+    public static localDirectoryEntriesSortFunc(a: [string, FileSystemHandle], b: [string, FileSystemHandle]): number{
+        const fileNameA: string = a[0];
+        const handleA: FileSystemHandle = a[1];
+        const fileNameB: string = b[0];
+        const handleB: FileSystemHandle = b[1];
+
+        if (handleA.kind === 'directory' && handleB.kind === 'directory'){
+            return fileNameA.toLowerCase() > fileNameB.toLowerCase() ? 1 : -1;
+        }
+        if (handleA.kind === 'directory' && handleB.kind === 'file'){
+            return -1;
+        }
+        if (handleA.kind === 'file' && handleB.kind === 'directory'){
+            return 1;
+        }
+
+        // otherwise both files
+        return Repository.fileSortFunc(fileNameA, fileNameB);
+    }
+
     public static async loadLocalRepository(repository: Repository): Promise<void> {
         // flag the repository as being fetched
         repository.isFetching(true);
+
+        // delete current file list for this repository
+        repository.files.removeAll();
+        repository.folders.removeAll();
 
         // parse the folder
         Repository._parseFolder(repository, repository, [], repository.handle);
@@ -248,8 +276,18 @@ export class Repository {
     }
 
     static async _parseFolder(repository: Repository, parent: Repository | RepositoryFolder, pathParts: string[], dirHandle: FileSystemDirectoryHandle){
+        // first copy the entries to a temp directory, for sorting
+        const entries: [string, FileSystemHandle][] = [];
+        for await (const entry of dirHandle.entries()){
+            entries.push(entry);
+        }
 
-        for await (const [name, handle] of dirHandle.entries()) {
+        // sort
+        entries.sort(this.localDirectoryEntriesSortFunc)
+
+
+        // add files and folders to repository data structure
+        for (const [name, handle] of entries) {
             // add files to repo
             if (handle.kind === 'file'){
                 // if file is not a .graph, .palette, or .json, just ignore it!
