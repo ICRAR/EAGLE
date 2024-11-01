@@ -1507,6 +1507,9 @@ export class Eagle {
         // open the graph configurations table
         GraphConfigurationsTable.openModal();
 
+        this.undo().pushSnapshot(this, "New graph configuration added");
+        this.logicalGraph().fileInfo().modified = true;
+
         //focus on and select the name field of the newly added config in the configurations table, ready to rename. this requires a little wait, to allow the ui to update
         setTimeout(() => {
             $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()

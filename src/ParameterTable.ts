@@ -18,7 +18,6 @@ export class ParameterTable {
 
     static showTableModal : ko.Observable<boolean> = ko.observable(false);
 
-    static mode: ko.Observable<ParameterTable.Mode>;
     static selectionParent : ko.Observable<Field | null>; // row in the parameter table that is currently selected
     static selectionParentIndex : ko.Observable<number> // id of the selected field
     static selection : ko.Observable<string | null>; // cell in the parameter table that is currently selected
@@ -31,7 +30,6 @@ export class ParameterTable {
     static tableHeaderW : any;
 
     static init(){
-        ParameterTable.mode = ko.observable(ParameterTable.Mode.GraphConfig);
 
         ParameterTable.selectionParent = ko.observable(null);
         ParameterTable.selectionParentIndex = ko.observable(-1);
@@ -58,16 +56,12 @@ export class ParameterTable {
        return columnVisibilities
     } 
 
-    static inMode = (mode: ParameterTable.Mode): boolean => {
-        return mode === ParameterTable.mode();
-    }
-
     static formatTableInspectorSelection = () : string => {
         if (ParameterTable.selection() === null){
             return "";
         }
 
-        if (ParameterTable.mode() === ParameterTable.Mode.NodeFields){
+        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable){
             return ParameterTable.selectionParent().getDisplayText() + " - " + ParameterTable.selectionName();
         } else {
             return "Unknown";
@@ -79,7 +73,7 @@ export class ParameterTable {
             return "";
         }
 
-        if (ParameterTable.mode() === ParameterTable.Mode.NodeFields){
+        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable){
             return ParameterTable.selection();
         } else {
             return "Unknown";
@@ -162,11 +156,11 @@ export class ParameterTable {
     static getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
-        switch (ParameterTable.mode()){
-            case ParameterTable.Mode.NodeFields:
+        switch (Setting.findValue(Setting.BOTTOM_WINDOW_MODE)){
+            case Eagle.BottomWindowMode.ParameterTable:
                 return eagle.selectedNode()?.getFields();
             
-            case ParameterTable.Mode.GraphConfig:
+            case Eagle.BottomWindowMode.GraphConfigAttributesTable:
                 const lg: LogicalGraph = eagle.logicalGraph();
                 const config: GraphConfig = lg.getActiveGraphConfig();
                 const displayedFields: Field[] = [];
@@ -196,6 +190,10 @@ export class ParameterTable {
                 }
 
                 return displayedFields;
+
+            default:
+                console.warn('could not return field because the bottom window node is set to: ' + Setting.findValue(Setting.BOTTOM_WINDOW_MODE))
+                return null
         }
     }, this);
 
@@ -365,49 +363,51 @@ export class ParameterTable {
         // if so, proceed as normal
         // if not, then we need to clone the current active graph config and modify the clone
 
-        // if (graphConfig.getIsModified()){
+        if (graphConfig){
             if (add){
                 graphConfig.addField(currentField);
             } else {
                 graphConfig.removeField(currentField);
             }
-        // } else {
-        //     Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
-        //         ParameterTable.openModal(ParameterTable.mode(), ParameterTable.SelectType.Normal);
+        } else {
+            Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
+                ParameterTable.openModal(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
 
-        //         if (!completed){
-        //             return;
-        //         }
-        //         if (userString === ""){
-        //             Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
-        //             return;
-        //         }
+                if (!completed){
+                    return;
+                }
+                if (userString === ""){
+                    Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
+                    return;
+                }
 
-        //         // clone config
-        //         graphConfig = graphConfig.clone();
-        //         graphConfig.setId(Utils.generateGraphConfigId());
+                // clone config
+                graphConfig = graphConfig.clone();
+                graphConfig.setId(Utils.generateGraphConfigId());
 
-        //         // set name and set modified flag
-        //         graphConfig.setName(userString);
-        //         graphConfig.setIsModified(true);
-        //         graphConfig.setIsFavorite(false);
+                // set name and set modified flag
+                graphConfig.setName(userString);
 
-        //         // add/remove the field that was requested in the first place
-        //         if (add){
-        //             graphConfig.addField(currentField);
-        //         } else {
-        //             graphConfig.removeField(currentField);
-        //         }
+                // add/remove the field that was requested in the first place
+                if (add){
+                    graphConfig.addField(currentField);
+                } else {
+                    graphConfig.removeField(currentField);
+                }
 
-        //         // make this config the active config
-        //         Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig);
-        //     });
-        // }
+                // make this config the active config
+                Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig.getId());
+
+                //set the graph as modified and take an undo snapshot
+                Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Added field " + currentField.getDisplayText() + ' to config ' + graphConfig.getName());
+                Eagle.getInstance().logicalGraph().fileInfo().modified = true;
+            });
+        }
     }
 
     static requestEditConfig(config: GraphConfig): void {
         GraphConfigurationsTable.closeModal();
-        ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal);
+        ParameterTable.openModal(Eagle.BottomWindowMode.GraphConfigAttributesTable, ParameterTable.SelectType.Normal);
     }
 
     static requestEditDescriptionInModal(currentField:Field) : void {
@@ -512,7 +512,7 @@ export class ParameterTable {
             upresizer.on('mousedown', mouseDownHandler);
     }
 
-    static openModal = (mode: ParameterTable.Mode, selectType: ParameterTable.SelectType) : void => {
+    static openModal = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
         const eagle: Eagle = Eagle.getInstance();
 
         // eagle.showEagleIsLoading()
@@ -528,26 +528,15 @@ export class ParameterTable {
                 }
             }
 
-            if(mode === ParameterTable.Mode.NodeFields){
-                Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.ParameterTable)
-            }else{
-                Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphConfigAttributesTable)
-            }
+            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(mode)
 
             if(selectType === ParameterTable.SelectType.RightClick){
                 eagle.setSelection(Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
 
                 RightClick.closeCustomContextMenu(true);
-
-                setTimeout(function() {
-                    ParameterTable.mode(mode);
-                    // $('#parameterTableModal').modal("show");
-                }, 30);
-            }else{
-                ParameterTable.mode(mode);
-                // $('#parameterTableModal').modal("show");
             }
-            // ParameterTable.showTableModal(true)
+
+            //open the bottom window
             SideWindow.setShown('bottom',true)
         },5)
     }
@@ -558,7 +547,7 @@ export class ParameterTable {
 
         eagle.setSelection(node, Eagle.FileType.Graph)
 
-        ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal);
+        ParameterTable.openModal(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
         
         setTimeout(function(){
             $('#tableRow_'+field.getId()).addClass('highlighted')
