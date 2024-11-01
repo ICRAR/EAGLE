@@ -208,11 +208,7 @@ export class Modals {
             $('#gitCustomRepositoryModal').data('completed', false);
         });
         $('#gitCustomRepositoryModalRepositoryServiceSelect').on('change', function(){
-            const repositoryService : Repository.Service = <Repository.Service>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
-            const showLocalDirectorySection = repositoryService === Repository.Service.LocalDirectory;
-
-            $('#gitCustomRepositoryModalSectionGit').toggle(!showLocalDirectorySection);
-            $('#gitCustomRepositoryModalSectionLocal').toggle(showLocalDirectorySection);
+            Modals.showCorrectCustomRepositoryInputs();
         });
         $('#gitCustomRepositoryModal').on('shown.bs.modal', function(){
             $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
@@ -221,9 +217,7 @@ export class Modals {
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', true);
             $('#gitCustomRepositoryModalAffirmativeButton').trigger("focus");
 
-            // TODO: this might not be right, depending on state
-            $('#gitCustomRepositoryModalSectionGit').show();
-            $('#gitCustomRepositoryModalSectionLocal').hide();
+            Modals.showCorrectCustomRepositoryInputs();
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
@@ -469,6 +463,15 @@ export class Modals {
             target.removeClass('is-valid');
             target.addClass('is-invalid');
         }
+    }
+
+    // check which "repository service" has been selected in the dropdown, and show/hide other inputs as appropriate
+    static showCorrectCustomRepositoryInputs(){
+        const repositoryService : Repository.Service = <Repository.Service>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
+        const showLocalDirectorySection = repositoryService === Repository.Service.LocalDirectory;
+
+        $('#gitCustomRepositoryModalSectionGit').toggle(!showLocalDirectorySection);
+        $('#gitCustomRepositoryModalSectionLocal').toggle(showLocalDirectorySection);
     }
 
     static _updateFieldModalDataType(dataType: string){
