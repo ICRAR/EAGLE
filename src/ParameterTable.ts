@@ -192,8 +192,7 @@ export class ParameterTable {
                 return displayedFields;
 
             default:
-                console.warn('could not return field because the bottom window node is set to: ' + Setting.findValue(Setting.BOTTOM_WINDOW_MODE))
-                return null
+                return []
         }
     }, this);
 
@@ -370,6 +369,7 @@ export class ParameterTable {
                 graphConfig.removeField(currentField);
             }
         } else {
+            graphConfig = new GraphConfig()
             Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
                 ParameterTable.openModal(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
 
@@ -381,10 +381,6 @@ export class ParameterTable {
                     return;
                 }
 
-                // clone config
-                graphConfig = graphConfig.clone();
-                graphConfig.setId(Utils.generateGraphConfigId());
-
                 // set name and set modified flag
                 graphConfig.setName(userString);
 
@@ -394,6 +390,9 @@ export class ParameterTable {
                 } else {
                     graphConfig.removeField(currentField);
                 }
+
+                //add the graph config to the graph
+                Eagle.getInstance().logicalGraph().addGraphConfig(graphConfig)
 
                 // make this config the active config
                 Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig.getId());
