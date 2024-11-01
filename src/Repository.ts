@@ -279,7 +279,9 @@ export class Repository {
         // first copy the entries to a temp directory, for sorting
         const entries: [string, FileSystemHandle][] = [];
         for await (const entry of dirHandle.entries()){
-            entries.push(entry);
+            if (entry[1].kind !== 'directory' || Utils.verifyFolderName(entry[0])){
+                entries.push(entry);
+            }
         }
 
         // sort

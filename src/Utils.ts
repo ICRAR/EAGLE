@@ -58,6 +58,11 @@ export class Utils {
         "daliuge", "dlg" // for logical graphs templates containing graph configurations
     ];
 
+    // disallowed folder names
+    static readonly DISALLOWED_FOLDER_NAMES: string[] = [
+        ".git",
+    ];
+
     static ojsGraphSchema : object = {};
 
 
@@ -224,11 +229,12 @@ export class Utils {
         const fileExtension = Utils.getFileExtension(filename);
 
         // Check if the extension is in the list of allowed extensions
-        if ($.inArray(fileExtension, Utils.FILE_EXTENSIONS) != -1) {
-            return true;
-        } else {
-            return false;
-        }
+        return $.inArray(fileExtension, Utils.FILE_EXTENSIONS) !== -1;
+    }
+
+    static verifyFolderName(folderName: string): boolean {
+        // check if the name is in the list of disallowed
+        return $.inArray(folderName, Utils.DISALLOWED_FOLDER_NAMES) === -1;
     }
 
     /**
