@@ -1912,13 +1912,13 @@ export class Eagle {
                 token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
                 break;
             default:
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
+                Utils.showUserMessage("Error", "Unknown repository service! (" + repository.service +")");
                 return;
         }
 
         // check that access token is defined
         if (token === null || token === "") {
-            Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
+            Utils.showUserMessage("Error", "The repository access token is not set! To save files to this repository, set the " + repository.service + " access token in Settings.");
             return;
         }
 
@@ -2568,7 +2568,7 @@ export class Eagle {
 
             // check that access token is defined
             if (token === null || token === "") {
-                Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
+                Utils.showUserMessage("Error", "The repository access token is not set! To save files to this repository, set the " + repository.service + " access token in Settings.");
                 return;
             }
 

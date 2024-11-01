@@ -632,6 +632,11 @@ export class Utils {
             text: Repository.Service.GitLab,
             selected: defaultRepositoryService === Repository.Service.GitLab
         }));
+        $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
+            value: Repository.Service.LocalDirectory,
+            text: Repository.Service.LocalDirectory,
+            selected: defaultRepositoryService === Repository.Service.LocalDirectory
+        }));
 
         Utils.updateGitCommitRepositoriesList(repositories, defaultRepository);
 
