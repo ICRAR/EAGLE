@@ -46,7 +46,7 @@ export class LogicalGraph {
     private nodes : ko.ObservableArray<Node>;
     private edges : ko.ObservableArray<Edge>;
     private graphConfigs : ko.ObservableArray<GraphConfig>;
-    private activeGraphConfig : ko.Observable<GraphConfig>;
+    private activeGraphConfigId : ko.Observable<GraphConfig.Id>
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
     
@@ -59,7 +59,7 @@ export class LogicalGraph {
         this.nodes = ko.observableArray([]);
         this.edges = ko.observableArray([]);
         this.graphConfigs = ko.observableArray([]);
-        this.activeGraphConfig = ko.observable(new GraphConfig());
+        this.activeGraphConfigId = ko.observable()
         this.issues = ko.observableArray([])
     }
 
@@ -126,6 +126,14 @@ export class LogicalGraph {
             result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc);
         }
 
+        // saving the id of the active graph configuration
+        const activeGraphConfigId = Eagle.getInstance().logicalGraph().activeGraphConfigId()
+        if(activeGraphConfigId === undefined){
+            result.activeGraphConfigId = ''
+        }else{
+            result.activeGraphConfigId = activeGraphConfigId
+        }
+
         return result;
     }
 
@@ -136,15 +144,16 @@ export class LogicalGraph {
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
         result += '"modelData": ' + JSON.stringify(json.modelData, null, EagleConfig.JSON_INDENT) + ",\n";
+        result += '"activeGraphConfigId": "' + json.activeGraphConfigId + '",\n';
 
         // if we are sending this graph for translation, then only provide the "active" graph configuration, or an empty array if none exist
         // otherwise, add all graph configurations
         if (forTranslation){
-            if (graph.activeGraphConfig().getId() === null){
+            if (graph.activeGraphConfigId() === null){
                 result += '"graphConfigurations": {},\n';
             } else {
                 const graphConfigurations: any = {};
-                graphConfigurations[graph.activeGraphConfig().getId().toString()] = GraphConfig.toJson(graph.activeGraphConfig());
+                graphConfigurations[graph.activeGraphConfigId().toString()] = GraphConfig.toJson(graph.getActiveGraphConfig());
 
                 result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, EagleConfig.JSON_INDENT) + ",\n";
             }
@@ -208,6 +217,13 @@ export class LogicalGraph {
                 const gc = GraphConfig.fromJson(gco, errorsWarnings);
                 gc.setId(gcId as GraphConfig.Id);
                 result.graphConfigs.push(gc);
+            }
+
+            //if the saved 'activeGraphConfigId' is empty or missing, we use the last one in the array, else we set the saved one as active                
+            if(dataObject["activeGraphConfigId"] === '' || dataObject["activeGraphConfigId"] === undefined){
+                result.activeGraphConfigId(result.graphConfigs()[result.graphConfigs().length - 1].getId() as GraphConfig.Id)
+            }else{
+                result.activeGraphConfigId(dataObject["activeGraphConfigId"] as GraphConfig.Id)
             }
         }
 
@@ -326,9 +342,19 @@ export class LogicalGraph {
     getGraphConfigs = (): GraphConfig[] => {
         return this.graphConfigs();
     }
+    
+    getGraphConfigById = (id: GraphConfig.Id): GraphConfig => {
+        for(let i = 0 ; i < this.graphConfigs().length ; i++){
+            if(this.graphConfigs()[i].getId() === id){
+                return this.graphConfigs()[i]
+            }
+        }
+        return null
+    }
 
     addGraphConfig = (config: GraphConfig): void => {
         this.graphConfigs.push(config);
+        Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Added a new graph config");
     }
 
     duplicateGraphConfig = (config: GraphConfig): void => {
@@ -336,24 +362,20 @@ export class LogicalGraph {
 
         clone.setId(Utils.generateGraphConfigId());
         clone.setName(Utils.generateGraphConfigName(clone));
-        clone.setIsFavorite(false);
 
-        // if the active config is modified, we can't replace it
-        if (this.activeGraphConfig().getIsModified()){
-            // just duplicate
-            this.graphConfigs.push(clone);
+        // duplicate, set active and graph as modified
+        this.addGraphConfig(clone)
+        this.setActiveGraphConfig(clone.getId())
+        this.fileInfo().modified = true;
 
-            Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "'", "success");
-        } else {
-            // duplicate, set active and modified
-            clone.setIsModified(true);
-            this.activeGraphConfig(clone);
+        Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "' and set to active config", "success");
 
-            Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "' and set to active config", "success");
+        //focus on and select the name field of the newly duplicated config, ready to rename. this requires a little wait, to allow the ui to update
+        setTimeout(() => {
+            $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
+        }, 100);
 
-            GraphConfigurationsTable.closeModal();
-            ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal);
-        }
+        Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Duplicated a graph config" + clone.getName());
     }
 
     removeGraphConfig = (config: GraphConfig): void => {
@@ -383,25 +405,11 @@ export class LogicalGraph {
     }
 
     getActiveGraphConfig = (): GraphConfig => {
-        return this.activeGraphConfig();
+        return this.getGraphConfigById(this.activeGraphConfigId())
     }
 
-    setActiveGraphConfig = (config: GraphConfig): void => {
-        // check if current active config is modified, if so, abort
-        if (this.activeGraphConfig().getIsModified()){
-            Utils.showNotification("Can't change active config", "The current graph configuration has been modified, please save changes.", "danger");
-            return;
-        }
-
-        this.activeGraphConfig(config);
-    }
-
-    discardActiveGraphConfig = (): void => {
-        // first we have to remove the modified flag on the active config, otherwise we can't discard it
-        this.activeGraphConfig().setIsModified(false);
-
-        // set the active graph config (to the last graph config in the LG)
-        this.setActiveGraphConfig(this.graphConfigs()[this.graphConfigs().length - 1]);
+    setActiveGraphConfig = (configId: GraphConfig.Id): void => {
+        this.activeGraphConfigId(configId)
     }
 
     countEdgesIncidentOnNode = (node : Node) : number => {
@@ -422,6 +430,7 @@ export class LogicalGraph {
         this.nodes([]);
         this.edges([]);
         this.graphConfigs([]);
+        this.activeGraphConfigId(undefined)
     }
 
     clone = () : LogicalGraph => {
@@ -444,8 +453,8 @@ export class LogicalGraph {
             result.graphConfigs.push(graphConfig.clone());
         }
 
-        // copy active graph config
-        result.activeGraphConfig(this.activeGraphConfig().clone());
+        //copy active graph config id state
+        result.activeGraphConfigId(this.activeGraphConfigId());
 
         return result;
     }

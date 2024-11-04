@@ -1144,11 +1144,13 @@ export class GraphRenderer {
                     if (parent !== null && outerMostNode.getParentId() !== parent.getId() && outerMostNode.getId() !== parent.getId() && !ancestorOfParent && !outerMostNode.isEmbedded()){
                         GraphRenderer.updateNodeParent(outerMostNode, parent.getId(),  allowGraphEditing);
                         GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByIdQuiet(parent.getId()).getRadius()
+                        eagle.logicalGraph().fileInfo().modified = true;
                     }
 
                     // if no parent found, update
                     if (parent === null && outerMostNode.getParentId() !== null && !outerMostNode.isEmbedded()){
                         GraphRenderer.updateNodeParent(outerMostNode, null,  allowGraphEditing);
+                        eagle.logicalGraph().fileInfo().modified = true;
                     }
 
                     if (oldParent !== null){
@@ -2211,6 +2213,7 @@ export class GraphRenderer {
         eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, (edge : Edge) : void => {
             eagle.checkGraph();
             eagle.undo().pushSnapshot(eagle, "Added edge from " + srcNode.getName() + " to " + destNode.getName());
+            eagle.logicalGraph().fileInfo().modified = true;
             eagle.logicalGraph.valueHasMutated();
             GraphRenderer.clearEdgeVars();
         });

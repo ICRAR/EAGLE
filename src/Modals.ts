@@ -267,10 +267,6 @@ export class Modals {
             $('#editFieldModalAffirmativeButton').trigger("focus");
         });
 
-        $('#editFieldModal').on('hidden.bs.modal', function(){
-            ParameterTable.openModal(ParameterTable.Mode.NodeFields, ParameterTable.SelectType.Normal)
-        });
-
         // #editEdgeModal - requestUserEditEdge()
         $('#editEdgeModalAffirmativeButton').on('click', function(){
             $('#editEdgeModal').data('completed', true);

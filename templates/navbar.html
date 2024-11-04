@@ -24,7 +24,7 @@
                 <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
                     <i class="material-icons md-18">info</i>
                 </button>
-                <button id="openGraphConfigurationTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openModal(ParameterTable.Mode.GraphConfig, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Attributes Configuration ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
+                <button id="openGraphConfigurationTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openModal(Eagle.BottomWindowMode.GraphConfigAttributesTable, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Attributes Configuration ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
                     <i class="md-18 icon-key_attribute_table"></i>
                 </button>
                 <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >
@@ -212,9 +212,6 @@
                     <a class="dropdown-item" id="createNewConfig" href="#" data-bind="click: newConfig">New
                         <span data-bind="text: KeyboardShortcut.idToText('new_config', true)"></span>
                     </a>
-                    <a class="dropdown-item" id="saveConfig" href="#" data-bind="click: saveConfig">Save
-                        <span data-bind="text: KeyboardShortcut.idToText('save_config', true)"></span>
-                    </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" id="displayAllConfigs" href="#" data-bind="click: GraphConfigurationsTable.openModal">Display All
                         <span data-bind="text: KeyboardShortcut.idToText('open_graph_configurations_table', true)"></span>
@@ -249,4 +246,5 @@
 </nav>
 <div id="graphNameWrapper" data-bind="style: { 'visibility':eagle.getEagleIsReady()}">
     <span id="filename" data-bind="text: repositoryFileName"></span>
+    <span id="fileIsModified" class="material-icons md-18" data-bind="visible: eagle.logicalGraph().fileInfo().modified">draw</span>
 </div>

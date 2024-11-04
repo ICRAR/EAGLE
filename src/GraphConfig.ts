@@ -7,186 +7,10 @@ import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { LogicalGraph } from "./LogicalGraph";
 
-export class GraphConfigField {
-    private id: ko.Observable<FieldId>;
-    private value: ko.Observable<string>;
-    private comment: ko.Observable<string>;
-
-    constructor(){
-        this.id = ko.observable(null);
-        this.value = ko.observable("");
-        this.comment = ko.observable("");
-    }
-
-    clone = (): GraphConfigField => {
-        const result = new GraphConfigField();
-
-        result.id(this.id());
-        result.value(this.value());
-        result.comment(this.comment());
-
-        return result;
-    }
-
-    setId = (id: FieldId): GraphConfigField => {
-        this.id(id);
-        return this;
-    }
-
-    getId = (): string => {
-        return this.id();
-    }
-
-    setValue = (value: string): GraphConfigField => {
-        this.value(value);
-        return this;
-    }
-
-    getValue = (): string => {
-        return this.value();
-    }
-
-    setComment = (comment: string): GraphConfigField => {
-        this.comment(comment);
-        return this;
-    }
-
-    getComment = (): string => {
-        return this.comment();
-    }
-
-    static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
-        const result = new GraphConfigField();
-
-        if (typeof data.value !== 'undefined'){
-            result.value(data.value);
-        }
-
-        if (typeof data.comment !== 'undefined'){
-            result.comment(data.comment);
-        }
-
-        return result;
-    }
-
-    static toJson(field: GraphConfigField): object {
-        const result : any = {};
-
-        // NOTE: do not add 'id' attribute, since fields are stored in a dict keyed by id
-        result.value = field.value();
-        result.comment = field.comment();
-
-        return result;
-    }
-}
-
-export class GraphConfigNode {
-    private id: ko.Observable<NodeId>;
-    private fields: ko.ObservableArray<GraphConfigField>;
-
-    constructor(){
-        this.id = ko.observable(null);
-        this.fields = ko.observableArray([]);
-    }
-
-    clone = () : GraphConfigNode => {
-        const result: GraphConfigNode = new GraphConfigNode();
-
-        result.id(this.id());
-
-        for (const field of this.fields()){
-            result.fields.push(field.clone());
-        }
-
-        return result;
-    }
-
-    setId = (id: NodeId): GraphConfigNode => {
-        this.id(id);
-        return this;
-    }
-
-    getId = (): NodeId => {
-        return this.id();
-    }
-
-    addField = (id: FieldId): GraphConfigField => {
-        // check to see if the field already exists
-        for (const field of this.fields()){
-            if (field.getId() === id){
-                return field;
-            }
-        }
-
-        // otherwise add new field
-        const newField: GraphConfigField = new GraphConfigField();
-        newField.setId(id);
-        this.fields.push(newField);
-        return newField;
-    }
-
-    findFieldById = (id: FieldId): GraphConfigField => {
-        for (let i = this.fields().length - 1; i >= 0 ; i--){
-            if (this.fields()[i].getId() === id){
-                return this.fields()[i];
-            }
-        }
-
-        return null;
-    }
-
-    removeFieldById = (id: string): GraphConfigNode => {
-        for (let i = this.fields().length - 1; i >= 0 ; i--){
-            if (this.fields()[i].getId() === id){
-                this.fields.splice(i, 1);
-                break;
-            }
-        }
-
-        return this;
-    }
-
-    getFields = (): GraphConfigField[] => {
-        return this.fields();
-    }
-
-    static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
-        const result = new GraphConfigNode();
-
-        if (data.fields !== 'undefined'){
-            for (const fieldId in data.fields){
-                const fieldData = data.fields[fieldId];
-                const newField: GraphConfigField = GraphConfigField.fromJson(fieldData, errorsWarnings);
-                newField.setId(fieldId as FieldId);
-                result.fields.push(newField);
-            }
-        }
-
-        return result;
-    }
-
-    static toJSON(node: GraphConfigNode) : object {
-        const result : any = {};
-
-        // NOTE: do not add 'id' attribute, since nodes are stored in a dict keyed by id
-
-        // add fields
-        result.fields = {};
-        for (const field of node.fields()){
-            result.fields[field.getId()] = GraphConfigField.toJson(field);
-        }
-
-        return result;
-    }
-}
-
 export class GraphConfig {
     private id: ko.Observable<GraphConfig.Id>;
     private name: ko.Observable<string>;
     private description: ko.Observable<string>;
-
-    private isModified: ko.Observable<boolean>;
-    private isFavorite: ko.Observable<boolean>;
     
     private nodes: ko.ObservableArray<GraphConfigNode>;
 
@@ -199,9 +23,6 @@ export class GraphConfig {
         this.name = ko.observable("");
         this.description = ko.observable("");
 
-        this.isModified = ko.observable(false);
-        this.isFavorite = ko.observable(false);
-        
         this.nodes = ko.observableArray([]);
 
         this.lastModifiedName = ko.observable("");
@@ -215,9 +36,6 @@ export class GraphConfig {
         result.id(this.id());
         result.name(this.name());
         result.description(this.description());
-
-        result.isModified(this.isModified());
-        result.isFavorite(this.isFavorite());
         
         // copy nodes
         for (const node of this.nodes()){
@@ -256,18 +74,6 @@ export class GraphConfig {
     setDescription = (description: string): GraphConfig => {
         this.description(description);
         return this;
-    }
-
-    setIsModified = (isModified: boolean): void => {
-        this.isModified(isModified);
-    }
-
-    getIsModified = (): boolean => {
-        return this.isModified();
-    }
-
-    setIsFavorite = (favorite: boolean): void => {
-        this.isFavorite(favorite);
     }
 
     getNodes = (): GraphConfigNode[] => {
@@ -353,10 +159,6 @@ export class GraphConfig {
             result.description(data.description);
         }
 
-        if (typeof data.isFavorite !== 'undefined'){
-            result.isFavorite(data.isFavorite);
-        }
-
         if (typeof data.nodes !== 'undefined'){
             for (const nodeId in data.nodes){
                 const nodeData = data.nodes[nodeId];
@@ -384,7 +186,6 @@ export class GraphConfig {
 
         // NOTE: we don't write isModified to JSON, it is run-time only
         result.name = graphConfig.name();
-        result.isFavorite = graphConfig.isFavorite();
         result.description = graphConfig.description();
 
         // add nodes
@@ -407,7 +208,7 @@ export class GraphConfig {
         const json: any = GraphConfig.toJson(graphConfig);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
-        result += JSON.stringify(json, null, EagleConfig.JSON_INDENT);
+        result += JSON.stringify(json, null, 4);
 
         return result;
     }
@@ -434,6 +235,179 @@ export class GraphConfig {
                 lgField.setValue(field.getValue());
             }
         }
+    }
+}
+
+export class GraphConfigNode {
+    private id: ko.Observable<NodeId>;
+    private fields: ko.ObservableArray<GraphConfigField>;
+
+    constructor(){
+        this.id = ko.observable(null);
+        this.fields = ko.observableArray([]);
+    }
+
+    clone = () : GraphConfigNode => {
+        const result: GraphConfigNode = new GraphConfigNode();
+
+        result.id(this.id());
+
+        for (const field of this.fields()){
+            result.fields.push(field.clone());
+        }
+
+        return result;
+    }
+
+    setId = (id: NodeId): GraphConfigNode => {
+        this.id(id);
+        return this;
+    }
+
+    getId = (): NodeId => {
+        return this.id();
+    }
+
+    addField = (id: FieldId): GraphConfigField => {
+        // check to see if the field already exists
+        for (const field of this.fields()){
+            if (field.getId() === id){
+                return field;
+            }
+        }
+
+        // otherwise add new field
+        const newField: GraphConfigField = new GraphConfigField();
+        newField.setId(id);
+        this.fields.push(newField);
+        return newField;
+    }
+
+    findFieldById = (id: FieldId): GraphConfigField => {
+        for (let i = this.fields().length - 1; i >= 0 ; i--){
+            if (this.fields()[i].getId() === id){
+                return this.fields()[i];
+            }
+        }
+
+        return null;
+    }
+
+    removeFieldById = (id: string): GraphConfigNode => {
+        for (let i = this.fields().length - 1; i >= 0 ; i--){
+            if (this.fields()[i].getId() === id){
+                this.fields.splice(i, 1);
+                break;
+            }
+        }
+
+        return this;
+    }
+
+    getFields = (): GraphConfigField[] => {
+        return this.fields();
+    }
+
+    static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
+        const result = new GraphConfigNode();
+
+        if (data.fields !== undefined){
+            for (const fieldId in data.fields){
+                const fieldData = data.fields[fieldId];
+                const newField: GraphConfigField = GraphConfigField.fromJson(fieldData, errorsWarnings);
+                newField.setId(fieldId as FieldId);
+                result.fields.push(newField);
+            }
+        }
+
+        return result;
+    }
+
+    static toJSON(node: GraphConfigNode) : object {
+        const result : any = {};
+
+        // NOTE: do not add 'id' attribute, since nodes are stored in a dict keyed by id
+
+        // add fields
+        result.fields = {};
+        for (const field of node.fields()){
+            result.fields[field.getId()] = GraphConfigField.toJson(field);
+        }
+
+        return result;
+    }
+}
+
+export class GraphConfigField {
+    private id: ko.Observable<FieldId>;
+    private value: ko.Observable<string>;
+    private comment: ko.Observable<string>;
+
+    constructor(){
+        this.id = ko.observable(null);
+        this.value = ko.observable("");
+        this.comment = ko.observable("");
+    }
+
+    clone = (): GraphConfigField => {
+        const result = new GraphConfigField();
+
+        result.id(this.id());
+        result.value(this.value());
+        result.comment(this.comment());
+
+        return result;
+    }
+
+    setId = (id: FieldId): GraphConfigField => {
+        this.id(id);
+        return this;
+    }
+
+    getId = (): string => {
+        return this.id();
+    }
+
+    setValue = (value: string): GraphConfigField => {
+        this.value(value);
+        return this;
+    }
+
+    getValue = (): string => {
+        return this.value();
+    }
+
+    setComment = (comment: string): GraphConfigField => {
+        this.comment(comment);
+        return this;
+    }
+
+    getComment = (): string => {
+        return this.comment();
+    }
+
+    static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
+        const result = new GraphConfigField();
+
+        if (typeof data.value !== 'undefined'){
+            result.value(data.value);
+        }
+
+        if (typeof data.comment !== 'undefined'){
+            result.comment(data.comment);
+        }
+
+        return result;
+    }
+
+    static toJson(field: GraphConfigField): object {
+        const result : any = {};
+
+        // NOTE: do not add 'id' attribute, since fields are stored in a dict keyed by id
+        result.value = field.value();
+        result.comment = field.comment();
+
+        return result;
     }
 }
 
