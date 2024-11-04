@@ -32,7 +32,7 @@ export class Daliuge {
     static readonly TEMPLATE_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/master/daliuge/daliuge-master-template.palette";
 
     // schemas
-    static readonly GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/daliuge/master/daliuge-translator/dlg/dropmake/lg.graph.schema";
+    static readonly GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/tools/lg.graph.schema";
 
     // NOTE: eventually this can be replaced. Once we have added a new category for PythonInitialiser
     static isPythonInitialiser(node: Node): boolean {
