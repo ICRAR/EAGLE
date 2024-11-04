@@ -2040,6 +2040,14 @@ ul.nav.navbar-nav .dropdown-item:hover{
     color: rgb(219, 219, 219);
 }
 
+#graphNameWrapper #fileIsModified{
+    position: absolute;
+    padding-left: 5px;
+    font-size: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 .navbar-light .navbar-nav .nav-link {
     color: rgba(255, 255, 255, 0.55);
 }
