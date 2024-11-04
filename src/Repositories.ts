@@ -85,24 +85,28 @@ export class Repositories {
                     Utils.showUserMessage("Error", "Repository name is empty!");
                     return;
                 }
-
+                
                 if (repositoryBranch.trim() == ""){
                     Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
                     return;
                 }
             }
 
-            // add extension to userString to indicate repository service
-            const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
-            if (localStorageKey === null){
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
-                return;
+            // add details of repository to HTML localStorage, so that EAGLE remembers to load this repository at startup
+            //
+            // NOTE: we can't save LocalDirectory-type repositories, since the FileSystemDirectoryHandle containing the 
+            // details of the repository can not be saved in localStorage, it requires IndexedDB
+            if (repositoryService === Repository.Service.GitHub || repositoryService === Repository.Service.GitLab){
+                const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
+                const localStorageValue : string = Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch);
+
+                // Adding the repo name into the local browser storage.
+                localStorage.setItem(localStorageKey, localStorageValue);
+            } else {
+                console.log("Skip saving new repository to localStorage. Not a git repository.")
             }
 
-            // Adding the repo name into the local browser storage.
-            localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
-
-            // Reload the repository lists
+            // load the repository lists
             if (repositoryService === Repository.Service.GitHub){
                 GitHub.loadRepoList();
             }

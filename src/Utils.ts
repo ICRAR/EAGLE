@@ -1336,19 +1336,19 @@ export class Utils {
         return this.getBottomWindowHeight() + $('#statusBar').height() 
     }
 
+    // TODO: move to Repository.ts?
     static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
         switch (repositoryService){
             case Repository.Service.GitHub:
                 return repositoryName + "|" + repositoryBranch + ".github_repository_and_branch";
             case Repository.Service.GitLab:
                 return repositoryName + "|" + repositoryBranch + ".gitlab_repository_and_branch";
-            case Repository.Service.LocalDirectory:
-                return repositoryName + ".local_directory";
             default:
                 return null;
         }
     }
 
+    // TODO: move to Repository.ts?
     static getLocalStorageValue(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
         return repositoryName+"|"+repositoryBranch;
     }
