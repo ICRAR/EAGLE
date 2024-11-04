@@ -901,13 +901,11 @@ export class LogicalGraph {
         const eagle = Eagle.getInstance()
         const graph = eagle.logicalGraph()
 
-        // check that all node, edge, field ids are unique
-        // {
+        // check that all node, edge, field, and config ids are unique
         const ids : string[] = [];
 
         // loop over graph nodes
         for (const node of graph.getNodes()){
-            //check for unique ids
             if (ids.includes(node.getId())){
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Node (" + node.getName() + ") does not have a unique id",
@@ -916,10 +914,10 @@ export class LogicalGraph {
                     "Assign node a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
-                // errorsWarnings.errors.push(issue);
             }
             ids.push(node.getId());
 
+            // loop over fields within graphs
             for (const field of node.getFields()){
                 if (ids.includes(field.getId())){
                     const issue: Errors.Issue = Errors.ShowFix(
@@ -929,7 +927,6 @@ export class LogicalGraph {
                         "Assign field a new id"
                     );
                     graph.issues.push({issue : issue, validity : Errors.Validity.Error})
-                    // errorsWarnings.errors.push(issue);
                 }
                 ids.push(field.getId());
             }
@@ -945,10 +942,44 @@ export class LogicalGraph {
                     "Assign edge a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
-                // errorsWarnings.errors.push(issue);
             }
             ids.push(edge.getId());
         }
-        // }
+
+        // loop over the graph configs
+        for (const graphConfig of graph.getGraphConfigs()){
+            if (ids.includes(graphConfig.getId())){
+                const issue: Errors.Issue = Errors.ShowFix(
+                    "Graph Config (" + graphConfig.getId() + ") does not have a unique id",
+                    function(){Utils.showGraphConfig(eagle, graphConfig.getId())},
+                    function(){graphConfig.setId(Utils.generateGraphConfigId())},
+                    "Assign graph config a new id"
+                );
+                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+            }
+
+            ids.push(graphConfig.getId());
+        }
+
+        // check that active graph config id actually refers to a graph config in the graphConfigs dict
+        if (graph.activeGraphConfigId() !== undefined && graph.activeGraphConfigId() !== ""){
+            if (graph.getActiveGraphConfig() === null){
+                const issue: Errors.Issue = Errors.Fix(
+                    "Active Graph Config Id (" + graph.activeGraphConfigId() + ") does not match a known graph config",
+                    function(){
+                        // if there are no graph config, set active id to undefined
+                        // otherwise, just set the active id to the id of the first graph config in the list
+                        if (graph.getGraphConfigs().length === 0){
+                            graph.setActiveGraphConfig(undefined);
+                        } else {
+                            graph.setActiveGraphConfig(graph.getGraphConfigs()[0].getId());
+                        }
+                    },
+                    "Make first graph config active, or set undefined if no graph configs present"
+                );
+                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+            }
+        }
+
     }
 }
