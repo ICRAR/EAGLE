@@ -107,11 +107,16 @@ export class Repository {
 
         // traverse down the folder structure
         for (const pathPart of pathParts){
+            let folderFound: boolean = false;
             for (const folder of pointer.folders()){
                 if (folder.name === pathPart){
                     pointer = folder;
+                    folderFound = true;
                     break;
                 }
+            }
+            if (!folderFound){
+                return null;
             }
         }
 
