@@ -189,6 +189,9 @@ export class Modals {
             const repositories: Repository[] = Repositories.getList(repositoryService);
             $('#gitCommitModal').data('repositories', repositories);
             Utils.updateGitCommitRepositoriesList(repositories, null);
+
+            // show/hide commit message input based on whether the repositoryService is git-related or not
+            $('#gitCommitModalCommitMessageRow').toggle(Utils.repositoryServiceIsGit(repositoryService));
         });
 
         // #gitCustomRepositoryModal - requestUserAddCustomRepository()

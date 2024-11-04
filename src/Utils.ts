@@ -651,6 +651,13 @@ export class Utils {
 
         // validate fileName input
         Modals.validateCommitModalFileNameInputText();
+
+        // show/hide commit message input based on whether the repositoryService is git-related or not
+        $('#gitCommitModalCommitMessageRow').toggle(Utils.repositoryServiceIsGit(defaultRepositoryService));
+    }
+
+    static repositoryServiceIsGit(service: Repository.Service): boolean {
+        return service === Repository.Service.GitHub || service === Repository.Service.GitLab;
     }
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
