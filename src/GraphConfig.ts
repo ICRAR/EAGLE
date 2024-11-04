@@ -311,7 +311,7 @@ export class GraphConfigNode {
     static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
         const result = new GraphConfigNode();
 
-        if (data.fields !== 'undefined'){
+        if (data.fields !== undefined){
             for (const fieldId in data.fields){
                 const fieldData = data.fields[fieldId];
                 const newField: GraphConfigField = GraphConfigField.fromJson(fieldData, errorsWarnings);

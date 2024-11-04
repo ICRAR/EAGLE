@@ -342,18 +342,14 @@ export class LogicalGraph {
     getGraphConfigs = (): GraphConfig[] => {
         return this.graphConfigs();
     }
-
-    getGraphConfigById = (requestedConifgId:GraphConfig.Id): GraphConfig => {
-        const graphConfigs = this.getGraphConfigs()
-        let requestedGraphConfig : GraphConfig = null
-
-        for(let i = 0 ; i < graphConfigs.length ; i++){
-            if(graphConfigs[i].getId() === requestedConifgId){
-                requestedGraphConfig = graphConfigs[i]
+    
+    getGraphConfigById = (id: GraphConfig.Id): GraphConfig => {
+        for(let i = 0 ; i < this.graphConfigs().length ; i++){
+            if(this.graphConfigs()[i].getId() === id){
+                return this.graphConfigs()[i]
             }
         }
-
-        return requestedGraphConfig
+        return null
     }
 
     addGraphConfig = (config: GraphConfig): void => {
@@ -367,17 +363,17 @@ export class LogicalGraph {
         clone.setId(Utils.generateGraphConfigId());
         clone.setName(Utils.generateGraphConfigName(clone));
 
-            // duplicate, set active and graph as modified
-            this.addGraphConfig(clone)
-            this.setActiveGraphConfig(clone.getId())
-            this.fileInfo().modified = true;
+        // duplicate, set active and graph as modified
+        this.addGraphConfig(clone)
+        this.setActiveGraphConfig(clone.getId())
+        this.fileInfo().modified = true;
 
-            Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "' and set to active config", "success");
+        Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "' and set to active config", "success");
 
-            //focus on and select the name field of the newly duplicated config, ready to rename. this requires a little wait, to allow the ui to update
-            setTimeout(() => {
-                $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
-            }, 100);
+        //focus on and select the name field of the newly duplicated config, ready to rename. this requires a little wait, to allow the ui to update
+        setTimeout(() => {
+            $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
+        }, 100);
 
         Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Duplicated a graph config" + clone.getName());
     }
