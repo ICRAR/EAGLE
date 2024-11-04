@@ -61,7 +61,7 @@ export class ParameterTable {
             return "";
         }
 
-        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable){
+        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigAttributesTable){
             return ParameterTable.selectionParent().getDisplayText() + " - " + ParameterTable.selectionName();
         } else {
             return "Unknown";
@@ -73,7 +73,7 @@ export class ParameterTable {
             return "";
         }
 
-        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable){
+        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigAttributesTable){
             return ParameterTable.selection();
         } else {
             return "Unknown";
