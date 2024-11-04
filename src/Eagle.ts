@@ -1606,7 +1606,7 @@ export class Eagle {
         Utils.httpPostJSONString(url, jsonString, (error : string, data: string) : void => {
             if (error !== null){
                 Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
-                console.error("Error: " + JSON.stringify(error, null, 2) + " Data: " + data);
+                console.error("Error: " + JSON.stringify(error, null, EagleConfig.JSON_INDENT) + " Data: " + data);
                 return;
             }
 
@@ -3082,7 +3082,7 @@ export class Eagle {
         };
         
         // write to clipboard
-        navigator.clipboard.writeText(JSON.stringify(clipboard)).then(
+        navigator.clipboard.writeText(JSON.stringify(clipboard, null, EagleConfig.JSON_INDENT)).then(
             () => {
                 // success
                 Utils.showNotification("Copied to clipboard", "Copied " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");

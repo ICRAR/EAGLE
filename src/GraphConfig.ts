@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import { Branded } from "./main";
 import { Eagle } from "./Eagle";
+import { EagleConfig } from "./EagleConfig";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { LogicalGraph } from "./LogicalGraph";

@@ -1,6 +1,7 @@
 import * as fs from "fs";
 
-import {LogicalGraph} from '../src/LogicalGraph';
+import { EagleConfig } from "../src/EagleConfig";
+import { LogicalGraph } from '../src/LogicalGraph';
 
 // check command line arguments
 if (process.argv.length < 3){
@@ -20,7 +21,7 @@ const inputString : string = data.toString();
 const inputGraph : LogicalGraph = LogicalGraph.fromOJSJson(inputString);
 
 // write the logical graph to disk using the outputFilename
-const outputString : string = JSON.stringify(LogicalGraph.toOJSJson(inputGraph), null, 4);
+const outputString : string = JSON.stringify(LogicalGraph.toOJSJson(inputGraph), null, EagleConfig.JSON_INDENT);
 
 // check that the input and output are the same
 const match : boolean = inputString === outputString;
