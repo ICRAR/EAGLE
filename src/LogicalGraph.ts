@@ -143,23 +143,17 @@ export class LogicalGraph {
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
-<<<<<<< HEAD
-        result += '"modelData": ' + JSON.stringify(json.modelData, null, 4) + ",\n";
-        result += '"activeGraphConfigId": "' + json.activeGraphConfigId + '",\n';
-        result += '"graphConfigurations": ' + JSON.stringify(json.graphConfigurations, null, 4) + ",\n";
-        result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, 4) + ",\n";
-        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, 4) + "\n";
-=======
         result += '"modelData": ' + JSON.stringify(json.modelData, null, EagleConfig.JSON_INDENT) + ",\n";
+        result += '"activeGraphConfigId": "' + json.activeGraphConfigId + '",\n';
 
         // if we are sending this graph for translation, then only provide the "active" graph configuration, or an empty array if none exist
         // otherwise, add all graph configurations
         if (forTranslation){
-            if (graph.activeGraphConfig().getId() === null){
+            if (graph.activeGraphConfigId() === null){
                 result += '"graphConfigurations": {},\n';
             } else {
                 const graphConfigurations: any = {};
-                graphConfigurations[graph.activeGraphConfig().getId().toString()] = GraphConfig.toJson(graph.activeGraphConfig());
+                graphConfigurations[graph.activeGraphConfigId().toString()] = GraphConfig.toJson(graph.getActiveGraphConfig());
 
                 result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, EagleConfig.JSON_INDENT) + ",\n";
             }
@@ -169,7 +163,6 @@ export class LogicalGraph {
 
         result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, EagleConfig.JSON_INDENT) + ",\n";
         result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, EagleConfig.JSON_INDENT) + "\n";
->>>>>>> master
         result += "}\n";
 
         return result;
