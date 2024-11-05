@@ -204,6 +204,10 @@ export class ParameterTable {
     // TODO: move to Eagle.ts?
     //       doesn't seem to depend on any ParameterTable state, only Eagle state
     static getNodeLockedState = (field:Field) : boolean => {
+        if (Setting.find(Setting.BOTTOM_WINDOW_MODE).value() === Eagle.BottomWindowMode.GraphConfigAttributesTable){
+            return true;
+        }
+
         const eagle: Eagle = Eagle.getInstance();
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(eagle.selectedNode() === null){
