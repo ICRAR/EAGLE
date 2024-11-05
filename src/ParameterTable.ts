@@ -364,7 +364,7 @@ export class ParameterTable {
 
         if (graphConfig){
             if (add){
-                graphConfig.addField(currentField);
+                graphConfig.addValue(currentField.getNodeId(), currentField.getId(), currentField.getValue())
             } else {
                 graphConfig.removeField(currentField);
             }
@@ -386,7 +386,7 @@ export class ParameterTable {
 
                 // add/remove the field that was requested in the first place
                 if (add){
-                    graphConfig.addField(currentField);
+                    graphConfig.addValue(currentField.getNodeId(), currentField.getId(), currentField.getValue())
                 } else {
                     graphConfig.removeField(currentField);
                 }

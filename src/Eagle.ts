@@ -1490,9 +1490,8 @@ export class Eagle {
      */
 
     newConfig = () : void => {
-
         // clone existing active config, assign new id
-        const c: GraphConfig = this.logicalGraph().getActiveGraphConfig().clone();
+        const c: GraphConfig = new GraphConfig
         c.setId(Utils.generateGraphConfigId());
 
         
