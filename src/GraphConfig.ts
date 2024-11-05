@@ -2,7 +2,6 @@ import * as ko from "knockout";
 
 import { Branded } from "./main";
 import { Eagle } from "./Eagle";
-import { EagleConfig } from "./EagleConfig";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { LogicalGraph } from "./LogicalGraph";
@@ -113,6 +112,15 @@ export class GraphConfig {
             }
         }
         return null;
+    }
+
+    removeNode = (node: GraphConfigNode): void => {
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getId() === node.getId()){
+                this.nodes.splice(i, 1);
+                break;
+            }
+        }
     }
 
     removeField = (field: Field): void => {

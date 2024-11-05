@@ -1447,6 +1447,8 @@ export class Utils {
     static checkGraph(eagle: Eagle): void {
         const graph: LogicalGraph = eagle.logicalGraph();
 
+        LogicalGraph.isValid();
+
         // check all nodes are valid
         for (const node of graph.getNodes()){
             Node.isValid(node, Eagle.FileType.Graph);
@@ -2165,8 +2167,12 @@ export class Utils {
         // open the graph configs table
         GraphConfigurationsTable.openModal();
 
-        // TODO: highlight?
+        const graphConfig: GraphConfig = eagle.logicalGraph().getGraphConfigById(graphConfigId);
 
+        // highlight the name of the graph config
+        setTimeout(() => {
+            $('#tableRow_' + graphConfig.getName()).focus().select()
+        }, 100);
     }
 
     // only update result if it is worse that current result

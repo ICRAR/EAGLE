@@ -982,7 +982,38 @@ export class LogicalGraph {
         }
 
         // check that all fields, in all nodes, in all graph configs are actually present in the graph
-        
+        for (const graphConfig of graph.getGraphConfigs()){
+            for (const graphConfigNode of graphConfig.getNodes()){
+                // check that node exists in graph
+                const graphNode: Node = graph.findNodeByIdQuiet(graphConfigNode.getId());
 
+                if (graphNode === null){
+                    const issue: Errors.Issue = Errors.Fix(
+                        "Node (" + graphConfigNode.getId() +") in graph config (" + graphConfig.getName() + ") is not present in Logical Graph",
+                        function(){
+                            graphConfig.removeNode(graphConfigNode);
+                        },
+                        "Delete node from graph config"
+                    );
+                    graph.issues.push({issue : issue, validity : Errors.Validity.Error});
+                    break;
+                }
+
+                for (const graphConfigField of graphConfigNode.getFields()){
+                    const graphField: Field = graphNode.findFieldById(graphConfigField.getId());
+
+                    if (graphField === null){
+                        const issue: Errors.Issue = Errors.Fix(
+                            "Field (" + graphConfigField.getId() + ") in graph config (" + graphConfig.getName() + ", " + graphNode.getName() + ") is not present in Logical Graph",
+                            function(){
+                                graphConfigNode.removeFieldById(graphConfigField.getId());
+                            },
+                            "Delete field from node in graph config"
+                        );
+                        graph.issues.push({issue: issue, validity: Errors.Validity.Error});
+                    }
+                }
+            }
+        }
     }
 }
