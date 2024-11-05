@@ -1,5 +1,6 @@
 import * as ko from "knockout";
 
+import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { Edge } from "./Edge";
 import { Field } from './Field';
@@ -174,6 +175,7 @@ export class ParameterTable {
         
                     if (lgNode === null){
                         console.warn("ParameterTable.getTableFields(): Could not find node", node.getId());
+                        displayedFields.push(new Field(null, "<Missing Node:" + node.getId() +">", "?", "?", "?", true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort));
                         continue;
                     }
         
@@ -182,6 +184,9 @@ export class ParameterTable {
         
                         if (lgField === null){
                             console.warn("ParameterTable.getTableFields(): Could not find field", field.getId(), "on node", lgNode.getName());
+                            const dummyField: Field = new Field(null, "<Missing Field: " + field.getId() + ">", "?", "?", "?", true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            dummyField.setNodeId(lgNode.getId());
+                            displayedFields.push(dummyField);
                             continue;
                         }
         
