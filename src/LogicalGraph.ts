@@ -901,6 +901,9 @@ export class LogicalGraph {
         const eagle = Eagle.getInstance()
         const graph = eagle.logicalGraph()
 
+        // clear old issues
+        graph.issues([]);
+
         // check that all node, edge, field, and config ids are unique
         const ids : string[] = [];
 
