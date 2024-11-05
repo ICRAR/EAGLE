@@ -45,6 +45,7 @@ import { Repository } from './Repository';
 import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
 import { ParameterTable } from "./ParameterTable";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 
 export class Utils {
     // Allowed file extensions
@@ -2158,6 +2159,14 @@ export class Utils {
             const node = eagle.selectedNode()
             ParameterTable.openModalAndSelectField(node, field)
         },100)
+    }
+
+    static showGraphConfig(eagle: Eagle, graphConfigId: GraphConfig.Id){
+        // open the graph configs table
+        GraphConfigurationsTable.openModal();
+
+        // TODO: highlight?
+
     }
 
     // only update result if it is worse that current result

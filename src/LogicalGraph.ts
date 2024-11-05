@@ -981,5 +981,8 @@ export class LogicalGraph {
             }
         }
 
+        // check that all fields, in all nodes, in all graph configs are actually present in the graph
+        
+
     }
 }
