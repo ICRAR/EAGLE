@@ -272,7 +272,7 @@ td:first-child input {
 }
 
 .eagleTableDisplay .scrollWrapper {
-    height: 100%;
+    height: calc(100% - 24px);
     overflow: auto;
     position: relative;
 }
