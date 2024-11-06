@@ -171,10 +171,9 @@ export class ParameterTable {
                 }
 
                 for (const node of config.getNodes()){
-                    const lgNode = lg.findNodeById(node.getId());
+                    const lgNode = lg.findNodeByIdQuiet(node.getId());
         
                     if (lgNode === null){
-                        console.warn("ParameterTable.getTableFields(): Could not find node", node.getId());
                         displayedFields.push(new Field(null, "<Missing Node:" + node.getId() +">", "?", "?", "?", true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort));
                         continue;
                     }
@@ -183,7 +182,6 @@ export class ParameterTable {
                         const lgField = lgNode.findFieldById(field.getId());
         
                         if (lgField === null){
-                            console.warn("ParameterTable.getTableFields(): Could not find field", field.getId(), "on node", lgNode.getName());
                             const dummyField: Field = new Field(null, "<Missing Field: " + field.getId() + ">", "?", "?", "?", true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
                             dummyField.setNodeId(lgNode.getId());
                             displayedFields.push(dummyField);
