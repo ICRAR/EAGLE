@@ -205,7 +205,7 @@ export class ParameterTable {
     //       doesn't seem to depend on any ParameterTable state, only Eagle state
     static getNodeLockedState = (field:Field) : boolean => {
         // this handles a special case where EAGLE is displaying the "Graph Configuration Attributes Table"
-        // all the fields shown in that table should be locked (readonly)
+        // all the field names shown in that table should be locked (readonly)
         if (Setting.find(Setting.BOTTOM_WINDOW_MODE).value() === Eagle.BottomWindowMode.GraphConfigAttributesTable){
             return true;
         }
