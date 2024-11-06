@@ -6,6 +6,7 @@ import { EagleConfig } from "./EagleConfig";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { LogicalGraph } from "./LogicalGraph";
+import { Utils } from "./Utils";
 
 export class GraphConfig {
     private id: ko.Observable<GraphConfig.Id>;
@@ -375,6 +376,11 @@ export class GraphConfigField {
 
     getValue = (): string => {
         return this.value();
+    }
+
+    toggle = () : GraphConfigField => {        
+        this.value((!Utils.asBool(this.value())).toString());
+        return this;
     }
 
     setComment = (comment: string): GraphConfigField => {
