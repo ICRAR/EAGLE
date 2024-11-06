@@ -171,18 +171,18 @@ export class ParameterTable {
                 }
 
                 for (const node of config.getNodes()){
-                    const lgNode = lg.findNodeByIdQuiet(node.getId());
-        
-                    if (lgNode === null){
-                        displayedFields.push(new Field(null, "<Missing Node:" + node.getId() +">", "?", "?", "?", true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort));
-                        continue;
-                    }
-        
                     for (const field of node.getFields()){
+                        const lgNode = lg.findNodeByIdQuiet(node.getId());
+
+                        if (lgNode === null){
+                            displayedFields.push(new Field(null, "<Missing Node:" + node.getId() +">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort));
+                            continue;
+                        }
+
                         const lgField = lgNode.findFieldById(field.getId());
         
                         if (lgField === null){
-                            const dummyField: Field = new Field(null, "<Missing Field: " + field.getId() + ">", "?", "?", "?", true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            const dummyField: Field = new Field(null, "<Missing Field: " + field.getId() + ">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
                             dummyField.setNodeId(lgNode.getId());
                             displayedFields.push(dummyField);
                             continue;
