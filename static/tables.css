@@ -206,7 +206,6 @@ td:first-child input {
 #parameterTable .bottomWindowHeaderWrap{
     border: none;
     justify-content: unset;
-    border-top: solid 2px black;
     height: 46px;
 }
 
@@ -486,14 +485,6 @@ td:first-child input {
 .resizing {
     border-right: 3px solid whitesmoke;
     cursor: col-resize;
-}
-
-
-
-
-#tableOpenDocker{
-    position: absolute;
-    left: 160px;
 }
 
 #graphConfigurationsTableWrapper {
