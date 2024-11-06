@@ -124,10 +124,19 @@ export class GraphConfig {
     }
 
     removeField = (field: Field): void => {
-        const node = Eagle.getInstance().logicalGraph().findNodeById(field.getNodeId());
-        this.findNodeById(node.getId()).removeFieldById(field.getId());
+        // get reference to the GraphConfigNode containing the field
+        const graphConfigNode: GraphConfigNode = this.findNodeById(field.getNodeId());
 
-        // TODO: do we need to check if removing the field means that the node now has zero fields?
+        // remove the field
+        graphConfigNode.removeFieldById(field.getId());
+
+        // we check if removing the GraphConfigField means that the GraphConfigNode now has zero fields
+        if (graphConfigNode.getFields().length === 0){
+            this.removeNode(graphConfigNode);
+        }
+
+        // re-check graph
+        Eagle.getInstance().checkGraph();
     }
 
     addValue = (nodeId: NodeId, fieldId: FieldId, value: string) => {
