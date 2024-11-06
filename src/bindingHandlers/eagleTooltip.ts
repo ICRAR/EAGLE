@@ -47,6 +47,11 @@ ko.bindingHandlers.eagleTooltip = {
             let result = ''
             let size = '300px'
 
+            // abort if the input html is undefined
+            if (typeof html === 'undefined'){
+                return;
+            }
+
             //html can be either a string or a Object with a content string and size (in pixels)
             if(html.content != undefined){
                 size = html.size
