@@ -2,7 +2,6 @@ import * as ko from "knockout";
 
 import { Branded } from "./main";
 import { Eagle } from "./Eagle";
-import { EagleConfig } from "./EagleConfig";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { LogicalGraph } from "./LogicalGraph";
@@ -116,11 +115,29 @@ export class GraphConfig {
         return null;
     }
 
-    removeField = (field: Field): void => {
-        const node = Eagle.getInstance().logicalGraph().findNodeById(field.getNodeId());
-        this.findNodeById(node.getId()).removeFieldById(field.getId());
+    removeNode = (node: GraphConfigNode): void => {
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getId() === node.getId()){
+                this.nodes.splice(i, 1);
+                break;
+            }
+        }
+    }
 
-        // TODO: do we need to check if removing the field means that the node now has zero fields?
+    removeField = (field: Field): void => {
+        // get reference to the GraphConfigNode containing the field
+        const graphConfigNode: GraphConfigNode = this.findNodeById(field.getNodeId());
+
+        // remove the field
+        graphConfigNode.removeFieldById(field.getId());
+
+        // we check if removing the GraphConfigField means that the GraphConfigNode now has zero fields
+        if (graphConfigNode.getFields().length === 0){
+            this.removeNode(graphConfigNode);
+        }
+
+        // re-check graph
+        Eagle.getInstance().checkGraph();
     }
 
     addValue = (nodeId: NodeId, fieldId: FieldId, value: string) => {
@@ -365,7 +382,7 @@ export class GraphConfigField {
         return this;
     }
 
-    getId = (): string => {
+    getId = (): FieldId => {
         return this.id();
     }
 

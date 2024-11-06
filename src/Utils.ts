@@ -45,6 +45,7 @@ import { Repository } from './Repository';
 import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
 import { ParameterTable } from "./ParameterTable";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 
 export class Utils {
     // Allowed file extensions
@@ -1446,6 +1447,8 @@ export class Utils {
     static checkGraph(eagle: Eagle): void {
         const graph: LogicalGraph = eagle.logicalGraph();
 
+        LogicalGraph.isValid();
+
         // check all nodes are valid
         for (const node of graph.getNodes()){
             Node.isValid(node, Eagle.FileType.Graph);
@@ -2158,6 +2161,18 @@ export class Utils {
             const node = eagle.selectedNode()
             ParameterTable.openModalAndSelectField(node, field)
         },100)
+    }
+
+    static showGraphConfig(eagle: Eagle, graphConfigId: GraphConfig.Id){
+        // open the graph configs table
+        GraphConfigurationsTable.openModal();
+
+        const graphConfig: GraphConfig = eagle.logicalGraph().getGraphConfigById(graphConfigId);
+
+        // highlight the name of the graph config
+        setTimeout(() => {
+            $('#tableRow_' + graphConfig.getName()).focus().select()
+        }, 100);
     }
 
     // only update result if it is worse that current result

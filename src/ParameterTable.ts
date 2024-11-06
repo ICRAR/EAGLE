@@ -1,5 +1,6 @@
 import * as ko from "knockout";
 
+import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { Edge } from "./Edge";
 import { Field } from './Field';
@@ -170,18 +171,22 @@ export class ParameterTable {
                 }
 
                 for (const node of config.getNodes()){
-                    const lgNode = lg.findNodeById(node.getId());
-        
-                    if (lgNode === null){
-                        console.warn("ParameterTable.getTableFields(): Could not find node", node.getId());
-                        continue;
-                    }
-        
                     for (const field of node.getFields()){
+                        const lgNode = lg.findNodeByIdQuiet(node.getId());
+
+                        if (lgNode === null){
+                            const dummyField: Field = new Field(field.getId(), "<Missing Node:" + node.getId() +">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            dummyField.setNodeId(node.getId());
+                            displayedFields.push(dummyField);
+                            continue;
+                        }
+
                         const lgField = lgNode.findFieldById(field.getId());
         
                         if (lgField === null){
-                            console.warn("ParameterTable.getTableFields(): Could not find field", field.getId(), "on node", lgNode.getName());
+                            const dummyField: Field = new Field(field.getId(), "<Missing Field: " + field.getId() + ">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            dummyField.setNodeId(node.getId());
+                            displayedFields.push(dummyField);
                             continue;
                         }
         
@@ -199,6 +204,12 @@ export class ParameterTable {
     // TODO: move to Eagle.ts?
     //       doesn't seem to depend on any ParameterTable state, only Eagle state
     static getNodeLockedState = (field:Field) : boolean => {
+        // this handles a special case where EAGLE is displaying the "Graph Configuration Attributes Table"
+        // all the field names shown in that table should be locked (readonly)
+        if (Setting.find(Setting.BOTTOM_WINDOW_MODE).value() === Eagle.BottomWindowMode.GraphConfigAttributesTable){
+            return true;
+        }
+
         const eagle: Eagle = Eagle.getInstance();
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(eagle.selectedNode() === null){
