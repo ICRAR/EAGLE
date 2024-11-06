@@ -843,11 +843,6 @@ color: #00bb00;}
     z-index:10;
 }
 
-#tableOpenDocker{
-    position: absolute;
-    left: 160px;
-}
-
 .settingCategoryActive{
     display: inline-block;
 }

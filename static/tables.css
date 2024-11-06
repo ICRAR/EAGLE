@@ -1,7 +1,3 @@
-#paramsTableWrapper {
-    top: 24px;
-}
-
 #parameterTable #tableInspector{
     position: sticky;
     top: 0px;
@@ -34,7 +30,6 @@
 
 #parameterTableAddParameterButton{
     left: 15px;
-    /* position: absolute; */
 }
 
 #tableInspectorSelection{
@@ -226,7 +221,7 @@ td:first-child input {
 .eagleTableWrapper thead{
     position: sticky;
     z-index: 111;
-    top: 24px;
+    top: 0px;
 }
 
 #graphConfigurationsTableWrapper thead{
@@ -270,11 +265,16 @@ td:first-child input {
 .eagleTableDisplay .tableBody, .issuesDisplay .issuesBody{
     padding:10px;
     background-color: aliceblue;
-    overflow: auto;
     width: 100%;
     position: absolute;
     top: 53px;
     height: calc(100% - 46px);
+}
+
+.eagleTableDisplay .scrollWrapper {
+    height: 100%;
+    overflow: auto;
+    position: relative;
 }
 
 .eagleTableWrapper tr:nth-child(even) {
