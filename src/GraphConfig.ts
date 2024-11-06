@@ -372,7 +372,7 @@ export class GraphConfigField {
         return this;
     }
 
-    getId = (): string => {
+    getId = (): FieldId => {
         return this.id();
     }
 
