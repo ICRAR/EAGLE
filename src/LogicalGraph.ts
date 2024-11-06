@@ -221,7 +221,12 @@ export class LogicalGraph {
 
             //if the saved 'activeGraphConfigId' is empty or missing, we use the last one in the array, else we set the saved one as active                
             if(dataObject["activeGraphConfigId"] === '' || dataObject["activeGraphConfigId"] === undefined){
-                result.activeGraphConfigId(result.graphConfigs()[result.graphConfigs().length - 1].getId() as GraphConfig.Id)
+                // if graph has no configs, we can't use the last one in the array, so we'll set the active id to 'undefined'
+                if (result.graphConfigs().length === 0){
+                    result.activeGraphConfigId(undefined);
+                } else {
+                    result.activeGraphConfigId(result.graphConfigs()[result.graphConfigs().length - 1].getId() as GraphConfig.Id)
+                }
             }else{
                 result.activeGraphConfigId(dataObject["activeGraphConfigId"] as GraphConfig.Id)
             }
