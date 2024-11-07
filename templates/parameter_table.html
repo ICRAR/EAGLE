@@ -185,7 +185,7 @@
                                                 <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('displayText', $data) }, eagleTooltip:description">
                                                     <input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}}">
                                                     
-                                                    <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable -->
+                                                    <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable && Eagle.selectedLocation() === Eagle.FileType.Graph -->
                                                         <!-- ko ifnot: $root.logicalGraph().getActiveGraphConfig()?.hasField($data) -->
                                                         <button data-bind="click: function(){ParameterTable.requestAddField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER), eagleTooltip:'Add Field to Graph Config', style:{'visibility':'hidden'}, clickBubble:false">
                                                             <i class="material-icons">favorite_border</i>
