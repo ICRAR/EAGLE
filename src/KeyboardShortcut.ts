@@ -70,6 +70,12 @@ export class KeyboardShortcut {
             texts.push(result);
         }
 
+        // if there are no key texts produced, then it doesn't make sense to return "[]",
+        // just return an empty string
+        if (texts.length === 0){
+            return "";
+        }
+
         // surround with brackets if required
         if (addBrackets){
             return "[ " + texts.join(', ') + " ]";       
@@ -128,11 +134,11 @@ export class KeyboardShortcut {
     }
 
     static QUICK_ACTION(id: string, name: string, tags: string[], run: (eagle: Eagle, event: KeyboardEvent) => void): KeyboardShortcut {
-        return new KeyboardShortcut(id, name, [new Key("")], "keydown", true, false, tags, KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, run);
+        return new KeyboardShortcut(id, name, [], "keydown", true, false, tags, KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, run);
     }
 
     static QUICK_ACTION_DOCS(id: string, name: string, tags: string[], url: string): KeyboardShortcut {
-        return new KeyboardShortcut(id, name, [new Key("")], "keydown", true, false, tags, KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink(url);});
+        return new KeyboardShortcut(id, name, [], "keydown", true, false, tags, KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink(url);});
     }
 
     static processKey(e: KeyboardEvent) : void {
