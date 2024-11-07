@@ -493,17 +493,17 @@ export class Eagle {
 
         //determine center of the display area
         const displayCenterX : number = (containerWidth / that.globalScale() / 2);
-        const displayCenterY : number = containerHeight / that.globalScale() / 2;
+        const displayCenterY : number = (containerHeight / that.globalScale() / 2);
 
         // translate display to center the graph centroid
         that.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
         that.globalOffsetY(Math.round(displayCenterY - centroidY));
 
         //taking note of the screen center in graph space before zooming
-        const midPointX = $('#logicalGraphParent').width()/2
-        const midPointY = ($('#logicalGraphParent').height())/2
-        const xpb = midPointX/that.globalScale() - that.globalOffsetX();
-        const ypb = (midPointY)/that.globalScale() - that.globalOffsetY();
+        const midPointX = GraphRenderer.GRAPH_TO_SCREEN_POSITION_X(centroidX)
+
+        const xpb = centroidX
+        const ypb = displayCenterY/that.globalScale() - that.globalOffsetY(); 
 
         //applying the correct zoom
         if(graphYScale>graphXScale){
@@ -515,8 +515,8 @@ export class Eagle {
         }
         
         //checking the screen center in graph space after zoom
-        const xpa = midPointX/that.globalScale() - that.globalOffsetX();
-        const ypa = (midPointY)/that.globalScale() - that.globalOffsetY();
+        const xpa = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(midPointX)
+        const ypa = displayCenterY/that.globalScale() - that.globalOffsetY();
 
         //checking how far the center has moved
         const moveX = xpa-xpb
