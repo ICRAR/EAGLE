@@ -30,8 +30,6 @@ export class RepositoryFile {
                 return "palette";
             case Eagle.FileType.JSON:
                 return "language";
-            case Eagle.FileType.Daliuge:
-                return "construction"; // TODO: better icon
             default:
                 return this.type;
         }

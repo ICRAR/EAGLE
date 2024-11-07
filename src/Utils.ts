@@ -161,18 +161,16 @@ export class Utils {
     // NOTE: used for sorting files by filetype
     static getFileTypeNum(fileType: Eagle.FileType) : number {
         switch (fileType){
-            case Eagle.FileType.Daliuge:
-                return 0;
             case Eagle.FileType.Palette:
-                return 1;
+                return 0;
             case Eagle.FileType.Graph:
-                return 2;
+                return 1;
             case Eagle.FileType.JSON:
-                return 3;
+                return 2;
             case Eagle.FileType.Markdown:
-                return 4;
+                return 3;
             case Eagle.FileType.Unknown:
-                return 5;
+                return 4;
         }
     }
 
@@ -240,8 +238,6 @@ export class Utils {
             return "graph";
         } else if (fileType == Eagle.FileType.Palette) {
             return "palette";
-        } else if (fileType === Eagle.FileType.Daliuge) {
-            return "dlg";
         } else {
             console.error("Utils.getDiagramExtension() : Unknown file type! (" + fileType + ")");
             return "";
@@ -263,9 +259,6 @@ export class Utils {
         }
         if (fileType.toLowerCase() === "json"){
             return Eagle.FileType.JSON;
-        }
-        if (fileType.toLowerCase() === "daliuge" || fileType.toLowerCase() === "dlg"){
-            return Eagle.FileType.Daliuge;
         }
 
         return Eagle.FileType.Unknown;
@@ -1543,10 +1536,6 @@ export class Utils {
                         break;
                     case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
-                        break;
-                    case Eagle.FileType.Daliuge:
-                        // TODO: more here for the other parts of the Daliuge file, or a new schema for the whole thing
-                        valid = ajv.validate(Utils.ojsGraphSchema, json.graph) as boolean;
                         break;
                     default:
                         console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");

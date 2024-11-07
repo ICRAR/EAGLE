@@ -1664,7 +1664,6 @@ export class Eagle {
             // determine which object of the given filetype we are committing
             switch (fileType){
                 case Eagle.FileType.Graph:
-                case Eagle.FileType.Daliuge:
                     fileInfo = this.logicalGraph().fileInfo;
                     obj = this.logicalGraph();
                     break;
@@ -1743,7 +1742,6 @@ export class Eagle {
         // determine which object of the given filetype we are committing
         switch (fileType){
             case Eagle.FileType.Graph:
-            case Eagle.FileType.Daliuge:
                 fileInfo = this.logicalGraph().fileInfo;
                 obj = this.logicalGraph();
                 break;
@@ -1785,8 +1783,6 @@ export class Eagle {
                 Utils.showUserMessage('Error', 'Graph is not chosen! Open existing or create a new graph.');
             } else if (fileType == Eagle.FileType.Palette) {
                 Utils.showUserMessage('Error', 'Palette is not chosen! Open existing or create a new palette.');
-            } else if (fileType === Eagle.FileType.Daliuge) {
-                Utils.showUserMessage('Error', 'Daliuge is not chosen! Open existing or create a new daliuge.');
             }
             return;
         }
@@ -1826,7 +1822,6 @@ export class Eagle {
 
         let jsonString: string = "";
         switch (fileType){
-            case Eagle.FileType.Daliuge:
             case Eagle.FileType.Graph:
                 jsonString = LogicalGraph.toOJSJsonString(<LogicalGraph>clone, false);
                 break;
@@ -2016,7 +2011,6 @@ export class Eagle {
             }        
 
             switch (fileTypeLoaded){
-                case Eagle.FileType.Daliuge:
                 case Eagle.FileType.Graph: {
                     // attempt to determine schema version from FileInfo
                     const eagleVersion: string = Utils.determineEagleVersion(dataObject);
@@ -2417,7 +2411,7 @@ export class Eagle {
         console.log("saveGraphToDisk()", graph.fileInfo().name, graph.fileInfo().type);
 
         // check that the fileType has been set for the logicalGraph
-        if (graph.fileInfo().type !== Eagle.FileType.Graph && graph.fileInfo().type !== Eagle.FileType.Daliuge){
+        if (graph.fileInfo().type !== Eagle.FileType.Graph){
             Utils.showUserMessage("Error", "Graph fileType not set correctly. Could not save file.");
             return;
         }
@@ -4828,7 +4822,6 @@ export namespace Eagle
     }
 
     export enum FileType {
-        Daliuge = "Daliuge",
         Graph = "Graph",
         Palette = "Palette",
         JSON = "JSON",
