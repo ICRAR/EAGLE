@@ -59,7 +59,7 @@ export class LogicalGraph {
         this.nodes = ko.observableArray([]);
         this.edges = ko.observableArray([]);
         this.graphConfigs = ko.observableArray([]);
-        this.activeGraphConfigId = ko.observable()
+        this.activeGraphConfigId = ko.observable(null); // can be null, or an id (can't be undefined)
         this.issues = ko.observableArray([])
     }
 
@@ -127,12 +127,7 @@ export class LogicalGraph {
         }
 
         // saving the id of the active graph configuration
-        const activeGraphConfigId = Eagle.getInstance().logicalGraph().activeGraphConfigId()
-        if(activeGraphConfigId === undefined){
-            result.activeGraphConfigId = ''
-        }else{
-            result.activeGraphConfigId = activeGraphConfigId
-        }
+        result.activeGraphConfigId = Eagle.getInstance().logicalGraph().activeGraphConfigId();
 
         return result;
     }
@@ -220,15 +215,10 @@ export class LogicalGraph {
             }
 
             //if the saved 'activeGraphConfigId' is empty or missing, we use the last one in the array, else we set the saved one as active                
-            if(dataObject["activeGraphConfigId"] === '' || dataObject["activeGraphConfigId"] === undefined){
-                // if graph has no configs, we can't use the last one in the array, so we'll set the active id to 'undefined'
-                if (result.graphConfigs().length === 0){
-                    result.activeGraphConfigId(undefined);
-                } else {
-                    result.activeGraphConfigId(result.graphConfigs()[result.graphConfigs().length - 1].getId() as GraphConfig.Id)
-                }
+            if(typeof dataObject.activeGraphConfigId === 'undefined' || dataObject.activeGraphConfigId === ''){
+                result.activeGraphConfigId(null);
             }else{
-                result.activeGraphConfigId(dataObject["activeGraphConfigId"] as GraphConfig.Id)
+                result.activeGraphConfigId(dataObject.activeGraphConfigId);
             }
         }
 
@@ -370,7 +360,7 @@ export class LogicalGraph {
 
         // duplicate, set active and graph as modified
         this.addGraphConfig(clone)
-        this.setActiveGraphConfig(clone.getId())
+        this.activeGraphConfigId(clone.getId())
         this.fileInfo().modified = true;
 
         Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "' and set to active config", "success");
@@ -398,15 +388,24 @@ export class LogicalGraph {
             return;
         }
 
-        // cache name of graph configuration
+        // cache name, id of graph configuration
         const name: string = this.graphConfigs()[index].getName();
+        const id: GraphConfig.Id = this.graphConfigs()[index].getId();
 
         // remove graph config
         this.graphConfigs.splice(index, 1);
 
+        // if the removed graph config is also the active config, then we need to unset the active config
+        if (this.activeGraphConfigId() === id){
+            this.activeGraphConfigId(null);
+        }
+
         // create undo snapshot
         const eagle: Eagle = Eagle.getInstance();
         eagle.undo().pushSnapshot(eagle, "Removed graph configuration " + name);
+
+        // check graph
+        eagle.checkGraph();
     }
 
     getActiveGraphConfig = (): GraphConfig => {
@@ -435,7 +434,7 @@ export class LogicalGraph {
         this.nodes([]);
         this.edges([]);
         this.graphConfigs([]);
-        this.activeGraphConfigId(undefined)
+        this.activeGraphConfigId(null)
     }
 
     clone = () : LogicalGraph => {
@@ -970,7 +969,7 @@ export class LogicalGraph {
         }
 
         // check that active graph config id actually refers to a graph config in the graphConfigs dict
-        if (graph.activeGraphConfigId() !== undefined && graph.activeGraphConfigId() !== ""){
+        if (graph.activeGraphConfigId() !== null){
             if (graph.getActiveGraphConfig() === null){
                 const issue: Errors.Issue = Errors.Fix(
                     "Active Graph Config Id (" + graph.activeGraphConfigId() + ") does not match a known graph config",
@@ -978,7 +977,7 @@ export class LogicalGraph {
                         // if there are no graph config, set active id to undefined
                         // otherwise, just set the active id to the id of the first graph config in the list
                         if (graph.getGraphConfigs().length === 0){
-                            graph.setActiveGraphConfig(undefined);
+                            graph.setActiveGraphConfig(null);
                         } else {
                             graph.setActiveGraphConfig(graph.getGraphConfigs()[0].getId());
                         }
