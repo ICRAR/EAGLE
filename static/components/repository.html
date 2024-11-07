@@ -16,12 +16,15 @@
             <!-- ko if: service === Repository.Service.GitLab -->
             <img src="static/assets/img/fi-cnsuxt-gitlab-alt-solid.png" data-bind="click: select" width="18px"/>
             <!-- /ko -->
+            <!-- ko if: service === Repository.Service.LocalDirectory -->
+            <i class="material-icons md-18 interactive" data-bs-placement="bottom" data-bind="click: select">folder</i>
+            <!-- /ko -->
             <!-- /ko -->
             <!-- /ko -->
         </div>
         <div class="col-10 col">
-            <a href="" data-bind="attr: {id: htmlId}, click: select, eagleTooltip: name + ' (' + branch + ')'" data-bs-placement="left">
-                <span data-bind="text: name + ' (' + branch + ')'"></span>
+            <a href="" data-bind="attr: {id: htmlId}, click: select, eagleTooltip: htmlId" data-bs-placement="left">
+                <span data-bind="text: htmlName"></span>
             </a>
         </div>
         <!-- ko ifnot: isBuiltIn -->

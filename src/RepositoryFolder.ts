@@ -7,12 +7,14 @@ export class RepositoryFolder {
     expanded : ko.Observable<boolean>
     folders : ko.ObservableArray<RepositoryFolder>
     files : ko.ObservableArray<RepositoryFile>
+    handle: FileSystemDirectoryHandle
 
     constructor(name : string){
         this.name = name;
         this.expanded = ko.observable(false);
         this.folders = ko.observableArray([]);
         this.files = ko.observableArray([]);
+        this.handle = null;
     }
 
     htmlId : ko.PureComputed<string> = ko.pureComputed(() => {

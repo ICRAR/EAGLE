@@ -189,6 +189,9 @@ export class Modals {
             const repositories: Repository[] = Repositories.getList(repositoryService);
             $('#gitCommitModal').data('repositories', repositories);
             Utils.updateGitCommitRepositoriesList(repositories, null);
+
+            // show/hide commit message input based on whether the repositoryService is git-related or not
+            $('#gitCommitModalCommitMessageRow').toggle(Utils.repositoryServiceIsGit(repositoryService));
         });
 
         // #gitCustomRepositoryModal - requestUserAddCustomRepository()
@@ -196,6 +199,10 @@ export class Modals {
             // show/hide OK button
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', !Utils.validateCustomRepository());
         });
+        $('#gitCustomRepositoryModalDirectoryNameInput').on('change', function(){
+            // show/hide OK button
+            $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', !Utils.validateCustomRepository());
+        })
 
         $('#gitCustomRepositoryModalAffirmativeButton').on('click', function(){
             $('#gitCustomRepositoryModal').data('completed', true);
@@ -203,12 +210,17 @@ export class Modals {
         $('#gitCustomRepositoryModalNegativeButton').on('click', function(){
             $('#gitCustomRepositoryModal').data('completed', false);
         });
+        $('#gitCustomRepositoryModalRepositoryServiceSelect').on('change', function(){
+            Modals.showCorrectCustomRepositoryInputs();
+        });
         $('#gitCustomRepositoryModal').on('shown.bs.modal', function(){
             $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
             $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
 
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', true);
             $('#gitCustomRepositoryModalAffirmativeButton').trigger("focus");
+
+            Modals.showCorrectCustomRepositoryInputs();
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
@@ -450,6 +462,15 @@ export class Modals {
             target.removeClass('is-valid');
             target.addClass('is-invalid');
         }
+    }
+
+    // check which "repository service" has been selected in the dropdown, and show/hide other inputs as appropriate
+    static showCorrectCustomRepositoryInputs(){
+        const repositoryService : Repository.Service = <Repository.Service>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
+        const showLocalDirectorySection = repositoryService === Repository.Service.LocalDirectory;
+
+        $('#gitCustomRepositoryModalSectionGit').toggle(!showLocalDirectorySection);
+        $('#gitCustomRepositoryModalSectionLocal').toggle(showLocalDirectorySection);
     }
 
     static _updateFieldModalDataType(dataType: string){

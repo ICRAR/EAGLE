@@ -1,14 +1,15 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {GitHub} from './GitHub';
-import {GitLab} from './GitLab';
-import {Palette} from './Palette';
-import {Repository} from './Repository';
-import {RepositoryFolder} from './RepositoryFolder';
-import {RepositoryFile} from './RepositoryFile';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
+import { GitHub } from './GitHub';
+import { GitLab } from './GitLab';
+import { Palette } from './Palette';
+import { Repository } from './Repository';
+import { RepositoryFolder } from './RepositoryFolder';
+import { RepositoryFile } from './RepositoryFile';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class Repositories {
 
@@ -74,39 +75,54 @@ export class Repositories {
     // use a custom modal to ask user for repository service and url at the same time
     addCustomRepository = () : void => {
         Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : void => {
-            console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
-
             if (!completed){
                 console.log("No repo entered");
                 return;
             }
 
-            if (repositoryName.trim() == ""){
-                Utils.showUserMessage("Error", "Repository name is empty!");
-                return;
+            if (repositoryService === Repository.Service.GitHub || repositoryService === Repository.Service.GitLab){
+                if (repositoryName.trim() == ""){
+                    Utils.showUserMessage("Error", "Repository name is empty!");
+                    return;
+                }
+                
+                if (repositoryBranch.trim() == ""){
+                    Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
+                    return;
+                }
             }
 
-            if (repositoryBranch.trim() == ""){
-                Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
-                return;
+            // add details of repository to HTML localStorage, so that EAGLE remembers to load this repository at startup
+            //
+            // NOTE: we can't save LocalDirectory-type repositories, since the FileSystemDirectoryHandle containing the 
+            // details of the repository can not be saved in localStorage, it requires IndexedDB
+            if (repositoryService === Repository.Service.GitHub || repositoryService === Repository.Service.GitLab){
+                const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
+                const localStorageValue : string = Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch);
+
+                // Adding the repo name into the local browser storage.
+                localStorage.setItem(localStorageKey, localStorageValue);
+            } else {
+                console.log("Skip saving new repository to localStorage. Not a git repository.")
             }
 
-            // add extension to userString to indicate repository service
-            const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
-            if (localStorageKey === null){
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
-                return;
-            }
-
-            // Adding the repo name into the local browser storage.
-            localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
-
-            // Reload the repository lists
+            // load the repository lists
             if (repositoryService === Repository.Service.GitHub){
                 GitHub.loadRepoList();
             }
             if (repositoryService === Repository.Service.GitLab){
                 GitLab.loadRepoList();
+            }
+            if (repositoryService === Repository.Service.LocalDirectory){
+                // fetch FileSystemDirectoryHandle from a data attribute on the 'custom repository' modal
+                const dirHandle: FileSystemDirectoryHandle = $('#gitCustomRepositoryModal').data('dirHandle');
+
+                // create a new Repository and add the dirHandle
+                const newRepo = new Repository(Repository.Service.LocalDirectory, dirHandle.name, "", false);
+                newRepo.handle = dirHandle;
+    
+                // add new Repository to the repositories list
+                Repositories.repositories.push(newRepo);
             }
         });
     };
@@ -129,6 +145,23 @@ export class Repositories {
 
             this._removeCustomRepository(repository);
         });
+    };
+
+    addLocalDirectory = async () => {
+        let dirHandle: FileSystemDirectoryHandle;
+
+        try {
+            dirHandle = await (<any>window).showDirectoryPicker({
+                id: EagleConfig.DIRECTORY_PICKER_ID,
+                mode: "readwrite"
+            });
+        } catch (err) {
+            console.error(err.name, err.message);
+            return;
+        }
+
+        $('#gitCustomRepositoryModal').data('dirHandle', dirHandle);
+        $('#gitCustomRepositoryModalDirectoryNameInput').val(dirHandle.name).trigger('change');
     };
 
     private _removeCustomRepository = (repository : Repository) : void => {

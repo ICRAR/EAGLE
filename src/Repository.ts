@@ -1,11 +1,12 @@
 import * as ko from "knockout";
 
-import {RepositoryFolder} from './RepositoryFolder';
-import {RepositoryFile} from './RepositoryFile';
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
-import {GitHub} from './GitHub';
-import {GitLab} from "./GitLab";
+import { Eagle } from './Eagle';
+import { GitHub } from './GitHub';
+import { GitLab } from "./GitLab";
+import { Repositories } from "./Repositories";
+import { RepositoryFolder } from './RepositoryFolder';
+import { RepositoryFile } from './RepositoryFile';
+import { Utils } from './Utils';
 
 export class Repository {
     _id : number
@@ -18,6 +19,7 @@ export class Repository {
     expanded : ko.Observable<boolean>
     files : ko.ObservableArray<RepositoryFile>
     folders : ko.ObservableArray<RepositoryFolder>
+    handle : FileSystemDirectoryHandle
 
     // NOTE: I think we should be able to use the Repository.Service.Unknown enum here, but it causes a javascript error. Not sure why.
     static readonly DUMMY = new Repository(<Repository.Service>"Unknown", "", "", false);
@@ -33,10 +35,20 @@ export class Repository {
         this.expanded = ko.observable(false);
         this.files = ko.observableArray();
         this.folders = ko.observableArray();
+        this.handle = null;
     }
 
     htmlId : ko.PureComputed<string> = ko.pureComputed(()=>{
         return this.name.replace('/', '_') + '_' + this.branch;
+    }, this);
+
+    htmlName: ko.PureComputed<string> = ko.pureComputed(() => {
+        switch (this.service){
+            case Repository.Service.LocalDirectory:
+                return this.name;
+            default:
+                return this.name + ' (' + this.branch + ')';
+        }
     }, this);
 
     clear = () : void => {
@@ -63,6 +75,9 @@ export class Repository {
                 case Repository.Service.GitLab:
                     GitLab.loadRepoContent(this);
                     break;
+                case Repository.Service.LocalDirectory:
+                    Repository.loadLocalRepository(this);
+                    break;
                 default:
                     Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + this.service + ")");
             }
@@ -77,9 +92,42 @@ export class Repository {
             case Repository.Service.GitLab:
                 GitLab.loadRepoContent(this);
                 break;
+            case Repository.Service.LocalDirectory:
+                Repository.loadLocalRepository(this);
+                break;
             default:
                 Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
         }
+    }
+
+    // find a single file within the repo, based on the path and filename
+    findFile = (path: string, filename: string): RepositoryFile => {
+        const pathParts: string[] = path.split('/');
+        let pointer: Repository | RepositoryFolder = this;
+
+        // traverse down the folder structure
+        for (const pathPart of pathParts){
+            let folderFound: boolean = false;
+            for (const folder of pointer.folders()){
+                if (folder.name === pathPart){
+                    pointer = folder;
+                    folderFound = true;
+                    break;
+                }
+            }
+            if (!folderFound){
+                return null;
+            }
+        }
+
+        // find the file here
+        for (const file of pointer.files()){
+            if (file.name === filename){
+                return file;
+            }
+        }
+
+        return null;
     }
 
     deleteFile = (file: RepositoryFile) : void => {
@@ -95,6 +143,7 @@ export class Repository {
                     if (folder.name === pathPart){
                         lastPointer = pointer;
                         pointer = folder;
+                        break;
                     }
                 }
             }
@@ -119,6 +168,35 @@ export class Repository {
                 }
             }
         }
+    }
+
+    getDirectoryHandleFromPath = async (path: string): Promise<FileSystemDirectoryHandle> => {
+        const pathParts: string[] = path.split('/');
+        let pointer: Repository | RepositoryFolder = this;
+
+        // traverse down the folder structure
+        for (const pathPart of pathParts){
+            let found: boolean = false;
+
+            for (const folder of pointer.folders()){
+                if (folder.name === pathPart){
+                    pointer = folder;
+                    found = true;
+                    break;
+                }
+            }
+
+            // if this step in the path hierarchy was not found, create a new FileSystemDirectoryHandle here
+            if (!found){
+                const handle: FileSystemDirectoryHandle = await pointer.handle.getDirectoryHandle(pathPart, {create: true});
+
+                // store the handle in an orphaned RepositoryFolder
+                pointer = new RepositoryFolder(pathPart);
+                pointer.handle = handle;
+            }
+        }
+
+        return pointer.handle;
     }
 
     // sorting order
@@ -163,6 +241,144 @@ export class Repository {
 
         return fileNameA.toLowerCase() > fileNameB.toLowerCase() ? 1 : -1;
     }
+
+    // > 0	sort a after b, e.g. [b, a]
+    public static localDirectoryEntriesSortFunc(a: [string, FileSystemHandle], b: [string, FileSystemHandle]): number{
+        const fileNameA: string = a[0];
+        const handleA: FileSystemHandle = a[1];
+        const fileNameB: string = b[0];
+        const handleB: FileSystemHandle = b[1];
+
+        if (handleA.kind === 'directory' && handleB.kind === 'directory'){
+            return fileNameA.toLowerCase() > fileNameB.toLowerCase() ? 1 : -1;
+        }
+        if (handleA.kind === 'directory' && handleB.kind === 'file'){
+            return -1;
+        }
+        if (handleA.kind === 'file' && handleB.kind === 'directory'){
+            return 1;
+        }
+
+        // otherwise both files
+        return Repository.fileSortFunc(fileNameA, fileNameB);
+    }
+
+    public static async loadLocalRepository(repository: Repository): Promise<void> {
+        // flag the repository as being fetched
+        repository.isFetching(true);
+
+        // delete current file list for this repository
+        repository.files.removeAll();
+        repository.folders.removeAll();
+
+        // parse the folder
+        Repository._parseFolder(repository, repository, [], repository.handle);
+        
+        // flag the repository as fetched and expand by default
+        repository.isFetching(false);
+        repository.fetched(true);
+        repository.expanded(true);
+    }
+
+    static async _parseFolder(repository: Repository, parent: Repository | RepositoryFolder, pathParts: string[], dirHandle: FileSystemDirectoryHandle){
+        // first copy the entries to a temp directory, for sorting
+        const entries: [string, FileSystemHandle][] = [];
+        for await (const entry of dirHandle.entries()){
+            if (entry[1].kind !== 'directory' || Utils.verifyFolderName(entry[0])){
+                entries.push(entry);
+            }
+        }
+
+        // sort
+        entries.sort(this.localDirectoryEntriesSortFunc)
+
+
+        // add files and folders to repository data structure
+        for (const [name, handle] of entries) {
+            // add files to repo
+            if (handle.kind === 'file'){
+                // if file is not a .graph, .palette, or .json, just ignore it!
+                if (Utils.verifyFileExtension(name)){
+                    const newFile = new RepositoryFile(repository, pathParts.join('/'), name);
+                    newFile.handle = handle as FileSystemFileHandle;
+                    parent.files.push(newFile);
+                }
+            }
+
+            // add folders to repo
+            if (handle.kind === 'directory'){
+                const newFolder: RepositoryFolder = new RepositoryFolder(name);
+                newFolder.handle = handle as FileSystemDirectoryHandle;
+                await Repository._parseFolder(repository, newFolder, pathParts.concat([name]), handle as FileSystemDirectoryHandle);
+                parent.folders.push(newFolder);
+            }
+        }
+    }
+
+    // load a file from a "LocalDirectory"-type repository
+    static async loadLocalDirectoryFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ): Promise<void> {
+        // find the repository
+        const localDirectory: Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
+
+        // check we found it
+        if (localDirectory === null){
+            callback("Can't find Repository. Service: " + repositoryService + " Name: " + repositoryName + " Branch: " + repositoryBranch, null);
+            return;
+        }
+
+        // find the file in the repository
+        const repositoryFile: RepositoryFile = localDirectory.findFile(filePath, fileName)
+
+        // abort if file not found
+        if (repositoryFile === null){
+            callback("Can't find file in directory: " + filePath + " " + fileName, null);
+            return;
+        }
+        
+        // get the fileHandle from the file
+        const fileHandle: FileSystemFileHandle = repositoryFile.handle;
+
+        // abort if file doesn't have a fileHandle
+        if (fileHandle === null){
+            callback("No handle attached to RepositoryFile: " + filePath + " " + fileName, null);
+            return;
+        }
+
+        // open file
+        const file: File = await fileHandle.getFile();
+        const fileData = await file.text();
+
+        callback(null, fileData);
+    }
+
+    // save a file to a "LocalDirectory"-type repository
+    static async saveLocalDirectoryFile(repositoryService : Repository.Service, repositoryName : string, filePath : string, fileName : string, contents: string, callback: (error : string) => void ): Promise<void> {
+        // find the repository
+        const localDirectory: Repository = Repositories.get(repositoryService, repositoryName, "");
+
+        // check we found it
+        if (localDirectory === null){
+            callback("Can't find Repository. Service: " + repositoryService + " Name: " + repositoryName);
+            return;
+        }
+
+        // get (or create) a FileSystemDirectoryHandle for the directory containing the file
+        const pathDirectoryHandle: FileSystemDirectoryHandle = await localDirectory.getDirectoryHandleFromPath(filePath);
+
+        // create a fileHandle for the new file
+        const fileHandle: FileSystemFileHandle = await pathDirectoryHandle.getFileHandle(fileName, {create: true});
+
+        // create a FileSystemWritableFileStream to write to
+        const writable = await fileHandle.createWritable();
+
+        // write the contents of the file to the stream
+        await writable.write(contents);
+
+        // Close the file and write the contents to disk
+        await writable.close();
+
+        callback(null);
+    }
 }
 
 export namespace Repository {
@@ -171,6 +387,7 @@ export namespace Repository {
         GitLab = "GitLab",
         File = "File",
         Url = "Url",
+        LocalDirectory = "LocalDirectory",
         Unknown = "Unknown"
     }
 }

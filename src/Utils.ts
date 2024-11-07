@@ -59,6 +59,11 @@ export class Utils {
         "daliuge", "dlg" // for logical graphs templates containing graph configurations
     ];
 
+    // disallowed folder names
+    static readonly DISALLOWED_FOLDER_NAMES: string[] = [
+        ".git",
+    ];
+
     static ojsGraphSchema : object = {};
 
 
@@ -225,11 +230,12 @@ export class Utils {
         const fileExtension = Utils.getFileExtension(filename);
 
         // Check if the extension is in the list of allowed extensions
-        if ($.inArray(fileExtension, Utils.FILE_EXTENSIONS) != -1) {
-            return true;
-        } else {
-            return false;
-        }
+        return $.inArray(fileExtension, Utils.FILE_EXTENSIONS) !== -1;
+    }
+
+    static verifyFolderName(folderName: string): boolean {
+        // check if the name is in the list of disallowed
+        return $.inArray(folderName, Utils.DISALLOWED_FOLDER_NAMES) === -1;
     }
 
     /**
@@ -633,6 +639,11 @@ export class Utils {
             text: Repository.Service.GitLab,
             selected: defaultRepositoryService === Repository.Service.GitLab
         }));
+        $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
+            value: Repository.Service.LocalDirectory,
+            text: Repository.Service.LocalDirectory,
+            selected: defaultRepositoryService === Repository.Service.LocalDirectory
+        }));
 
         Utils.updateGitCommitRepositoriesList(repositories, defaultRepository);
 
@@ -641,6 +652,13 @@ export class Utils {
 
         // validate fileName input
         Modals.validateCommitModalFileNameInputText();
+
+        // show/hide commit message input based on whether the repositoryService is git-related or not
+        $('#gitCommitModalCommitMessageRow').toggle(Utils.repositoryServiceIsGit(defaultRepositoryService));
+    }
+
+    static repositoryServiceIsGit(service: Repository.Service): boolean {
+        return service === Repository.Service.GitHub || service === Repository.Service.GitLab;
     }
 
     static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
@@ -655,6 +673,7 @@ export class Utils {
     static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) => void) : void {
         $('#gitCustomRepositoryModalRepositoryNameInput').val("");
         $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
+        $('#gitCustomRepositoryModalDirectoryNameInput').val("");
 
         $('#gitCustomRepositoryModal').data('completed', false);
         $('#gitCustomRepositoryModal').data('callback', callback);
@@ -662,34 +681,45 @@ export class Utils {
     }
 
     static validateCustomRepository() : boolean {
-        const repositoryService : string = <string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
-        const repositoryName : string = <string>$('#gitCustomRepositoryModalRepositoryNameInput').val();
-        const repositoryBranch : string = <string>$('#gitCustomRepositoryModalRepositoryBranchInput').val();
+        const repositoryService : string = (<string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val()).trim();
+        const repositoryName : string = (<string>$('#gitCustomRepositoryModalRepositoryNameInput').val()).trim();
+        const repositoryBranch : string = (<string>$('#gitCustomRepositoryModalRepositoryBranchInput').val()).trim();
+        const directoryName : string = (<string>$('#gitCustomRepositoryModalDirectoryNameInput').val()).trim();
 
         $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
         $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
 
         // check service
-        if (repositoryService.trim() !== Repository.Service.GitHub && repositoryService.trim() !== Repository.Service.GitLab){
+        if (repositoryService !== Repository.Service.GitHub &&
+            repositoryService !== Repository.Service.GitLab &&
+            repositoryService !== Repository.Service.LocalDirectory){
             return false;
         }
 
-        // check if name is empty
-        if (repositoryName.trim() == ""){
-            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
-            return false;
+        if (repositoryService === Repository.Service.GitHub || repositoryService === Repository.Service.GitLab){
+            // check if name is empty
+            if (repositoryName == ""){
+                $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+                return false;
+            }
+
+            // check if name starts with http:// or https://, or ends with .git
+            if (repositoryName.startsWith('http://') || repositoryName.startsWith('https://') || repositoryName.endsWith('.git')){
+                $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+                return false;
+            }
+
+            // check if branch is empty
+            if (repositoryBranch == ""){
+                $('#gitCustomRepositoryModalRepositoryBranchInput').addClass('is-invalid');
+                return false;
+            }
         }
 
-        // check if name starts with http:// or https://, or ends with .git
-        if (repositoryName.startsWith('http://') || repositoryName.startsWith('https://') || repositoryName.endsWith('.git')){
-            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
-            return false;
-        }
-
-        // check if branch is empty
-        if (repositoryBranch.trim() == ""){
-            $('#gitCustomRepositoryModalRepositoryBranchInput').addClass('is-invalid');
-            return false;
+        if (repositoryService === Repository.Service.LocalDirectory){
+            if (directoryName === ""){
+                return false;
+            }
         }
 
         return true;
@@ -1307,6 +1337,7 @@ export class Utils {
         return this.getBottomWindowHeight() + $('#statusBar').height() 
     }
 
+    // TODO: move to Repository.ts?
     static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
         switch (repositoryService){
             case Repository.Service.GitHub:
@@ -1318,6 +1349,7 @@ export class Utils {
         }
     }
 
+    // TODO: move to Repository.ts?
     static getLocalStorageValue(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
         return repositoryName+"|"+repositoryBranch;
     }
