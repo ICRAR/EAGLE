@@ -18,7 +18,7 @@ export class Field {
     private defaultValue : ko.Observable<string>;  // default value
     private description : ko.Observable<string>;
     private readonly : ko.Observable<boolean>;
-    private type : ko.Observable<string>;
+    private type : ko.Observable<Daliuge.DataType>; // NOTE: this is a little unusual (type can have more values than just the enum)
     private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
     private options : ko.ObservableArray<string>;
     private positional : ko.Observable<boolean>;
@@ -45,7 +45,7 @@ export class Field {
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}>//keeps track of issues on the field
 
-    constructor(id: FieldId, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: string, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
+    constructor(id: FieldId, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Daliuge.DataType, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
         this.displayText = ko.observable(displayText);
         this.value = ko.observable(value);
         this.defaultValue = ko.observable(defaultValue);
@@ -176,7 +176,7 @@ export class Field {
         this.readonly(!this.readonly())
     }
 
-    getType = () : string => {
+    getType = () : Daliuge.DataType => {
         return this.type();
     }
 
@@ -204,7 +204,7 @@ export class Field {
         this.defaultValue((!Utils.asBool(this.defaultValue())).toString());
     }
 
-    setType = (type: string) : void => {
+    setType = (type: Daliuge.DataType) : void => {
         this.type(type);
     }
 
@@ -665,7 +665,7 @@ export class Field {
         let name: string = "";
         let description: string = "";
         let readonly: boolean = false;
-        let type: string = Daliuge.DataType.Unknown;
+        let type: Daliuge.DataType = Daliuge.DataType.Unknown;
         let value: string = "";
         let defaultValue: string = "";
         let precious: boolean = false;
@@ -754,7 +754,7 @@ export class Field {
     static fromOJSJsonPort(data : any) : Field {
         let name: string = "";
         let event: boolean = false;
-        let type: string;
+        let type: Daliuge.DataType = Daliuge.DataType.Unknown;
         let description: string = "";
         let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
 

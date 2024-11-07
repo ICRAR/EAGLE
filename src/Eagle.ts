@@ -3918,7 +3918,7 @@ export class Eagle {
         $('#editFieldModalTypeInput').val(newType).trigger("change");
     }
 
-    tableDropdownClick = (newType:string, field: Field) : void => {
+    tableDropdownClick = (newType: Daliuge.DataType, field: Field) : void => {
         // if the field contains no options, then it's value will be immediately set to undefined
         // therefore, we add at least one option, so the value remains well defined
         if (newType === Daliuge.DataType.Select){
@@ -3930,7 +3930,6 @@ export class Eagle {
 
         // update the type of the field
         field.setType(newType);
-
     }
 
     changeNodeParent = () : void => {

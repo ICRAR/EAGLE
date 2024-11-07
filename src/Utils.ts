@@ -1647,7 +1647,6 @@ export class Utils {
         return distance;
     }
 
-
     static async userChoosePalette(paletteNames : string[]) : Promise<string> {
         return new Promise<string>((resolve, reject) => {
 
@@ -1895,7 +1894,7 @@ export class Utils {
         }
 
         // fix for redundant 'Complex' type
-        if (field.getType() === 'Complex'){
+        if (field.getType().toString() === 'Complex'){
             field.setType(Daliuge.DataType.Object);
             return;
         }
@@ -1905,7 +1904,7 @@ export class Utils {
             return;
         }
 
-        field.setType(Daliuge.DataType.Object + "." + field.getType());
+        field.setType((Daliuge.DataType.Object + "." + field.getType()) as Daliuge.DataType);
     }
 
     static fixFieldNodeId(eagle: Eagle, node: Node, field: Field){
