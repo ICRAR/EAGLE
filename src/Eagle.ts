@@ -1493,7 +1493,6 @@ export class Eagle {
         // clone existing active config, assign new id
         const c: GraphConfig = new GraphConfig
         c.setId(Utils.generateGraphConfigId());
-
         
         c.setName('newConfig');
 
