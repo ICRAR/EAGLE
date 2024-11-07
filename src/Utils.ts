@@ -65,19 +65,19 @@ export class Utils {
     static ojsPaletteSchema : object = {};
 
     static generateNodeId(): NodeId {
-        return Utils._uuidv4() as NodeId;
+        return Utils._daliugeId("Node") as NodeId;
     }
 
     static generateFieldId(): FieldId {
-        return Utils._uuidv4() as FieldId;
+        return Utils._daliugeId("Field") as FieldId;
     }
 
     static generateEdgeId(): EdgeId {
-        return Utils._uuidv4() as EdgeId;
+        return Utils._daliugeId("Edge") as EdgeId;
     }
 
     static generateGraphConfigId(): GraphConfig.Id {
-        return Utils._uuidv4() as GraphConfig.Id;
+        return Utils._daliugeId("Config") as GraphConfig.Id;
     }
 
     /**
@@ -94,6 +94,13 @@ export class Utils {
 
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    static _daliugeId(type: "Node" | "Edge" | "Field" | "Config"): string {
+        return 't-xxxx-xxxx-xxxx'.replace(/[xt]/g, function(c) {
+            const r = Math.random() * 16 | 0, v = c == 'x' ? r : type.charAt(0);
             return v.toString(16);
         });
     }
