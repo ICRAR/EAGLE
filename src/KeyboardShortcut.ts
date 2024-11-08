@@ -301,7 +301,6 @@ export class KeyboardShortcut {
 
     static getQuickActions() : KeyboardShortcut[] {
         return [
-            KeyboardShortcut.QUICK_ACTION("collapse_all_nodes", "Collapse All Nodes", ['hide','show','expand'], (eagle): void => {eagle.toggleCollapseAllNodes();}),
             KeyboardShortcut.QUICK_ACTION("quickIntroTut", "Start UI Quick Intro Tutorial", ['ui','interface'], (eagle): void => {TutorialSystem.initiateTutorial('Quick Start');}),
             KeyboardShortcut.QUICK_ACTION("graphBuildingTut", "Start Graph Building Tutorial", [], (eagle): void => {TutorialSystem.initiateTutorial('Graph Building');}),
             KeyboardShortcut.QUICK_ACTION("graphConfigTut", "Start Graph Configuration Tutorial", [], (eagle): void => {TutorialSystem.initiateTutorial('Graph Configurations');}),
@@ -317,7 +316,6 @@ export class KeyboardShortcut {
             KeyboardShortcut.QUICK_ACTION("submitIssue", "Submit GitHub Issue", [], (eagle): void => {eagle.submitIssue();}),
             KeyboardShortcut.QUICK_ACTION("graphInfo", "Show Graph Info", [], (eagle): void => {Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());}),
             KeyboardShortcut.QUICK_ACTION("copyGraphUrl", "Copy Graph Url", [], (eagle): void => {eagle.copyGraphUrl();}),
-            KeyboardShortcut.QUICK_ACTION("toggleCollapseAllGroups", "Toggle Collapse All Groups", ['expand','hide','show'], (eagle): void => {eagle.toggleCollapseAllGroups();}),
             KeyboardShortcut.QUICK_ACTION("addSelectedNodeToPalette", "Add Selected Nodes To Palette", [], (eagle): void => {eagle.addSelectedNodesToPalette('normal');}),
             KeyboardShortcut.QUICK_ACTION("screenshotGraph", "Save Graph as PNG (Screenshot)", ['print','printScreen','screen','save','png'], (eagle): void => {eagle.saveGraphScreenshot();}),
 

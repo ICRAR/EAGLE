@@ -8,7 +8,12 @@
         </div>
     
         <div class="body" data-bind="eagleRightClick: {data:$data,type:'rightClick_graphNode'}, event: {mouseenter: function(){$data.setPeek(true)},mouseleave:function(){$data.setPeek(false)},mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false, style:{'border-color':$data.getBorderColor(),'background-color':$data.getBackgroundColor()}">
-            <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
+            <!-- ko if: $data.isData() -->
+                <span data-bind="class: $data.getIcon(), style:{'color':$data.color,'font-size': '55px'}"></span>
+            <!-- /ko -->
+            <!-- ko ifnot: $data.isData() -->
+                <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
+            <!-- /ko -->
         </div>
     </div>
 </div>
