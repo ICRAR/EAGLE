@@ -1504,7 +1504,7 @@ export class Eagle {
         Utils.showNotification("New Graph Config Created", 'newConfig', "success");
 
         // open the graph configurations table
-        GraphConfigurationsTable.openModal();
+        GraphConfigurationsTable.openTable();
 
         this.undo().pushSnapshot(this, "New graph configuration added");
         this.logicalGraph().fileInfo().modified = true;

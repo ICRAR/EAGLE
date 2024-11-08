@@ -1704,7 +1704,7 @@ export class GraphRenderer {
         //here
         if(Math.abs(GraphRenderer.portDragStartPos.x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null))+Math.abs(GraphRenderer.portDragStartPos.y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null))<3){
             //identify a click, if we click a port, we will open the parameter table and highlight the port
-            ParameterTable.openModalAndSelectField(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort())
+            ParameterTable.openTableAndSelectField(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort())
             GraphRenderer.clearEdgeVars();
         }else{
             if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.portMatchCloseEnough()){

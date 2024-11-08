@@ -2147,13 +2147,13 @@ export class Utils {
         this.showNode(eagle, nodeId)
         setTimeout(function(){
             const node = eagle.selectedNode()
-            ParameterTable.openModalAndSelectField(node, field)
+            ParameterTable.openTableAndSelectField(node, field)
         },100)
     }
 
     static showGraphConfig(eagle: Eagle, graphConfigId: GraphConfig.Id){
         // open the graph configs table
-        GraphConfigurationsTable.openModal();
+        GraphConfigurationsTable.openTable();
 
         const graphConfig: GraphConfig = eagle.logicalGraph().getGraphConfigById(graphConfigId);
 
