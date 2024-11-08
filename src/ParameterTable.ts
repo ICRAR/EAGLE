@@ -533,26 +533,23 @@ export class ParameterTable {
 
     static openTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
         const eagle: Eagle = Eagle.getInstance();
+        
+        //if a modal is open, closed it
+        if($('.modal.show').length>0){
+            $('.modal.show').modal('hide')
+        }
 
-        setTimeout(function(){
+        Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(mode)
 
-            //if a modal is open, closed it
-            if($('.modal.show').length>0){
-                $('.modal.show').modal('hide')
-            }
+        //open the bottom window
+        SideWindow.setShown('bottom',true)
 
-            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(mode)
+        //make sure the right click menu is closed
+        if(selectType === ParameterTable.SelectType.RightClick){
+            eagle.setSelection(Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
 
-            //open the bottom window
-            SideWindow.setShown('bottom',true)
-
-            //make sure the right click menu is closed
-            if(selectType === ParameterTable.SelectType.RightClick){
-                eagle.setSelection(Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
-
-                RightClick.closeCustomContextMenu(true);
-            }
-        },5)
+            RightClick.closeCustomContextMenu(true);
+        }
     }
     
     // TODO: can we combine this with openTable(), maybe use an extra parameter to the function?

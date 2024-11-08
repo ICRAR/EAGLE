@@ -18,20 +18,14 @@ export class GraphConfigurationsTable {
     }
 
     static openTable = () : void => {
-        setTimeout(function(){
-            if($('.modal.show').length>0){
-                if($('.modal.show').attr('id')==='graphConfigurationsTable'){
-                    // TODO: use closeModal here!
-                    $('#graphConfigurationsTable').modal('hide')
-                    GraphConfigurationsTable.showTableModal(false)
-                }else{
-                    return
-                }
-            }
             
-            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphConfigsTable)
-            SideWindow.setShown('bottom',true)
-        },5)
+        //if a modal is open, closed it
+        if($('.modal.show').length>0){
+            $('.modal.show').modal('hide')
+        }
+            
+        Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphConfigsTable)
+        SideWindow.setShown('bottom',true)
     }
 
     static closeModal = (): void => {
