@@ -326,6 +326,7 @@ export class Setting {
     static readonly SHOW_ALL_CATEGORY_OPTIONS: string = "ShowAllCategoryOptions";
 
     static readonly ALLOW_MODIFIED_GRAPH_TRANSLATION: string = "AllowModifiedGraphTranslation";
+    static readonly APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION: string = "ApplyActiveGraphConfigBeforeTranslation";
 }
 
 export namespace Setting {
@@ -440,6 +441,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Print Undo state to JS Console", Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", false, Setting.Type.Boolean, false,false ,false, false, false),
             new Setting(true, "Display all Category options", Setting.SHOW_ALL_CATEGORY_OPTIONS, "Displays all category options when changing the category of a node", false, Setting.Type.Boolean, false,false ,false, false, false),
             new Setting(true, "Allow modified graph translation", Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, "Allow users to submit graphs for translation even when not saved or committed", true, Setting.Type.Boolean, false, false ,false, false, false),
+            new Setting(true, "Apply active graph config before translation", Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION, "Apply the active graph config to the graph before sending the graph for translation", false, Setting.Type.Boolean, false, false ,false, false, false),
         ]
     )
 ];
