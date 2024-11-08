@@ -385,10 +385,11 @@ export class Eagle {
     }, this);
 
     toggleWindows = () : void  => {
-        const setOpen = !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)
+        const setOpen = !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) || !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)
 
         SideWindow.setShown('left', setOpen);
         SideWindow.setShown('right', setOpen);
+        SideWindow.setShown('bottom', setOpen);
     }
 
     emptySearchBar = (target : ko.Observable,data:string, event : Event) => {
@@ -1503,7 +1504,7 @@ export class Eagle {
         Utils.showNotification("New Graph Config Created", 'newConfig', "success");
 
         // open the graph configurations table
-        GraphConfigurationsTable.openModal();
+        GraphConfigurationsTable.openTable();
 
         this.undo().pushSnapshot(this, "New graph configuration added");
         this.logicalGraph().fileInfo().modified = true;

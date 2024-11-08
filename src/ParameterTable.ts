@@ -382,7 +382,7 @@ export class ParameterTable {
         } else {
             graphConfig = new GraphConfig()
             Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
-                ParameterTable.openModal(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
+                ParameterTable.openTable(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
 
                 if (!completed){
                     return;
@@ -417,7 +417,7 @@ export class ParameterTable {
 
     static requestEditConfig(config: GraphConfig): void {
         GraphConfigurationsTable.closeModal();
-        ParameterTable.openModal(Eagle.BottomWindowMode.GraphConfigAttributesTable, ParameterTable.SelectType.Normal);
+        ParameterTable.openTable(Eagle.BottomWindowMode.GraphConfigAttributesTable, ParameterTable.SelectType.Normal);
     }
 
     static requestEditDescriptionInModal(currentField:Field) : void {
@@ -522,42 +522,43 @@ export class ParameterTable {
             upresizer.on('mousedown', mouseDownHandler);
     }
 
-    static openModal = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
+    static toggleTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
+        //if we are already in the requested mode, we can toggle the bottom window
+        if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === mode){
+            SideWindow.toggleShown('bottom')
+        }else{
+            this.openTable(mode,selectType)
+        }
+    }
+
+    static openTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
         const eagle: Eagle = Eagle.getInstance();
+        
+        //if a modal is open, closed it
+        if($('.modal.show').length>0){
+            $('.modal.show').modal('hide')
+        }
 
-        // eagle.showEagleIsLoading()
+        Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(mode)
 
-        setTimeout(function(){
-            if($('.modal.show').length>0){
-                if($('.modal.show').attr('id')==='parameterTable'){
-                    // TODO: use closeModal here!
-                    $('#parameterTable').modal('hide')
-                    // ParameterTable.showTableModal(false)
-                }else{
-                    return
-                }
-            }
+        //open the bottom window
+        SideWindow.setShown('bottom',true)
 
-            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(mode)
+        //make sure the right click menu is closed
+        if(selectType === ParameterTable.SelectType.RightClick){
+            eagle.setSelection(Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
 
-            if(selectType === ParameterTable.SelectType.RightClick){
-                eagle.setSelection(Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
-
-                RightClick.closeCustomContextMenu(true);
-            }
-
-            //open the bottom window
-            SideWindow.setShown('bottom',true)
-        },5)
+            RightClick.closeCustomContextMenu(true);
+        }
     }
     
-    // TODO: can we combine this with openModal(), maybe use an extra parameter to the function?
-    static openModalAndSelectField = (node:Node, field:Field) : void => {
+    // TODO: can we combine this with openTable(), maybe use an extra parameter to the function?
+    static openTableAndSelectField = (node:Node, field:Field) : void => {
         const eagle = Eagle.getInstance()
 
         eagle.setSelection(node, Eagle.FileType.Graph)
 
-        ParameterTable.openModal(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
+        ParameterTable.openTable(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
         
         setTimeout(function(){
             $('#tableRow_'+field.getId()).addClass('highlighted')
@@ -598,8 +599,8 @@ export class ParameterTable {
 
 export namespace ParameterTable {
     export enum Mode {
-        NodeFields = "NodeFields", //inspectorTableModal
-        GraphConfig = "GraphConfig", //keyParametersTableModal
+        NodeFields = "NodeFields", //node fields table
+        GraphConfig = "GraphConfig", //graph config fields table
     }
 
     export enum SelectType {
