@@ -525,17 +525,11 @@ export class ParameterTable {
     static openTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
         const eagle: Eagle = Eagle.getInstance();
 
-        // eagle.showEagleIsLoading()
-
         setTimeout(function(){
+
+            //if a modal is open, closed it
             if($('.modal.show').length>0){
-                if($('.modal.show').attr('id')==='parameterTable'){
-                    // TODO: use closeModal here!
-                    $('#parameterTable').modal('hide')
-                    // ParameterTable.showTableModal(false)
-                }else{
-                    return
-                }
+                $('.modal.show').modal('hide')
             }
 
             //if we are already in the requested mode, we can toggle the bottom window
@@ -604,8 +598,8 @@ export class ParameterTable {
 
 export namespace ParameterTable {
     export enum Mode {
-        NodeFields = "NodeFields", //inspectorTableModal
-        GraphConfig = "GraphConfig", //keyParametersTableModal
+        NodeFields = "NodeFields", //node fields table
+        GraphConfig = "GraphConfig", //graph config fields table
     }
 
     export enum SelectType {
