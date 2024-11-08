@@ -522,6 +522,15 @@ export class ParameterTable {
             upresizer.on('mousedown', mouseDownHandler);
     }
 
+    static toggleTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
+        //if we are already in the requested mode, we can toggle the bottom window
+        if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === mode){
+            SideWindow.toggleShown('bottom')
+        }else{
+            this.openTable(mode,selectType)
+        }
+    }
+
     static openTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
         const eagle: Eagle = Eagle.getInstance();
 
@@ -532,15 +541,10 @@ export class ParameterTable {
                 $('.modal.show').modal('hide')
             }
 
-            //if we are already in the requested mode, we can toggle the bottom window
-            if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === mode){
-                SideWindow.toggleShown('bottom')
-            }else{
-                Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(mode)
+            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(mode)
 
-                //open the bottom window
-                SideWindow.setShown('bottom',true)
-            }
+            //open the bottom window
+            SideWindow.setShown('bottom',true)
 
             //make sure the right click menu is closed
             if(selectType === ParameterTable.SelectType.RightClick){

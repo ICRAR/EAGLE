@@ -1,8 +1,6 @@
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
-import { Node } from "./Node";
-import { Utils } from "./Utils";
 import { Setting } from "./Setting";
 import { SideWindow } from "./SideWindow";
 
@@ -10,11 +8,16 @@ export class GraphConfigurationsTable {
 
     static showTableModal : ko.Observable<boolean> = ko.observable(false);
 
+    static toggleTable = () : void => {
+        //if we are already in the requested mode, we can toggle the bottom window
+        if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable){
+            SideWindow.toggleShown('bottom')
+        }else{
+            this.openTable()
+        }
+    }
+
     static openTable = () : void => {
-        const eagle: Eagle = Eagle.getInstance();
-
-        // eagle.showEagleIsLoading()
-
         setTimeout(function(){
             if($('.modal.show').length>0){
                 if($('.modal.show').attr('id')==='graphConfigurationsTable'){
@@ -25,13 +28,9 @@ export class GraphConfigurationsTable {
                     return
                 }
             }
-            if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable){
-                SideWindow.toggleShown('bottom')
-            }else{
-                Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphConfigsTable)
-                SideWindow.setShown('bottom',true)
-            }
-
+            
+            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphConfigsTable)
+            SideWindow.setShown('bottom',true)
         },5)
     }
 
