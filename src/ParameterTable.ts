@@ -538,16 +538,22 @@ export class ParameterTable {
                 }
             }
 
-            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(mode)
+            //if we are already in the requested mode, we can toggle the bottom window
+            if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === mode){
+                SideWindow.toggleShown('bottom')
+            }else{
+                Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(mode)
 
+                //open the bottom window
+                SideWindow.setShown('bottom',true)
+            }
+            
+            //make sure the right click menu is closed
             if(selectType === ParameterTable.SelectType.RightClick){
                 eagle.setSelection(Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
 
                 RightClick.closeCustomContextMenu(true);
             }
-
-            //open the bottom window
-            SideWindow.setShown('bottom',true)
         },5)
     }
     

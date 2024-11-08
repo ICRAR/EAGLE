@@ -25,13 +25,12 @@ export class GraphConfigurationsTable {
                     return
                 }
             }
-
-            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphConfigsTable)
-            SideWindow.setShown('bottom',true)
-
-            // $('#graphConfigurationsTable').modal("show");
-
-            // GraphConfigurationsTable.showTableModal(true)
+            if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable){
+                SideWindow.toggleShown('bottom')
+            }else{
+                Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphConfigsTable)
+                SideWindow.setShown('bottom',true)
+            }
 
         },5)
     }
