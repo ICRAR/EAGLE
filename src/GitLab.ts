@@ -22,13 +22,12 @@
 #
 */
 
-import {Eagle} from './Eagle';
-import {Repositories} from './Repositories';
-import {Repository} from './Repository';
-import {RepositoryFolder} from './RepositoryFolder';
-import {RepositoryFile} from './RepositoryFile';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Repositories } from './Repositories';
+import { Repository } from './Repository';
+import { RepositoryFolder } from './RepositoryFolder';
+import { RepositoryFile } from './RepositoryFile';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class GitLab {
     /**
@@ -36,17 +35,17 @@ export class GitLab {
      */
     // TODO: should callback with the list of repositories
     static loadRepoList() : void {
+        // remove all GitLab repos from the list of repositories
+        for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
+            if (Repositories.repositories()[i].service === Repository.Service.GitLab){
+                Repositories.repositories.splice(i, 1);
+            }
+        }
+
         Utils.httpGetJSON("/getGitLabRepositoryList", null, function(error : string, data: any){
             if (error != null){
                 console.error(error);
                 return;
-            }
-
-            // remove all GitLab repos from the list of repositories
-            for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-                if (Repositories.repositories()[i].service === Repository.Service.GitLab){
-                    Repositories.repositories.splice(i, 1);
-                }
             }
 
             // add the repositories from the POST response
@@ -54,28 +53,32 @@ export class GitLab {
                 Repositories.repositories.push(new Repository(Repository.Service.GitLab, d.repository, d.branch, true));
             }
 
-            // search for custom repositories, and add them into the list.
-            for (let i = 0; i < localStorage.length; i++) {
-                const key : string = localStorage.key(i);
-                const value : string = localStorage.getItem(key);
-                const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
-
-                // handle legacy repositories where the branch is not specified (assume master)
-                if (keyExtension === "gitlab_repository"){
-                    Repositories.repositories.push(new Repository(Repository.Service.GitLab, value, "master", false));
-                }
-
-                // handle the current method of storing repositories where both the service and branch are specified
-                if (keyExtension === "gitlab_repository_and_branch") {
-                    const repositoryName = value.split("|")[0];
-                    const repositoryBranch = value.split("|")[1];
-                    Repositories.repositories.push(new Repository(Repository.Service.GitLab, repositoryName, repositoryBranch, false));
-                }
-            }
-
-            // sort the repository list
+            // sort the repository list again
             Repositories.sort();
         });
+
+
+        // search for custom repositories, and add them into the list.
+        for (let i = 0; i < localStorage.length; i++) {
+            const key : string = localStorage.key(i);
+            const value : string = localStorage.getItem(key);
+            const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
+
+            // handle legacy repositories where the branch is not specified (assume master)
+            if (keyExtension === "gitlab_repository"){
+                Repositories.repositories.push(new Repository(Repository.Service.GitLab, value, "master", false));
+            }
+
+            // handle the current method of storing repositories where both the service and branch are specified
+            if (keyExtension === "gitlab_repository_and_branch") {
+                const repositoryName = value.split("|")[0];
+                const repositoryBranch = value.split("|")[1];
+                Repositories.repositories.push(new Repository(Repository.Service.GitLab, repositoryName, repositoryBranch, false));
+            }
+        }
+
+        // sort the repository list
+        Repositories.sort();
     }
 
     /**

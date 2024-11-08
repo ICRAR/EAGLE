@@ -307,6 +307,15 @@ function autoLoad(): void {
     } else {
         Repositories.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
     }
+
+    // if developer setting enabled, fetch the repository that this graph belongs to (if the repository is in the list of known repositories)
+    if (Setting.findValue(Setting.FETCH_REPOSITORY_FOR_URLS)){
+        const repo: Repository = Repositories.get(service, repository, branch);
+
+        if (repo !== null){
+            repo.refresh();
+        }
+    }
 }
 
 function autoTutorial(): void {

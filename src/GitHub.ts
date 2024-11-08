@@ -22,13 +22,12 @@
 #
 */
 
-import {Eagle} from './Eagle';
-import {Repositories} from './Repositories';
-import {Repository} from './Repository';
-import {RepositoryFile} from './RepositoryFile';
-import {RepositoryFolder} from './RepositoryFolder';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Repositories } from './Repositories';
+import { Repository } from './Repository';
+import { RepositoryFile } from './RepositoryFile';
+import { RepositoryFolder } from './RepositoryFolder';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class GitHub {
     /**
@@ -37,17 +36,17 @@ export class GitHub {
 
     // TODO: should callback with the list of repositories
     static loadRepoList() : void {
+        // remove all GitHub repos from the list of repositories
+        for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
+            if (Repositories.repositories()[i].service === Repository.Service.GitHub){
+                Repositories.repositories.splice(i, 1);
+            }
+        }
+
         Utils.httpGetJSON("/getGitHubRepositoryList", null, function(error : string, data: any){
             if (error != null){
                 console.error(error);
                 return;
-            }
-
-            // remove all GitHub repos from the list of repositories
-            for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-                if (Repositories.repositories()[i].service === Repository.Service.GitHub){
-                    Repositories.repositories.splice(i, 1);
-                }
             }
 
             // add the repositories from the POST response
@@ -55,33 +54,36 @@ export class GitHub {
                 Repositories.repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
             }
 
-            // search for custom repositories in localStorage, and add them into the list
-            for (let i = 0; i < localStorage.length; i++) {
-                const key : string = localStorage.key(i);
-                const value : string = localStorage.getItem(key);
-                const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
-
-                // handle legacy repositories where the service and branch are not specified (assume github and master)
-                if (keyExtension === "repository"){
-                    Repositories.repositories.push(new Repository(Repository.Service.GitHub, value, "master", false));
-                }
-
-                // handle legacy repositories where the branch is not specified (assume master)
-                if (keyExtension === "github_repository") {
-                    Repositories.repositories.push(new Repository(Repository.Service.GitHub, value, "master", false));
-                }
-
-                // handle the current method of storing repositories where both the service and branch are specified
-                if (keyExtension === "github_repository_and_branch"){
-                    const repositoryName = value.split("|")[0];
-                    const repositoryBranch = value.split("|")[1];
-                    Repositories.repositories.push(new Repository(Repository.Service.GitHub, repositoryName, repositoryBranch, false));
-                }
-            }
-
-            // sort the repository list
+            // sort the repository list again
             Repositories.sort();
         });
+
+        // search for custom repositories in localStorage, and add them into the list
+        for (let i = 0; i < localStorage.length; i++) {
+            const key : string = localStorage.key(i);
+            const value : string = localStorage.getItem(key);
+            const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
+
+            // handle legacy repositories where the service and branch are not specified (assume github and master)
+            if (keyExtension === "repository"){
+                Repositories.repositories.push(new Repository(Repository.Service.GitHub, value, "master", false));
+            }
+
+            // handle legacy repositories where the branch is not specified (assume master)
+            if (keyExtension === "github_repository") {
+                Repositories.repositories.push(new Repository(Repository.Service.GitHub, value, "master", false));
+            }
+
+            // handle the current method of storing repositories where both the service and branch are specified
+            if (keyExtension === "github_repository_and_branch"){
+                const repositoryName = value.split("|")[0];
+                const repositoryBranch = value.split("|")[1];
+                Repositories.repositories.push(new Repository(Repository.Service.GitHub, repositoryName, repositoryBranch, false));
+            }
+        }
+
+        // sort the repository list
+        Repositories.sort();
     }
 
     /**
