@@ -2380,7 +2380,7 @@ export class Utils {
             Utils.ojsPaletteSchema = schema;
 
             // HACK: we modify the palette schema from the graph schema!
-            for (const notRequired of ["isGroup", "color", "drawOrderHint", "x", "y", "collapsed", "subject", "expanded"]){
+            for (const notRequired of ["isGroup", "color", "drawOrderHint", "x", "y", "subject"]){
                 (<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required.splice((<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required.indexOf(notRequired), 1);
             }
         }
