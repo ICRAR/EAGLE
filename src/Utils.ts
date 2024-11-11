@@ -2144,6 +2144,7 @@ export class Utils {
     }
 
     static showField(eagle: Eagle, nodeId: NodeId, field: Field) :void {
+        console.log('request show field')
         this.showNode(eagle, nodeId)
         setTimeout(function(){
             const node = eagle.selectedNode()
