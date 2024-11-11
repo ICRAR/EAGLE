@@ -93,7 +93,7 @@ td:first-child input {
     border:solid 1px #000c1a;
     border-radius: 6px;
     position: absolute;
-    z-index: 100;
+    z-index: 120;
     background-color: #0059a5;
 }
 
@@ -210,6 +210,14 @@ td:first-child input {
 
 #parameterTable .tableBody{
     padding: 0px;
+}
+
+#parameterTable .column_NodeName input{
+    pointer-events: none;
+}
+
+#parameterTable .configFieldsTable .column_DisplayText input{
+    pointer-events: none;
 }
 
 .eagleTableWrapper{
