@@ -126,8 +126,6 @@ $(function(){
         window.history.replaceState(null, null, window.location.origin + window.location.pathname);
     }
 
-    loadRepos();
-
     // load the default palette
     if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
         eagle.loadDefaultPalettes();
@@ -153,6 +151,8 @@ $(function(){
     // keyboard shortcut event listener
     document.onkeydown = KeyboardShortcut.processKey;
     document.onkeyup = KeyboardShortcut.processKey;
+
+    loadRepos();
 
     // auto load a tutorial, if specified on the url
     autoTutorial();
@@ -268,8 +268,12 @@ async function loadRepos() {
     if (UiModeSystem.getActiveUiMode().getName()==='Student'){
         GitHub.loadStudentRepoList();
     } else {
-        await GitHub.loadRepoList();
-        await GitLab.loadRepoList();
+        const gh: Repository[] = await GitHub.loadRepoList();
+        const gl: Repository[] = await GitLab.loadRepoList();
+
+        Repositories.repositories.push(...gh);
+        Repositories.repositories.push(...gl);
+        Repositories.sort();
     }
 
     // auto load the file
