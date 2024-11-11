@@ -120,6 +120,7 @@ export class EagleConfig {
     //node settings
     // TODO: could move to CategoryData?
     public static readonly NORMAL_NODE_RADIUS : number = 25;
+    public static readonly DATA_NODE_RADIUS : number = 18;
     public static readonly BRANCH_NODE_RADIUS : number = 44;
     public static readonly CONSTRUCT_NODE_RADIUS: number = 200;
     public static readonly MINIMUM_CONSTRUCT_RADIUS : number = 44;

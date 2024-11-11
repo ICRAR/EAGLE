@@ -60,8 +60,6 @@ export namespace Category {
         canHaveConstructParameters: boolean, 
         icon: string,
         color: string,
-        collapsedHeaderOffsetY: number,
-        expandedHeaderOffsetY: number,
         sortOrder: number
     };
 

@@ -385,10 +385,11 @@ export class Eagle {
     }, this);
 
     toggleWindows = () : void  => {
-        const setOpen = !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)
+        const setOpen = !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) || !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)
 
         SideWindow.setShown('left', setOpen);
         SideWindow.setShown('right', setOpen);
+        SideWindow.setShown('bottom', setOpen);
     }
 
     emptySearchBar = (target : ko.Observable,data:string, event : Event) => {
@@ -1038,8 +1039,6 @@ export class Eagle {
 
             // set attributes of parentNode
             parentNode.setPosition(parentNodePosition.x+(bbSize/2), parentNodePosition.y+(bbSize/2));
-            parentNode.setRadius(bbSize);
-            parentNode.setCollapsed(true);
         } else {
             parentNodePosition = {x: DUPLICATE_OFFSET, y: DUPLICATE_OFFSET};
         }
@@ -1503,7 +1502,7 @@ export class Eagle {
         Utils.showNotification("New Graph Config Created", 'newConfig', "success");
 
         // open the graph configurations table
-        GraphConfigurationsTable.openModal();
+        GraphConfigurationsTable.openTable();
 
         this.undo().pushSnapshot(this, "New graph configuration added");
         this.logicalGraph().fileInfo().modified = true;
@@ -2601,62 +2600,6 @@ export class Eagle {
         }
     }
 
-    toggleCollapseAllGroups = () : void => {
-        // first work out whether we should be collapsing or expanding
-        let numCollapsed: number = 0;
-        let numExpanded: number = 0;
-        for (const node of this.logicalGraph().getNodes()){
-            if (node.isGroup()){
-                if (node.isCollapsed()){
-                    numCollapsed += 1;
-                } else {
-                    numExpanded += 1;
-                }
-            }
-        }
-        const collapse: boolean = numExpanded > numCollapsed;
-
-        // now loop through and collapse or expand all group nodes
-        for (const node of this.logicalGraph().getNodes()){
-            if (node.isGroup()){
-                node.setCollapsed(collapse);
-            }
-        }
-
-        // trigger re-render
-        this.logicalGraph.valueHasMutated();
-    }
-
-    toggleCollapseAllNodes = () : void => {
-        // first work out whether we should be collapsing or expanding
-        let numCollapsed: number = 0;
-        let numExpanded: number = 0;
-        for (const node of this.logicalGraph().getNodes()){
-            if (!node.isGroup() && !node.isData()){
-                if (node.isCollapsed()){
-                    numCollapsed += 1;
-                } else {
-                    numExpanded += 1;
-                }
-            }
-        }
-        const collapse: boolean = numExpanded > numCollapsed;
-
-        // now loop through and collapse or expand all group nodes
-        for (const node of this.logicalGraph().getNodes()){
-            if (node.isData()){
-                node.setCollapsed(true);
-            }
-
-            if (!node.isGroup() && !node.isData()){
-                node.setCollapsed(collapse);
-            }
-        }
-
-        // trigger re-render
-        this.logicalGraph.valueHasMutated();
-    }
-
     toggleEdgeClosesLoop = () : void => {
         this.selectedEdge().toggleClosesLoop();
 
@@ -3605,9 +3548,6 @@ export class Eagle {
         this.addNode(node, pos.x, pos.y, (newNode: Node) => {
             // make sure the new node is selected
             this.setSelection(newNode, Eagle.FileType.Graph);
-
-            // expand the new node, so the user can start connecting it to other nodes
-            newNode.setCollapsed(false);
 
             // set parent (if the node was dropped on something)
             const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), true);

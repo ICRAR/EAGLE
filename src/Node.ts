@@ -69,7 +69,6 @@ export class Node {
     public static readonly NO_APP_NAME_STRING : string = "-no name-";
 
     //graph related things
-    private collapsed : ko.Observable<boolean>;    // indicates whether the node is shown collapsed in the graph display
     private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
     private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
     private peek : ko.Observable<boolean>;     // true if we are temporarily showing the ports based on the users mouse position
@@ -111,12 +110,20 @@ export class Node {
         //graph related things
         this.expanded = ko.observable(true);
         this.keepExpanded = ko.observable(false);
-        this.collapsed = ko.observable(true);
         this.peek = ko.observable(false);
 
         this.color = ko.observable(Utils.getColorForNode(category));
         this.drawOrderHint = ko.observable(0);
-        this.radius = ko.observable(EagleConfig.NORMAL_NODE_RADIUS);
+
+        if(this.isData()){
+            this.radius = ko.observable(EagleConfig.DATA_NODE_RADIUS);
+        }else if (this.isBranch()){
+            this.radius = ko.observable(EagleConfig.BRANCH_NODE_RADIUS);
+        }else if (this.isGroup()){
+            this.radius = ko.observable(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
+        }else{
+            this.radius = ko.observable(EagleConfig.NORMAL_NODE_RADIUS);
+        }
     }
 
     getId = () : NodeId => {
@@ -247,18 +254,6 @@ export class Node {
 
     isEmbedded = () : boolean => {
         return this.embedId() !== null;
-    }
-
-    isCollapsed = () : boolean => {
-        return this.collapsed();
-    }
-
-    setCollapsed = (value : boolean) : void => {
-        this.collapsed(value);
-    }
-
-    toggleCollapsed = () : void => {
-        this.collapsed(!this.collapsed());
     }
 
     isStreaming = () : boolean => {
@@ -740,7 +735,6 @@ export class Node {
 
         this.parentId(null);
         this.embedId(null);
-        this.collapsed(true);
 
         this.inputApplication(null);
         this.outputApplication(null);
@@ -759,18 +753,6 @@ export class Node {
         this.commitHash("");
         this.paletteDownloadUrl("");
         this.dataHash("");
-    }
-
-    getDisplayRadius = () : number => {
-        if (this.isGroup() && this.isCollapsed()){
-            return EagleConfig.MINIMUM_CONSTRUCT_RADIUS;
-        }
-
-        if (!this.isGroup() && !this.isCollapsed()){
-            return this.radius();
-        }
-
-        return this.radius();
     }
 
     getGitHTML : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -1082,7 +1064,6 @@ export class Node {
         result.id(this.id());
         result.x(this.x());
         result.y(this.y());
-        result.radius(this.radius());
         result.categoryType(this.categoryType());
         result.color(this.color());
         result.drawOrderHint(this.drawOrderHint());
@@ -1090,9 +1071,8 @@ export class Node {
         result.parentId(this.parentId());
         result.embedId(this.embedId());
 
-        result.collapsed(this.collapsed());
-        result.expanded(this.expanded());
-        result.keepExpanded(this.expanded());
+        // result.expanded(this.expanded());
+        // result.keepExpanded(this.expanded());
 
         result.peek(this.peek());
 
@@ -1384,35 +1364,35 @@ export class Node {
         }
         
         // get size (if exists)
-        let width = EagleConfig.NORMAL_NODE_RADIUS;
-        let height = EagleConfig.NORMAL_NODE_RADIUS;
-        if (typeof nodeData.desiredSize !== 'undefined'){
-            width = nodeData.desiredSize.width;
-            height = nodeData.desiredSize.height;
-        }
-        if (typeof nodeData.width !== 'undefined'){
-            width = nodeData.width;
-        }
-        if (typeof nodeData.height !== 'undefined'){
-            height = nodeData.height;
-        }
+        // let width = EagleConfig.NORMAL_NODE_RADIUS;
+        // let height = EagleConfig.NORMAL_NODE_RADIUS;
+        // if (typeof nodeData.desiredSize !== 'undefined'){
+        //     width = nodeData.desiredSize.width;
+        //     height = nodeData.desiredSize.height;
+        // }
+        // if (typeof nodeData.width !== 'undefined'){
+        //     width = nodeData.width;
+        // }
+        // if (typeof nodeData.height !== 'undefined'){
+        //     height = nodeData.height;
+        // }
 
-        if (node.isGroup()){
-            node.radius(Math.max(width, height));
-        } else {
-            if (node.isBranch()){
-                node.radius(EagleConfig.BRANCH_NODE_RADIUS);
-            } else {
-                node.radius(EagleConfig.NORMAL_NODE_RADIUS);
-            }
-        }
+        // if (node.isGroup()){
+        //     node.radius(Math.max(width, height));
+        // } else {
+        //     if (node.isBranch()){
+        //         node.radius(EagleConfig.BRANCH_NODE_RADIUS);
+        //     } else {
+        //         node.radius(EagleConfig.NORMAL_NODE_RADIUS);
+        //     }
+        // }
 
         // expanded
-        if (typeof nodeData.expanded !== 'undefined'){
-            node.expanded(nodeData.expanded)
-        }else{
-            node.expanded(true);
-        }
+        // if (typeof nodeData.expanded !== 'undefined'){
+        //     node.expanded(nodeData.expanded)
+        // }else{
+        //     node.expanded(true);
+        // }
 
         // NOTE: use color from Eagle CategoryData instead of from the input file
 
@@ -1544,23 +1524,6 @@ export class Node {
             } else {
                 node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, isPaletteNode));
                 node.outputApplication().setEmbedId(node.getId());
-            }
-        }
-
-        // collapsed
-        if (typeof nodeData.collapsed !== 'undefined'){
-            node.collapsed(nodeData.collapsed);
-        } else {
-            node.collapsed(true);
-        }
-
-        // HACK! use old 'showPorts' attribute (if found) and overwrite the 'collapsed' value
-        // never collapse groups
-        if (typeof nodeData.showPorts !== 'undefined'){
-            if (nodeData.showPorts === false){
-                if (!node.isGroup()){
-                    node.setCollapsed(true);
-                }
             }
         }
 
@@ -1857,15 +1820,11 @@ export class Node {
         result.description = node.description();
         result.x = node.x();
         result.y = node.y();
-        result.radius = node.radius();
-        result.collapsed = node.collapsed();
         result.subject = node.subject();
-        result.expanded = node.expanded();
         result.repositoryUrl = node.repositoryUrl();
         result.commitHash = node.commitHash();
         result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
-
 
         if (node.parentId() !== null){
             result.parentId = node.parentId();
