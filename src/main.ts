@@ -126,13 +126,7 @@ $(function(){
         window.history.replaceState(null, null, window.location.origin + window.location.pathname);
     }
 
-    // Get the list of git repos
-    if (UiModeSystem.getActiveUiMode().getName()==='Student'){
-        GitHub.loadStudentRepoList();
-    } else {
-        GitHub.loadRepoList();
-        GitLab.loadRepoList();
-    }
+    loadRepos();
 
     // load the default palette
     if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
@@ -159,9 +153,6 @@ $(function(){
     // keyboard shortcut event listener
     document.onkeydown = KeyboardShortcut.processKey;
     document.onkeyup = KeyboardShortcut.processKey;
-
-    // auto load the file
-    autoLoad();
 
     // auto load a tutorial, if specified on the url
     autoTutorial();
@@ -271,6 +262,19 @@ $(function(){
     //changing errors mode from loading to graph as eagle is now ready and finished loading
     eagle.errorsMode(Errors.Mode.Graph);
 });
+
+async function loadRepos() {
+    // Get the list of git repos
+    if (UiModeSystem.getActiveUiMode().getName()==='Student'){
+        GitHub.loadStudentRepoList();
+    } else {
+        await GitHub.loadRepoList();
+        await GitLab.loadRepoList();
+    }
+
+    // auto load the file
+    autoLoad();
+}
 
 function autoLoad(): void {
     const service    = (<any>window).auto_load_service;
