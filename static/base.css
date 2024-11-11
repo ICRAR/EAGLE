@@ -1801,8 +1801,18 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     visibility: hidden;
     padding-left: 3px;
     margin-bottom: -0.5px;
-    pointer-events: none;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
+
+#statusBar #scrollContainer{
+    width: max-content;
+}
+
+#statusBar::-webkit-scrollbar{
+    height: 2px;
+}
+
 
 #statusBar h5{
     display: inline;
