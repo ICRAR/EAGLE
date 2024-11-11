@@ -219,12 +219,14 @@
             </div>
         </div>
         <div id="statusBar" data-bind="style: { 'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth(), right: Utils.getRightWindowWidth(), bottom: Utils.getBottomWindowHeight()}">
-            <!-- ko foreach: StatusEntry.getStatusEntries() -->
-                <!-- ko if: $data.visibility -->
-                    <h5 data-bind="text: $data.action"></h5>
-                    <span data-bind="text: $data.message"></span>
+            <div id="scrollContainer">
+                <!-- ko foreach: StatusEntry.getStatusEntries() -->
+                    <!-- ko if: $data.visibility -->
+                        <h5 data-bind="text: $data.action"></h5>
+                        <span data-bind="text: $data.message"></span>
+                    <!-- /ko -->
                 <!-- /ko -->
-            <!-- /ko -->
+            </div>
         </div>
 
         {% include 'modals.html' %} 
