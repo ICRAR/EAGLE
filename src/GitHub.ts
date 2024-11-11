@@ -34,29 +34,16 @@ export class GitHub {
      * Loads the GitHub repository list.
      */
 
-    // TODO: should callback with the list of repositories
-    static loadRepoList() : void {
+    static async refresh() {
+        // fetch repositories from server
+        const repositories: Repository[] = await GitHub.loadRepoList();
+
         // remove all GitHub repos from the list of repositories
         for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
             if (Repositories.repositories()[i].service === Repository.Service.GitHub){
                 Repositories.repositories.splice(i, 1);
             }
         }
-
-        Utils.httpGetJSON("/getGitHubRepositoryList", null, function(error : string, data: any){
-            if (error != null){
-                console.error(error);
-                return;
-            }
-
-            // add the repositories from the POST response
-            for (const d of data){
-                Repositories.repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
-            }
-
-            // sort the repository list again
-            Repositories.sort();
-        });
 
         // search for custom repositories in localStorage, and add them into the list
         for (let i = 0; i < localStorage.length; i++) {
@@ -84,6 +71,28 @@ export class GitHub {
 
         // sort the repository list
         Repositories.sort();
+    }
+
+    static async loadRepoList(): Promise<Repository[]> {
+        return new Promise(async(resolve, reject) => {
+            Utils.httpGetJSON("/getGitHubRepositoryList", null, function(error : string, data: any){
+                if (error != null){
+                    console.error(error);
+                    reject(error);
+                    return;
+                }
+
+                // add the repositories from the POST response
+                const repositories: Repository[] = [];
+                for (const d of data){
+                    repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
+                }
+
+                // sort the repository list again
+                repositories.sort(Repository.repositoriesSortFunc);
+                resolve(repositories);
+            });
+        });
     }
 
     /**
