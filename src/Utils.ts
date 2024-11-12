@@ -1285,19 +1285,29 @@ export class Utils {
     }
 
     static getBottomWindowHeight() : number {
+        //if eagle isnt ready or the window is hidden just return 0
         if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
             return 0
         }
+
+        //if the bottom window height set is too large, just return the max allowed height
+        if(Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)>80){
+            return 80
+        }
+
+        //else return the actual height
         return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
     }
 
-    static setBottomWindowHeight(width : number) : void {
-        Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).setValue(width)
+    static setBottomWindowHeight(height : number) : void {
+        Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).setValue(height)
         UiModeSystem.saveToLocalStorage()
     }
 
     static getInspectorOffset() : number {
-        return this.getBottomWindowHeight() + $('#statusBar').height() 
+        const offset = 10
+        const statusBarAndOffsetHeightVH = ((($('#statusBar').height() + offset) / window.innerHeight)*100)
+        return this.getBottomWindowHeight() + statusBarAndOffsetHeightVH
     }
 
     static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {

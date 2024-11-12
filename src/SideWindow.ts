@@ -141,6 +141,8 @@ export class SideWindow {
         eagle.rightWindow().adjusting(false);
         eagle.bottomWindow().adjusting(true)
 
+        $('#statusBar').css('pointer-events','none')
+
         return true;
     }
 
@@ -152,6 +154,8 @@ export class SideWindow {
         eagle.leftWindow().adjusting(false);
         eagle.rightWindow().adjusting(false);
         eagle.bottomWindow().adjusting(false)
+
+        $('#statusBar').css('pointer-events','')
 
         return true;
     }
@@ -200,11 +204,13 @@ export class SideWindow {
                 Utils.setRightWindowWidth(newSize);
             }
         }else if(eagle.bottomWindow().adjusting()){
-            newSize = window.innerHeight - e.clientY
+            newSize = ((window.innerHeight - e.clientY)/window.innerHeight)*100
+            //making sure the height we are setting is not smaller than the minimum height
+            const minBottomWindowVh = (Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal()/window.innerHeight)*100
 
-            if(newSize <= Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal()){
-                eagle.bottomWindow().size(Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal());
-                Utils.setBottomWindowHeight(Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal());
+            if(newSize <= minBottomWindowVh){
+                eagle.bottomWindow().size(minBottomWindowVh);
+                Utils.setBottomWindowHeight(minBottomWindowVh);
             }else{
                 eagle.bottomWindow().size(newSize);
                 Utils.setBottomWindowHeight(newSize);

@@ -56,7 +56,7 @@
 
         <div class="container-fluid" id="graphArea" data-bind="event: { dragover: SideWindow.sideWindowAdjust}">
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                <div class="leftWindow" data-bind="style: { width: leftWindow().size(), left: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? 0 : -leftWindow().size(),'visibility':eagle.getEagleIsReady(), bottom: Utils.getBottomWindowHeight()}">
+                <div class="leftWindow" data-bind="style: { width: leftWindow().size(), left: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? 0 : -leftWindow().size(),'visibility':eagle.getEagleIsReady(), bottom: Utils.getBottomWindowHeight()+'vh'}">
                     <div class="leftWindowHandle" data-bind="click: function(){SideWindow.toggleShown('left')}, eagleTooltip: 'Change Node Subject ' +KeyboardShortcut.idToText('toggle_left_window', true)">
                         <span style="display: none" data-bind="visible: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)">
                             <i class="material-icons">arrow_back</i>
@@ -146,7 +146,7 @@
             </div>
             <!-- /ko -->
 
-            <div class="rightWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), width: rightWindow().size(), right: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? 0 : -rightWindow().size(), bottom: Utils.getBottomWindowHeight()}">
+            <div class="rightWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), width: rightWindow().size(), right: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? 0 : -rightWindow().size(), bottom: Utils.getBottomWindowHeight()+'vh'}">
                <div class="btn-group" id="rightWindowTabs" role="group" aria-label="RightWindowModeSelect">
                         <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Repository)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Repository}">
                             Repositories
@@ -185,7 +185,7 @@
                     <div class="rightWindowSizeAdjusterLine"></div>
                 </div>
             </div>
-            <div id="bottomWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), height: bottomWindow().size(), bottom: Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) ? 0 : -bottomWindow().size()}">
+            <div id="bottomWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), height: Utils.getBottomWindowHeight()+'vh', bottom: Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) ? 0 : -Utils.getBottomWindowHeight()+'vh'}">
                 <div class="wrapper">
                     <div class="dragHandle" draggable="true" data-bind="event: { dragstart: SideWindow.bottomWindowAdjustStart, dragend: SideWindow.sideWindowAdjustEnd }"></div>
                     <div class="tabs">
@@ -218,7 +218,7 @@
                 </div>
             </div>
         </div>
-        <div id="statusBar" data-bind="style: { 'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth(), right: Utils.getRightWindowWidth(), bottom: Utils.getBottomWindowHeight()}">
+        <div id="statusBar" data-bind="style: { 'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth(), right: Utils.getRightWindowWidth(), bottom: Utils.getBottomWindowHeight()+'vh'}">
             <div id="scrollContainer">
                 <!-- ko foreach: StatusEntry.getStatusEntries() -->
                     <!-- ko if: $data.visibility -->
