@@ -52,7 +52,7 @@ export class GitHub {
     }
 
     static async loadRepoList(): Promise<Repository[]> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async(resolve) => {
             const repositories: Repository[] = [];
 
             // find and add custom gitlab repositories from browser storage
@@ -62,7 +62,7 @@ export class GitHub {
             Utils.httpGetJSON("/getGitHubRepositoryList", null, function(error : string, data: any){
                 if (error != null){
                     console.error(error);
-                    reject(error);
+                    resolve(repositories);
                     return;
                 }
 
