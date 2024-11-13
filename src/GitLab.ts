@@ -33,7 +33,6 @@ export class GitLab {
     /**
      * Loads the GitLab repository list.
      */
-
     static async refresh() {
         // fetch repositories from server
         const repositories: Repository[] = await GitLab.loadRepoList();
@@ -45,24 +44,8 @@ export class GitLab {
             }
         }
 
-        // search for custom repositories, and add them into the list.
-        for (let i = 0; i < localStorage.length; i++) {
-            const key : string = localStorage.key(i);
-            const value : string = localStorage.getItem(key);
-            const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
-
-            // handle legacy repositories where the branch is not specified (assume master)
-            if (keyExtension === "gitlab_repository"){
-                Repositories.repositories.push(new Repository(Repository.Service.GitLab, value, "master", false));
-            }
-
-            // handle the current method of storing repositories where both the service and branch are specified
-            if (keyExtension === "gitlab_repository_and_branch") {
-                const repositoryName = value.split("|")[0];
-                const repositoryBranch = value.split("|")[1];
-                Repositories.repositories.push(new Repository(Repository.Service.GitLab, repositoryName, repositoryBranch, false));
-            }
-        }
+        // add new repositories
+        Repositories.repositories.push(...repositories);
 
         // sort the repository list
         Repositories.sort();
@@ -70,6 +53,13 @@ export class GitLab {
     
     static async loadRepoList(): Promise<Repository[]> {
         return new Promise(async(resolve, reject) => {
+            const repositories: Repository[] = [];
+
+            // find and add custom gitlab repositories from browser storage
+            const customRepositories = Repositories.listCustomRepositories("gitlab");
+            repositories.push(...customRepositories);
+
+            // fetch additional gitlab repositories from the server
             Utils.httpGetJSON("/getGitLabRepositoryList", null, function(error : string, data: any){
                 if (error != null){
                     console.error(error);
@@ -78,13 +68,10 @@ export class GitLab {
                 }
 
                 // add the repositories from the POST response
-                const repositories: Repository[] = [];
                 for (const d of data){
                     repositories.push(new Repository(Repository.Service.GitLab, d.repository, d.branch, true));
                 }
 
-                // sort the repository list again
-                repositories.sort();
                 resolve(repositories);
             });
         });
