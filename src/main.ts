@@ -270,7 +270,6 @@ async function loadRepos() {
     } else {
         const gh: Repository[] = await GitHub.loadRepoList();
         const gl: Repository[] = await GitLab.loadRepoList();
-        console.log("gh", gh, "gl", gl);
 
         Repositories.repositories.push(...gh);
         Repositories.repositories.push(...gl);

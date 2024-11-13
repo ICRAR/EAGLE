@@ -56,7 +56,7 @@ export class GitLab {
             const repositories: Repository[] = [];
 
             // find and add custom gitlab repositories from browser storage
-            const customRepositories = Repositories.listCustomRepositories("gitlab");
+            const customRepositories = Repositories.listCustomRepositories(Repository.Service.GitLab);
             repositories.push(...customRepositories);
 
             // fetch additional gitlab repositories from the server

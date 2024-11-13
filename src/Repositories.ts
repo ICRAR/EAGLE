@@ -68,8 +68,9 @@ export class Repositories {
         }
     }
 
-    static listCustomRepositories(prefix: string): Repository[] {
+    static listCustomRepositories(service: Repository.Service): Repository[] {
         const customRepositories: Repository[] = [];
+        const prefix: string = service.toLowerCase();
 
         // search for custom repositories, and add them into the list.
         for (let i = 0; i < localStorage.length; i++) {
@@ -79,14 +80,14 @@ export class Repositories {
 
             // handle legacy repositories where the branch is not specified (assume master)
             if (keyExtension === prefix + "_repository"){
-                customRepositories.push(new Repository(Repository.Service.GitLab, value, "master", false));
+                customRepositories.push(new Repository(service, value, "master", false));
             }
 
             // handle the current method of storing repositories where both the service and branch are specified
             if (keyExtension === prefix + "_repository_and_branch") {
                 const repositoryName = value.split("|")[0];
                 const repositoryBranch = value.split("|")[1];
-                customRepositories.push(new Repository(Repository.Service.GitLab, repositoryName, repositoryBranch, false));
+                customRepositories.push(new Repository(service, repositoryName, repositoryBranch, false));
             }
         }
 

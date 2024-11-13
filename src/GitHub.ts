@@ -56,7 +56,7 @@ export class GitHub {
             const repositories: Repository[] = [];
 
             // find and add custom gitlab repositories from browser storage
-            const customRepositories = Repositories.listCustomRepositories("github");
+            const customRepositories = Repositories.listCustomRepositories(Repository.Service.GitHub);
             repositories.push(...customRepositories);
 
             Utils.httpGetJSON("/getGitHubRepositoryList", null, function(error : string, data: any){
