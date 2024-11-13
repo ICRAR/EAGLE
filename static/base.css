@@ -244,6 +244,7 @@ color: #00bb00;}
     top: -5px;
     height: 10px;
     cursor: ns-resize;
+    z-index: 150;
 }
 
 #bottomWindow div.tabs{
