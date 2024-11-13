@@ -19,11 +19,6 @@ export class Repositories {
         Repositories.repositories = ko.observableArray();
     }
 
-    refreshRepositoryList = () : void => {
-        GitHub.loadRepoList();
-        GitLab.loadRepoList();
-    };
-
     static selectFolder(folder : RepositoryFolder) : void {
         // toggle expanded state
         folder.expanded(!folder.expanded());
@@ -126,10 +121,10 @@ export class Repositories {
 
             // Reload the repository lists
             if (repositoryService === Repository.Service.GitHub){
-                GitHub.loadRepoList();
+                GitHub.refresh();
             }
             if (repositoryService === Repository.Service.GitLab){
-                GitLab.loadRepoList();
+                GitLab.refresh();
             }
         });
     };
@@ -168,12 +163,12 @@ export class Repositories {
                 localStorage.removeItem(repository.name + ".repository");
                 localStorage.removeItem(repository.name + ".github_repository");
                 localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
-                GitHub.loadRepoList();
+                GitHub.refresh();
                 break;
             case Repository.Service.GitLab:
                 localStorage.removeItem(repository.name + ".gitlab_repository");
                 localStorage.removeItem(repository.name + "|" + repository.branch + ".gitlab_repository_and_branch");
-                GitLab.loadRepoList();
+                GitLab.refresh();
                 break;
             default:
                 Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
