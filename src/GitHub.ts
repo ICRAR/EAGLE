@@ -106,75 +106,77 @@ export class GitHub {
     /**
      * Shows the remote files on the GitHub.
      */
-    static loadRepoContent(repository : Repository) : void {
-        const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+    static async loadRepoContent(repository : Repository): Promise<void> {
+        return new Promise(async(resolve, reject) => {
+            const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
-        if (token === null || token === "") {
-            Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
-            return;
-        }
-
-        // flag the repository as being fetched
-        repository.isFetching(true);
-
-        // Add parameters in json data.
-        const jsonData = {
-            repository: repository.name,
-            branch: repository.branch,
-            token: token,
-        };
-
-        Utils.httpPostJSON('/getGitHubFilesAll', jsonData, function(error:string, data:any){
-            repository.isFetching(false);
-
-            // check for unhandled errors
-            if (error != null){
-                console.error(error, data);
-                Utils.showUserMessage("Error", "Unable to fetch files for this repository. A server error occurred. " + error);
-                return;
+            if (token === null || token === "") {
+                Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
+                reject("The GitHub access token is not set! To access GitHub repository, set the token via settings.");
             }
 
-            // check for errors that were handled correctly and passed to the client to display
-            if (typeof data.error !== 'undefined'){
-                console.log("error", data.error);
-                Utils.showUserMessage("Error", data.error);
-                return;
-            }
+            // flag the repository as being fetched
+            repository.isFetching(true);
 
-            // flag the repository as fetched and expand by default
-            repository.fetched(true);
-            repository.expanded(true);
+            // Add parameters in json data.
+            const jsonData = {
+                repository: repository.name,
+                branch: repository.branch,
+                token: token,
+            };
 
-            // delete current file list for this repository
-            repository.files.removeAll();
-            repository.folders.removeAll();
+            Utils.httpPostJSON('/getGitHubFilesAll', jsonData, function(error:string, data:any){
+                repository.isFetching(false);
 
-            console.log("/getGitHubFiles reply", data, typeof data);
-
-            const fileNames : string[] = data[""];
-
-            // debug
-            Utils.addToHTMLElementLog("fileNames:" + fileNames);
-
-            // sort the fileNames
-            fileNames.sort(Repository.fileSortFunc);
-
-            // add files to repo
-            for (const fileName of fileNames){
-                // if file is not a .graph, .palette, or .json, just ignore it!
-                if (Utils.verifyFileExtension(fileName)){
-                    repository.files.push(new RepositoryFile(repository, "", fileName));
+                // check for unhandled errors
+                if (error != null){
+                    console.error(error, data);
+                    Utils.showUserMessage("Error", "Unable to fetch files for this repository. A server error occurred. " + error);
+                    reject(error);
                 }
-            }
 
-            // add folders to repo
-            for (const path in data){
-                // skip the root directory
-                if (path === "")
-                    continue;
+                // check for errors that were handled correctly and passed to the client to display
+                if (typeof data.error !== 'undefined'){
+                    console.log("error", data.error);
+                    Utils.showUserMessage("Error", data.error);
+                    reject(error);
+                }
 
-                repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
-            }
+                // flag the repository as fetched and expand by default
+                repository.fetched(true);
+                repository.expanded(true);
+
+                // delete current file list for this repository
+                repository.files.removeAll();
+                repository.folders.removeAll();
+
+                const fileNames : string[] = data[""];
+
+                // debug
+                Utils.addToHTMLElementLog("fileNames:" + fileNames);
+
+                // sort the fileNames
+                fileNames.sort(Repository.fileSortFunc);
+
+                // add files to repo
+                for (const fileName of fileNames){
+                    // if file is not a .graph, .palette, or .json, just ignore it!
+                    if (Utils.verifyFileExtension(fileName)){
+                        repository.files.push(new RepositoryFile(repository, "", fileName));
+                    }
+                }
+
+                // add folders to repo
+                for (const path in data){
+                    // skip the root directory
+                    if (path === "")
+                        continue;
+
+                    repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
+                }
+
+                resolve();
+            });
         });
     }
 
