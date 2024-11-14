@@ -109,25 +109,29 @@ export class Repositories {
                 return;
             }
 
-            // add extension to userString to indicate repository service
-            const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
-            if (localStorageKey === null){
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
-                return;
-            }
-
-            // Adding the repo name into the local browser storage.
-            localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
-
-            // Reload the repository lists
-            if (repositoryService === Repository.Service.GitHub){
-                GitHub.refresh();
-            }
-            if (repositoryService === Repository.Service.GitLab){
-                GitLab.refresh();
-            }
+            this._addCustomRepository(repositoryService, repositoryName, repositoryBranch);
         });
     };
+
+    _addCustomRepository = (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string): void => {
+        // add extension to userString to indicate repository service
+        const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
+        if (localStorageKey === null){
+            Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
+            return;
+        }
+
+        // Adding the repo name into the local browser storage.
+        localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
+
+        // Reload the repository lists
+        if (repositoryService === Repository.Service.GitHub){
+            GitHub.refresh();
+        }
+        if (repositoryService === Repository.Service.GitLab){
+            GitLab.refresh();
+        }
+    }
 
     removeCustomRepository = (repository : Repository) : void => {
         const confirmRemoveRepositories: Setting = Setting.find(Setting.CONFIRM_REMOVE_REPOSITORIES);
