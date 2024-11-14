@@ -162,6 +162,10 @@ td:first-child input {
     width: 160px;
 }
 
+#parameter_table_encoding{
+    width: 80px;
+}
+
 #parameter_table_node_name{
     width: 160px;
 }
