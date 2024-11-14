@@ -69,16 +69,36 @@ export class Repository {
         }
     }
 
-    refresh = () : void => {
-        switch(this.service){
-            case Repository.Service.GitHub:
-                GitHub.loadRepoContent(this);
-                break;
-            case Repository.Service.GitLab:
-                GitLab.loadRepoContent(this);
-                break;
-            default:
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
+    refresh = async () : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            switch(this.service){
+                case Repository.Service.GitHub:
+                    await GitHub.loadRepoContent(this);
+                    resolve();
+                    break;
+                case Repository.Service.GitLab:
+                    GitLab.loadRepoContent(this);
+                    resolve();
+                    break;
+                default:
+                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
+                    reject("Unknown repository service. Not GitHub or GitLab!");
+            }
+        });
+    }
+
+    // expand all the directories along a given path
+    expandPath = (path: string): void => {
+        let pointer: Repository | RepositoryFolder = this;
+        const pathParts: string[] = path.split('/');
+
+        for (const pathPart of pathParts){
+            for (const folder of pointer.folders()){
+                if (folder.name === pathPart){ 
+                    pointer = folder;
+                    folder.expanded(true);
+                }
+            }
         }
     }
 

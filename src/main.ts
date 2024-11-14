@@ -280,7 +280,7 @@ async function loadRepos() {
     autoLoad();
 }
 
-function autoLoad(): void {
+async function autoLoad() {
     const service    = (<any>window).auto_load_service;
     const repository = (<any>window).auto_load_repository;
     const branch     = (<any>window).auto_load_branch;
@@ -321,7 +321,8 @@ function autoLoad(): void {
         const repo: Repository = Repositories.get(service, repository, branch);
 
         if (repo !== null){
-            repo.refresh();
+            await repo.refresh();
+            repo.expandPath(path);
         }
     }
 }
