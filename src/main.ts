@@ -318,12 +318,26 @@ async function autoLoad() {
 
     // if developer setting enabled, fetch the repository that this graph belongs to (if the repository is in the list of known repositories)
     if (Setting.findValue(Setting.FETCH_REPOSITORY_FOR_URLS)){
-        const repo: Repository = Repositories.get(service, repository, branch);
+        let repo: Repository = Repositories.get(service, repository, branch);
 
-        if (repo !== null){
-            await repo.refresh();
-            repo.expandPath(path);
+        // check whether the source repository is already known to EAGLE
+        if (repo === null){
+            // if not found, add the repository
+            eagle.repositories()._addCustomRepository(service, repository, branch);
+
+            // then look for it again
+            repo = Repositories.get(service, repository, branch);
+
+            // if repo is still null, then it could not be added
+            if (repo === null){
+                console.log("Abort adding repository");
+                return;
+            }
         }
+
+        // fetch the repository contents, then open the folder hierarchy to display the location of the graph
+        await repo.refresh();
+        repo.expandPath(path);
     }
 }
 
