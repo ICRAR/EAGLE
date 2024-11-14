@@ -58,6 +58,7 @@ ko.bindingHandlers.eagleTooltip = {
                 html=html.content
             }
 
+            // when surrounding text in a tooltip with |||, that section will be excluded from the markdown conversion. 
             if(html.includes('|||')){
                 const x = html.split('|||')
                 for(let i = 0 ; i < x.length ; i++){
