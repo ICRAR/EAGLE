@@ -129,10 +129,11 @@ export class GitHub {
                 repository.isFetching(false);
 
                 // check for unhandled errors
-                if (error != null){
+                if (error !== null){
                     console.error(error, data);
                     Utils.showUserMessage("Error", "Unable to fetch files for this repository. A server error occurred. " + error);
                     reject(error);
+                    return;
                 }
 
                 // check for errors that were handled correctly and passed to the client to display
@@ -140,6 +141,7 @@ export class GitHub {
                     console.log("error", data.error);
                     Utils.showUserMessage("Error", data.error);
                     reject(error);
+                    return;
                 }
 
                 // flag the repository as fetched and expand by default
