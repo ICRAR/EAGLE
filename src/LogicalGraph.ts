@@ -645,6 +645,36 @@ export class LogicalGraph {
         }
     }
 
+    removeFieldFromNodeById = (node : Node, id: FieldId) : void => {
+        if (node === null){
+            console.warn("Could not remove port from null node");
+            return;
+        }
+
+        // remove port
+        node.removeFieldById(id);
+
+        // remove any edges connected to that port
+        const edges: ko.ObservableArray<Edge> = this.edges;
+
+        for (let i = edges().length - 1; i >= 0; i--){
+            const edge: Edge = edges()[i];
+
+            if (edge.getSrcPortId() === id || edge.getDestPortId() === id){
+                console.log("Remove incident edge", edge.getSrcPortId(), "->", edge.getDestPortId());
+                edges.splice(i, 1);
+            }
+        }
+
+        // get reference to EAGLE
+        const eagle: Eagle = Eagle.getInstance();
+
+        eagle.checkGraph();
+        eagle.undo().pushSnapshot(eagle, "Remove port from node");
+        eagle.flagActiveFileModified();
+        eagle.selectedObjects.valueHasMutated();
+    }
+
     portIsLinked = (nodeId: NodeId, portId: FieldId) : any => {
         let result:{input:boolean,output:boolean} = {'input':false,'output':false}
         let input = false
