@@ -380,8 +380,7 @@ export class ParameterTable {
                 graphConfig.removeField(currentField);
             }
         } else {
-            graphConfig = new GraphConfig()
-
+            graphConfig = new GraphConfig();
             Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
                 ParameterTable.openTable(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
 
