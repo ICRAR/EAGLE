@@ -661,7 +661,6 @@ export class LogicalGraph {
             const edge: Edge = edges()[i];
 
             if (edge.getSrcPortId() === id || edge.getDestPortId() === id){
-                console.log("Remove incident edge", edge.getSrcPortId(), "->", edge.getDestPortId());
                 edges.splice(i, 1);
             }
         }
