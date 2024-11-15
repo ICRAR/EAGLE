@@ -139,13 +139,7 @@ export class LogicalGraph {
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
         result += '"modelData": ' + JSON.stringify(json.modelData, null, EagleConfig.JSON_INDENT) + ",\n";
-
-        // write either null or a string
-        if (json.activeGraphConfigId === null){
-            result += '"activeGraphConfigId": null,\n';
-        } else {
-            result += '"activeGraphConfigId": "' + json.activeGraphConfigId + '",\n';
-        }
+        result += '"activeGraphConfigId": ' + JSON.stringify(json.activeGraphConfigId) + ',\n';
 
         // if we are sending this graph for translation, then only provide the "active" graph configuration, or an empty array if none exist
         // otherwise, add all graph configurations
