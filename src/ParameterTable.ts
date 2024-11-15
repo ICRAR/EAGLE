@@ -393,8 +393,7 @@ export class ParameterTable {
                     return;
                 }
 
-                // set id and name
-                graphConfig.setId(Utils.generateGraphConfigId());
+                // set name
                 graphConfig.setName(userString);
 
                 // add/remove the field that was requested in the first place

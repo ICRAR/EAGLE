@@ -19,7 +19,7 @@ export class GraphConfig {
     private lastModifiedDatetime : ko.Observable<number>;
     
     constructor(){
-        this.id = ko.observable(null);
+        this.id = ko.observable(Utils.generateGraphConfigId());
         this.name = ko.observable("");
         this.description = ko.observable("");
 
