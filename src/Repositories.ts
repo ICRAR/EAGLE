@@ -113,7 +113,7 @@ export class Repositories {
         });
     };
 
-    _addCustomRepository = async (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string): void => {
+    _addCustomRepository = async (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) => {
         // add extension to userString to indicate repository service
         const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
         if (localStorageKey === null){
