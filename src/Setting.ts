@@ -320,6 +320,7 @@ export class Setting {
 
     static readonly SKIP_CLOSE_LOOP_EDGES: string = "SkipCloseLoopEdges";
     static readonly PRINT_UNDO_STATE_TO_JS_CONSOLE: string = "PrintUndoStateToJsConsole";
+    static readonly PRINT_TRANSLATOR_JSON_TO_JS_CONSOLE: string = "PrintTranslatorJsonToJsConsole";
     static readonly SNAP_TO_GRID: string = "SnapToGrid";
     static readonly SNAP_TO_GRID_SIZE: string = "SnapToGridSize";
     static readonly SHOW_GRAPH_WARNINGS: string = "ShowInspectorWarnings";
@@ -327,6 +328,7 @@ export class Setting {
 
     static readonly ALLOW_MODIFIED_GRAPH_TRANSLATION: string = "AllowModifiedGraphTranslation";
     static readonly APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION: string = "ApplyActiveGraphConfigBeforeTranslation";
+    static readonly FETCH_REPOSITORY_FOR_URLS: string = "FetchRepositoryForUrls";
 }
 
 export namespace Setting {
@@ -434,14 +436,16 @@ const settings : SettingsGroup[] = [
         "Developer",
         () => {return false;},
         [
-            new Setting(true, "Show File Loading Warnings", Setting.SHOW_FILE_LOADING_ERRORS, "Display list of issues with files encountered during loading.", false, Setting.Type.Boolean, false,false, false, false, false),
-            new Setting(true, "Open Translator In Current Tab", Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, "When translating a graph, display the output of the translator in the current tab", false, Setting.Type.Boolean, false,false,false, false, false),
-            new Setting(true, "Create Applications for Construct Ports", Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, "When loading old graph files with ports on construct nodes, move the port to an embedded application",false, Setting.Type.Boolean, true,true,true, true, true),
-            new Setting(true, "Skip 'closes loop' edges in JSON output", Setting.SKIP_CLOSE_LOOP_EDGES, "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", false, Setting.Type.Boolean, true, true, true,true,true),
-            new Setting(true, "Print Undo state to JS Console", Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", false, Setting.Type.Boolean, false,false ,false, false, false),
-            new Setting(true, "Display all Category options", Setting.SHOW_ALL_CATEGORY_OPTIONS, "Displays all category options when changing the category of a node", false, Setting.Type.Boolean, false,false ,false, false, false),
-            new Setting(true, "Allow modified graph translation", Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, "Allow users to submit graphs for translation even when not saved or committed", true, Setting.Type.Boolean, false, false ,false, false, false),
-            new Setting(true, "Apply active graph config before translation", Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION, "Apply the active graph config to the graph before sending the graph for translation", false, Setting.Type.Boolean, false, false ,false, false, false),
+            new Setting(true, "Show File Loading Warnings", Setting.SHOW_FILE_LOADING_ERRORS, "Display list of issues with files encountered during loading.", false, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "Open Translator In Current Tab", Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, "When translating a graph, display the output of the translator in the current tab", false, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "Create Applications for Construct Ports", Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, "When loading old graph files with ports on construct nodes, move the port to an embedded application", false, Setting.Type.Boolean, true, true, true, true, true),
+            new Setting(true, "Skip 'closes loop' edges in JSON output", Setting.SKIP_CLOSE_LOOP_EDGES, "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", false, Setting.Type.Boolean, true, true, true, true, true),
+            new Setting(true, "Print Undo state to JS Console", Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", false, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "Print Translator JSON to JS Console", Setting.PRINT_TRANSLATOR_JSON_TO_JS_CONSOLE, "When translating a graph, print the JSON data sent to the translator to the browser's javascript console", false, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "Display all Category options", Setting.SHOW_ALL_CATEGORY_OPTIONS, "Displays all category options when changing the category of a node", false, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "Allow modified graph translation", Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, "Allow users to submit graphs for translation even when not saved or committed", true, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "Apply active graph config before translation", Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION, "Apply the active graph config to the graph before sending the graph for translation", false, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "Fetch repository for URLs", Setting.FETCH_REPOSITORY_FOR_URLS, "Automatically fetch the contents of the object's repository when a graph/palette is specified in the URL", true, Setting.Type.Boolean, false, false ,false, false, false),
         ]
     )
 ];

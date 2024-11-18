@@ -126,14 +126,6 @@ $(function(){
         window.history.replaceState(null, null, window.location.origin + window.location.pathname);
     }
 
-    // Get the list of git repos
-    if (UiModeSystem.getActiveUiMode().getName()==='Student'){
-        GitHub.loadStudentRepoList();
-    } else {
-        GitHub.loadRepoList();
-        GitLab.loadRepoList();
-    }
-
     // load the default palette
     if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
         eagle.loadDefaultPalettes();
@@ -160,8 +152,7 @@ $(function(){
     document.onkeydown = KeyboardShortcut.processKey;
     document.onkeyup = KeyboardShortcut.processKey;
 
-    // auto load the file
-    autoLoad();
+    loadRepos();
 
     // auto load a tutorial, if specified on the url
     autoTutorial();
@@ -272,7 +263,24 @@ $(function(){
     eagle.errorsMode(Errors.Mode.Graph);
 });
 
-function autoLoad(): void {
+async function loadRepos() {
+    // Get the list of git repos
+    if (UiModeSystem.getActiveUiMode().getName()==='Student'){
+        GitHub.loadStudentRepoList();
+    } else {
+        const gh: Repository[] = await GitHub.loadRepoList();
+        const gl: Repository[] = await GitLab.loadRepoList();
+
+        Repositories.repositories.push(...gh);
+        Repositories.repositories.push(...gl);
+        Repositories.sort();
+    }
+
+    // auto load the file
+    autoLoad();
+}
+
+async function autoLoad() {
     const service    = (<any>window).auto_load_service;
     const repository = (<any>window).auto_load_repository;
     const branch     = (<any>window).auto_load_branch;
@@ -306,6 +314,30 @@ function autoLoad(): void {
         Repositories.selectFile(new RepositoryFile(new Repository(service, "", "", false), "", url));
     } else {
         Repositories.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+    }
+
+    // if developer setting enabled, fetch the repository that this graph belongs to (if the repository is in the list of known repositories)
+    if (Setting.findValue(Setting.FETCH_REPOSITORY_FOR_URLS)){
+        let repo: Repository = Repositories.get(service, repository, branch);
+
+        // check whether the source repository is already known to EAGLE
+        if (repo === null){
+            // if not found, add the repository
+            await eagle.repositories()._addCustomRepository(service, repository, branch);
+
+            // then look for it again
+            repo = Repositories.get(service, repository, branch);
+
+            // if repo is still null, then it could not be added
+            if (repo === null){
+                console.log("Abort adding repository");
+                return;
+            }
+        }
+
+        // fetch the repository contents, then open the folder hierarchy to display the location of the graph
+        await repo.refresh();
+        repo.expandPath(path);
     }
 }
 
