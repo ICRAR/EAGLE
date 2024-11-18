@@ -323,7 +323,7 @@ async function autoLoad() {
         // check whether the source repository is already known to EAGLE
         if (repo === null){
             // if not found, add the repository
-            eagle.repositories()._addCustomRepository(service, repository, branch);
+            await eagle.repositories()._addCustomRepository(service, repository, branch);
 
             // then look for it again
             repo = Repositories.get(service, repository, branch);

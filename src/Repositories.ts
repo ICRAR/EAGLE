@@ -113,7 +113,7 @@ export class Repositories {
         });
     };
 
-    _addCustomRepository = (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string): void => {
+    _addCustomRepository = async (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string): void => {
         // add extension to userString to indicate repository service
         const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
         if (localStorageKey === null){
@@ -126,10 +126,10 @@ export class Repositories {
 
         // Reload the repository lists
         if (repositoryService === Repository.Service.GitHub){
-            GitHub.refresh();
+            await GitHub.refresh();
         }
         if (repositoryService === Repository.Service.GitLab){
-            GitLab.refresh();
+            await GitLab.refresh();
         }
     }
 
@@ -202,7 +202,7 @@ export class Repositories {
                 return repository;
             }
         }
-        console.warn("getRepositoryByName() could not find " + service + " repository with the name " + name + " and branch " + branch);
+        console.warn("Repositories.get() could not find " + service + " repository with the name " + name + " and branch " + branch);
         return null;
     }
 
