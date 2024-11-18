@@ -206,6 +206,7 @@
                                                     </td>
                                                 <!-- /ko -->
                                             <!-- /ko -->
+                                             
                                             <!-- value fields -->
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().value()  -->
                                                 <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
@@ -221,6 +222,9 @@
                                                     <!-- /ko -->
                                                     <!-- ko ifnot: $data.getType() === 'Integer' -->
                                                         <td class='columnCell column_Value' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('value', $data) }">
+                                                            <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable && $data.getGraphConfigField() -->
+                                                                <input class="tableParameter inputNoArrows tableFieldStringValueInput" data-bind="disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'value', $data, $index())}}">
+                                                            <!-- /ko -->
                                                             <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable -->
                                                                 <input class="tableParameter inputNoArrows tableFieldStringValueInput" data-bind="disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}">
                                                             <!-- /ko -->
