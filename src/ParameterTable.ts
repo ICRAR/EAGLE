@@ -380,7 +380,7 @@ export class ParameterTable {
                 graphConfig.removeField(currentField);
             }
         } else {
-            graphConfig = new GraphConfig()
+            graphConfig = new GraphConfig();
             Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
                 ParameterTable.openTable(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
 
@@ -392,7 +392,7 @@ export class ParameterTable {
                     return;
                 }
 
-                // set name and set modified flag
+                // set name
                 graphConfig.setName(userString);
 
                 // add/remove the field that was requested in the first place
