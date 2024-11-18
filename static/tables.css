@@ -360,6 +360,10 @@ td:first-child input {
     width:100%;
 }
 
+.eagleTableDisplay  .doubleInputDisplay{
+    width: 45%;
+}
+
 .eagleTableDisplay  input:read-only{
     color: rgb(91 91 91);
 }
@@ -460,6 +464,13 @@ td:first-child input {
     right: 20px;
     width: 300px;
     top: 9px;
+}
+
+.eagleTableWrapper i.parameterTableOverWriteIcon{
+    display: inline-block;
+    color: black;
+    margin-left: 0px;
+    font-weight: 800;   
 }
 
 @media only screen and (max-width: 2010px) {
