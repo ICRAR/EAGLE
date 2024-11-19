@@ -297,12 +297,7 @@ td:first-child input {
     background: #8ec0ff;
 }
 
-.eagleTableWrapper td.selectedTableParameter {
-    background-color: rgb(162 202 255 / 95%);
-    border: #002e5f 2px solid;
-}
-
-.eagleTableWrapper td:nth-child(even).selectedTableParameter {
+.eagleTableWrapper .selectedTableParameter {
     background-color: rgb(162 202 255 / 95%);
     border: #002e5f 2px solid;
 }
@@ -360,8 +355,22 @@ td:first-child input {
     width:100%;
 }
 
+.eagleTableDisplay tbody input{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+}
+
 .eagleTableDisplay  .doubleInputDisplay{
     width: 45%;
+    border: 2px dotted #002e5f;
+}
+
+.eagleTableDisplay .doubleInputDisplay.configValueInput{
+    right: unset;
+    left: 0;
+    border: 2px solid #002e5f;
 }
 
 .eagleTableDisplay  input:read-only{
@@ -467,9 +476,12 @@ td:first-child input {
 }
 
 .eagleTableWrapper i.parameterTableOverWriteIcon{
-    display: inline-block;
-    color: black;
-    margin-left: 0px;
+    position: absolute;
+    color: #002e5f;
+    margin: 0px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     font-weight: 800;   
 }
 
