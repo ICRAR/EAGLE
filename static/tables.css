@@ -297,11 +297,6 @@ td:first-child input {
     background: #8ec0ff;
 }
 
-.eagleTableWrapper .selectedTableParameter {
-    background-color: rgb(162 202 255 / 95%);
-    border: #002e5f 2px solid;
-}
-
 .eagleTableWrapper select{
     padding: 0px;
     height: fit-content;
@@ -370,7 +365,7 @@ td:first-child input {
 .eagleTableDisplay .doubleInputDisplay.configValueInput{
     right: unset;
     left: 0;
-    border: 2px solid #002e5f;
+    border: 1px solid #002e5f;
 }
 
 .eagleTableDisplay  input:read-only{
@@ -382,6 +377,7 @@ td:first-child input {
     width: fit-content;
     margin-left: 50%;
     transform: translateX(-50%);
+    position: relative;
 }
 
 .eagleTableDisplay  input[type="checkbox"]:focus{
@@ -393,6 +389,11 @@ td:first-child input {
     /* overflow: hidden; */
     border-right: 1px solid rgb(14 2 76 / 16%);
     position: relative;
+}
+
+.eagleTableDisplay .eagleTableWrapper .selectedTableParameter {
+    background-color: rgb(162 202 255 / 95%);
+    border: #002e5f 2px solid;
 }
 
 .eagleTableDisplay  td i, #editFieldModal .tableBody .dropdown-item i{
