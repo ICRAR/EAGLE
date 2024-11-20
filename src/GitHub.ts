@@ -154,9 +154,6 @@ export class GitHub {
 
                 const fileNames : string[] = data[""];
 
-                // debug
-                Utils.addToHTMLElementLog("fileNames:" + fileNames);
-
                 // sort the fileNames
                 fileNames.sort(Repository.fileSortFunc);
 

@@ -441,11 +441,6 @@ export class Utils {
         $('#messageModalTitle').text(title);
         $('#messageModalMessage').html(message);
         $('#messageModal').modal("toggle");
-
-        // debug
-        if (title === "Error"){
-            Utils.addToHTMLElementLog(title + ":" + message);
-        }
     }
 
     static showErrorsModal(title: string){
@@ -479,10 +474,6 @@ export class Utils {
             } /*,
             delay:0 */
         });
-    }
-
-    static addToHTMLElementLog(message: string) : void {
-        $('#htmlElementLog').text($('#htmlElementLog').text() + message + "\n");
     }
 
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, callback : (completed : boolean, userString : string) => void ) : void {
