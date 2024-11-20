@@ -241,11 +241,27 @@
                                                 <!-- /ko -->
                                                 <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
                                                     <td class='columnCell column_Value' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('value', $data) }">
+                                                        <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable && $data.getGraphConfigField() -->
+                                                            <div class="checkboxWrapper configValueInput" data-bind="css: {doubleInputDisplay: $data.getGraphConfigField()}">
+                                                                <div>
+                                                                    <input class="tableParameter" tabindex='-1' data-bind="css: {selectedTableParameter: ParameterTable.isSelected('configValue', $data) }, checked: valIsTrue($data.getGraphConfigField().value()), disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$data.getGraphConfigField().toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
+                                                                </div>
+                                                            </div>
+                                                            <i class="material-icons md-18 parameterTableOverWriteIcon" data-bind="eagleTooltip: 'The Configured Value (left) is overwriting the graphs value (right)'">arrow_forward</i>
+                                                        <!-- /ko -->
                                                         <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable -->
-                                                            <input class="tableParameter" tabindex='-1' data-bind="checked: valIsTrue($data.value()), disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$data.toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
+                                                            <div class="checkboxWrapper" data-bind="css: {doubleInputDisplay: $data.getGraphConfigField()}">
+                                                                <div>
+                                                                    <input class="tableParameter" tabindex='-1' data-bind="css: { selectedTableParameter: ParameterTable.isSelected('value', $data) }, checked: valIsTrue($data.value()), disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$data.toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
+                                                                </div>
+                                                            </div>
                                                         <!-- /ko -->
                                                         <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigAttributesTable && $data.getGraphConfigField() -->
-                                                            <input class="tableParameter" tabindex='-1' data-bind="checked: valIsTrue($data.getGraphConfigField().value()), disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, event: {change: function(){$data.getGraphConfigField().toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
+                                                            <div class="checkboxWrapper">
+                                                                <div>
+                                                                    <input class="tableParameter" tabindex='-1' data-bind="checked: valIsTrue($data.getGraphConfigField().value()), disabled: $root.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, event: {change: function(){$data.getGraphConfigField().toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
+                                                                </div> 
+                                                            </div>
                                                         <!-- /ko -->
                                                     </td>
                                                 <!-- /ko -->

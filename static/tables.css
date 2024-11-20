@@ -357,7 +357,26 @@ td:first-child input {
     right: 0;
 }
 
-.eagleTableDisplay  .doubleInputDisplay{
+.eagleTableDisplay  input:read-only{
+    color: rgb(91 91 91);
+}
+
+.eagleTableDisplay .eagleTableWrapper .checkboxWrapper{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.eagleTableDisplay .eagleTableWrapper .checkboxWrapper div{
+    position: relative ;
+    width: 100%;
+    height: 100%;
+}
+
+.eagleTableDisplay .eagleTableWrapper  .doubleInputDisplay{
     width: 45%;
     border: 2px dotted #002e5f;
 }
@@ -368,16 +387,13 @@ td:first-child input {
     border: 1px solid #002e5f;
 }
 
-.eagleTableDisplay  input:read-only{
-    color: rgb(91 91 91);
-}
-
 .eagleTableDisplay  input[type="checkbox"]{
     height:fit-content;
     width: fit-content;
-    margin-left: 50%;
-    transform: translateX(-50%);
-    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
 }
 
 .eagleTableDisplay  input[type="checkbox"]:focus{
