@@ -1490,10 +1490,7 @@ export class Eagle {
      */
 
     newConfig = () : void => {
-        // clone existing active config, assign new id
-        const c: GraphConfig = new GraphConfig
-        c.setId(Utils.generateGraphConfigId());
-        
+        const c: GraphConfig = new GraphConfig();
         c.setName('newConfig');
 
         // adding a new graph config to the array, then setting it as active
@@ -3992,33 +3989,6 @@ export class Eagle {
             this.selectedObjects.valueHasMutated();
             this.logicalGraph.valueHasMutated();
         });
-    }
-
-    removeFieldFromNodeById = (node : Node, id: string) : void => {
-        console.log("removeFieldFromNodeById(): node", node.getName(), "id", id);
-
-        if (node === null){
-            console.warn("Could not remove port from null node");
-            return;
-        }
-
-        // remove port
-        node.removeFieldById(id);
-
-        // remove any edges connected to that port
-        const edges : Edge[] = this.logicalGraph().getEdges();
-
-        for (let i = edges.length - 1; i >= 0; i--){
-            if (edges[i].getSrcPortId() === id || edges[i].getDestPortId() === id){
-                console.log("Remove incident edge", edges[i].getSrcPortId(), "->", edges[i].getDestPortId());
-                edges.splice(i, 1);
-            }
-        }
-
-        this.checkGraph();
-        this.undo().pushSnapshot(this, "Remove port from node");
-        this.flagActiveFileModified();
-        this.selectedObjects.valueHasMutated();
     }
 
     nodeDropLogicalGraph = (eagle : Eagle, event: JQuery.TriggeredEvent) : void => {

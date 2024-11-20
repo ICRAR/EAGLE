@@ -139,7 +139,7 @@ export class LogicalGraph {
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
         result += '"modelData": ' + JSON.stringify(json.modelData, null, EagleConfig.JSON_INDENT) + ",\n";
-        result += '"activeGraphConfigId": "' + json.activeGraphConfigId + '",\n';
+        result += '"activeGraphConfigId": ' + JSON.stringify(json.activeGraphConfigId) + ',\n';
 
         // if we are sending this graph for translation, then only provide the "active" graph configuration, or an empty array if none exist
         // otherwise, add all graph configurations
@@ -643,6 +643,35 @@ export class LogicalGraph {
                 this.edges.splice(i, 1);
             }
         }
+    }
+
+    removeFieldFromNodeById = (node : Node, id: FieldId) : void => {
+        if (node === null){
+            console.warn("Could not remove port from null node");
+            return;
+        }
+
+        // remove port
+        node.removeFieldById(id);
+
+        // remove any edges connected to that port
+        const edges: ko.ObservableArray<Edge> = this.edges;
+
+        for (let i = edges().length - 1; i >= 0; i--){
+            const edge: Edge = edges()[i];
+
+            if (edge.getSrcPortId() === id || edge.getDestPortId() === id){
+                edges.splice(i, 1);
+            }
+        }
+
+        // get reference to EAGLE
+        const eagle: Eagle = Eagle.getInstance();
+
+        eagle.checkGraph();
+        eagle.undo().pushSnapshot(eagle, "Remove port from node");
+        eagle.flagActiveFileModified();
+        eagle.selectedObjects.valueHasMutated();
     }
 
     portIsLinked = (nodeId: NodeId, portId: FieldId) : any => {

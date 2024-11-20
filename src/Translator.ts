@@ -146,7 +146,7 @@ export class Translator {
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
 
         // temporary fix to apply graph config to graph (if developer setting is enabled)
-        if (Setting.find(Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION).value()){
+        if (Setting.findValue(Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION)){
             const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
 
             // if there is a GraphConfig, apply GraphConfig to logicalGraph
@@ -178,12 +178,14 @@ export class Translator {
 
         eagle.translator().submit(translatorURL, translatorData);
 
-        // mostly for debugging purposes
-        console.log("translator data");
-        console.log("---------");
-        console.log(translatorData);
-        console.log("---------");
-        console.log(JSON.parse(jsonString));
-        console.log("---------");
+        // if developer setting is enabled, write the translator-ready JSON to the console
+        if (Setting.findValue(Setting.PRINT_TRANSLATOR_JSON_TO_JS_CONSOLE)){
+            console.log("Translator Json");
+            console.log("---------");
+            console.log(translatorData);
+            console.log("---------");
+            console.log(JSON.parse(jsonString));
+            console.log("---------");
+        }
     }
 }

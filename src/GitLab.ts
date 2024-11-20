@@ -22,131 +22,134 @@
 #
 */
 
-import {Eagle} from './Eagle';
-import {Repositories} from './Repositories';
-import {Repository} from './Repository';
-import {RepositoryFolder} from './RepositoryFolder';
-import {RepositoryFile} from './RepositoryFile';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Repositories } from './Repositories';
+import { Repository } from './Repository';
+import { RepositoryFolder } from './RepositoryFolder';
+import { RepositoryFile } from './RepositoryFile';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class GitLab {
     /**
      * Loads the GitLab repository list.
      */
-    // TODO: should callback with the list of repositories
-    static loadRepoList() : void {
-        Utils.httpGetJSON("/getGitLabRepositoryList", null, function(error : string, data: any){
-            if (error != null){
-                console.error(error);
-                return;
-            }
+    static async refresh() {
+        // fetch repositories from server
+        const repositories: Repository[] = await GitLab.loadRepoList();
 
-            // remove all GitLab repos from the list of repositories
-            for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-                if (Repositories.repositories()[i].service === Repository.Service.GitLab){
-                    Repositories.repositories.splice(i, 1);
+        // remove all GitLab repos from the list of repositories
+        for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
+            if (Repositories.repositories()[i].service === Repository.Service.GitLab){
+                Repositories.repositories.splice(i, 1);
+            }
+        }
+
+        // add new repositories
+        Repositories.repositories.push(...repositories);
+
+        // sort the repository list
+        Repositories.sort();
+    }
+    
+    static async loadRepoList(): Promise<Repository[]> {
+        return new Promise(async(resolve) => {
+            const repositories: Repository[] = [];
+
+            // find and add custom gitlab repositories from browser storage
+            const customRepositories = Repositories.listCustomRepositories(Repository.Service.GitLab);
+            repositories.push(...customRepositories);
+
+            // fetch additional gitlab repositories from the server
+            Utils.httpGetJSON("/getGitLabRepositoryList", null, function(error : string, data: any){
+                if (error != null){
+                    console.error(error);
+                    resolve(repositories);
+                    return;
                 }
-            }
 
-            // add the repositories from the POST response
-            for (const d of data){
-                Repositories.repositories.push(new Repository(Repository.Service.GitLab, d.repository, d.branch, true));
-            }
-
-            // search for custom repositories, and add them into the list.
-            for (let i = 0; i < localStorage.length; i++) {
-                const key : string = localStorage.key(i);
-                const value : string = localStorage.getItem(key);
-                const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
-
-                // handle legacy repositories where the branch is not specified (assume master)
-                if (keyExtension === "gitlab_repository"){
-                    Repositories.repositories.push(new Repository(Repository.Service.GitLab, value, "master", false));
+                // add the repositories from the POST response
+                for (const d of data){
+                    repositories.push(new Repository(Repository.Service.GitLab, d.repository, d.branch, true));
                 }
 
-                // handle the current method of storing repositories where both the service and branch are specified
-                if (keyExtension === "gitlab_repository_and_branch") {
-                    const repositoryName = value.split("|")[0];
-                    const repositoryBranch = value.split("|")[1];
-                    Repositories.repositories.push(new Repository(Repository.Service.GitLab, repositoryName, repositoryBranch, false));
-                }
-            }
-
-            // sort the repository list
-            Repositories.sort();
+                resolve(repositories);
+            });
         });
     }
 
     /**
      * Shows the remote files
      */
-    static loadRepoContent(repository : Repository) : void {
-        const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
+    static async loadRepoContent(repository : Repository): Promise<void> {
+        return new Promise(async(resolve, reject) => {
+            const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
-        if (token === null || token === "") {
-            Utils.showUserMessage("Access Token", "The GitLab access token is not set! To access GitLab repository, set the token via settings.");
-            return;
-        }
-
-        // flag the repository as being fetched
-        repository.isFetching(true);
-
-        // Add parameters in json data.
-        const jsonData = {
-            repository: repository.name,
-            branch: repository.branch,
-            token: token,
-        };
-
-        Utils.httpPostJSON('/getGitLabFilesAll', jsonData, function(error:string, data:any){
-            repository.isFetching(false);
-
-            // check for unhandled errors
-            if (error != null){
-                console.error(error, data);
-                Utils.showUserMessage("Error", "Unable to fetch files for this repository. A server error occurred. " + error);
-                return;
+            if (token === null || token === "") {
+                Utils.showUserMessage("Access Token", "The GitLab access token is not set! To access GitLab repository, set the token via settings.");
+                reject("The GitLab access token is not set! To access GitLab repository, set the token via settings.");
             }
 
-            // check for errors that were handled correctly and passed to the client to display
-            if (typeof data.error !== 'undefined'){
-                console.log("error", data.error);
-                Utils.showUserMessage("Error", data.error);
-                return;
-            }
+            // flag the repository as being fetched
+            repository.isFetching(true);
 
-            // flag the repository as fetched and expand by default
-            repository.fetched(true);
-            repository.expanded(true);
+            // Add parameters in json data.
+            const jsonData = {
+                repository: repository.name,
+                branch: repository.branch,
+                token: token,
+            };
 
-            // delete current file list for this repository
-            repository.files.removeAll();
-            repository.folders.removeAll();
+            Utils.httpPostJSON('/getGitLabFilesAll', jsonData, function(error:string, data:any){
+                repository.isFetching(false);
 
-            console.log("/getGitLabFiles reply", data, typeof data);
-
-            const fileNames : string[] = data[""];
-
-            // sort the fileNames
-            fileNames.sort(Repository.fileSortFunc);
-
-            // add files to repo
-            for (const fileName of fileNames){
-                // if file is not a .graph, .palette, or .json, just ignore it!
-                if (Utils.verifyFileExtension(fileName)){
-                    repository.files.push(new RepositoryFile(repository, "", fileName));
+                // check for unhandled errors
+                if (error !== null){
+                    console.error(error, data);
+                    Utils.showUserMessage("Error", "Unable to fetch files for this repository. A server error occurred. " + error);
+                    reject(error);
+                    return;
                 }
-            }
 
-            // add folders to repo
-            for (const path in data){
-                // skip the root directory
-                if (path === "")
-                    continue;
+                // check for errors that were handled correctly and passed to the client to display
+                if (typeof data.error !== 'undefined'){
+                    console.log("error", data.error);
+                    Utils.showUserMessage("Error", data.error);
+                    reject(error);
+                    return;
+                }
 
-                repository.folders.push(GitLab.parseFolder(repository, path, data[path]));
-            }
+                // flag the repository as fetched and expand by default
+                repository.fetched(true);
+                repository.expanded(true);
+
+                // delete current file list for this repository
+                repository.files.removeAll();
+                repository.folders.removeAll();
+
+                const fileNames : string[] = data[""];
+
+                // sort the fileNames
+                fileNames.sort(Repository.fileSortFunc);
+
+                // add files to repo
+                for (const fileName of fileNames){
+                    // if file is not a .graph, .palette, or .json, just ignore it!
+                    if (Utils.verifyFileExtension(fileName)){
+                        repository.files.push(new RepositoryFile(repository, "", fileName));
+                    }
+                }
+
+                // add folders to repo
+                for (const path in data){
+                    // skip the root directory
+                    if (path === "")
+                        continue;
+
+                    repository.folders.push(GitLab.parseFolder(repository, path, data[path]));
+                }
+
+                resolve();
+            });
         });
     }
 

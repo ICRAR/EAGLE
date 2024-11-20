@@ -441,11 +441,6 @@ export class Utils {
         $('#messageModalTitle').text(title);
         $('#messageModalMessage').html(message);
         $('#messageModal').modal("toggle");
-
-        // debug
-        if (title === "Error"){
-            Utils.addToHTMLElementLog(title + ":" + message);
-        }
     }
 
     static showErrorsModal(title: string){
@@ -479,10 +474,6 @@ export class Utils {
             } /*,
             delay:0 */
         });
-    }
-
-    static addToHTMLElementLog(message: string) : void {
-        $('#htmlElementLog').text($('#htmlElementLog').text() + message + "\n");
     }
 
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, callback : (completed : boolean, userString : string) => void ) : void {
@@ -2254,11 +2245,20 @@ export class Utils {
 
         // add logical graph nodes to table
         for (const edge of eagle.logicalGraph().getEdges()){
+            const sourceNode: Node = eagle.logicalGraph().findNodeById(edge.getSrcNodeId());
+            const sourcePort: Field = sourceNode.findFieldById(edge.getSrcPortId());
+            const destNode: Node = eagle.logicalGraph().findNodeById(edge.getDestNodeId());
+            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+
             tableData.push({
                 "_id":edge.getId(),
+                "sourceNode": sourceNode.getName(),
                 "sourceNodeId":edge.getSrcNodeId(),
+                "sourcePort": sourcePort.getDisplayText(),
                 "sourcePortId":edge.getSrcPortId(),
+                "destNode": destNode.getName(),
                 "destNodeId":edge.getDestNodeId(),
+                "destPort": destPort.getDisplayText(),
                 "destPortId":edge.getDestPortId(),
                 "loopAware":edge.isLoopAware(),
                 "isSelectionRelative":edge.getSelectionRelative()
