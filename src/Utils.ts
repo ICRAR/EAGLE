@@ -1413,7 +1413,7 @@ export class Utils {
         for (const node of palette.getNodes()){
             // check existing keys
             if (keys.indexOf(node.getId()) !== -1){
-                errorsWarnings.errors.push(Errors.Message("Key " + node.getId() + " used by multiple components in palette."));
+                errorsWarnings.errors.push(Errors.Message("Node id used by multiple components in palette."));
             } else {
                 keys.push(node.getId());
             }
