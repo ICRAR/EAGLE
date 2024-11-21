@@ -1538,7 +1538,7 @@ export class Eagle {
             const fileType = this.logicalGraph().fileInfo().type;
 
             if (userChoiceIndex === 0){
-                this.saveFileToLocal(fileType);
+                this.saveAsFileToLocal(fileType);
             } else {
                 this.commitToGitAs(fileType);
             }
@@ -1569,6 +1569,35 @@ export class Eagle {
                 }
 
                 this.savePaletteToDisk(destinationPalette);
+                break;
+            }
+            default:
+                Utils.showUserMessage("Not implemented", "Not sure which fileType is the right one to save locally :" + fileType);
+                break;
+        }
+    }
+
+    saveAsFileToLocal = async (fileType: Eagle.FileType): Promise<void> => {
+        switch (fileType){
+            case Eagle.FileType.Graph:
+                this.saveAsFileToDisk(this.logicalGraph());
+                break;
+            case Eagle.FileType.Palette: {
+                // build a list of palette names
+                const paletteNames: string[] = this.buildReadablePaletteNamesList();
+
+                // ask user to select the palette
+                const paletteName = await Utils.userChoosePalette(paletteNames);
+
+                // get reference to palette (based on paletteName)
+                const destinationPalette = this.findPalette(paletteName, false);
+
+                // check that a palette was found
+                if (destinationPalette === null){
+                    return;
+                }
+
+                this.saveAsFileToDisk(destinationPalette);
                 break;
             }
             default:
@@ -2412,7 +2441,7 @@ export class Eagle {
             return;
         }
 
-        // generate filename if necessary
+        // abort if graph has no filename
         if (graph.fileInfo().name === "") {
             // abort and notify user
             Utils.showNotification("Unable to save Graph with no name", "Please name the graph before saving", "danger");
@@ -2452,6 +2481,30 @@ export class Eagle {
             graph.fileInfo().commitHash = "";
             graph.fileInfo().downloadUrl = "";
             graph.fileInfo.valueHasMutated();
+        });
+    }
+
+    saveAsFileToDisk = (file: LogicalGraph | Palette): void => {
+        Utils.requestUserString("Save As", "Please enter a filename for the " + file.fileInfo().type, file.fileInfo().name, false, (completed: boolean, userString: string) => {
+            // abort if incomplete
+            if (!completed){
+                console.log("User aborted saveAs");
+                return;
+            }
+
+            file.fileInfo().name = userString;
+
+            switch(file.fileInfo().type){
+                case Eagle.FileType.Graph:
+                    this.saveGraphToDisk(file as LogicalGraph);
+                    break;
+                case Eagle.FileType.Palette:
+                    this.savePaletteToDisk(file as Palette);
+                    break;
+                default:
+                    console.warn("saveAsFileToDisk(): fileType", file.fileInfo().type, "not implemented, aborting.");
+                    Utils.showUserMessage("Error", "Unable to save file: file type '" + file.fileInfo().type + "' is not supported.");
+            }
         });
     }
 
