@@ -143,7 +143,7 @@
                                     <h5>Src Port:</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).findFieldById($data.getSrcPortId()).getDisplayText(),eagleTooltip:$data.getSrcPortId()"></span>
+                                    <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).findFieldById($data.getSrcPortId())?.getDisplayText(),eagleTooltip:$data.getSrcPortId()"></span>
                                 </div>
                             </div>
                             <div class="row inspectorEdgeDestNodeId contentObject">
