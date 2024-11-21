@@ -2485,10 +2485,6 @@ export class Eagle {
     }
 
     saveAsFileToDisk = (file: LogicalGraph | Palette): void => {
-        console.log("saveAsFileToDisk()");
-
-        // check that file
-
         Utils.requestUserString("Save As", "Please enter a filename for the " + file.fileInfo().type, file.fileInfo().name, false, (completed: boolean, userString: string) => {
             // abort if incomplete
             if (!completed){
@@ -2504,6 +2500,8 @@ export class Eagle {
                 case Eagle.FileType.Palette:
                     this.savePaletteToDisk(file as Palette);
                     break;
+                default:
+                    console.warn("saveAsFileToDisk(): fileType", file.fileInfo().type, "not implemented, aborting.");
             }
         });
     }
