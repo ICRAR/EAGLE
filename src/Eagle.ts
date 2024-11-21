@@ -4543,15 +4543,15 @@ export class Eagle {
     }
 
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
-        // if selectedNode is not set, return the list of all categories, even though it won't be rendered (I guess)
-        if (this.selectedNode() === null){
-            return Utils.getCategoriesWithInputsAndOutputs(Category.Type.Unknown, 0, 0);
+        let categoryType: Category.Type = Category.Type.Unknown;
+
+        if (this.selectedNode() !== null){
+            categoryType = this.selectedNode().getCategoryType();
         }
 
+        // if selectedNode is not set, return the list of all categories, even though it won't be rendered (I guess)
         // if selectedNode is set, return a list of categories within the same category type
-        const categoryType: Category.Type = this.selectedNode().getCategoryType();
-        
-        return Utils.getCategoriesWithInputsAndOutputs(categoryType, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        return Utils.getCategoriesWithInputsAndOutputs(categoryType);
     }, this)
 
     inspectorChangeNodeCategoryRequest = (event: Event) : void => {
@@ -4577,61 +4577,63 @@ export class Eagle {
 
         // get a reference to the builtin palette
         const builtinPalette: Palette = this.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
+
+        // if no built-in palette can be found, then we can't use an example node from the built-in palette as a basis for the category change
+        // instead, we just blindly change the category. It is the best we can do
         if (builtinPalette === null){
-            console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
-            return;
-        }
+            Utils.showNotification(Palette.BUILTIN_PALETTE_NAME + " palette not found", "Unable to transform node according to a template. Instead just changing category.", "warning");
+        } else {
+            // find node with new type in builtinPalette
+            const oldCategoryPrototype: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
+            const newCategoryPrototype: Node = builtinPalette.findNodeByNameAndCategory(newNodeCategory);
 
-        // find node with new type in builtinPalette
-        const oldCategoryPrototype: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
-        const newCategoryPrototype: Node = builtinPalette.findNodeByNameAndCategory(newNodeCategory);
-
-        // check that prototypes were found for old category and new category
-        if (oldCategoryPrototype === null || newCategoryPrototype === null){
-            console.warn("Prototypes for old and new categories could not be found in palettes", oldCategoryPrototype, newCategoryPrototype);
-            return;
-        }
-
-        // delete non-ports from the old node (loop backwards since we are deleting from the array as we loop)
-        for (let i = oldNode.getFields().length - 1 ; i >= 0; i--){
-            const field: Field = oldNode.getFields()[i];
-
-            if (field.isInputPort() || field.isOutputPort()){
-                continue;
+            // check that prototypes were found for old category and new category
+            if (oldCategoryPrototype === null || newCategoryPrototype === null){
+                console.warn("Prototypes for old and new categories could not be found in palettes", oldCategoryPrototype, newCategoryPrototype);
+                return;
             }
 
-            oldNode.removeFieldById(field.getId());
-        }
+            // delete non-ports from the old node (loop backwards since we are deleting from the array as we loop)
+            for (let i = oldNode.getFields().length - 1 ; i >= 0; i--){
+                const field: Field = oldNode.getFields()[i];
 
-        // copy non-ports from new category to old node
-        for (const field of newCategoryPrototype.getFields()){
-            if (field.isInputPort() || field.isOutputPort()){
-                continue;
+                if (field.isInputPort() || field.isOutputPort()){
+                    continue;
+                }
+
+                oldNode.removeFieldById(field.getId());
             }
 
-            // try to find field in old node that matches by displayText AND parameterType
-            let destField = oldNode.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
+            // copy non-ports from new category to old node
+            for (const field of newCategoryPrototype.getFields()){
+                if (field.isInputPort() || field.isOutputPort()){
+                    continue;
+                }
 
-            // if dest field could not be found, then go ahead and add a NEW field to the dest node
-            if (destField === null){
-                destField = field.clone();
-                oldNode.addField(destField);
+                // try to find field in old node that matches by displayText AND parameterType
+                let destField = oldNode.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
+
+                // if dest field could not be found, then go ahead and add a NEW field to the dest node
+                if (destField === null){
+                    destField = field.clone();
+                    oldNode.addField(destField);
+                }
+            
+                // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
+                destField.copyWithIds(field, destField.getNodeId(), destField.getId());
             }
-           
-            // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
-            destField.copyWithIds(field, destField.getNodeId(), destField.getId());
+
+            // copy name and description from new category to old node, if old node values are defaults
+            if (oldNode.getName() === oldCategoryPrototype.getName()){
+                oldNode.setName(newCategoryPrototype.getName());
+            }
+
+            if (oldNode.getDescription() === oldCategoryPrototype.getDescription()){
+                oldNode.setDescription(newCategoryPrototype.getDescription());
+            }
         }
 
-        // copy name and description from new category to old node, if old node values are defaults
-        if (oldNode.getName() === oldCategoryPrototype.getName()){
-            oldNode.setName(newCategoryPrototype.getName());
-        }
-
-        if (oldNode.getDescription() === oldCategoryPrototype.getDescription()){
-            oldNode.setDescription(newCategoryPrototype.getDescription());
-        }
-
-        this.selectedNode().setCategory(newNodeCategory);
+        oldNode.setCategory(newNodeCategory);
 
         this.flagActiveFileModified();
         this.checkGraph();

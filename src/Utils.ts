@@ -1084,14 +1084,15 @@ export class Utils {
         return result;
     }
 
-    static getCategoriesWithInputsAndOutputs(categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
+    static getCategoriesWithInputsAndOutputs(categoryType: Category.Type) : Category[] {
         const eagle = Eagle.getInstance();
 
         // get a reference to the builtin palette
         const builtinPalette: Palette = eagle.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
         if (builtinPalette === null){
+            // if no built-in palette is found, then build a list from the EAGLE categoryData
             console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
-            return null;
+            return Utils.buildComponentList((cData: Category.CategoryData) => {return cData.categoryType === categoryType});
         }
 
         const matchingNodes = builtinPalette.getNodesByCategoryType(categoryType)
