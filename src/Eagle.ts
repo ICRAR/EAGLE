@@ -4584,53 +4584,16 @@ export class Eagle {
             Utils.showNotification(Palette.BUILTIN_PALETTE_NAME + " palette not found", "Unable to transform node according to a template. Instead just changing category.", "warning");
         } else {
             // find node with new type in builtinPalette
-            const oldCategoryPrototype: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
-            const newCategoryPrototype: Node = builtinPalette.findNodeByNameAndCategory(newNodeCategory);
+            const oldCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
+            const newCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(newNodeCategory);
 
             // check that prototypes were found for old category and new category
-            if (oldCategoryPrototype === null || newCategoryPrototype === null){
-                console.warn("Prototypes for old and new categories could not be found in palettes", oldCategoryPrototype, newCategoryPrototype);
+            if (oldCategoryTemplate === null || newCategoryTemplate === null){
+                console.warn("Prototypes for old and/or new categories could not be found in palettes", oldNode.getCategory(), newNodeCategory);
                 return;
             }
 
-            // delete non-ports from the old node (loop backwards since we are deleting from the array as we loop)
-            for (let i = oldNode.getFields().length - 1 ; i >= 0; i--){
-                const field: Field = oldNode.getFields()[i];
-
-                if (field.isInputPort() || field.isOutputPort()){
-                    continue;
-                }
-
-                oldNode.removeFieldById(field.getId());
-            }
-
-            // copy non-ports from new category to old node
-            for (const field of newCategoryPrototype.getFields()){
-                if (field.isInputPort() || field.isOutputPort()){
-                    continue;
-                }
-
-                // try to find field in old node that matches by displayText AND parameterType
-                let destField = oldNode.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
-
-                // if dest field could not be found, then go ahead and add a NEW field to the dest node
-                if (destField === null){
-                    destField = field.clone();
-                    oldNode.addField(destField);
-                }
-            
-                // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
-                destField.copyWithIds(field, destField.getNodeId(), destField.getId());
-            }
-
-            // copy name and description from new category to old node, if old node values are defaults
-            if (oldNode.getName() === oldCategoryPrototype.getName()){
-                oldNode.setName(newCategoryPrototype.getName());
-            }
-
-            if (oldNode.getDescription() === oldCategoryPrototype.getDescription()){
-                oldNode.setDescription(newCategoryPrototype.getDescription());
-            }
+            Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate);
         }
 
         oldNode.setCategory(newNodeCategory);
