@@ -2489,6 +2489,7 @@ export class Eagle {
             // abort if incomplete
             if (!completed){
                 console.log("User aborted saveAs");
+                return;
             }
 
             file.fileInfo().name = userString;
@@ -2502,6 +2503,7 @@ export class Eagle {
                     break;
                 default:
                     console.warn("saveAsFileToDisk(): fileType", file.fileInfo().type, "not implemented, aborting.");
+                    Utils.showUserMessage("Error", "Unable to save file: file type '" + file.fileInfo().type + "' is not supported.");
             }
         });
     }
