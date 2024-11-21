@@ -345,17 +345,16 @@ export class ParameterTable {
     }
 
     static getErrorsWarningsAsHtml(field:Field) : string {
-        let result:string = ''
+        const messages: string[] = [];
         
         field.getErrorsWarnings().errors.forEach(function(error){
-            result += error.message+'<br><br>'
+            messages.push('||| ' + error.message + ' |||')
         }) 
         field.getErrorsWarnings().warnings.forEach(function(warning){
-            result += warning.message+'<br><br>'
-
+            messages.push('||| ' + warning.message + ' |||')
         })
 
-        return result
+        return messages.join('<br><br>');
     }
 
     static requestAddField(currentField: Field): void {

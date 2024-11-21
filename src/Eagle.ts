@@ -4193,7 +4193,7 @@ export class Eagle {
                 if (choice === -1){
                     return;
                 }
-                console.log('choice: ', choice)
+
                 // hide the custom text input unless the first option in the select is chosen
                 if (choice === 0){
                     newField.setParameterType(parameterType);
@@ -4202,7 +4202,6 @@ export class Eagle {
                     node.addField(newField);
 
                 } else {
-                    console.log('field: ',this.currentField().getDisplayText())
                     const clone : Field = this.currentField().clone();
                     clone.setId(Utils.generateFieldId());
                     clone.setParameterType(parameterType);
@@ -4274,90 +4273,6 @@ export class Eagle {
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
-    }
-
-    showFieldValuePicker = (fieldIndex : number, input : boolean) : void => {
-        const selectedNode = this.selectedNode();
-
-        if (selectedNode === null){
-            console.error("Attempt to show field picker when no node selected");
-            return;
-        }
-
-        const selectedNodeId: NodeId = selectedNode.getId();
-
-        console.log("ShowFieldValuePicker() node:", selectedNode.getName(), "fieldIndex:", fieldIndex, "input", input);
-
-        // build list of nodes that are attached to this node
-        const nodes : string[] = [];
-        for (const edge of this.logicalGraph().getEdges()){
-            // add output nodes to the list
-            if (edge.getSrcNodeId() === selectedNodeId){
-                const destNode : Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
-                const s : string = "output:" + destNode.getName() + ":" + destNode.getId();
-                nodes.push(s);
-            }
-
-            // add input nodes to the list
-            if (edge.getDestNodeId() === selectedNodeId){
-                const srcNode : Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
-                const s : string = "input:" + srcNode.getName() + ":" + srcNode.getId();
-                nodes.push(s);
-            }
-        }
-
-        // ask the user to choose a node
-        Utils.requestUserChoice("Select node", "Choose the input or output node to connect to this parameter", nodes, 0, false, "", (completed : boolean, userChoiceIndex: number) => {
-            // abort if the user aborted
-            if (!completed){
-                return;
-            }
-
-            // split the user string into input/output, name, key
-            const isInput : boolean = nodes[userChoiceIndex].split(":")[0] === "input";
-            const key : string = nodes[userChoiceIndex].split(":")[2];
-
-            let newValue : string;
-            if (isInput){
-                newValue = "%i[" + key + "]";
-            } else {
-                newValue = "%o[" + key + "]";
-            }
-
-            // update the correct field
-            selectedNode.getFields()[fieldIndex].setValue(newValue);
-        });
-    }
-
-    private setNodeApplication = (title: string, message: string, callback:(node:Node) => void) : void => {
-        const applications: Node[] = this.getApplications();
-        const applicationNames: string[] = [];
-        for (const application of applications){
-            applicationNames.push(application.getName())
-        }
-
-        // add "None" to the application list
-        applicationNames.push(Node.NO_APP_STRING);
-
-        Utils.requestUserChoice(title, message, applicationNames, 0, false, "", (completed : boolean, userChoiceIndex: number) => {
-            if (!completed){
-                return;
-            }
-
-            // abort if the user picked "None"
-            if (userChoiceIndex === applicationNames.length - 1){
-                console.log("User selected no application");
-                callback(null);
-                return;
-            }
-
-            const application : Node = applications[userChoiceIndex];
-
-            // duplicate the input application
-            const newNode: Node = Utils.duplicateNode(application);
-
-            callback(newNode);
-        });
     }
 
     getNewNodePosition = (radius: number) : {x:number, y:number, extended:boolean} => {

@@ -1413,7 +1413,14 @@ export class Utils {
         for (const node of palette.getNodes()){
             // check existing keys
             if (keys.indexOf(node.getId()) !== -1){
-                errorsWarnings.errors.push(Errors.Message("Key " + node.getId() + " used by multiple components in palette."));
+                errorsWarnings.errors.push(
+                    Errors.ShowFix(
+                        "Node (" + node.getName() + ") within palette (" + palette.fileInfo().name + ") has id already used by at least one other component.",
+                        function(){Utils.showNode(Eagle.getInstance(), node.getId())},
+                        function(){node.setId(Utils.generateNodeId())},
+                        "Generate new id for " + node.getName()
+                    )
+                );
             } else {
                 keys.push(node.getId());
             }
