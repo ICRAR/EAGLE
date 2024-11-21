@@ -121,6 +121,7 @@
                         <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                             <div class="dropDropDown">
                                 <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save</a>
+                                <a class="dropdown-item" id="saveAsGraph" href="#" data-bind="click: function(){saveAsFileToLocal(Eagle.FileType.Graph)}">Save As</a>
                                 <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load
                                     <span data-bind="text: KeyboardShortcut.idToText('open_graph_from_local_disk', true)"></span>
                                 </a>
@@ -166,6 +167,7 @@
                     <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
                             <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save</a>
+                            <a class="dropdown-item" id="saveAsPalette" href="#" data-bind="click: function(){saveAsFileToLocal(Eagle.FileType.Palette)}">Save As</a>
                             <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load
                                 <span data-bind="text: KeyboardShortcut.idToText('open_palette_from_local_disk', true)"></span>
                             </a>
