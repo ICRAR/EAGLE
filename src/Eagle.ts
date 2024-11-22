@@ -4633,29 +4633,28 @@ export class Eagle {
         if (callback !== null) callback(newNode);
     }
 
-    checkForComponentUpdates = () : void => {
+    checkForComponentUpdates = async () => {
         console.log("checkForComponentUpdates()");
 
-        ComponentUpdater.update(this.palettes(), this.logicalGraph(), function(errorsWarnings:Errors.ErrorsWarnings, updatedNodes:Node[]){
-            console.log("callback", errorsWarnings, updatedNodes);
+        const {updatedNodes, errorsWarnings} = await ComponentUpdater.update(this.palettes(), this.logicalGraph());
+        console.log("updatedNodes", updatedNodes, "errorsWarnings", errorsWarnings);
 
-            // report missing palettes to the user
-            if (errorsWarnings.errors.length > 0){
-                const errorStrings = [];
-                for (const error of errorsWarnings.errors){
-                    errorStrings.push(error.message);
-                }
-
-                Utils.showNotification("Error", errorStrings.join("\n"), "danger");
-            } else {
-                const nodeNames = [];
-                for (const node of updatedNodes){
-                    nodeNames.push(node.getName());
-                }
-
-                Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
+        // report missing palettes to the user
+        if (errorsWarnings.errors.length > 0){
+            const errorStrings = [];
+            for (const error of errorsWarnings.errors){
+                errorStrings.push(error.message);
             }
-        });
+
+            Utils.showNotification("Error", errorStrings.join("\n"), "danger");
+        } else {
+            const nodeNames = [];
+            for (const node of updatedNodes){
+                nodeNames.push(node.getName());
+            }
+
+            Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
+        }
     }
 
     findPaletteContainingNode = (nodeId: string): Palette => {

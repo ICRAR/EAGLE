@@ -5,42 +5,46 @@ import {Errors} from './Errors';
 
 export class ComponentUpdater {
 
-    static update(palettes: Palette[], graph: LogicalGraph, callback : (errorsWarnings : Errors.ErrorsWarnings, updatedNodes : Node[]) => void) : void {
-        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
-        const updatedNodes: Node[] = [];
+    static async update(palettes: Palette[], graph: LogicalGraph): Promise<{updatedNodes: Node[], errorsWarnings: Errors.ErrorsWarnings}> {
+        return new Promise(async(resolve, reject) => {
+            const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+            const updatedNodes: Node[] = [];
 
-        // check if any nodes to update
-        if (graph.getNodes().length === 0){
-            // TODO: don't showNotification here! instead add a warning to the errorsWarnings and callback()
-            errorsWarnings.errors.push(Errors.Message("Graph contains no components to update"));
-            callback(errorsWarnings, updatedNodes);
-            return;
-        }
+            // check if any nodes to update
+            if (graph.getNodes().length === 0){
+                // TODO: don't showNotification here! instead add a warning to the errorsWarnings and callback()
+                const message: string = "Graph contains no components to update";
+                errorsWarnings.errors.push(Errors.Message(message));
+                reject(message);
+                return;
+            }
 
-        // make sure we have a palette available for each component in the graph
-        for (const node of graph.getNodes()){
-            let newVersion : Node = null;
+            // make sure we have a palette available for each component in the graph
+            for (const node of graph.getNodes()){
+                let newVersion : Node = null;
 
-            for (const palette of palettes){
-                for (const paletteNode of palette.getNodes()){
-                    if (Node.requiresUpdate(node, paletteNode)){
-                        newVersion = paletteNode;
+                for (const palette of palettes){
+                    for (const paletteNode of palette.getNodes()){
+                        if (Node.requiresUpdate(node, paletteNode)){
+                            newVersion = paletteNode;
+                        }
                     }
                 }
+
+                if (newVersion === null){
+                    console.log("No match for node", node.getName());
+                    errorsWarnings.warnings.push(Errors.Message("Could not find appropriate palette for node " + node.getName() + " from repository " + node.getRepositoryUrl()));
+                    continue;
+                }
+
+                // update the node with a new definition
+                ComponentUpdater._replaceNode(node, newVersion);
+                updatedNodes.push(node);
             }
 
-            if (newVersion === null){
-                console.log("No match for node", node.getName());
-                errorsWarnings.warnings.push(Errors.Message("Could not find appropriate palette for node " + node.getName() + " from repository " + node.getRepositoryUrl()));
-                continue;
-            }
-
-            // update the node with a new definition
-            ComponentUpdater._replaceNode(node, newVersion);
-            updatedNodes.push(node);
-        }
-
-        callback(errorsWarnings, updatedNodes);
+            console.log("resolve");
+            resolve({updatedNodes: updatedNodes, errorsWarnings: errorsWarnings});
+        });
     }
 
     // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
