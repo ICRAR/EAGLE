@@ -1020,7 +1020,7 @@ export class Eagle {
     }
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
-    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node, errorsWarnings: Errors.ErrorsWarnings) : void => {
+    insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node, errorsWarnings: Errors.ErrorsWarnings) => {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
@@ -1046,62 +1046,61 @@ export class Eagle {
 
         // insert nodes from lg into the existing logicalGraph
         for (const node of nodes){
-            this.addNode(node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
-                // save mapping for node itself
-                nodeMap.set(node.getId(), insertedNode);
+            const insertedNode: Node = await this.addNode(node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y);
+            // save mapping for node itself
+            nodeMap.set(node.getId(), insertedNode);
 
-                // if insertedNode has no parent, make it a parent of the parent node
-                if (insertedNode.getParentId() === null && parentNode !== null){
-                    insertedNode.setParentId(parentNode.getId());
-                }
+            // if insertedNode has no parent, make it a parent of the parent node
+            if (insertedNode.getParentId() === null && parentNode !== null){
+                insertedNode.setParentId(parentNode.getId());
+            }
+            
+            // copy embedded input application
+            if (node.hasInputApplication()){
+                const oldInputApplication : Node = node.getInputApplication();
+                const newInputApplication : Node = insertedNode.getInputApplication();
                 
-                // copy embedded input application
-                if (node.hasInputApplication()){
-                    const oldInputApplication : Node = node.getInputApplication();
-                    const newInputApplication : Node = insertedNode.getInputApplication();
-                   
-                    nodeMap.set(oldInputApplication.getId(), newInputApplication);
-
-                    // save mapping for input ports
-                    for (let j = 0 ; j < oldInputApplication.getInputPorts().length; j++ ){
-                        portMap.set(oldInputApplication.getInputPorts()[j].getId(), newInputApplication.getInputPorts()[j]);
-                        
-                    }
-
-                    // save mapping for output ports
-                    for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
-                        portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
-                    }
-                }
-
-                // copy embedded output application
-                if (node.hasOutputApplication()){
-                    const oldOutputApplication : Node = node.getOutputApplication();
-                    const newOutputApplication : Node = insertedNode.getOutputApplication();
-                    
-                    nodeMap.set(oldOutputApplication.getId(), newOutputApplication);
-                    
-                    // save mapping for input ports
-                    for (let j = 0 ; j < oldOutputApplication.getInputPorts().length; j++){
-                        portMap.set(oldOutputApplication.getInputPorts()[j].getId(), newOutputApplication.getInputPorts()[j]);
-                    }
-
-                    // save mapping for output ports
-                    for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
-                        portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
-                    }
-                }
+                nodeMap.set(oldInputApplication.getId(), newInputApplication);
 
                 // save mapping for input ports
-                for (let j = 0 ; j < node.getInputPorts().length; j++){
-                    portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j]);
+                for (let j = 0 ; j < oldInputApplication.getInputPorts().length; j++ ){
+                    portMap.set(oldInputApplication.getInputPorts()[j].getId(), newInputApplication.getInputPorts()[j]);
+                    
                 }
 
                 // save mapping for output ports
-                for (let j = 0 ; j < node.getOutputPorts().length; j++){
-                    portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j]);
+                for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
+                    portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
                 }
-            });
+            }
+
+            // copy embedded output application
+            if (node.hasOutputApplication()){
+                const oldOutputApplication : Node = node.getOutputApplication();
+                const newOutputApplication : Node = insertedNode.getOutputApplication();
+                
+                nodeMap.set(oldOutputApplication.getId(), newOutputApplication);
+                
+                // save mapping for input ports
+                for (let j = 0 ; j < oldOutputApplication.getInputPorts().length; j++){
+                    portMap.set(oldOutputApplication.getInputPorts()[j].getId(), newOutputApplication.getInputPorts()[j]);
+                }
+
+                // save mapping for output ports
+                for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
+                    portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
+                }
+            }
+
+            // save mapping for input ports
+            for (let j = 0 ; j < node.getInputPorts().length; j++){
+                portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j]);
+            }
+
+            // save mapping for output ports
+            for (let j = 0 ; j < node.getOutputPorts().length; j++){
+                portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j]);
+            }
         }
 
         // update some other details of the nodes are updated correctly
@@ -3598,83 +3597,81 @@ export class Eagle {
                 }
             }
 
-            this.addNode(node, pos.x, pos.y, (newNode: Node) => {
-                // make sure the new node is selected
-                this.setSelection(newNode, Eagle.FileType.Graph);
+            const newNode: Node = await this.addNode(node, pos.x, pos.y);
+            // make sure the new node is selected
+            this.setSelection(newNode, Eagle.FileType.Graph);
 
-                // set parent (if the node was dropped on something)
-                const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), true);
+            // set parent (if the node was dropped on something)
+            const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), true);
 
-                // if a parent was found, update
-                if (parent !== null && newNode.getParentId() !== parent.getId() && newNode.getId() !== parent.getId()){
-                    newNode.setParentId(parent.getId());
+            // if a parent was found, update
+            if (parent !== null && newNode.getParentId() !== parent.getId() && newNode.getId() !== parent.getId()){
+                newNode.setParentId(parent.getId());
+            }
+
+            // if no parent found, update
+            if (parent === null && newNode.getParentId() !== null){
+                newNode.setParentId(null);
+            }
+
+            // determine whether we should also generate an object data drop along with this node
+            const generateObjectDataDrop: boolean = Daliuge.isPythonInitialiser(newNode);
+
+            // optionally generate a new PythonObject node
+            if (generateObjectDataDrop){
+                // determine a name for the new node
+                let poName: string = Daliuge.FieldName.SELF; // use this as a fall-back default
+
+                // use the dataType of the self field
+                const selfField = newNode.getFieldByDisplayText(Daliuge.FieldName.SELF);
+                if (selfField !== null){
+                    poName = selfField.getType();
                 }
 
-                // if no parent found, update
-                if (parent === null && newNode.getParentId() !== null){
-                    newNode.setParentId(null);
+                // get name of the "base" class from the PythonMemberFunction node,
+                const baseNameField = newNode.getFieldByDisplayText(Daliuge.FieldName.BASE_NAME);
+                if (baseNameField !== null){
+                    poName = baseNameField.getValue();
                 }
 
-                // determine whether we should also generate an object data drop along with this node
-                const generateObjectDataDrop: boolean = Daliuge.isPythonInitialiser(newNode);
+                // create node
+                const poNode: Node = new Node(poName, "Instance of " + poName, Category.PythonObject);
 
-                // optionally generate a new PythonObject node
-                if (generateObjectDataDrop){
-                    // determine a name for the new node
-                    let poName: string = Daliuge.FieldName.SELF; // use this as a fall-back default
+                // add node to LogicalGraph
+                const OBJECT_OFFSET_X = 100;
+                const OBJECT_OFFSET_Y = 100;
+                const pythonObjectNode: Node = await this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y);
+                // set parent to same as PythonMemberFunction
+                pythonObjectNode.setParentId(newNode.getParentId());
 
-                    // use the dataType of the self field
-                    const selfField = newNode.getFieldByDisplayText(Daliuge.FieldName.SELF);
-                    if (selfField !== null){
-                        poName = selfField.getType();
-                    }
+                // copy all fields from a "PythonObject" node in the palette
+                Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
 
-                    // get name of the "base" class from the PythonMemberFunction node,
-                    const baseNameField = newNode.getFieldByDisplayText(Daliuge.FieldName.BASE_NAME);
-                    if (baseNameField !== null){
-                        poName = baseNameField.getValue();
-                    }
+                // find the "object" port on the PythonMemberFunction
+                let sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);
 
-                    // create node
-                    const poNode: Node = new Node(poName, "Instance of " + poName, Category.PythonObject);
-
-                    // add node to LogicalGraph
-                    const OBJECT_OFFSET_X = 100;
-                    const OBJECT_OFFSET_Y = 100;
-                    this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
-                        // set parent to same as PythonMemberFunction
-                        pythonObjectNode.setParentId(newNode.getParentId());
-
-                        // copy all fields from a "PythonObject" node in the palette
-                        Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
-
-                        // find the "object" port on the PythonMemberFunction
-                        let sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);
-
-                        // make sure we can find a port on the PythonMemberFunction
-                        if (sourcePort === null){
-                            sourcePort = Daliuge.selfField.clone();
-                            sourcePort.setId(Utils.generateFieldId());
-                            newNode.addField(sourcePort);
-                            Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
-                        }
-
-                        // create a new input/output "object" port on the PythonObject
-                        const inputOutputPort = new Field(Utils.generateFieldId(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput);
-                        pythonObjectNode.addField(inputOutputPort);
-
-                        // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
-                        this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false);
-                    });
+                // make sure we can find a port on the PythonMemberFunction
+                if (sourcePort === null){
+                    sourcePort = Daliuge.selfField.clone();
+                    sourcePort.setId(Utils.generateFieldId());
+                    newNode.addField(sourcePort);
+                    Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
                 }
 
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Add node " + newNode.getName());
-                this.logicalGraph.valueHasMutated();
+                // create a new input/output "object" port on the PythonObject
+                const inputOutputPort = new Field(Utils.generateFieldId(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput);
+                pythonObjectNode.addField(inputOutputPort);
 
-                resolve(newNode);
-            });
-            
+                // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
+                this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false);
+            }
+
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Add node " + newNode.getName());
+            this.logicalGraph.valueHasMutated();
+
+            resolve(newNode);
+
             if(searchAreaExtended){
                 setTimeout(function(){
                     Eagle.getInstance().centerGraph()
@@ -4378,6 +4375,7 @@ export class Eagle {
         }
     }
 
+    // TODO: does this need to be async, couldn't just return an Edge
     addEdge = async (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean): Promise<Edge> => {
         return new Promise(async(resolve, reject) => {
             // check that none of the supplied nodes and ports are null
@@ -4607,28 +4605,31 @@ export class Eagle {
     }
     
     // NOTE: clones the node internally
-    addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
-        // copy node
-        const newNode : Node = Utils.duplicateNode(node);
-        newNode.setPosition(x, y);
-        this.logicalGraph().addNodeComplete(newNode);
+    // TODO: does this need to be async, couldn't just return a Node?
+    addNode = async (node : Node, x: number, y: number): Promise<Node> => {
+        return new Promise(async(resolve, reject) => {
+            // copy node
+            const newNode : Node = Utils.duplicateNode(node);
+            newNode.setPosition(x, y);
+            this.logicalGraph().addNodeComplete(newNode);
 
-        // flag that the logical graph has been modified
-        this.logicalGraph().fileInfo().modified = true;
-        this.logicalGraph().fileInfo.valueHasMutated();
+            // flag that the logical graph has been modified
+            this.logicalGraph().fileInfo().modified = true;
+            this.logicalGraph().fileInfo.valueHasMutated();
 
-        // check if node was added to an empty graph, if so prompt user to specify graph name
-        if (this.logicalGraph().fileInfo().name === ""){
-            Utils.newDiagram(Eagle.FileType.Graph, (name: string) => {
-                this.logicalGraph().fileInfo().name = name;
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Named Logical Graph");
-                this.logicalGraph.valueHasMutated();
-                Utils.showNotification("Graph named", name, "success");
-            });
-        }
+            // check if node was added to an empty graph, if so prompt user to specify graph name
+            if (this.logicalGraph().fileInfo().name === ""){
+                Utils.newDiagram(Eagle.FileType.Graph, (name: string) => {
+                    this.logicalGraph().fileInfo().name = name;
+                    this.checkGraph();
+                    this.undo().pushSnapshot(this, "Named Logical Graph");
+                    this.logicalGraph.valueHasMutated();
+                    Utils.showNotification("Graph named", name, "success");
+                });
+            }
 
-        if (callback !== null) callback(newNode);
+            resolve(newNode);
+        });
     }
 
     checkForComponentUpdates = async () => {
