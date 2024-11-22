@@ -1154,7 +1154,7 @@ export class Eagle {
             }
 
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
-            this.addEdge(srcNode, portMap.get(edge.getSrcPortId()), destNode, portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
+            this.addEdge(srcNode, portMap.get(edge.getSrcPortId()), destNode, portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop());
         }
 
         //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
@@ -2870,7 +2870,7 @@ export class Eagle {
         const newEdge = new Edge(this.logicalGraph().getNodes()[0].getId(), null, this.logicalGraph().getNodes()[0].getId(), null, false, false, false);
 
         // display edge editing modal UI
-        Utils.requestUserEditEdge(newEdge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
+        Utils.requestUserEditEdge(newEdge, this.logicalGraph(), async (completed: boolean, edge: Edge) => {
             if (!completed){
                 console.log("User aborted addEdgeToLogicalGraph()");
                 return;
@@ -2889,13 +2889,13 @@ export class Eagle {
             const destPort: Field = destNode.findFieldById(edge.getDestPortId());
 
             // new edges might require creation of new nodes, don't use addEdgeComplete() here!
-            this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Add edge");
-                this.logicalGraph().fileInfo().modified = true;
-                // trigger the diagram to re-draw with the modified edge
-                this.logicalGraph.valueHasMutated();
-            });
+            await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
+
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Add edge");
+            this.logicalGraph().fileInfo().modified = true;
+            // trigger the diagram to re-draw with the modified edge
+            this.logicalGraph.valueHasMutated();
         });
     }
 
@@ -2916,7 +2916,7 @@ export class Eagle {
         // clone selected edge so that no changes to the original can be made by the user request modal
         const clone: Edge = selectedEdge.clone();
 
-        Utils.requestUserEditEdge(clone, this.logicalGraph(), (completed: boolean, edge: Edge) => {
+        Utils.requestUserEditEdge(clone, this.logicalGraph(), async (completed: boolean, edge: Edge) => {
             if (!completed){
                 console.log("User aborted editSelectedEdge()");
                 return;
@@ -2936,13 +2936,13 @@ export class Eagle {
 
             // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
             this.logicalGraph().removeEdgeById(selectedEdge.getId());
-            this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Edit edge");
-                this.logicalGraph().fileInfo().modified = true;
-                // trigger the diagram to re-draw with the modified edge
-                this.logicalGraph.valueHasMutated();
-            });
+            await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
+
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Edit edge");
+            this.logicalGraph().fileInfo().modified = true;
+            // trigger the diagram to re-draw with the modified edge
+            this.logicalGraph.valueHasMutated();
         });
     }
 
@@ -3521,12 +3521,11 @@ export class Eagle {
 
         // create edge (in correct direction)
         if (!RightClick.edgeDropSrcIsInput){
-            this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false, (edge: Edge) => {
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Add edge " + edge.getId());
-                this.logicalGraph().fileInfo().modified = true;
-                this.logicalGraph.valueHasMutated();
-            });
+            const edge: Edge = await this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false);
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Add edge " + edge.getId());
+            this.logicalGraph().fileInfo().modified = true;
+            this.logicalGraph.valueHasMutated();
 
             // if the new node is a Data node, name the new node according to source port
             const newName = realSourcePort.getDisplayText();
@@ -3535,12 +3534,11 @@ export class Eagle {
             }
             realDestPort.setDisplayText(newName);
         } else {
-            this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, (edge: Edge) => {
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Add edge " + edge.getId());
-                this.logicalGraph().fileInfo().modified = true;
-                this.logicalGraph.valueHasMutated();
-            });
+            const edge: Edge = await this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false);
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Add edge " + edge.getId());
+            this.logicalGraph().fileInfo().modified = true;
+            this.logicalGraph.valueHasMutated();
 
             // if the new node is a Data node, name the new node according to destination port
             const newName = realDestPort.getDisplayText();
@@ -3666,7 +3664,7 @@ export class Eagle {
                         pythonObjectNode.addField(inputOutputPort);
 
                         // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
-                        this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, null);
+                        this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false);
                     });
                 }
 
@@ -4380,125 +4378,122 @@ export class Eagle {
         }
     }
 
-    addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
-        // check that none of the supplied nodes and ports are null
-        if (srcNode === null){
-            console.warn("addEdge(): srcNode is null");
-            if (callback !== null) callback(null);
-            return;
-        }
-        if (srcPort === null){
-            console.warn("addEdge(): srcPort is null");
-            if (callback !== null) callback(null);
-            return;
-        }
-        if (destNode === null){
-            console.warn("addEdge(): destNode is null");
-            if (callback !== null) callback(null);
-            return;
-        }
-        if (destPort === null){
-            console.warn("addEdge(): destPort is null");
-            if (callback !== null) callback(null);
-            return;
-        }
+    addEdge = async (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean): Promise<Edge> => {
+        return new Promise(async(resolve, reject) => {
+            // check that none of the supplied nodes and ports are null
+            if (srcNode === null){
+                reject("addEdge(): srcNode is null");
+                return;
+            }
+            if (srcPort === null){
+                reject("addEdge(): srcPort is null");
+                return;
+            }
+            if (destNode === null){
+                reject("addEdge(): destNode is null");
+                return;
+            }
+            if (destPort === null){
+                reject("addEdge(): destPort is null");
+                return;
+            }
 
-        // check that graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
-            if (callback !== null) callback(null);
-            return;
-        }
+            // check that graph editing is allowed
+            if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                reject("Unable to Add Edge: Graph Editing is disabled");
+                return;
+            }
 
-        const edgeConnectsTwoApplications : boolean =
-            (srcNode.isApplication() || srcNode.isGroup()) &&
-            (destNode.isApplication() || destNode.isGroup());
+            const edgeConnectsTwoApplications : boolean =
+                (srcNode.isApplication() || srcNode.isGroup()) &&
+                (destNode.isApplication() || destNode.isGroup());
 
-        const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
+            const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
 
-        // Normally we can use a Memory component in-between two apps
-        // but if the destination app is a BashShellApp, then a Memory component will cause an error
-        // since the BashShellApp can't read from a memory location
-        // Instead, we use a File component as the intermediary
-        let intermediaryComponent;
-        if (destNode.getCategory() === Category.BashShellApp){
-            intermediaryComponent = Utils.getPaletteComponentByName(Category.File);
-        } else {
-            intermediaryComponent = Utils.getPaletteComponentByName(Category.Memory);
-        }
+            // Normally we can use a Memory component in-between two apps
+            // but if the destination app is a BashShellApp, then a Memory component will cause an error
+            // since the BashShellApp can't read from a memory location
+            // Instead, we use a File component as the intermediary
+            let intermediaryComponent;
+            if (destNode.getCategory() === Category.BashShellApp){
+                intermediaryComponent = Utils.getPaletteComponentByName(Category.File);
+            } else {
+                intermediaryComponent = Utils.getPaletteComponentByName(Category.Memory);
+            }
 
-        // if edge DOES NOT connect two applications, process normally
-        // if edge connects two event ports, process normally
-        // if the definition of the intermediaryComponent cannot be found, process normally
-        if (!edgeConnectsTwoApplications || twoEventPorts || (edgeConnectsTwoApplications && intermediaryComponent === null)){
-            const edge : Edge = new Edge(srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
-            this.logicalGraph().addEdgeComplete(edge);
-            setTimeout(() => {
-                this.setSelection(edge,Eagle.FileType.Graph)
-            }, 30);
-            if (callback !== null) callback(edge);
-            return;
-        }
+            // if edge DOES NOT connect two applications, process normally
+            // if edge connects two event ports, process normally
+            // if the definition of the intermediaryComponent cannot be found, process normally
+            if (!edgeConnectsTwoApplications || twoEventPorts || (edgeConnectsTwoApplications && intermediaryComponent === null)){
+                const edge : Edge = new Edge(srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
+                this.logicalGraph().addEdgeComplete(edge);
+                setTimeout(() => {
+                    this.setSelection(edge,Eagle.FileType.Graph)
+                }, 30);
+                resolve(edge);
+                return;
+            }
 
-        // by default, use the positions of the nodes themselves to calculate position of new node
-        let srcNodePosition = srcNode.getPosition();
-        let destNodePosition = destNode.getPosition();
+            // by default, use the positions of the nodes themselves to calculate position of new node
+            let srcNodePosition = srcNode.getPosition();
+            let destNodePosition = destNode.getPosition();
 
-        // if source or destination node is an embedded application, use position of parent construct node
-        if (srcNode.isEmbedded()){
-            srcNodePosition = this.logicalGraph().findNodeById(srcNode.getEmbedId()).getPosition();
-        }
-        if (destNode.isEmbedded()){
-            destNodePosition = this.logicalGraph().findNodeById(destNode.getEmbedId()).getPosition();
-        }
+            // if source or destination node is an embedded application, use position of parent construct node
+            if (srcNode.isEmbedded()){
+                srcNodePosition = this.logicalGraph().findNodeById(srcNode.getEmbedId()).getPosition();
+            }
+            if (destNode.isEmbedded()){
+                destNodePosition = this.logicalGraph().findNodeById(destNode.getEmbedId()).getPosition();
+            }
 
-        // count number of edges between source and destination
-        const PORT_HEIGHT : number = 24;
-        const numIncidentEdges = this.logicalGraph().countEdgesIncidentOnNode(srcNode);
+            // count number of edges between source and destination
+            const PORT_HEIGHT : number = 24;
+            const numIncidentEdges = this.logicalGraph().countEdgesIncidentOnNode(srcNode);
 
-        // calculate a position for a new data component, halfway between the srcPort and destPort
-        const dataComponentPosition = {
-            x: (srcNodePosition.x + destNodePosition.x) / 2.0,
-            y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
-        };
+            // calculate a position for a new data component, halfway between the srcPort and destPort
+            const dataComponentPosition = {
+                x: (srcNodePosition.x + destNodePosition.x) / 2.0,
+                y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
+            };
 
-        // Add a duplicate of the memory component to the graph
-        const newNode : Node = this.logicalGraph().addDataComponentToGraph(Utils.duplicateNode(intermediaryComponent), dataComponentPosition);
+            // Add a duplicate of the memory component to the graph
+            const newNode : Node = this.logicalGraph().addDataComponentToGraph(Utils.duplicateNode(intermediaryComponent), dataComponentPosition);
 
-        // set name of new node (use user-facing name)
-        newNode.setName(srcPort.getDisplayText());
+            // set name of new node (use user-facing name)
+            newNode.setName(srcPort.getDisplayText());
 
-        // remove existing ports from the memory node
-        newNode.removeAllInputPorts();
-        newNode.removeAllOutputPorts();
+            // remove existing ports from the memory node
+            newNode.removeAllInputPorts();
+            newNode.removeAllOutputPorts();
 
-        // add InputOutput port for dataType
-        const newInputOutputPort = new Field(Utils.generateFieldId(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputOutput);
-        newNode.addField(newInputOutputPort);
+            // add InputOutput port for dataType
+            const newInputOutputPort = new Field(Utils.generateFieldId(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputOutput);
+            newNode.addField(newInputOutputPort);
 
-        // set the parent of the new node
-        // by default, set parent to parent of dest node,
-        newNode.setParentId(destNode.getParentId());
+            // set the parent of the new node
+            // by default, set parent to parent of dest node,
+            newNode.setParentId(destNode.getParentId());
 
-        // if source node is a child of dest node, make the new node a child too
-        if (srcNode.getParentId() === destNode.getId()){
-            newNode.setParentId(destNode.getId());
-        }
+            // if source node is a child of dest node, make the new node a child too
+            if (srcNode.getParentId() === destNode.getId()){
+                newNode.setParentId(destNode.getId());
+            }
 
-         // if dest node is a child of source node, make the new node a child too
-        if (destNode.getParentId() === srcNode.getId()){
-            newNode.setParentId(srcNode.getId());
-        }
+            // if dest node is a child of source node, make the new node a child too
+            if (destNode.getParentId() === srcNode.getId()){
+                newNode.setParentId(srcNode.getId());
+            }
 
-        // create TWO edges, one from src to data component, one from data component to dest
-        const firstEdge : Edge = new Edge(srcNode.getId(), srcPort.getId(), newNode.getId(), newInputOutputPort.getId(), loopAware, closesLoop, false);
-        const secondEdge : Edge = new Edge(newNode.getId(), newInputOutputPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
+            // create TWO edges, one from src to data component, one from data component to dest
+            const firstEdge : Edge = new Edge(srcNode.getId(), srcPort.getId(), newNode.getId(), newInputOutputPort.getId(), loopAware, closesLoop, false);
+            const secondEdge : Edge = new Edge(newNode.getId(), newInputOutputPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
 
-        this.logicalGraph().addEdgeComplete(firstEdge);
-        this.logicalGraph().addEdgeComplete(secondEdge);
+            this.logicalGraph().addEdgeComplete(firstEdge);
+            this.logicalGraph().addEdgeComplete(secondEdge);
 
-        // reply with one of the edges
-        if (callback !== null) callback(firstEdge);
+            // reply with one of the edges
+            resolve(firstEdge);
+        });
     }
 
     editNodeDescription = () : void => {
