@@ -1921,7 +1921,7 @@ export class Eagle {
             const complete: boolean[] = [];
             const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
-            // define a function to check if all requests are now complete, if so we can call the callback
+            // define a function to check if all requests are now complete, if so we can return the list of palettes
             function _checkAllPalettesComplete() : void {
                 let allComplete = true;
                 for (const requestComplete of complete){
@@ -3506,182 +3506,183 @@ export class Eagle {
         }
     }
 
-    addNodeToLogicalGraphAndConnect = (newNodeId: NodeId) : void => {
-        this.addNodeToLogicalGraph(null, newNodeId, Eagle.AddNodeMode.ContextMenu, (node: Node)=>{
-            const realSourceNode: Node = RightClick.edgeDropSrcNode;
-            const realSourcePort: Field = RightClick.edgeDropSrcPort;
-            const realDestNode: Node = node;
-            let realDestPort = node.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
+    addNodeToLogicalGraphAndConnect = async (newNodeId: NodeId) => {
+        const node: Node = await this.addNodeToLogicalGraph(null, newNodeId, Eagle.AddNodeMode.ContextMenu);
 
-            // if no dest port was found, just use first input port on dest node
-            if (realDestPort === null){
-                realDestPort = node.findPortOfAnyType(true);
+        const realSourceNode: Node = RightClick.edgeDropSrcNode;
+        const realSourcePort: Field = RightClick.edgeDropSrcPort;
+        const realDestNode: Node = node;
+        let realDestPort = node.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
+
+        // if no dest port was found, just use first input port on dest node
+        if (realDestPort === null){
+            realDestPort = node.findPortOfAnyType(true);
+        }
+
+        // create edge (in correct direction)
+        if (!RightClick.edgeDropSrcIsInput){
+            this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false, (edge: Edge) => {
+                this.checkGraph();
+                this.undo().pushSnapshot(this, "Add edge " + edge.getId());
+                this.logicalGraph().fileInfo().modified = true;
+                this.logicalGraph.valueHasMutated();
+            });
+
+            // if the new node is a Data node, name the new node according to source port
+            const newName = realSourcePort.getDisplayText();
+            if (node.isData()){
+                node.setName(newName);
             }
+            realDestPort.setDisplayText(newName);
+        } else {
+            this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, (edge: Edge) => {
+                this.checkGraph();
+                this.undo().pushSnapshot(this, "Add edge " + edge.getId());
+                this.logicalGraph().fileInfo().modified = true;
+                this.logicalGraph.valueHasMutated();
+            });
 
-            // create edge (in correct direction)
-            if (!RightClick.edgeDropSrcIsInput){
-                this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false, (edge: Edge) => {
-                    this.checkGraph();
-                    this.undo().pushSnapshot(this, "Add edge " + edge.getId());
-                    this.logicalGraph().fileInfo().modified = true;
-                    this.logicalGraph.valueHasMutated();
-                });
-
-                // if the new node is a Data node, name the new node according to source port
-                const newName = realSourcePort.getDisplayText();
-                if (node.isData()){
-                    node.setName(newName);
-                }
-                realDestPort.setDisplayText(newName);
-            } else {
-                this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, (edge: Edge) => {
-                    this.checkGraph();
-                    this.undo().pushSnapshot(this, "Add edge " + edge.getId());
-                    this.logicalGraph().fileInfo().modified = true;
-                    this.logicalGraph.valueHasMutated();
-                });
-
-                // if the new node is a Data node, name the new node according to destination port
-                const newName = realDestPort.getDisplayText();
-                if (node.isData()){
-                    node.setName(newName);
-                }
-                realSourcePort.setDisplayText(newName);
+            // if the new node is a Data node, name the new node according to destination port
+            const newName = realDestPort.getDisplayText();
+            if (node.isData()){
+                node.setName(newName);
             }
-        });
+            realSourcePort.setDisplayText(newName);
+        }
     }
 
-    addNodeToLogicalGraph = (node: Node, nodeId: NodeId, mode: Eagle.AddNodeMode, callback: (node: Node) => void) : void => {
-        let pos : {x:number, y:number};
-        pos = {x:0,y:0}
-        let searchAreaExtended = false; //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
-        
-        // check that graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.showNotification("Unable to Add Component", "Graph Editing is disabled", "danger");
-            if (callback !== null) callback(null);
-            return;
-        }
+    addNodeToLogicalGraph = (node: Node, nodeId: NodeId, mode: Eagle.AddNodeMode): Promise<Node> => {
+        return new Promise(async(resolve, reject) => {
+            let pos : {x:number, y:number};
+            pos = {x:0,y:0}
+            let searchAreaExtended = false; //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
 
-        if(mode === Eagle.AddNodeMode.ContextMenu){
-            // we addNodeToLogicalGraph is called from the ContextMenu, we expect node to be null. The node is specified by the nodeId instead
-            console.assert(node === null);
-
-            // try to find the node (by nodeId) in the palettes
-            node = Utils.getPaletteComponentById(nodeId);
-
-            // if node not found yet, try find in the graph
-            if (node === null){
-                node = this.logicalGraph().findNodeById(nodeId);
+            // check that graph editing is allowed
+            if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                const message: string = "Unable to Add Component. Graph Editing is disabled";
+                Utils.showNotification("Error", message, "danger");
+                reject(message);
+                return;
             }
 
-            // use the position where the right click occurred
-            pos = Eagle.selectedRightClickPosition;
+            if(mode === Eagle.AddNodeMode.ContextMenu){
+                // we addNodeToLogicalGraph is called from the ContextMenu, we expect node to be null. The node is specified by the nodeId instead
+                console.assert(node === null);
 
-            RightClick.closeCustomContextMenu(true);
-        }
+                // try to find the node (by nodeId) in the palettes
+                node = Utils.getPaletteComponentById(nodeId);
 
-        // if node is a construct, set width and height a little larger
-        if (node.isGroup()){
-            node.setRadius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
-        }
-
-        //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
-        if(pos.x === 0 && pos.y === 0){
-            // get new position for node
-            if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
-                const result = this.getNewNodePosition(node.getRadius());
-                searchAreaExtended = result.extended
-                pos = {x:result.x,y:result.y}
-            } else {
-                pos = Eagle.nodeDropLocation;
-            }
-        }
-
-        this.addNode(node, pos.x, pos.y, (newNode: Node) => {
-            // make sure the new node is selected
-            this.setSelection(newNode, Eagle.FileType.Graph);
-
-            // set parent (if the node was dropped on something)
-            const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), true);
-
-            // if a parent was found, update
-            if (parent !== null && newNode.getParentId() !== parent.getId() && newNode.getId() !== parent.getId()){
-                newNode.setParentId(parent.getId());
-            }
-
-            // if no parent found, update
-            if (parent === null && newNode.getParentId() !== null){
-                newNode.setParentId(null);
-            }
-
-            // determine whether we should also generate an object data drop along with this node
-            const generateObjectDataDrop: boolean = Daliuge.isPythonInitialiser(newNode);
-
-            // optionally generate a new PythonObject node
-            if (generateObjectDataDrop){
-                // determine a name for the new node
-                let poName: string = Daliuge.FieldName.SELF; // use this as a fall-back default
-
-                // use the dataType of the self field
-                const selfField = newNode.getFieldByDisplayText(Daliuge.FieldName.SELF);
-                if (selfField !== null){
-                    poName = selfField.getType();
+                // if node not found yet, try find in the graph
+                if (node === null){
+                    node = this.logicalGraph().findNodeById(nodeId);
                 }
 
-                // get name of the "base" class from the PythonMemberFunction node,
-                const baseNameField = newNode.getFieldByDisplayText(Daliuge.FieldName.BASE_NAME);
-                if (baseNameField !== null){
-                    poName = baseNameField.getValue();
+                // use the position where the right click occurred
+                pos = Eagle.selectedRightClickPosition;
+
+                RightClick.closeCustomContextMenu(true);
+            }
+
+            // if node is a construct, set width and height a little larger
+            if (node.isGroup()){
+                node.setRadius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
+            }
+
+            //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
+            if(pos.x === 0 && pos.y === 0){
+                // get new position for node
+                if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
+                    const result = this.getNewNodePosition(node.getRadius());
+                    searchAreaExtended = result.extended
+                    pos = {x:result.x,y:result.y}
+                } else {
+                    pos = Eagle.nodeDropLocation;
+                }
+            }
+
+            this.addNode(node, pos.x, pos.y, (newNode: Node) => {
+                // make sure the new node is selected
+                this.setSelection(newNode, Eagle.FileType.Graph);
+
+                // set parent (if the node was dropped on something)
+                const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), true);
+
+                // if a parent was found, update
+                if (parent !== null && newNode.getParentId() !== parent.getId() && newNode.getId() !== parent.getId()){
+                    newNode.setParentId(parent.getId());
                 }
 
-                // create node
-                const poNode: Node = new Node(poName, "Instance of " + poName, Category.PythonObject);
+                // if no parent found, update
+                if (parent === null && newNode.getParentId() !== null){
+                    newNode.setParentId(null);
+                }
 
-                // add node to LogicalGraph
-                const OBJECT_OFFSET_X = 100;
-                const OBJECT_OFFSET_Y = 100;
-                this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
-                    // set parent to same as PythonMemberFunction
-                    pythonObjectNode.setParentId(newNode.getParentId());
+                // determine whether we should also generate an object data drop along with this node
+                const generateObjectDataDrop: boolean = Daliuge.isPythonInitialiser(newNode);
 
-                    // copy all fields from a "PythonObject" node in the palette
-                    Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
+                // optionally generate a new PythonObject node
+                if (generateObjectDataDrop){
+                    // determine a name for the new node
+                    let poName: string = Daliuge.FieldName.SELF; // use this as a fall-back default
 
-                    // find the "object" port on the PythonMemberFunction
-                    let sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);
-
-                    // make sure we can find a port on the PythonMemberFunction
-                    if (sourcePort === null){
-                        sourcePort = Daliuge.selfField.clone();
-                        sourcePort.setId(Utils.generateFieldId());
-                        newNode.addField(sourcePort);
-                        Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
+                    // use the dataType of the self field
+                    const selfField = newNode.getFieldByDisplayText(Daliuge.FieldName.SELF);
+                    if (selfField !== null){
+                        poName = selfField.getType();
                     }
 
-                    // create a new input/output "object" port on the PythonObject
-                    const inputOutputPort = new Field(Utils.generateFieldId(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput);
-                    pythonObjectNode.addField(inputOutputPort);
+                    // get name of the "base" class from the PythonMemberFunction node,
+                    const baseNameField = newNode.getFieldByDisplayText(Daliuge.FieldName.BASE_NAME);
+                    if (baseNameField !== null){
+                        poName = baseNameField.getValue();
+                    }
 
-                    // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
-                    this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, null);
-                });
-            }
+                    // create node
+                    const poNode: Node = new Node(poName, "Instance of " + poName, Category.PythonObject);
 
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Add node " + newNode.getName());
-            this.logicalGraph.valueHasMutated();
+                    // add node to LogicalGraph
+                    const OBJECT_OFFSET_X = 100;
+                    const OBJECT_OFFSET_Y = 100;
+                    this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
+                        // set parent to same as PythonMemberFunction
+                        pythonObjectNode.setParentId(newNode.getParentId());
 
-            if (callback !== null){
-                callback(newNode);
+                        // copy all fields from a "PythonObject" node in the palette
+                        Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
+
+                        // find the "object" port on the PythonMemberFunction
+                        let sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);
+
+                        // make sure we can find a port on the PythonMemberFunction
+                        if (sourcePort === null){
+                            sourcePort = Daliuge.selfField.clone();
+                            sourcePort.setId(Utils.generateFieldId());
+                            newNode.addField(sourcePort);
+                            Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
+                        }
+
+                        // create a new input/output "object" port on the PythonObject
+                        const inputOutputPort = new Field(Utils.generateFieldId(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput);
+                        pythonObjectNode.addField(inputOutputPort);
+
+                        // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
+                        this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, null);
+                    });
+                }
+
+                this.checkGraph();
+                this.undo().pushSnapshot(this, "Add node " + newNode.getName());
+                this.logicalGraph.valueHasMutated();
+
+                resolve(newNode);
+            });
+            
+            if(searchAreaExtended){
+                setTimeout(function(){
+                    Eagle.getInstance().centerGraph()
+                },100)
             }
         });
-        
-        if(searchAreaExtended){
-            setTimeout(function(){
-                Eagle.getInstance().centerGraph()
-            },100)
-        }
     }
 
     addGraphNodesToPalette = () : void => {
@@ -4076,7 +4077,7 @@ export class Eagle {
 
         // add each of the nodes we are moving
         for (const sourceComponent of sourceComponents){
-            this.addNodeToLogicalGraph(sourceComponent, null, Eagle.AddNodeMode.Default, null);
+            this.addNodeToLogicalGraph(sourceComponent, null, Eagle.AddNodeMode.Default);
 
             // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
             Eagle.nodeDropLocation.x += 20;
