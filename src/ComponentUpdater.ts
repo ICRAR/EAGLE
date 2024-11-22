@@ -12,7 +12,6 @@ export class ComponentUpdater {
 
             // check if any nodes to update
             if (graph.getNodes().length === 0){
-                // TODO: don't showNotification here! instead add a warning to the errorsWarnings and callback()
                 const message: string = "Graph contains no components to update";
                 errorsWarnings.errors.push(Errors.Message(message));
                 reject(message);
@@ -42,7 +41,6 @@ export class ComponentUpdater {
                 updatedNodes.push(node);
             }
 
-            console.log("resolve");
             resolve({updatedNodes: updatedNodes, errorsWarnings: errorsWarnings});
         });
     }

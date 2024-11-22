@@ -1454,7 +1454,7 @@ export class Eagle {
     /**
      * Reloads a previously loaded palette.
      */
-     reloadPalette = (palette: Palette, index: number) : void => {
+     reloadPalette = async (palette: Palette, index: number): Promise<void> => {
          const fileInfo : FileInfo = palette.fileInfo();
          // remove palette
          this.closePalette(palette);
@@ -1469,15 +1469,15 @@ export class Eagle {
                 Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
                 break;
             case Repository.Service.Url:
-                this.loadPalettes([
+                const {palettes, errorsWarnings} = await this.loadPalettes([
                     {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
-                ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
-                    for (const palette of palettes){
-                        if (palette !== null){
-                            this.palettes.splice(index, 0, palette);
-                        }
+                ]);
+
+                for (const palette of palettes){
+                    if (palette !== null){
+                        this.palettes.splice(index, 0, palette);
                     }
-                });
+                }
                 break;
             default:
                 // can't be fetched
@@ -1890,96 +1890,98 @@ export class Eagle {
         this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
     }
 
-    loadDefaultPalettes = () : void => {
-        this.loadPalettes([
+    loadDefaultPalettes = async (): Promise<void> => {
+        const {palettes, errorsWarnings} = await this.loadPalettes([
             {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true},
             {name:Palette.DYNAMIC_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true}
-        ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
-            const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
+        ]);
 
-            // display of errors if setting is true
-            if (showErrors && (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings))){
-                // add warnings/errors to the arrays
-                this.loadingErrors(errorsWarnings.errors);
-                this.loadingWarnings(errorsWarnings.warnings);
+        const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
-                this.errorsMode(Errors.Mode.Loading);
-                Utils.showErrorsModal("Loading File");
+        // display of errors if setting is true
+        if (showErrors && (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings))){
+            // add warnings/errors to the arrays
+            this.loadingErrors(errorsWarnings.errors);
+            this.loadingWarnings(errorsWarnings.warnings);
+
+            this.errorsMode(Errors.Mode.Loading);
+            Utils.showErrorsModal("Loading File");
+        }
+
+        for (const palette of palettes){
+            if (palette !== null){
+                this.palettes.push(palette);
             }
-
-            for (const palette of palettes){
-                if (palette !== null){
-                    this.palettes.push(palette);
-                }
-            }
-        });
+        }
     }
 
-    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (errorsWarnings: Errors.ErrorsWarnings, data: Palette[]) => void ) : void => {
-        const results: Palette[] = [];
-        const complete: boolean[] = [];
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+    loadPalettes = async (paletteList: {name:string, filename:string, readonly:boolean}[]): Promise<{palettes: Palette[], errorsWarnings: Errors.ErrorsWarnings}> => {
+        return new Promise(async(resolve, reject) => {
+            const results: Palette[] = [];
+            const complete: boolean[] = [];
+            const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
-        // define a function to check if all requests are now complete, if so we can call the callback
-        function _checkAllPalettesComplete() : void {
-            let allComplete = true;
-            for (const requestComplete of complete){
-                if (!requestComplete){
-                    allComplete = false;
-                }
-            }
-            if (allComplete){
-                callback(errorsWarnings, results);
-            }
-        }
-
-        // start trying to load the palettes
-        for (let i = 0 ; i < paletteList.length ; i++){
-            results.push(null);
-            complete.push(false);
-            const index = i;
-            const data = {url: paletteList[i].filename};
-
-            Utils.httpPostJSONWithErrorHandler("/openRemoteUrlFile", data,
-                (data: string) => {
-                    // palette fetched successfully
-                    complete[index] = true;
-
-                    const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
-                    Utils.preparePalette(palette, paletteList[index]);
-
-                    // add to results
-                    results[index] = palette;
-
-                    // save to localStorage
-                    localStorage.setItem(paletteList[index].filename, data);
-                    
-                    _checkAllPalettesComplete();
-                },
-                (error: string) => {
-                    // an error occurred when fetching the palette
-                    complete[index] = true;
-
-                    errorsWarnings.errors.push(Errors.Message(error));
-
-                    // try to load palette from localStorage
-                    const paletteData = localStorage.getItem(paletteList[i].filename);
-
-                    if (paletteData === null){
-                        console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette also unavailable from localStorage.");
-                    } else {
-                        console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
-
-                        const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.DUMMY, "", paletteList[i].name), errorsWarnings);
-                        Utils.preparePalette(palette, paletteList[i]);
-
-                        results[index] = palette;
+            // define a function to check if all requests are now complete, if so we can call the callback
+            function _checkAllPalettesComplete() : void {
+                let allComplete = true;
+                for (const requestComplete of complete){
+                    if (!requestComplete){
+                        allComplete = false;
                     }
-
-                    _checkAllPalettesComplete();
                 }
-            );
-        }
+                if (allComplete){
+                    resolve({palettes: results, errorsWarnings: errorsWarnings});
+                }
+            }
+
+            // start trying to load the palettes
+            for (let i = 0 ; i < paletteList.length ; i++){
+                results.push(null);
+                complete.push(false);
+                const index = i;
+                const data = {url: paletteList[i].filename};
+
+                Utils.httpPostJSONWithErrorHandler("/openRemoteUrlFile", data,
+                    (data: string) => {
+                        // palette fetched successfully
+                        complete[index] = true;
+
+                        const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
+                        Utils.preparePalette(palette, paletteList[index]);
+
+                        // add to results
+                        results[index] = palette;
+
+                        // save to localStorage
+                        localStorage.setItem(paletteList[index].filename, data);
+
+                        _checkAllPalettesComplete();
+                    },
+                    (error: string) => {
+                        // an error occurred when fetching the palette
+                        complete[index] = true;
+
+                        errorsWarnings.errors.push(Errors.Message(error));
+
+                        // try to load palette from localStorage
+                        const paletteData = localStorage.getItem(paletteList[i].filename);
+
+                        if (paletteData === null){
+                            console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette also unavailable from localStorage.");
+                        } else {
+                            console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
+
+                            const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.DUMMY, "", paletteList[i].name), errorsWarnings);
+                            Utils.preparePalette(palette, paletteList[i]);
+
+                            results[index] = palette;
+                        }
+
+                        _checkAllPalettesComplete();
+                    }
+                );
+            }
+        });
     }
 
     openRemoteFile =(file : RepositoryFile) : void => {
