@@ -1983,12 +1983,12 @@ export class Eagle {
         });
     }
 
-    openRemoteFile =(file : RepositoryFile) : void => {
+    openRemoteFile = async (file : RepositoryFile): Promise<void> => {
         // flag file as being fetched
         file.isFetching(true);
 
         // check the service required to fetch the file
-        let openRemoteFileFunc;
+        let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
         switch (file.repository.service){
             case Repository.Service.GitHub:
                 openRemoteFileFunc = GitHub.openRemoteFile;
@@ -2005,73 +2005,74 @@ export class Eagle {
         }
 
         // load file from github or gitlab
-        openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string, data : string) : void => {
-            // flag fetching as complete
+        let data: string;
+        try {
+            data = await openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+        } catch (error){
             file.isFetching(false);
+            Utils.showUserMessage("Error", error);
+            this.hideEagleIsLoading()
+            return;
+        }
+            
+        // flag fetching as complete
+        file.isFetching(false);
 
-            // display error if one occurred
-            if (error != null){
-                Utils.showUserMessage("Error", error);
-                this.hideEagleIsLoading()
+        // determine file extension
+        const fileExtension = Utils.getFileExtension(file.name);
+        let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
+        let dataObject: any = null;
+
+        if (fileExtension !== "md"){
+            // attempt to parse the JSON
+            try {
+                dataObject = JSON.parse(data);
+            }
+            catch(err){
+                Utils.showUserMessage("Error parsing file JSON", err.message);
                 return;
             }
 
-            // determine file extension
-            const fileExtension = Utils.getFileExtension(file.name);
-            let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
-            let dataObject: any = null;
+            fileTypeLoaded = Utils.determineFileType(dataObject);
+        } else {
+            fileTypeLoaded = Eagle.FileType.Markdown;
+        }        
 
-            if (fileExtension !== "md"){
-                // attempt to parse the JSON
-                try {
-                    dataObject = JSON.parse(data);
+        switch (fileTypeLoaded){
+            case Eagle.FileType.Graph: {
+                // attempt to determine schema version from FileInfo
+                const eagleVersion: string = Utils.determineEagleVersion(dataObject);
+
+                // check if we need to update the graph from keys to ids
+                if (GraphUpdater.usesNodeKeys(dataObject)){
+                    GraphUpdater.updateKeysToIds(dataObject);
                 }
-                catch(err){
-                    Utils.showUserMessage("Error parsing file JSON", err.message);
-                    return;
+
+                // warn user if file newer than EAGLE
+                if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
+                    Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null, (confirmed : boolean) : void => {
+                        if (confirmed){
+                            this._loadGraph(dataObject, file);
+                        }
+                    });
+                } else {
+                    this._loadGraph(dataObject, file);
                 }
-
-                fileTypeLoaded = Utils.determineFileType(dataObject);
-            } else {
-                fileTypeLoaded = Eagle.FileType.Markdown;
-            }        
-
-            switch (fileTypeLoaded){
-                case Eagle.FileType.Graph: {
-                    // attempt to determine schema version from FileInfo
-                    const eagleVersion: string = Utils.determineEagleVersion(dataObject);
-
-                    // check if we need to update the graph from keys to ids
-                    if (GraphUpdater.usesNodeKeys(dataObject)){
-                        GraphUpdater.updateKeysToIds(dataObject);
-                    }
-
-                    // warn user if file newer than EAGLE
-                    if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
-                        Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null, (confirmed : boolean) : void => {
-                            if (confirmed){
-                                this._loadGraph(dataObject, file);
-                            }
-                        });
-                    } else {
-                        this._loadGraph(dataObject, file);
-                    }
-                    break;
-                }
-                case Eagle.FileType.Palette:
-                    this._remotePaletteLoaded(file, data);
-                    break;
-
-                case Eagle.FileType.Markdown:
-                    Utils.showUserMessage(file.name, Utils.markdown2html(data));
-                    break;
-
-                default:
-                    // Show error message
-                    Utils.showUserMessage("Error", "The file type is unknown!");
+                break;
             }
-        this.resetEditor()
-        });
+            case Eagle.FileType.Palette:
+                this._remotePaletteLoaded(file, data);
+                break;
+
+            case Eagle.FileType.Markdown:
+                Utils.showUserMessage(file.name, Utils.markdown2html(data));
+                break;
+
+            default:
+                // Show error message
+                Utils.showUserMessage("Error", "The file type is unknown!");
+        }
+        this.resetEditor();
     };
 
     _loadGraph = (dataObject: any, file: RepositoryFile) : void => {
@@ -2110,12 +2111,12 @@ export class Eagle {
         this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
     }
 
-    insertRemoteFile = (file : RepositoryFile) : void => {
+    insertRemoteFile = async (file : RepositoryFile): Promise<void> => {
         // flag file as being fetched
         file.isFetching(true);
 
         // check the service required to fetch the file
-        let insertRemoteFileFunc;
+        let insertRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
         switch (file.repository.service){
             case Repository.Service.GitHub:
                 insertRemoteFileFunc = GitHub.openRemoteFile;
@@ -2129,69 +2130,70 @@ export class Eagle {
         }
 
         // load file from github or gitlab
-        insertRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string, data : string) : void => {
-            // flag fetching as complete
+        let data: string;
+        try {
+            data = await insertRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+        } catch (error) {
             file.isFetching(false);
+            Utils.showUserMessage("Error", "Failed to load a file!");
+            console.error(error);
+            return;
+        }
 
-            // display error if one occurred
-            if (error != null){
-                Utils.showUserMessage("Error", "Failed to load a file!");
-                console.error(error);
-                return;
-            }
+        // flag fetching as complete
+        file.isFetching(false);
 
-            // attempt to parse the JSON
-            let dataObject;
-            try {
-                dataObject = JSON.parse(data);
-            }
-            catch(err){
-                Utils.showUserMessage("Error parsing file JSON", err.message);
-                return;
-            }
+        // attempt to parse the JSON
+        let dataObject;
+        try {
+            dataObject = JSON.parse(data);
+        }
+        catch(err){
+            Utils.showUserMessage("Error parsing file JSON", err.message);
+            return;
+        }
 
-            const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
+        const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
 
-            // only do this for graphs at the moment
-            if (fileTypeLoaded !== Eagle.FileType.Graph){
-                Utils.showUserMessage("Error", "Unable to insert non-graph!");
-                console.error("Unable to insert non-graph!");
-                return;
-            }
+        // only do this for graphs at the moment
+        if (fileTypeLoaded !== Eagle.FileType.Graph){
+            Utils.showUserMessage("Error", "Unable to insert non-graph!");
+            console.error("Unable to insert non-graph!");
+            return;
+        }
 
-            // attempt to determine schema version from FileInfo
-            const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
+        // attempt to determine schema version from FileInfo
+        const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-            // check if we need to update the graph from keys to ids
-            if (GraphUpdater.usesNodeKeys(dataObject)){
-                GraphUpdater.updateKeysToIds(dataObject);
-            }
+        // check if we need to update the graph from keys to ids
+        if (GraphUpdater.usesNodeKeys(dataObject)){
+            GraphUpdater.updateKeysToIds(dataObject);
+        }
 
-            const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
-            // use the correct parsing function based on schema version
-            let lg: LogicalGraph;
-            switch (schemaVersion){
-                case Daliuge.SchemaVersion.OJS:
-                case Daliuge.SchemaVersion.Unknown:
-                    lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
-                    break;
-            }
+        // use the correct parsing function based on schema version
+        let lg: LogicalGraph;
+        switch (schemaVersion){
+            case Daliuge.SchemaVersion.OJS:
+            case Daliuge.SchemaVersion.Unknown:
+                lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
+                break;
+        }
 
-            // create parent node
-            const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+        // create parent node
+        const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
-            // perform insert
-            this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
+        // perform insert
+        this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
 
-            // trigger re-render
-            this.logicalGraph.valueHasMutated();
-            this.undo().pushSnapshot(this, "Inserted " + file.name);
-            this.checkGraph();
+        // trigger re-render
+        this.logicalGraph.valueHasMutated();
+        this.undo().pushSnapshot(this, "Inserted " + file.name);
+        this.checkGraph();
 
-            // show errors/warnings
-            this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
-        });
+        // show errors/warnings
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
     };
 
     deleteRemoteFile = (file : RepositoryFile) : void => {

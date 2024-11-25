@@ -212,26 +212,35 @@ export class GitHub {
      * Gets the specified remote file from the server
      * @param filePath File path.
      */
-    static openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+    // , callback: (error : string, data : string) => void ) : void {
+    static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
-        if (token === null || token === "") {
-            Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
-            return;
-        }
+            if (token === null || token === "") {
+                reject("The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
+                return;
+            }
 
-        const fullFileName : string = Utils.joinPath(filePath, fileName);
+            const fullFileName : string = Utils.joinPath(filePath, fileName);
 
-        // Add parameters in json data.
-        const jsonData = {
-            repositoryName: repositoryName,
-            repositoryBranch: repositoryBranch,
-            repositoryService: repositoryService,
-            token: token,
-            filename: fullFileName
-        };
+            // Add parameters in json data.
+            const jsonData = {
+                repositoryName: repositoryName,
+                repositoryBranch: repositoryBranch,
+                repositoryService: repositoryService,
+                token: token,
+                filename: fullFileName
+            };
 
-        Utils.httpPostJSON('/openRemoteGithubFile', jsonData, callback);
+            Utils.httpPostJSON('/openRemoteGithubFile', jsonData, (error: string, data: string) => {
+                if (error !== null){
+                    reject(error);
+                    return;
+                }
+                resolve(data);
+            });
+        });
     }
 
     static deleteRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string) => void ) : void {

@@ -2449,8 +2449,18 @@ export class Utils {
         return result;
     }
 
-    static openRemoteFileFromUrl(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        Utils.httpGet(fileName, (data: string) => {callback(null, data)}, (error: string) => {callback(error, null)});
+    // , callback: (error : string, data : string) => void ) : void {
+    static async openRemoteFileFromUrl(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            Utils.httpGet(fileName,
+                (data: string) => {
+                    resolve(data)
+                },
+                (error: string) => {
+                    reject(error)
+                }
+            );
+        });
     }
 
     static copyFieldsFromPrototype(node: Node, paletteName: string, category: Category) : void {
