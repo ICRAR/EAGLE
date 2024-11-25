@@ -1020,6 +1020,8 @@ select.form-control{
 #issuesDisplayAccordion .accordion-button{
     color: white;
     background-color: #4a6b8f;
+    padding: 8px 17px;
+    border-radius: 0px;
 }
 
 #issuesDisplayAccordion .accordion-button::after{
@@ -1032,7 +1034,8 @@ select.form-control{
 }
 
 #issuesDisplayAccordion .accordion-item{
-    margin-bottom: 10px;
+    border-radius: 0px !important;
+    border:none;
 }
 
 #issuesDisplayErrorCount{

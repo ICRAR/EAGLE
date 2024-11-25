@@ -275,13 +275,17 @@ td:first-child input {
 }
 
 .eagleTableDisplay .tableBody, .issuesDisplay .issuesBody{
-    padding:10px;
     background-color: aliceblue;
     width: 100%;
     position: absolute;
     top: 53px;
     height: calc(100% - 46px);
     overflow-y: auto;
+}
+
+.issuesDisplay #issuesDisplayErrorsAccordionItem{
+    border-radius: 0px !important;
+    border: none;
 }
 
 .eagleTableDisplay .scrollWrapper {
@@ -335,11 +339,25 @@ td:first-child input {
     outline: none;
 }
 
-.issuesDisplay, .eagleTableDisplay {
+.issuesDisplay, .eagleTableDisplay{
     width: 100%;
     height: 100%;
     color: white;
     outline: none;
+}
+
+.issuesDisplay #issuesDisplayErrorsAccordionBody, .issuesDisplay #issuesDisplayWarningsAccordionBody{
+    padding: 0px;
+}
+
+.issuesDisplay #issuesDisplayErrorsAccordionBody li, .issuesDisplay #issuesDisplayWarningsAccordionBody li{
+    padding: 5px 1rem 5px 1.2rem;
+    border-left: #dc3545 solid 5px;
+    border-radius: 0;
+}
+
+.issuesDisplay #issuesDisplayWarningsAccordionBody li{
+    border-left-color: #ffc107;
 }
 
 .issuesDisplay  .text-center, .eagleTableDisplay .text-center{
