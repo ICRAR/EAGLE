@@ -2208,7 +2208,7 @@ export class Eagle {
         });
     }
 
-    private _deleteRemoteFile = (file: RepositoryFile): void => {
+    private _deleteRemoteFile = async (file: RepositoryFile): Promise<void> => {
         // check the service required to delete the file
         let deleteRemoteFileFunc;
 
@@ -2225,7 +2225,9 @@ export class Eagle {
         }
 
         // run the delete file function
-        deleteRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string) : void => {
+        try {
+            await deleteRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+        } catch (error) {
             // display error if one occurred
             if (error != null){
                 Utils.showNotification("Error deleting file", error, "danger");
@@ -2236,7 +2238,7 @@ export class Eagle {
             Utils.showNotification("Success", "File deleted", "success");
             
             file.repository.deleteFile(file);
-        });
+        }
     }
 
     private _remotePaletteLoaded = (file : RepositoryFile, data : string) : void => {
