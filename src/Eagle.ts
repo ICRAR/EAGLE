@@ -4290,7 +4290,8 @@ export class Eagle {
             let minX = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? this.leftWindow().size()+MARGIN: 0+MARGIN;
             let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? $('#logicalGraphParent').width() - this.rightWindow().size() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
             let minY = 0 + navBarHeight + MARGIN;
-            let maxY = $('#logicalGraphParent').height() - MARGIN + navBarHeight;
+            //using jquery here to get the bottom window height because it is internally saved in VH (percentage screen height). Doing it this way means we dont have to convert it to pixels
+            let maxY = $('#logicalGraphParent').height() - $('#bottomWindow').height() - MARGIN + navBarHeight;
             if(increaseSearchArea){
                 minX = minX - 300
                 maxX = maxX + 300
