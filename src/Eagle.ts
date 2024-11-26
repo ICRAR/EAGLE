@@ -972,7 +972,7 @@ export class Eagle {
         data.show()
     }
 
-    createConstructFromSelection = () : void => {
+    createConstructFromSelection = async () => {
         console.log("createConstructFromSelection()");
         const eagle = Eagle.getInstance()
         if(eagle.selectedObjects().length === 0){
@@ -985,38 +985,31 @@ export class Eagle {
         });
 
         // ask the user what type of construct to use
-        Utils.requestUserChoice("Choose Construct", "Please choose a construct type to contain the selection", constructs, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
-            if (!completed)
-            {   // Cancelling action.
-                return;
+        const userChoice: string = await Utils.requestUserChoice("Choose Construct", "Please choose a construct type to contain the selection", constructs, 0, false, "");
+
+        // create new subgraph
+        const parentNode: Node = new Node(userChoice, "", userChoice as Category);
+
+        // add the parent node to the logical graph
+        this.logicalGraph().addNodeComplete(parentNode);
+
+        // switch items in selection to be children of subgraph
+        for (const node of this.selectedObjects()){
+            if (!(node instanceof Node)){
+                continue;
             }
 
-            const userChoice: string = constructs[userChoiceIndex];
+            node.setParentId(parentNode.getId());
+        }
 
-            // create new subgraph
-            const parentNode: Node = new Node(userChoice, "", userChoice as Category);
+        // shrink/expand subgraph node to fit children
+        this.logicalGraph().shrinkNode(parentNode);
 
-            // add the parent node to the logical graph
-            this.logicalGraph().addNodeComplete(parentNode);
-
-            // switch items in selection to be children of subgraph
-            for (const node of this.selectedObjects()){
-                if (!(node instanceof Node)){
-                    continue;
-                }
-
-                node.setParentId(parentNode.getId());
-            }
-
-            // shrink/expand subgraph node to fit children
-            this.logicalGraph().shrinkNode(parentNode);
-
-            // flag graph as changed
-            this.flagActiveFileModified();
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Add Selection to Construct");
-            this.logicalGraph.valueHasMutated();
-        });
+        // flag graph as changed
+        this.flagActiveFileModified();
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Add Selection to Construct");
+        this.logicalGraph.valueHasMutated();
     }
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
@@ -1525,23 +1518,22 @@ export class Eagle {
         }
     }
 
-    saveGraphAs = () : void => {
+    saveGraphAs = async () => {
         const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
 
-        Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "", (completed: boolean, userChoiceIndex: number) => {
-            if (!completed)
-            {   // Cancelling action.
-                return;
-            }
+        const userChoice: string = await Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
 
-            const fileType = this.logicalGraph().fileInfo().type;
+        if (userChoice === null){
+            return;
+        }
 
-            if (userChoiceIndex === 0){
-                this.saveAsFileToLocal(fileType);
-            } else {
-                this.commitToGitAs(fileType);
-            }
-        });
+        const fileType = this.logicalGraph().fileInfo().type;
+
+        if (userChoice === "Local File"){
+            this.saveAsFileToLocal(fileType);
+        } else {
+            this.commitToGitAs(fileType);
+        }
     }
 
     /**
@@ -3197,69 +3189,63 @@ export class Eagle {
         this.selectedObjects([]);
     }
 
-    addNodesToPalette = (nodes: Node[]) : void => {
+    addNodesToPalette = async (nodes: Node[]) => {
         console.log("addNodesToPalette()");
 
         // build a list of palette names
         const paletteNames: string[] = this.buildWritablePaletteNamesList();
 
         // ask user to select the destination node
-        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node(s)", paletteNames, 0, true, "New Palette Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
-            // abort if the user aborted
-            if (!completed){
-                return;
+        const userChoice = await Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node(s)", paletteNames, 0, true, "New Palette Name");
+
+        if (userChoice === null){
+            return;
+        }
+
+        // if user made custom choice
+        let userString: string = userChoice;
+
+        // Adding file extension to the title if it does not have it.
+        if (!Utils.verifyFileExtension(userString)) {
+            userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
+        }
+
+        // get reference to palette (based on userString)
+        const destinationPalette = this.findPalette(userString, true);
+
+        // check that a palette was found
+        if (destinationPalette === null){
+            Utils.showUserMessage("Error", "Unable to find selected palette!");
+            return;
+        }
+
+        for (const node of nodes){
+            // skip non-node objects
+            if (!(node instanceof Node)){
+                console.warn("addNodesToPalette(): skipped a non-node object");
+                continue;
             }
 
-            // if user made custom choice
-            let userString: string = "";
-            if (userChoiceIndex === paletteNames.length){
-                userString = userCustomChoice;
-            } else {
-                userString = paletteNames[userChoiceIndex];
+            // add clone to palette
+            destinationPalette.addNode(node, true);
+
+            // get key of just-added node
+            const id: NodeId = destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].getId();
+
+            // check if clone has embedded applications, if so, add them to destination palette and remove
+            if (node.hasInputApplication()){
+                destinationPalette.addNode(node.getInputApplication(), true);
+                destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedId(id);
+            }
+            if (node.hasOutputApplication()){
+                destinationPalette.addNode(node.getOutputApplication(), true);
+                destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedId(id);
             }
 
-            // Adding file extension to the title if it does not have it.
-            if (!Utils.verifyFileExtension(userString)) {
-                userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
-            }
-
-            // get reference to palette (based on userString)
-            const destinationPalette = this.findPalette(userString, true);
-
-            // check that a palette was found
-            if (destinationPalette === null){
-                Utils.showUserMessage("Error", "Unable to find selected palette!");
-                return;
-            }
-
-            for (const node of nodes){
-                // skip non-node objects
-                if (!(node instanceof Node)){
-                    console.warn("addNodesToPalette(): skipped a non-node object");
-                    continue;
-                }
-
-                // add clone to palette
-                destinationPalette.addNode(node, true);
-
-                // get key of just-added node
-                const id: NodeId = destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].getId();
-
-                // check if clone has embedded applications, if so, add them to destination palette and remove
-                if (node.hasInputApplication()){
-                    destinationPalette.addNode(node.getInputApplication(), true);
-                    destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedId(id);
-                }
-                if (node.hasOutputApplication()){
-                    destinationPalette.addNode(node.getOutputApplication(), true);
-                    destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedId(id);
-                }
-
-                // mark the palette as modified
-                destinationPalette.fileInfo().modified = true;
-                destinationPalette.sort();
-            }
-        });
+            // mark the palette as modified
+            destinationPalette.fileInfo().modified = true;
+            destinationPalette.sort();
+        }
     }
 
     // TODO: mode enum?
@@ -3684,7 +3670,7 @@ export class Eagle {
         });
     }
 
-    addGraphNodesToPalette = () : void => {
+    addGraphNodesToPalette = async () => {
         //check if there are any nodes in the graph
         if  (this.logicalGraph().getNodes().length === 0){
             Utils.showNotification("Unable to add nodes to palette", "No nodes found in graph", "danger");
@@ -3695,56 +3681,49 @@ export class Eagle {
         const paletteNames: string[] = this.buildWritablePaletteNamesList();
 
         // ask user to select the destination node
-        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, true, "New Palette Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
-            // abort if the user aborted
-            if (!completed){
-                return;
+        const userChoice = await Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, true, "New Palette Name");
+        // abort if the user aborted
+        if (userChoice === null){
+            return;
+        }
+
+        let userString: string = userChoice;
+
+        // if the userString is empty, then abort, we should not allow empty palette names
+        if (userString === ""){
+            Utils.showNotification("Invalid palette name", "Please enter a name for the new palette", "danger");
+            return;
+        }
+
+        // Adding file extension to the title if it does not have it.
+        if (!Utils.verifyFileExtension(userString)) {
+            userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
+        }
+
+        // get reference to palette (based on userString)
+        const destinationPalette = this.findPalette(userString, true);
+
+        // check that a palette was found
+        if (destinationPalette === null){
+            Utils.showUserMessage("Error", "Unable to find selected palette!");
+            return;
+        }
+
+        // copy nodes to palette
+        for (const node of this.logicalGraph().getNodes()){
+            // check if clone has embedded applications, if so, add them to destination palette and remove
+            if (node.hasInputApplication()){
+                destinationPalette.addNode(node.getInputApplication(), false);
+            }
+            if (node.hasOutputApplication()){
+                destinationPalette.addNode(node.getOutputApplication(), false);
             }
 
-            // if user made custom choice
-            let userString: string = "";
-            if (userChoiceIndex === paletteNames.length){
-                userString = userCustomChoice;
-            } else {
-                userString = paletteNames[userChoiceIndex];
-            }
+            destinationPalette.addNode(node, false);
+        }
 
-            // if the userString is empty, then abort, we should not allow empty palette names
-            if (userString === ""){
-                Utils.showNotification("Invalid palette name", "Please enter a name for the new palette", "danger");
-                return;
-            }
-
-            // Adding file extension to the title if it does not have it.
-            if (!Utils.verifyFileExtension(userString)) {
-                userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
-            }
-
-            // get reference to palette (based on userString)
-            const destinationPalette = this.findPalette(userString, true);
-
-            // check that a palette was found
-            if (destinationPalette === null){
-                Utils.showUserMessage("Error", "Unable to find selected palette!");
-                return;
-            }
-
-            // copy nodes to palette
-            for (const node of this.logicalGraph().getNodes()){
-                // check if clone has embedded applications, if so, add them to destination palette and remove
-                if (node.hasInputApplication()){
-                    destinationPalette.addNode(node.getInputApplication(), false);
-                }
-                if (node.hasOutputApplication()){
-                    destinationPalette.addNode(node.getOutputApplication(), false);
-                }
-
-                destinationPalette.addNode(node, false);
-            }
-
-            // mark the palette as modified
-            destinationPalette.fileInfo().modified = true;
-        });
+        // mark the palette as modified
+        destinationPalette.fileInfo().modified = true;
     }
 
     private buildWritablePaletteNamesList = () : string[] => {
@@ -3924,7 +3903,7 @@ export class Eagle {
         field.setType(newType);
     }
 
-    changeNodeParent = () : void => {
+    changeNodeParent = async () => {
         // build list of node name + ids (exclude self)
         const selectedNode: Node = this.selectedNode();
 
@@ -3972,32 +3951,32 @@ export class Eagle {
         nodeList.unshift("None : 0");
 
         // ask user to choose a parent
-        Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number) => {
-            if (!completed)
-                return;
+        const userChoice: string = await Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "");
+        
+        if (userChoice === null)
+            return;
 
-            const choice: string = nodeList[userChoiceIndex];
+        const choice: string = userChoice;
 
-            // change the parent
-            const newParentId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1).toString() as NodeId
+        // change the parent
+        const newParentId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1).toString() as NodeId
 
-            // key '0' is a special case
-            if (newParentId === null){
-                selectedNode.setParentId(null);
-            } else {
-                selectedNode.setParentId(newParentId);
-            }
+        // key '0' is a special case
+        if (newParentId === null){
+            selectedNode.setParentId(null);
+        } else {
+            selectedNode.setParentId(newParentId);
+        }
 
-            // refresh the display
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Change Node Parent");
-            this.logicalGraph().fileInfo().modified = true;
-            this.selectedObjects.valueHasMutated();
-            this.logicalGraph.valueHasMutated();
-        });
+        // refresh the display
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Change Node Parent");
+        this.logicalGraph().fileInfo().modified = true;
+        this.selectedObjects.valueHasMutated();
+        this.logicalGraph.valueHasMutated();
     }
 
-    changeNodeSubject = () : void => {
+    changeNodeSubject = async () => {
         // build list of node name + ids (exclude self)
         const selectedNode: Node = this.selectedNode();
 
@@ -4027,23 +4006,23 @@ export class Eagle {
         }
 
         // ask user for parent
-        Utils.requestUserChoice("Node Subject Id", "Select a subject node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number) => {
-            if (!completed)
-                return;
+        const userChoice: string = await Utils.requestUserChoice("Node Subject Id", "Select a subject node", nodeList, selectedChoiceIndex, false, "");
 
-            const choice = nodeList[userChoiceIndex];
+        if (userChoice === null)
+            return;
 
-            // change the subject
-            const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId;
-            selectedNode.setSubjectId(newSubjectId);
+        const choice = userChoice;
 
-            // refresh the display
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Change Node Subject");
-            this.logicalGraph().fileInfo().modified = true;
-            this.selectedObjects.valueHasMutated();
-            this.logicalGraph.valueHasMutated();
-        });
+        // change the subject
+        const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId;
+        selectedNode.setSubjectId(newSubjectId);
+
+        // refresh the display
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Change Node Subject");
+        this.logicalGraph().fileInfo().modified = true;
+        this.selectedObjects.valueHasMutated();
+        this.logicalGraph.valueHasMutated();
     }
 
     nodeDropLogicalGraph = (eagle : Eagle, event: JQuery.TriggeredEvent) : void => {

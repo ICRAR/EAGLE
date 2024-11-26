@@ -474,17 +474,29 @@ export class LogicalGraph {
     /**
      * Opens a dialog for selecting a data component type.
      */
-    addDataComponentDialog = (eligibleComponents : Node[], callback : (node: Node) => void) : void => {
-        const eligibleComponentNames: string[] = [];
-        for (const component of eligibleComponents){
-            eligibleComponentNames.push(component.getName());
-        }
+    // , callback : (node: Node) => void
+    addDataComponentDialog = async (eligibleComponents : Node[]): Promise<Node> => {
+        return new Promise(async(resolve, reject) => {
+            const eligibleComponentNames: string[] = [];
+            for (const component of eligibleComponents){
+                eligibleComponentNames.push(component.getName());
+            }
 
-        // ask the user to choose from the eligibleTypes
-        Utils.requestUserChoice("Add Data Component", "Select data component type", eligibleComponentNames, 0, false, "", (completed : boolean, userChoiceIndex : number) => {
-            if (!completed)
+            // ask the user to choose from the eligibleTypes
+            const userChoice: string = await Utils.requestUserChoice("Add Data Component", "Select data component type", eligibleComponentNames, 0, false, "");
+            
+            if (userChoice === null)
                 return;
-            callback(eligibleComponents[userChoiceIndex]);
+
+            // find choice withing eligibleComponents
+            for (const ec of eligibleComponents){
+                if (ec.getName() === userChoice){
+                    resolve(ec);
+                    return;
+                }
+            }
+
+            reject("Could not find user choice");
         });
     }
 

@@ -520,47 +520,59 @@ export class Utils {
         $('#inputModal').modal("toggle");
     }
 
-    static requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ) : void {
-        $('#choiceModalTitle').text(title);
-        $('#choiceModalMessage').html(message);
-        $('#choiceModalCustomChoiceText').text(customChoiceText);
-        $('#choiceModalString').val("");
+    // , callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void
+    static async requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $('#choiceModalTitle').text(title);
+            $('#choiceModalMessage').html(message);
+            $('#choiceModalCustomChoiceText').text(customChoiceText);
+            $('#choiceModalString').val("");
 
-        // remove existing options from the select tag
-        $('#choiceModalSelect').empty();
+            // remove existing options from the select tag
+            $('#choiceModalSelect').empty();
 
-        // add options to the modal select tag
-        for (let i = 0 ; i < choices.length ; i++){
-            $('#choiceModalSelect').append($('<option>', {
-                value: i,
-                text: choices[i]
-            }));
-        }
+            // add options to the modal select tag
+            for (let i = 0 ; i < choices.length ; i++){
+                $('#choiceModalSelect').append($('<option>', {
+                    value: i,
+                    text: choices[i]
+                }));
+            }
 
-        // pre-selected the currently selected index
-        $('#choiceModalSelect').val(selectedChoiceIndex);
+            // pre-selected the currently selected index
+            $('#choiceModalSelect').val(selectedChoiceIndex);
 
-        // add the custom choice select option
-        if (allowCustomChoice){
-            $('#choiceModalSelect').append($('<option>', {
-                value: choices.length,
-                text: "Custom (enter below)"
-            }));
-        }
+            // add the custom choice select option
+            if (allowCustomChoice){
+                $('#choiceModalSelect').append($('<option>', {
+                    value: choices.length,
+                    text: "Custom (enter below)"
+                }));
+            }
 
-        // if no choices were supplied, hide the select
-        $('#choiceModalStringRow').toggle(allowCustomChoice);
+            // if no choices were supplied, hide the select
+            $('#choiceModalStringRow').toggle(allowCustomChoice);
 
-        // store data about the choices, callback, result on the modal HTML element
-        // so that the info is available to event handlers
-        $('#choiceModal').data('completed', false);
-        $('#choiceModal').data('callback', callback);
-        $('#choiceModal').data('choices', choices);
+            // store data about the choices, callback, result on the modal HTML element
+            // so that the info is available to event handlers
+            $('#choiceModal').data('completed', false);
+            $('#choiceModal').data('callback', function(){
+                const completed = $('#choiceModal').data('completed');
+                const choice = $('#choiceModalString').val().toString();
 
-        // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
-        $('#choiceModalSelect').trigger('change');
-        $('#choiceModal').modal("toggle");
-        $('#choiceModalSelect').click()
+                if (completed){
+                    resolve(choice);
+                } else {
+                    resolve(null); // TODO: reject?
+                }
+            });
+            $('#choiceModal').data('choices', choices);
+
+            // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
+            $('#choiceModalSelect').trigger('change');
+            $('#choiceModal').modal("toggle");
+            $('#choiceModalSelect').click()
+        });
     }
 
     static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting, callback : (confirmed : boolean) => void ) : void {
@@ -1655,19 +1667,21 @@ export class Utils {
         return distance;
     }
 
+    // TODO: should we make this just return a Palette, instead of a string palette name?
     static async userChoosePalette(paletteNames : string[]) : Promise<string> {
-        return new Promise<string>((resolve, reject) => {
+        return new Promise<string>(async (resolve, reject) => {
 
-            // ask user to select the destination node
-            Utils.requestUserChoice("Choose Palette", "Please select the palette you'd like to save", paletteNames, 0, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
-                // reject if the user aborted
-                if (!completed){
-                    resolve(null);
-                }
+            // ask user to select a palette
+            let userChoice: string;
+            try {
+                userChoice = await Utils.requestUserChoice("Choose Palette", "Please select the palette you'd like to save", paletteNames, 0, false, "");
+            } catch (error) {
+                reject(error);
+                return;
+            }
 
-                // resolve with chosen palette name
-                resolve(paletteNames[userChoiceIndex]);
-            });
+            // resolve with chosen palette name
+            resolve(userChoice);
         });
     }
 
