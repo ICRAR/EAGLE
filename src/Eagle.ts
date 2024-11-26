@@ -1578,7 +1578,7 @@ export class Eagle {
                 const paletteNames: string[] = this.buildReadablePaletteNamesList();
 
                 // ask user to select the palette
-                const paletteName = await Utils.userChoosePalette(paletteNames);
+                const paletteName: string = await Utils.userChoosePalette(paletteNames);
 
                 // get reference to palette (based on paletteName)
                 const destinationPalette = this.findPalette(paletteName, false);

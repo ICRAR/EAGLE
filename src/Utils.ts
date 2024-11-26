@@ -558,7 +558,7 @@ export class Utils {
             $('#choiceModal').data('completed', false);
             $('#choiceModal').data('callback', function(){
                 const completed = $('#choiceModal').data('completed');
-                const choice = $('#choiceModalString').val().toString();
+                const choice = $('#choiceModalSelect option:selected').text();
 
                 if (completed){
                     resolve(choice);
