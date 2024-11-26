@@ -52,60 +52,63 @@ export class GitHub {
     }
 
     static async loadRepoList(): Promise<Repository[]> {
-        return new Promise(async(resolve) => {
+        return new Promise(async(resolve, reject) => {
             const repositories: Repository[] = [];
 
             // find and add custom gitlab repositories from browser storage
             const customRepositories = Repositories.listCustomRepositories(Repository.Service.GitHub);
             repositories.push(...customRepositories);
 
-            Utils.httpGetJSON("/getGitHubRepositoryList", null, function(error : string, data: any){
-                if (error != null){
-                    console.error(error);
-                    resolve(repositories);
-                    return;
-                }
+            let data;
+            try {
+                data = await Utils.httpGetJSON("/getGitHubRepositoryList", null);
+            } catch (error){
+                console.error(error);
+                reject(error);
+                return;
+            }
+    
+            // add the repositories from the POST response
+            for (const d of data){
+                repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
+            }
 
-                // add the repositories from the POST response
-                for (const d of data){
-                    repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
-                }
-
-                resolve(repositories);
-            });
+            resolve(repositories);
         });
     }
 
     /**
      * Loads the limited set of GitHub repositories intended for students.
      */
-    static loadStudentRepoList() : void {
-        Utils.httpGetJSON("/getStudentRepositoryList", null, function(error : string, data: any){
-            if (error != null){
-                console.error(error);
-                return;
-            }
+    static async loadStudentRepoList(){
+        let data;
+        try {
+            data = await Utils.httpGetJSON("/getStudentRepositoryList", null);
+        } catch (error){
+            console.error(error);
+            return;
+        }
 
-            // remove all GitHub repos from the list of repositories
-            for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-                if (Repositories.repositories()[i].service === Repository.Service.GitHub){
-                    Repositories.repositories.splice(i, 1);
-                }
+        // remove all GitHub repos from the list of repositories
+        for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
+            if (Repositories.repositories()[i].service === Repository.Service.GitHub){
+                Repositories.repositories.splice(i, 1);
             }
+        }
 
-            // add the repositories from the POST response
-            for (const d of data){
-                Repositories.repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
-            }
+        // add the repositories from the POST response
+        for (const d of data){
+            Repositories.repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
+        }
 
-            // sort the repository list
-            Repositories.sort();
-        });
+        // sort the repository list
+        Repositories.sort();
     }
 
     /**
      * Shows the remote files on the GitHub.
      */
+    // TODO: can we avoid creating a new Promise here
     static async loadRepoContent(repository : Repository): Promise<void> {
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);

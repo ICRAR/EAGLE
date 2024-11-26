@@ -305,46 +305,56 @@ export class Utils {
         return Daliuge.FieldUsage.NoPort;
     }
     
-    static httpGet(url : string, successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
-        $.ajax({
-            url: url,
-            success: function (data : string) {
-                successCallback(data);
-            },
-            error: function(xhr, status, error : string){
-                errorCallback(error);
-            }
+    // , successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
+    static async httpGet(url : string): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url: url,
+                success: function (data : string) {
+                    resolve(data);
+                },
+                error: function(xhr, status, error : string){
+                    reject(error);
+                }
+            });
         });
     }
 
-    static httpGetJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
-        $.ajax({
-            url : url,
-            type : 'GET',
-            data : JSON.stringify(json),
-            contentType : 'application/json',
-            success : function(data : string) {
-                callback(null, data);
-            },
-            error: function(xhr, status, error : string) {
-                callback(error, null);
-            }
+    //, callback : (error : string, data : string) => void)
+    static async httpGetJSON(url : string, json : object): Promise<any> {
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url : url,
+                type : 'GET',
+                data : JSON.stringify(json),
+                contentType : 'application/json',
+                success : function(data : string) {
+                    console.log("data", typeof data, data);
+                    resolve(data);
+                },
+                error: function(xhr, status, error : string) {
+                    reject(error);
+                }
+            });
         });
     }
 
-    static httpPost(url : string, data : string, callback : (error : string | null, data : string) => void) : void {
-        $.ajax({
-            url : url,
-            type : 'POST',
-            data : data,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false,  // tell jQuery not to set contentType
-            success : function(data : string) {
-                callback(null, data);
-            },
-            error: function(xhr, status, error : string) {
-                callback(error, null);
-            }
+    // , callback : (error : string | null, data : string) => void
+    static async httpPost(url : string, data : string): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url : url,
+                type : 'POST',
+                data : data,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false,  // tell jQuery not to set contentType
+                success : function(data : string) {
+                    resolve(data);
+                },
+                error: function(xhr, status, error : string) {
+                    reject(error);
+                }
+            });
         });
     }
 
@@ -2405,7 +2415,7 @@ export class Utils {
         return (object instanceof Node);
     }
 
-    static loadSchemas() : void {
+    static async loadSchemas(){
         function _setSchemas(schema: object) : void {
             Utils.ojsGraphSchema = schema;
             Utils.ojsPaletteSchema = schema;
@@ -2417,24 +2427,24 @@ export class Utils {
         }
 
         // try to fetch the schema
-        Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL,
-            (data : string) => {
+        let data;
+        try {
+            data = await Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL);
+        } catch (error) {
+            const data = localStorage.getItem('ojsGraphSchema');
+
+            if (data === null){
+                console.warn("Unable to fetch graph schema. Schema also unavailable from localStorage.");
+            } else {
+                console.warn("Unable to fetch graph schema. Schema loaded from localStorage.");
                 _setSchemas(JSON.parse(data));
-
-                // write to localStorage
-                localStorage.setItem('ojsGraphSchema', data);
-            },
-            (error : string) => {
-                const data = localStorage.getItem('ojsGraphSchema');
-
-                if (data === null){
-                    console.warn("Unable to fetch graph schema. Schema also unavailable from localStorage.");
-                } else {
-                    console.warn("Unable to fetch graph schema. Schema loaded from localStorage.");
-                    _setSchemas(JSON.parse(data));
-                }
             }
-        );
+        }
+
+        _setSchemas(JSON.parse(data));
+
+        // write to localStorage
+        localStorage.setItem('ojsGraphSchema', data);
     }
 
     static snapToGrid(coord: number, offset: number) : number {
@@ -2464,16 +2474,17 @@ export class Utils {
     }
 
     // , callback: (error : string, data : string) => void ) : void {
+    // TODO: I think we don't need to add a Promise here
     static async openRemoteFileFromUrl(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
-            Utils.httpGet(fileName,
-                (data: string) => {
-                    resolve(data)
-                },
-                (error: string) => {
-                    reject(error)
-                }
-            );
+            let data;
+            try {
+                data = await Utils.httpGet(fileName);
+            } catch (error) {
+                reject(error)
+            }
+
+            resolve(data);
         });
     }
 

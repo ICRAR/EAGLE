@@ -60,20 +60,21 @@ export class GitLab {
             repositories.push(...customRepositories);
 
             // fetch additional gitlab repositories from the server
-            Utils.httpGetJSON("/getGitLabRepositoryList", null, function(error : string, data: any){
-                if (error != null){
-                    console.error(error);
-                    resolve(repositories);
-                    return;
-                }
-
-                // add the repositories from the POST response
-                for (const d of data){
-                    repositories.push(new Repository(Repository.Service.GitLab, d.repository, d.branch, true));
-                }
-
+            let data;
+            try {
+                data = await Utils.httpGetJSON("/getGitLabRepositoryList", null);
+            } catch (error) {
+                console.error(error);
                 resolve(repositories);
-            });
+                return;
+            }
+
+            // add the repositories from the POST response
+            for (const d of data){
+                repositories.push(new Repository(Repository.Service.GitLab, d.repository, d.branch, true));
+            }
+
+            resolve(repositories);
         });
     }
 
