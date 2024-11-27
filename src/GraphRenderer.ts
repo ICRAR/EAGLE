@@ -1106,23 +1106,19 @@ export class GraphRenderer {
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
+                GraphRenderer.simpleSelect = GraphRenderer.dragStartPosition.x - e.movementX < 5 && GraphRenderer.dragStartPosition.y - e.movementY < 5
 
                 //creating an array that contains all of the outermost nodes in the selected array
                 const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
 
                 $('.node.transition').removeClass('transition') //this is for the bubble jump effect which we dont want here
-
-                if(GraphRenderer.dragStartPosition.x - e.movementX > 5 || GraphRenderer.dragStartPosition.y - e.movementY > 5){
-                    GraphRenderer.simpleSelect = false;
-
+                if(!GraphRenderer.simpleSelect){
                     // move node
                     eagle.selectedObjects().forEach(function(obj){
                         if(obj instanceof Node){
                             obj.changePosition(e.movementX/eagle.globalScale(), e.movementY/eagle.globalScale());
                         }
                     })
-                }else{
-                    GraphRenderer.simpleSelect = true;
                 }
 
                 outermostNodes.forEach(function(outerMostNode){
