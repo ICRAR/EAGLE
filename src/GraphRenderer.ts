@@ -320,6 +320,7 @@ export class GraphRenderer {
     static ctrlDrag:boolean = null;
     static editNodeName:boolean = false;
     static portDragStartPos = {x:0, y:0};
+    static simpleSelect : boolean = true; // used for node dragging/selecting. if the cursor position hasnt moved far when click/dragging a node. we wont update the node's position and handle it as a simple select action
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
@@ -1109,16 +1110,20 @@ export class GraphRenderer {
                 //creating an array that contains all of the outermost nodes in the selected array
                 const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
 
-                const node:Node = eagle.draggingNode()
                 $('.node.transition').removeClass('transition') //this is for the bubble jump effect which we dont want here
 
+                if(GraphRenderer.dragStartPosition.x - e.movementX > 5 || GraphRenderer.dragStartPosition.y - e.movementY > 5){
+                    GraphRenderer.simpleSelect = false;
 
-                // move node
-                eagle.selectedObjects().forEach(function(obj){
-                    if(obj instanceof Node){
-                        obj.changePosition(e.movementX/eagle.globalScale(), e.movementY/eagle.globalScale());
-                    }
-                })
+                    // move node
+                    eagle.selectedObjects().forEach(function(obj){
+                        if(obj instanceof Node){
+                            obj.changePosition(e.movementX/eagle.globalScale(), e.movementY/eagle.globalScale());
+                        }
+                    })
+                }else{
+                    GraphRenderer.simpleSelect = true;
+                }
 
                 outermostNodes.forEach(function(outerMostNode){
                     // remember node parent from before things change
@@ -1257,14 +1262,16 @@ export class GraphRenderer {
             eagle.logicalGraph.valueHasMutated();
         }
 
-        // if we dragged a node
-        if (!GraphRenderer.isDraggingSelectionRegion){
+        // if we arent multi selecting and the node has moved by a larger amount
+        if (!GraphRenderer.isDraggingSelectionRegion && !GraphRenderer.simpleSelect){
             // check if moving whole graph, or just a single node
             if (node !== null){
                 eagle.undo().pushSnapshot(eagle, "Move '" + node.getName() + "' node");
             }
         }
 
+        //reset helper globals defaults
+        GraphRenderer.simpleSelect = true;
         GraphRenderer.dragSelectionHandled(true)
         eagle.isDragging(false);
         eagle.draggingNode(null);
