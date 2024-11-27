@@ -61,7 +61,7 @@ export class GitHub {
 
             let data;
             try {
-                data = await Utils.httpGetJSON("/getGitHubRepositoryList", null);
+                data = await Utils.httpGetJSON("/getGitHubRepositoryList", null) as {repository: string, branch: string}[];
             } catch (error){
                 console.error(error);
                 reject(error);
@@ -83,7 +83,7 @@ export class GitHub {
     static async loadStudentRepoList(){
         let data;
         try {
-            data = await Utils.httpGetJSON("/getStudentRepositoryList", null);
+            data = await Utils.httpGetJSON("/getStudentRepositoryList", null) as {repository: string, branch: string}[];
         } catch (error){
             console.error(error);
             return;

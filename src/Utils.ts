@@ -323,15 +323,14 @@ export class Utils {
     }
 
     //, callback : (error : string, data : string) => void)
-    static async httpGetJSON(url : string, json : object): Promise<any> {
+    static async httpGetJSON(url: string, json: object): Promise<object> {
         return new Promise(async(resolve, reject) => {
             $.ajax({
                 url : url,
                 type : 'GET',
                 data : JSON.stringify(json),
                 contentType : 'application/json',
-                success : function(data : string) {
-                    console.log("data", typeof data, data);
+                success : function(data: object) {
                     resolve(data);
                 },
                 error: function(xhr, status, error : string) {

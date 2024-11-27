@@ -62,7 +62,7 @@ export class GitLab {
             // fetch additional gitlab repositories from the server
             let data;
             try {
-                data = await Utils.httpGetJSON("/getGitLabRepositoryList", null);
+                data = await Utils.httpGetJSON("/getGitLabRepositoryList", null) as {repository: string, branch: string}[];
             } catch (error) {
                 console.error(error);
                 resolve(repositories);
