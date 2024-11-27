@@ -7,7 +7,7 @@ import { Node } from './Node';
 export class Hierarchy {
 
     static updateDisplay() : void {
-        const eagle: Eagle = Eagle.getInstance()
+        const eagle: Eagle = Eagle.getInstance();
 
         $("#hierarchyEdgesSvg").empty()
         

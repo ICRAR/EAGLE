@@ -150,8 +150,9 @@ export class Undo {
 
         eagle.checkGraph();
 
-        //we need to update the hierarchy view. this needs a small timeout to wait for the undo to complete
         this._updateSelection();
+
+        //we need to update the hierarchy view. this needs a small timeout to wait for the undo to complete
         setTimeout(function(){
             Hierarchy.updateDisplay()
         },100)
