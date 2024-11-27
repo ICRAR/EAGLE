@@ -573,7 +573,7 @@ export class Utils {
                 if (completed){
                     resolve(choice);
                 } else {
-                    resolve(null); // TODO: reject?
+                    reject("User aborted")
                 }
             });
             $('#choiceModal').data('choices', choices);
@@ -585,31 +585,41 @@ export class Utils {
         });
     }
 
-    static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting, callback : (confirmed : boolean) => void ) : void {
-        $('#confirmModalTitle').text(title);
-        $('#confirmModalMessage').html(message);
-        $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
-        $('#confirmModalNegativeAnswer').text(negativeAnswer);
-        
-        $('#confirmModalDontShowAgain button').off()
-        if(confirmSetting === null){
-            $('#confirmModalDontShowAgain').hide()
-        }else{
-            $('#confirmModalDontShowAgain').show()
-            $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
-            $('#confirmModalDontShowAgain button').on('click', function(){
-                confirmSetting.toggle();
-                if($('#confirmModalDontShowAgain button').text() === 'check_box_outline_blank'){
-                    $('#confirmModalDontShowAgain button').text('check_box')
-                }else{
-                    $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
-                }
-            })
-        }
-        
-        $('#confirmModal').data('callback', callback);
+    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<void> {
+        return new Promise(async(resolve, reject) => {
+            $('#confirmModalTitle').text(title);
+            $('#confirmModalMessage').html(message);
+            $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
+            $('#confirmModalNegativeAnswer').text(negativeAnswer);
 
-        $('#confirmModal').modal("toggle");
+            $('#confirmModalDontShowAgain button').off()
+            if(confirmSetting === null){
+                $('#confirmModalDontShowAgain').hide()
+            }else{
+                $('#confirmModalDontShowAgain').show()
+                $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
+                $('#confirmModalDontShowAgain button').on('click', function(){
+                    confirmSetting.toggle();
+                    if($('#confirmModalDontShowAgain button').text() === 'check_box_outline_blank'){
+                        $('#confirmModalDontShowAgain button').text('check_box')
+                    }else{
+                        $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
+                    }
+                })
+            }
+
+            $('#confirmModal').data('callback', function(){
+                const completed = $('#choiceModal').data('completed');
+
+                if (completed){
+                    resolve();
+                } else {
+                    reject("User aborted")
+                }
+            });
+
+            $('#confirmModal').modal("toggle");
+        });
     }
 
     static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, fileType: Eagle.FileType, callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {

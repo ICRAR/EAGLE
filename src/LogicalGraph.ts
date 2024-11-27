@@ -474,7 +474,6 @@ export class LogicalGraph {
     /**
      * Opens a dialog for selecting a data component type.
      */
-    // , callback : (node: Node) => void
     addDataComponentDialog = async (eligibleComponents : Node[]): Promise<Node> => {
         return new Promise(async(resolve, reject) => {
             const eligibleComponentNames: string[] = [];

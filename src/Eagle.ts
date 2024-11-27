@@ -2042,11 +2042,13 @@ export class Eagle {
 
                 // warn user if file newer than EAGLE
                 if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
-                    Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null, (confirmed : boolean) : void => {
-                        if (confirmed){
-                            this._loadGraph(dataObject, file);
-                        }
-                    });
+                    try {
+                        await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null);
+                    } catch (error){
+                        console.error(error);
+                        return;
+                    }
+                    this._loadGraph(dataObject, file);
                 } else {
                     this._loadGraph(dataObject, file);
                 }
@@ -2188,16 +2190,15 @@ export class Eagle {
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
     };
 
-    deleteRemoteFile = (file : RepositoryFile) : void => {
+    deleteRemoteFile = async (file : RepositoryFile): Promise<void> => {
         // request confirmation from user
-        Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_FILES), (confirmed : boolean) : void => {
-            if (!confirmed){
-                console.log("User aborted deleteRemoteFile()");
-                return;
-            }
-
-            this._deleteRemoteFile(file);
-        });
+        try {
+            await Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_FILES));
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+        this._deleteRemoteFile(file);
     }
 
     private _deleteRemoteFile = async (file: RepositoryFile): Promise<void> => {
@@ -2233,7 +2234,7 @@ export class Eagle {
         }
     }
 
-    private _remotePaletteLoaded = (file : RepositoryFile, data : string) : void => {
+    private _remotePaletteLoaded = async (file : RepositoryFile, data : string): Promise<void> => {
         // load the remote palette into EAGLE's palettes object.
 
         // check palette is not already loaded
@@ -2241,11 +2242,13 @@ export class Eagle {
 
         // if dictated by settings, reload the palette immediately
         if (alreadyLoadedPalette !== null && Setting.findValue(Setting.CONFIRM_RELOAD_PALETTES)){
-            Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.find(Setting.CONFIRM_RELOAD_PALETTES), (confirmed : boolean) : void => {
-                if (confirmed){
-                    this._reloadPalette(file, data, alreadyLoadedPalette);
-                }
-            });
+            try {
+                await Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.find(Setting.CONFIRM_RELOAD_PALETTES));
+            } catch (error){
+                console.error(error);
+                return;
+            }
+            this._reloadPalette(file, data, alreadyLoadedPalette);
         } else {
             this._reloadPalette(file, data, alreadyLoadedPalette);
         }
@@ -2299,7 +2302,7 @@ export class Eagle {
         $("#paletteList .dropdown-menu").removeClass("show")
     }
 
-    closePalette = (palette : Palette) : void => {
+    closePalette = async (palette : Palette): Promise<void> => {
         for (let i = 0 ; i < this.palettes().length ; i++){
             const p = this.palettes()[i];
 
@@ -2307,11 +2310,13 @@ export class Eagle {
 
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
                 if (p.fileInfo().modified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
-                    Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", null, (confirmed : boolean) : void => {
-                        if (confirmed){
-                            this.palettes.splice(i, 1);
-                        }
-                    });
+                    try {
+                        await Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", null);
+                    } catch (error){
+                        console.error(error);
+                        return;
+                    }
+                    this.palettes.splice(i, 1);
                 } else {
                     this.palettes.splice(i, 1);
                 }
@@ -3272,7 +3277,7 @@ export class Eagle {
         this.addNodesToPalette(nodes);
     }
 
-    deleteSelection = (rightClick: boolean, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
+    deleteSelection = async (rightClick: boolean, suppressUserConfirmationRequest: boolean, deleteChildren: boolean): Promise<void> => {
         let data: (Node | Edge)[] = [];
         let location: Eagle.FileType = Eagle.FileType.Unknown;
 
@@ -3406,19 +3411,19 @@ export class Eagle {
         }
 
         // request confirmation from user
-        Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_OBJECTS), (confirmed : boolean) : void => {
-            if (!confirmed){
-                console.log("User aborted deleteSelection()");
-                return;
-            }
+        try {
+            await Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_OBJECTS));
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            this._deleteSelection(deleteChildren, data, location);
+        this._deleteSelection(deleteChildren, data, location);
 
-            // if we're NOT in rightClick mode, empty the selected objects, should have all been deleted
-            if(!rightClick){
-                this.selectedObjects([]);
-            }
-        });
+        // if we're NOT in rightClick mode, empty the selected objects, should have all been deleted
+        if(!rightClick){
+            this.selectedObjects([]);
+        }
     }
 
     private _findChildren = (parent : Node) : Node[] => {
@@ -4501,18 +4506,18 @@ export class Eagle {
         return Utils.getCategoriesWithInputsAndOutputs(categoryType, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
     }, this)
 
-    inspectorChangeNodeCategoryRequest = (event: Event) : void => {
+    inspectorChangeNodeCategoryRequest = async (event: Event): Promise<void> => {
         if (Setting.findValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES)){
 
             // request confirmation from user
-            Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.find(Setting.CONFIRM_NODE_CATEGORY_CHANGES), (confirmed : boolean) : void => {
-                if (!confirmed){
-                    //we need to reset the input select to the previous value
-                    $(event.target).val(this.selectedNode().getCategory())
-                    return;
-                }
-                this.inspectorChangeNodeCategory(event)
-            });
+            try {
+                await Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.find(Setting.CONFIRM_NODE_CATEGORY_CHANGES));
+            } catch (error){
+                //we need to reset the input select to the previous value
+                $(event.target).val(this.selectedNode().getCategory())
+                return;
+            }
+            this.inspectorChangeNodeCategory(event)
         }else{
             this.inspectorChangeNodeCategory(event)
         }
