@@ -49,7 +49,7 @@ import { Node } from './Node';
 import { Palette } from './Palette';
 import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
-import { Repository } from './Repository';
+import { Repository, RepositoryCommit } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { RightClick } from "./RightClick";
 import { Setting, SettingsGroup } from './Setting';
@@ -1320,62 +1320,65 @@ export class Eagle {
     /**
      * Presents the user with a textarea in which to paste JSON. Reads the JSON and parses it into a logical graph for editing.
      */
-    newLogicalGraphFromJson = () : void => {
-        Utils.requestUserText("New Logical Graph from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
-            if (!completed)
-            {   // Cancelling action.
-                return;
-            }
+    newLogicalGraphFromJson = async (): Promise<void> => {
+        let userText: string;
+        try{
+            userText = await Utils.requestUserText("New Logical Graph from JSON", "Enter the JSON below", "");
+        } catch (error){
+            console.error(error);
+            return;
+        }
 
-            this._loadGraphJSON(userText, "", (lg: LogicalGraph) : void => {
-                this.logicalGraph(lg);
-            });
+        this._loadGraphJSON(userText, "", (lg: LogicalGraph) : void => {
+            this.logicalGraph(lg);
         });
+
         this.resetEditor()
     }
 
-    addToGraphFromJson = () : void => {
-        Utils.requestUserText("Add to Graph from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
-            if (!completed)
-            {   // Cancelling action.
-                return;
-            }
+    addToGraphFromJson = async (): Promise<void> => {
+        let userText: string;
+        try {
+            userText = await Utils.requestUserText("Add to Graph from JSON", "Enter the JSON below", "");
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            let clipboard = null;
-            try {
-                clipboard = JSON.parse(userText);
-            } catch(e) {
-                Utils.showNotification(e.name, e.message, "danger");
-                return;
-            }
+        let clipboard = null;
+        try {
+            clipboard = JSON.parse(userText);
+        } catch(e) {
+            Utils.showNotification(e.name, e.message, "danger");
+            return;
+        }
 
-            const nodes : Node[] = [];
-            const edges : Edge[] = [];
-            const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
+        const nodes : Node[] = [];
+        const edges : Edge[] = [];
+        const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
 
-            for (const n of clipboard.nodes){
-                const node = Node.fromOJSJson(n, null, false);
+        for (const n of clipboard.nodes){
+            const node = Node.fromOJSJson(n, null, false);
 
-                nodes.push(node);
-            }
+            nodes.push(node);
+        }
 
-            for (const e of clipboard.edges){
-                const edge = Edge.fromOJSJson(e, null);
+        for (const e of clipboard.edges){
+            const edge = Edge.fromOJSJson(e, null);
 
-                edges.push(edge);
-            }
+            edges.push(edge);
+        }
 
-            this.insertGraph(nodes, edges, null, errorsWarnings);
+        this.insertGraph(nodes, edges, null, errorsWarnings);
 
-            // display notification to user
-            Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
-            // TODO: show errors
+        // display notification to user
+        Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+        // TODO: show errors
 
-            // ensure changes are reflected in display
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Added from JSON");
-            this.logicalGraph.valueHasMutated();
-        });
+        // ensure changes are reflected in display
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Added from JSON");
+        this.logicalGraph.valueHasMutated();
     }
 
     displayObjectAsJson = (fileType: Eagle.FileType) : void => {
@@ -1407,7 +1410,7 @@ export class Eagle {
                 break;
         }
 
-        Utils.requestUserText("Export " + fileType + " to JSON", "", jsonString, null);
+        Utils.requestUserText("Export " + fileType + " to JSON", "", jsonString);
     }
 
     /**
@@ -1432,15 +1435,16 @@ export class Eagle {
     /**
      * Presents the user with a textarea in which to paste JSON. Reads the JSON and parses it into a palette.
      */
-    newPaletteFromJson = () : void => {
-        Utils.requestUserText("New Palette from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
-            if (!completed)
-            {   // Cancelling action.
-                return;
-            }
+    newPaletteFromJson = async (): Promise<void> => {
+        let userText: string;
+        try {
+            userText = await Utils.requestUserText("New Palette from JSON", "Enter the JSON below", "");
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            this._loadPaletteJSON(userText, "");
-        });
+        this._loadPaletteJSON(userText, "");
     }
 
     /**
@@ -1730,21 +1734,20 @@ export class Eagle {
                 }
             }
 
-            Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, fileType, (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
-                // check completed boolean
-                if (!completed){
-                    console.log("Abort commit");
-                    reject("Abort commit");
-                    return;
-                }
+            let commit: RepositoryCommit;
+            try {
+                commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, fileType);
+            } catch (error){
+                reject(error);
+                return;
+            }
 
-                // check repository name
-                const repository : Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
+            // check repository name
+            const repository : Repository = Repositories.get(commit.repositoryService, commit.repositoryName, commit.repositoryBranch);
 
-                this._commit(repository, fileType, filePath, fileName, fileInfo, commitMessage, obj);
+            this._commit(repository, fileType, commit.filePath, commit.fileName, fileInfo, commit.message, obj);
 
-                resolve();
-            });
+            resolve();
         });
     }
 
@@ -2486,94 +2489,97 @@ export class Eagle {
         });
     }
 
-    saveAsFileToDisk = (file: LogicalGraph | Palette): void => {
-        Utils.requestUserString("Save As", "Please enter a filename for the " + file.fileInfo().type, file.fileInfo().name, false, (completed: boolean, userString: string) => {
-            // abort if incomplete
-            if (!completed){
-                console.log("User aborted saveAs");
-                return;
-            }
+    saveAsFileToDisk = async (file: LogicalGraph | Palette): Promise<void> => {
+        let userString: string;
+        try {
+            userString = await Utils.requestUserString("Save As", "Please enter a filename for the " + file.fileInfo().type, file.fileInfo().name, false);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            file.fileInfo().name = userString;
 
-            switch(file.fileInfo().type){
-                case Eagle.FileType.Graph:
-                    this.saveGraphToDisk(file as LogicalGraph);
-                    break;
-                case Eagle.FileType.Palette:
-                    this.savePaletteToDisk(file as Palette);
-                    break;
-                default:
-                    console.warn("saveAsFileToDisk(): fileType", file.fileInfo().type, "not implemented, aborting.");
-                    Utils.showUserMessage("Error", "Unable to save file: file type '" + file.fileInfo().type + "' is not supported.");
-            }
-        });
+        file.fileInfo().name = userString;
+
+        switch(file.fileInfo().type){
+            case Eagle.FileType.Graph:
+                this.saveGraphToDisk(file as LogicalGraph);
+                break;
+            case Eagle.FileType.Palette:
+                this.savePaletteToDisk(file as Palette);
+                break;
+            default:
+                console.warn("saveAsFileToDisk(): fileType", file.fileInfo().type, "not implemented, aborting.");
+                Utils.showUserMessage("Error", "Unable to save file: file type '" + file.fileInfo().type + "' is not supported.");
+        }
     }
 
-    savePaletteToGit = (palette: Palette): void => {
+    savePaletteToGit = async (palette: Palette): Promise<void> => {
         console.log("savePaletteToGit()", palette.fileInfo().name, palette.fileInfo().type);
 
         const defaultRepository: Repository = new Repository(palette.fileInfo().repositoryService, palette.fileInfo().repositoryName, palette.fileInfo().repositoryBranch, false);
 
-        Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Repository.Service.GitHub),  palette.fileInfo().path, palette.fileInfo().name, Eagle.FileType.Palette, (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
-            // check completed boolean
-            if (!completed){
-                console.log("Abort commit");
+        let commit: RepositoryCommit;
+        try {
+            commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Repository.Service.GitHub),  palette.fileInfo().path, palette.fileInfo().name, Eagle.FileType.Palette);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        // check repository name
+        const repository : Repository = Repositories.get(commit.repositoryService, commit.repositoryName, commit.repositoryBranch);
+        if (repository === null){
+            console.log("Abort commit");
+            return;
+        }
+
+        // get access token for this type of repository
+        let token : string;
+
+        switch (commit.repositoryService){
+            case Repository.Service.GitHub:
+                token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+                break;
+            case Repository.Service.GitLab:
+                token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
+                break;
+            default:
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
                 return;
-            }
+        }
 
-            // check repository name
-            const repository : Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
-            if (repository === null){
-                console.log("Abort commit");
-                return;
-            }
+        // check that access token is defined
+        if (token === null || token === "") {
+            Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
+            return;
+        }
 
-            // get access token for this type of repository
-            let token : string;
+        const fullFileName : string = Utils.joinPath(commit.filePath, commit.fileName);
 
-            switch (repositoryService){
-                case Repository.Service.GitHub:
-                    token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
-                    break;
-                case Repository.Service.GitLab:
-                    token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
-                    break;
-                default:
-                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
-                    return;
-            }
+        // clone the palette
+        const p_clone : Palette = palette.clone();
+        p_clone.fileInfo().updateEagleInfo();
+        const jsonString: string = Palette.toOJSJsonString(p_clone);
 
-            // check that access token is defined
-            if (token === null || token === "") {
-                Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
-                return;
-            }
+        const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commit.message);
 
-            const fullFileName : string = Utils.joinPath(filePath, fileName);
-
-            // clone the palette
-            const p_clone : Palette = palette.clone();
-            p_clone.fileInfo().updateEagleInfo();
-            const jsonString: string = Palette.toOJSJsonString(p_clone);
-
-            const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
-
-            this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
-        });
+        this.saveFileToRemote(repository, commit.filePath, commit.fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
     }
 
     // TODO: move to Translator.ts
-    setTranslatorUrl = () : void => {
+    setTranslatorUrl = async (): Promise<void> => {
         const translatorURLSetting : Setting = Setting.find(Setting.TRANSLATOR_URL);
 
-        Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false, (completed : boolean, userString : string) : void => {
-            // abort if user cancelled the action
-            if (!completed)
-                return;
+        let userString: string;
+        try {
+            userString = await Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false);
+        } catch (error){
+            console.error(error);
+            return;
+        }
 
-            translatorURLSetting.value(userString);
-        });
+        translatorURLSetting.value(userString);
     };
 
     // TODO: move to Translator.ts
@@ -2853,7 +2859,7 @@ export class Eagle {
         }
     }
 
-    addEdgeToLogicalGraph = () : void => {
+    addEdgeToLogicalGraph = async (): Promise<void> => {
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
             Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
@@ -2870,36 +2876,37 @@ export class Eagle {
         const newEdge = new Edge(this.logicalGraph().getNodes()[0].getId(), null, this.logicalGraph().getNodes()[0].getId(), null, false, false, false);
 
         // display edge editing modal UI
-        Utils.requestUserEditEdge(newEdge, this.logicalGraph(), async (completed: boolean, edge: Edge) => {
-            if (!completed){
-                console.log("User aborted addEdgeToLogicalGraph()");
-                return;
-            }
+        let edge: Edge;
+        try {
+            edge = await Utils.requestUserEditEdge(newEdge, this.logicalGraph());
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            // validate edge
-            const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-            if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
-                Utils.showUserMessage("Error", "Invalid edge");
-                return;
-            }
+        // validate edge
+        const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+        if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
+            Utils.showUserMessage("Error", "Invalid edge");
+            return;
+        }
 
-            const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
-            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-            const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
-            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+        const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
+        const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
+        const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
+        const destPort: Field = destNode.findFieldById(edge.getDestPortId());
 
-            // new edges might require creation of new nodes, don't use addEdgeComplete() here!
-            await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
+        // new edges might require creation of new nodes, don't use addEdgeComplete() here!
+        await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
 
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Add edge");
-            this.logicalGraph().fileInfo().modified = true;
-            // trigger the diagram to re-draw with the modified edge
-            this.logicalGraph.valueHasMutated();
-        });
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Add edge");
+        this.logicalGraph().fileInfo().modified = true;
+        // trigger the diagram to re-draw with the modified edge
+        this.logicalGraph.valueHasMutated();
     }
 
-    editSelectedEdge = () : void => {
+    editSelectedEdge = async (): Promise<void> => {
         const selectedEdge: Edge = this.selectedEdge();
 
         if (selectedEdge === null){
@@ -2916,34 +2923,35 @@ export class Eagle {
         // clone selected edge so that no changes to the original can be made by the user request modal
         const clone: Edge = selectedEdge.clone();
 
-        Utils.requestUserEditEdge(clone, this.logicalGraph(), async (completed: boolean, edge: Edge) => {
-            if (!completed){
-                console.log("User aborted editSelectedEdge()");
-                return;
-            }
+        let edge: Edge;
+        try {
+            edge = await Utils.requestUserEditEdge(clone, this.logicalGraph());
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            // validate edge
-            const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-            if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
-                Utils.showUserMessage("Error", "Invalid edge");
-                return;
-            }
+        // validate edge
+        const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+        if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
+            Utils.showUserMessage("Error", "Invalid edge");
+            return;
+        }
 
-            const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
-            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-            const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
-            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+        const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
+        const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
+        const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
+        const destPort: Field = destNode.findFieldById(edge.getDestPortId());
 
-            // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
-            this.logicalGraph().removeEdgeById(selectedEdge.getId());
-            await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
+        // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
+        this.logicalGraph().removeEdgeById(selectedEdge.getId());
+        await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
 
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Edit edge");
-            this.logicalGraph().fileInfo().modified = true;
-            // trigger the diagram to re-draw with the modified edge
-            this.logicalGraph.valueHasMutated();
-        });
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Edit edge");
+        this.logicalGraph().fileInfo().modified = true;
+        // trigger the diagram to re-draw with the modified edge
+        this.logicalGraph.valueHasMutated();
     }
 
     duplicateSelection = (mode:string) : void => {
@@ -4140,7 +4148,7 @@ export class Eagle {
     }
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
-    editField = (node:Node, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, id: string) : void => {
+    editField = async (node:Node, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, id: string): Promise<void> => {
         // get field names list from the logical graph
         const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), parameterType);
         const allFieldNames: string[] = [];
@@ -4166,39 +4174,39 @@ export class Eagle {
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
             const field: Field = new Field(Utils.generateFieldId(), "", "", "", "", false, Daliuge.DataType.Integer, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort);
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
-                // abort if the user aborted
-                if (!completed){
-                    return;
-                }
+            let newField: Field;
+            try {
+                newField = await Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, usage, field, allFieldNames);
+            } catch (error){
+                console.error(error);
+                return;
+            }
 
-                // check selected option in select tag
-                const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
+            // check selected option in select tag
+            const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
 
-                // abort if -1 selected
-                if (choice === -1){
-                    return;
-                }
+            // abort if -1 selected
+            if (choice === -1){
+                return;
+            }
 
-                // hide the custom text input unless the first option in the select is chosen
-                if (choice === 0){
-                    newField.setParameterType(parameterType);
+            // hide the custom text input unless the first option in the select is chosen
+            if (choice === 0){
+                newField.setParameterType(parameterType);
 
-                    //create field from user input in modal
-                    node.addField(newField);
+                //create field from user input in modal
+                node.addField(newField);
 
-                } else {
-                    const clone : Field = this.currentField().clone();
-                    clone.setId(Utils.generateFieldId());
-                    clone.setParameterType(parameterType);
-                    node.addField(clone);
-                }
+            } else {
+                const clone : Field = this.currentField().clone();
+                clone.setId(Utils.generateFieldId());
+                clone.setParameterType(parameterType);
+                node.addField(clone);
+            }
 
-                this.checkGraph();
-                this.logicalGraph().fileInfo().modified = true;
-                this.undo().pushSnapshot(this, "Add field");
-            });
-
+            this.checkGraph();
+            this.logicalGraph().fileInfo().modified = true;
+            this.undo().pushSnapshot(this, "Add field");
         } else {
             //if editing an existing field
             const field: Field = this.selectedNode().findFieldById(id);
@@ -4212,23 +4220,25 @@ export class Eagle {
 
             $("#addParameterWrapper").hide();
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Edit, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
-                // abort if the user aborted
-                if (!completed){
-                    return;
-                }
+            let newField: Field;
+            try {
+                newField = await Utils.requestUserEditField(this, Eagle.ModalType.Edit, parameterType, usage, field, allFieldNames);
+            } catch (error){
+                console.error(error);
+                return;
+            }
 
-                // update field data (keep existing nodeKey and id)
-                field.copyWithIds(newField, field.getNodeId(), field.getId());
+            // update field data (keep existing nodeKey and id)
+            field.copyWithIds(newField, field.getNodeId(), field.getId());
 
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Edit Field");
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Edit Field");
 
-                // if we summoned this editField modal from the params table, now that we are done, re-open the params table
-                if (modalType === Eagle.ModalType.Field){
-                    $('#parameterTable').modal("show");
-                }
-            });
+            // if we summoned this editField modal from the params table, now that we are done, re-open the params table
+            // TODO: maybe call showField here
+            if (modalType === Eagle.ModalType.Field){
+                $('#parameterTable').modal("show");
+            }
         }
     };
 
@@ -4482,16 +4492,18 @@ export class Eagle {
         });
     }
 
-    editNodeDescription = () : void => {
+    editNodeDescription = async (): Promise<void> => {
         console.log("editNodeDescription()");
 
-        Utils.requestUserText("Node Description", "Please edit the description for the node", this.selectedNode().getDescription(), (completed, userText) => {
-            if (!completed){
-                return;
-            }
+        let nodeDescription: string;
+        try {
+            nodeDescription = await Utils.requestUserText("Node Description", "Please edit the description for the node", this.selectedNode().getDescription());
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            this.selectedNode().setDescription(userText);
-        })
+        this.selectedNode().setDescription(nodeDescription);
     }
 
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {

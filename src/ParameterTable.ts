@@ -365,7 +365,7 @@ export class ParameterTable {
         this._addRemoveField(currentField, false);
     }
 
-    static _addRemoveField(currentField: Field, add: boolean): void {
+    static async _addRemoveField(currentField: Field, add: boolean): Promise<void> {
         let graphConfig: GraphConfig = Eagle.getInstance().logicalGraph().getActiveGraphConfig();
 
         // check if the graph config is being modified
@@ -380,78 +380,78 @@ export class ParameterTable {
             }
         } else {
             graphConfig = new GraphConfig();
-            Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
-                ParameterTable.openTable(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
+            
+            let configName: string;
+            try {
+                configName = await Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false);
+            } catch(error){
+                console.error(error);
+                return;
+            }
 
-                if (!completed){
-                    return;
-                }
-                if (userString === ""){
-                    Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
-                    return;
-                }
+            ParameterTable.openTable(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
 
-                // set name
-                graphConfig.setName(userString);
+            if (configName === ""){
+                Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
+                return;
+            }
 
-                // add/remove the field that was requested in the first place
-                if (add){
-                    graphConfig.addValue(currentField.getNodeId(), currentField.getId(), currentField.getValue())
-                } else {
-                    graphConfig.removeField(currentField);
-                }
+            // set name
+            graphConfig.setName(configName);
 
-                //add the graph config to the graph
-                Eagle.getInstance().logicalGraph().addGraphConfig(graphConfig)
+            // add/remove the field that was requested in the first place
+            if (add){
+                graphConfig.addValue(currentField.getNodeId(), currentField.getId(), currentField.getValue())
+            } else {
+                graphConfig.removeField(currentField);
+            }
 
-                // make this config the active config
-                Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig.getId());
+            //add the graph config to the graph
+            Eagle.getInstance().logicalGraph().addGraphConfig(graphConfig)
 
-                //set the graph as modified and take an undo snapshot
-                Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Added field " + currentField.getDisplayText() + ' to config ' + graphConfig.getName());
-                Eagle.getInstance().logicalGraph().fileInfo().modified = true;
-            });
+            // make this config the active config
+            Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig.getId());
+
+            //set the graph as modified and take an undo snapshot
+            Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Added field " + currentField.getDisplayText() + ' to config ' + graphConfig.getName());
+            Eagle.getInstance().logicalGraph().fileInfo().modified = true;
         }
     }
 
+    // TODO: remove parameter?
     static requestEditConfig(config: GraphConfig): void {
         GraphConfigurationsTable.closeModal();
         ParameterTable.openTable(Eagle.BottomWindowMode.GraphConfigAttributesTable, ParameterTable.SelectType.Normal);
     }
 
-    static requestEditDescriptionInModal(currentField:Field) : void {
+    static async requestEditDescriptionInModal(currentField:Field): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
         const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
 
-        Utils.requestUserText(
-            "Edit Field Description",
-            "Please edit the description for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(),
-            currentField.getDescription(),
-            (completed, userText) => {
-                // if completed successfully, set the description on the field
-                if (completed){
-                    currentField.setDescription(userText);
-                }
-            }
-        )
+        let fieldDescription: string;
+        try {
+            fieldDescription = await Utils.requestUserText("Edit Field Description", "Please edit the description for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(), currentField.getDescription());
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        // set the description on the field
+        currentField.setDescription(fieldDescription);
     }
 
-    static requestEditCommentInModal(currentField:Field) : void {
+    static async requestEditCommentInModal(currentField:Field): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
         const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
         const configField: GraphConfigField = eagle.logicalGraph().getActiveGraphConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
 
-        Utils.requestUserText(
-            "Edit Field Comment",
-            "Please edit the comment for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(),
-            configField.getComment(),
-            (completed, userText) => {
-                // if completed successfully, set the description on the field
-                if (completed){
-                    configField.setComment(userText);
-                }
-            }
-        )
+        let fieldComment: string;
+        try {
+            fieldComment = await Utils.requestUserText("Edit Field Comment", "Please edit the comment for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(), configField.getComment());
+        } catch (error){
+            // set the description on the field
+            configField.setComment(fieldComment);
+        }
     }
 
     static initiateResizableColumns(upId:string) : void {

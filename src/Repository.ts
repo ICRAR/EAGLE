@@ -194,3 +194,21 @@ export namespace Repository {
         Unknown = "Unknown"
     }
 }
+
+export class RepositoryCommit {
+    repositoryService : Repository.Service
+    repositoryName : string
+    repositoryBranch : string
+    filePath : string
+    fileName : string
+    message : string
+
+    constructor(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath: string, fileName: string, message: string){
+        this.repositoryService = repositoryService;
+        this.repositoryName = repositoryName;
+        this.repositoryBranch = repositoryBranch;
+        this.filePath = filePath;
+        this.fileName = fileName;
+        this.message = message;
+    }
+}

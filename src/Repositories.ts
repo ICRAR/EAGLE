@@ -90,27 +90,26 @@ export class Repositories {
     }
 
     // use a custom modal to ask user for repository service and url at the same time
-    addCustomRepository = () : void => {
-        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : void => {
-            console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
+    addCustomRepository = async () => {
+        let customRepository: Repository;
+        try {
+            customRepository = await Utils.requestUserAddCustomRepository();
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            if (!completed){
-                console.log("No repo entered");
-                return;
-            }
+        if (customRepository.name.trim() == ""){
+            Utils.showUserMessage("Error", "Repository name is empty!");
+            return;
+        }
 
-            if (repositoryName.trim() == ""){
-                Utils.showUserMessage("Error", "Repository name is empty!");
-                return;
-            }
+        if (customRepository.branch.trim() == ""){
+            Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
+            return;
+        }
 
-            if (repositoryBranch.trim() == ""){
-                Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
-                return;
-            }
-
-            this._addCustomRepository(repositoryService, repositoryName, repositoryBranch);
-        });
+        this._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
     };
 
     _addCustomRepository = async (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) => {
