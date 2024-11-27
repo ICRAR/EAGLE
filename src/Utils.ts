@@ -1084,14 +1084,15 @@ export class Utils {
         return result;
     }
 
-    static getCategoriesWithInputsAndOutputs(categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
+    static getCategoriesWithInputsAndOutputs(categoryType: Category.Type) : Category[] {
         const eagle = Eagle.getInstance();
 
         // get a reference to the builtin palette
         const builtinPalette: Palette = eagle.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
         if (builtinPalette === null){
+            // if no built-in palette is found, then build a list from the EAGLE categoryData
             console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
-            return null;
+            return Utils.buildComponentList((cData: Category.CategoryData) => {return cData.categoryType === categoryType});
         }
 
         const matchingNodes = builtinPalette.getNodesByCategoryType(categoryType)
@@ -2550,6 +2551,47 @@ export class Utils {
             return "Default Configuration";
         } else {
             return config.getName() + " (Copy)";
+        }
+    }
+
+    static transformNodeFromTemplates(node: Node, sourceTemplate: Node, destinationTemplate: Node): void {
+        // delete non-ports from the node (loop backwards since we are deleting from the array as we loop)
+        for (let i = node.getFields().length - 1 ; i >= 0; i--){
+            const field: Field = node.getFields()[i];
+
+            if (field.isInputPort() || field.isOutputPort()){
+                continue;
+            }
+
+            node.removeFieldById(field.getId());
+        }
+
+        // copy non-ports from new template to node
+        for (const field of destinationTemplate.getFields()){
+            if (field.isInputPort() || field.isOutputPort()){
+                continue;
+            }
+
+            // try to find field in node that matches by displayText AND parameterType
+            let destField = node.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
+
+            // if dest field could not be found, then go ahead and add a NEW field to the node
+            if (destField === null){
+                destField = field.clone();
+                node.addField(destField);
+            }
+
+            // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
+            destField.copyWithIds(field, destField.getNodeId(), destField.getId());
+        }
+
+        // copy name and description from new template to node, if node values are defaults
+        if (node.getName() === sourceTemplate.getName()){
+            node.setName(destinationTemplate.getName());
+        }
+
+        if (node.getDescription() === sourceTemplate.getDescription()){
+            node.setDescription(destinationTemplate.getDescription());
         }
     }
 }
