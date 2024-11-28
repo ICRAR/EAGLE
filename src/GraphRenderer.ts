@@ -1111,7 +1111,7 @@ export class GraphRenderer {
                 //creating an array that contains all of the outermost nodes in the selected array
                 const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
 
-                $('.node.transition').removeClass('transition') //this is for the bubble jump effect which we dont want here
+                $('.node.transition').removeClass('transition') //this is to prevent the de-parent effect, which we dont want in this case
                 if(!GraphRenderer.simpleSelect){
                     // move node
                     eagle.selectedObjects().forEach(function(obj){
@@ -1122,68 +1122,12 @@ export class GraphRenderer {
                 }
 
                 outermostNodes.forEach(function(outerMostNode){
-                    // remember node parent from before things change
-                    const oldParent: Node = eagle.logicalGraph().findNodeByIdQuiet(outerMostNode.getParentId());
-
-                    // keep track of whether we would update any node parents
-                    const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
-                    //construct resizing 
-                    if(outerMostNode.getParentId() != null){
-                        if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
-                            oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag) //HERE
-                            outerMostNode.setParentId(null)
-                        }
-                    }
-
-                    // check for nodes underneath the node we dropped
-                    const parent: Node = eagle.logicalGraph().checkForNodeAt(outerMostNode.getPosition().x, outerMostNode.getPosition().y, outerMostNode.getRadius(), true);
-
-                    // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
-                    const ancestorOfParent = GraphRenderer.isAncestor(parent, outerMostNode);
-
-                    // if a parent was found, update
-                    if (parent !== null && outerMostNode.getParentId() !== parent.getId() && outerMostNode.getId() !== parent.getId() && !ancestorOfParent && !outerMostNode.isEmbedded()){
-                        GraphRenderer.updateNodeParent(outerMostNode, parent.getId(),  allowGraphEditing);
-                        GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByIdQuiet(parent.getId()).getRadius()
-                        eagle.logicalGraph().fileInfo().modified = true;
-                    }
-
-                    // if no parent found, update
-                    if (parent === null && outerMostNode.getParentId() !== null && !outerMostNode.isEmbedded()){
-                        GraphRenderer.updateNodeParent(outerMostNode, null,  allowGraphEditing);
-                        eagle.logicalGraph().fileInfo().modified = true;
-                    }
-
-                    if (oldParent !== null){
-                        // moved out of a construct
-                        $('#'+oldParent.getId()).addClass('transition')
-                    }
-
-                    // recalculate size of parent (or oldParent)
-                    if (parent === null){
-                        
-                    } else {
-                        // moved into or within a construct
-                        $('#'+parent.getId()).removeClass('transition')
-                    }
+                    GraphRenderer.lookForParent(outerMostNode)
                 })
             } else if(GraphRenderer.isDraggingSelectionRegion){
+                //update selection region position then draw the rectangle
                 GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null), y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
-                const containerWidth = $('#logicalGraph').width()
-                const containerHeight = $('#logicalGraph').height()
-
-                if(GraphRenderer.selectionRegionEnd.x>GraphRenderer.selectionRegionStart.x){
-                    $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','right':containerWidth - GraphRenderer.selectionRegionEnd.x+'px'})
-                }else{
-                    $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionEnd.x+'px','right':containerWidth - GraphRenderer.selectionRegionStart.x+'px'})
-                }
-
-                if(GraphRenderer.selectionRegionEnd.y>GraphRenderer.selectionRegionStart.y){
-                    $('#selectionRectangle').css({'top':GraphRenderer.selectionRegionStart.y+'px','bottom':containerHeight - GraphRenderer.selectionRegionEnd.y+'px'})
-                }else{
-                    $('#selectionRectangle').css({'top':GraphRenderer.selectionRegionEnd.y+'px','bottom':containerHeight - GraphRenderer.selectionRegionStart.y+'px'})
-                }
-
+                GraphRenderer.drawSelectionRectangle()
             }else{
                 // move background
                 eagle.globalOffsetX(eagle.globalOffsetX() + e.movementX/eagle.globalScale());
@@ -1274,6 +1218,71 @@ export class GraphRenderer {
         
         //this is to make affected constructs re calculate their size
         eagle.selectedObjects.valueHasMutated()
+    }
+
+    static drawSelectionRectangle() : void {
+        const containerWidth = $('#logicalGraph').width()
+        const containerHeight = $('#logicalGraph').height()
+
+        if(GraphRenderer.selectionRegionEnd.x>GraphRenderer.selectionRegionStart.x){
+            $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','right':containerWidth - GraphRenderer.selectionRegionEnd.x+'px'})
+        }else{
+            $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionEnd.x+'px','right':containerWidth - GraphRenderer.selectionRegionStart.x+'px'})
+        }
+
+        if(GraphRenderer.selectionRegionEnd.y>GraphRenderer.selectionRegionStart.y){
+            $('#selectionRectangle').css({'top':GraphRenderer.selectionRegionStart.y+'px','bottom':containerHeight - GraphRenderer.selectionRegionEnd.y+'px'})
+        }else{
+            $('#selectionRectangle').css({'top':GraphRenderer.selectionRegionEnd.y+'px','bottom':containerHeight - GraphRenderer.selectionRegionStart.y+'px'})
+        }
+    }
+
+    static lookForParent(outerMostNode:Node) : void {
+        const eagle = Eagle.getInstance()
+        // remember node parent from before things change
+        const oldParent: Node = eagle.logicalGraph().findNodeByIdQuiet(outerMostNode.getParentId());
+
+        // keep track of whether we would update any node parents
+        const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+        //construct resizing 
+        if(outerMostNode.getParentId() != null){
+            if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
+                oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag) //HERE
+                outerMostNode.setParentId(null)
+            }
+        }
+
+        // check for nodes underneath the node we dropped
+        const parent: Node = eagle.logicalGraph().checkForNodeAt(outerMostNode.getPosition().x, outerMostNode.getPosition().y, outerMostNode.getRadius(), true);
+
+        // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
+        const ancestorOfParent = GraphRenderer.isAncestor(parent, outerMostNode);
+
+        // if a parent was found, update
+        if (parent !== null && outerMostNode.getParentId() !== parent.getId() && outerMostNode.getId() !== parent.getId() && !ancestorOfParent && !outerMostNode.isEmbedded()){
+            GraphRenderer.updateNodeParent(outerMostNode, parent.getId(),  allowGraphEditing);
+            GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByIdQuiet(parent.getId()).getRadius()
+            eagle.logicalGraph().fileInfo().modified = true;
+        }
+
+        // if no parent found, update
+        if (parent === null && outerMostNode.getParentId() !== null && !outerMostNode.isEmbedded()){
+            GraphRenderer.updateNodeParent(outerMostNode, null,  allowGraphEditing);
+            eagle.logicalGraph().fileInfo().modified = true;
+        }
+
+        if (oldParent !== null){
+            // moved out of a construct
+            $('#'+oldParent.getId()).addClass('transition')
+        }
+
+        // recalculate size of parent (or oldParent)
+        if (parent === null){
+            
+        } else {
+            // moved into or within a construct
+            $('#'+parent.getId()).removeClass('transition')
+        }
     }
 
     static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
