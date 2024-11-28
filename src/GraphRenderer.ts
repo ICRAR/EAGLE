@@ -1102,18 +1102,21 @@ export class GraphRenderer {
     static mouseMove(eagle: Eagle, event: JQuery.TriggeredEvent) : void {
         const e: MouseEvent = event.originalEvent as MouseEvent;
         GraphRenderer.ctrlDrag = event.ctrlKey;
-
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
+
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
+                //check and note if the mouse has moved
                 GraphRenderer.simpleSelect = GraphRenderer.dragStartPosition.x - e.movementX < 5 && GraphRenderer.dragStartPosition.y - e.movementY < 5
 
                 //creating an array that contains all of the outermost nodes in the selected array
                 const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
+                
+                //this is to prevent the de-parent transition effect, which we dont want in this case
+                $('.node.transition').removeClass('transition')
 
-                $('.node.transition').removeClass('transition') //this is to prevent the de-parent effect, which we dont want in this case
+                // move node if the mouse has moved during the drag event
                 if(!GraphRenderer.simpleSelect){
-                    // move node
                     eagle.selectedObjects().forEach(function(obj){
                         if(obj instanceof Node){
                             obj.changePosition(e.movementX/eagle.globalScale(), e.movementY/eagle.globalScale());
@@ -1121,10 +1124,13 @@ export class GraphRenderer {
                     })
                 }
 
+                //look for a construct at the current location that we would parent to
+                //the outermost node is the outermost construct for multiselection 
                 outermostNodes.forEach(function(outerMostNode){
                     GraphRenderer.lookForParent(outerMostNode)
                 })
             } else if(GraphRenderer.isDraggingSelectionRegion){
+                
                 //update selection region position then draw the rectangle
                 GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null), y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
                 GraphRenderer.drawSelectionRectangle()
