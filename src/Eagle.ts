@@ -4632,11 +4632,16 @@ export class Eagle {
         });
     }
 
-    checkForComponentUpdates = async () => {
-        console.log("checkForComponentUpdates()");
+    checkForComponentUpdates = () => {
+        // check if any nodes to update
+        if (this.logicalGraph().getNodes().length === 0){
+            const message: string = "Graph contains no components to update";
+            Utils.showNotification("Error", message, "danger");
+            console.warn(message);
+            return;
+        }
 
-        const {updatedNodes, errorsWarnings} = await ComponentUpdater.update(this.palettes(), this.logicalGraph());
-        console.log("updatedNodes", updatedNodes, "errorsWarnings", errorsWarnings);
+        const {updatedNodes, errorsWarnings} = ComponentUpdater.update(this.palettes(), this.logicalGraph());
 
         // report missing palettes to the user
         if (errorsWarnings.errors.length > 0){
