@@ -973,7 +973,6 @@ export class Eagle {
     }
 
     createConstructFromSelection = async () => {
-        console.log("createConstructFromSelection()");
         const eagle = Eagle.getInstance()
         if(eagle.selectedObjects().length === 0){
             Utils.showNotification('Error','At least one node must be selected', 'warning')
