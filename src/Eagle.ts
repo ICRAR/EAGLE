@@ -1304,16 +1304,24 @@ export class Eagle {
     /**
      * Creates a new logical graph for editing.
      */
-    newLogicalGraph = () : void => {
-        Utils.newDiagram(Eagle.FileType.Graph, (name: string) => {
-            this.logicalGraph(new LogicalGraph());
-            this.logicalGraph().fileInfo().name = name;
-            this.checkGraph();
-            this.undo().clear();
-            this.undo().pushSnapshot(this, "New Logical Graph");
-            this.logicalGraph.valueHasMutated();
-            Utils.showNotification("New Graph Created", name, "success");
-        });
+    newLogicalGraph = async(): Promise<void> => {
+        let filename: string;
+        try {
+            filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
+        } catch (error) {
+            console.error(error);
+            Utils.showNotification("Error", error, "danger");
+            return;
+        }
+
+        this.logicalGraph(new LogicalGraph());
+        this.logicalGraph().fileInfo().name = filename;
+        this.checkGraph();
+        this.undo().clear();
+        this.undo().pushSnapshot(this, "New Logical Graph");
+        this.logicalGraph.valueHasMutated();
+        Utils.showNotification("New Graph Created", filename, "success");
+
         this.resetEditor()
     }
 
@@ -1416,20 +1424,25 @@ export class Eagle {
     /**
      * Creates a new palette for editing.
      */
-    newPalette = () : void => {
-        Utils.newDiagram(Eagle.FileType.Palette, (name : string) => {
-            const p: Palette = new Palette();
-            p.fileInfo().name = name;
+    newPalette = async () : Promise<void> => {
+        let filename: string;
+        try {
+            filename = await Utils.requestDiagramFilename(Eagle.FileType.Palette);
+        } catch (error){
+            console.warn(error);
+            return;
+        }
+        const p: Palette = new Palette();
+        p.fileInfo().name = filename;
 
-            // mark the palette as modified and readwrite
-            p.fileInfo().modified = true;
-            p.fileInfo().readonly = false;
+        // mark the palette as modified and readwrite
+        p.fileInfo().modified = true;
+        p.fileInfo().readonly = false;
 
-            // add to palettes
-            this.palettes.unshift(p);
+        // add to palettes
+        this.palettes.unshift(p);
 
-            Utils.showNotification("New Palette Created", name, "success");
-        });
+        Utils.showNotification("New Palette Created", filename, "success");
     }
 
     /**
@@ -4605,9 +4618,8 @@ export class Eagle {
     }
     
     // NOTE: clones the node internally
-    // TODO: does this need to be async, couldn't just return a Node?
     addNode = async (node : Node, x: number, y: number): Promise<Node> => {
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async(resolve) => {
             // copy node
             const newNode : Node = Utils.duplicateNode(node);
             newNode.setPosition(x, y);
@@ -4619,13 +4631,19 @@ export class Eagle {
 
             // check if node was added to an empty graph, if so prompt user to specify graph name
             if (this.logicalGraph().fileInfo().name === ""){
-                Utils.newDiagram(Eagle.FileType.Graph, (name: string) => {
-                    this.logicalGraph().fileInfo().name = name;
-                    this.checkGraph();
-                    this.undo().pushSnapshot(this, "Named Logical Graph");
-                    this.logicalGraph.valueHasMutated();
-                    Utils.showNotification("Graph named", name, "success");
-                });
+                let filename: string;
+                try {
+                    filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
+                } catch (error){
+                    console.warn(error);
+                    resolve(newNode);
+                    return;
+                }
+                this.logicalGraph().fileInfo().name = filename;
+                this.checkGraph();
+                this.undo().pushSnapshot(this, "Named Logical Graph");
+                this.logicalGraph.valueHasMutated();
+                Utils.showNotification("Graph named", filename, "success");
             }
 
             resolve(newNode);

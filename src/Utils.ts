@@ -177,29 +177,30 @@ export class Utils {
     /**
      * Create a new diagram (graph, palette, config).
      */
-    static async newDiagram(fileType : Eagle.FileType, callbackAction : (name : string) => void ) {
-        const defaultName: string = Utils.generateName(fileType);
+    static async requestDiagramFilename(fileType : Eagle.FileType): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            const defaultName: string = Utils.generateName(fileType);
 
-        let userString;
-        try {
-            userString = await Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false);
-        } catch(error) {
-            console.error(error);
-            return;
-        }
+            let userString;
+            try {
+                userString = await Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false);
+            } catch(error) {
+                reject(error);
+                return;
+            }
 
-        if (userString === ""){
-            Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
-            return;
-        }
+            if (userString === ""){
+                reject( "Specified name is not valid for new " + fileType);
+                return;
+            }
 
-        // Adding file extension to the title if it does not have it.
-        if (!Utils.verifyFileExtension(userString)) {
-            userString = userString + "." + Utils.getDiagramExtension(fileType);
-        }
+            // Adding file extension to the title if it does not have it.
+            if (!Utils.verifyFileExtension(userString)) {
+                userString = userString + "." + Utils.getDiagramExtension(fileType);
+            }
 
-        // Callback.
-        callbackAction(userString);
+            resolve(userString);
+        });
     }
 
     /**
