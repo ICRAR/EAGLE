@@ -139,7 +139,7 @@ export class DockerHubBrowser {
         browser.fetchTags(selectedTag);
     }
 
-    fetchTags = (selectedTag: string) : void => {
+    fetchTags = async (selectedTag: string): Promise<void> => {
         // if already fetched, abort
         if (this.hasFetchedTags()){
             console.warn("Already fetched tags");
@@ -160,39 +160,40 @@ export class DockerHubBrowser {
         const browser: DockerHubBrowser = this;
 
         // request eagle server to fetch a list of tags for the given docker image
-        Utils.httpPostJSON("/getDockerImageTags", {imagename:this.selectedImage()}, function(error: string, data: any){
-            let selectedTagIndex = 0;
+        let data: any;
+        try {
+            data = await Utils.httpPostJSON("/getDockerImageTags", {imagename:this.selectedImage()});
+        } catch (error) {
             browser.isFetchingTags(false);
+            console.error(error);
+            return;
+        }
 
-            if (error != null){
-                console.error(error);
-                return;
+        let selectedTagIndex = 0;
+        browser.isFetchingTags(false);
+        browser.hasFetchedTags(true);
+
+        // build list of tag strings
+        browser.tags([]);
+        browser.digests([]);
+        for (let i = 0 ; i < data.results.length ; i++){
+            const result = data.results[i];
+            browser.tags.push(result.name);
+            browser.digests.push(result.images[0].digest);
+
+            if (result.name === selectedTag){
+                selectedTagIndex = i;
             }
+        }
 
-            browser.hasFetchedTags(true);
+        // abort if no tags available for this image
+        if (browser.tags().length === 0){
+            return;
+        }
 
-            // build list of tag strings
-            browser.tags([]);
-            browser.digests([]);
-            for (let i = 0 ; i < data.results.length ; i++){
-                const result = data.results[i];
-                browser.tags.push(result.name);
-                browser.digests.push(result.images[0].digest);
-
-                if (result.name === selectedTag){
-                    selectedTagIndex = i;
-                }
-            }
-
-            // abort if no tags available for this image
-            if (browser.tags().length === 0){
-                return;
-            }
-
-            browser.selectedTag(browser.tags()[selectedTagIndex]);
-            browser.digest(browser.digests()[selectedTagIndex]);
-            browser.isValid(true);
-        });
+        browser.selectedTag(browser.tags()[selectedTagIndex]);
+        browser.digest(browser.digests()[selectedTagIndex]);
+        browser.isValid(true);
     }
 
     onUsernameChange = () : void => {
