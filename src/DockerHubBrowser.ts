@@ -86,7 +86,7 @@ export class DockerHubBrowser {
         this.fetchImages(image, tag);
     }
 
-    fetchImages = (selectedImage: string, selectedTag: string) : void => {
+    fetchImages = async (selectedImage: string, selectedTag: string): Promise<void> => {
         // if already fetched, abort
         if (this.hasFetchedImages()){
             console.warn("Already fetched images");
@@ -102,40 +102,41 @@ export class DockerHubBrowser {
         const browser: DockerHubBrowser = this;
 
         // request eagle server to fetch a list of docker hub images
-        Utils.httpPostJSON("/getDockerImages", {username:this.username()}, function(error : string, data: any){
-            let selectedImageIndex = 0;
-
+        let data: any;
+        try {
+            data = await Utils.httpPostJSON("/getDockerImages", {username:this.username()});
+        } catch (error) {
             browser.isFetchingImages(false);
+            console.error(error);
+            return;
+        }
+            
+        let selectedImageIndex = 0;
 
-            if (error != null){
-                console.error(error);
-                return;
+        browser.isFetchingImages(false);
+        browser.hasFetchedImages(true);
+
+        // build list of image strings
+        browser.images([]);
+        for (let i = 0; i < data.results.length ; i++){
+            const result = data.results[i];
+            const imageName = result.namespace + "/" + result.name;
+            browser.images.push(imageName);
+
+            if (imageName === selectedImage){
+                selectedImageIndex = i;
             }
+        }
 
-            browser.hasFetchedImages(true);
+        // abort if no images available for this user
+        if (browser.images().length === 0){
+            return;
+        }
 
-            // build list of image strings
-            browser.images([]);
-            for (let i = 0; i < data.results.length ; i++){
-                const result = data.results[i];
-                const imageName = result.namespace + "/" + result.name;
-                browser.images.push(imageName);
+        browser.selectedImage(browser.images()[selectedImageIndex]);
 
-                if (imageName === selectedImage){
-                    selectedImageIndex = i;
-                }
-            }
-
-            // abort if no images available for this user
-            if (browser.images().length === 0){
-                return;
-            }
-
-            browser.selectedImage(browser.images()[selectedImageIndex]);
-
-            // go ahead and grab the tags for this image
-            browser.fetchTags(selectedTag);
-        });
+        // go ahead and grab the tags for this image
+        browser.fetchTags(selectedTag);
     }
 
     fetchTags = (selectedTag: string) : void => {
