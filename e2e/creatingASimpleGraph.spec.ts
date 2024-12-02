@@ -31,20 +31,6 @@ test('Creating a Simple Graph', async ({ page }) => {
 
   //center the graph
   await page.getByRole('button', { name: 'filter_center_focus' }).click();
-
-  //doing a little mouse zoom with the cursor at the center location of the graph
-  const box = await page.locator('#logicalGraphParent').boundingBox();
-  let centerX :number;
-  let centerY : number;
-
-  if(box){
-    centerX = box.x + box.width / 2;
-    centerY = box.y + box.height / 2;
-
-    await page.mouse.move(centerX,centerY)
-    await page.mouse.wheel(0,400)
-    await page.waitForTimeout(500);
-  }
   
   //drag an edge from helloWorldApp -> File
   await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
