@@ -58,7 +58,7 @@ export class SideWindow {
             $('.rightWindow').removeClass('linearTransition250')
             $('.leftWindow').removeClass('linearTransition250')
             $('.bottomWindow').removeClass('linearTransition250')
-        },300)
+        },250)
     }
 
     // drag drop
