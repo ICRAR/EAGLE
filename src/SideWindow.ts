@@ -217,6 +217,7 @@ export class SideWindow {
                 eagle.bottomWindow().size(minBottomWindowVh);
                 Utils.setBottomWindowHeight(minBottomWindowVh);
             }else if(newSize>maxBottomWindowVh){
+                eagle.bottomWindow().size(maxBottomWindowVh);
                 Utils.setBottomWindowHeight(maxBottomWindowVh)
             }else{
                 eagle.bottomWindow().size(newSize);
