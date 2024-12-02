@@ -50,12 +50,14 @@ export class SideWindow {
         $('#inspector').addClass('linearTransition250')
         $('.rightWindow').addClass('linearTransition250')
         $('.leftWindow').addClass('linearTransition250')
+        $('.bottomWindow').addClass('linearTransition250')
 
         setTimeout(function(){
             $('#statusBar').removeClass('linearTransition250')
             $('#inspector').removeClass('linearTransition250')
             $('.rightWindow').removeClass('linearTransition250')
             $('.leftWindow').removeClass('linearTransition250')
+            $('.bottomWindow').removeClass('linearTransition250')
         },300)
     }
 
@@ -204,13 +206,18 @@ export class SideWindow {
                 Utils.setRightWindowWidth(newSize);
             }
         }else if(eagle.bottomWindow().adjusting()){
+            //converting height values to VH (percentage of the browser window). this is to prevent issues when switching from a large to a smaller screen.
+            //we are only doing it for the bottom window, as it typically takes up a large part of the screen, causing it to become larger than the screen itself if switching from a 4k display to a smaller one.
             newSize = ((window.innerHeight - e.clientY)/window.innerHeight)*100
             //making sure the height we are setting is not smaller than the minimum height
             const minBottomWindowVh = (Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal()/window.innerHeight)*100
+            const maxBottomWindowVh = 80
 
             if(newSize <= minBottomWindowVh){
                 eagle.bottomWindow().size(minBottomWindowVh);
                 Utils.setBottomWindowHeight(minBottomWindowVh);
+            }else if(newSize>maxBottomWindowVh){
+                Utils.setBottomWindowHeight(maxBottomWindowVh)
             }else{
                 eagle.bottomWindow().size(newSize);
                 Utils.setBottomWindowHeight(newSize);
