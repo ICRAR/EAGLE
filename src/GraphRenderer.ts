@@ -1074,7 +1074,7 @@ export class GraphRenderer {
         }else{
             if(event.shiftKey && event.button === 0){
                 //initiating drag selection region handler
-                GraphRenderer.initiageDragSelection()
+                GraphRenderer.initiateDragSelection()
             }else{
                 //if node is null, the empty canvas has been clicked. clear the selection
                 eagle.setSelection(null, Eagle.FileType.Graph);
@@ -1187,7 +1187,7 @@ export class GraphRenderer {
         eagle.selectedObjects.valueHasMutated()
     }
 
-    static initiageDragSelection() : void {
+    static initiateDragSelection() : void {
         GraphRenderer.isDraggingSelectionRegion = true
         GraphRenderer.selectionRegionStart = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
         GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
@@ -1266,11 +1266,9 @@ export class GraphRenderer {
         // keep track of whether we would update any node parents
         const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
         //construct resizing 
-        if(outerMostNode.getParentId() != null){
-            if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
-                oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag) //HERE
-                outerMostNode.setParentId(null)
-            }
+        if(outerMostNode.getParentId() != null && oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
+            oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag) //HERE
+            outerMostNode.setParentId(null)
         }
 
         // check for nodes underneath the node we dropped
