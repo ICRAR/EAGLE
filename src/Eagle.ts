@@ -1931,10 +1931,6 @@ export class Eagle {
             function _checkAllPalettesComplete() : void {
                 let allComplete = true;
 
-                if (complete.length !== paletteList.length){
-                    allComplete = false;
-                }
-
                 for (const requestComplete of complete){
                     if (!requestComplete){
                         allComplete = false;
@@ -1945,10 +1941,14 @@ export class Eagle {
                 }
             }
 
-            // start trying to load the palettes
+            // initialise the state
             for (let i = 0 ; i < paletteList.length ; i++){
                 results.push(null);
                 complete.push(false);
+            }
+
+            // start trying to load the palettes
+            for (let i = 0 ; i < paletteList.length ; i++){
                 const index = i;
                 const postData = {url: paletteList[i].filename};
 
