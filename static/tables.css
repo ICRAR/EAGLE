@@ -280,6 +280,9 @@ td:first-child input {
     position: absolute;
     top: 53px;
     height: calc(100% - 46px);
+}
+
+.issuesDisplay .issuesBody{
     overflow-y: auto;
 }
 
