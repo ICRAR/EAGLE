@@ -185,7 +185,7 @@
                     <div class="rightWindowSizeAdjusterLine"></div>
                 </div>
             </div>
-            <div id="bottomWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), height: Utils.getBottomWindowHeight()+'vh', bottom: Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) ? 0 : -Utils.getBottomWindowHeight()+'vh'}">
+            <div id="bottomWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), height: Utils.calculateBottomWindowHeight()+'vh', bottom: Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) ? 0 : -Utils.calculateBottomWindowHeight()+'vh'}">
                 <div class="wrapper">
                     <div class="dragHandle" draggable="true" data-bind="event: { dragstart: SideWindow.bottomWindowAdjustStart, dragend: SideWindow.sideWindowAdjustEnd }"></div>
                     <div class="tabs">

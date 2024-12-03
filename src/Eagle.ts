@@ -474,7 +474,11 @@ export class Eagle {
         const centroidY = minY + ((maxY - minY) / 2);
         
         //because the saved bottom window height is a percentage, its easier to grab the height using jquery than to convert the percentage into pixels
-        const bottomWindow = $('#bottomWindow').height()
+        let bottomWindow = 0
+
+        if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+            bottomWindow = $('#bottomWindow').height()
+        }
 
         //calculating scale multipliers needed for each, height and width in order to fit the graph
         const containerHeight = $('#logicalGraphParent').height() - bottomWindow

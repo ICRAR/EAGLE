@@ -1276,9 +1276,11 @@ export class Utils {
         UiModeSystem.saveToLocalStorage()
     }
 
-    static getBottomWindowHeight() : number {
+    static calculateBottomWindowHeight() : number {
+        //this function exists to prevent the bottom window height value from exceeding its max height value. 
         //if eagle isnt ready or the window is hidden just return 0
-        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+        //TODO This function is only needed for the transition perdiod from pixels to vh. We can get rid of this in the future.
+        if(!Eagle.getInstance().eagleIsReady()){
             return 0
         }
 
@@ -1288,6 +1290,13 @@ export class Utils {
         }
 
         //else return the actual height
+        return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
+    }
+
+    static getBottomWindowHeight() : number {
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+            return 0
+        }
         return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
     }
 
