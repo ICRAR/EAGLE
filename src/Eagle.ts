@@ -1930,6 +1930,11 @@ export class Eagle {
             // define a function to check if all requests are now complete, if so we can return the list of palettes
             function _checkAllPalettesComplete() : void {
                 let allComplete = true;
+
+                if (complete.length !== paletteList.length){
+                    allComplete = false;
+                }
+
                 for (const requestComplete of complete){
                     if (!requestComplete){
                         allComplete = false;
