@@ -98,9 +98,6 @@ export class DockerHubBrowser {
         this.hasFetchedTags(false);
         this.isValid(false);
 
-        // keep reference to browser for use in the callbacks
-        const browser: DockerHubBrowser = this;
-
         // request eagle server to fetch a list of docker hub images
         let data: any;
         try {
@@ -109,18 +106,18 @@ export class DockerHubBrowser {
             console.error(error);
             return;
         } finally {
-            browser.isFetchingImages(false);
+            this.isFetchingImages(false);
         }
             
         let selectedImageIndex = 0;
-        browser.hasFetchedImages(true);
+        this.hasFetchedImages(true);
 
         // build list of image strings
-        browser.images([]);
+        this.images([]);
         for (let i = 0; i < data.results.length ; i++){
             const result = data.results[i];
             const imageName = result.namespace + "/" + result.name;
-            browser.images.push(imageName);
+            this.images.push(imageName);
 
             if (imageName === selectedImage){
                 selectedImageIndex = i;
@@ -128,14 +125,14 @@ export class DockerHubBrowser {
         }
 
         // abort if no images available for this user
-        if (browser.images().length === 0){
+        if (this.images().length === 0){
             return;
         }
 
-        browser.selectedImage(browser.images()[selectedImageIndex]);
+        this.selectedImage(this.images()[selectedImageIndex]);
 
         // go ahead and grab the tags for this image
-        browser.fetchTags(selectedTag);
+        this.fetchTags(selectedTag);
     }
 
     fetchTags = async (selectedTag: string): Promise<void> => {
@@ -155,9 +152,6 @@ export class DockerHubBrowser {
         this.hasFetchedTags(false);
         this.isValid(false);
 
-        // keep reference to browser for use in the callbacks
-        const browser: DockerHubBrowser = this;
-
         // request eagle server to fetch a list of tags for the given docker image
         let data: any;
         try {
@@ -166,19 +160,19 @@ export class DockerHubBrowser {
             console.error(error);
             return;
         } finally {
-            browser.isFetchingTags(false);
+            this.isFetchingTags(false);
         }
 
         let selectedTagIndex = 0;
-        browser.hasFetchedTags(true);
+        this.hasFetchedTags(true);
 
         // build list of tag strings
-        browser.tags([]);
-        browser.digests([]);
+        this.tags([]);
+        this.digests([]);
         for (let i = 0 ; i < data.results.length ; i++){
             const result = data.results[i];
-            browser.tags.push(result.name);
-            browser.digests.push(result.images[0].digest);
+            this.tags.push(result.name);
+            this.digests.push(result.images[0].digest);
 
             if (result.name === selectedTag){
                 selectedTagIndex = i;
@@ -186,13 +180,13 @@ export class DockerHubBrowser {
         }
 
         // abort if no tags available for this image
-        if (browser.tags().length === 0){
+        if (this.tags().length === 0){
             return;
         }
 
-        browser.selectedTag(browser.tags()[selectedTagIndex]);
-        browser.digest(browser.digests()[selectedTagIndex]);
-        browser.isValid(true);
+        this.selectedTag(this.tags()[selectedTagIndex]);
+        this.digest(this.digests()[selectedTagIndex]);
+        this.isValid(true);
     }
 
     onUsernameChange = () : void => {
