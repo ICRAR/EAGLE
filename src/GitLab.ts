@@ -100,57 +100,57 @@ export class GitLab {
                 token: token,
             };
 
-            Utils.httpPostJSON('/getGitLabFilesAll', jsonData, function(error:string, data:any){
+            let data: any;
+            try {
+                data = await Utils.httpPostJSON('/getGitLabFilesAll', jsonData);
+            } catch (error) {
+                console.error(error, data);
+                Utils.showUserMessage("Error", "Unable to fetch files for this repository. A server error occurred. " + error);
+                reject(error);
+                return;
+            } finally {
                 repository.isFetching(false);
+            }
 
-                // check for unhandled errors
-                if (error !== null){
-                    console.error(error, data);
-                    Utils.showUserMessage("Error", "Unable to fetch files for this repository. A server error occurred. " + error);
-                    reject(error);
-                    return;
+            // check for errors that were handled correctly and passed to the client to display
+            if (typeof data.error !== 'undefined'){
+                console.log("error", data.error);
+                Utils.showUserMessage("Error", data.error);
+                reject(data.error);
+                return;
+            }
+
+            // flag the repository as fetched and expand by default
+            repository.fetched(true);
+            repository.expanded(true);
+
+            // delete current file list for this repository
+            repository.files.removeAll();
+            repository.folders.removeAll();
+
+            const fileNames : string[] = data[""];
+
+            // sort the fileNames
+            fileNames.sort(Repository.fileSortFunc);
+
+            // add files to repo
+            for (const fileName of fileNames){
+                // if file is not a .graph, .palette, or .json, just ignore it!
+                if (Utils.verifyFileExtension(fileName)){
+                    repository.files.push(new RepositoryFile(repository, "", fileName));
                 }
+            }
 
-                // check for errors that were handled correctly and passed to the client to display
-                if (typeof data.error !== 'undefined'){
-                    console.log("error", data.error);
-                    Utils.showUserMessage("Error", data.error);
-                    reject(error);
-                    return;
-                }
+            // add folders to repo
+            for (const path in data){
+                // skip the root directory
+                if (path === "")
+                    continue;
 
-                // flag the repository as fetched and expand by default
-                repository.fetched(true);
-                repository.expanded(true);
+                repository.folders.push(GitLab.parseFolder(repository, path, data[path]));
+            }
 
-                // delete current file list for this repository
-                repository.files.removeAll();
-                repository.folders.removeAll();
-
-                const fileNames : string[] = data[""];
-
-                // sort the fileNames
-                fileNames.sort(Repository.fileSortFunc);
-
-                // add files to repo
-                for (const fileName of fileNames){
-                    // if file is not a .graph, .palette, or .json, just ignore it!
-                    if (Utils.verifyFileExtension(fileName)){
-                        repository.files.push(new RepositoryFile(repository, "", fileName));
-                    }
-                }
-
-                // add folders to repo
-                for (const path in data){
-                    // skip the root directory
-                    if (path === "")
-                        continue;
-
-                    repository.folders.push(GitLab.parseFolder(repository, path, data[path]));
-                }
-
-                resolve();
-            });
+            resolve();
         });
     }
 
@@ -207,13 +207,14 @@ export class GitLab {
                 filename: fullFileName
             };
 
-            Utils.httpPostJSON('/openRemoteGitlabFile', jsonData, (error: string, data: string) => {
-                if (error !== null){
-                    reject(error);
-                    return;
-                }
-                resolve(data);
-            });
+            let data: any;
+            try {
+                data = await Utils.httpPostJSON('/openRemoteGitlabFile', jsonData);
+            } catch (error){
+                reject(error);
+                return;
+            }
+            resolve(data);
         });
     }
 
@@ -237,13 +238,14 @@ export class GitLab {
                 filename: fullFileName
             };
 
-            Utils.httpPostJSON('/deleteRemoteGitlabFile', jsonData, function(error: string, data: string){
-                if (error !== null){
-                    reject(error);
-                    return;
-                }
-                resolve(data);
-            });
+            let data: any;
+            try {
+                data = await Utils.httpPostJSON('/deleteRemoteGitlabFile', jsonData);
+            } catch (error) {
+                reject(error);
+                return;
+            }
+            resolve(data);
         });
     }
 }

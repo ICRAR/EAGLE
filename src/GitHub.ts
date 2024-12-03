@@ -128,9 +128,10 @@ export class GitHub {
                 token: token,
             };
 
-            Utils.httpPostJSON('/getGitHubFilesAll', jsonData, function(error:string, data:any){
-                repository.isFetching(false);
-
+            let data: any;
+            try {
+                data = await Utils.httpPostJSON('/getGitHubFilesAll', jsonData);
+            } catch (error) {
                 // check for unhandled errors
                 if (error !== null){
                     console.error(error, data);
@@ -138,47 +139,49 @@ export class GitHub {
                     reject(error);
                     return;
                 }
+            } finally {
+                repository.isFetching(false);
+            }
 
-                // check for errors that were handled correctly and passed to the client to display
-                if (typeof data.error !== 'undefined'){
-                    console.log("error", data.error);
-                    Utils.showUserMessage("Error", data.error);
-                    reject(error);
-                    return;
+            // check for errors that were handled correctly and passed to the client to display
+            if (typeof data.error !== 'undefined'){
+                console.log("error", data.error);
+                Utils.showUserMessage("Error", data.error);
+                reject(data.error);
+                return;
+            }
+
+            // flag the repository as fetched and expand by default
+            repository.fetched(true);
+            repository.expanded(true);
+
+            // delete current file list for this repository
+            repository.files.removeAll();
+            repository.folders.removeAll();
+
+            const fileNames : string[] = data[""];
+
+            // sort the fileNames
+            fileNames.sort(Repository.fileSortFunc);
+
+            // add files to repo
+            for (const fileName of fileNames){
+                // if file is not a .graph, .palette, or .json, just ignore it!
+                if (Utils.verifyFileExtension(fileName)){
+                    repository.files.push(new RepositoryFile(repository, "", fileName));
                 }
+            }
 
-                // flag the repository as fetched and expand by default
-                repository.fetched(true);
-                repository.expanded(true);
+            // add folders to repo
+            for (const path in data){
+                // skip the root directory
+                if (path === "")
+                    continue;
 
-                // delete current file list for this repository
-                repository.files.removeAll();
-                repository.folders.removeAll();
+                repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
+            }
 
-                const fileNames : string[] = data[""];
-
-                // sort the fileNames
-                fileNames.sort(Repository.fileSortFunc);
-
-                // add files to repo
-                for (const fileName of fileNames){
-                    // if file is not a .graph, .palette, or .json, just ignore it!
-                    if (Utils.verifyFileExtension(fileName)){
-                        repository.files.push(new RepositoryFile(repository, "", fileName));
-                    }
-                }
-
-                // add folders to repo
-                for (const path in data){
-                    // skip the root directory
-                    if (path === "")
-                        continue;
-
-                    repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
-                }
-
-                resolve();
-            });
+            resolve();
         });
     }
 
@@ -235,13 +238,14 @@ export class GitHub {
                 filename: fullFileName
             };
 
-            Utils.httpPostJSON('/openRemoteGithubFile', jsonData, (error: string, data: string) => {
-                if (error !== null){
-                    reject(error);
-                    return;
-                }
-                resolve(data);
-            });
+            let data: any;
+            try {
+                data = await Utils.httpPostJSON('/openRemoteGithubFile', jsonData);
+            } catch (error){
+                reject(error);
+                return;
+            }
+            resolve(data);
         });
     }
 
@@ -265,13 +269,14 @@ export class GitHub {
                 filename: fullFileName
             };
 
-            Utils.httpPostJSON('/deleteRemoteGithubFile', jsonData, function(error: string, data: string){
-                if (error !== null){
-                    reject(error);
-                    return;
-                }
-                resolve(data);
-            });
+            let data: any;
+            try {
+                data = await Utils.httpPostJSON('/deleteRemoteGithubFile', jsonData);
+            } catch (error){
+                reject(error);
+                return;
+            }
+            resolve(data);
         });
     }
 }

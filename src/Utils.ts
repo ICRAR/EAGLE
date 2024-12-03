@@ -360,16 +360,14 @@ export class Utils {
         });
     }
 
-    // TODO: gradually we should move to using the function below (httpPostJSONWithErrorHandler)
-    static async httpPostJSON(url : string, json : object): Promise<object> {
+    static async httpPostJSON(url : string, json : object): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $.ajax({
                 url : url,
                 type : 'POST',
                 data : JSON.stringify(json),
                 contentType : 'application/json',
-                success : function(data: object) {
-                    console.log("success", typeof(data), data);
+                success : function(data: string) {
                     resolve(data);
                 },
                 error: function(xhr, status, error : string) {
@@ -383,57 +381,42 @@ export class Utils {
         });
     }
 
-    static httpPostJSONWithErrorHandler(url : string, json : object, successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
-        $.ajax({
-            url : url,
-            type : 'POST',
-            data : JSON.stringify(json),
-            contentType : 'application/json',
-            success : function(data : string) {
-                successCallback(data);
-            },
-            error: function(xhr, status, error : string) {
-                if (typeof xhr.responseJSON === 'undefined'){
-                    errorCallback(error);
-                } else {
-                    errorCallback(xhr.responseJSON.error);
+    static httpPostJSONString(url : string, jsonString : string): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url : url,
+                type : 'POST',
+                data : jsonString,
+                contentType : 'application/json',
+                success : function(data : string) {
+                    resolve(data);
+                },
+                error: function(xhr, status, error : string) {
+                    if (typeof xhr.responseJSON === 'undefined'){
+                        reject(error);
+                    } else {
+                        reject(xhr.responseJSON.error);
+                    }
                 }
-            }
+            });
         });
     }
 
-    static httpPostJSONString(url : string, jsonString : string, callback : (error : string, data : string) => void) : void {
-        $.ajax({
-            url : url,
-            type : 'POST',
-            data : jsonString,
-            contentType : 'application/json',
-            success : function(data : string) {
-                callback(null, data);
-            },
-            error: function(xhr, status, error : string) {
-                if (typeof xhr.responseJSON === 'undefined'){
-                    callback(error, null);
-                } else {
-                    callback(xhr.responseJSON.error, null);
+    static httpPostForm(url : string, formData : FormData): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url : url,
+                type : 'POST',
+                data : formData,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false,  // tell jQuery not to set contentType
+                success : function(data : string) {
+                    resolve(data);
+                },
+                error: function(xhr, status, error : string){
+                    reject(error + " " + xhr.responseText);
                 }
-            }
-        });
-    }
-
-    static httpPostForm(url : string, formData : FormData, callback : (error : string, data : string) => void) : void {
-        $.ajax({
-            url : url,
-            type : 'POST',
-            data : formData,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false,  // tell jQuery not to set contentType
-            success : function(data : string) {
-                callback(null, data);
-            },
-            error: function(xhr, status, error : string){
-                callback(error + " " + xhr.responseText, null);
-            }
+            });
         });
     }
 
@@ -826,7 +809,7 @@ export class Utils {
         palette.sort();
     }
 
-    static showPalettesModal(eagle: Eagle) : void {
+    static async showPalettesModal(eagle: Eagle): Promise<void> {
         const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
@@ -847,27 +830,27 @@ export class Utils {
 
         $('#explorePalettesModal').modal("toggle");
 
-        Utils.httpPostJSON('/getExplorePalettes', jsonData, function(error:string, data:any){
+        let data: any;
+        try {
+            data = await Utils.httpPostJSON('/getExplorePalettes', jsonData);
+        } catch (error) {
+            // NOTE: if we immediately get an error, the explore palettes modal may still be transitioning to visible,
+            //       so we wait here for a second before hiding the modal and displaying an error
+            setTimeout(function(){
+                $('#explorePalettesModal').modal("toggle");
+                Utils.showUserMessage("Error", "Unable to fetch list of palettes");
+            }, 1000);
 
-            if (error !== null){
-                // NOTE: if we immediately get an error, the explore palettes modal may still be transitioning to visible,
-                //       so we wait here for a second before hiding the modal and displaying an error
-                setTimeout(function(){
-                    $('#explorePalettesModal').modal("toggle");
-                    Utils.showUserMessage("Error", "Unable to fetch list of palettes");
-                }, 1000);
+            return;
+        }
 
-                return;
-            }
+        const explorePalettes: PaletteInfo[] = [];
+        for (const palette of data){
+            explorePalettes.push(new PaletteInfo(jsonData.service, jsonData.repository, jsonData.branch, palette.name, palette.path));
+        }
 
-            const explorePalettes: PaletteInfo[] = [];
-            for (const palette of data){
-                explorePalettes.push(new PaletteInfo(jsonData.service, jsonData.repository, jsonData.branch, palette.name, palette.path));
-            }
-
-            // process files into a more complex structure
-            eagle.explorePalettes().initialise(explorePalettes);
-        });
+        // process files into a more complex structure
+        eagle.explorePalettes().initialise(explorePalettes);
     }
 
     static showModelDataModal(title: string, fileInfo: FileInfo) : void {

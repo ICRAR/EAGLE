@@ -106,14 +106,13 @@ export class DockerHubBrowser {
         try {
             data = await Utils.httpPostJSON("/getDockerImages", {username:this.username()});
         } catch (error) {
-            browser.isFetchingImages(false);
             console.error(error);
             return;
+        } finally {
+            browser.isFetchingImages(false);
         }
             
         let selectedImageIndex = 0;
-
-        browser.isFetchingImages(false);
         browser.hasFetchedImages(true);
 
         // build list of image strings
@@ -164,13 +163,13 @@ export class DockerHubBrowser {
         try {
             data = await Utils.httpPostJSON("/getDockerImageTags", {imagename:this.selectedImage()});
         } catch (error) {
-            browser.isFetchingTags(false);
             console.error(error);
             return;
+        } finally {
+            browser.isFetchingTags(false);
         }
 
         let selectedTagIndex = 0;
-        browser.isFetchingTags(false);
         browser.hasFetchedTags(true);
 
         // build list of tag strings

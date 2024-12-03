@@ -1616,7 +1616,7 @@ export class Eagle {
     /**
      * Saves a file to the remote server repository.
      */
-    saveFileToRemote = (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, jsonString : string) : void => {
+    saveFileToRemote = async (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, jsonString : string): Promise<void> => {
         console.log("saveFileToRemote() repository.name", repository.name, "repository.service", repository.service);
 
         let url : string;
@@ -1633,56 +1633,56 @@ export class Eagle {
                 return;
         }
 
+        let data: any;
+        try {
+            data = await Utils.httpPostJSONString(url, jsonString);
+        } catch (error){
+            Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+            console.error("Error: " + JSON.stringify(error, null, EagleConfig.JSON_INDENT) + " Data: " + data);
+            return;
+        }
 
-        Utils.httpPostJSONString(url, jsonString, (error : string, data: string) : void => {
-            if (error !== null){
-                Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
-                console.error("Error: " + JSON.stringify(error, null, EagleConfig.JSON_INDENT) + " Data: " + data);
-                return;
-            }
+        // Load the file list again.
+        if (repository.service === Repository.Service.GitHub){
+            GitHub.loadRepoContent(repository);
+        }
+        if (repository.service === Repository.Service.GitLab){
+            GitLab.loadRepoContent(repository);
+        }
 
-            // Load the file list again.
-            if (repository.service === Repository.Service.GitHub){
-                GitHub.loadRepoContent(repository);
-            }
-            if (repository.service === Repository.Service.GitLab){
-                GitLab.loadRepoContent(repository);
-            }
+        // show repo in the right window
+        this.changeRightWindowMode(Eagle.RightWindowMode.Repository)
 
-            // show repo in the right window
-            this.changeRightWindowMode(Eagle.RightWindowMode.Repository)
+        // Show success message
+        if (repository.service === Repository.Service.GitHub){
+            Utils.showNotification("Success", "The file has been saved to GitHub repository.", "success");
+        }
+        if (repository.service === Repository.Service.GitLab){
+            Utils.showNotification("Success", "The file has been saved to GitLab repository.", "success");
+        }
 
-            // Show success message
-            if (repository.service === Repository.Service.GitHub){
-                Utils.showNotification("Success", "The file has been saved to GitHub repository.", "success");
-            }
-            if (repository.service === Repository.Service.GitLab){
-                Utils.showNotification("Success", "The file has been saved to GitLab repository.", "success");
-            }
+        // Mark file as non-modified.
+        fileInfo().modified = false;
 
-            // Mark file as non-modified.
-            fileInfo().modified = false;
+        fileInfo().repositoryService = repository.service;
+        fileInfo().repositoryName = repository.name;
+        fileInfo().repositoryBranch = repository.branch;
+        fileInfo().path = filePath;
+        fileInfo().type = fileType;
 
-            fileInfo().repositoryService = repository.service;
-            fileInfo().repositoryName = repository.name;
-            fileInfo().repositoryBranch = repository.branch;
-            fileInfo().path = filePath;
-            fileInfo().type = fileType;
+        // Adding file extension to the title if it does not have it.
+        if (!Utils.verifyFileExtension(fileName)) {
+            fileName = fileName + "." + Utils.getDiagramExtension(fileType);
+        }
 
-            // Adding file extension to the title if it does not have it.
-            if (!Utils.verifyFileExtension(fileName)) {
-                fileName = fileName + "." + Utils.getDiagramExtension(fileType);
-            }
+        // Change the title name.
+        fileInfo().name = fileName;
 
-            // Change the title name.
-            fileInfo().name = fileName;
+        // set the EAGLE version etc according to this running version
+        fileInfo().updateEagleInfo();
 
-            // set the EAGLE version etc according to this running version
-            fileInfo().updateEagleInfo();
-
-            // flag fileInfo object as modified
-            fileInfo.valueHasMutated();
-        });
+        // flag fileInfo object as modified
+        fileInfo.valueHasMutated();
     }
 
     /**
@@ -1945,47 +1945,47 @@ export class Eagle {
                 results.push(null);
                 complete.push(false);
                 const index = i;
-                const data = {url: paletteList[i].filename};
+                const postData = {url: paletteList[i].filename};
 
-                Utils.httpPostJSONWithErrorHandler("/openRemoteUrlFile", data,
-                    (data: string) => {
-                        // palette fetched successfully
-                        complete[index] = true;
+                let data: any;
+                try {
+                    data = await Utils.httpPostJSON("/openRemoteUrlFile", postData);
+                } catch (error){
+                    // an error occurred when fetching the palette
+                    errorsWarnings.errors.push(Errors.Message(error));
 
-                        const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
-                        Utils.preparePalette(palette, paletteList[index]);
+                    // try to load palette from localStorage
+                    const paletteData = localStorage.getItem(paletteList[i].filename);
 
-                        // add to results
+                    if (paletteData === null){
+                        console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette also unavailable from localStorage.");
+                    } else {
+                        console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
+
+                        const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.DUMMY, "", paletteList[i].name), errorsWarnings);
+                        Utils.preparePalette(palette, paletteList[i]);
+
                         results[index] = palette;
-
-                        // save to localStorage
-                        localStorage.setItem(paletteList[index].filename, data);
-
-                        _checkAllPalettesComplete();
-                    },
-                    (error: string) => {
-                        // an error occurred when fetching the palette
-                        complete[index] = true;
-
-                        errorsWarnings.errors.push(Errors.Message(error));
-
-                        // try to load palette from localStorage
-                        const paletteData = localStorage.getItem(paletteList[i].filename);
-
-                        if (paletteData === null){
-                            console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette also unavailable from localStorage.");
-                        } else {
-                            console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
-
-                            const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.DUMMY, "", paletteList[i].name), errorsWarnings);
-                            Utils.preparePalette(palette, paletteList[i]);
-
-                            results[index] = palette;
-                        }
-
-                        _checkAllPalettesComplete();
                     }
-                );
+
+                    _checkAllPalettesComplete();
+                    return;
+                } finally {
+                    complete[index] = true;
+                }
+
+                // palette fetched successfully
+
+                const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
+                Utils.preparePalette(palette, paletteList[index]);
+
+                // add to results
+                results[index] = palette;
+
+                // save to localStorage
+                localStorage.setItem(paletteList[index].filename, data);
+
+                _checkAllPalettesComplete();
             }
         });
     }
@@ -2016,15 +2016,14 @@ export class Eagle {
         try {
             data = await openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
         } catch (error){
-            file.isFetching(false);
             Utils.showUserMessage("Error", error);
             this.hideEagleIsLoading()
             return;
+        } finally {
+            // flag fetching as complete
+            file.isFetching(false);
         }
-            
-        // flag fetching as complete
-        file.isFetching(false);
-
+        
         // determine file extension
         const fileExtension = Utils.getFileExtension(file.name);
         let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
@@ -2143,14 +2142,13 @@ export class Eagle {
         try {
             data = await insertRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
         } catch (error) {
-            file.isFetching(false);
             Utils.showUserMessage("Error", "Failed to load a file!");
             console.error(error);
             return;
+        } finally {
+            // flag fetching as complete
+            file.isFetching(false);
         }
-
-        // flag fetching as complete
-        file.isFetching(false);
 
         // attempt to parse the JSON
         let dataObject;
@@ -2425,31 +2423,32 @@ export class Eagle {
         // validate json
         Utils.validateJSON(jsonString, Eagle.FileType.Palette);
 
-        Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
-            if (error != null){
-                Utils.showUserMessage("Error", "Error saving the file!");
-                console.error(error);
-                return;
-            }
+        let data: any;
+        try {
+            data = Utils.httpPostJSONString('/saveFileToLocal', jsonString);
+        } catch (error){
+            Utils.showUserMessage("Error", "Error saving the file!");
+            console.error(error);
+            return;
+        }
 
-            Utils.downloadFile(error, data, fileName);
+        Utils.downloadFile(null, data, fileName);
 
-            // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
-            // clear the modified flag
-            palette.fileInfo().modified = false;
-            palette.fileInfo().repositoryService = Repository.Service.Unknown;
-            palette.fileInfo().repositoryName = "";
-            palette.fileInfo().repositoryUrl = "";
-            palette.fileInfo().commitHash = "";
-            palette.fileInfo().downloadUrl = "";
-            palette.fileInfo.valueHasMutated();
-        });
+        // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
+        // clear the modified flag
+        palette.fileInfo().modified = false;
+        palette.fileInfo().repositoryService = Repository.Service.Unknown;
+        palette.fileInfo().repositoryName = "";
+        palette.fileInfo().repositoryUrl = "";
+        palette.fileInfo().commitHash = "";
+        palette.fileInfo().downloadUrl = "";
+        palette.fileInfo.valueHasMutated();
     }
 
     /**
      * Saves the file to a local download folder.
      */
-    saveGraphToDisk = (graph : LogicalGraph) : void => {
+    saveGraphToDisk = async (graph : LogicalGraph): Promise<void> => {
         console.log("saveGraphToDisk()", graph.fileInfo().name, graph.fileInfo().type);
 
         // check that the fileType has been set for the logicalGraph
@@ -2480,25 +2479,26 @@ export class Eagle {
         // validate json
         Utils.validateJSON(jsonString, Eagle.FileType.Graph);
 
-        Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
-            if (error != null){
-                Utils.showUserMessage("Error", "Error saving the file!");
-                console.error(error);
-                return;
-            }
+        let data: any;
+        try {
+            data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
+        } catch (error){
+            Utils.showUserMessage("Error", "Error saving the file!");
+            console.error(error);
+            return;
+        }
 
-            Utils.downloadFile(error, data, graph.fileInfo().name);
+        Utils.downloadFile(null, data, graph.fileInfo().name);
 
-            // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
-            // clear the modified flag
-            graph.fileInfo().modified = false;
-            graph.fileInfo().repositoryService = Repository.Service.File;
-            graph.fileInfo().repositoryName = "";
-            graph.fileInfo().repositoryUrl = "";
-            graph.fileInfo().commitHash = "";
-            graph.fileInfo().downloadUrl = "";
-            graph.fileInfo.valueHasMutated();
-        });
+        // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
+        // clear the modified flag
+        graph.fileInfo().modified = false;
+        graph.fileInfo().repositoryService = Repository.Service.File;
+        graph.fileInfo().repositoryName = "";
+        graph.fileInfo().repositoryUrl = "";
+        graph.fileInfo().commitHash = "";
+        graph.fileInfo().downloadUrl = "";
+        graph.fileInfo.valueHasMutated();
     }
 
     saveAsFileToDisk = async (file: LogicalGraph | Palette): Promise<void> => {
