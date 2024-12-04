@@ -323,100 +323,50 @@ export class Utils {
         });
     }
 
-    //, callback : (error : string, data : string) => void)
     static async httpGetJSON(url: string, json: object): Promise<object> {
-        return new Promise(async(resolve, reject) => {
-            $.ajax({
-                url : url,
-                type : 'GET',
-                data : JSON.stringify(json),
-                contentType : 'application/json',
-                success : function(data: object) {
-                    resolve(data);
-                },
-                error: function(xhr, status, error : string) {
-                    reject(error);
-                }
-            });
+        return $.ajax({
+            url : url,
+            type : 'GET',
+            data : JSON.stringify(json),
+            contentType : 'application/json'
         });
     }
 
-    // , callback : (error : string | null, data : string) => void
     static async httpPost(url : string, data : string): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            $.ajax({
-                url : url,
-                type : 'POST',
-                data : data,
-                processData: false,  // tell jQuery not to process the data
-                contentType: false,  // tell jQuery not to set contentType
-                success : function(data : string) {
-                    resolve(data);
-                },
-                error: function(xhr, status, error : string) {
-                    reject(error);
-                }
-            });
+        return $.ajax({
+            url : url,
+            type : 'POST',
+            data : data,
+            processData: false,  // tell jQuery not to process the data
+            contentType: false   // tell jQuery not to set contentType
         });
     }
 
     static async httpPostJSON(url : string, json : object): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            $.ajax({
-                url : url,
-                type : 'POST',
-                data : JSON.stringify(json),
-                contentType : 'application/json',
-                success : function(data: string) {
-                    resolve(data);
-                },
-                error: function(xhr, status, error : string) {
-                    if (typeof xhr.responseJSON === 'undefined'){
-                        reject(error);
-                    } else {
-                        reject(xhr.responseJSON.error);
-                    }
-                }
-            });
+        return $.ajax({
+            url : url,
+            type : 'POST',
+            data : JSON.stringify(json),
+            contentType : 'application/json'
         });
     }
 
-    static httpPostJSONString(url : string, jsonString : string): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            $.ajax({
-                url : url,
-                type : 'POST',
-                data : jsonString,
-                contentType : 'application/json',
-                success : function(data : string) {
-                    resolve(data);
-                },
-                error: function(xhr, status, error : string) {
-                    if (typeof xhr.responseJSON === 'undefined'){
-                        reject(error);
-                    } else {
-                        reject(xhr.responseJSON.error);
-                    }
-                }
-            });
+    static async httpPostJSONString(url : string, jsonString : string): Promise<string> {
+        return $.ajax({
+            url : url,
+            type : 'POST',
+            data : jsonString,
+            contentType : 'application/json'
         });
     }
 
-    static httpPostForm(url : string, formData : FormData): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            $.ajax({
-                url : url,
-                type : 'POST',
-                data : formData,
-                processData: false,  // tell jQuery not to process the data
-                contentType: false,  // tell jQuery not to set contentType
-                success : function(data : string) {
-                    resolve(data);
-                },
-                error: function(xhr, status, error : string){
-                    reject(error + " " + xhr.responseText);
-                }
-            });
+    static async httpPostForm(url : string, formData : FormData): Promise<string> {
+        return $.ajax({
+            url : url,
+            type : 'POST',
+            data : formData,
+            processData: false,  // tell jQuery not to process the data
+            contentType: false,  // tell jQuery not to set contentType
         });
     }
 
@@ -2481,14 +2431,15 @@ export class Utils {
         try {
             data = await Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL);
         } catch (error) {
-            const data = localStorage.getItem('ojsGraphSchema');
+            const schemaData = localStorage.getItem('ojsGraphSchema');
 
-            if (data === null){
+            if (schemaData === null){
                 console.warn("Unable to fetch graph schema. Schema also unavailable from localStorage.");
             } else {
                 console.warn("Unable to fetch graph schema. Schema loaded from localStorage.");
-                _setSchemas(JSON.parse(data));
+                _setSchemas(JSON.parse(schemaData));
             }
+            return;
         }
 
         _setSchemas(JSON.parse(data));

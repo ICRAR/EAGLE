@@ -67,7 +67,7 @@ export class GitHub {
                 reject(error);
                 return;
             }
-    
+
             // add the repositories from the POST response
             for (const d of data){
                 repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
@@ -174,8 +174,9 @@ export class GitHub {
             // add folders to repo
             for (const path in data){
                 // skip the root directory
-                if (path === "")
+                if (path === ""){
                     continue;
+                }
 
                 repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
             }

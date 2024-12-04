@@ -484,8 +484,9 @@ export class LogicalGraph {
             // ask the user to choose from the eligibleTypes
             const userChoice: string = await Utils.requestUserChoice("Add Data Component", "Select data component type", eligibleComponentNames, 0, false, "");
             
-            if (userChoice === null)
+            if (userChoice === null){
                 return;
+            }
 
             // find choice withing eligibleComponents
             for (const ec of eligibleComponents){

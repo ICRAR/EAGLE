@@ -144,8 +144,9 @@ export class GitLab {
             // add folders to repo
             for (const path in data){
                 // skip the root directory
-                if (path === "")
+                if (path === ""){
                     continue;
+                }
 
                 repository.folders.push(GitLab.parseFolder(repository, path, data[path]));
             }

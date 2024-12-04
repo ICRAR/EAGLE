@@ -3983,8 +3983,9 @@ export class Eagle {
         // ask user to choose a parent
         const userChoice: string = await Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "");
         
-        if (userChoice === null)
+        if (userChoice === null){
             return;
+        }
 
         const choice: string = userChoice;
 
