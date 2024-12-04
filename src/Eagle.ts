@@ -912,7 +912,7 @@ export class Eagle {
         const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
-        const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
+        const dummyFile: RepositoryFile = new RepositoryFile(Repository.dummy(), "", fileFullPath);
 
         // check if we need to update the graph from keys to ids
         if (GraphUpdater.usesNodeKeys(dataObject)){
@@ -1234,7 +1234,7 @@ export class Eagle {
         }
 
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
+        const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
 
         // show errors (if found)
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
@@ -1949,7 +1949,7 @@ export class Eagle {
                     // palette fetched successfully
                     complete[index] = true;
 
-                    const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
+                    const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.dummy(), "", paletteList[index].name), errorsWarnings);
                     Utils.preparePalette(palette, paletteList[index]);
 
                     // add to results
@@ -1974,7 +1974,7 @@ export class Eagle {
                     } else {
                         console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
 
-                        const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.DUMMY, "", paletteList[i].name), errorsWarnings);
+                        const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.dummy(), "", paletteList[i].name), errorsWarnings);
                         Utils.preparePalette(palette, paletteList[i]);
 
                         results[index] = palette;
