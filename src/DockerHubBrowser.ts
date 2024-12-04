@@ -86,7 +86,7 @@ export class DockerHubBrowser {
         this.fetchImages(image, tag);
     }
 
-    fetchImages = (selectedImage: string, selectedTag: string) : void => {
+    fetchImages = async (selectedImage: string, selectedTag: string): Promise<void> => {
         // if already fetched, abort
         if (this.hasFetchedImages()){
             console.warn("Already fetched images");
@@ -98,47 +98,44 @@ export class DockerHubBrowser {
         this.hasFetchedTags(false);
         this.isValid(false);
 
-        // keep reference to browser for use in the callbacks
-        const browser: DockerHubBrowser = this;
-
         // request eagle server to fetch a list of docker hub images
-        Utils.httpPostJSON("/getDockerImages", {username:this.username()}, function(error : string, data: any){
-            let selectedImageIndex = 0;
+        let data: any;
+        try {
+            data = await Utils.httpPostJSON("/getDockerImages", {username:this.username()});
+        } catch (error) {
+            console.error(error);
+            return;
+        } finally {
+            this.isFetchingImages(false);
+        }
+            
+        let selectedImageIndex = 0;
+        this.hasFetchedImages(true);
 
-            browser.isFetchingImages(false);
+        // build list of image strings
+        this.images([]);
+        for (let i = 0; i < data.results.length ; i++){
+            const result = data.results[i];
+            const imageName = result.namespace + "/" + result.name;
+            this.images.push(imageName);
 
-            if (error != null){
-                console.error(error);
-                return;
+            if (imageName === selectedImage){
+                selectedImageIndex = i;
             }
+        }
 
-            browser.hasFetchedImages(true);
+        // abort if no images available for this user
+        if (this.images().length === 0){
+            return;
+        }
 
-            // build list of image strings
-            browser.images([]);
-            for (let i = 0; i < data.results.length ; i++){
-                const result = data.results[i];
-                const imageName = result.namespace + "/" + result.name;
-                browser.images.push(imageName);
+        this.selectedImage(this.images()[selectedImageIndex]);
 
-                if (imageName === selectedImage){
-                    selectedImageIndex = i;
-                }
-            }
-
-            // abort if no images available for this user
-            if (browser.images().length === 0){
-                return;
-            }
-
-            browser.selectedImage(browser.images()[selectedImageIndex]);
-
-            // go ahead and grab the tags for this image
-            browser.fetchTags(selectedTag);
-        });
+        // go ahead and grab the tags for this image
+        this.fetchTags(selectedTag);
     }
 
-    fetchTags = (selectedTag: string) : void => {
+    fetchTags = async (selectedTag: string): Promise<void> => {
         // if already fetched, abort
         if (this.hasFetchedTags()){
             console.warn("Already fetched tags");
@@ -155,43 +152,41 @@ export class DockerHubBrowser {
         this.hasFetchedTags(false);
         this.isValid(false);
 
-        // keep reference to browser for use in the callbacks
-        const browser: DockerHubBrowser = this;
-
         // request eagle server to fetch a list of tags for the given docker image
-        Utils.httpPostJSON("/getDockerImageTags", {imagename:this.selectedImage()}, function(error: string, data: any){
-            let selectedTagIndex = 0;
-            browser.isFetchingTags(false);
+        let data: any;
+        try {
+            data = await Utils.httpPostJSON("/getDockerImageTags", {imagename:this.selectedImage()});
+        } catch (error) {
+            console.error(error);
+            return;
+        } finally {
+            this.isFetchingTags(false);
+        }
 
-            if (error != null){
-                console.error(error);
-                return;
+        let selectedTagIndex = 0;
+        this.hasFetchedTags(true);
+
+        // build list of tag strings
+        this.tags([]);
+        this.digests([]);
+        for (let i = 0 ; i < data.results.length ; i++){
+            const result = data.results[i];
+            this.tags.push(result.name);
+            this.digests.push(result.images[0].digest);
+
+            if (result.name === selectedTag){
+                selectedTagIndex = i;
             }
+        }
 
-            browser.hasFetchedTags(true);
+        // abort if no tags available for this image
+        if (this.tags().length === 0){
+            return;
+        }
 
-            // build list of tag strings
-            browser.tags([]);
-            browser.digests([]);
-            for (let i = 0 ; i < data.results.length ; i++){
-                const result = data.results[i];
-                browser.tags.push(result.name);
-                browser.digests.push(result.images[0].digest);
-
-                if (result.name === selectedTag){
-                    selectedTagIndex = i;
-                }
-            }
-
-            // abort if no tags available for this image
-            if (browser.tags().length === 0){
-                return;
-            }
-
-            browser.selectedTag(browser.tags()[selectedTagIndex]);
-            browser.digest(browser.digests()[selectedTagIndex]);
-            browser.isValid(true);
-        });
+        this.selectedTag(this.tags()[selectedTagIndex]);
+        this.digest(this.digests()[selectedTagIndex]);
+        this.isValid(true);
     }
 
     onUsernameChange = () : void => {

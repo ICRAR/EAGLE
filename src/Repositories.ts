@@ -24,7 +24,7 @@ export class Repositories {
         folder.expanded(!folder.expanded());
     }
 
-    static selectFile(file : RepositoryFile) : void {
+    static async selectFile(file : RepositoryFile): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
 
         if(file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.JSON){
@@ -50,14 +50,14 @@ export class Repositories {
         // if the file is modified, get the user to confirm they want to overwrite changes
         const confirmDiscardChanges: Setting = Setting.find(Setting.CONFIRM_DISCARD_CHANGES);
         if (isModified && confirmDiscardChanges.value()){
-            Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChanges, (confirmed : boolean) : void => {
-                if (!confirmed){
-                    console.log("selectFile() cancelled");
-                    return;
-                }
+            try {
+                await Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChanges);
+            } catch (error) {
+                console.error(error);
+                return;
+            }
 
-                eagle.openRemoteFile(file);
-            });
+            eagle.openRemoteFile(file);
         } else {
             eagle.openRemoteFile(file);
         }
@@ -90,27 +90,26 @@ export class Repositories {
     }
 
     // use a custom modal to ask user for repository service and url at the same time
-    addCustomRepository = () : void => {
-        Utils.requestUserAddCustomRepository((completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : void => {
-            console.log("requestUserAddCustomRepository callback", completed, repositoryService, repositoryName);
+    addCustomRepository = async () => {
+        let customRepository: Repository;
+        try {
+            customRepository = await Utils.requestUserAddCustomRepository();
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            if (!completed){
-                console.log("No repo entered");
-                return;
-            }
+        if (customRepository.name.trim() == ""){
+            Utils.showUserMessage("Error", "Repository name is empty!");
+            return;
+        }
 
-            if (repositoryName.trim() == ""){
-                Utils.showUserMessage("Error", "Repository name is empty!");
-                return;
-            }
+        if (customRepository.branch.trim() == ""){
+            Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
+            return;
+        }
 
-            if (repositoryBranch.trim() == ""){
-                Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
-                return;
-            }
-
-            this._addCustomRepository(repositoryService, repositoryName, repositoryBranch);
-        });
+        this._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
     };
 
     _addCustomRepository = async (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) => {
@@ -133,7 +132,7 @@ export class Repositories {
         }
     }
 
-    removeCustomRepository = (repository : Repository) : void => {
+    removeCustomRepository = async (repository : Repository): Promise<void> => {
         const confirmRemoveRepositories: Setting = Setting.find(Setting.CONFIRM_REMOVE_REPOSITORIES);
 
         // if settings dictates that we don't confirm with user, remove immediately
@@ -143,14 +142,14 @@ export class Repositories {
         }
 
         // otherwise, check with user
-        Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", confirmRemoveRepositories, (confirmed : boolean) =>{
-            if (!confirmed){
-                console.log("User aborted removeCustomRepository()");
-                return;
-            }
+        try {
+            await Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", confirmRemoveRepositories);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            this._removeCustomRepository(repository);
-        });
+        this._removeCustomRepository(repository);
     };
 
     private _removeCustomRepository = (repository : Repository) : void => {
