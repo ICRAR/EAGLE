@@ -1727,7 +1727,6 @@ export class Utils {
         return distance;
     }
 
-    // TODO: should we make this just return a Palette, instead of a string palette name?
     static async userChoosePalette(paletteNames : string[]) : Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
 
@@ -2524,8 +2523,6 @@ export class Utils {
         return result;
     }
 
-    // , callback: (error : string, data : string) => void ) : void {
-    // TODO: I think we don't need to add a Promise here
     static async openRemoteFileFromUrl(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
             let data;
