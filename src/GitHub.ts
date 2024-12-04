@@ -108,7 +108,6 @@ export class GitHub {
     /**
      * Shows the remote files on the GitHub.
      */
-    // TODO: can we avoid creating a new Promise here
     static async loadRepoContent(repository : Repository): Promise<void> {
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);

@@ -4389,7 +4389,6 @@ export class Eagle {
         }
     }
 
-    // TODO: does this need to be async, couldn't just return an Edge
     addEdge = async (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean): Promise<Edge> => {
         return new Promise(async(resolve, reject) => {
             // check that none of the supplied nodes and ports are null

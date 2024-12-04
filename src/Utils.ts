@@ -578,9 +578,7 @@ export class Utils {
             // store data about the choices, callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#choiceModal').data('completed', false);
-            $('#choiceModal').data('callback', function(completed : boolean, userChoiceIndex : number, userCustomChoice : string): void { // TODO: update prototype of choiceModal callback
-                const choice = $('#choiceModalSelect option:selected').text();
-
+            $('#choiceModal').data('callback', function(completed: boolean, choice: string): void {
                 if (completed){
                     resolve(choice);
                 } else {
