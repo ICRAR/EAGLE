@@ -4621,35 +4621,32 @@ export class Eagle {
     
     // NOTE: clones the node internally
     addNode = async (node : Node, x: number, y: number): Promise<Node> => {
-        return new Promise(async(resolve) => {
-            // copy node
-            const newNode : Node = Utils.duplicateNode(node);
-            newNode.setPosition(x, y);
-            this.logicalGraph().addNodeComplete(newNode);
+        // copy node
+        const newNode : Node = Utils.duplicateNode(node);
+        newNode.setPosition(x, y);
+        this.logicalGraph().addNodeComplete(newNode);
 
-            // flag that the logical graph has been modified
-            this.logicalGraph().fileInfo().modified = true;
-            this.logicalGraph().fileInfo.valueHasMutated();
+        // flag that the logical graph has been modified
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo.valueHasMutated();
 
-            // check if node was added to an empty graph, if so prompt user to specify graph name
-            if (this.logicalGraph().fileInfo().name === ""){
-                let filename: string;
-                try {
-                    filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
-                } catch (error){
-                    console.warn(error);
-                    resolve(newNode);
-                    return;
-                }
-                this.logicalGraph().fileInfo().name = filename;
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Named Logical Graph");
-                this.logicalGraph.valueHasMutated();
-                Utils.showNotification("Graph named", filename, "success");
+        // check if node was added to an empty graph, if so prompt user to specify graph name
+        if (this.logicalGraph().fileInfo().name === ""){
+            let filename: string;
+            try {
+                filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
+            } catch (error){
+                console.warn(error);
+                return newNode;
             }
+            this.logicalGraph().fileInfo().name = filename;
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Named Logical Graph");
+            this.logicalGraph.valueHasMutated();
+            Utils.showNotification("Graph named", filename, "success");
+        }
 
-            resolve(newNode);
-        });
+        return newNode;
     }
 
     checkForComponentUpdates = () => {
