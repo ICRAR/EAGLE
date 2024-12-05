@@ -10,31 +10,28 @@
     background: white;
 }
 
-#tableInspectorSelection{
+#tableInspectorValue, #configTableInspectorValue{
+    width: calc(100% - 305px) !important;
+    padding: 0px 5px;
+    margin: 0px;
+}
+
+#tableInspectorSelection, #configTableInspectorSelection {
+    color: black !important;
+    font-weight: 500;
     width: 299px !important;
     padding: 0px 5px;
     margin: 0px;
     border-right:1px solid rgba(0, 0, 0, 0.336) !important;
 }
 
-#tableInspectorValue{
-    width: calc(100% - 305px) !important;
-    padding: 0px 5px;
-    margin: 0px;
-}
-
-#tableInspectorValue:focus, #tableInspectorSelection:focus {
+#tableInspectorValue:focus, #configTableInspectorValue:focus, #tableInspectorSelection:focus ,#configTableInspectorSelection:focus{
     border: none;
     outline: none;
 }
 
 #parameterTableAddParameterButton{
     left: 15px;
-}
-
-#tableInspectorSelection{
-    color: black !important;
-    font-weight: 500;
 }
 
 .parameterTableTypeCustomSelect a {
