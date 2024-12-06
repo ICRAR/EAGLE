@@ -1,14 +1,16 @@
 import * as ko from "knockout";
 
-import {RepositoryFolder} from './RepositoryFolder';
-import {RepositoryFile} from './RepositoryFile';
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
-import {GitHub} from './GitHub';
-import {GitLab} from "./GitLab";
+import { Branded } from "./main";
+import { Eagle } from './Eagle';
+import { GitHub } from './GitHub';
+import { GitLab } from "./GitLab";
+import { RepositoryFolder } from './RepositoryFolder';
+import { RepositoryFile } from './RepositoryFile';
+import { Utils } from './Utils';
+
 
 export class Repository {
-    _id : number
+    _id : Repository.Id
     name : string
     service : Repository.Service
     branch : string
@@ -19,11 +21,8 @@ export class Repository {
     files : ko.ObservableArray<RepositoryFile>
     folders : ko.ObservableArray<RepositoryFolder>
 
-    // NOTE: I think we should be able to use the Repository.Service.Unknown enum here, but it causes a javascript error. Not sure why.
-    static readonly DUMMY = new Repository(<Repository.Service>"Unknown", "", "", false);
-
     constructor(service : Repository.Service, name : string, branch : string, isBuiltIn : boolean){
-        this._id = Math.floor(Math.random() * 1000000000000);
+        this._id = Utils.generateRepositoryId();
         this.name = name;
         this.service = service;
         this.branch = branch;
@@ -141,6 +140,12 @@ export class Repository {
         }
     }
 
+    // a dummy repository
+    // used by some functions when a repository is not actually required, but a placeholder is required for the input arguments
+    public static dummy(){
+        return new Repository(Repository.Service.Unknown, "", "", false);
+    }
+
     // sorting order
     // 1. alphabetically by service
     // 2. alphabetically by name
@@ -193,4 +198,6 @@ export namespace Repository {
         Url = "Url",
         Unknown = "Unknown"
     }
+
+    export type Id = Branded<string, "Repository.Id">
 }

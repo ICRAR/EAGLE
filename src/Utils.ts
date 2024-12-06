@@ -42,6 +42,7 @@ import { Node } from './Node';
 import { Palette } from './Palette';
 import { PaletteInfo } from './PaletteInfo';
 import { Repository } from './Repository';
+import { RepositoryFile } from "./RepositoryFile";
 import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
 import { ParameterTable } from "./ParameterTable";
@@ -78,6 +79,14 @@ export class Utils {
 
     static generateGraphConfigId(): GraphConfig.Id {
         return Utils._uuidv4() as GraphConfig.Id;
+    }
+
+    static generateRepositoryId(): Repository.Id {
+        return Utils._uuidv4() as Repository.Id;
+    }
+
+    static generateRepositoryFileId(): RepositoryFile.Id {
+        return Utils._uuidv4() as RepositoryFile.Id;
     }
 
     /**
