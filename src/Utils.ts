@@ -1538,7 +1538,7 @@ export class Utils {
         if (!validatorResult.valid){
             const message = "JSON Output failed validation against internal JSON schema, saving anyway";
             console.error(message, validatorResult.errors);
-            Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
+            Utils.showNotification("Error",  message + "<br/>" + validatorResult.errors, "danger");
         }
     }
 
