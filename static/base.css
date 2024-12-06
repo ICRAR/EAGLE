@@ -753,7 +753,7 @@ color: #00bb00;}
     background: white;
 }
 
-.rightWindow ::-webkit-scrollbar-thumb, #parameterTable ::-webkit-scrollbar-thumb, #issuesModal ::-webkit-scrollbar-thumb{
+.rightWindow ::-webkit-scrollbar-thumb, #parameterTable ::-webkit-scrollbar-thumb, #issuesDisplay ::-webkit-scrollbar-thumb{
     background: #002349;
     border-radius: 5px;
 }
