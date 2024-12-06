@@ -1,7 +1,7 @@
 <!-- ko if: $root.quickActionOpen() -->
     <div id="quickActionContainer" style="display: none;">
         <div id="quickActionInput">
-            <input type="text" id="quickActionSearchbar" placeholder="Command Search... (e.g. 'save', or 'edge')" data-bind="event:{keyup: QuickActions.updateQuickActionSearchTerm}">
+            <input type="text" autocomplete="off" id="quickActionSearchbar" placeholder="Command Search... (e.g. 'save', or 'edge')" data-bind="event:{keyup: QuickActions.updateQuickActionSearchTerm}">
         </div>
         <div id="quickActionResults">
             <div data-bind="foreach: QuickActions.findQuickActionResults()">
