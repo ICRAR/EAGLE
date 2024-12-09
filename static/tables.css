@@ -548,14 +548,6 @@ td:first-child input {
     width: 80px;
 }
 
-#graph_configurations_table_modified_column{
-    width: 80px;
-}
-
-#graph_configurations_table_favourite_column{
-    width: 80px;
-}
-
 #graph_configurations_table_active_column{
     width: 80px;
 }
