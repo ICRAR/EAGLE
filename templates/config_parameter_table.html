@@ -6,12 +6,12 @@
         </h5>
 
         <div class="header-center">
-            <button type="button" class="btn btn-primary" data-bind="click: function(){SideWindow.toggleShown('bottom')}, clickBubble:false"><span id="parameterTableAffirmativeAnswer">Close</span></button>
+            <button type="button" class="btn btn-primary" data-bind="click: function(){SideWindow.toggleShown('bottom')}, clickBubble:false"><span class="parameterTableAffirmativeAnswer">Close</span></button>
         </div> 
 
         <div class="dropdown parameterTableVisibilityContainer">
-            <a class="dropdown-toggle icon-table_column_visibility componentTableVisibilityBtn" id="parameterTableVisibilityDropdown"  data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="parameterTableVisibilityDropdown">
+            <a class="dropdown-toggle icon-table_column_visibility componentTableVisibilityBtn" data-bs-toggle="dropdown"></a>
+            <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleKeyAttribute()}"><span>Key Parameter</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().keyAttribute()"></div>
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleFieldId()}"><span>Field ID</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().fieldId()"></div>
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleDefaultValue()}"><span>Default Value</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().defaultValue()"></div>
@@ -47,38 +47,38 @@
                     </div>
                 <!-- /ko -->
                 <!-- ko if: ParameterTable.getTableFields().length !== 0 -->
-                    <div id="tableInspector">
+                    <div class="tableInspector">
                         <input id="configTableInspectorSelection" type="text" placeholder="Selection" data-bind="value: ParameterTable.formatTableInspectorSelection()" readonly>
                         <input id="configTableInspectorValue" type="text" placeholder="Content" data-bind="value: ParameterTable.formatTableInspectorValue(), readonly: ParameterTable.selectionReadonly(), event: {keyup: ParameterTable.tableInspectorUpdateSelection($element.value)}">
                     </div>
                     <div class="scrollWrapper">
-                        <table class="eagleTableWrapper configFieldsTable" id="paramsTableWrapper">
+                        <table class="eagleTableWrapper configFieldsTable paramsTableWrapper">
                             <thead>
                                 <tr>
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
-                                        <th id="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'Add/remove Field from Graph Config'" data-bs-placement="top"></th>
+                                        <th class="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'Add/remove Field from Graph Config'" data-bs-placement="top"></th>
                                     <!-- /ko -->
-                                    <th id="parameter_table_node_name" data-bind="eagleTooltip:`This Parameter's Parent Node Name`" data-bs-placement="top">
+                                    <th class="parameter_table_node_name" data-bind="eagleTooltip:`This Parameter's Parent Node Name`" data-bs-placement="top">
                                         Node Name
                                         <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_node_name') === true}"></div>
                                     </th>
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
-                                        <th id="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">
+                                        <th class="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">
                                             Attribute Name
                                             <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_text') === true}"></div>
                                         </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().value() -->
-                                        <th id="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">
+                                        <th class="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">
                                             <span>Configured Value</span>
                                             <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_value') === true}"></div>
                                         </th>
                                     <!-- /ko -->
-                                    <th id="parameter_table_comment" data-bind="eagleTooltip:'A user comment outlining the reason for the change to this field'" data-bs-placement="top">
+                                    <th class="parameter_table_comment" data-bind="eagleTooltip:'A user comment outlining the reason for the change to this field'" data-bs-placement="top">
                                         Comment
                                         <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_comment') === true}"></div>
                                     </th>
-                                    <th id="parameter_table_remove" data-bind="eagleTooltip:'Remove this field from the graph configuration'" data-bs-placement="top">
+                                    <th class="parameter_table_remove" data-bind="eagleTooltip:'Remove this field from the graph configuration'" data-bs-placement="top">
                                         Remove
                                         <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_remove') === true}"></div>
                                     </th>

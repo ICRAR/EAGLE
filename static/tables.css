@@ -1,10 +1,10 @@
-.parameterTable #tableInspector{
+.parameterTable .tableInspector{
     position: sticky;
     top: 0px;
     z-index: 111;
 }
 
-#tableInspector{
+.tableInspector{
     width:100%;
     padding:0px;
     background: white;
@@ -86,59 +86,39 @@ td:first-child input {
     padding-top: 3px;
 }
 
-#parameter_table_flags{
+.parameter_table_flags{
     width: 101px;
 }
 
-#parameter_table_actions{
+.parameter_table_actions{
     width: 121px;
 }
 
-#parameter_table_usage{
+.parameter_table_usage{
     width: 107px;
 }
 
-#parameter_table_parameter_type{
+.parameter_table_parameter_type{
     width: 171px;
 }
 
-#parameter_table_precious{
-    width: 71px;
-}
-
-#parameter_table_positional{
-    width: 79px;
-}
-
-#parameter_table_isPort{
-    width: 173px;
-}
-
-#parameter_table_read_only{
-    width: 81px;
-}
-
-#parameter_table_type{
+.parameter_table_type{
     width: 100px;
 }
 
-#parameter_table_text{
+.parameter_table_text{
     width: 160px;
 }
 
-#parameter_table_encoding{
+.parameter_table_encoding{
     width: 80px;
 }
 
-#parameter_table_node_name{
+.parameter_table_node_name{
     width: 160px;
 }
 
-#parameter_table_node_key{
-    width: 76px;
-}
-
-#parameter_table_isKeyAttribute{
+.parameter_table_isKeyAttribute{
     width: 27px;
     min-width: 27px;
     max-width: 27px;
@@ -158,11 +138,7 @@ td:first-child input {
     color: #5b5b5b;
 }
 
-#parameter_table_name{
-    width: 160px;
-}
-
-#parameter_table_remove{
+.parameter_table_remove{
     width: 80px;
 }
 
@@ -530,23 +506,15 @@ td:first-child input {
 
 @media only screen and (max-width: 2010px) {
 
-    #parameter_table_isPort{
-        width: 90px;
-    }
-
-    #parameter_table_type{
+    .parameter_table_type{
         width: 100px;
     }
 
-    #parameter_table_text{
+    .parameter_table_text{
         width: 150px;
     }
 
-    #parameter_table_name{
-        width: 53px;
-    }
-
-    #parameter_table_description{
+    .parameter_table_description{
         width:91px;
     }
 }
@@ -564,9 +532,6 @@ td:first-child input {
 .resizing {
     border-right: 3px solid whitesmoke;
     cursor: col-resize;
-}
-
-#graphConfigurationsTableWrapper {
 }
 
 #graphConfigurationsTable .tableBody{
