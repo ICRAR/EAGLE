@@ -84,8 +84,8 @@ export class ParameterTable {
     static tableEnterShortcut = (event: KeyboardEvent) : void => {
 
         //if the table parameter search bar is selected
-        if($('#parameterTable .componentSearchBar')[0] === event.target){
-            const targetCell = $('#parameterTable td.column_Value').first().children().first()
+        if($('.parameterTable .componentSearchBar')[0] === event.target){
+            const targetCell = $('.parameterTable td.column_Value').first().children().first()
             targetCell.trigger("focus");
             $('.selectedTableParameter').removeClass('selectedTableParameter')
             targetCell.parent().addClass('selectedTableParameter')
@@ -298,7 +298,7 @@ export class ParameterTable {
         ParameterTable.selection(selection);
         ParameterTable.selectionReadonly(eagle.getCurrentParamValueReadonly(selectionParent));
 
-        $('#parameterTable tr.highlighted').removeClass('highlighted')
+        $('.parameterTable tr.highlighted').removeClass('highlighted')
     }
 
     static isSelected(selectionName: string, selectionParent: Field): boolean {
@@ -589,7 +589,7 @@ export class ParameterTable {
             $(clickTarget).trigger("select")
 
             //scroll to new row
-            $("#parameterTable .modal-body").animate({
+            $(".parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);

@@ -1,4 +1,4 @@
-#parameterTable #tableInspector{
+.parameterTable #tableInspector{
     position: sticky;
     top: 0px;
     z-index: 111;
@@ -57,7 +57,7 @@
     color: black;
 }
 
-#parameterTable .column_Actions {
+.parameterTable .column_Actions {
     overflow: hidden;
 }
 
@@ -65,7 +65,7 @@ td:first-child input {
     font-weight: 700;
 }
 
-#parameterTableVisibilityContainer{
+.parameterTableVisibilityContainer{
     position:absolute;
     right: 320px;
     height: 34px;
@@ -75,7 +75,7 @@ td:first-child input {
     top: 9px;
 }
 
-#parameterTableVisibilityContainer .dropdown-toggle::after{
+.parameterTableVisibilityContainer .dropdown-toggle::after{
     display: none;
 }
 
@@ -84,39 +84,6 @@ td:first-child input {
     text-decoration: none;
     font-size: 24px!important;
     padding-top: 3px;
-}
-
-#parameterTableVisibilityContainer .dropdown-menu{
-    border:solid 1px #000c1a;
-    border-radius: 6px;
-    position: absolute;
-    z-index: 120;
-    background-color: #0059a5;
-}
-
-#parameterTableVisibilityContainer .dropdown-menu-right{
-    right: 0;
-    left: auto !important;
-}
-
-#parameterTableVisibilityContainer .dropdown-item{
-    position: relative;
-}
-
-#parameterTableVisibilityContainer .dropdown-item span{
-    color: white;
-}
-
-#parameterTableVisibilityContainer .dropdown-item input{
-    right: 0px;
-    top: 7px;
-    position:absolute;
-    pointer-events:none;
-}
-
-#parameterTableVisibilityContainer .dropdown-item:hover{
-    background-color: #001d3b;
-    color: white;
 }
 
 #parameter_table_flags{
@@ -177,17 +144,17 @@ td:first-child input {
     max-width: 27px;
 }
 
-#parameterTable .column_DisplayText button{
+.parameterTable .column_DisplayText button{
     position: absolute;
     right: 2px;
     top: 2px;
 }
 
-#parameterTable .column_DisplayText:hover button{
+.parameterTable .column_DisplayText:hover button{
     visibility:visible !important;
 }
 
-#parameterTable .column_Encoding .faded{
+.parameterTable .column_Encoding .faded{
     color: #5b5b5b;
 }
 
@@ -199,25 +166,25 @@ td:first-child input {
     width: 80px;
 }
 
-#parameterTable .bottomWindowHeaderWrap{
+.parameterTable .bottomWindowHeaderWrap{
     border: none;
     justify-content: unset;
     height: 46px;
 }
 
-#parameterTable .bottomWindowHeaderWrap button i{
+.parameterTable .bottomWindowHeaderWrap button i{
     transform: translateY(2px);
 }
 
-#parameterTable .tableBody{
+.parameterTable .tableBody{
     padding: 0px;
 }
 
-#parameterTable .column_NodeName input{
+.parameterTable .column_NodeName input{
     pointer-events: none;
 }
 
-#parameterTable .configFieldsTable .column_DisplayText input{
+.parameterTable .configFieldsTable .column_DisplayText input{
     pointer-events: none;
 }
 
@@ -516,6 +483,39 @@ td:first-child input {
     right: 20px;
     width: 300px;
     top: 9px;
+}
+
+.parameterTableVisibilityContainer .dropdown-menu{
+    border:solid 1px #000c1a;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 120;
+    background-color: #0059a5;
+}
+
+.parameterTableVisibilityContainer .dropdown-menu-right{
+    right: 0;
+    left: auto !important;
+}
+
+.parameterTableVisibilityContainer .dropdown-item{
+    position: relative;
+}
+
+.parameterTableVisibilityContainer .dropdown-item span{
+    color: white;
+}
+
+.parameterTableVisibilityContainer .dropdown-item input{
+    right: 0px;
+    left:unset;
+    position:absolute;
+    pointer-events:none;
+}
+
+.parameterTableVisibilityContainer .dropdown-item:hover{
+    background-color: #001d3b;
+    color: white;
 }
 
 .eagleTableWrapper i.parameterTableOverWriteIcon{

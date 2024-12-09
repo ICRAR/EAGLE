@@ -351,7 +351,7 @@ export class Modals {
             }
         });
 
-        $('#parameterTable').on('hidden.bs.modal', function(){
+        $('.parameterTable').on('hidden.bs.modal', function(){
             ParameterTable.showTableModal(false)
             eagle.checkGraph();
         });
@@ -359,7 +359,7 @@ export class Modals {
         $('.eagleTableDisplay').on('shown.bs.modal', function(){
             eagle.hideEagleIsLoading()
             Eagle.tableSearchString('')
-            $('#parameterTable .componentSearchBar').val('').trigger("focus").trigger("select")
+            $('.parameterTable .componentSearchBar').val('').trigger("focus").trigger("select")
         });
 
         // #browseDockerHubModal - Modals.showBrowseDockerHub()

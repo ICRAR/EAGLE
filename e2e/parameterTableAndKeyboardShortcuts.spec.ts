@@ -92,7 +92,7 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await page.waitForTimeout(500);
 
   //make sure the field has been added to the key graph parameter table
-  await expect(await page.locator('#parameterTable tbody').getByRole('row').count()===0).toBeFalsy();
+  await expect(await page.locator('.parameterTable tbody').getByRole('row').count()===0).toBeFalsy();
 
   await page.close();
 });

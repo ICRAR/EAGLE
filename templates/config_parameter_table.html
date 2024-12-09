@@ -1,15 +1,15 @@
 <!-- Parameter/arguments table -->
-<div class="eagleTableDisplay" id="parameterTable" tabindex="-1" role="dialog" aria-labelledby="parameterTableTitle">
+<div class="eagleTableDisplay parameterTable" tabindex="-1" role="dialog" aria-labelledby="parameterTableTitle">
     <div class="bottomWindowHeaderWrap" data-bind="click: function(){ParameterTable.resetSelection()}">
         <h5 class="bottomWindowHeader">
             Graph Attributes Configuration Table: <span data-bind="html: $root.logicalGraph().getActiveGraphConfig() ? $root.logicalGraph().getActiveGraphConfig()?.name() : ''"></span>
         </h5>
 
         <div class="header-center">
-            <button type="button" class="btn btn-primary" id="parameterTableAffirmativeButton" data-bind="click:  function(){SideWindow.toggleShown('bottom')}, clickBubble:false"><span id="parameterTableAffirmativeAnswer">Close</span></button>
+            <button type="button" class="btn btn-primary" data-bind="click: function(){SideWindow.toggleShown('bottom')}, clickBubble:false"><span id="parameterTableAffirmativeAnswer">Close</span></button>
         </div> 
 
-        <div class="dropdown" id="parameterTableVisibilityContainer">
+        <div class="dropdown parameterTableVisibilityContainer">
             <a class="dropdown-toggle icon-table_column_visibility componentTableVisibilityBtn" id="parameterTableVisibilityDropdown"  data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="parameterTableVisibilityDropdown">
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleKeyAttribute()}"><span>Key Parameter</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().keyAttribute()"></div>
