@@ -261,11 +261,6 @@ $(function(){
     
     //changing errors mode from loading to graph as eagle is now ready and finished loading
     eagle.errorsMode(Errors.Mode.Graph);
-
-    // collapse all the palettes once they have loaded
-    setTimeout(function(){
-        Eagle.getInstance().collapseAllPalettes();
-    }, 100)
 });
 
 async function loadRepos() {
