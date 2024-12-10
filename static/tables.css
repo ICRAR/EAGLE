@@ -446,12 +446,19 @@ td:first-child input {
 .eagleTableDisplay  td button.parameterTableDescriptionBtn, .eagleTableDisplay  td button.parameterTableCommentBtn {
     position: absolute;
     right: 4px;
-    top: 2px;
+    top: 4px;
     background-color: #002e5f;
     color: white;
     display: none;
     padding: 1% 0px 0px 0px;
     font-size: 12px;
+}
+
+.eagleTableDisplay  td button.parameterTableDescriptionBtn::before, .eagleTableDisplay  td button.parameterTableCommentBtn::before {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
 }
 
 .eagleTableDisplay .searchBarContainer{
