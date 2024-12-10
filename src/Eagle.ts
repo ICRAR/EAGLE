@@ -3889,14 +3889,14 @@ export class Eagle {
         //a timeout was necessary to wait for the element to be added before counting how many there are
         setTimeout(function() {
             //handling selecting and highlighting the newly created row
-            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
+            const clickTarget = $($(".paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
 
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
             clickTarget.focus() // used to focus the field allowing the user to immediately start typing
             $(clickTarget).trigger("select")
 
             //scroll to new row
-            $("#parameterTable .modal-body").animate({
+            $(".parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
@@ -4169,11 +4169,6 @@ export class Eagle {
             allFieldNames.push(field.getDisplayText() + " (" + field.getType() + ")");
         }
 
-        // if we are summoning this editField modal from the params table, close the params table
-        if (modalType === Eagle.ModalType.Field){
-            $('#parameterTable').modal("hide");
-        }
-
         //if creating a new field
         if (modalType === Eagle.ModalType.Add) {
             $("#editFieldModalTitle").html(this.selectedNode().getName() + " - " + Field.getHtmlTitleText(parameterType, usage));
@@ -4244,7 +4239,7 @@ export class Eagle {
 
                 // if we summoned this editField modal from the params table, now that we are done, re-open the params table
                 if (modalType === Eagle.ModalType.Field){
-                    $('#parameterTable').modal("show");
+                    $('.parameterTable').modal("show");
                 }
             });
         }
@@ -4261,19 +4256,19 @@ export class Eagle {
             fieldIndex = ParameterTable.selectionParentIndex() + 1
             this.selectedNode().addFieldByIndex(copiedField,fieldIndex)
         }else{
-            //if no call in the table is selected, in this case the new node is 
+            //if no cell in the table is selected, in this case the new node is appended at the bottom
             this.selectedNode().addField(copiedField)
             fieldIndex = this.selectedNode().getFields().length -1
         }
 
         setTimeout(function() {
-            //handling selecting and highlighting the newly created node
-            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
+            //handling selecting and highlighting the newly created field on the node
+            const clickTarget = $(".paramsTableWrapper tr:nth-child(" + (fieldIndex+1) + ") .selectionTargets")[0]
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update process
             clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
             $(clickTarget).trigger("select")
 
-            $("#parameterTable .modal-body").animate({
+            $(".parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);

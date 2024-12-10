@@ -84,8 +84,8 @@ export class ParameterTable {
     static tableEnterShortcut = (event: KeyboardEvent) : void => {
 
         //if the table parameter search bar is selected
-        if($('#parameterTable .componentSearchBar')[0] === event.target){
-            const targetCell = $('#parameterTable td.column_Value').first().children().first()
+        if($('.parameterTable .componentSearchBar')[0] === event.target){
+            const targetCell = $('.parameterTable td.column_Value').first().children().first()
             targetCell.trigger("focus");
             $('.selectedTableParameter').removeClass('selectedTableParameter')
             targetCell.parent().addClass('selectedTableParameter')
@@ -298,7 +298,7 @@ export class ParameterTable {
         ParameterTable.selection(selection);
         ParameterTable.selectionReadonly(eagle.getCurrentParamValueReadonly(selectionParent));
 
-        $('#parameterTable tr.highlighted').removeClass('highlighted')
+        $('.parameterTable tr.highlighted').removeClass('highlighted')
     }
 
     static isSelected(selectionName: string, selectionParent: Field): boolean {
@@ -477,7 +477,7 @@ export class ParameterTable {
                 downresizer = $(downcol).find('div')
 
                 //getting the table width for use later to convert the new widths into percentages
-                tableWidth = parseInt(window.getComputedStyle($('#paramsTableWrapper')[0]).width,10)
+                tableWidth = parseInt(window.getComputedStyle($('.paramsTableWrapper')[0]).width,10)
 
                 // Get the current mouse position
                 x = e.clientX;
@@ -582,14 +582,14 @@ export class ParameterTable {
         //a timeout was necessary to wait for the element to be added before counting how many there are
         setTimeout(function() {
             //handling selecting and highlighting the newly created row
-            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
+            const clickTarget = $($(".paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
 
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
             clickTarget.focus() // used to focus the field allowing the user to immediately start typing
             $(clickTarget).trigger("select")
 
             //scroll to new row
-            $("#parameterTable .modal-body").animate({
+            $(".parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);

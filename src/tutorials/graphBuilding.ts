@@ -74,7 +74,7 @@ newTut.newTutStep("Click to open", "<em>Click to open the node fields table and 
 .setWaitType(TutorialStep.Wait.Element)
 .setType(TutorialStep.Type.Press)
 
-newTut.newTutStep("The Parameter Table", " The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $('#parameterTable')})
+newTut.newTutStep("The Parameter Table", " The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $('.parameterTable')})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(200)
 

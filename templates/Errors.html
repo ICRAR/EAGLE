@@ -24,12 +24,12 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span data-bind="text: $data.message"></span>
                                 <div>
-                                <!-- ko if: $data.show !== null -->
-                                    <button class="btn btn-secondary btn-sm" data-bind="click: $data.show, eagleTooltip: 'Show object to investigate error'">Show</button>
-                                <!-- /ko -->
-                                <!-- ko if: $data.fix !== null -->
-                                    <button class="btn btn-primary btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
-                                <!-- /ko -->
+                                    <!-- ko if: $data.show !== null -->
+                                        <button class="btn btn-secondary btn-sm" data-bind="click: $data.show, eagleTooltip: 'Show object to investigate error'">Show</button>
+                                    <!-- /ko -->
+                                    <!-- ko if: $data.fix !== null -->
+                                        <button class="btn btn-primary btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
+                                    <!-- /ko -->
                                 </div>
                             </li>
                         <!-- /ko -->

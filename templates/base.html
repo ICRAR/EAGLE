@@ -205,15 +205,20 @@
                         </div>
                     </div>
                     <div class="content">
-                        <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigAttributesTable -->
-                            {% include 'parameter_table.html' %}
+                        <!-- ko if: $root.getEagleIsReady() -->
+                            <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable -->
+                                {% include 'parameter_table.html' %}
+                            <!-- /ko -->
+                            <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigAttributesTable -->
+                                {% include 'config_parameter_table.html' %}
+                                <!-- /ko -->
+                            <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable -->
+                                {% include 'graph_configurations_table.html' %}
+                            <!-- /ko -->
+                            <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors -->
+                                {% include 'Errors.html' %}
+                            <!-- /ko -->
                         <!-- /ko -->
-                        <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable -->
-                            {% include 'graph_configurations_table.html' %}
-                        <!-- /ko -->
-                        <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors -->
-                            {% include 'Errors.html' %}
-                        <!-- /ko -->                        
                     </div>
                 </div>
             </div>
