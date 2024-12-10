@@ -25,6 +25,7 @@
 "use strict";
 
 import * as ko from "knockout";
+import * as bootstrap from 'bootstrap';
 
 import { Category } from './Category';
 import { ComponentUpdater } from './ComponentUpdater';
@@ -4633,6 +4634,13 @@ export class Eagle {
         }
 
         return null;
+    }
+
+    collapseAllPalettes = (): void => {
+        for (let i = 0 ; i < this.palettes().length; i++){
+            const element = document.querySelector('#collapse'+i);
+            bootstrap.Collapse.getOrCreateInstance(element).hide();
+        }
     }
 }
 
