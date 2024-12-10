@@ -4256,14 +4256,14 @@ export class Eagle {
             fieldIndex = ParameterTable.selectionParentIndex() + 1
             this.selectedNode().addFieldByIndex(copiedField,fieldIndex)
         }else{
-            //if no call in the table is selected, in this case the new node is 
+            //if no cell in the table is selected, in this case the new node is appended at the bottom
             this.selectedNode().addField(copiedField)
             fieldIndex = this.selectedNode().getFields().length -1
         }
 
         setTimeout(function() {
-            //handling selecting and highlighting the newly created node
-            const clickTarget = $($(".paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
+            //handling selecting and highlighting the newly created field on the node
+            const clickTarget = $(".paramsTableWrapper tr:nth-child(" + (fieldIndex+1) + ") .selectionTargets")[0]
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update process
             clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
             $(clickTarget).trigger("select")
