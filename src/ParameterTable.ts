@@ -419,18 +419,26 @@ export class ParameterTable {
         ParameterTable.openTable(Eagle.BottomWindowMode.GraphConfigAttributesTable, ParameterTable.SelectType.Normal);
     }
 
-    static requestEditDescriptionInModal(currentField:Field) : void {
+    static requestEditDescriptionInModal(field: Field) : void {
         const eagle: Eagle = Eagle.getInstance();
-        const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
+        const node: Node = eagle.selectedNode();
+
+        // check that we can actually find the node that this field belongs to
+        if (node === null){
+            const message = "Could not find node containing this field";
+            console.warn(message);
+            Utils.showNotification("Warning", message, "warning");
+            return;
+        }
 
         Utils.requestUserText(
             "Edit Field Description",
-            "Please edit the description for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(),
-            currentField.getDescription(),
+            "Please edit the description for: " + node.getName() + ' - ' + field.getDisplayText(),
+            field.getDescription(),
             (completed, userText) => {
                 // if completed successfully, set the description on the field
                 if (completed){
-                    currentField.setDescription(userText);
+                    field.setDescription(userText);
                 }
             }
         )
