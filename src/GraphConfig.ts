@@ -124,6 +124,15 @@ export class GraphConfig {
         }
     }
 
+    removeNodeById = (nodeId: NodeId): void => {
+        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+            if (this.nodes()[i].getId() === nodeId){
+                this.nodes.splice(i, 1);
+                break;
+            }
+        }
+    }
+
     removeField = (field: Field): void => {
         // get reference to the GraphConfigNode containing the field
         const graphConfigNode: GraphConfigNode = this.findNodeById(field.getNodeId());
