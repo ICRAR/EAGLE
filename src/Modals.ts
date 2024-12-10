@@ -267,6 +267,13 @@ export class Modals {
             $('#editFieldModalAffirmativeButton').trigger("focus");
         });
 
+        $('#editFieldModal').on('hidden.bs.modal', function(){
+            // TODO: this is a bit of a hack to make sure the graph is re-checked after using the editFieldModal.
+            //       it will not catch errors introduced when a user just edits fields within the ParameterTable
+            //       so eventually we'll need a better system here
+            Eagle.getInstance().checkGraph();
+        });
+
         // #editEdgeModal - requestUserEditEdge()
         $('#editEdgeModalAffirmativeButton').on('click', function(){
             $('#editEdgeModal').data('completed', true);

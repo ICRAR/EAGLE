@@ -846,11 +846,13 @@ export class Field {
                 field.issues().push({issue:issue,validity:Errors.Validity.Error})
         }
 
+        /*
         // check that the field has a default value
         if (field.getDefaultValue() === "" && !field.isType(Daliuge.DataType.String) && !field.isType(Daliuge.DataType.Password) && !field.isType(Daliuge.DataType.Object) && !field.isType(Daliuge.DataType.Unknown)) {
             const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose default value is not specified", function(){Utils.showField(eagle, node.getId(),field)}, function(){Utils.fixFieldDefaultValue(eagle, field)}, "Generate default value for parameter");
                 field.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
+        */
 
         // check that the field has a known type
         if (!Utils.validateType(field.getType())) {

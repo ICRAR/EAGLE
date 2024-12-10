@@ -1603,15 +1603,15 @@ export class Utils {
     }
 
     static validateType(type: string) : boolean {
-        const typePrefix = Utils.dataTypePrefix(type);
-
-        for (const dt of Utils.enumKeys(Daliuge.DataType)){
-            if (dt === typePrefix){
-                return true;
-            }
+        if (typeof(type) === "undefined"){
+            return false;
         }
 
-        return false;
+        if (type.trim() === ""){
+            return false;
+        }
+
+        return true;
     }
 
     static downloadFile(error : string, data : string, fileName : string) : void {
