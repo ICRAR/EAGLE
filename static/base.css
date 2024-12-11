@@ -200,8 +200,7 @@ color: #00bb00;}
     position:absolute;
     top: 0px;
     right: -300px;
-    /* height: 100%; */
-    transition: right 0.25s linear;
+    transition: right 0.25s ease-in-out;
     border-left: 2px solid rgba(0, 36, 74, 0.95);
     visibility: hidden;
 }
@@ -229,7 +228,7 @@ color: #00bb00;}
     bottom: 0px;
     z-index:100;
     visibility:hidden;
-    transition: bottom 0.25s linear;
+    transition: bottom 0.25s ease-in-out;
 }
 
 #bottomWindow div.wrapper{
@@ -725,8 +724,7 @@ color: #00bb00;}
     position: absolute;
     top: 0px;
     left: -250px;
-    /* height: 100%; */
-    transition: left 0.25s linear;
+    transition: left 0.25s ease-in-out;
     padding:0px 2px 0px 6px;
     visibility:hidden;
 }
@@ -2773,5 +2771,5 @@ palette-component input.form-control.selected {
 /* re-usable classes for various things */
 
 .linearTransition250{
-    transition: linear 250ms !important; /*this requires an important tag to over ride existing transition effects for a few moments */
+    transition: ease-in-out 250ms !important; /*this requires an important tag to over ride existing transition effects for a few moments */
 }
