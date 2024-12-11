@@ -430,6 +430,12 @@ export class ParameterTable {
             Utils.showNotification("Warning", message, "warning");
             return;
         }
+        
+        //check that the user has sufficient persmissions to change the field's description
+        if(ParameterTable.getNodeLockedState(field)){
+            Utils.showNotification("Insufficient Permissions", "Editing permissions are required to be able to edit a field's description.", "warning");
+            return
+        }
 
         Utils.requestUserText(
             "Edit Field Description",
