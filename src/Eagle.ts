@@ -4636,10 +4636,24 @@ export class Eagle {
         return null;
     }
 
-    collapseAllPalettes = (): void => {
+    toggleAllPalettes = (): void => {
+        // first check the state of the palette accordion items
+        let anyExpanded: boolean = false;
         for (let i = 0 ; i < this.palettes().length; i++){
             const element = document.querySelector('#collapse'+i);
-            bootstrap.Collapse.getOrCreateInstance(element).hide();
+            if ($(element).hasClass('show')){
+                anyExpanded = true;
+                break;
+            }
+        }
+
+        for (let i = 0 ; i < this.palettes().length; i++){
+            const element = document.querySelector('#collapse'+i);
+            if (anyExpanded){
+                bootstrap.Collapse.getOrCreateInstance(element).hide();
+            } else {
+                bootstrap.Collapse.getOrCreateInstance(element).show();
+            }
         }
     }
 }
