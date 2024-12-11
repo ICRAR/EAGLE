@@ -25,6 +25,7 @@
 "use strict";
 
 import * as ko from "knockout";
+import * as bootstrap from 'bootstrap';
 
 import { Category } from './Category';
 import { ComponentUpdater } from './ComponentUpdater';
@@ -4633,6 +4634,27 @@ export class Eagle {
         }
 
         return null;
+    }
+
+    toggleAllPalettes = (): void => {
+        // first check the state of the palette accordion items
+        let anyExpanded: boolean = false;
+        for (let i = 0 ; i < this.palettes().length; i++){
+            const element = document.querySelector('#collapse'+i);
+            if ($(element).hasClass('show')){
+                anyExpanded = true;
+                break;
+            }
+        }
+
+        for (let i = 0 ; i < this.palettes().length; i++){
+            const element = document.querySelector('#collapse'+i);
+            if (anyExpanded){
+                bootstrap.Collapse.getOrCreateInstance(element).hide();
+            } else {
+                bootstrap.Collapse.getOrCreateInstance(element).show();
+            }
+        }
     }
 }
 

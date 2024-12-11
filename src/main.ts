@@ -253,7 +253,7 @@ $(function(){
 
     
     //initiating all the eagle ui when the graph is ready
-    eagle.eagleIsReady = ko.observable(true)
+    eagle.eagleIsReady(true);
 
     //applying html ko bindings
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
