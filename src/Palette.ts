@@ -39,8 +39,9 @@ export class Palette {
     fileInfo : ko.Observable<FileInfo>;
     private nodes : ko.ObservableArray<Node>;
     private searchExclude : ko.Observable<boolean>;
+    expanded: ko.Observable<boolean>;
 
-    public static readonly DYNAMIC_PALETTE_NAME: string = "Component Templates";
+    public static readonly TEMPLATE_PALETTE_NAME: string = "Component Templates";
     public static readonly BUILTIN_PALETTE_NAME: string = "Builtin Components";
 
     constructor(){
@@ -50,6 +51,7 @@ export class Palette {
         this.fileInfo().builtIn = false;
         this.nodes = ko.observableArray([]);
         this.searchExclude = ko.observable(false);
+        this.expanded = ko.observable(false);
     }
 
     static fromOJSJson(data : string, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette {

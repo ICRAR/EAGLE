@@ -93,6 +93,7 @@ $(function(){
     (<any>window).UiModeSystem = UiModeSystem;
     (<any>window).Utils = Utils;
     (<any>window).KeyboardShortcut = KeyboardShortcut;
+
     (<any>window).StatusEntry = StatusEntry;
     (<any>window).QuickActions = QuickActions;
     (<any>window).Modals = Modals;
@@ -127,9 +128,7 @@ $(function(){
     }
 
     // load the default palette
-    if (Setting.findValue(Setting.OPEN_DEFAULT_PALETTE)){
-        eagle.loadDefaultPalettes();
-    }
+    eagle.loadDefaultPalettes();
 
     // set other state based on settings values
     if (Setting.findValue(Setting.SNAP_TO_GRID)){
@@ -214,11 +213,9 @@ $(function(){
     //expand palettes when using searchbar and return to prior collapsed state on completion.
     $("#paletteList .componentSearchBar").on("keyup",function(){
         if ($("#paletteList .componentSearchBar").val() !== ""){
-            $("#paletteList .accordion-button.collapsed").addClass("wasCollapsed")
-            $("#paletteList .accordion-button.collapsed").trigger("click")
-        }else{
-            $("#paletteList .accordion-button.wasCollapsed").trigger("click")
-            $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
+            for (const palette of Eagle.getInstance().palettes()){
+                palette.expanded(true);
+            }
         }
     })
 
