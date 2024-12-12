@@ -371,9 +371,9 @@ export class FileInfo {
     getText = () : string => {
         if (this.repositoryName !== ""){
             if (this.path === ""){
-                return this.repositoryService + ": " + this.repositoryName + " (" + this.repositoryBranch + "): " + this.name;
+                return "<strong>" + this.repositoryService + "</strong>: " + this.repositoryName + " (" + this.repositoryBranch + "): " + this.name;
             } else {
-                return this.repositoryService + ": " + this.repositoryName + " (" + this.repositoryBranch + "): " + this.path + "/" + this.name;
+                return "<strong>" + this.repositoryService + "</strong>: " + this.repositoryName + " (" + this.repositoryBranch + "): " + this.path + "/" + this.name;
             }
         } else {
             return this.name;

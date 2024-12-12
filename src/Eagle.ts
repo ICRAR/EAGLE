@@ -385,6 +385,14 @@ export class Eagle {
         return fileInfo.getText();
     }, this);
 
+    activeConfigText : ko.PureComputed<string> = ko.pureComputed(() => {
+        if (this.logicalGraph().getActiveGraphConfig() === null){
+            return "";
+        }
+
+        return  "<strong>Config:</strong> " +this.logicalGraph().getActiveGraphConfig().getName()
+    }, this);
+
     toggleWindows = () : void  => {
         const setOpen = !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) || !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)
 
