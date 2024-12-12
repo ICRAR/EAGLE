@@ -199,7 +199,7 @@
                             <button id="bottomTabGraphConfigurationsSwitcher" class="btn btn-secondary btn-sm" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable}, click: function(){GraphConfigurationsTable.openTable()}, eagleTooltip: `Display all Graph Configurations ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
                                 <i class="md-20 icon-config_table clickable"></i>
                             </button>
-                            <button id="bottomTabGraphIssuesSwitcher" class="btn btn-secondary btn-sm" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors}, click: function(){Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)}, eagleTooltip: `Display all Graph Configurations ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
+                            <button id="bottomTabGraphIssuesSwitcher" class="btn btn-secondary btn-sm" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors}, click: function(){Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)}, eagleTooltip: `Display Graph Issues`">
                                 <i class="md-20 icon-question_mark clickable"></i>
                             </button>
                         </div>
