@@ -11,7 +11,6 @@ export class ComponentUpdater {
 
         // check if any nodes to update
         if (graph.getNodes().length === 0){
-            // TODO: don't showNotification here! instead add a warning to the errorsWarnings and callback()
             errorsWarnings.errors.push(Errors.Message("Graph contains no components to update"));
             callback(errorsWarnings, updatedNodes);
             return;

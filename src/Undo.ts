@@ -110,7 +110,6 @@ export class Undo {
 
     prevSnapshot = (eagle: Eagle) : void => {
         if (this.rear() === this.current()){
-            console.log("Undo.prevSnapshot() : no previous snapshot, abort!");
             Utils.showNotification("Unable to Undo", "No further history available", "warning");
             return;
         }
@@ -136,7 +135,6 @@ export class Undo {
 
     nextSnapshot = (eagle: Eagle) : void => {
         if (this.front() === this.current()){
-            console.log("Undo.nextSnapshot() : no next snapshot, abort!");
             Utils.showNotification("Unable to Redo", "No further history available", "warning");
             return;
         }
