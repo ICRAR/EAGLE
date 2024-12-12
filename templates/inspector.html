@@ -271,17 +271,18 @@
                     <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
                         <div class="row">
                             <div class="col col-6">
+                                <!-- ko if: $root.logicalGraph().fileInfo().repositoryService === Repository.Service.File -->
+                                <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'This is a Local Graph File'" data-bs-toggle="tooltip" data-html="true">folder_open</i>
+                                <!-- /ko -->
+                                <!-- ko if: $root.logicalGraph().fileInfo().repositoryService === Repository.Service.GitHub || $root.logicalGraph().fileInfo().repositoryService === Repository.Service.GitLab -->
+                                    <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'This is a Graph File from GitHub or GitLab'" data-bs-toggle="tooltip" data-html="true">account_tree</i>
+                                <!-- /ko -->
                                 <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().fullPath()" data-bs-toggle="tooltip" data-html="true">link</i>
                                 <i class="material-icons interactive clickable" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().shortDescription, click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
                                 <i class="material-icons interactive clickable" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().detailedDescription, click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">menu_book</i>
                             </div>
                             <div class="col-6 col text-right">
-                                <!-- ko if: $root.logicalGraph().fileInfo().repositoryService === Repository.Service.File -->
-                                    <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'This is a Local Graph File'" data-bs-toggle="tooltip" data-html="true">folder_open</i>
-                                <!-- /ko -->
-                                <!-- ko if: $root.logicalGraph().fileInfo().repositoryService === Repository.Service.GitHub || $root.logicalGraph().fileInfo().repositoryService === Repository.Service.GitLab -->
-                                    <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'This is a Graph File from GitHub or GitLab'" data-bs-toggle="tooltip" data-html="true">account_tree</i>
-                                <!-- /ko -->
+                                <i class="material-icons interactive clickable" data-bs-placement="right" data-bind="eagleTooltip: 'View graph configurations table', click: GraphConfigurationsTable.openTable" data-bs-toggle="tooltip" data-html="true">dns</i>
                             </div>
                         </div>
                     </div>
@@ -308,6 +309,22 @@
                             </div>  
                             <div class="col-6 col contentObjectValue">
                                 <span data-bind="text:$root.logicalGraph().fileInfo().lastModifiedName, eagleTooltip:$root.logicalGraph().fileInfo().lastModifiedName"></span>
+                            </div>
+                        </div>
+                        <div class="row inspectorEdgeSrcNodeId contentObject">
+                            <div class="col-6 col contentObjectTitle">
+                                <h5>Active Config: </h5>
+                            </div>  
+                            <div class="col-6 col contentObjectValue">
+                                <span data-bind="text:$root.logicalGraph().getActiveGraphConfig()?.getName(), eagleTooltip:$root.logicalGraph().getActiveGraphConfig()?.getDescription()"></span>
+                            </div>
+                        </div>
+                        <div class="row inspectorEdgeSrcNodeId contentObject">
+                            <div class="col-6 col contentObjectTitle">
+                                <h5>Config Length: </h5>
+                            </div>  
+                            <div class="col-6 col contentObjectValue">
+                                <span data-bind="text:$root.logicalGraph().getActiveGraphConfig()?.numFields(), eagleTooltip:'Number of fields overwritten by the active config.'"></span>
                             </div>
                         </div>
                     </div>
