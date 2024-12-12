@@ -467,7 +467,22 @@ export class Utils {
         $('#issuesDisplay').modal("show");
     }
 
-    static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
+    static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger", developer: boolean = false) : void {
+        // display in console
+        switch(type){
+            case "danger":
+                console.error(title, message);
+                break;
+            case "warning":
+                console.warn(title, message);
+                break;
+        }
+
+        // if this is a message intended for developers, check whether display of those messages is enabled
+        if (developer && !Setting.findValue(Setting.SHOW_DEVELOPER_NOTIFICATIONS)){
+            return;
+        }
+
         $.notify({
             title:title + ":",
             message:message
@@ -1545,9 +1560,7 @@ export class Utils {
         const jsonObject = JSON.parse(jsonString);
         const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, fileType);
         if (!validatorResult.valid){
-            const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-            console.error(message, validatorResult.errors);
-            Utils.showNotification("Error",  message + "<br/>" + validatorResult.errors, "danger");
+            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema, saving anyway" + "<br/>" + validatorResult.errors, "danger", true);
         }
     }
 

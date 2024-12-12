@@ -2231,7 +2231,6 @@ export class Eagle {
             // display error if one occurred
             if (error != null){
                 Utils.showNotification("Error deleting file", error, "danger");
-                console.error(error);
                 return;
             }
 
@@ -3308,14 +3307,12 @@ export class Eagle {
 
         // if no objects selected, warn user
         if (data.length === 0){
-            console.warn("Unable to delete selection: Nothing selected");
             Utils.showNotification("Warning", "Unable to delete selection: Nothing selected", "warning");
             return;
         }
 
         // if in "hide data nodes" mode, then recommend the user delete edges in "show data nodes" mode instead
         if (!this.showDataNodes()){
-            console.warn("Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.");
             Utils.showNotification("Warning", "Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.", "warning");
             return;
         }

@@ -425,9 +425,7 @@ export class ParameterTable {
 
         // check that we can actually find the node that this field belongs to
         if (node === null){
-            const message = "Could not find node containing this field";
-            console.warn(message);
-            Utils.showNotification("Warning", message, "warning");
+            Utils.showNotification("Warning", "Could not find node containing this field", "warning");
             return;
         }
         
