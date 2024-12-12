@@ -467,6 +467,13 @@ export class Utils {
         $('#issuesDisplay').modal("show");
     }
 
+    /**
+     * Show a temporary notification message to the user at the bottom of the graph display area
+     * @param title The title of the notification
+     * @param message The body of the notification
+     * @param type The type of the notification. This changes the color of the notification
+     * @param developer If true, this notification is intended for developers-only. Regular users are unlikely to be able to do anything useful with the information. Users enable/disable display of developer-only notifications via a setting on the Developer tab of the Settings modal.
+     */
     static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger", developer: boolean = false) : void {
         // display in console
         switch(type){
