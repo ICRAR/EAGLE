@@ -1248,9 +1248,6 @@ export class Eagle {
         // show errors (if found)
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
 
-        // sort the palette
-        p.sort();
-
         // add new palette to the START of the palettes array
         this.palettes.unshift(p);
 
@@ -2276,9 +2273,6 @@ export class Eagle {
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
-        // sort items in palette
-        newPalette.sort();
-
         // add to list of palettes
         this.palettes.unshift(newPalette);
 
@@ -2335,6 +2329,23 @@ export class Eagle {
             }
         }
         this.resetEditor()
+    }
+
+    sortPalette = (palette: Palette): void => {
+        // close the palette menu
+        this.closePaletteMenus();
+
+        const preSortCopy = palette.getNodes().slice();
+
+        palette.sort();
+
+        // check whether anything changed order, if so, mark as modified
+        for (let i = 0; i < palette.getNodes().length; i++) {
+            if (palette.getNodes()[i].getId() !== preSortCopy[i].getId()) {
+                palette.fileInfo().modified = true;
+                break;
+            }
+        }
     }
 
     getParentNameAndId = (parentId: NodeId) : string => {
@@ -3264,7 +3275,6 @@ export class Eagle {
 
                 // mark the palette as modified
                 destinationPalette.fileInfo().modified = true;
-                destinationPalette.sort();
             }
         });
     }
@@ -4141,7 +4151,6 @@ export class Eagle {
             // add to destination palette
             destinationPalette.addNode(sourceComponent, true);
             destinationPalette.fileInfo().modified = true;
-            destinationPalette.sort();
         }
     }
 
