@@ -1098,6 +1098,7 @@ export class GraphRenderer {
         if(GraphRenderer.dragCurrentPosition){
             moveDistance = {x:e.pageX - GraphRenderer.dragCurrentPosition?.x, y: e.pageY - GraphRenderer.dragCurrentPosition?.y}
         }
+        console.log(moveDistance)
         
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
 
