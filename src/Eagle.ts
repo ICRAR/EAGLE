@@ -382,7 +382,15 @@ export class Eagle {
             return "";
         }
 
-        return fileInfo.getText();
+        return fileInfo.getHtml();
+    }, this);
+
+    activeConfigHtml : ko.PureComputed<string> = ko.pureComputed(() => {
+        if (this.logicalGraph().getActiveGraphConfig() === null){
+            return "";
+        }
+
+        return  "<strong>Config:</strong> " +this.logicalGraph().getActiveGraphConfig().getName()
     }, this);
 
     toggleWindows = () : void  => {

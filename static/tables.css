@@ -178,6 +178,7 @@ td:first-child input {
 
 #graphConfigurationsTableWrapper thead{
     top: 0px;
+    border-top: 1px white solid;
 }
 
 .eagleTableWrapper th{
