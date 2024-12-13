@@ -382,10 +382,10 @@ export class Eagle {
             return "";
         }
 
-        return fileInfo.getText();
+        return fileInfo.getHtml();
     }, this);
 
-    activeConfigText : ko.PureComputed<string> = ko.pureComputed(() => {
+    activeConfigHtml : ko.PureComputed<string> = ko.pureComputed(() => {
         if (this.logicalGraph().getActiveGraphConfig() === null){
             return "";
         }
