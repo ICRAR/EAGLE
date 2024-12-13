@@ -39,11 +39,12 @@
             <div class="paletteCardWrapper">
                 <button type="button" class="material-icons md-18 dropdown-toggle paletteTrippleDot" data-bs-toggle="dropdown" >more_vert</button>
                 <div class="dropdown-menu" data-bind="event:{mouseleave: $root.closePaletteMenus}">
+                    <a href="#" data-bind="click: $root.sortPalette, clickBubble: false" data-html="true"><span>Sort</span></a>
                     <!-- ko ifnot: $data.fileInfo().builtIn -->
-                    <a href="#" data-bind="click: $root.closePalette, clickBubble: false" data-html="true"><span>Remove Palette</span></a>
+                    <a href="#" data-bind="click: $root.closePalette, clickBubble: false" data-html="true"><span>Remove</span></a>
                     <!-- /ko -->
                     <!-- ko if: $data.fileInfo().repositoryService !== Repository.Service.Unknown -->
-                    <a href="#" data-bind="click: function(){$root.reloadPalette($data, $index())}, clickBubble: false" data-html="true"><span>Reload Palette</span></a>
+                    <a href="#" data-bind="click: function(){$root.reloadPalette($data, $index())}, clickBubble: false" data-html="true"><span>Reload</span></a>
                     <!-- /ko -->
                     <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                         <a href="#" data-bind="click: $root.savePaletteToDisk" data-html="true"><span>Save Locally</span></a>
@@ -53,9 +54,9 @@
                     <a href="#" data-bind="click: function(){$data.setSearchExclude(false)}"><span>Include In Search</span></a>
                     <!-- /ko -->
                     <!-- ko if: $data.fileInfo().repositoryService !== Repository.Service.Unknown && $data.fileInfo().repositoryService !== Repository.Service.File -->
-                    <a href="#" data-bind="click: $data.copyUrl"><span>Copy Palette URL</span></a>
+                    <a href="#" data-bind="click: $data.copyUrl"><span>Copy URL</span></a>
                     <!-- /ko -->
-                    <a href="#" data-bind="click: function(){Utils.showModelDataModal('Palette Info', fileInfo());}"><span>Show Palette ModelData</span></a>
+                    <a href="#" data-bind="click: function(){Utils.showModelDataModal('Palette Info', fileInfo());}"><span>Show ModelData</span></a>
                 </div>
                 <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: SideWindow.nodeDragOver, drop: $root.nodeDropPalette }">
                     <div class="accordion-header">

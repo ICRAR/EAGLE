@@ -769,9 +769,6 @@ export class Utils {
         palette.fileInfo().downloadUrl = paletteListItem.filename;
         palette.fileInfo().type = Eagle.FileType.Palette;
         palette.fileInfo().repositoryService = Repository.Service.Url;
-
-        // sort palette and add to results
-        palette.sort();
     }
 
     static showPalettesModal(eagle: Eagle) : void {
