@@ -2335,7 +2335,7 @@ export class Eagle {
         // close the palette menu
         this.closePaletteMenus();
 
-        const preSortCopy = palette.getNodes().slice(0);
+        const preSortCopy = palette.getNodes().slice();
 
         palette.sort();
 
