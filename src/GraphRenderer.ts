@@ -1094,7 +1094,10 @@ export class GraphRenderer {
 
         //ive found that using the event.movementX and Y mouse tracking we were using, is not accurate when browser level zoom is applied. so i am calculating the movement per tick myself
         //this is done by comparing the current position, with the position recorded by the previous tick of this function
-        const moveDistance = {x:e.pageX - GraphRenderer.dragCurrentPosition?.x, y: e.pageY - GraphRenderer.dragCurrentPosition?.y}
+        let moveDistance = {x:0,y:0}
+        if(GraphRenderer.dragCurrentPosition){
+            moveDistance = {x:e.pageX - GraphRenderer.dragCurrentPosition?.x, y: e.pageY - GraphRenderer.dragCurrentPosition?.y}
+        }
         
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
 
