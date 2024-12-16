@@ -4628,6 +4628,14 @@ export class Eagle {
             }
         }
     }
+
+    togglePalette = (palette: Palette, event: Event): void => {
+        // get collapse/expand state of the accordion
+        const expanded: boolean = (<any>event.currentTarget).ariaExpanded === 'true';
+
+        // set internal variable in the palette
+        palette.expanded(expanded);
+    }
 }
 
 export namespace Eagle
