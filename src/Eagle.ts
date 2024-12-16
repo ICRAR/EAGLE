@@ -382,7 +382,15 @@ export class Eagle {
             return "";
         }
 
-        return fileInfo.getText();
+        return fileInfo.getHtml();
+    }, this);
+
+    activeConfigHtml : ko.PureComputed<string> = ko.pureComputed(() => {
+        if (this.logicalGraph().getActiveGraphConfig() === null){
+            return "";
+        }
+
+        return  "<strong>Config:</strong> " +this.logicalGraph().getActiveGraphConfig().getName()
     }, this);
 
     toggleWindows = () : void  => {
@@ -1239,9 +1247,6 @@ export class Eagle {
 
         // show errors (if found)
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
-
-        // sort the palette
-        p.sort();
 
         // add new palette to the START of the palettes array
         this.palettes.unshift(p);
@@ -2239,7 +2244,6 @@ export class Eagle {
             // display error if one occurred
             if (error != null){
                 Utils.showNotification("Error deleting file", error, "danger");
-                console.error(error);
                 return;
             }
 
@@ -2279,9 +2283,6 @@ export class Eagle {
 
         // all new (or reloaded) palettes should have 'expanded' flag set to true
         newPalette.expanded(true);
-
-        // sort items in palette
-        newPalette.sort();
 
         // add to list of palettes
         this.palettes.unshift(newPalette);
@@ -2339,6 +2340,23 @@ export class Eagle {
             }
         }
         this.resetEditor()
+    }
+
+    sortPalette = (palette: Palette): void => {
+        // close the palette menu
+        this.closePaletteMenus();
+
+        const preSortCopy = palette.getNodes().slice();
+
+        palette.sort();
+
+        // check whether anything changed order, if so, mark as modified
+        for (let i = 0; i < palette.getNodes().length; i++) {
+            if (palette.getNodes()[i].getId() !== preSortCopy[i].getId()) {
+                palette.fileInfo().modified = true;
+                break;
+            }
+        }
     }
 
     getParentNameAndId = (parentId: NodeId) : string => {
@@ -3232,7 +3250,6 @@ export class Eagle {
 
                 // mark the palette as modified
                 destinationPalette.fileInfo().modified = true;
-                destinationPalette.sort();
             }
         });
     }
@@ -3283,14 +3300,12 @@ export class Eagle {
 
         // if no objects selected, warn user
         if (data.length === 0){
-            console.warn("Unable to delete selection: Nothing selected");
             Utils.showNotification("Warning", "Unable to delete selection: Nothing selected", "warning");
             return;
         }
 
         // if in "hide data nodes" mode, then recommend the user delete edges in "show data nodes" mode instead
         if (!this.showDataNodes()){
-            console.warn("Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.");
             Utils.showNotification("Warning", "Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.", "warning");
             return;
         }
@@ -4111,7 +4126,6 @@ export class Eagle {
             // add to destination palette
             destinationPalette.addNode(sourceComponent, true);
             destinationPalette.fileInfo().modified = true;
-            destinationPalette.sort();
         }
     }
 

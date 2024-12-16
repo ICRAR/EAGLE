@@ -1091,12 +1091,20 @@ export class GraphRenderer {
     static mouseMove(eagle: Eagle, event: JQuery.TriggeredEvent) : void {
         const e: MouseEvent = event.originalEvent as MouseEvent;
         GraphRenderer.ctrlDrag = event.ctrlKey;
+
+        //ive found that using the event.movementX and Y mouse tracking we were using, is not accurate when browser level zoom is applied. so i am calculating the movement per tick myself
+        //this is done by comparing the current position, with the position recorded by the previous tick of this function
+        let moveDistance = {x:0,y:0}
+        if(GraphRenderer.dragCurrentPosition){
+            moveDistance = {x:e.pageX - GraphRenderer.dragCurrentPosition?.x, y: e.pageY - GraphRenderer.dragCurrentPosition?.y}
+        }
+        
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
 
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
                 //check and note if the mouse has moved
-                GraphRenderer.simpleSelect = GraphRenderer.dragStartPosition.x - e.movementX < 5 && GraphRenderer.dragStartPosition.y - e.movementY < 5
+                GraphRenderer.simpleSelect = GraphRenderer.dragStartPosition.x - moveDistance.x < 5 && GraphRenderer.dragStartPosition.y - moveDistance.y < 5
 
                 //creating an array that contains all of the outermost nodes in the selected array
                 const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
@@ -1108,7 +1116,7 @@ export class GraphRenderer {
                 if(!GraphRenderer.simpleSelect){
                     eagle.selectedObjects().forEach(function(obj){
                         if(obj instanceof Node){
-                            obj.changePosition(e.movementX/eagle.globalScale(), e.movementY/eagle.globalScale());
+                            obj.changePosition(moveDistance.x/eagle.globalScale(), moveDistance.y/eagle.globalScale());
                         }
                     })
                 }
@@ -1125,8 +1133,8 @@ export class GraphRenderer {
                 GraphRenderer.drawSelectionRectangle()
             }else{
                 // move background
-                eagle.globalOffsetX(eagle.globalOffsetX() + e.movementX/eagle.globalScale());
-                eagle.globalOffsetY(eagle.globalOffsetY() + e.movementY/eagle.globalScale());
+                eagle.globalOffsetX(eagle.globalOffsetX() + moveDistance.x/eagle.globalScale());
+                eagle.globalOffsetY(eagle.globalOffsetY() + moveDistance.y/eagle.globalScale());
             }
         }
 

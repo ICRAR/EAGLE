@@ -285,6 +285,7 @@ export class Setting {
     static readonly CONFIRM_DELETE_FILES : string = "ConfirmDeleteFiles";
     static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
 
+    static readonly SHOW_DEVELOPER_NOTIFICATIONS: string = "ShowDeveloperNotifications";
     static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
 
     static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
@@ -440,6 +441,7 @@ const settings : SettingsGroup[] = [
         "Developer",
         () => {return false;},
         [
+            new Setting(true, "Show Developer Notifications", Setting.SHOW_DEVELOPER_NOTIFICATIONS, "EAGLE generates a number of messages intended to alert developers to unusual occurrences or issues. Enabling this setting displays those messages.", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Show File Loading Warnings", Setting.SHOW_FILE_LOADING_ERRORS, "Display list of issues with files encountered during loading.", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Open Translator In Current Tab", Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, "When translating a graph, display the output of the translator in the current tab", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Create Applications for Construct Ports", Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, "When loading old graph files with ports on construct nodes, move the port to an embedded application", false, Setting.Type.Boolean, true, true, true, true, true),

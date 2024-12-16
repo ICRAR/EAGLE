@@ -255,7 +255,6 @@ export class Field {
     removeOption = (index:number) : void => {
         if(this.options().length <= 1){
             Utils.showNotification("Cannot Remove","There must be at least one option in the select!",'danger');
-
             return
         }
 
