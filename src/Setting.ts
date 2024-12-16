@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
+import { Palette } from "./Palette";
 import { Repository } from "./Repository";
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
@@ -272,6 +273,9 @@ export class Setting {
     static readonly BOTTOM_WINDOW_MODE : string = "BottomWindowMode";
     static readonly OBJECT_INSPECTOR_COLLAPSED_STATE : string = "ObjectInspectorVisibility";
     static readonly GRAPH_INSPECTOR_COLLAPSED_STATE : string = "GraphInspectorVisibility";
+    
+    static readonly OPEN_BUILTIN_PALETTE: string = "OpenBuiltinPalette";
+    static readonly OPEN_TEMPLATE_PALETTE: string = "OpenTemplatePalette";
 
     static readonly ACTION_CONFIRMATIONS : string = "ActionConfirmations";
     static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
@@ -307,7 +311,6 @@ export class Setting {
 
     static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
 
-    static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
     static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
     static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
 
@@ -374,7 +377,8 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Confirm Reload Palettes", Setting.CONFIRM_RELOAD_PALETTES, "Prompt user to confirm when loading a palette that is already loaded.",false , Setting.Type.Boolean,true,true,true,true,true),
             new Setting(false, "Confirm Delete Files", Setting.CONFIRM_DELETE_FILES, "Prompt user to confirm when deleting files from a repository.", false, Setting.Type.Boolean, true,true,true,true,true),
             new Setting(false, "Confirm Delete Objects", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
-            new Setting(true, "Open Default Palette on Startup", Setting.OPEN_DEFAULT_PALETTE, "Open a default palette on startup. The palette contains an example of all known node categories", false, Setting.Type.Boolean, false,false,true,true,true, [], function(){Eagle.getInstance().toggleDefaultPalettes();}),
+            new Setting(false, "Open " + Palette.BUILTIN_PALETTE_NAME + " Palette on Startup", Setting.OPEN_BUILTIN_PALETTE, "Open the '" + Palette.BUILTIN_PALETTE_NAME + "' palette on startup.", true, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(false, "Open " + Palette.TEMPLATE_PALETTE_NAME + " Palette on Startup", Setting.OPEN_TEMPLATE_PALETTE, "Open the '" + Palette.TEMPLATE_PALETTE_NAME + "' palette on startup.", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Disable JSON Validation", Setting.DISABLE_JSON_VALIDATION, "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", false, Setting.Type.Boolean, false,false,false,false,false),
             new Setting(true, "Overwrite Existing Translator Tab", Setting.OVERWRITE_TRANSLATION_TAB, "When translating a graph, overwrite an existing translator tab", false, Setting.Type.Boolean, true,true,true,true,true),
         ]
