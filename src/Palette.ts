@@ -33,7 +33,9 @@ import { FileInfo } from './FileInfo';
 import { Node } from './Node';
 import { Repository } from "./Repository";
 import { RepositoryFile } from './RepositoryFile';
+import { Setting } from "./Setting";
 import { Utils } from './Utils';
+import { UiModeSystem } from "./UiModes";
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
@@ -289,5 +291,23 @@ export class Palette {
 
         // notification
         Utils.showNotification("Palette URL", "Copied to clipboard", "success");
+    }
+
+    toggle = (palette: Palette, event: Event): void => {
+        // get collapse/expand state of the accordion
+        const expanded: boolean = (<any>event.currentTarget).ariaExpanded === 'true';
+
+        // set internal variable in the palette
+        this.expanded(expanded);
+
+        // if this palette one of the built-in ones, then save the state to localStorage
+        if (this.fileInfo().name === Palette.BUILTIN_PALETTE_NAME){
+            Setting.setValue(Setting.OPEN_BUILTIN_PALETTE, expanded);
+            UiModeSystem.saveToLocalStorage();
+        }
+        if (this.fileInfo().name === Palette.TEMPLATE_PALETTE_NAME){
+            Setting.setValue(Setting.OPEN_TEMPLATE_PALETTE, expanded);
+            UiModeSystem.saveToLocalStorage();
+        }
     }
 }
