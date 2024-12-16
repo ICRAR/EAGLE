@@ -18,6 +18,10 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await page.waitForTimeout(500);
   await page.getByRole('button', { name: 'OK' }).click()
 
+  //expand the 'Builtin Components' palette
+  await page.locator('#palette0').click();
+  await page.waitForTimeout(250);
+
   //add a helloworld app to the graph by clicking it's icon
   await page.locator('#addPaletteNodeHelloWorldApp').click();
   //agree to create a new graph with it's auto-generated name
