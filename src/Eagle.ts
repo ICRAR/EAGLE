@@ -2277,6 +2277,9 @@ export class Eagle {
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
+        // all new (or reloaded) palettes should have 'expanded' flag set to true
+        newPalette.expanded(true);
+
         // sort items in palette
         newPalette.sort();
 
