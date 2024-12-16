@@ -18,6 +18,10 @@ test('Creating and editing Palettes', async ({ page }) => {
   await page.waitForTimeout(500);
   await page.getByRole('button', { name: 'OK' }).click()
 
+  //expand the 'Builtin Components' palette
+  await page.locator('#paletteList .accordion-item[data-palette-index=0]').click();
+  await page.waitForTimeout(250);
+
   //right click the hello world app in the palette
   await page.locator('#palette_0_CopyApp').click({
     button: 'right'

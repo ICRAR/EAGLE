@@ -206,10 +206,6 @@ $(function(){
         $("textarea").trigger("blur");
     });
 
-    $(".tableParameter").on("click", function(){
-        console.log(this)
-    })
-
     //expand palettes when using searchbar and return to prior collapsed state on completion.
     $("#paletteList .componentSearchBar").on("keyup",function(){
         if ($("#paletteList .componentSearchBar").val() !== ""){
@@ -234,6 +230,7 @@ $(function(){
         }
     })
 
+    // TODO: replace this with a data-bind=click in the element html
     $(".hierarchy").on("click", function(){
         Eagle.getInstance().selectedObjects([]);
     })
