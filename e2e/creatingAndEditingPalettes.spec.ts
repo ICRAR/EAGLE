@@ -19,7 +19,7 @@ test('Creating and editing Palettes', async ({ page }) => {
   await page.getByRole('button', { name: 'OK' }).click()
 
   //expand the 'Builtin Components' palette
-  await page.locator('#paletteList .accordion-item[data-palette-index=0]').click();
+  await page.locator('#palette0').click();
   await page.waitForTimeout(250);
 
   //right click the hello world app in the palette
