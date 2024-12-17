@@ -30,7 +30,7 @@
                                 </div>
                                 <div class="col-6 col text-right">
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                        <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + KeyboardShortcut.idToText('open_parameter_table', true)" data-bs-placement="left">
+                                        <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + KeyboardShortcut.idToText('open_parameter_table', true)" data-bs-placement="left">
                                             <i class="material-icons md-20 clickable">table_chart</i>
                                         </button>
                                     <!-- /ko -->

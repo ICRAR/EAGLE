@@ -4663,9 +4663,9 @@ export namespace Eagle
 
     export enum BottomWindowMode {
         None = "None",
-        ParameterTable = "ParameterTable",
+        NodeParameterTable = "NodeParameterTable",
         GraphConfigsTable = "GraphConfigsTable",
-        GraphConfigAttributesTable = "GraphConfigAttributesTable",
+        ConfigParameterTable = "ConfigParameterTable",
         GraphErrors = "GraphErrors"
     }
 
