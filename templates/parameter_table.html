@@ -146,12 +146,12 @@
                                                     
                                                     <!-- ko if: Eagle.selectedLocation() === Eagle.FileType.Graph -->
                                                         <!-- ko ifnot: $root.logicalGraph().getActiveGraphConfig()?.hasField($data) -->
-                                                        <button data-bind="click: function(){ParameterTable.requestAddField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER) || $root.getCurrentParamValueReadonly($data), eagleTooltip:'Add Field to Graph Config', style:{'visibility':'hidden'}, clickBubble:false">
+                                                        <button data-bind="click: function(){ParameterTable.requestAddField($data)}, disabled: !Setting.findValue(Setting.ALLOW_MODIFY_GRAPH_CONFIG) || $root.getCurrentParamValueReadonly($data), eagleTooltip:'Add Field to Graph Config', style:{'visibility':'hidden'}, clickBubble:false">
                                                             <i class="material-icons">favorite_border</i>
                                                         </button>
                                                         <!-- /ko -->
                                                         <!-- ko if: $root.logicalGraph().getActiveGraphConfig()?.hasField($data) -->
-                                                        <button data-bind="click: function(){ParameterTable.requestRemoveField($data)}, disabled: !Setting.findValue(Setting.ALLOW_SET_KEY_PARAMETER) || $root.getCurrentParamValueReadonly($data), eagleTooltip:'Remove Field from Graph Config', style:{'visibility':'visible'}, clickBubble:false">
+                                                        <button data-bind="click: function(){ParameterTable.requestRemoveField($data)}, disabled: !Setting.findValue(Setting.ALLOW_MODIFY_GRAPH_CONFIG) || $root.getCurrentParamValueReadonly($data), eagleTooltip:'Remove Field from Graph Config', style:{'visibility':'visible'}, clickBubble:false">
                                                             <i class="material-icons">favorite</i>
                                                         </button>
                                                         <!-- /ko -->

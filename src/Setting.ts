@@ -297,7 +297,7 @@ export class Setting {
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
     static readonly ALLOW_GRAPH_EDITING : string = "AllowGraphEditing";
-    static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
+    static readonly ALLOW_MODIFY_GRAPH_CONFIG : string = "AllowModifyGraphConfig";
     static readonly STUDENT_SETTINGS_MODE : string = "StudentSettingsMode"
     static readonly VALUE_EDITING_PERMS : string = "ValueEditingPerms"
     static readonly AUTO_COMPLETE_EDGES_LEVEL : string = "AutoCompleteEdgesLevel"
@@ -412,7 +412,7 @@ const settings : SettingsGroup[] = [
         [
             new Setting(true, "Allow Invalid edges", Setting.ALLOW_INVALID_EDGES, "Allow the user to create edges even if they would normally be determined invalid.", false, Setting.Type.Boolean, false, false, false, false, true),
             new Setting(true, "Allow Component Editing", Setting.ALLOW_COMPONENT_EDITING, "Allow the user to add/remove ports and parameters from components.",false, Setting.Type.Boolean,false, false, false, true,true),
-            new Setting(true, "Allow Set Key Parameter", Setting.ALLOW_SET_KEY_PARAMETER, "Allow the user to add/remove key parameter flags from parameters.", false, Setting.Type.Boolean,false, true, true, true,true),
+            new Setting(true, "Allow Modify Graph Configurations", Setting.ALLOW_MODIFY_GRAPH_CONFIG, "Allow the user to add/remove parameters from graph configurations.", false, Setting.Type.Boolean,false, true, true, true,true),
             new Setting(true, "Allow Graph Editing", Setting.ALLOW_GRAPH_EDITING, "Allow the user to edit and create graphs.", false, Setting.Type.Boolean, false, false, true, true, true),
             new Setting(true, "Allow Palette Editing", Setting.ALLOW_PALETTE_EDITING, "Allow the user to edit palettes.", false, Setting.Type.Boolean, false, false, false, true, true),
             new Setting(true, "Allow Readonly Palette Editing", Setting.ALLOW_READONLY_PALETTE_EDITING, "Allow the user to modify palettes that would otherwise be readonly.", false, Setting.Type.Boolean,false,false,false,false,true),

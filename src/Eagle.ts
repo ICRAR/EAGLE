@@ -2801,7 +2801,7 @@ export class Eagle {
             return field.isReadonly();
         }
         
-        console.warn("something in value readonly permissions has one wrong!");
+        console.warn("something in value readonly permissions has gone wrong!");
         return true
     }
 
