@@ -85,7 +85,7 @@
                         </thead>
                         <tbody data-bind="foreach: ParameterTable.getTableFields()">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
-                                <!-- ko if: Setting.findValue(Setting.SHOW_NON_KEY_PARAMETERS) || $root.logicalGraph().getActiveGraphConfig()?.hasField($data) -->
+                                <!-- ko if: Setting.findValue(Setting.SHOW_NON_CONFIG_PARAMETERS) || $root.logicalGraph().getActiveGraphConfig()?.hasField($data) -->
                                     <tr data-bind="attr: {'id' : 'tableRow_'+$data.getId()}">
                                         <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
                                         <td class='columnCell column_KeyAttr'>

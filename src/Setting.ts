@@ -292,7 +292,7 @@ export class Setting {
     static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
     static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
-    static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters"; // TODO: maybe rename SHOW_NON_GRAPH_CONFIG_PARAMETERS?
+    static readonly SHOW_NON_CONFIG_PARAMETERS : string = "ShowNonConfigParameters";
     static readonly FILTER_NODE_SUGGESTIONS : string = "AutoSuggestDestinationNodes";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
@@ -308,8 +308,6 @@ export class Setting {
     static readonly EXPLORE_PALETTES_SERVICE : string = "ExplorePalettesService";
     static readonly EXPLORE_PALETTES_REPOSITORY : string = "ExplorePalettesRepository";
     static readonly EXPLORE_PALETTES_BRANCH : string = "ExplorePalettesBranch";
-
-    static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
 
     static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
     static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
@@ -387,7 +385,7 @@ const settings : SettingsGroup[] = [
         "UI Options",
         () => {return true;},
         [
-            new Setting(true, "Show non key parameters", Setting.SHOW_NON_KEY_PARAMETERS, "Show additional parameters that are not marked as key parameters for the current graph",false, Setting.Type.Boolean, false,true,true,true,true),
+            new Setting(true, "Show non key parameters", Setting.SHOW_NON_CONFIG_PARAMETERS, "Show additional parameters that are not part of a graph configuration for the current graph",false, Setting.Type.Boolean, false,true,true,true,true),
             new Setting(false, "Show Developer Tab", Setting.SHOW_DEVELOPER_TAB, "Reveals the developer tab in the settings menu", false, Setting.Type.Boolean, false,false,false,false,true),
             new Setting(true, "Translator Mode", Setting.USER_TRANSLATOR_MODE, "Configure the translator mode", false, Setting.Type.Select, Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Expert, Object.values(Setting.TranslatorMode)),
             new Setting(true, "Graph Zoom Divisor", Setting.GRAPH_ZOOM_DIVISOR, "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", false, Setting.Type.Number,1000,1000,1000,1000,1000),
