@@ -343,8 +343,8 @@ td:first-child input {
 }
 
 .eagleTableDisplay .eagleTableWrapper .doubleInputDisplay{
-    width: 45%;
-    border: 2px dotted #002e5f;
+    width: 42%;
+    border: 1px dotted #002e5f;
     left: unset;
     top: 3px;
     bottom: 3px;
@@ -354,7 +354,7 @@ td:first-child input {
 .eagleTableDisplay .eagleTableWrapper .doubleInputDisplay.configValueInput{
     right: unset;
     left: 3px;
-    border: 1px solid #002e5f;
+    border: 2px solid #002e5f;
 }
 
 .eagleTableDisplay  input[type="checkbox"]{
@@ -509,7 +509,8 @@ td:first-child input {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    font-weight: 800;   
+    font-weight: 500;
+    font-size: 57px;   
 }
 
 @media only screen and (max-width: 2010px) {
