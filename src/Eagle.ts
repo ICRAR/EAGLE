@@ -4226,11 +4226,6 @@ export class Eagle {
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");
-
-                // if we summoned this editField modal from the params table, now that we are done, re-open the params table
-                if (modalType === Eagle.ModalType.Field){
-                    $('.parameterTable').modal("show");
-                }
             });
         }
     };
@@ -4663,9 +4658,9 @@ export namespace Eagle
 
     export enum BottomWindowMode {
         None = "None",
-        ParameterTable = "ParameterTable",
+        NodeParameterTable = "NodeParameterTable",
         GraphConfigsTable = "GraphConfigsTable",
-        GraphConfigAttributesTable = "GraphConfigAttributesTable",
+        ConfigParameterTable = "ConfigParameterTable",
         GraphErrors = "GraphErrors"
     }
 
