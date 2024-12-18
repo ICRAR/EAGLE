@@ -207,7 +207,7 @@
                     <div class="content">
                         <!-- ko if: $root.getEagleIsReady() -->
                             <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable -->
-                                {% include 'parameter_table.html' %}
+                                {% include 'node_parameter_table.html' %}
                             <!-- /ko -->
                             <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable -->
                                 {% include 'config_parameter_table.html' %}
