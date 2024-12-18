@@ -13,12 +13,12 @@ newTut.newTutStep("Right Panel", "Multipurpose panel with several tabs offering 
 newTut.newTutStep("User Interface Element Tooltips", "Much of Eagle's interface is using icons. You can always hover over the icons and most of the other elements to get more information on what they do.", function(){return $("#navbarSupportedContent .btn-group")})
     .setBackPreFunction(function (eagle) {eagle.closeShortcuts()})
 
-newTut.newTutStep("Keyboard Shortcuts", "Many of the major functions are available through keyboard shurtcuts and you can find the mapping here. To access this modal, find it in the navbar under 'Help' or simply press 'K'.", function(){return $("#shortcutsModal")})
+newTut.newTutStep("Keyboard Shortcuts", "Many of the major functions are available through keyboard shortcuts and you can find the mapping here. To access this modal, find it in the navbar under 'Help' or simply press 'K'.", function(){return $("#shortcutsModal")})
     .setWaitType(TutorialStep.Wait.Modal)
     .setBackPreFunction(function(eagle){eagle.openShortcuts()})
     .setPreFunction(function(eagle){eagle.openShortcuts()})
 
-newTut.newTutStep("Click To Open Settings", "The settings modal allows to cusomize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <em>To continue the tutorial please click the highlighted settings icon button!</em>", function(){return $("#settings")})
+newTut.newTutStep("Click To Open Settings", "The settings modal allows to customize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <em>To continue the tutorial please click the highlighted settings icon button!</em>", function(){return $("#settings")})
     .setType(TutorialStep.Type.Press)
     .setPreFunction(function(eagle){eagle.closeShortcuts();})
     .setBackPreFunction(function(eagle){eagle.closeSettings();})

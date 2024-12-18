@@ -1198,7 +1198,7 @@ select.form-control{
     width:100%;
 }
 
-.paletteTrippleDot{
+.paletteTripleDot{
     position: absolute;
     right: 35px;
     margin-top: 10px;
@@ -1224,7 +1224,7 @@ select.form-control{
     pointer-events: auto;
 }
 
-.paletteTrippleDot:after{
+.paletteTripleDot:after{
     display: none;
 }
 
@@ -1670,7 +1670,7 @@ select.form-control{
     width: auto;
 }
 
-.repoConatiner{
+.repoContainer{
     padding:0px 10px;
 }
 

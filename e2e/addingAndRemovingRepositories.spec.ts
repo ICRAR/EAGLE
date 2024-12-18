@@ -12,9 +12,9 @@ test('Adding and Removing Repositories', async ({ page }) => {
   const REPO_BRANCH = "yan-812-2";
   const repoHTMLId = '#'+REPO_NAME.replace('/', '_') + "_" + REPO_BRANCH;
 
-  //making sure the repo doesnt exist for some reason, if it does, remove it
+  //making sure the repo doesn't exist for some reason, if it does, remove it
   if(await page.locator('#ICRAR_daliuge_yan-812-2').count() === 1){
-    await page.locator('.repoConatiner').filter({has:page.locator(repoHTMLId)}).getByText('eject').click()
+    await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).getByText('eject').click()
   }
 
   //click the add repository button
