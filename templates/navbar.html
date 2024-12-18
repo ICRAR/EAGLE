@@ -24,7 +24,7 @@
                 <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
                     <i class="material-icons md-18">info</i>
                 </button>
-                <button id="openGraphConfigurationTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.GraphConfigAttributesTable, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Attributes Configuration ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
+                <button id="openGraphConfigurationTable" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Attributes Configuration ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
                     <i class="md-18 icon-key_attribute_table"></i>
                 </button>
                 <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >

@@ -2,7 +2,7 @@
 <div class="eagleTableDisplay parameterTable" tabindex="-1" role="dialog" aria-labelledby="parameterTableTitle">
     <div class="bottomWindowHeaderWrap" data-bind="click: function(){ParameterTable.resetSelection()}">
         <!-- ko if: eagle.selectedNode() != null -->
-            <h5 class="bottomWindowHeader">Fields Table: <span data-bind="html: selectedNode().getName()"></span></h5>
+            <h5 class="bottomWindowHeader">Node Fields Table: <span data-bind="html: selectedNode().getName()"></span></h5>
             <!-- ko if: selectedNode() != null -->
                 <!-- ko if: selectedNode().isLocked() -->
                     <button type="button" class="btn btn-secondary btn-sm" data-bind="click: function() { }, clickBubble: false, eagleTooltip: Utils.getReadOnlyText()">
