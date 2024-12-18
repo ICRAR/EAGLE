@@ -265,6 +265,14 @@ td:first-child input {
     font-size: 14px;
 }
 
+#showOverwriteSeperately{
+    background-color: transparent;
+}
+
+#showOverwriteSeperately i{
+    background: none;
+}
+
 .eagleTableWrapper i{
     font-size:20px;
 }
