@@ -50,8 +50,6 @@ User Options
 
 **Confirm Reload Palettes** - Prompt user to confirm when loading a palette that is already loaded.
 
-**Open Default Palette on Startup** - Open a default palette on startup. The palette contains an example of all known node categories.
-
 **Confirm Delete** - Prompt user to confirm when deleting node(s) or edge(s) from a graph.
 
 **Disable JSON Validation** - Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.

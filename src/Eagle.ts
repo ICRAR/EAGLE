@@ -1248,9 +1248,6 @@ export class Eagle {
         // show errors (if found)
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
 
-        // sort the palette
-        p.sort();
-
         // add new palette to the START of the palettes array
         this.palettes.unshift(p);
 
@@ -1483,7 +1480,7 @@ export class Eagle {
                 break;
             case Repository.Service.Url:
                 this.loadPalettes([
-                    {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
+                    {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly, expanded: true}
                 ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
                     for (const palette of palettes){
                         if (palette !== null){
@@ -1904,9 +1901,17 @@ export class Eagle {
     }
 
     loadDefaultPalettes = () : void => {
+        // get collapsed/expanded state of palettes from html locaStorage
+        let templatePaletteExpanded: boolean = Setting.findValue(Setting.OPEN_TEMPLATE_PALETTE);
+        let builtinPaletteExpanded: boolean = Setting.findValue(Setting.OPEN_BUILTIN_PALETTE);
+        templatePaletteExpanded = templatePaletteExpanded === null ? false : templatePaletteExpanded;
+        builtinPaletteExpanded = builtinPaletteExpanded === null ? false : builtinPaletteExpanded;
+
+
+        // fetch the palettes
         this.loadPalettes([
-            {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true},
-            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true}
+            {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true, expanded: builtinPaletteExpanded},
+            {name:Palette.TEMPLATE_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true, expanded: templatePaletteExpanded}
         ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
             const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
@@ -1928,7 +1933,7 @@ export class Eagle {
         });
     }
 
-    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean}[], callback: (errorsWarnings: Errors.ErrorsWarnings, data: Palette[]) => void ) : void => {
+    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean, expanded: boolean}[], callback: (errorsWarnings: Errors.ErrorsWarnings, data: Palette[]) => void ) : void => {
         const results: Palette[] = [];
         const complete: boolean[] = [];
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
@@ -2276,8 +2281,8 @@ export class Eagle {
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
-        // sort items in palette
-        newPalette.sort();
+        // all new (or reloaded) palettes should have 'expanded' flag set to true
+        newPalette.expanded(true);
 
         // add to list of palettes
         this.palettes.unshift(newPalette);
@@ -2337,6 +2342,23 @@ export class Eagle {
         this.resetEditor()
     }
 
+    sortPalette = (palette: Palette): void => {
+        // close the palette menu
+        this.closePaletteMenus();
+
+        const preSortCopy = palette.getNodes().slice();
+
+        palette.sort();
+
+        // check whether anything changed order, if so, mark as modified
+        for (let i = 0; i < palette.getNodes().length; i++) {
+            if (palette.getNodes()[i].getId() !== preSortCopy[i].getId()) {
+                palette.fileInfo().modified = true;
+                break;
+            }
+        }
+    }
+
     getParentNameAndId = (parentId: NodeId) : string => {
         if(parentId === null){
             return ""
@@ -2362,42 +2384,6 @@ export class Eagle {
         Setting.setValue(Setting.CONFIRM_RELOAD_PALETTES,true)
         Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORIES,true)
         Utils.showNotification("Success", "Confirmation message pop ups re-enabled", "success");
-    }
-
-    // toggles the default palettes on or off
-    // if currently shown, just remove them from the palettes list
-    // if currently not shown, fetch them from the remove source and add to palettes list
-    toggleDefaultPalettes = () : void => {
-        const allowGraphEditing: boolean = Setting.find(Setting.ALLOW_GRAPH_EDITING).value() as boolean;
-        const allowPaletteEditing: boolean = Setting.find(Setting.ALLOW_PALETTE_EDITING).value() as boolean;
-        const openDefaultPalette: boolean = Setting.find(Setting.OPEN_DEFAULT_PALETTE).value() as boolean;
-
-        // if:
-        // - user is loading palettes
-        // - allow palette editing is off
-        // - allow graph editing is off
-        // then the palettes tab is invisible anyway, and the user will not see the palettes loaded, so notify them of this corner case
-        if (openDefaultPalette && !allowGraphEditing && !allowPaletteEditing){
-            Utils.showNotification("Palettes Disabled", "Palettes are not visible in the current UI mode", "warning");
-        }
-
-        const eagle: Eagle = Eagle.getInstance();
-
-        const builtinPalette: Palette = this.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
-        const dynamicPalette: Palette = this.findPalette(Palette.DYNAMIC_PALETTE_NAME, false);
-
-        // always close the palettes
-        if (builtinPalette !== null){
-            eagle.closePalette(builtinPalette);
-        }
-        if (dynamicPalette !== null){
-            eagle.closePalette(dynamicPalette);
-        }
-        
-        // reload them if applicable
-        if (openDefaultPalette){
-            eagle.loadDefaultPalettes();
-        }
     }
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
@@ -3264,7 +3250,6 @@ export class Eagle {
 
                 // mark the palette as modified
                 destinationPalette.fileInfo().modified = true;
-                destinationPalette.sort();
             }
         });
     }
@@ -3758,8 +3743,8 @@ export class Eagle {
     private buildWritablePaletteNamesList = () : string[] => {
         const paletteNames : string[] = [];
         for (const palette of this.palettes()){
-            // skip the dynamically generated palette that contains all nodes
-            if (palette.fileInfo().name === Palette.DYNAMIC_PALETTE_NAME){
+            // skip the template palette that contains all nodes
+            if (palette.fileInfo().name === Palette.TEMPLATE_PALETTE_NAME){
                 continue;
             }
             // skip the built-in palette
@@ -4141,7 +4126,6 @@ export class Eagle {
             // add to destination palette
             destinationPalette.addNode(sourceComponent, true);
             destinationPalette.fileInfo().modified = true;
-            destinationPalette.sort();
         }
     }
 
@@ -4242,11 +4226,6 @@ export class Eagle {
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Edit Field");
-
-                // if we summoned this editField modal from the params table, now that we are done, re-open the params table
-                if (modalType === Eagle.ModalType.Field){
-                    $('.parameterTable').modal("show");
-                }
             });
         }
     };
@@ -4679,9 +4658,9 @@ export namespace Eagle
 
     export enum BottomWindowMode {
         None = "None",
-        ParameterTable = "ParameterTable",
+        NodeParameterTable = "NodeParameterTable",
         GraphConfigsTable = "GraphConfigsTable",
-        GraphConfigAttributesTable = "GraphConfigAttributesTable",
+        ConfigParameterTable = "ConfigParameterTable",
         GraphErrors = "GraphErrors"
     }
 
@@ -4778,21 +4757,6 @@ $( document ).ready(function() {
         //back up method of hiding the right click context menu in case it get stuck open
         RightClick.closeCustomContextMenu(true);
     });
-
-    $(".tableParameter").on("click", function(){
-        console.log(this)
-    })
-
-    //expand palettes when using searchbar and return to prior collapsed state on completion.
-    $("#paletteList .componentSearchBar").on("keyup",function(){
-        if ($("#paletteList .componentSearchBar").val() !== ""){
-            $("#paletteList .accordion-button.collapsed").addClass("wasCollapsed")
-            $("#paletteList .accordion-button.collapsed").trigger("click")
-        }else{
-            $("#paletteList .accordion-button.wasCollapsed").trigger("click")
-            $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
-        }
-    })
 
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const e: MouseEvent = event.originalEvent as MouseEvent;

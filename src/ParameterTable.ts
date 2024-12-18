@@ -62,7 +62,7 @@ export class ParameterTable {
             return "";
         }
 
-        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigAttributesTable){
+        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
             return ParameterTable.selectionParent().getDisplayText() + " - " + ParameterTable.selectionName();
         } else {
             return "Unknown";
@@ -74,7 +74,7 @@ export class ParameterTable {
             return "";
         }
 
-        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigAttributesTable){
+        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
             return ParameterTable.selection();
         } else {
             return "Unknown";
@@ -158,10 +158,10 @@ export class ParameterTable {
         const eagle: Eagle = Eagle.getInstance();
 
         switch (Setting.findValue(Setting.BOTTOM_WINDOW_MODE)){
-            case Eagle.BottomWindowMode.ParameterTable:
+            case Eagle.BottomWindowMode.NodeParameterTable:
                 return eagle.selectedNode()?.getFields();
             
-            case Eagle.BottomWindowMode.GraphConfigAttributesTable:
+            case Eagle.BottomWindowMode.ConfigParameterTable:
                 const lg: LogicalGraph = eagle.logicalGraph();
                 const config: GraphConfig = lg.getActiveGraphConfig();
                 const displayedFields: Field[] = [];
@@ -206,7 +206,7 @@ export class ParameterTable {
     static getNodeLockedState = (field:Field) : boolean => {
         // this handles a special case where EAGLE is displaying the "Graph Configuration Attributes Table"
         // all the field names shown in that table should be locked (readonly)
-        if (Setting.find(Setting.BOTTOM_WINDOW_MODE).value() === Eagle.BottomWindowMode.GraphConfigAttributesTable){
+        if (Setting.find(Setting.BOTTOM_WINDOW_MODE).value() === Eagle.BottomWindowMode.ConfigParameterTable){
             return true;
         }
 
@@ -381,7 +381,7 @@ export class ParameterTable {
         } else {
             graphConfig = new GraphConfig();
             Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false, (completed : boolean, userString : string) : void => {
-                ParameterTable.openTable(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
+                ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);
 
                 if (!completed){
                     return;
@@ -416,7 +416,7 @@ export class ParameterTable {
 
     static requestEditConfig(config: GraphConfig): void {
         GraphConfigurationsTable.closeModal();
-        ParameterTable.openTable(Eagle.BottomWindowMode.GraphConfigAttributesTable, ParameterTable.SelectType.Normal);
+        ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);
     }
 
     static requestEditDescriptionInModal(field: Field) : void {
@@ -569,7 +569,7 @@ export class ParameterTable {
 
         eagle.setSelection(node, Eagle.FileType.Graph)
 
-        ParameterTable.openTable(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
+        ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);
         
         setTimeout(function(){
             $('#tableRow_'+field.getId()).addClass('highlighted')

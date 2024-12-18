@@ -761,7 +761,7 @@ export class Utils {
         $('#issuesDisplay').modal("hide");
     }
 
-    static preparePalette(palette: Palette, paletteListItem: {name:string, filename:string, readonly:boolean}) : void {
+    static preparePalette(palette: Palette, paletteListItem: {name:string, filename:string, readonly:boolean, expanded: boolean}) : void {
         palette.fileInfo().clear();
         palette.fileInfo().name = paletteListItem.name;
         palette.fileInfo().readonly = paletteListItem.readonly;
@@ -770,8 +770,7 @@ export class Utils {
         palette.fileInfo().type = Eagle.FileType.Palette;
         palette.fileInfo().repositoryService = Repository.Service.Url;
 
-        // sort palette and add to results
-        palette.sort();
+        palette.expanded(paletteListItem.expanded);
     }
 
     static showPalettesModal(eagle: Eagle) : void {
