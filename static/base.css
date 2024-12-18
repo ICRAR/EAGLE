@@ -1942,36 +1942,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
     border:none;
 }
 
-#editFieldModalKeyParameterCheckbox{
-    position:relative;
-    background-color: transparent;
-    border: none;
-    background-image: none;
-}
-
-#editFieldModalKeyParameterCheckbox:focus{
-    outline: none !important;
-    box-shadow: none;
-}
-
-#editFieldModalKeyParameterCheckbox:before {
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    content: "favorite_border"; 
-    color: white;
-    outline: none;
-}
-  
-#editFieldModalKeyParameterCheckbox:checked:before {
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    content: "favorite"; 
-    color:white;
-    outline: none;
-}
-
 #rightWindowTabs{
     width:100%;
     border: none;
