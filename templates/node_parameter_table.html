@@ -97,14 +97,14 @@
                                         <th class="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">
                                             <span>Value</span>
                                             <!-- ko ifnot: Setting.findValue(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY) -->
-                                                <button class="showBothValues" data-bind="click: Setting.find(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY).toggle">
+                                                <button class="showBothValues" data-bind="click: Setting.find(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY).toggle, eagleTooltip:'Toggle On Dual Value Display. This shows both the configured value and the graphs own value.'">
                                                     <div>
                                                         <i class="material-icons-outlined">check_box_outline_blank</i>
                                                     </div>
                                                 </button>
                                             <!-- /ko -->
                                             <!-- ko if: Setting.findValue(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY) -->
-                                                <button class="showBothValues" id="showBothValuesOn" data-bind="click: Setting.find(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY).toggle">
+                                                <button class="showBothValues" id="showBothValuesOn" data-bind="click: Setting.find(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY).toggle, eagleTooltip:'Toggle Off Dual Value Display. This shows both the configured value and the graphs own value.'">
                                                     <div>
                                                         <i class="icon-overwrite"></i>
                                                     </div>
