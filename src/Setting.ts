@@ -273,6 +273,7 @@ export class Setting {
     static readonly BOTTOM_WINDOW_MODE : string = "BottomWindowMode";
     static readonly OBJECT_INSPECTOR_COLLAPSED_STATE : string = "ObjectInspectorVisibility";
     static readonly GRAPH_INSPECTOR_COLLAPSED_STATE : string = "GraphInspectorVisibility";
+    static readonly NODE_PARAMS_TABLE_DUAL_VALUE_display : string = "NodeParamsTableDualValueDisplay";
     
     static readonly OPEN_BUILTIN_PALETTE: string = "OpenBuiltinPalette";
     static readonly OPEN_TEMPLATE_PALETTE: string = "OpenTemplatePalette";
@@ -404,6 +405,7 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Bottom Window Mode/Tab", Setting.BOTTOM_WINDOW_MODE, "saving the mode/tab of the bottom window", true, Setting.Type.Number, 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable'),
             new Setting(false, "Graph Objects Inspector", Setting.OBJECT_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(false, "Graph Info Inspector", Setting.GRAPH_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph inspector", true, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(false, "Node Parameter Table Dual Value Display", Setting.NODE_PARAMS_TABLE_DUAL_VALUE_display, "Should both the graph value and config value be displayed", false, Setting.Type.Boolean, false, false, false, false, true),
         ]
     ),
     new SettingsGroup(
