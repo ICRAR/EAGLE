@@ -96,7 +96,11 @@
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().value() -->
                                         <th class="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">
                                             <span>Value</span>
-                                            <button id="showOverwriteSeperately"><i class="material-icons-outlined">check_box_outline_blank</i></button>
+                                            <button id="showOverwriteSeperately">
+                                                <div>
+                                                    <i class="material-icons-outlined">check_box_outline_blank</i>
+                                                </div>
+                                            </button>
                                             <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_value') === true}"></div>
                                         </th>
                                     <!-- /ko -->
