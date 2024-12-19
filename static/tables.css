@@ -265,7 +265,7 @@ td:first-child input {
     font-size: 14px;
 }
 
-#showOverwriteSeperately{
+.showBothValues{
     background-color: transparent;
     color: white;
     border: none;
@@ -277,17 +277,25 @@ td:first-child input {
     padding: unset;
 }
 
-#showOverwriteSeperately div{
+.showBothValues div{
     position: relative;
     width: 100%;
     height: 100%;
 }
 
-#showOverwriteSeperately i{
+.showBothValues i{
     position:  absolute;
     top: 50%;
     transform: translateY(-50%);
     left: 0px;
+}
+
+#showBothValuesOn{
+    width: 40px;
+}
+
+#showBothValuesOn i{
+    font-size: 40px;
 }
 
 .eagleTableWrapper i{
