@@ -1901,7 +1901,7 @@ export class Eagle {
     }
 
     loadDefaultPalettes = () : void => {
-        // get collapsed/expanded state of palettes from html locaStorage
+        // get collapsed/expanded state of palettes from html local storage
         let templatePaletteExpanded: boolean = Setting.findValue(Setting.OPEN_TEMPLATE_PALETTE);
         let builtinPaletteExpanded: boolean = Setting.findValue(Setting.OPEN_BUILTIN_PALETTE);
         templatePaletteExpanded = templatePaletteExpanded === null ? false : templatePaletteExpanded;
@@ -2107,12 +2107,6 @@ export class Eagle {
     }
 
     _postLoadGraph = (file: RepositoryFile) : void => {
-        // set the active graph config (to the last graph config in the LG)
-        const graphConfigs: GraphConfig[] = this.logicalGraph().getGraphConfigs();
-
-        // if there is at least one graph config, make the last one active
-        // if there are no graph configs, make a new empty graph config and set active
-
         //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
         setTimeout(function(){
             Eagle.getInstance().centerGraph()
@@ -2588,13 +2582,13 @@ export class Eagle {
     saveGraphScreenshot = async () : Promise<void> =>  {
         const eagle = Eagle.getInstance()
 
-        const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia funciton an option
+        const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia function an option
         const stream:MediaStream = await mediaDevices.getDisplayMedia({preferCurrentTab: true,selfBrowserSurface: 'include'});
 
         //prepare the graph for a screenshot
         eagle.centerGraph()
         eagle.setSelection(null,Eagle.FileType.Graph)
-        document.querySelector('body').style.cursor = 'none';//temporarily disabling the cursor so it doesnt appear in the screenshot
+        document.querySelector('body').style.cursor = 'none';//temporarily disabling the cursor so it doesn't appear in the screenshot
         
         try {        
             const width = stream.getVideoTracks()[0].getSettings().width
@@ -2616,8 +2610,8 @@ export class Eagle {
 
                 //cropping the ui, so the screenshot only includes the graph
                 const ctx = canvas.getContext('2d');
-                const realwidth = window.innerWidth
-                const divisor = realwidth/width
+                const realWidth = window.innerWidth
+                const divisor = realWidth/width
 
                 const lx = (eagle.leftWindow().size()+50)/divisor
                 const rx = (eagle.rightWindow().size()+50)/divisor
@@ -2801,7 +2795,7 @@ export class Eagle {
             return field.isReadonly();
         }
         
-        console.warn("something in value readonly permissions has one wrong!");
+        console.warn("something in value readonly permissions has gone wrong!");
         return true
     }
 
@@ -4274,7 +4268,7 @@ export class Eagle {
             let minX = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? this.leftWindow().size()+MARGIN: 0+MARGIN;
             let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? $('#logicalGraphParent').width() - this.rightWindow().size() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
             let minY = 0 + navBarHeight + MARGIN;
-            //using jquery here to get the bottom window height because it is internally saved in VH (percentage screen height). Doing it this way means we dont have to convert it to pixels
+            //using jquery here to get the bottom window height because it is internally saved in VH (percentage screen height). Doing it this way means we don't have to convert it to pixels
             let maxY = $('#logicalGraphParent').height() - $('#bottomWindow').height() - MARGIN + navBarHeight;
             if(increaseSearchArea){
                 minX = minX - 300

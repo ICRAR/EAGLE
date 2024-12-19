@@ -1,7 +1,6 @@
 import { Eagle } from '../Eagle';
 import { RightClick } from '../RightClick';
-import { Tutorial, TutorialStep, TutorialSystem } from '../Tutorial';
-import { SideWindow } from '../SideWindow';
+import { TutorialStep, TutorialSystem } from '../Tutorial';
 import { Setting } from '../Setting';
 
 const newTut = TutorialSystem.newTutorial('Graph Configurations', 'An introduction to using graph configurations.')

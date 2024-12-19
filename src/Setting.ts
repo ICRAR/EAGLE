@@ -292,12 +292,12 @@ export class Setting {
     static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
     static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
-    static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters"; // TODO: maybe rename SHOW_NON_GRAPH_CONFIG_PARAMETERS?
+    static readonly SHOW_NON_CONFIG_PARAMETERS : string = "ShowNonConfigParameters";
     static readonly FILTER_NODE_SUGGESTIONS : string = "AutoSuggestDestinationNodes";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
     static readonly ALLOW_GRAPH_EDITING : string = "AllowGraphEditing";
-    static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
+    static readonly ALLOW_MODIFY_GRAPH_CONFIG : string = "AllowModifyGraphConfig";
     static readonly STUDENT_SETTINGS_MODE : string = "StudentSettingsMode"
     static readonly VALUE_EDITING_PERMS : string = "ValueEditingPerms"
     static readonly AUTO_COMPLETE_EDGES_LEVEL : string = "AutoCompleteEdgesLevel"
@@ -308,8 +308,6 @@ export class Setting {
     static readonly EXPLORE_PALETTES_SERVICE : string = "ExplorePalettesService";
     static readonly EXPLORE_PALETTES_REPOSITORY : string = "ExplorePalettesRepository";
     static readonly EXPLORE_PALETTES_BRANCH : string = "ExplorePalettesBranch";
-
-    static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
 
     static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
     static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
@@ -387,7 +385,7 @@ const settings : SettingsGroup[] = [
         "UI Options",
         () => {return true;},
         [
-            new Setting(true, "Show non key parameters", Setting.SHOW_NON_KEY_PARAMETERS, "Show additional parameters that are not marked as key parameters for the current graph",false, Setting.Type.Boolean, false,true,true,true,true),
+            new Setting(true, "Show non key parameters", Setting.SHOW_NON_CONFIG_PARAMETERS, "Show additional parameters that are not part of a graph configuration for the current graph",false, Setting.Type.Boolean, false,true,true,true,true),
             new Setting(false, "Show Developer Tab", Setting.SHOW_DEVELOPER_TAB, "Reveals the developer tab in the settings menu", false, Setting.Type.Boolean, false,false,false,false,true),
             new Setting(true, "Translator Mode", Setting.USER_TRANSLATOR_MODE, "Configure the translator mode", false, Setting.Type.Select, Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Expert, Object.values(Setting.TranslatorMode)),
             new Setting(true, "Graph Zoom Divisor", Setting.GRAPH_ZOOM_DIVISOR, "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", false, Setting.Type.Number,1000,1000,1000,1000,1000),
@@ -412,7 +410,7 @@ const settings : SettingsGroup[] = [
         [
             new Setting(true, "Allow Invalid edges", Setting.ALLOW_INVALID_EDGES, "Allow the user to create edges even if they would normally be determined invalid.", false, Setting.Type.Boolean, false, false, false, false, true),
             new Setting(true, "Allow Component Editing", Setting.ALLOW_COMPONENT_EDITING, "Allow the user to add/remove ports and parameters from components.",false, Setting.Type.Boolean,false, false, false, true,true),
-            new Setting(true, "Allow Set Key Parameter", Setting.ALLOW_SET_KEY_PARAMETER, "Allow the user to add/remove key parameter flags from parameters.", false, Setting.Type.Boolean,false, true, true, true,true),
+            new Setting(true, "Allow Modify Graph Configurations", Setting.ALLOW_MODIFY_GRAPH_CONFIG, "Allow the user to add/remove parameters from graph configurations.", false, Setting.Type.Boolean,false, true, true, true,true),
             new Setting(true, "Allow Graph Editing", Setting.ALLOW_GRAPH_EDITING, "Allow the user to edit and create graphs.", false, Setting.Type.Boolean, false, false, true, true, true),
             new Setting(true, "Allow Palette Editing", Setting.ALLOW_PALETTE_EDITING, "Allow the user to edit palettes.", false, Setting.Type.Boolean, false, false, false, true, true),
             new Setting(true, "Allow Readonly Palette Editing", Setting.ALLOW_READONLY_PALETTE_EDITING, "Allow the user to modify palettes that would otherwise be readonly.", false, Setting.Type.Boolean,false,false,false,false,true),

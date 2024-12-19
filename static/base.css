@@ -1198,7 +1198,7 @@ select.form-control{
     width:100%;
 }
 
-.paletteTrippleDot{
+.paletteTripleDot{
     position: absolute;
     right: 35px;
     margin-top: 10px;
@@ -1224,7 +1224,7 @@ select.form-control{
     pointer-events: auto;
 }
 
-.paletteTrippleDot:after{
+.paletteTripleDot:after{
     display: none;
 }
 
@@ -1670,7 +1670,7 @@ select.form-control{
     width: auto;
 }
 
-.repoConatiner{
+.repoContainer{
     padding:0px 10px;
 }
 
@@ -1940,36 +1940,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
     padding: 0px;
     border-radius: 0px;
     border:none;
-}
-
-#editFieldModalKeyParameterCheckbox{
-    position:relative;
-    background-color: transparent;
-    border: none;
-    background-image: none;
-}
-
-#editFieldModalKeyParameterCheckbox:focus{
-    outline: none !important;
-    box-shadow: none;
-}
-
-#editFieldModalKeyParameterCheckbox:before {
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    content: "favorite_border"; 
-    color: white;
-    outline: none;
-}
-  
-#editFieldModalKeyParameterCheckbox:checked:before {
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    content: "favorite"; 
-    color:white;
-    outline: none;
 }
 
 #rightWindowTabs{
