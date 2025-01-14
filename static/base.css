@@ -71,6 +71,17 @@ body {
     margin:.3rem 0;
 }
 
+.navbar #settings{
+    width: 40px;
+    position: relative;
+}
+
+.navbar #settings i{
+    position: absolute;
+    font-size: 20px;
+    top: 10px;
+}
+
 #checkGraphWarnings span{
     top: -3px;
 }
@@ -2743,6 +2754,17 @@ palette-component input.form-control.selected {
 }
 
 /* re-usable classes for various things */
+
+.iconHoverEffect, .iconHoverEffect:focus, .iconHoverEffect:active, .iconHoverEffect:hover{
+    background: transparent;
+    border:0px;
+    box-shadow: none !important;
+}
+
+.iconHoverEffect:hover {
+    color: #feb609 !important;
+    cursor: pointer;
+}
 
 .linearTransition250{
     transition: ease-in-out 250ms !important; /*this requires an important tag to over ride existing transition effects for a few moments */

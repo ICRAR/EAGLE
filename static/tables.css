@@ -357,10 +357,6 @@ td:first-child input {
     box-shadow: none !important;
 }
 
-.closeBottomWindowBtn button:hover, #bottomWindow .tabs button:hover {
-    color: #feb609 !important;
-}
-
 .eagleTableDisplay  input, #editFieldModal  .dropdown input{
     border: none;
 }
