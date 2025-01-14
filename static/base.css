@@ -448,12 +448,6 @@ color: #00bb00;}
     box-shadow: none;
 }
 
-#inspector .headerButtons button:hover,.inspectorTitleBtns button:hover, #inspector i.clickable:hover {
-    color: #b4d4ff;
-    background-color: transparent;
-    cursor:pointer;
-}
-
 #inspector .headerButtons button.btn:focus, .inspectorTitleBtns button:focus {
     box-shadow: none;
     background-color:transparent;

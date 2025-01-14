@@ -15,43 +15,43 @@
                             <div class="col-1 col">
                                 <i class="material-icons inspectorCloseBtn" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
                             </div>
-                        </div>
+                        </div> 
                         
                         <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
                             <div class="row">
                                 <div class="col-6 col">
                                     <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">link</i>
                                     <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'Id: '+$data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
-                                    <i class="material-icons interactive clickable" onclick=eagle.editNodeDescription() data-bs-placement="right" data-bind="eagleTooltip: $data.getDescriptionHTML()" data-bs-toggle="tooltip" data-html="true">library_books</i>
+                                    <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.editNodeDescription() data-bs-placement="right" data-bind="eagleTooltip: $data.getDescriptionHTML()" data-bs-toggle="tooltip" data-html="true">library_books</i>
                                 
                                     <!-- ko if: $data.getAllErrorsWarnings().errors.length > 0 || $data.getAllErrorsWarnings().warnings.length > 0 -->
-                                        <i class="material-icons interactive clickable" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
+                                        <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
                                     <!-- /ko -->
                                 </div>
                                 <div class="col-6 col text-right">
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + KeyboardShortcut.idToText('open_parameter_table', true)" data-bs-placement="left">
-                                            <i class="material-icons md-20 clickable">table_chart</i>
+                                            <i class="material-icons md-20 clickable iconHoverEffect">table_chart</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph && $data.isDocker() -->
                                         <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: $root.fetchDockerHTML, clickBubble: false, eagleTooltip: 'Browse images on docker hub'" data-bs-placement="left">
-                                            <i class="icon-docker clickable"></i>
+                                            <i class="icon-docker clickable iconHoverEffect"></i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + KeyboardShortcut.idToText('duplicate_selection', true)" data-bs-placement="left">
-                                            <i class="material-icons md-20 clickable">content_copy</i>
+                                            <i class="material-icons md-20 clickable iconHoverEffect">content_copy</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
-                                            <i class="material-icons md-20 clickable">library_add</i>
+                                            <i class="material-icons md-20 clickable iconHoverEffect">library_add</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + KeyboardShortcut.idToText('delete_selection', true)" data-bs-placement="left">
-                                            <i class="material-icons md-20 clickable">delete</i>
+                                            <i class="material-icons md-20 clickable iconHoverEffect">delete</i>
                                         </button>
                                     <!-- /ko -->
                                 </div>
@@ -112,18 +112,18 @@
                             <div class="row">
                                 <div class="col-4 col">
                                     <!-- ko if: $data.getErrorsWarnings().errors.length > 0 || $data.getErrorsWarnings().warnings.length > 0 -->
-                                        <i class="material-icons interactive clickable" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
+                                        <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
                                     <!-- /ko -->
                                 </div>
                                 <div class="col-8 col text-right">
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_EDGE_EDITING) -->
                                         <button type="button" class="btn btn-secondary btn-sm" data-bind="click: $root.editSelectedEdge, eagleTooltip: 'Edit Selected Edge ' + KeyboardShortcut.idToText('modify_selected_edge', true)">
-                                            <i class="material-icons md-24 clickable">edit</i>
+                                            <i class="material-icons md-24 clickable iconHoverEffect">edit</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                                         <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: 'Delete Selected Edge ' + KeyboardShortcut.idToText('delete_selection', true)">
-                                            <i class="material-icons md-24 clickable">delete</i>
+                                            <i class="material-icons md-24 clickable iconHoverEffect">delete</i>
                                         </button>
                                     <!-- /ko -->
                                 </div>
@@ -168,7 +168,7 @@
                                     <h5>Loop Aware</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <button class="btn btn-secondary btn-sm radioBtn" id="objectInspectorToggleLoopAware" type="button" data-bind="click: function(){$root.selectedEdge().toggleLoopAware();},disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
+                                    <button class="btn btn-secondary btn-sm radioBtn iconHoverEffect" id="objectInspectorToggleLoopAware" type="button" data-bind="click: function(){$root.selectedEdge().toggleLoopAware();},disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
                                         <i class="material-icons md-18" data-bind="visible: $root.selectedEdge().isLoopAware()">radio_button_checked</i>
                                         <i class="material-icons md-18" data-bind="hidden: $root.selectedEdge().isLoopAware()">radio_button_unchecked</i>
                                     </button>
@@ -179,7 +179,7 @@
                                     <h5>Closes Loop</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <button class="btn btn-secondary btn-sm radioBtn" id="objectInspectorToggleClosesLoop" type="button" data-bind="click: function(){$root.selectedEdge().toggleClosesLoop();},disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
+                                    <button class="btn btn-secondary btn-sm radioBtn iconHoverEffect" id="objectInspectorToggleClosesLoop" type="button" data-bind="click: function(){$root.selectedEdge().toggleClosesLoop();},disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
                                         <i class="material-icons md-18" data-bind="visible: $root.selectedEdge().isClosesLoop()">radio_button_checked</i>
                                         <i class="material-icons md-18" data-bind="hidden: $root.selectedEdge().isClosesLoop()">radio_button_unchecked</i>
                                     </button>
@@ -209,17 +209,17 @@
                                 <div class="col-12 col text-right">
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="duplicateSelectedobjects" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + KeyboardShortcut.idToText('duplicate_selection', true)" data-bs-placement="left">
-                                            <i  class="material-icons md-20 clickable">content_copy</i>
+                                            <i  class="material-icons md-20 clickable iconHoverEffect">content_copy</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
-                                            <i  class="material-icons md-20 clickable">library_add</i>
+                                            <i  class="material-icons md-20 clickable iconHoverEffect">library_add</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                                         <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: 'Delete Selected Edge ' + KeyboardShortcut.idToText('delete_selection', true)">
-                                            <i class="material-icons md-24 clickable">delete</i>
+                                            <i class="material-icons md-24 clickable iconHoverEffect">delete</i>
                                         </button>
                                     <!-- /ko -->
                                 </div>
@@ -278,11 +278,11 @@
                                     <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'This is a Graph File from GitHub or GitLab'" data-bs-toggle="tooltip" data-html="true">account_tree</i>
                                 <!-- /ko -->
                                 <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().fullPath()" data-bs-toggle="tooltip" data-html="true">link</i>
-                                <i class="material-icons interactive clickable" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().shortDescription, click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
-                                <i class="material-icons interactive clickable" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().detailedDescription, click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">menu_book</i>
+                                <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().shortDescription, click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
+                                <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().detailedDescription, click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">menu_book</i>
                             </div>
                             <div class="col-6 col text-right">
-                                <i class="material-icons interactive clickable" data-bs-placement="right" data-bind="eagleTooltip: 'View graph configurations table', click: GraphConfigurationsTable.openTable" data-bs-toggle="tooltip" data-html="true">dns</i>
+                                <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: 'View graph configurations table', click: GraphConfigurationsTable.openTable" data-bs-toggle="tooltip" data-html="true">dns</i>
                             </div>
                         </div>
                     </div>
