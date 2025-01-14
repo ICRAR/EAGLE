@@ -637,7 +637,7 @@ color: #00bb00;}
     height: 48px;
     top: 0px;
     left: -48px;
-    background-color: #002e5f;
+    background-color: #002e5f !important;
     z-index: 2;
     text-align: center;
     line-height: 48px;
@@ -645,6 +645,7 @@ color: #00bb00;}
     border-top-left-radius: 0.5rem;
     cursor: pointer;
     color:white;
+    user-select: none;
 }
 
 .dropDropDownParent{
@@ -1565,7 +1566,7 @@ select.form-control{
     height: 48px;
     top: 0px;
     right: -48px;
-    background-color: #002e5f;
+    background-color: #002e5f !important;
     color:white;
     z-index: 2;
     text-align: center;
@@ -1573,6 +1574,7 @@ select.form-control{
     border-bottom-right-radius: 0.5rem;
     border-top-right-radius: 0.5rem;
     cursor: pointer;
+    user-select: none;
 }
 
 .leftWindow .leftWindowHandle span i {

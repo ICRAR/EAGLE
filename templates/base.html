@@ -57,7 +57,7 @@
         <div class="container-fluid" id="graphArea" data-bind="event: { dragover: SideWindow.sideWindowAdjust}">
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                 <div class="leftWindow" data-bind="style: { width: leftWindow().size(), left: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? 0 : -leftWindow().size(),'visibility':eagle.getEagleIsReady(), bottom: Utils.getBottomWindowHeight()+'vh'}">
-                    <div class="leftWindowHandle" data-bind="click: function(){SideWindow.toggleShown('left')}, eagleTooltip: 'Change Node Subject ' +KeyboardShortcut.idToText('toggle_left_window', true)">
+                    <div class="leftWindowHandle iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('left')}, eagleTooltip: 'Change Node Subject ' +KeyboardShortcut.idToText('toggle_left_window', true)">
                         <span style="display: none" data-bind="visible: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)">
                             <i class="material-icons">arrow_back</i>
                         </span>
@@ -160,7 +160,7 @@
                             </button>
                         <!-- /ko -->
                     </div>
-                <div class="rightWindowHandle" data-bind="click: function(){SideWindow.toggleShown('right')}, eagleTooltip: 'Change Node Subject ' + KeyboardShortcut.idToText('toggle_right_window', true)">
+                <div class="rightWindowHandle iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('right')}, eagleTooltip: 'Change Node Subject ' + KeyboardShortcut.idToText('toggle_right_window', true)">
                     <span data-bind="visible: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)">
                         <i class="material-icons">arrow_forward</i>
                     </span>
