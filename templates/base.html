@@ -148,14 +148,14 @@
 
             <div class="rightWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), width: rightWindow().size(), right: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? 0 : -rightWindow().size(), bottom: Utils.getBottomWindowHeight()+'vh'}">
                <div class="btn-group" id="rightWindowTabs" role="group" aria-label="RightWindowModeSelect">
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Repository)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Repository}">
+                        <button class="btn btn-secondary navbar-btn iconHoverEffect" id="rightWindowModeRepositories" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Repository)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Repository}">
                             Repositories
                         </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy}">
+                        <button class="btn btn-secondary navbar-btn iconHoverEffect" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy}">
                             Hierarchy
                         </button>
                         <!-- ko ifnot: Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Minimal -->
-                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.TranslationMenu}">
+                            <button class="btn btn-secondary navbar-btn iconHoverEffect" id="rightWindowModeTranslation" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.TranslationMenu}">
                                 Translation
                             </button>
                         <!-- /ko -->

@@ -1640,16 +1640,6 @@ select.form-control{
     background: rgb(211, 211, 211);
 }
 
-.navbar-center .navbar-btn:hover{
-    color: #002349 !important;
-    background: white;
-}
-
-.nodeSettingsBtn{
-    text-align: right;
-    color: #0059a5;
-}
-
 #repositoryList ul.repositories {
     list-style-type: none;
     padding: 0px;
