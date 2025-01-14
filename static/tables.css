@@ -345,6 +345,15 @@ td:first-child input {
     padding:11px;
 }
 
+.closeBottomWindowBtn {
+    position: absolute;
+
+}
+
+.closeBottomWindowBtn button{
+    background: transparent;
+}
+
 .eagleTableDisplay  input, #editFieldModal  .dropdown input{
     border: none;
 }
