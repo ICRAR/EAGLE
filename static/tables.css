@@ -347,11 +347,18 @@ td:first-child input {
 
 .closeBottomWindowBtn {
     position: absolute;
-
+    top: 27px;
+    transform:translateY(-50%)
 }
 
-.closeBottomWindowBtn button{
+.closeBottomWindowBtn button, .closeBottomWindowBtn button:focus, .closeBottomWindowBtn button:active, .closeBottomWindowBtn button:hover{
     background: transparent;
+    border:0px;
+    box-shadow: none !important;
+}
+
+.closeBottomWindowBtn button:hover, #bottomWindow .tabs button:hover {
+    color: #feb609 !important;
 }
 
 .eagleTableDisplay  input, #editFieldModal  .dropdown input{
