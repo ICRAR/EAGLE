@@ -146,11 +146,11 @@
                                         <!-- ko if: $data.getGraphConfigField() -->
                                         <td class='columnCell column_Comment' onmouseenter="ParameterTable.showEditComment(this)" onmouseleave="ParameterTable.hideEditComment(this)" data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('comment', $data) }, eagleTooltip: $data.getGraphConfigField().comment">
                                             <input class="tableParameter tableFieldCommentInput" type="string" data-bind="value: $data.getGraphConfigField().comment, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.getGraphConfigField().comment, 'comment', $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().comment, 'comment', $data, $index())}}">
-                                            <button class="parameterTableCommentBtn icon-pencil" data-bind="click:function(data,event){ParameterTable.requestEditCommentInModal($data)}"></button>
+                                            <button class="parameterTableCommentBtn icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditCommentInModal($data)}"></button>
                                         </td>
                                         <td class='columnCell column_Remove'>
                                             <button data-bind="click: function(){ParameterTable.requestRemoveField($data)}, disabled: !Setting.findValue(Setting.ALLOW_MODIFY_GRAPH_CONFIG), eagleTooltip:'Remove Field from Graph Config', clickBubble:false">
-                                                <i class="material-icons">remove</i>
+                                                <i class="material-icons iconHoverEffect">remove</i>
                                             </button>
                                         </td>
                                         <!-- /ko -->

@@ -13,7 +13,7 @@
                                 <input data-bind="value:$data.name, eagleTooltip: $data.getName()"></input>
                             </div>
                             <div class="col-1 col">
-                                <i class="material-icons inspectorCloseBtn" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
+                                <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
                             </div>
                         </div> 
                         
@@ -104,7 +104,7 @@
                                 <h4>Edge Attributes</h4>
                             </div>
                             <div class="col-1 col">
-                                <i class="material-icons" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
+                                <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
                             </div>
                         </div>
                         
@@ -200,7 +200,7 @@
                                 <h4>Multi Selection</h4>
                             </div>
                             <div class="col-1 col">
-                                <i class="material-icons" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
+                                <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
                             </div>
                         </div>
                         
@@ -249,7 +249,7 @@
         <!-- /ko -->      
     
         <!-- ko if: Setting.findValue(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE) -->
-            <i class="material-icons" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle">info</i>
+            <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle">info</i>
         <!-- /ko -->
     <!-- /ko -->
 
@@ -333,7 +333,7 @@
         <!-- /ko -->
             
         <!-- ko if: Setting.findValue(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE) -->
-            <i class="material-icons" data-bind="click: Setting.find(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE).toggle">info</i>
+            <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE).toggle">info</i>
         <!-- /ko -->
     <!-- /ko -->
 </div>

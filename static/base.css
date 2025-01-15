@@ -2750,6 +2750,7 @@ palette-component input.form-control.selected {
 .iconHoverEffect:hover {
     color: #feb609 !important;
     cursor: pointer;
+    text-shadow: 1px 1px #4b4b4b !important;
 }
 
 .linearTransition250{
