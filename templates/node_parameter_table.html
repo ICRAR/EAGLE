@@ -29,11 +29,10 @@
                     Browse DockerHub
                 </button>
             <!-- /ko -->
-            <button type="button" class="btn btn-primary" data-bind="click: function(){SideWindow.toggleShown('bottom')}, clickBubble:false"><span class="parameterTableCloseButton">Close</span></button>
         </div> 
 
         <div class="dropdown parameterTableVisibilityContainer">
-            <a class="dropdown-toggle icon-table_column_visibility componentTableVisibilityBtn" data-bs-toggle="dropdown"></a>
+            <a class="dropdown-toggle icon-table_column_visibility componentTableVisibilityBtn iconHoverEffect" data-bs-toggle="dropdown"></a>
             <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleKeyAttribute()}"><span>Key Parameter</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().keyAttribute()"></div>
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleFieldId()}"><span>Field ID</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().fieldId()"></div>
@@ -99,14 +98,14 @@
                                             <!-- ko ifnot: Setting.findValue(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY) -->
                                                 <button class="showBothValues" data-bind="click: Setting.find(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY).toggle, eagleTooltip:'Toggle On Dual Value Display. This shows both the configured value and the graphs own value.'">
                                                     <div>
-                                                        <i class="material-icons-outlined">check_box_outline_blank</i>
+                                                        <i class="material-icons-outlined iconHoverEffect">check_box_outline_blank</i>
                                                     </div>
                                                 </button>
                                             <!-- /ko -->
                                             <!-- ko if: Setting.findValue(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY) -->
                                                 <button class="showBothValues" id="showBothValuesOn" data-bind="click: Setting.find(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY).toggle, eagleTooltip:'Toggle Off Dual Value Display. This shows both the configured value and the graphs own value.'">
                                                     <div>
-                                                        <i class="icon-overwrite"></i>
+                                                        <i class="icon-overwrite iconHoverEffect"></i>
                                                     </div>
                                                 </button>
                                             <!-- /ko -->
@@ -161,12 +160,12 @@
                                                     
                                                     <!-- ko if: Eagle.selectedLocation() === Eagle.FileType.Graph -->
                                                         <!-- ko ifnot: $root.logicalGraph().getActiveGraphConfig()?.hasField($data) -->
-                                                        <button data-bind="click: function(){ParameterTable.requestAddField($data)}, disabled: !Setting.findValue(Setting.ALLOW_MODIFY_GRAPH_CONFIG) || $root.getCurrentParamValueReadonly($data), eagleTooltip:'Add Field to Graph Config', style:{'visibility':'hidden'}, clickBubble:false">
+                                                        <button class="iconHoverEffect" data-bind="click: function(){ParameterTable.requestAddField($data)}, disabled: !Setting.findValue(Setting.ALLOW_MODIFY_GRAPH_CONFIG) || $root.getCurrentParamValueReadonly($data), eagleTooltip:'Add Field to Graph Config', style:{'visibility':'hidden'}, clickBubble:false">
                                                             <i class="material-icons">favorite_border</i>
                                                         </button>
                                                         <!-- /ko -->
                                                         <!-- ko if: $root.logicalGraph().getActiveGraphConfig()?.hasField($data) -->
-                                                        <button data-bind="click: function(){ParameterTable.requestRemoveField($data)}, disabled: !Setting.findValue(Setting.ALLOW_MODIFY_GRAPH_CONFIG) || $root.getCurrentParamValueReadonly($data), eagleTooltip:'Remove Field from Graph Config', style:{'visibility':'visible'}, clickBubble:false">
+                                                        <button class="iconHoverEffect" data-bind="click: function(){ParameterTable.requestRemoveField($data)}, disabled: !Setting.findValue(Setting.ALLOW_MODIFY_GRAPH_CONFIG) || $root.getCurrentParamValueReadonly($data), eagleTooltip:'Remove Field from Graph Config', style:{'visibility':'visible'}, clickBubble:false">
                                                             <i class="material-icons">favorite</i>
                                                         </button>
                                                         <!-- /ko -->
@@ -313,7 +312,7 @@
                                                 <td class='columnCell column_Description' onmouseenter="ParameterTable.showEditDescription(this)" onmouseleave="ParameterTable.hideEditDescription(this)" data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('description', $data) }, eagleTooltip:description">
                                                     <input class="tableParameter" type="string" data-bind="value: description, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $data, $index())}}">
                                                     <!-- ko ifnot: ParameterTable.getNodeLockedState($data) -->
-                                                        <button class="parameterTableDescriptionBtn icon-pencil" data-bind="click:function(data,event){ParameterTable.requestEditDescriptionInModal($data)}"></button>
+                                                        <button class="parameterTableDescriptionBtn icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditDescriptionInModal($data)}"></button>
                                                     <!-- /ko -->
                                                 </td>
                                                 <!-- /ko -->
@@ -330,7 +329,7 @@
                                                         <div class="input-group">
                                                             <input  class="typesInput form-control" type="text" autocomplete="off" data-bind="value:type, attr:{id:'typeInputFor_'+$data.getId()}">
                                                             <button class="btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false" data-bind="attr:{id:'typeButtonFor_'+$data.getId()}" type="button">
-                                                                <span class="material-icons-outlined">
+                                                                <span class="material-icons-outlined iconHoverEffect">
                                                                     arrow_drop_down
                                                                 </span>
                                                             </button>
@@ -348,59 +347,59 @@
                                                     <!-- ko if: ParameterTable.getNodeLockedState($data) -->
                                                             <!-- ko if: $data.isReadonly() -->
                                                             <button type="button" disabled data-bind="click: function(){$data.toggleReadOnly();},  eagleTooltip:Utils.getReadOnlyText()" data-bs-placement="left">
-                                                                <i class="material-icons">lock</i>
+                                                                <i class="material-icons iconHoverEffect">lock</i>
                                                             </button>
                                                         <!-- /ko -->
                                                         <!-- ko ifnot: $data.isReadonly() -->
                                                             <button type="button" disabled data-bind="click: function(){$data.toggleReadOnly();},  eagleTooltip:Utils.getReadOnlyText()" data-bs-placement="left">
-                                                                <i class="material-icons-outlined">lock_open</i>
+                                                                <i class="material-icons-outlined iconHoverEffect">lock_open</i>
                                                             </button>
                                                         <!-- /ko -->
                                                     <!-- /ko -->
                                                     <!-- ko ifnot: ParameterTable.getNodeLockedState($data) -->
                                                         <!-- ko if: $data.isReadonly() -->
                                                             <button type="button" data-bind="click: function(){$data.toggleReadOnly();}, eagleTooltip: 'Parameter Value is read only<br/>Click to toggle'" data-bs-placement="left">
-                                                                <i class="material-icons">lock</i>
+                                                                <i class="material-icons iconHoverEffect">lock</i>
                                                             </button>
                                                         <!-- /ko -->
                                                         <!-- ko ifnot: $data.isReadonly() -->
                                                             <button  type="button" data-bind="click: function(){$data.toggleReadOnly();},  eagleTooltip: 'Parameter Value is not read only<br/>Click to toggle'" data-bs-placement="left">
-                                                                <i class="material-icons-outlined">lock_open</i>
+                                                                <i class="material-icons-outlined iconHoverEffect">lock_open</i>
                                                             </button>
                                                         <!-- /ko -->
                                                         <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
                                                             <!-- ko if: $data.isPrecious() -->
                                                                 <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Parameter is precious<br/>Click to toggle'" data-bs-placement="left">
-                                                                    <i class="material-icons">diamond</i>
+                                                                    <i class="material-icons iconHoverEffect">diamond</i>
                                                                 </button>
                                                             <!-- /ko -->
                                                             <!-- ko ifnot: $data.isPrecious() -->
                                                                 <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Parameter is not precious<br/>Click to toggle'" data-bs-placement="left">
-                                                                    <i class="material-icons-outlined">diamond</i>
+                                                                    <i class="material-icons-outlined iconHoverEffect">diamond</i>
                                                                 </button>
                                                             <!-- /ko -->
                                                         <!-- /ko -->
                                                         <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
                                                                 <!-- ko if: $data.isPositionalArgument() -->
                                                                 <button type="button" data-bind="click: $data.togglePositionalArgument, eagleTooltip: 'Parameter is positional<br/>Click to toggle'" data-bs-placement="left">
-                                                                    <i class="material-icons">location_on</i>
+                                                                    <i class="material-icons iconHoverEffect">location_on</i>
                                                                 </button>
                                                             <!-- /ko -->
                                                             <!-- ko ifnot: $data.isPositionalArgument() -->
                                                                 <button type="button" data-bind="click: $data.togglePositionalArgument, eagleTooltip: 'Parameter is not positional<br/>Click to toggle'" data-bs-placement="left">
-                                                                    <i class="material-icons-outlined">location_on</i>
+                                                                    <i class="material-icons-outlined iconHoverEffect">location_on</i>
                                                                 </button>
                                                             <!-- /ko -->
                                                         <!-- /ko -->
                                                         <!-- ko ifnot: $data.usage() === Daliuge.FieldUsage.NoPort-->
                                                             <!-- ko if: $data.isEvent() -->
                                                                 <button type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is event port<br/>Click to toggle'" data-bs-placement="left">
-                                                                    <i class="material-icons">alarm_on</i>
+                                                                    <i class="material-icons iconHoverEffect">alarm_on</i>
                                                                 </button>
                                                             <!-- /ko -->
                                                             <!-- ko ifnot: $data.isEvent() -->
                                                                 <button type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is not event port<br/>Click to toggle'" data-bs-placement="left">
-                                                                    <i class="material-icons">alarm_off</i>
+                                                                    <i class="material-icons iconHoverEffect">alarm_off</i>
                                                                 </button>
                                                             <!-- /ko -->
                                                         <!-- /ko -->
@@ -444,18 +443,18 @@
                                             
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
                                                 <td class="columnCell column_Actions">
-                                                    <button class="resetDefaults" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
+                                                    <button class="resetDefaults iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
                                                     <!-- ko ifnot: ParameterTable.getNodeLockedState($data) -->
-                                                        <button class="edit" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', $data.parameterType(), $data.usage(), $data.getId());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
-                                                        <button class="duplicate" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: ParameterTable.getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
-                                                        <button class="delete" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.logicalGraph().removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: ParameterTable.getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                                        <button class="edit iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.editField(null, 'Field', $data.parameterType(), $data.usage(), $data.getId());}, disabled: $root.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
+                                                        <button class="duplicate iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: ParameterTable.getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
+                                                        <button class="delete iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.logicalGraph().removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: ParameterTable.getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                                     <!-- /ko -->
                                                     <!-- ko if: $data.getHasErrors()-->
-                                                        <button class="text-danger" disabled data-bind="eagleTooltip:ParameterTable.getErrorsWarningsAsHtml($data)"><i class="material-icons">error</i></button>
+                                                        <button class="text-danger iconHoverEffect" disabled data-bind="eagleTooltip:ParameterTable.getErrorsWarningsAsHtml($data)"><i class="material-icons">error</i></button>
                                                     <!-- /ko -->
                                                     
                                                     <!-- ko if: $data.getHasOnlyWarnings()-->
-                                                        <button class="text-warning" disabled data-bind="eagleTooltip:ParameterTable.getErrorsWarningsAsHtml($data)"><i class="material-icons">warning</i></button>
+                                                        <button class="text-warning iconHoverEffect" disabled data-bind="eagleTooltip:ParameterTable.getErrorsWarningsAsHtml($data)"><i class="material-icons">warning</i></button>
                                                     <!-- /ko -->
                                                 </td>
                                             <!-- /ko -->

@@ -57,7 +57,7 @@
         <div class="container-fluid" id="graphArea" data-bind="event: { dragover: SideWindow.sideWindowAdjust}">
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                 <div class="leftWindow" data-bind="style: { width: leftWindow().size(), left: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? 0 : -leftWindow().size(),'visibility':eagle.getEagleIsReady(), bottom: Utils.getBottomWindowHeight()+'vh'}">
-                    <div class="leftWindowHandle" data-bind="click: function(){SideWindow.toggleShown('left')}, eagleTooltip: 'Change Node Subject ' +KeyboardShortcut.idToText('toggle_left_window', true)">
+                    <div class="leftWindowHandle iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('left')}, eagleTooltip: 'Change Node Subject ' +KeyboardShortcut.idToText('toggle_left_window', true)">
                         <span style="display: none" data-bind="visible: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)">
                             <i class="material-icons">arrow_back</i>
                         </span>
@@ -148,19 +148,19 @@
 
             <div class="rightWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), width: rightWindow().size(), right: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? 0 : -rightWindow().size(), bottom: Utils.getBottomWindowHeight()+'vh'}">
                <div class="btn-group" id="rightWindowTabs" role="group" aria-label="RightWindowModeSelect">
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeRepositories" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Repository)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Repository}">
+                        <button class="btn btn-secondary navbar-btn iconHoverEffect" id="rightWindowModeRepositories" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Repository)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Repository}">
                             Repositories
                         </button>
-                        <button class="btn btn-secondary navbar-btn" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy}">
+                        <button class="btn btn-secondary navbar-btn iconHoverEffect" id="rightWindowModeHierarchy" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy}">
                             Hierarchy
                         </button>
                         <!-- ko ifnot: Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Minimal -->
-                            <button class="btn btn-secondary navbar-btn" id="rightWindowModeTranslation" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.TranslationMenu}">
+                            <button class="btn btn-secondary navbar-btn iconHoverEffect" id="rightWindowModeTranslation" type="button" data-bind="click: function(){changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}, css: {active: Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.TranslationMenu}">
                                 Translation
                             </button>
                         <!-- /ko -->
                     </div>
-                <div class="rightWindowHandle" data-bind="click: function(){SideWindow.toggleShown('right')}, eagleTooltip: 'Change Node Subject ' + KeyboardShortcut.idToText('toggle_right_window', true)">
+                <div class="rightWindowHandle iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('right')}, eagleTooltip: 'Change Node Subject ' + KeyboardShortcut.idToText('toggle_right_window', true)">
                     <span data-bind="visible: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)">
                         <i class="material-icons">arrow_forward</i>
                     </span>
@@ -190,19 +190,22 @@
                     <div class="dragHandle" draggable="true" data-bind="event: { dragstart: SideWindow.bottomWindowAdjustStart, dragend: SideWindow.sideWindowAdjustEnd }"></div>
                     <div class="tabs">
                         <div class="wrapper">
-                            <button id="bottomTabParamsTableSwitcher" type="button" class="btn btn-secondary btn-sm" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable},click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + KeyboardShortcut.idToText('open_parameter_table', true)" data-bs-placement="left">
+                            <button id="bottomTabParamsTableSwitcher" type="button" class="btn btn-secondary btn-sm iconHoverEffect" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable},click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + KeyboardShortcut.idToText('open_parameter_table', true)" data-bs-placement="left">
                                 <i class="material-icons md-20 clickable">table_chart</i>
                             </button>
-                            <button id="bottomTabKeyParamsSwitcher" class="btn btn-secondary btn-sm" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable}, click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: `Open Graph Config Parameter Table ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
+                            <button id="bottomTabKeyParamsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable}, click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: `Open Graph Config Parameter Table ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
                                 <i class="md-20 icon-key_attribute_table clickable"></i>
                             </button>
-                            <button id="bottomTabGraphConfigurationsSwitcher" class="btn btn-secondary btn-sm" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable}, click: function(){GraphConfigurationsTable.openTable()}, eagleTooltip: `Display all Graph Configurations ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
+                            <button id="bottomTabGraphConfigurationsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable}, click: function(){GraphConfigurationsTable.openTable()}, eagleTooltip: `Display all Graph Configurations ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
                                 <i class="md-20 icon-config_table clickable"></i>
                             </button>
-                            <button id="bottomTabGraphIssuesSwitcher" class="btn btn-secondary btn-sm" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors}, click: function(){Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)}, eagleTooltip: `Display Graph Issues`">
+                            <button id="bottomTabGraphIssuesSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors}, click: function(){Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)}, eagleTooltip: `Display Graph Issues`">
                                 <i class="md-20 icon-question_mark clickable"></i>
                             </button>
                         </div>
+                    </div>
+                    <div class='closeBottomWindowBtn'>
+                        <button type="button" class="btn btn-primary iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('bottom')}, clickBubble:false"><i class="md-20 icon-cross clickable"></i></button>
                     </div>
                     <div class="content">
                         <!-- ko if: $root.getEagleIsReady() -->

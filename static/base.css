@@ -1,5 +1,6 @@
 html {
-    height:100%
+    height:100%;
+    --hoverHighlight:red;
 }
 
 body {
@@ -69,6 +70,17 @@ body {
 
 .navbar .dropdown-divider{
     margin:.3rem 0;
+}
+
+.navbar #settings{
+    width: 40px;
+    position: relative;
+}
+
+.navbar #settings i{
+    position: absolute;
+    font-size: 20px;
+    top: 10px;
 }
 
 #checkGraphWarnings span{
@@ -437,12 +449,6 @@ color: #00bb00;}
     box-shadow: none;
 }
 
-#inspector .headerButtons button:hover,.inspectorTitleBtns button:hover, #inspector i.clickable:hover {
-    color: #b4d4ff;
-    background-color: transparent;
-    cursor:pointer;
-}
-
 #inspector .headerButtons button.btn:focus, .inspectorTitleBtns button:focus {
     box-shadow: none;
     background-color:transparent;
@@ -632,7 +638,7 @@ color: #00bb00;}
     height: 48px;
     top: 0px;
     left: -48px;
-    background-color: #002e5f;
+    background-color: #002e5f !important;
     z-index: 2;
     text-align: center;
     line-height: 48px;
@@ -640,6 +646,7 @@ color: #00bb00;}
     border-top-left-radius: 0.5rem;
     cursor: pointer;
     color:white;
+    user-select: none;
 }
 
 .dropDropDownParent{
@@ -1321,13 +1328,13 @@ select.form-control{
 #paletteList palette-component button, #paletteList palette-component span {
     height: 100%;
     width: 100%;
+    color:white;
 }
 
 #paletteList palette-component i {
     margin-left:50%;
     transform: translateX(-50%);
     pointer-events: none;
-    color:white;
     font-size: 24px;
 }
 
@@ -1560,7 +1567,7 @@ select.form-control{
     height: 48px;
     top: 0px;
     right: -48px;
-    background-color: #002e5f;
+    background-color: #002e5f !important;
     color:white;
     z-index: 2;
     text-align: center;
@@ -1568,6 +1575,7 @@ select.form-control{
     border-bottom-right-radius: 0.5rem;
     border-top-right-radius: 0.5rem;
     cursor: pointer;
+    user-select: none;
 }
 
 .leftWindow .leftWindowHandle span i {
@@ -1633,16 +1641,6 @@ select.form-control{
 .navbar-center .navbar-btn.navbar-btn-active{
     color: #002349 !important;
     background: rgb(211, 211, 211);
-}
-
-.navbar-center .navbar-btn:hover{
-    color: #002349 !important;
-    background: white;
-}
-
-.nodeSettingsBtn{
-    text-align: right;
-    color: #0059a5;
 }
 
 #repositoryList ul.repositories {
@@ -2743,6 +2741,19 @@ palette-component input.form-control.selected {
 }
 
 /* re-usable classes for various things */
+
+.iconHoverEffect, .iconHoverEffect:focus, .iconHoverEffect:active, .iconHoverEffect:hover{
+    background: transparent;
+    border:0px;
+    box-shadow: none !important;
+}
+
+.iconHoverEffect:hover {
+    color: var(--hoverHighlight) !important;
+    cursor: pointer;
+    border-color: var(--hoverHighlight) !important;
+    text-shadow: -1px -1px 0 #4b4b4b, 0 -1px 0 #4b4b4b, 1px -1px 0 #4b4b4b, 1px 0 0 #4b4b4b, 1px 1px 0 #4b4b4b, 0 1px 0 #4b4b4b, -1px 1px 0 #4b4b4b, -1px 0 0 #4b4b4b;
+}
 
 .linearTransition250{
     transition: ease-in-out 250ms !important; /*this requires an important tag to over ride existing transition effects for a few moments */

@@ -4,7 +4,7 @@
             <button class="btn btn-primary btn-block btn_wide" id="explorePalettesButton" data-bind="click: showExplorePalettes, eagleTooltip: 'Retrieve information on all palettes in ' + Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY)" data-bs-placement="bottom">Explore Palettes</button>
         </span>
         <span id="paletteWindowdropdownWrapper" class="dropdown">
-            <a class="dropdown-toggle material-icons" href="#" id="paletteWindowdropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="dropdown-toggle material-icons iconHoverEffect" href="#" id="paletteWindowdropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 more_vert
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="paletteWindowdropdown">
@@ -37,7 +37,7 @@
     <div class="accordion">
         <div data-bind="foreach: palettes">
             <div class="paletteCardWrapper">
-                <button type="button" class="material-icons md-18 dropdown-toggle paletteTripleDot" data-bs-toggle="dropdown" >more_vert</button>
+                <button type="button" class="material-icons md-18 dropdown-toggle paletteTripleDot iconHoverEffect" data-bs-toggle="dropdown" >more_vert</button>
                 <div class="dropdown-menu" data-bind="event:{mouseleave: $root.closePaletteMenus}">
                     <a href="#" data-bind="click: $root.sortPalette, clickBubble: false" data-html="true"><span>Sort</span></a>
                     <!-- ko ifnot: $data.fileInfo().builtIn -->

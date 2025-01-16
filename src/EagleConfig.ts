@@ -105,9 +105,12 @@ const colors: { name: string; color: string; }[] = [
     },{
         name: 'graphWarning',
         color: '#ffa500'
+    },{
+        
+    //eagle colors
+        name: 'hoverHighlight',
+        color: '#feb609'
     }
-
-
 ]
 
 export class EagleConfig {
@@ -171,5 +174,6 @@ export class EagleConfig {
         $("#logicalGraphParent").get(0).style.setProperty("--matchingEdgeColor", EagleConfig.getColor('edgeAutoComplete'));
         $("#logicalGraphParent").get(0).style.setProperty("--nodeOutputColor", EagleConfig.getColor('nodeOutputPort'));
         $("#logicalGraphParent").get(0).style.setProperty("--nodeInputColor", EagleConfig.getColor('nodeInputPort'));
+        $("html").get(0).style.setProperty("--hoverHighlight", EagleConfig.getColor('hoverHighlight'));
     }
 }

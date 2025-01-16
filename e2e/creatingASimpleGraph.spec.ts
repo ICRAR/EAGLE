@@ -59,7 +59,7 @@ test('Creating a Simple Graph', async ({ page }) => {
 
   //wait for bootstrap modal then close
   await page.waitForTimeout(500);
-  await page.locator('.parameterTable').getByRole('button', { name: 'Close' }).click();
+  await page.locator('.closeBottomWindowBtn').getByRole('button').click();
 
   await page.close();
 });
