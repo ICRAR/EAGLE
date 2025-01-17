@@ -263,6 +263,7 @@ td:first-child input {
 
 .eagleTableWrapper th, .eagleTableWrapper td, .eagleTableWrapper input{
     font-size: 14px;
+    position: relative;
 }
 
 .showBothValues{
