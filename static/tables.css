@@ -61,10 +61,6 @@
     overflow: hidden;
 }
 
-td:first-child input {
-    font-weight: 700;
-}
-
 .parameterTableVisibilityContainer{
     position:absolute;
     right: 320px;
@@ -263,6 +259,7 @@ td:first-child input {
 
 .eagleTableWrapper th, .eagleTableWrapper td, .eagleTableWrapper input{
     font-size: 14px;
+    position: relative;
 }
 
 .showBothValues{

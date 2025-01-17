@@ -467,70 +467,70 @@ export class ParameterTable {
     }
 
     static initiateResizableColumns(upId:string) : void {
-        //need this oen initially to set the mousedown handler
-            let upcol: HTMLElement = $('#'+upId)[0]
-            let upresizer: JQuery<HTMLElement> = $(upcol).find('div')
+        //need this one initially to set the mousedown handler
 
-            let downcol: HTMLElement
-            let downresizer: JQuery<HTMLElement>
+        let upcol: HTMLElement = $('.'+upId)[0]
+        let upresizer: JQuery<HTMLElement> = $(upcol).find('div')
+        let downcol: HTMLElement
+        let downresizer: JQuery<HTMLElement>
 
-            let tableWidth: number
+        let tableWidth: number
 
-            // Track the current position of mouse
-            let x = 0;
-            let upW = 0;
-            let downW = 0;
+        // Track the current position of mouse
+        let x = 0;
+        let upW = 0;
+        let downW = 0;
 
-            const mouseDownHandler = function (e:any) {
-                //need to reset these as they are sometimes lost
-                upcol = $('#'+upId)[0]
-                upresizer = $(upcol).find('div')
-                downcol = $('#'+upId).next()[0]
-                downresizer = $(downcol).find('div')
+        const mouseDownHandler = function (e:any) {
+            //need to reset these as they are sometimes lost
+            upcol = $('.'+upId)[0]
+            upresizer = $(upcol).find('div')
+            downcol = $('.'+upId).next()[0]
+            downresizer = $(downcol).find('div')
 
-                //getting the table width for use later to convert the new widths into percentages
-                tableWidth = parseInt(window.getComputedStyle($('.paramsTableWrapper')[0]).width,10)
+            //getting the table width for use later to convert the new widths into percentages
+            tableWidth = parseInt(window.getComputedStyle($('.paramsTableWrapper')[0]).width,10)
 
-                // Get the current mouse position
-                x = e.clientX;
+            // Get the current mouse position
+            x = e.clientX;
 
-                // Calculate the current width of column
-                const styles = window.getComputedStyle(upcol);
-                upW = parseInt(styles.width, 10);
+            // Calculate the current width of column
+            const styles = window.getComputedStyle(upcol);
+            upW = parseInt(styles.width, 10);
 
-                const downstyles = window.getComputedStyle(downcol)
-                downW = parseInt(downstyles.width, 10);
-        
-                // Attach listeners for document's events
-                document.addEventListener('mousemove', mouseMoveHandler);
-                document.addEventListener('mouseup', mouseUpHandler);
-                upresizer.addClass('resizing');
-                downresizer.addClass('resizing');
-            };
-        
-            const mouseMoveHandler = function (e:any) {
-                // Determine how far the mouse has been moved
-                const dx = e.clientX - x;
+            const downstyles = window.getComputedStyle(downcol)
+            downW = parseInt(downstyles.width, 10);
+    
+            // Attach listeners for document's events
+            document.addEventListener('mousemove', mouseMoveHandler);
+            document.addEventListener('mouseup', mouseUpHandler);
+            upresizer.addClass('resizing');
+            downresizer.addClass('resizing');
+        };
+    
+        const mouseMoveHandler = function (e:any) {
+            // Determine how far the mouse has been moved
+            const dx = e.clientX - x;
 
-                //converting these new px values into percentages
-                const newUpWidth: number = ((upW + dx)/tableWidth)*100
-                const newDownWidth: number = ((downW - dx)/tableWidth)*100
+            //converting these new px values into percentages
+            const newUpWidth: number = ((upW + dx)/tableWidth)*100
+            const newDownWidth: number = ((downW - dx)/tableWidth)*100
 
-                // Update the width of column
-                upcol.style.width = `${newUpWidth}%`;
-                downcol.style.width = `${newDownWidth}%`;
-            };
-        
-            // When user releases the mouse, remove the existing event listeners
-            const mouseUpHandler = function () {
-                document.removeEventListener('mousemove', mouseMoveHandler);
-                document.removeEventListener('mouseup', mouseUpHandler);
-                upresizer.removeClass('resizing');
-                downresizer.removeClass('resizing');
-            };
-        
-            //doing it this way because it makes it simpler to have the header in question in hand. the ko events proved difficult to pass events and objects with
-            upresizer.on('mousedown', mouseDownHandler);
+            // Update the width of column
+            upcol.style.width = `${newUpWidth}%`;
+            downcol.style.width = `${newDownWidth}%`;
+        };
+    
+        // When user releases the mouse, remove the existing event listeners
+        const mouseUpHandler = function () {
+            document.removeEventListener('mousemove', mouseMoveHandler);
+            document.removeEventListener('mouseup', mouseUpHandler);
+            upresizer.removeClass('resizing');
+            downresizer.removeClass('resizing');
+        };
+    
+        //doing it this way because it makes it simpler to have the header in question in hand. the ko events proved difficult to pass events and objects with
+        upresizer.on('mousedown', mouseDownHandler);
     }
 
     static toggleTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
@@ -825,51 +825,52 @@ export class ColumnVisibilities {
         localStorage.setItem('ColumnVisibilities', JSON.stringify(columnVisibilitiesObjArray));
     }
 
-     loadFromLocalStorage = () : void => {
+    loadFromLocalStorage = () : void => {
         const columnVisibilitiesObjArray : any[] = JSON.parse(localStorage.getItem('ColumnVisibilities'))
         const that = ParameterTable.getActiveColumnVisibility()
         if(columnVisibilitiesObjArray === null){
             return
         }else{
             columnVisibilitiesObjArray.forEach(function(columnVisibility){
+
                 const columnVisActual:ColumnVisibilities = that.getModeByName(columnVisibility.name)
-                if(columnVisibility.keyAttribute){
+                if(columnVisibility.keyAttribute != null){
                     columnVisActual.setKeyAttribute(columnVisibility.keyAttribute)
                 }
-                if(columnVisibility.displayText){
+                if(columnVisibility.displayText != null){
                     columnVisActual.setDisplayText(columnVisibility.displayText)
                 }
-                if(columnVisibility.fieldId){
+                if(columnVisibility.fieldId != null){
                     columnVisActual.setFieldId(columnVisibility.fieldId)
                 }
-                if(columnVisibility.value){
+                if(columnVisibility.value != null){
                     columnVisActual.setValue(columnVisibility.value)
                 }
-                if(columnVisibility.readOnly){
+                if(columnVisibility.readOnly != null){
                     columnVisActual.setReadOnly(columnVisibility.readOnly)
                 }
-                if(columnVisibility.defaultValue){
+                if(columnVisibility.defaultValue != null){
                     columnVisActual.setDefaultValue(columnVisibility.defaultValue)
                 }
-                if(columnVisibility.description){
+                if(columnVisibility.description != null){
                     columnVisActual.setDescription(columnVisibility.description)
                 }
-                if(columnVisibility.type){
+                if(columnVisibility.type != null){
                     columnVisActual.setType(columnVisibility.type)
                 }
-                if(columnVisibility.parameterType){
+                if(columnVisibility.parameterType != null){
                     columnVisActual.setParameterType(columnVisibility.parameterType)
                 }
-                if(columnVisibility.usage){
+                if(columnVisibility.usage != null){
                     columnVisActual.setUsage(columnVisibility.usage)
                 }
-                if(columnVisibility.encoding){
+                if(columnVisibility.encoding != null){
                     columnVisActual.setEncoding(columnVisibility.encoding)
                 }
-                if(columnVisibility.flags){
+                if(columnVisibility.flags != null){
                     columnVisActual.setFlags(columnVisibility.flags)
                 }
-                if(columnVisibility.actions){
+                if(columnVisibility.actions != null){
                     columnVisActual.setActions(columnVisibility.actions)
                 }
             })

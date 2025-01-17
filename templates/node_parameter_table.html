@@ -307,15 +307,15 @@
                                                         <!-- /ko -->
                                                     </td>
                                                 <!-- /ko -->
+                                            <!-- /ko -->
                                                 
-                                                <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
+                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
                                                 <td class='columnCell column_Description' onmouseenter="ParameterTable.showEditDescription(this)" onmouseleave="ParameterTable.hideEditDescription(this)" data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('description', $data) }, eagleTooltip:description">
                                                     <input class="tableParameter" type="string" data-bind="value: description, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $data, $index())}}">
                                                     <!-- ko ifnot: ParameterTable.getNodeLockedState($data) -->
                                                         <button class="parameterTableDescriptionBtn icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditDescriptionInModal($data)}"></button>
                                                     <!-- /ko -->
                                                 </td>
-                                                <!-- /ko -->
                                             <!-- /ko -->
                                             
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
@@ -417,28 +417,28 @@
                                             <!-- /ko -->
                                             
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
-                                            <td class='columnCell column_Usage'>
-                                                <div class="checkboxWrapper">
-                                                    <select class="tbaleFieldUseAs" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: ParameterTable.getParamsTableEditState() , event: {change: ParameterTable.fieldUsageChanged}">
-                                                        <!-- options are added dynamically -->
-                                                    </select>
-                                                </div>
-                                            </td>
+                                                <td class='columnCell column_Usage'>
+                                                    <div class="checkboxWrapper">
+                                                        <select class="tbaleFieldUseAs" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: ParameterTable.getParamsTableEditState() , event: {change: ParameterTable.fieldUsageChanged}">
+                                                            <!-- options are added dynamically -->
+                                                        </select>
+                                                    </div>
+                                                </td>
                                             <!-- /ko -->
 
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().encoding() && eagle.selectedNode().isApplication() -->
-                                            <td class='columnCell column_Encoding'>
-                                                <!-- ko if: $data.usage() === Daliuge.FieldUsage.NoPort-->
-                                                <span class="faded">N/A</span>
-                                                <!-- /ko -->
-                                                <!-- ko ifnot: $data.usage() === Daliuge.FieldUsage.NoPort-->
-                                                <div class="checkboxWrapper">
-                                                    <select class="tbaleFieldEncoding" data-bind="options: Object.values(Daliuge.Encoding), value: encoding, disabled: ParameterTable.getParamsTableEditState() , event: {change: ParameterTable.encodingChanged}">
-                                                        <!-- options are added dynamically -->
-                                                    </select>
-                                                </div>
-                                                <!-- /ko -->
-                                            </td>
+                                                <td class='columnCell column_Encoding'>
+                                                    <!-- ko if: $data.usage() === Daliuge.FieldUsage.NoPort-->
+                                                        <span class="faded">N/A</span>
+                                                    <!-- /ko -->
+                                                    <!-- ko ifnot: $data.usage() === Daliuge.FieldUsage.NoPort-->
+                                                        <div class="checkboxWrapper">
+                                                            <select class="tbaleFieldEncoding" data-bind="options: Object.values(Daliuge.Encoding), value: encoding, disabled: ParameterTable.getParamsTableEditState() , event: {change: ParameterTable.encodingChanged}">
+                                                                <!-- options are added dynamically -->
+                                                            </select>
+                                                        </div>
+                                                    <!-- /ko -->
+                                                </td>
                                             <!-- /ko -->
                                             
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
