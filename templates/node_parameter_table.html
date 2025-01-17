@@ -307,15 +307,15 @@
                                                         <!-- /ko -->
                                                     </td>
                                                 <!-- /ko -->
+                                            <!-- /ko -->
                                                 
-                                                <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
+                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
                                                 <td class='columnCell column_Description' onmouseenter="ParameterTable.showEditDescription(this)" onmouseleave="ParameterTable.hideEditDescription(this)" data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('description', $data) }, eagleTooltip:description">
                                                     <input class="tableParameter" type="string" data-bind="value: description, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $data, $index())}}">
                                                     <!-- ko ifnot: ParameterTable.getNodeLockedState($data) -->
                                                         <button class="parameterTableDescriptionBtn icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditDescriptionInModal($data)}"></button>
                                                     <!-- /ko -->
                                                 </td>
-                                                <!-- /ko -->
                                             <!-- /ko -->
                                             
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
