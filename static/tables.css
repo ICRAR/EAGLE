@@ -61,10 +61,6 @@
     overflow: hidden;
 }
 
-td:first-child input {
-    font-weight: 700;
-}
-
 .parameterTableVisibilityContainer{
     position:absolute;
     right: 320px;

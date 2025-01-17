@@ -825,51 +825,52 @@ export class ColumnVisibilities {
         localStorage.setItem('ColumnVisibilities', JSON.stringify(columnVisibilitiesObjArray));
     }
 
-     loadFromLocalStorage = () : void => {
+    loadFromLocalStorage = () : void => {
         const columnVisibilitiesObjArray : any[] = JSON.parse(localStorage.getItem('ColumnVisibilities'))
         const that = ParameterTable.getActiveColumnVisibility()
         if(columnVisibilitiesObjArray === null){
             return
         }else{
             columnVisibilitiesObjArray.forEach(function(columnVisibility){
+
                 const columnVisActual:ColumnVisibilities = that.getModeByName(columnVisibility.name)
-                if(columnVisibility.keyAttribute){
+                if(columnVisibility.keyAttribute != null){
                     columnVisActual.setKeyAttribute(columnVisibility.keyAttribute)
                 }
-                if(columnVisibility.displayText){
+                if(columnVisibility.displayText != null){
                     columnVisActual.setDisplayText(columnVisibility.displayText)
                 }
-                if(columnVisibility.fieldId){
+                if(columnVisibility.fieldId != null){
                     columnVisActual.setFieldId(columnVisibility.fieldId)
                 }
-                if(columnVisibility.value){
+                if(columnVisibility.value != null){
                     columnVisActual.setValue(columnVisibility.value)
                 }
-                if(columnVisibility.readOnly){
+                if(columnVisibility.readOnly != null){
                     columnVisActual.setReadOnly(columnVisibility.readOnly)
                 }
-                if(columnVisibility.defaultValue){
+                if(columnVisibility.defaultValue != null){
                     columnVisActual.setDefaultValue(columnVisibility.defaultValue)
                 }
-                if(columnVisibility.description){
+                if(columnVisibility.description != null){
                     columnVisActual.setDescription(columnVisibility.description)
                 }
-                if(columnVisibility.type){
+                if(columnVisibility.type != null){
                     columnVisActual.setType(columnVisibility.type)
                 }
-                if(columnVisibility.parameterType){
+                if(columnVisibility.parameterType != null){
                     columnVisActual.setParameterType(columnVisibility.parameterType)
                 }
-                if(columnVisibility.usage){
+                if(columnVisibility.usage != null){
                     columnVisActual.setUsage(columnVisibility.usage)
                 }
-                if(columnVisibility.encoding){
+                if(columnVisibility.encoding != null){
                     columnVisActual.setEncoding(columnVisibility.encoding)
                 }
-                if(columnVisibility.flags){
+                if(columnVisibility.flags != null){
                     columnVisActual.setFlags(columnVisibility.flags)
                 }
-                if(columnVisibility.actions){
+                if(columnVisibility.actions != null){
                     columnVisActual.setActions(columnVisibility.actions)
                 }
             })
