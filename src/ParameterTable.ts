@@ -157,6 +157,9 @@ export class ParameterTable {
     static getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
+        //resets the table field selections used for the little editor at the top of the table
+        ParameterTable.resetSelection()
+
         switch (Setting.findValue(Setting.BOTTOM_WINDOW_MODE)){
             case Eagle.BottomWindowMode.NodeParameterTable:
                 return eagle.selectedNode()?.getFields();
@@ -544,7 +547,7 @@ export class ParameterTable {
 
     static openTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
         const eagle: Eagle = Eagle.getInstance();
-        
+
         //if a modal is open, closed it
         if($('.modal.show').length>0){
             $('.modal.show').modal('hide')
