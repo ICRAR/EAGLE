@@ -7,6 +7,7 @@ import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
+import { SideWindow } from './SideWindow';
 import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
@@ -247,6 +248,8 @@ export class Modals {
             if(!completed){
                 eagle.cancelSettingChanges()
             }
+
+            eagle.setSelection(null,Eagle.FileType.Graph)
         })
 
         $('#settingsModal').on("keydown", function (event: JQuery.TriggeredEvent) {
