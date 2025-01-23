@@ -299,14 +299,14 @@
 
     /* white outer border, a bit ugle but the only way i found to do it */
     text-shadow:
-    -0.8px -0.8px 0 #ffffff,
-     0   -0.8px 0 #ffffff,
-     0.8px -0.8px 0 #ffffff,
-     0.8px  0   0 #ffffff,
-     0.8px  0.8px 0 #ffffff,
-     0    0.8px 0 #ffffff,
-    -0.8px  0.8px 0 #ffffff,
-    -0.8px  0   0 #ffffff;
+    -0.3px -0.3px 0 #ffffff,
+     0   -0.3px 0 #ffffff,
+     0.3px -0.3px 0 #ffffff,
+     0.3px  0   0 #ffffff,
+     0.3px  0.3px 0 #ffffff,
+     0    0.3px 0 #ffffff,
+    -0.3px  0.3px 0 #ffffff,
+    -0.3px  0   0 #ffffff;
 }
 
 #portContainer .selected div .portTitle{
@@ -386,16 +386,16 @@
     font-size: 15px;
     color: rgb(46 49 146);
     
-    /* white outer border, a bit ugle but the only way i found to do it */
+    /* white outer border, a bit ugly but the only way i found to do it */
     text-shadow:
-    -1px -1px 0 #ffffff,
-     0   -1px 0 #ffffff,
-     1px -1px 0 #ffffff,
-     1px  0   0 #ffffff,
-     1px  1px 0 #ffffff,
-     0    1px 0 #ffffff,
-    -1px  1px 0 #ffffff,
-    -1px  0   0 #ffffff;
+    -0.6px -0.6px 0 #ffffff,
+     0   -0.6px 0 #ffffff,
+     0.6px -0.6px 0 #ffffff,
+     0.6px  0   0 #ffffff,
+     0.6px  0.6px 0 #ffffff,
+     0    0.6px 0 #ffffff,
+    -0.6px  0.6px 0 #ffffff,
+    -0.6px  0   0 #ffffff;
 }
 
 .construct_node .header .header-name{
