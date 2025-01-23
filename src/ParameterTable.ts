@@ -207,13 +207,14 @@ export class ParameterTable {
     // TODO: move to Eagle.ts?
     //       doesn't seem to depend on any ParameterTable state, only Eagle state
     static getNodeLockedState = (field:Field) : boolean => {
+        const eagle: Eagle = Eagle.getInstance();
+
         // this handles a special case where EAGLE is displaying the "Graph Configuration Attributes Table"
         // all the field names shown in that table should be locked (readonly)
         if (Setting.find(Setting.BOTTOM_WINDOW_MODE).value() === Eagle.BottomWindowMode.ConfigParameterTable){
-            return true;
+            return eagle.logicalGraph().findNodeByIdQuiet(field?.getNodeId()).isLocked()
         }
 
-        const eagle: Eagle = Eagle.getInstance();
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(eagle.selectedNode() === null){
                 return false
