@@ -104,7 +104,8 @@ export namespace Daliuge {
         Dill = "dill",
         Npy = "npy",
         Base64 = "base64",
-        UTF8 = "utf-8"
+        UTF8 = "utf-8",
+        Path = "path"
     }
 
     export enum FieldType {
