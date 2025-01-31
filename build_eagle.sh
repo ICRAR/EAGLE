@@ -1,4 +1,4 @@
-COMPOSE="docker-compose"
+COMPOSE="docker compose"
 
 # Check if the user has a different docker compose setup
 if ! command -v $COMPOSE
