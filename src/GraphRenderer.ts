@@ -311,6 +311,8 @@ export class GraphRenderer {
     static dragSelectionHandled : any = ko.observable(true)
     static dragSelectionDoubleClick :boolean = false;
 
+    static findParent : boolean = false;
+
     //drag selection region globals
     static altSelect : boolean = false;
     static shiftSelect : boolean = false;
@@ -1123,9 +1125,13 @@ export class GraphRenderer {
 
                 //look for a construct at the current location that we would parent to
                 //the outermost node is the outermost construct for multiselection 
-                outermostNodes.forEach(function(outerMostNode){
-                    GraphRenderer.lookForParent(outerMostNode)
-                })
+                GraphRenderer.parentSelectionTest()
+                // GraphRenderer.findParent = true;
+                // outermostNodes.forEach(function(outerMostNode){
+                //     if(GraphRenderer.findParent){
+                //         GraphRenderer.lookForParent(outerMostNode)
+                //     }
+                // })
             } else if(GraphRenderer.isDraggingSelectionRegion){
                 
                 //update selection region position then draw the rectangle
@@ -1266,10 +1272,78 @@ export class GraphRenderer {
         })
     }
 
+    static parentSelectionTest() : void {
+        const eagle = Eagle.getInstance()
+        const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+        const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
+        
+        for (const outermostNode of outermostNodes){
+            const oldParent: Node = eagle.logicalGraph().findNodeByIdQuiet(outermostNode.getParentId());
+            let parentingSuccessful = false;
+            console.log('starting',outermostNode.getName())
+
+            //construct resizing 
+            if(outermostNode.getParentId() != null && oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
+                oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag) //HERE
+                outermostNode.setParentId(null)
+            }
+
+            // check for nodes underneath the node we dropped
+            const parent: Node = eagle.logicalGraph().checkForNodeAt(outermostNode.getPosition().x, outermostNode.getPosition().y, outermostNode.getRadius(), true);
+
+            // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
+            const ancestorOfParent = GraphRenderer.isAncestor(parent, outermostNode);
+
+            if(!ancestorOfParent && parent != oldParent && parent != null){
+                GraphRenderer.parentSelection(outermostNodes, parent)
+                parentingSuccessful = true;
+                setTimeout(() => {
+                    GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByIdQuiet(parent?.getId())?.getRadius()
+                }, 100);
+            }
+
+            if (parent === null && !outermostNode.isEmbedded() && oldParent !== null){
+                GraphRenderer.parentSelection(outermostNodes, null);
+                // moved out of a construct
+                $('#'+oldParent.getId()).addClass('transition')
+                parentingSuccessful = true;
+            }
+            
+            if(parentingSuccessful){
+                eagle.logicalGraph().fileInfo().modified = true;
+                console.log('parenting successful',GraphRenderer.NodeParentRadiusPreDrag)
+                return
+            }
+        }
+    }
+
+    static parentSelection(outermostNodes : Node[], parent:Node) : void {
+        console.log('setting: ',parent)
+        const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+        outermostNodes.forEach(function(object){
+            if(object instanceof Node){
+                console.log('parenting node')
+
+                    
+                if(!object.isEmbedded() && parent === null){
+                    GraphRenderer.updateNodeParent(object, null,  allowGraphEditing);
+                }else if(object.getId() != parent?.getId() && !object.isEmbedded()){
+                    console.log(object.getName(),'check passed')
+                    GraphRenderer.updateNodeParent(object, parent?.getId(), allowGraphEditing);
+                }
+            }
+        })
+    }
+
     static lookForParent(outerMostNode:Node) : void {
+        if(!GraphRenderer.findParent){
+            return
+        }
+
         const eagle = Eagle.getInstance()
         // remember node parent from before things change
         const oldParent: Node = eagle.logicalGraph().findNodeByIdQuiet(outerMostNode.getParentId());
+        const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
 
         // keep track of whether we would update any node parents
         const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
@@ -1287,7 +1361,15 @@ export class GraphRenderer {
 
         // if a parent was found, update
         if (parent !== null && outerMostNode.getParentId() !== parent.getId() && outerMostNode.getId() !== parent.getId() && !ancestorOfParent && !outerMostNode.isEmbedded()){
-            GraphRenderer.updateNodeParent(outerMostNode, parent.getId(),  allowGraphEditing);
+            GraphRenderer.findParent = false;
+
+            if(eagle.getNumSelectedNodes()>1){
+                console.log('parent selection')
+                GraphRenderer.parentSelection(outermostNodes,parent)
+            }else{
+                console.log('nah just parent one')
+                GraphRenderer.updateNodeParent(outerMostNode, parent.getId(),  allowGraphEditing);
+            }
             GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByIdQuiet(parent.getId()).getRadius()
             eagle.logicalGraph().fileInfo().modified = true;
         }
@@ -1641,6 +1723,7 @@ export class GraphRenderer {
     // however, if allowGraphEditing is false, then don't update
     static updateNodeParent(node: Node, parentId: NodeId, allowGraphEditing: boolean): void {
         if (node.getParentId() !== parentId && allowGraphEditing){
+            console.log('setting: ',node.getName(),parentId)
             node.setParentId(parentId);
             Eagle.getInstance().checkGraph()   
         }
