@@ -312,6 +312,7 @@ export class GraphRenderer {
     static dragSelectionDoubleClick :boolean = false;
 
     static findParent : boolean = false;
+    static parentTimeout : boolean = false;
 
     //drag selection region globals
     static altSelect : boolean = false;
@@ -1274,65 +1275,63 @@ export class GraphRenderer {
 
     static parentSelectionTest() : void {
         const eagle = Eagle.getInstance()
-        const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
         const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
         
         for (const outermostNode of outermostNodes){
             const oldParent: Node = eagle.logicalGraph().findNodeByIdQuiet(outermostNode.getParentId());
-            let parentingSuccessful = false;
-            console.log('starting',outermostNode.getName())
+            let parentingSuccessful = false; //if the detected parent of one node in the selection changes, we assign the new parent to the whole selection and exit this loop
 
-            //construct resizing 
+            // the parent construct is only allowed to grow by the amout specified(eagleConfig.construct_drag_out_distance) before allowing its children to escape
             if(outermostNode.getParentId() != null && oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
-                oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag) //HERE
-                outermostNode.setParentId(null)
+                $('#'+oldParent.getId()).addClass('transition')
+                GraphRenderer.parentSelection(outermostNodes, null);
+                parentingSuccessful = true;
             }
 
-            // check for nodes underneath the node we dropped
+            // check for nodes underneath the node
             const parent: Node = eagle.logicalGraph().checkForNodeAt(outermostNode.getPosition().x, outermostNode.getPosition().y, outermostNode.getRadius(), true);
 
             // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
             const ancestorOfParent = GraphRenderer.isAncestor(parent, outermostNode);
 
             if(!ancestorOfParent && parent != oldParent && parent != null){
+                // setting the new parent for all outermost selected nodes
                 GraphRenderer.parentSelection(outermostNodes, parent)
                 parentingSuccessful = true;
-                setTimeout(() => {
-                    GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByIdQuiet(parent?.getId())?.getRadius()
-                }, 100);
             }
 
             if (parent === null && !outermostNode.isEmbedded() && oldParent !== null){
-                GraphRenderer.parentSelection(outermostNodes, null);
                 // moved out of a construct
                 $('#'+oldParent.getId()).addClass('transition')
+                GraphRenderer.parentSelection(outermostNodes, null);
                 parentingSuccessful = true;
             }
             
             if(parentingSuccessful){
                 eagle.logicalGraph().fileInfo().modified = true;
-                console.log('parenting successful',GraphRenderer.NodeParentRadiusPreDrag)
                 return
             }
         }
     }
 
     static parentSelection(outermostNodes : Node[], parent:Node) : void {
-        console.log('setting: ',parent)
+
         const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
         outermostNodes.forEach(function(object){
             if(object instanceof Node){
-                console.log('parenting node')
-
-                    
                 if(!object.isEmbedded() && parent === null){
                     GraphRenderer.updateNodeParent(object, null,  allowGraphEditing);
                 }else if(object.getId() != parent?.getId() && !object.isEmbedded()){
-                    console.log(object.getName(),'check passed')
                     GraphRenderer.updateNodeParent(object, parent?.getId(), allowGraphEditing);
                 }
             }
         })
+
+        // resizing the parent construct to fit its new children
+        GraphRenderer.resizeConstruct(parent)
+
+        //updating the parent construct's "pre-drag" size at the end of parenting all the nodes
+        GraphRenderer.NodeParentRadiusPreDrag = Eagle.getInstance().logicalGraph().findNodeByIdQuiet(parent?.getId())?.getRadius()
     }
 
     static lookForParent(outerMostNode:Node) : void {
@@ -1723,7 +1722,7 @@ export class GraphRenderer {
     // however, if allowGraphEditing is false, then don't update
     static updateNodeParent(node: Node, parentId: NodeId, allowGraphEditing: boolean): void {
         if (node.getParentId() !== parentId && allowGraphEditing){
-            console.log('setting: ',node.getName(),parentId)
+            console.log('setting: ',node.getName(),Eagle.getInstance().logicalGraph().findNodeByIdQuiet(parentId)?.getName())
             node.setParentId(parentId);
             Eagle.getInstance().checkGraph()   
         }
@@ -1732,10 +1731,14 @@ export class GraphRenderer {
     // resize a construct so that it contains its children
     // NOTE: does not move the construct
     static resizeConstruct = (construct: Node): void => {
+        if(construct === null){
+            return
+        }
+
         const eagle = Eagle.getInstance();
         let maxDistance = 0;
 
-        // loop through all children - find distance from center of construct
+        // loop through all nodes to fund children - then check to find distance from center of construct
         for (const node of eagle.logicalGraph().getNodes()){
             if(GraphRenderer.ctrlDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelectedById(node.getParentId())){
                 continue
