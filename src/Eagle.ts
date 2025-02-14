@@ -2720,6 +2720,11 @@ export class Eagle {
         Utils.closeErrorsModal();
     }
 
+    statusBarScroll = (data:any,e:any) : void => {
+        e.preventDefault()
+        $('#statusBar').scrollLeft(e.originalEvent.deltaY)
+    }
+
     smartToggleModal = (modal:string) : void => {
         //used for keyboard shortcuts, preventing opening several modals at once
         if($('.modal.show').length>0){

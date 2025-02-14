@@ -1813,11 +1813,17 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     height: 2px;
 }
 
+#statusBar .statusWrapper{
+    display:inline-flex;
+}
 
 #statusBar h5{
     display: inline;
     font-size: .8rem;
     font-weight: bolder;
+    margin-right:5px;
+    margin-left:7px;
+    color:#f3b112;
 }
 
 #statusBar span{
