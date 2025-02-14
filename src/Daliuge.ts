@@ -99,13 +99,15 @@ export namespace Daliuge {
     }
 
     export enum Encoding {
-        Binary = "binary",
-        Pickle = "pickle",
         Dill = "dill",
+        Pickle = "pickle",
         Npy = "npy",
-        Base64 = "base64",
+        Path = "path",
         UTF8 = "utf-8",
-        Path = "path"
+        Eval = "eval",
+        DataURL = "dataurl",
+        Binary = "binary",
+        RAW = "raw"
     }
 
     export enum FieldType {
