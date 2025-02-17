@@ -389,7 +389,7 @@ export class ParameterTable {
                 return;
             }
 
-            ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);
+            ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);
 
             if (configName === ""){
                 Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
