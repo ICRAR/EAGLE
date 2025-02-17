@@ -561,6 +561,11 @@ export class LogicalGraph {
     removeNode = (node: Node) : void => {
         const id = node.getId();
 
+        // first, delete any field in any graph config, that belongs to this node
+        for (const graphConfig of this.graphConfigs()){
+            graphConfig.removeNodeById(node.getId());
+        }
+
         // NOTE: this section handles an unusual case where:
         //  - the removed node is an embedded node within a construct
         //  - there are edge(s) connected to a port on the embedded node

@@ -1,15 +1,14 @@
 <!-- Edit Field Modal -->
 
 <!-- ko using: $root.currentField() -->
-    <div class="modal fade" id="editFieldModal" tabindex="-1" role="dialog" aria-labelledby="editFieldModalTitle" aria-hidden="true">
+    <div class="modal fade" id="editFieldModal" tabindex="-1" role="dialog" aria-labelledby="editFieldModalTitle">
 
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <!-- ko ifnot: $data === null -->
                     <div class="modal-header">
-                        <input type="checkbox" tabindex='-1' class="form-control form-check-input material-icons" id="editFieldModalKeyParameterCheckbox">
                         <h5 class="modal-title" id="editFieldModalTitle">Edit Parameter</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <div class="container" id="customParameterOptionsWrapper">

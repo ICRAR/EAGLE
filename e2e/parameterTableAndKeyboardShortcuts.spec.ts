@@ -18,6 +18,10 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await page.waitForTimeout(500);
   await page.getByRole('button', { name: 'OK' }).click()
 
+  //expand the 'Builtin Components' palette
+  await page.locator('#palette0').click();
+  await page.waitForTimeout(250);
+
   //add a helloworld app to the graph by clicking it's icon
   await page.locator('#addPaletteNodeHelloWorldApp').click();
   //agree to create a new graph with it's auto-generated name
@@ -84,7 +88,7 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   
   //close the parameter table modal
   await page.waitForTimeout(800);
-  await page.locator('#parameterTableAffirmativeAnswer').click();
+  await page.locator('.closeBottomWindowBtn button').click();
 
   //open the key graph parameter table modal
   await page.locator('#openGraphConfigurationTable').click();
@@ -92,7 +96,7 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await page.waitForTimeout(500);
 
   //make sure the field has been added to the key graph parameter table
-  await expect(await page.locator('#parameterTable tbody').getByRole('row').count()===0).toBeFalsy();
+  await expect(await page.locator('.parameterTable tbody').getByRole('row').count()===0).toBeFalsy();
 
   await page.close();
 });

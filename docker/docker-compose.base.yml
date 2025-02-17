@@ -1,0 +1,12 @@
+version: '3.3'
+services:
+    eagle:
+        image: icrar/eagle-base:${VCS_TAG}
+        restart: "no"
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile.base
+        ports:
+            - 8888:80/tcp
+        volumes:
+            - .:/app

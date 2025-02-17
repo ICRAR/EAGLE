@@ -1,4 +1,4 @@
-COMPOSE="docker-compose"
+COMPOSE="docker compose"
 
 # Check if the user has a different docker compose setup
 if ! command -v $COMPOSE
@@ -35,7 +35,7 @@ case "$1" in
         echo ""
         echo ""
         echo ">>>>> docker-slim output <<<<<<<<<"
-        docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock dslim/docker-slim build --include-shell --include-path /usr/local/lib --include-path /usr/local/bin --http-probe=false icrar/eagle:${VCS_TAG} 
+        docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock dslim/slim build --include-shell --include-path /usr/local/lib --include-path /usr/local/bin icrar/eagle:${VCS_TAG} 
 	;;
     *)
         echo "Usage: build_eagle.sh <dep|dev|slim>"

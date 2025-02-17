@@ -1,3 +1,52 @@
+v6.5.0 (2024/12/19)
+- Added palette sort menu item to palette triple-dot menu
+- Fixed accuracy/drift issues during node dragging when browser zoom not 100%
+- Added the current graph configuration name to the top of the page
+- Added more information on the current graph configuration to the inspector
+- Added new setting 'Show developer notification' to show/hide messages intended only for developers
+- Hide description editing button when user doesn't have permission to edit
+- Added 'Toggle all palettes' menu item to the triple-dot menu in the Palettes window
+- Collapse default palettes by default. Remember user's collapsed/expanded preference in the browser
+- Fixed arrow direction when dragging an edge from an input port
+- Fixed several edge drawing and port hovering issues
+- Playwright UI tests
+- Users can name graph configs
+- Added config-related menu actions (load/save/new etc) to the Quick Actions list
+- If ParameterTable is empty, display some default text instead of the empty table
+- Removed node keys (negative numbers), just use node ids
+- Use the GraphUpdater.updateKeysToIds function when loading local graph files
+- Improvements, additions and logic added for status bar entries
+- Improved animation when show/hide side windows
+- Allow Memory and SharedMemory nodes to have no input edges, if their value is specified internally by the pydata field
+- Improvements to tabbing through the 'Add Node' right click menu using arrows
+- Added a right-click menu when multiple graph items are selected
+- Updated graph configuration output format to dict of dicts
+- Added a button to open the selected node in the parameter table
+- New 'object inspector' UI in bottom left of graph display
+- Minor improvements to the layout of the translator tab
+- Added remove/duplicate/edit buttons to the 'actions' column of the Graph Configurations table
+- Fixed bug where 'editEdge' modal would not have 'loopAware' and 'closesLoop' checkboxes initialised to correct values
+- New 'bottom window' added to contain 'Node Parameter Table', 'Graph Attributes Configuration', 'Graph Configurations', 'Errors' tables
+- Prevent translation of modified graphs. Added developer setting to override
+- Added quick actions and keyboard shortcuts for new config and save config
+- Added a 'trash can' icon next to repository files, so that they can be deleted from the server. Added setting to allow users to skip confirmation of every delete
+- Only display keyboard shortcuts that make sense for the user's platform
+- Improved graph centering
+- Improvement when connecting an Application to a BashShellApp. Use a File component as the intermediary node, instead of a Memory component as usual
+- Improvements/fixes to the 'graph building' tutorial
+- New tutorial for 'graph configurations'
+- Stop overriding graph values with values from graph configs for translation. Added developer setting to apply anyway for old versions of DALiuGE
+- Save active graph configuration id to Logical Graph JSON
+- Switched to fetching the Logical Graph schema from EAGLE_test_repo instead of DALiuGE
+- Only show the encoding tab in the parameter table when looking at a application node
+- Hide the favorite button on palette nodes in the parameter table
+- Improvements to status bar, especially on small screens
+- When a graph is specified in the EAGLE URL, add the repository to EAGLE's list
+- Tooltip fixes, especially to Repository names
+- Show both the configured and original graph values in the parameter table
+- Improvements to the display of errors/warning in the bottom window, better use of space
+- Selecting nodes will no longer set the 'modified' flag on a graph
+- Improvements to drag handler code
 v6.4.2 (2024/07/23)
 - Better sizing of modal dialogs
 - Right window displays the correct tab more of the time

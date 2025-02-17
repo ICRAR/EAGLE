@@ -105,9 +105,12 @@ const colors: { name: string; color: string; }[] = [
     },{
         name: 'graphWarning',
         color: '#ffa500'
+    },{
+        
+    //eagle colors
+        name: 'hoverHighlight',
+        color: '#feb609'
     }
-
-
 ]
 
 export class EagleConfig {
@@ -133,7 +136,7 @@ export class EagleConfig {
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
     // this is the default margin that should be left on each side
     public static readonly CONSTRUCT_MARGIN: number = 30;
-    public static readonly CONSTRUCT_DRAG_OUT_DISTANCE: number = 200;
+    public static readonly CONSTRUCT_DRAG_OUT_DISTANCE: number = 100;
 
     // number of spaces used for indenting output JSON, makes everything human-readable
     public static readonly JSON_INDENT: number = 4;
@@ -171,5 +174,6 @@ export class EagleConfig {
         $("#logicalGraphParent").get(0).style.setProperty("--matchingEdgeColor", EagleConfig.getColor('edgeAutoComplete'));
         $("#logicalGraphParent").get(0).style.setProperty("--nodeOutputColor", EagleConfig.getColor('nodeOutputPort'));
         $("#logicalGraphParent").get(0).style.setProperty("--nodeInputColor", EagleConfig.getColor('nodeInputPort'));
+        $("html").get(0).style.setProperty("--hoverHighlight", EagleConfig.getColor('hoverHighlight'));
     }
 }

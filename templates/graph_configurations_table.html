@@ -13,8 +13,7 @@
         </div>
 
         <div class="header-center">
-            <button type="button" class="btn btn-primary" id="graphConfigurationsTableAddConfigButton" data-bind="click: newConfig, clickBubble:false" ><span id="graphConfigurationsTableAddConfig">Add Config</span></button>
-            <button type="button" class="btn btn-primary" data-bind="click:  function(){SideWindow.toggleShown('bottom')}, clickBubble:false"><span>Close</span></button>
+            <button type="button" class="btn btn-primary iconHoverEffect" id="graphConfigurationsTableAddConfigButton" data-bind="click: newConfig, clickBubble:false" ><span id="graphConfigurationsTableAddConfig">Add Config</span></button>
         </div> 
 
     </div>
@@ -58,19 +57,19 @@
                                 <input class="tableParameter" type="string" data-bind="value: $data.numFields(), eagleTooltip: 'number of fields added to the graph configuration'">
                             </td>
                             <td class='columnCell column-active'>
-                                <button type="button" data-bind="click: function(){$root.logicalGraph().setActiveGraphConfig($data.getId());}">
+                                <button class="iconHoverEffect" type="button" data-bind="click: function(){$root.logicalGraph().setActiveGraphConfig($data.getId());}">
                                     <i class="material-icons md-18" data-bind="visible: $data.id() === $root.logicalGraph().activeGraphConfigId()">radio_button_checked</i>
                                     <i class="material-icons md-18" data-bind="hidden:  $data.id() === $root.logicalGraph().activeGraphConfigId()">radio_button_unchecked</i>
                                 </button>
                             </td>
                             <td class='columnCell column-actions'>
-                                <button class="btmWindowDuplicateBtn" data-bind="click: function(){$root.logicalGraph().duplicateGraphConfig($data);}, eagleTooltip:'Duplicate'">
+                                <button class="btmWindowDuplicateBtn iconHoverEffect" data-bind="click: function(){$root.logicalGraph().duplicateGraphConfig($data);}, eagleTooltip:'Duplicate'">
                                     <i class="material-icons">content_copy</i>
                                 </button>
-                                <button data-bind="click: function(){ParameterTable.requestEditConfig($data);}, eagleTooltip:'Edit', clickBubble:false">
+                                <button class="iconHoverEffect" data-bind="click: function(){ParameterTable.requestEditConfig($data);}, eagleTooltip:'Edit', clickBubble:false">
                                     <i class="material-icons">edit</i>
                                 </button>
-                                <button data-bind="click: function(){$root.logicalGraph().removeGraphConfig($data)}, eagleTooltip:'Remove Config from Graph', clickBubble:false">
+                                <button class="iconHoverEffect" data-bind="click: function(){$root.logicalGraph().removeGraphConfig($data)}, eagleTooltip:'Remove Config from Graph', clickBubble:false">
                                     <i class="material-icons">delete</i>
                                 </button>
                             </td>

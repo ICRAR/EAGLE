@@ -5,10 +5,9 @@
     </div>
     
     <div class="header-center">
-        <button id= 'errorModalFixAll' class="btn btn-primary" data-bind="click: Errors.fixAll, eagleTooltip: Errors.getNumFixableIssues() + ' fix(es) available'">Fix All
+        <button id= 'errorModalFixAll' class="btn btn-primary iconHoverEffect" data-bind="click: Errors.fixAll, eagleTooltip: Errors.getNumFixableIssues() + ' fix(es) available'">Fix All
             <span data-bind="text: KeyboardShortcut.idToText('fix_all', true)"></span>
         </button>
-        <button type="button" class="btn btn-primary" data-bind="click:  function(){SideWindow.toggleShown('bottom')}, clickBubble:false"><span>Close</span></button>
     </div> 
     <div class="issuesBody">
         <div class='accordion' id='issuesDisplayAccordion'>
@@ -24,12 +23,12 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span data-bind="text: $data.message"></span>
                                 <div>
-                                <!-- ko if: $data.show !== null -->
-                                    <button class="btn btn-secondary btn-sm" data-bind="click: $data.show, eagleTooltip: 'Show object to investigate error'">Show</button>
-                                <!-- /ko -->
-                                <!-- ko if: $data.fix !== null -->
-                                    <button class="btn btn-primary btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
-                                <!-- /ko -->
+                                    <!-- ko if: $data.show !== null -->
+                                        <button class="btn btn-secondary btn-sm" data-bind="click: $data.show, eagleTooltip: 'Show object to investigate error'">Show</button>
+                                    <!-- /ko -->
+                                    <!-- ko if: $data.fix !== null -->
+                                        <button class="btn btn-primary btn-sm" data-bind="click: function(){Utils.callFixFunc(eagle, $data.fix);}, eagleTooltip: $data.fixDescription">Fix</button>
+                                    <!-- /ko -->
                                 </div>
                             </li>
                         <!-- /ko -->

@@ -80,6 +80,14 @@ export class Utils {
         return Utils._uuidv4() as GraphConfig.Id;
     }
 
+    static generateRepositoryId(): RepositoryId {
+        return Utils._uuidv4() as RepositoryId;
+    }
+
+    static generateRepositoryFileId(): RepositoryFileId {
+        return Utils._uuidv4() as RepositoryFileId;
+    }
+
     /**
      * Generates a UUID.
      * See https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
@@ -406,7 +414,29 @@ export class Utils {
         $('#issuesDisplay').modal("show");
     }
 
-    static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger") : void {
+    /**
+     * Show a temporary notification message to the user at the bottom of the graph display area
+     * @param title The title of the notification
+     * @param message The body of the notification
+     * @param type The type of the notification. This changes the color of the notification
+     * @param developer If true, this notification is intended for developers-only. Regular users are unlikely to be able to do anything useful with the information. Users enable/disable display of developer-only notifications via a setting on the Developer tab of the Settings modal.
+     */
+    static showNotification(title : string, message : string, type : "success" | "info" | "warning" | "danger", developer: boolean = false) : void {
+        // display in console
+        switch(type){
+            case "danger":
+                console.error(title, message);
+                break;
+            case "warning":
+                console.warn(title, message);
+                break;
+        }
+
+        // if this is a message intended for developers, check whether display of those messages is enabled
+        if (developer && !Setting.findValue(Setting.SHOW_DEVELOPER_NOTIFICATIONS)){
+            return;
+        }
+
         $.notify({
             title:title + ":",
             message:message
@@ -744,7 +774,7 @@ export class Utils {
         $('#issuesDisplay').modal("hide");
     }
 
-    static preparePalette(palette: Palette, paletteListItem: {name:string, filename:string, readonly:boolean}) : void {
+    static preparePalette(palette: Palette, paletteListItem: {name:string, filename:string, readonly:boolean, expanded: boolean}) : void {
         palette.fileInfo().clear();
         palette.fileInfo().name = paletteListItem.name;
         palette.fileInfo().readonly = paletteListItem.readonly;
@@ -753,8 +783,7 @@ export class Utils {
         palette.fileInfo().type = Eagle.FileType.Palette;
         palette.fileInfo().repositoryService = Repository.Service.Url;
 
-        // sort palette and add to results
-        palette.sort();
+        palette.expanded(paletteListItem.expanded);
     }
 
     static async showPalettesModal(eagle: Eagle): Promise<void> {
@@ -1106,14 +1135,15 @@ export class Utils {
         return result;
     }
 
-    static getCategoriesWithInputsAndOutputs(categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Category[] {
+    static getCategoriesWithInputsAndOutputs(categoryType: Category.Type) : Category[] {
         const eagle = Eagle.getInstance();
 
         // get a reference to the builtin palette
         const builtinPalette: Palette = eagle.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
         if (builtinPalette === null){
+            // if no built-in palette is found, then build a list from the EAGLE categoryData
             console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
-            return null;
+            return Utils.buildComponentList((cData: Category.CategoryData) => {return cData.categoryType === categoryType});
         }
 
         const matchingNodes = builtinPalette.getNodesByCategoryType(categoryType)
@@ -1297,9 +1327,11 @@ export class Utils {
         UiModeSystem.saveToLocalStorage()
     }
 
-    static getBottomWindowHeight() : number {
+    static calculateBottomWindowHeight() : number {
+        //this function exists to prevent the bottom window height value from exceeding its max height value. 
         //if eagle isnt ready or the window is hidden just return 0
-        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+        //TODO This function is only needed for the transition perdiod from pixels to vh. We can get rid of this in the future.
+        if(!Eagle.getInstance().eagleIsReady()){
             return 0
         }
 
@@ -1309,6 +1341,13 @@ export class Utils {
         }
 
         //else return the actual height
+        return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
+    }
+
+    static getBottomWindowHeight() : number {
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+            return 0
+        }
         return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
     }
 
@@ -1548,9 +1587,7 @@ export class Utils {
         const jsonObject = JSON.parse(jsonString);
         const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, fileType);
         if (!validatorResult.valid){
-            const message = "JSON Output failed validation against internal JSON schema, saving anyway";
-            console.error(message, validatorResult.errors);
-            Utils.showUserMessage("Error", message + "<br/>" + validatorResult.errors);
+            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema, saving anyway" + "<br/>" + validatorResult.errors, "danger", true);
         }
     }
 
@@ -1606,15 +1643,15 @@ export class Utils {
     }
 
     static validateType(type: string) : boolean {
-        const typePrefix = Utils.dataTypePrefix(type);
-
-        for (const dt of Utils.enumKeys(Daliuge.DataType)){
-            if (dt === typePrefix){
-                return true;
-            }
+        if (typeof(type) === "undefined"){
+            return false;
         }
 
-        return false;
+        if (type.trim() === ""){
+            return false;
+        }
+
+        return true;
     }
 
     static downloadFile(error : string, data : string, fileName : string) : void {
@@ -2584,6 +2621,47 @@ export class Utils {
             return "Default Configuration";
         } else {
             return config.getName() + " (Copy)";
+        }
+    }
+
+    static transformNodeFromTemplates(node: Node, sourceTemplate: Node, destinationTemplate: Node): void {
+        // delete non-ports from the node (loop backwards since we are deleting from the array as we loop)
+        for (let i = node.getFields().length - 1 ; i >= 0; i--){
+            const field: Field = node.getFields()[i];
+
+            if (field.isInputPort() || field.isOutputPort()){
+                continue;
+            }
+
+            node.removeFieldById(field.getId());
+        }
+
+        // copy non-ports from new template to node
+        for (const field of destinationTemplate.getFields()){
+            if (field.isInputPort() || field.isOutputPort()){
+                continue;
+            }
+
+            // try to find field in node that matches by displayText AND parameterType
+            let destField = node.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
+
+            // if dest field could not be found, then go ahead and add a NEW field to the node
+            if (destField === null){
+                destField = field.clone();
+                node.addField(destField);
+            }
+
+            // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
+            destField.copyWithIds(field, destField.getNodeId(), destField.getId());
+        }
+
+        // copy name and description from new template to node, if node values are defaults
+        if (node.getName() === sourceTemplate.getName()){
+            node.setName(destinationTemplate.getName());
+        }
+
+        if (node.getDescription() === sourceTemplate.getDescription()){
+            node.setDescription(destinationTemplate.getDescription());
         }
     }
 }

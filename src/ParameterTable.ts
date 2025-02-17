@@ -62,7 +62,7 @@ export class ParameterTable {
             return "";
         }
 
-        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigAttributesTable){
+        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
             return ParameterTable.selectionParent().getDisplayText() + " - " + ParameterTable.selectionName();
         } else {
             return "Unknown";
@@ -74,7 +74,7 @@ export class ParameterTable {
             return "";
         }
 
-        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigAttributesTable){
+        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
             return ParameterTable.selection();
         } else {
             return "Unknown";
@@ -84,8 +84,8 @@ export class ParameterTable {
     static tableEnterShortcut = (event: KeyboardEvent) : void => {
 
         //if the table parameter search bar is selected
-        if($('#parameterTable .componentSearchBar')[0] === event.target){
-            const targetCell = $('#parameterTable td.column_Value').first().children().first()
+        if($('.parameterTable .componentSearchBar')[0] === event.target){
+            const targetCell = $('.parameterTable td.column_Value').first().children().first()
             targetCell.trigger("focus");
             $('.selectedTableParameter').removeClass('selectedTableParameter')
             targetCell.parent().addClass('selectedTableParameter')
@@ -157,11 +157,14 @@ export class ParameterTable {
     static getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
+        //resets the table field selections used for the little editor at the top of the table
+        ParameterTable.resetSelection()
+
         switch (Setting.findValue(Setting.BOTTOM_WINDOW_MODE)){
-            case Eagle.BottomWindowMode.ParameterTable:
+            case Eagle.BottomWindowMode.NodeParameterTable:
                 return eagle.selectedNode()?.getFields();
             
-            case Eagle.BottomWindowMode.GraphConfigAttributesTable:
+            case Eagle.BottomWindowMode.ConfigParameterTable:
                 const lg: LogicalGraph = eagle.logicalGraph();
                 const config: GraphConfig = lg.getActiveGraphConfig();
                 const displayedFields: Field[] = [];
@@ -204,13 +207,14 @@ export class ParameterTable {
     // TODO: move to Eagle.ts?
     //       doesn't seem to depend on any ParameterTable state, only Eagle state
     static getNodeLockedState = (field:Field) : boolean => {
+        const eagle: Eagle = Eagle.getInstance();
+
         // this handles a special case where EAGLE is displaying the "Graph Configuration Attributes Table"
         // all the field names shown in that table should be locked (readonly)
-        if (Setting.find(Setting.BOTTOM_WINDOW_MODE).value() === Eagle.BottomWindowMode.GraphConfigAttributesTable){
-            return true;
+        if (Setting.find(Setting.BOTTOM_WINDOW_MODE).value() === Eagle.BottomWindowMode.ConfigParameterTable){
+            return eagle.logicalGraph().findNodeByIdQuiet(field?.getNodeId()).isLocked()
         }
 
-        const eagle: Eagle = Eagle.getInstance();
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             if(eagle.selectedNode() === null){
                 return false
@@ -298,7 +302,7 @@ export class ParameterTable {
         ParameterTable.selection(selection);
         ParameterTable.selectionReadonly(eagle.getCurrentParamValueReadonly(selectionParent));
 
-        $('#parameterTable tr.highlighted').removeClass('highlighted')
+        $('.parameterTable tr.highlighted').removeClass('highlighted')
     }
 
     static isSelected(selectionName: string, selectionParent: Field): boolean {
@@ -368,10 +372,6 @@ export class ParameterTable {
     static async _addRemoveField(currentField: Field, add: boolean): Promise<void> {
         let graphConfig: GraphConfig = Eagle.getInstance().logicalGraph().getActiveGraphConfig();
 
-        // check if the graph config is being modified
-        // if so, proceed as normal
-        // if not, then we need to clone the current active graph config and modify the clone
-
         if (graphConfig){
             if (add){
                 graphConfig.addValue(currentField.getNodeId(), currentField.getId(), currentField.getValue())
@@ -389,7 +389,7 @@ export class ParameterTable {
                 return;
             }
 
-            ParameterTable.openTable(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
+            ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);
 
             if (configName === ""){
                 Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
@@ -421,23 +421,35 @@ export class ParameterTable {
     // TODO: remove parameter?
     static requestEditConfig(config: GraphConfig): void {
         GraphConfigurationsTable.closeModal();
-        ParameterTable.openTable(Eagle.BottomWindowMode.GraphConfigAttributesTable, ParameterTable.SelectType.Normal);
+        ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);
     }
 
-    static async requestEditDescriptionInModal(currentField:Field): Promise<void> {
+    static async requestEditDescriptionInModal(field:Field): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
-        const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
+        const node: Node = eagle.selectedNode();
+
+        // check that we can actually find the node that this field belongs to
+        if (node === null){
+            Utils.showNotification("Warning", "Could not find node containing this field", "warning");
+            return;
+        }
+        
+        //check that the user has sufficient permissions to change the field's description
+        if(ParameterTable.getNodeLockedState(field)){
+            Utils.showNotification("Insufficient Permissions", "Editing permissions are required to be able to edit a field's description.", "warning");
+            return
+        }
 
         let fieldDescription: string;
         try {
-            fieldDescription = await Utils.requestUserText("Edit Field Description", "Please edit the description for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(), currentField.getDescription());
+            fieldDescription = await Utils.requestUserText("Edit Field Description", "Please edit the description for: " + node.getName() + ' - ' + field.getDisplayText(), field.getDescription());
         } catch (error) {
             console.error(error);
             return;
         }
 
         // set the description on the field
-        currentField.setDescription(fieldDescription);
+        field.setDescription(fieldDescription);
     }
 
     static async requestEditCommentInModal(currentField:Field): Promise<void> {
@@ -455,70 +467,70 @@ export class ParameterTable {
     }
 
     static initiateResizableColumns(upId:string) : void {
-        //need this oen initially to set the mousedown handler
-            let upcol: HTMLElement = $('#'+upId)[0]
-            let upresizer: JQuery<HTMLElement> = $(upcol).find('div')
+        //need this one initially to set the mousedown handler
 
-            let downcol: HTMLElement
-            let downresizer: JQuery<HTMLElement>
+        let upcol: HTMLElement = $('.'+upId)[0]
+        let upresizer: JQuery<HTMLElement> = $(upcol).find('div')
+        let downcol: HTMLElement
+        let downresizer: JQuery<HTMLElement>
 
-            let tableWidth: number
+        let tableWidth: number
 
-            // Track the current position of mouse
-            let x = 0;
-            let upW = 0;
-            let downW = 0;
+        // Track the current position of mouse
+        let x = 0;
+        let upW = 0;
+        let downW = 0;
 
-            const mouseDownHandler = function (e:any) {
-                //need to reset these as they are sometimes lost
-                upcol = $('#'+upId)[0]
-                upresizer = $(upcol).find('div')
-                downcol = $('#'+upId).next()[0]
-                downresizer = $(downcol).find('div')
+        const mouseDownHandler = function (e:any) {
+            //need to reset these as they are sometimes lost
+            upcol = $('.'+upId)[0]
+            upresizer = $(upcol).find('div')
+            downcol = $('.'+upId).next()[0]
+            downresizer = $(downcol).find('div')
 
-                //getting the table width for use later to convert the new widths into percentages
-                tableWidth = parseInt(window.getComputedStyle($('#paramsTableWrapper')[0]).width,10)
+            //getting the table width for use later to convert the new widths into percentages
+            tableWidth = parseInt(window.getComputedStyle($('.paramsTableWrapper')[0]).width,10)
 
-                // Get the current mouse position
-                x = e.clientX;
+            // Get the current mouse position
+            x = e.clientX;
 
-                // Calculate the current width of column
-                const styles = window.getComputedStyle(upcol);
-                upW = parseInt(styles.width, 10);
+            // Calculate the current width of column
+            const styles = window.getComputedStyle(upcol);
+            upW = parseInt(styles.width, 10);
 
-                const downstyles = window.getComputedStyle(downcol)
-                downW = parseInt(downstyles.width, 10);
-        
-                // Attach listeners for document's events
-                document.addEventListener('mousemove', mouseMoveHandler);
-                document.addEventListener('mouseup', mouseUpHandler);
-                upresizer.addClass('resizing');
-                downresizer.addClass('resizing');
-            };
-        
-            const mouseMoveHandler = function (e:any) {
-                // Determine how far the mouse has been moved
-                const dx = e.clientX - x;
+            const downstyles = window.getComputedStyle(downcol)
+            downW = parseInt(downstyles.width, 10);
+    
+            // Attach listeners for document's events
+            document.addEventListener('mousemove', mouseMoveHandler);
+            document.addEventListener('mouseup', mouseUpHandler);
+            upresizer.addClass('resizing');
+            downresizer.addClass('resizing');
+        };
+    
+        const mouseMoveHandler = function (e:any) {
+            // Determine how far the mouse has been moved
+            const dx = e.clientX - x;
 
-                //converting these new px values into percentages
-                const newUpWidth: number = ((upW + dx)/tableWidth)*100
-                const newDownWidth: number = ((downW - dx)/tableWidth)*100
+            //converting these new px values into percentages
+            const newUpWidth: number = ((upW + dx)/tableWidth)*100
+            const newDownWidth: number = ((downW - dx)/tableWidth)*100
 
-                // Update the width of column
-                upcol.style.width = `${newUpWidth}%`;
-                downcol.style.width = `${newDownWidth}%`;
-            };
-        
-            // When user releases the mouse, remove the existing event listeners
-            const mouseUpHandler = function () {
-                document.removeEventListener('mousemove', mouseMoveHandler);
-                document.removeEventListener('mouseup', mouseUpHandler);
-                upresizer.removeClass('resizing');
-                downresizer.removeClass('resizing');
-            };
-        
-            //doing it this way because it makes it simpler to have the header in question in hand. the ko events proved difficult to pass events and objects with
-            upresizer.on('mousedown', mouseDownHandler);
+            // Update the width of column
+            upcol.style.width = `${newUpWidth}%`;
+            downcol.style.width = `${newDownWidth}%`;
+        };
+    
+        // When user releases the mouse, remove the existing event listeners
+        const mouseUpHandler = function () {
+            document.removeEventListener('mousemove', mouseMoveHandler);
+            document.removeEventListener('mouseup', mouseUpHandler);
+            upresizer.removeClass('resizing');
+            downresizer.removeClass('resizing');
+        };
+    
+        //doing it this way because it makes it simpler to have the header in question in hand. the ko events proved difficult to pass events and objects with
+        upresizer.on('mousedown', mouseDownHandler);
     }
 
     static toggleTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
@@ -532,7 +544,7 @@ export class ParameterTable {
 
     static openTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
         const eagle: Eagle = Eagle.getInstance();
-        
+
         //if a modal is open, closed it
         if($('.modal.show').length>0){
             $('.modal.show').modal('hide')
@@ -557,7 +569,7 @@ export class ParameterTable {
 
         eagle.setSelection(node, Eagle.FileType.Graph)
 
-        ParameterTable.openTable(Eagle.BottomWindowMode.ParameterTable, ParameterTable.SelectType.Normal);
+        ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);
         
         setTimeout(function(){
             $('#tableRow_'+field.getId()).addClass('highlighted')
@@ -582,14 +594,14 @@ export class ParameterTable {
         //a timeout was necessary to wait for the element to be added before counting how many there are
         setTimeout(function() {
             //handling selecting and highlighting the newly created row
-            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
+            const clickTarget = $($(".paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
 
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
             clickTarget.focus() // used to focus the field allowing the user to immediately start typing
             $(clickTarget).trigger("select")
 
             //scroll to new row
-            $("#parameterTable .modal-body").animate({
+            $(".parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
@@ -813,51 +825,52 @@ export class ColumnVisibilities {
         localStorage.setItem('ColumnVisibilities', JSON.stringify(columnVisibilitiesObjArray));
     }
 
-     loadFromLocalStorage = () : void => {
+    loadFromLocalStorage = () : void => {
         const columnVisibilitiesObjArray : any[] = JSON.parse(localStorage.getItem('ColumnVisibilities'))
         const that = ParameterTable.getActiveColumnVisibility()
         if(columnVisibilitiesObjArray === null){
             return
         }else{
             columnVisibilitiesObjArray.forEach(function(columnVisibility){
+
                 const columnVisActual:ColumnVisibilities = that.getModeByName(columnVisibility.name)
-                if(columnVisibility.keyAttribute){
+                if(columnVisibility.keyAttribute != null){
                     columnVisActual.setKeyAttribute(columnVisibility.keyAttribute)
                 }
-                if(columnVisibility.displayText){
+                if(columnVisibility.displayText != null){
                     columnVisActual.setDisplayText(columnVisibility.displayText)
                 }
-                if(columnVisibility.fieldId){
+                if(columnVisibility.fieldId != null){
                     columnVisActual.setFieldId(columnVisibility.fieldId)
                 }
-                if(columnVisibility.value){
+                if(columnVisibility.value != null){
                     columnVisActual.setValue(columnVisibility.value)
                 }
-                if(columnVisibility.readOnly){
+                if(columnVisibility.readOnly != null){
                     columnVisActual.setReadOnly(columnVisibility.readOnly)
                 }
-                if(columnVisibility.defaultValue){
+                if(columnVisibility.defaultValue != null){
                     columnVisActual.setDefaultValue(columnVisibility.defaultValue)
                 }
-                if(columnVisibility.description){
+                if(columnVisibility.description != null){
                     columnVisActual.setDescription(columnVisibility.description)
                 }
-                if(columnVisibility.type){
+                if(columnVisibility.type != null){
                     columnVisActual.setType(columnVisibility.type)
                 }
-                if(columnVisibility.parameterType){
+                if(columnVisibility.parameterType != null){
                     columnVisActual.setParameterType(columnVisibility.parameterType)
                 }
-                if(columnVisibility.usage){
+                if(columnVisibility.usage != null){
                     columnVisActual.setUsage(columnVisibility.usage)
                 }
-                if(columnVisibility.encoding){
+                if(columnVisibility.encoding != null){
                     columnVisActual.setEncoding(columnVisibility.encoding)
                 }
-                if(columnVisibility.flags){
+                if(columnVisibility.flags != null){
                     columnVisActual.setFlags(columnVisibility.flags)
                 }
-                if(columnVisibility.actions){
+                if(columnVisibility.actions != null){
                     columnVisActual.setActions(columnVisibility.actions)
                 }
             })

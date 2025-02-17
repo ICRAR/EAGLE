@@ -1,7 +1,6 @@
 import { Eagle } from '../Eagle';
 import { RightClick } from '../RightClick';
-import { Tutorial, TutorialStep, TutorialSystem } from '../Tutorial';
-import { SideWindow } from '../SideWindow';
+import { TutorialStep, TutorialSystem } from '../Tutorial';
 import { Setting } from '../Setting';
 
 const newTut = TutorialSystem.newTutorial('Graph Configurations', 'An introduction to using graph configurations.')
@@ -97,10 +96,10 @@ newTut.newTutStep("Creating Graph Configurations", "A graph may have many config
 
 newTut.newTutStep("Graph Configurations", "You can view the graph configuration fields by opening the Graph Configurations table here. <em>click to continue</em>", function(){return $("#openGraphConfigurationTable")})
 .setType(TutorialStep.Type.Press)
-// .setPreFunction(function(){$('#parameterTable').modal('hide')})
+// .setPreFunction(function(){$('.parameterTable').modal('hide')})
 
 newTut.newTutStep("Graph Configurations", "Our name field has been added to the graph configuration, where we can quickly change it for future runs of the graph. <em>next to continue</em>", function(){return $('.column_DisplayText').first()})
-.setAlternateHighlightTargetFunc(function(){return $('#parameterTable')})
+.setAlternateHighlightTargetFunc(function(){return $('.parameterTable')})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(200)
 
@@ -112,7 +111,7 @@ newTut.newTutStep("Adjusting Graph Configurations", "For example, lets greet Joh
 
 newTut.newTutStep("Saving Graph Configurations", "This will commit the new graph configuration changes into the graph. You will still need to save the graph to git, or locally. <em>Save the configuration</em>", function(){return $('#parameterTableSaveGraphConfig')})
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(){$('#parameterTable').modal('hide')})
+.setPreFunction(function(){$('.parameterTable').modal('hide')})
 
 newTut.newTutStep("Saving Graph Configurations", "You must enter a description of what this graph config is designed to do, such as; 'with control over the name of who we are greeting' <em>Enter a description and click OK</em>",function(){return $('#inputModal .affirmativeBtn')})
 .setType(TutorialStep.Type.Press)
@@ -169,7 +168,7 @@ newTut.newTutStep("Activating Graph Configurations", "To select which configurat
 .setType(TutorialStep.Type.Press)
 
 newTut.newTutStep("Activating Graph Configurations", "As you can see, the newly created configuration with filepath is active. You may simply click the active button to toggle which configuration is active. <em>next to continue</em>", function(){return $('.column-active').eq(1)})
-.setAlternateHighlightTargetFunc(function(){return $('#parameterTable')})
+.setAlternateHighlightTargetFunc(function(){return $('.parameterTable')})
 
 newTut.newTutStep("Well Done!", "You have completed the Hello world graph creation tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance.", function(){return $("#logicalGraphParent")})
 .setPreFunction(function(){$('.forceShow').removeClass('forceShow')}) //allowing the graph navbar dropdown to hide

@@ -418,7 +418,7 @@ export class Edge {
             || destinationNode.getEmbedId() !== null && destinationNode.getEmbedId() === sourceNode.getParentId() && loopAware
             || associatedConstructType !== Category.Loop && loopAware
         ){
-            const x = Errors.ShowFix("An edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDisableEdgeLoopAware(eagle, edgeId);}, "Disable loop aware on the edge.");
+            const x = Errors.ShowFix("Edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDisableEdgeLoopAware(eagle, edgeId);}, "Disable loop aware on the edge.");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Warning, x, showNotification, showConsole, errorsWarnings);
         }
 

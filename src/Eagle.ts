@@ -25,6 +25,7 @@
 "use strict";
 
 import * as ko from "knockout";
+import * as bootstrap from 'bootstrap';
 
 import { Category } from './Category';
 import { ComponentUpdater } from './ComponentUpdater';
@@ -381,7 +382,15 @@ export class Eagle {
             return "";
         }
 
-        return fileInfo.getText();
+        return fileInfo.getHtml();
+    }, this);
+
+    activeConfigHtml : ko.PureComputed<string> = ko.pureComputed(() => {
+        if (this.logicalGraph().getActiveGraphConfig() === null){
+            return "";
+        }
+
+        return  "<strong>Config:</strong> " +this.logicalGraph().getActiveGraphConfig().getName()
     }, this);
 
     toggleWindows = () : void  => {
@@ -474,7 +483,11 @@ export class Eagle {
         const centroidY = minY + ((maxY - minY) / 2);
         
         //because the saved bottom window height is a percentage, its easier to grab the height using jquery than to convert the percentage into pixels
-        const bottomWindow = $('#bottomWindow').height()
+        let bottomWindow = 0
+
+        if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+            bottomWindow = $('#bottomWindow').height()
+        }
 
         //calculating scale multipliers needed for each, height and width in order to fit the graph
         const containerHeight = $('#logicalGraphParent').height() - bottomWindow
@@ -908,7 +921,7 @@ export class Eagle {
         const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
-        const dummyFile: RepositoryFile = new RepositoryFile(Repository.DUMMY, "", fileFullPath);
+        const dummyFile: RepositoryFile = new RepositoryFile(Repository.dummy(), "", fileFullPath);
 
         // check if we need to update the graph from keys to ids
         if (GraphUpdater.usesNodeKeys(dataObject)){
@@ -1221,13 +1234,10 @@ export class Eagle {
         }
 
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
+        const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
 
         // show errors (if found)
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
-
-        // sort the palette
-        p.sort();
 
         // add new palette to the START of the palettes array
         this.palettes.unshift(p);
@@ -1478,7 +1488,7 @@ export class Eagle {
                 break;
             case Repository.Service.Url:
                 const {palettes, errorsWarnings} = await this.loadPalettes([
-                    {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly}
+                    {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly, expanded: true}
                 ]);
 
                 for (const palette of palettes){
@@ -1897,9 +1907,15 @@ export class Eagle {
     }
 
     loadDefaultPalettes = async (): Promise<void> => {
+        // get collapsed/expanded state of palettes from html local storage
+        let templatePaletteExpanded: boolean = Setting.findValue(Setting.OPEN_TEMPLATE_PALETTE);
+        let builtinPaletteExpanded: boolean = Setting.findValue(Setting.OPEN_BUILTIN_PALETTE);
+        templatePaletteExpanded = templatePaletteExpanded === null ? false : templatePaletteExpanded;
+        builtinPaletteExpanded = builtinPaletteExpanded === null ? false : builtinPaletteExpanded;
+
         const {palettes, errorsWarnings} = await this.loadPalettes([
-            {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true},
-            {name:Palette.DYNAMIC_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true}
+            {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true, expanded: builtinPaletteExpanded},
+            {name:Palette.TEMPLATE_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true, expanded: templatePaletteExpanded}
         ]);
 
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
@@ -1921,7 +1937,7 @@ export class Eagle {
         }
     }
 
-    loadPalettes = async (paletteList: {name:string, filename:string, readonly:boolean}[]): Promise<{palettes: Palette[], errorsWarnings: Errors.ErrorsWarnings}> => {
+    loadPalettes = async (paletteList: {name:string, filename:string, readonly:boolean, expanded:boolean}[]): Promise<{palettes: Palette[], errorsWarnings: Errors.ErrorsWarnings}> => {
         return new Promise(async(resolve, reject) => {
             const results: Palette[] = [];
             const complete: boolean[] = [];
@@ -1967,7 +1983,7 @@ export class Eagle {
                     } else {
                         console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
 
-                        const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.DUMMY, "", paletteList[i].name), errorsWarnings);
+                        const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.dummy(), "", paletteList[i].name), errorsWarnings);
                         Utils.preparePalette(palette, paletteList[i]);
 
                         results[index] = palette;
@@ -1981,7 +1997,7 @@ export class Eagle {
 
                 // palette fetched successfully
 
-                const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.DUMMY, "", paletteList[index].name), errorsWarnings);
+                const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.dummy(), "", paletteList[index].name), errorsWarnings);
                 Utils.preparePalette(palette, paletteList[index]);
 
                 // add to results
@@ -2104,12 +2120,6 @@ export class Eagle {
     }
 
     _postLoadGraph = (file: RepositoryFile) : void => {
-        // set the active graph config (to the last graph config in the LG)
-        const graphConfigs: GraphConfig[] = this.logicalGraph().getGraphConfigs();
-
-        // if there is at least one graph config, make the last one active
-        // if there are no graph configs, make a new empty graph config and set active
-
         //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
         setTimeout(function(){
             Eagle.getInstance().centerGraph()
@@ -2242,7 +2252,6 @@ export class Eagle {
             // display error if one occurred
             if (error != null){
                 Utils.showNotification("Error deleting file", error, "danger");
-                console.error(error);
                 return;
             }
 
@@ -2282,8 +2291,8 @@ export class Eagle {
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
-        // sort items in palette
-        newPalette.sort();
+        // all new (or reloaded) palettes should have 'expanded' flag set to true
+        newPalette.expanded(true);
 
         // add to list of palettes
         this.palettes.unshift(newPalette);
@@ -2345,6 +2354,23 @@ export class Eagle {
         this.resetEditor()
     }
 
+    sortPalette = (palette: Palette): void => {
+        // close the palette menu
+        this.closePaletteMenus();
+
+        const preSortCopy = palette.getNodes().slice();
+
+        palette.sort();
+
+        // check whether anything changed order, if so, mark as modified
+        for (let i = 0; i < palette.getNodes().length; i++) {
+            if (palette.getNodes()[i].getId() !== preSortCopy[i].getId()) {
+                palette.fileInfo().modified = true;
+                break;
+            }
+        }
+    }
+
     getParentNameAndId = (parentId: NodeId) : string => {
         if(parentId === null){
             return ""
@@ -2370,42 +2396,6 @@ export class Eagle {
         Setting.setValue(Setting.CONFIRM_RELOAD_PALETTES,true)
         Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORIES,true)
         Utils.showNotification("Success", "Confirmation message pop ups re-enabled", "success");
-    }
-
-    // toggles the default palettes on or off
-    // if currently shown, just remove them from the palettes list
-    // if currently not shown, fetch them from the remove source and add to palettes list
-    toggleDefaultPalettes = () : void => {
-        const allowGraphEditing: boolean = Setting.find(Setting.ALLOW_GRAPH_EDITING).value() as boolean;
-        const allowPaletteEditing: boolean = Setting.find(Setting.ALLOW_PALETTE_EDITING).value() as boolean;
-        const openDefaultPalette: boolean = Setting.find(Setting.OPEN_DEFAULT_PALETTE).value() as boolean;
-
-        // if:
-        // - user is loading palettes
-        // - allow palette editing is off
-        // - allow graph editing is off
-        // then the palettes tab is invisible anyway, and the user will not see the palettes loaded, so notify them of this corner case
-        if (openDefaultPalette && !allowGraphEditing && !allowPaletteEditing){
-            Utils.showNotification("Palettes Disabled", "Palettes are not visible in the current UI mode", "warning");
-        }
-
-        const eagle: Eagle = Eagle.getInstance();
-
-        const builtinPalette: Palette = this.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
-        const dynamicPalette: Palette = this.findPalette(Palette.DYNAMIC_PALETTE_NAME, false);
-
-        // always close the palettes
-        if (builtinPalette !== null){
-            eagle.closePalette(builtinPalette);
-        }
-        if (dynamicPalette !== null){
-            eagle.closePalette(dynamicPalette);
-        }
-        
-        // reload them if applicable
-        if (openDefaultPalette){
-            eagle.loadDefaultPalettes();
-        }
     }
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
@@ -2615,13 +2605,13 @@ export class Eagle {
     saveGraphScreenshot = async () : Promise<void> =>  {
         const eagle = Eagle.getInstance()
 
-        const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia funciton an option
+        const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia function an option
         const stream:MediaStream = await mediaDevices.getDisplayMedia({preferCurrentTab: true,selfBrowserSurface: 'include'});
 
         //prepare the graph for a screenshot
         eagle.centerGraph()
         eagle.setSelection(null,Eagle.FileType.Graph)
-        document.querySelector('body').style.cursor = 'none';//temporarily disabling the cursor so it doesnt appear in the screenshot
+        document.querySelector('body').style.cursor = 'none';//temporarily disabling the cursor so it doesn't appear in the screenshot
         
         try {        
             const width = stream.getVideoTracks()[0].getSettings().width
@@ -2643,8 +2633,8 @@ export class Eagle {
 
                 //cropping the ui, so the screenshot only includes the graph
                 const ctx = canvas.getContext('2d');
-                const realwidth = window.innerWidth
-                const divisor = realwidth/width
+                const realWidth = window.innerWidth
+                const divisor = realWidth/width
 
                 const lx = (eagle.leftWindow().size()+50)/divisor
                 const rx = (eagle.rightWindow().size()+50)/divisor
@@ -2753,6 +2743,11 @@ export class Eagle {
         Utils.closeErrorsModal();
     }
 
+    statusBarScroll = (data:any,e:any) : void => {
+        e.preventDefault()
+        $('#statusBar').scrollLeft(e.originalEvent.deltaY)
+    }
+
     smartToggleModal = (modal:string) : void => {
         //used for keyboard shortcuts, preventing opening several modals at once
         if($('.modal.show').length>0){
@@ -2828,7 +2823,7 @@ export class Eagle {
             return field.isReadonly();
         }
         
-        console.warn("something in value readonly permissions has one wrong!");
+        console.warn("something in value readonly permissions has gone wrong!");
         return true
     }
 
@@ -3324,14 +3319,12 @@ export class Eagle {
 
         // if no objects selected, warn user
         if (data.length === 0){
-            console.warn("Unable to delete selection: Nothing selected");
             Utils.showNotification("Warning", "Unable to delete selection: Nothing selected", "warning");
             return;
         }
 
         // if in "hide data nodes" mode, then recommend the user delete edges in "show data nodes" mode instead
         if (!this.showDataNodes()){
-            console.warn("Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.");
             Utils.showNotification("Warning", "Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.", "warning");
             return;
         }
@@ -3759,8 +3752,8 @@ export class Eagle {
     private buildWritablePaletteNamesList = () : string[] => {
         const paletteNames : string[] = [];
         for (const palette of this.palettes()){
-            // skip the dynamically generated palette that contains all nodes
-            if (palette.fileInfo().name === Palette.DYNAMIC_PALETTE_NAME){
+            // skip the template palette that contains all nodes
+            if (palette.fileInfo().name === Palette.TEMPLATE_PALETTE_NAME){
                 continue;
             }
             // skip the built-in palette
@@ -3896,14 +3889,14 @@ export class Eagle {
         //a timeout was necessary to wait for the element to be added before counting how many there are
         setTimeout(function() {
             //handling selecting and highlighting the newly created row
-            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
+            const clickTarget = $($(".paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
 
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
             clickTarget.focus() // used to focus the field allowing the user to immediately start typing
             $(clickTarget).trigger("select")
 
             //scroll to new row
-            $("#parameterTable .modal-body").animate({
+            $(".parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
@@ -4143,7 +4136,6 @@ export class Eagle {
             // add to destination palette
             destinationPalette.addNode(sourceComponent, true);
             destinationPalette.fileInfo().modified = true;
-            destinationPalette.sort();
         }
     }
 
@@ -4175,11 +4167,6 @@ export class Eagle {
         allFields.sort(Field.sortFunc);
         for (const field of allFields){
             allFieldNames.push(field.getDisplayText() + " (" + field.getType() + ")");
-        }
-
-        // if we are summoning this editField modal from the params table, close the params table
-        if (modalType === Eagle.ModalType.Field){
-            $('#parameterTable').modal("hide");
         }
 
         //if creating a new field
@@ -4270,19 +4257,19 @@ export class Eagle {
             fieldIndex = ParameterTable.selectionParentIndex() + 1
             this.selectedNode().addFieldByIndex(copiedField,fieldIndex)
         }else{
-            //if no call in the table is selected, in this case the new node is 
+            //if no cell in the table is selected, in this case the new node is appended at the bottom
             this.selectedNode().addField(copiedField)
             fieldIndex = this.selectedNode().getFields().length -1
         }
 
         setTimeout(function() {
-            //handling selecting and highlighting the newly created node
-            const clickTarget = $($("#paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
+            //handling selecting and highlighting the newly created field on the node
+            const clickTarget = $(".paramsTableWrapper tr:nth-child(" + (fieldIndex+1) + ") .selectionTargets")[0]
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update process
             clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
             $(clickTarget).trigger("select")
 
-            $("#parameterTable .modal-body").animate({
+            $(".parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
@@ -4303,7 +4290,8 @@ export class Eagle {
             let minX = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? this.leftWindow().size()+MARGIN: 0+MARGIN;
             let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? $('#logicalGraphParent').width() - this.rightWindow().size() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
             let minY = 0 + navBarHeight + MARGIN;
-            let maxY = $('#logicalGraphParent').height() - MARGIN + navBarHeight;
+            //using jquery here to get the bottom window height because it is internally saved in VH (percentage screen height). Doing it this way means we don't have to convert it to pixels
+            let maxY = $('#logicalGraphParent').height() - $('#bottomWindow').height() - MARGIN + navBarHeight;
             if(increaseSearchArea){
                 minX = minX - 300
                 maxX = maxX + 300
@@ -4523,15 +4511,15 @@ export class Eagle {
     }
 
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
-        // if selectedNode is not set, return the list of all categories, even though it won't be rendered (I guess)
-        if (this.selectedNode() === null){
-            return Utils.getCategoriesWithInputsAndOutputs(Category.Type.Unknown, 0, 0);
+        let categoryType: Category.Type = Category.Type.Unknown;
+
+        if (this.selectedNode() !== null){
+            categoryType = this.selectedNode().getCategoryType();
         }
 
+        // if selectedNode is not set, return the list of all categories, even though it won't be rendered (I guess)
         // if selectedNode is set, return a list of categories within the same category type
-        const categoryType: Category.Type = this.selectedNode().getCategoryType();
-        
-        return Utils.getCategoriesWithInputsAndOutputs(categoryType, this.selectedNode().getInputPorts().length, this.selectedNode().getOutputPorts().length);
+        return Utils.getCategoriesWithInputsAndOutputs(categoryType);
     }, this)
 
     inspectorChangeNodeCategoryRequest = async (event: Event): Promise<void> => {
@@ -4557,61 +4545,26 @@ export class Eagle {
 
         // get a reference to the builtin palette
         const builtinPalette: Palette = this.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
+
+        // if no built-in palette can be found, then we can't use an example node from the built-in palette as a basis for the category change
+        // instead, we just blindly change the category. It is the best we can do
         if (builtinPalette === null){
-            console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
-            return;
-        }
+            Utils.showNotification(Palette.BUILTIN_PALETTE_NAME + " palette not found", "Unable to transform node according to a template. Instead just changing category.", "warning");
+        } else {
+            // find node with new type in builtinPalette
+            const oldCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
+            const newCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(newNodeCategory);
 
-        // find node with new type in builtinPalette
-        const oldCategoryPrototype: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
-        const newCategoryPrototype: Node = builtinPalette.findNodeByNameAndCategory(newNodeCategory);
-
-        // check that prototypes were found for old category and new category
-        if (oldCategoryPrototype === null || newCategoryPrototype === null){
-            console.warn("Prototypes for old and new categories could not be found in palettes", oldCategoryPrototype, newCategoryPrototype);
-            return;
-        }
-
-        // delete non-ports from the old node (loop backwards since we are deleting from the array as we loop)
-        for (let i = oldNode.getFields().length - 1 ; i >= 0; i--){
-            const field: Field = oldNode.getFields()[i];
-
-            if (field.isInputPort() || field.isOutputPort()){
-                continue;
+            // check that prototypes were found for old category and new category
+            if (oldCategoryTemplate === null || newCategoryTemplate === null){
+                console.warn("Prototypes for old and/or new categories could not be found in palettes", oldNode.getCategory(), newNodeCategory);
+                return;
             }
 
-            oldNode.removeFieldById(field.getId());
+            Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate);
         }
 
-        // copy non-ports from new category to old node
-        for (const field of newCategoryPrototype.getFields()){
-            if (field.isInputPort() || field.isOutputPort()){
-                continue;
-            }
-
-            // try to find field in old node that matches by displayText AND parameterType
-            let destField = oldNode.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
-
-            // if dest field could not be found, then go ahead and add a NEW field to the dest node
-            if (destField === null){
-                destField = field.clone();
-                oldNode.addField(destField);
-            }
-           
-            // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
-            destField.copyWithIds(field, destField.getNodeId(), destField.getId());
-        }
-
-        // copy name and description from new category to old node, if old node values are defaults
-        if (oldNode.getName() === oldCategoryPrototype.getName()){
-            oldNode.setName(newCategoryPrototype.getName());
-        }
-
-        if (oldNode.getDescription() === oldCategoryPrototype.getDescription()){
-            oldNode.setDescription(newCategoryPrototype.getDescription());
-        }
-
-        this.selectedNode().setCategory(newNodeCategory);
+        oldNode.setCategory(newNodeCategory);
 
         this.flagActiveFileModified();
         this.checkGraph();
@@ -4690,6 +4643,27 @@ export class Eagle {
 
         return null;
     }
+
+    toggleAllPalettes = (): void => {
+        // first check the state of the palette accordion items
+        let anyExpanded: boolean = false;
+        for (let i = 0 ; i < this.palettes().length; i++){
+            const element = document.querySelector('#collapse'+i);
+            if ($(element).hasClass('show')){
+                anyExpanded = true;
+                break;
+            }
+        }
+
+        for (let i = 0 ; i < this.palettes().length; i++){
+            const element = document.querySelector('#collapse'+i);
+            if (anyExpanded){
+                bootstrap.Collapse.getOrCreateInstance(element).hide();
+            } else {
+                bootstrap.Collapse.getOrCreateInstance(element).show();
+            }
+        }
+    }
 }
 
 export namespace Eagle
@@ -4708,9 +4682,9 @@ export namespace Eagle
 
     export enum BottomWindowMode {
         None = "None",
-        ParameterTable = "ParameterTable",
+        NodeParameterTable = "NodeParameterTable",
         GraphConfigsTable = "GraphConfigsTable",
-        GraphConfigAttributesTable = "GraphConfigAttributesTable",
+        ConfigParameterTable = "ConfigParameterTable",
         GraphErrors = "GraphErrors"
     }
 
@@ -4807,21 +4781,6 @@ $( document ).ready(function() {
         //back up method of hiding the right click context menu in case it get stuck open
         RightClick.closeCustomContextMenu(true);
     });
-
-    $(".tableParameter").on("click", function(){
-        console.log(this)
-    })
-
-    //expand palettes when using searchbar and return to prior collapsed state on completion.
-    $("#paletteList .componentSearchBar").on("keyup",function(){
-        if ($("#paletteList .componentSearchBar").val() !== ""){
-            $("#paletteList .accordion-button.collapsed").addClass("wasCollapsed")
-            $("#paletteList .accordion-button.collapsed").trigger("click")
-        }else{
-            $("#paletteList .accordion-button.wasCollapsed").trigger("click")
-            $("#paletteList .accordion-button.wasCollapsed").removeClass("wasCollapsed")
-        }
-    })
 
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const e: MouseEvent = event.originalEvent as MouseEvent;

@@ -1,5 +1,6 @@
 html {
-    height:100%
+    height:100%;
+    --hoverHighlight:red;
 }
 
 body {
@@ -69,6 +70,17 @@ body {
 
 .navbar .dropdown-divider{
     margin:.3rem 0;
+}
+
+.navbar #settings{
+    width: 40px;
+    position: relative;
+}
+
+.navbar #settings i{
+    position: absolute;
+    font-size: 20px;
+    top: 10px;
 }
 
 #checkGraphWarnings span{
@@ -200,8 +212,7 @@ color: #00bb00;}
     position:absolute;
     top: 0px;
     right: -300px;
-    /* height: 100%; */
-    transition: right 0.25s linear;
+    transition: right 0.25s ease-in-out;
     border-left: 2px solid rgba(0, 36, 74, 0.95);
     visibility: hidden;
 }
@@ -229,7 +240,7 @@ color: #00bb00;}
     bottom: 0px;
     z-index:100;
     visibility:hidden;
-    transition: bottom 0.25s linear;
+    transition: bottom 0.25s ease-in-out;
 }
 
 #bottomWindow div.wrapper{
@@ -438,12 +449,6 @@ color: #00bb00;}
     box-shadow: none;
 }
 
-#inspector .headerButtons button:hover,.inspectorTitleBtns button:hover, #inspector i.clickable:hover {
-    color: #b4d4ff;
-    background-color: transparent;
-    cursor:pointer;
-}
-
 #inspector .headerButtons button.btn:focus, .inspectorTitleBtns button:focus {
     box-shadow: none;
     background-color:transparent;
@@ -633,7 +638,7 @@ color: #00bb00;}
     height: 48px;
     top: 0px;
     left: -48px;
-    background-color: #002e5f;
+    background-color: #002e5f !important;
     z-index: 2;
     text-align: center;
     line-height: 48px;
@@ -641,6 +646,7 @@ color: #00bb00;}
     border-top-left-radius: 0.5rem;
     cursor: pointer;
     color:white;
+    user-select: none;
 }
 
 .dropDropDownParent{
@@ -725,8 +731,7 @@ color: #00bb00;}
     position: absolute;
     top: 0px;
     left: -250px;
-    /* height: 100%; */
-    transition: left 0.25s linear;
+    transition: left 0.25s ease-in-out;
     padding:0px 2px 0px 6px;
     visibility:hidden;
 }
@@ -753,12 +758,12 @@ color: #00bb00;}
     background: white;
 }
 
-.rightWindow ::-webkit-scrollbar-thumb, #parameterTable ::-webkit-scrollbar-thumb{
+.rightWindow ::-webkit-scrollbar-thumb, .parameterTable ::-webkit-scrollbar-thumb, #issuesDisplay ::-webkit-scrollbar-thumb{
     background: #002349;
     border-radius: 5px;
 }
 
-.rightWindow ::-webkit-scrollbar-track, #parameterTable ::-webkit-scrollbar-track{
+.rightWindow ::-webkit-scrollbar-track, .parameterTable ::-webkit-scrollbar-track{
     background: rgb(216 221 240);
     border-radius: 5px;
 }
@@ -1020,6 +1025,8 @@ select.form-control{
 #issuesDisplayAccordion .accordion-button{
     color: white;
     background-color: #4a6b8f;
+    padding: 10px 17px;
+    border-radius: 0px;
 }
 
 #issuesDisplayAccordion .accordion-button::after{
@@ -1032,7 +1039,8 @@ select.form-control{
 }
 
 #issuesDisplayAccordion .accordion-item{
-    margin-bottom: 10px;
+    border-radius: 0px !important;
+    border:none;
 }
 
 #issuesDisplayErrorCount{
@@ -1197,7 +1205,7 @@ select.form-control{
     width:100%;
 }
 
-.paletteTrippleDot{
+.paletteTripleDot{
     position: absolute;
     right: 35px;
     margin-top: 10px;
@@ -1223,7 +1231,7 @@ select.form-control{
     pointer-events: auto;
 }
 
-.paletteTrippleDot:after{
+.paletteTripleDot:after{
     display: none;
 }
 
@@ -1320,13 +1328,13 @@ select.form-control{
 #paletteList palette-component button, #paletteList palette-component span {
     height: 100%;
     width: 100%;
+    color:white;
 }
 
 #paletteList palette-component i {
     margin-left:50%;
     transform: translateX(-50%);
     pointer-events: none;
-    color:white;
     font-size: 24px;
 }
 
@@ -1559,7 +1567,7 @@ select.form-control{
     height: 48px;
     top: 0px;
     right: -48px;
-    background-color: #002e5f;
+    background-color: #002e5f !important;
     color:white;
     z-index: 2;
     text-align: center;
@@ -1567,6 +1575,7 @@ select.form-control{
     border-bottom-right-radius: 0.5rem;
     border-top-right-radius: 0.5rem;
     cursor: pointer;
+    user-select: none;
 }
 
 .leftWindow .leftWindowHandle span i {
@@ -1634,16 +1643,6 @@ select.form-control{
     background: rgb(211, 211, 211);
 }
 
-.navbar-center .navbar-btn:hover{
-    color: #002349 !important;
-    background: white;
-}
-
-.nodeSettingsBtn{
-    text-align: right;
-    color: #0059a5;
-}
-
 #repositoryList ul.repositories {
     list-style-type: none;
     padding: 0px;
@@ -1669,7 +1668,7 @@ select.form-control{
     width: auto;
 }
 
-.repoConatiner{
+.repoContainer{
     padding:0px 10px;
 }
 
@@ -1814,11 +1813,17 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     height: 2px;
 }
 
+#statusBar .statusWrapper{
+    display:inline-flex;
+}
 
 #statusBar h5{
     display: inline;
     font-size: .8rem;
     font-weight: bolder;
+    margin-right:5px;
+    margin-left:7px;
+    color:#f3b112;
 }
 
 #statusBar span{
@@ -1941,36 +1946,6 @@ ul.nav.navbar-nav .dropdown-item:hover{
     border:none;
 }
 
-#editFieldModalKeyParameterCheckbox{
-    position:relative;
-    background-color: transparent;
-    border: none;
-    background-image: none;
-}
-
-#editFieldModalKeyParameterCheckbox:focus{
-    outline: none !important;
-    box-shadow: none;
-}
-
-#editFieldModalKeyParameterCheckbox:before {
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    content: "favorite_border"; 
-    color: white;
-    outline: none;
-}
-  
-#editFieldModalKeyParameterCheckbox:checked:before {
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    content: "favorite"; 
-    color:white;
-    outline: none;
-}
-
 #rightWindowTabs{
     width:100%;
     border: none;
@@ -2054,6 +2029,10 @@ ul.nav.navbar-nav .dropdown-item:hover{
     font-size: 20px;
     top: 50%;
     transform: translateY(-50%);
+}
+
+#activeConfig{
+    margin-left:5px;
 }
 
 .navbar-light .navbar-nav .nav-link {
@@ -2769,6 +2748,19 @@ palette-component input.form-control.selected {
 
 /* re-usable classes for various things */
 
+.iconHoverEffect, .iconHoverEffect:focus, .iconHoverEffect:active, .iconHoverEffect:hover{
+    background: transparent;
+    border:0px;
+    box-shadow: none !important;
+}
+
+.iconHoverEffect:hover {
+    color: var(--hoverHighlight) !important;
+    cursor: pointer;
+    border-color: var(--hoverHighlight) !important;
+    text-shadow: -1px -1px 0 #4b4b4b, 0 -1px 0 #4b4b4b, 1px -1px 0 #4b4b4b, 1px 0 0 #4b4b4b, 1px 1px 0 #4b4b4b, 0 1px 0 #4b4b4b, -1px 1px 0 #4b4b4b, -1px 0 0 #4b4b4b;
+}
+
 .linearTransition250{
-    transition: linear 250ms !important; /*this requires an important tag to over ride existing transition effects for a few moments */
+    transition: ease-in-out 250ms !important; /*this requires an important tag to over ride existing transition effects for a few moments */
 }

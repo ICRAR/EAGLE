@@ -1,10 +1,10 @@
 <!-- Errors Modal -->
-<div class="modal fade" id="issuesModal" tabindex="-1" role="dialog" aria-labelledby="issuesModalTitle" aria-hidden="true">
+<div class="modal fade" id="issuesModal" tabindex="-1" role="dialog" aria-labelledby="issuesModalTitle">
     <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="issuesModalTitle">Graph Issues</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class='accordion' id='issuesModalAccordion'>
@@ -62,7 +62,7 @@
                 </div>
             </div>
             <div class="modal-footer" style="justify-content: space-between;">
-                <button id= 'errorModalFixAll' class="btn btn-primary" data-bind="click: Errors.fixAll, eagleTooltip: Errors.getNumFixableIssues() + ' fix(es) available'">Fix All
+                <button id= 'errorModalFixAll' class="btn btn-primary iconHoverEffect" data-bind="click: Errors.fixAll, eagleTooltip: Errors.getNumFixableIssues() + ' fix(es) available'">Fix All
                     <span data-bind="text: KeyboardShortcut.idToText('fix_all', true)"></span>
                 </button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>

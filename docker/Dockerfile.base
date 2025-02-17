@@ -1,0 +1,7 @@
+FROM tiangolo/meinheld-gunicorn-flask:python3.8
+COPY . .
+RUN apt-get update && apt-get install -y avahi-utils npm bash git curl libffi-dev &&\
+    npm install -g typescript &&\
+    pip install --upgrade pip &&\
+    pip install --no-cache-dir .
+

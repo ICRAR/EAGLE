@@ -1,11 +1,11 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {Repository} from './Repository';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
+import { Repository } from './Repository';
+import { Utils } from './Utils';
 
 export class RepositoryFile {
-    _id : number
+    _id : RepositoryFileId
     repository: Repository
     name : string
     path : string
@@ -13,7 +13,7 @@ export class RepositoryFile {
     isFetching: ko.Observable<boolean>;
 
     constructor(repository : Repository, path : string, name : string){
-        this._id = Math.floor(Math.random() * 1000000000000);
+        this._id = Utils.generateRepositoryFileId();
         this.repository = repository;
         this.name = name;
         this.path = path;

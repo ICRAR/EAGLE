@@ -168,7 +168,6 @@ export class Hierarchy {
 
         // check that HTML elements for the src and dest node already exist, otherwise we can't draw this edge, so abort
         if (typeof srcNodeElement === 'undefined' || typeof destNodeElement === 'undefined'){
-            console.warn("Hierarchy.drawEdge() srcNode (" + srcId + ") or destNode (" + destId + ") element not ready");
             return;
         }
 

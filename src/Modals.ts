@@ -7,6 +7,7 @@ import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
+import { SideWindow } from './SideWindow';
 import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
@@ -248,6 +249,8 @@ export class Modals {
             if(!completed){
                 eagle.cancelSettingChanges()
             }
+
+            eagle.setSelection(null,Eagle.FileType.Graph)
         })
 
         $('#settingsModal').on("keydown", function (event: JQuery.TriggeredEvent) {
@@ -266,6 +269,13 @@ export class Modals {
 
         $('#editFieldModal').on('shown.bs.modal', function(){
             $('#editFieldModalAffirmativeButton').trigger("focus");
+        });
+
+        $('#editFieldModal').on('hidden.bs.modal', function(){
+            // TODO: this is a bit of a hack to make sure the graph is re-checked after using the editFieldModal.
+            //       it will not catch errors introduced when a user just edits fields within the ParameterTable
+            //       so eventually we'll need a better system here
+            Eagle.getInstance().checkGraph();
         });
 
         // #editEdgeModal - requestUserEditEdge()
@@ -352,7 +362,7 @@ export class Modals {
             }
         });
 
-        $('#parameterTable').on('hidden.bs.modal', function(){
+        $('.parameterTable').on('hidden.bs.modal', function(){
             ParameterTable.showTableModal(false)
             eagle.checkGraph();
         });
@@ -360,7 +370,7 @@ export class Modals {
         $('.eagleTableDisplay').on('shown.bs.modal', function(){
             eagle.hideEagleIsLoading()
             Eagle.tableSearchString('')
-            $('#parameterTable .componentSearchBar').val('').trigger("focus").trigger("select")
+            $('.parameterTable .componentSearchBar').val('').trigger("focus").trigger("select")
         });
 
         // #browseDockerHubModal - Modals.showBrowseDockerHub()

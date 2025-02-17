@@ -255,7 +255,6 @@ export class Field {
     removeOption = (index:number) : void => {
         if(this.options().length <= 1){
             Utils.showNotification("Cannot Remove","There must be at least one option in the select!",'danger');
-
             return
         }
 
@@ -502,7 +501,7 @@ export class Field {
             }
 
             //check if the node name matches, but only if using the key parameter table modal
-            if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigAttributesTable){
+            if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
                 if(Eagle.getInstance().logicalGraph().findNodeById(that.nodeId()).getName().toLowerCase().indexOf(term) >= 0){
                     result = true
                 }
@@ -844,12 +843,6 @@ export class Field {
         if (field.getId() === "" || field.getId() === null){
             const issue = Errors.ShowFix("Node (" + node.getName() + ") has field (" + field.getDisplayText() + ") with no id", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldId(eagle, field)}, "Generate id for field");
                 field.issues().push({issue:issue,validity:Errors.Validity.Error})
-        }
-
-        // check that the field has a default value
-        if (field.getDefaultValue() === "" && !field.isType(Daliuge.DataType.String) && !field.isType(Daliuge.DataType.Password) && !field.isType(Daliuge.DataType.Object) && !field.isType(Daliuge.DataType.Unknown)) {
-            const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose default value is not specified", function(){Utils.showField(eagle, node.getId(),field)}, function(){Utils.fixFieldDefaultValue(eagle, field)}, "Generate default value for parameter");
-                field.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
         // check that the field has a known type

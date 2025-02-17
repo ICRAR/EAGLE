@@ -44,23 +44,11 @@ Tabs Breakdown
 User Options
 """"""""""""
 
-**Confirm Discard Changes** - Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.
-
-**Confirm Remove Repositories** - Prompt user to confirm removing a repository from the list of known repositories.
-
-**Confirm Reload Palettes** - Prompt user to confirm when loading a palette that is already loaded.
-
-**Open Default Palette on Startup** - Open a default palette on startup. The palette contains an example of all known node categories.
-
-**Confirm Delete** - Prompt user to confirm when deleting node(s) or edge(s) from a graph.
+**Reset Action Confirmations** - Enable all action confirmation prompts. EAGLE allows users to skip confirmation dialogs by clicking "Don't show me again" when dismissing them. This setting allows users to undo that action, re-enabling the confirmation dialogs.
 
 **Disable JSON Validation** - Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.
 
 **Overwrite Existing Translator Tab** - When translating a graph, overwrite an existing translator tab.
-
-**Show File Loading Warnings** - Display list of issues with files encountered during loading.
-
-**UI Mode** - User Interface Mode. Simple Mode removes palettes, uses a single graph repository, simplifies the parameters table. Expert Mode enables the display of additional settings usually reserved for advanced users.
 
 
 UI options
@@ -68,17 +56,11 @@ UI options
 
 **Show non key parameters** - Show additional parameters that are not marked as key parameters for the current graph.
 
-**Display Node Keys** - Node keys are usually only necessary for troubleshooting purposes.
-
-**Hide Palette Tab** - The Palette tab is not required for loading and executing graphs. Hiding it will reduce visual complexity.
-
-**Hide Read Only Parameters** - Hide Read Only Parameters
-
 **Translator Mode** - There are a few modes affecting the amount of permissions available:  **minimal** - using default algorithm and settings, hiding the translation tab. **Default** - using default algorithm allowing for some extra control via the translation tab. **Expert** - Offers additional translating algorithms.
 
 **Graph Zoom Divisor** - The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.
 
-**Show edge/node errors/warnings in inspector** - Show the errors/warnings found for the selected node/edge in the inspector, below the other editor widgets. Errors and warnings are always shown the the checkGraph display in the navbar.
+**Show edge/node errors/warnings in Graph** - Show the errors/warnings found for the selected node/edge in the inspector, below the other editor widgets. Errors and warnings are always shown the the checkGraph display in the navbar.
 
 Advanced Editing
 """"""""""""""""
@@ -87,13 +69,21 @@ Advanced Editing
 
 **Allow Component Editing** - Allow the user to add/remove ports and parameters from components.
 
-**Allow Palette Editing** - Allow the user to edit and create palettes.
+**Allow Modify Graph Configurations** - Allow the user to add/remove parameters from graph configurations.
+
+**Allow Graph Editing** - Allow the user to create and edit graphs.
+
+**Allow Palette Editing** - Allow the user to create and edit palettes.
 
 **Allow Readonly Palette Editing** - Allow the user to modify palettes that would otherwise be readonly. These are usually only the default loaded palettes.
 
 **Allow Edge Editing** - Allow the user to edit edge attributes.
 
-**Auto-suggest destination nodes** - If an edge is drawn to empty space, EAGLE will automatically suggest compatible destination nodes.
+**Filter Node Suggestions** - Filter node options when drawing edges into empty space.
+
+**Value Editing** - Set which values are allowed to be edited. Possible values are: "Config Only", "Normal", "Readonly". "Config Only" means that only parameters within graph configurations are editable. "Normal" means that all parameters are editable, except those flagged as readonly. "Readonly" means that even readonly parameters are editable.
+
+**Auto-complete edges level** - Specifies the minimum validity level of auto-complete edges displayed when dragging a new edge
 
 External Services
 """""""""""""""""
@@ -106,10 +96,18 @@ External Services
 
 **Docker Hub Username** - The username to use when retrieving data on images stored on Docker Hub.
 
+**Explore Palettes Service** - The service hosting the repository from which palettes will be fetched by the 'Explore Palettes' feature
+
+**Explore Palettes Repository** - The repository from which palettes will be fetched by the 'Explore Palettes' feature
+
+**Explore Palettes Branch** - The branch of the repository from which palettes will be fetched by the 'Explore Palettes' feature
+
 Developer
 """""""""
 
-**Translate With New Categories** - Replace the old categories with new names when exporting. For example, replace 'Component' with 'PythonApp' category.
+**Show Developer Notifications** - EAGLE generates a number of messages intended to alert developers to unusual occurrences or issues. Enabling this setting displays those messages.
+
+**Show File Loading Warnings** - Display list of issues with files encountered during loading.
 
 **Open Translator In Current Tab** - When translating a graph, display the output of the translator in the current tab.
 
@@ -119,4 +117,10 @@ Developer
 
 **Print Undo State To JS Console** - Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console.
 
-**Use Old Output Format** - Prolong use of 'old' output format, with 'inputPorts' and 'outputPorts' arrays, while corresponding changes to DALiuGE are in progress.
+**Display all Category options** - Displays all category options when changing the category of a node
+
+**Allow modified graph translation** - Allow users to submit graphs for translation even when not saved or committed
+
+**Apply active graph config before translation** - Apply the active graph config to the graph before sending the graph for translation
+
+**Fetch repository for URLs** - Automatically fetch the contents of the object's repository when a graph/palette is specified in the URL

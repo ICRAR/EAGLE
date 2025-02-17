@@ -3,7 +3,7 @@
         <div class="input-group mb-1 rightClick_paletteComponent"  data-bind="attr: {id: 'palette_'  + $parentContext.$parentContext.$index() + '_' + $data.getPaletteComponentId()}, click: $root.paletteComponentClick, eagleTooltip: {content: $data.getHelpHTML(),size: '500px'}, eagleRightClick: {data:$data,type:'rightClick_paletteComponent'}">
             <div class="input-group-prepend">
                 <button class="nodeBtn" type="button" data-bind="click: function(){$root.addNodeToLogicalGraph($data, '', Eagle.AddNodeMode.Default, null)}, clickBubble: false, attr: {id: 'addPaletteNode' + $data.getNoWhiteSpaceName()}">
-                    <span class="input-group-text" data-bind="style: {'background-color': $data.color}">
+                    <span class="input-group-text iconHoverEffect" data-bind="style: {'background-color': $data.color}">
                         <i data-bind="class: $data.getIcon()"></i>
                     </span>
                 </button>

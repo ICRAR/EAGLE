@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
+import { Palette } from "./Palette";
 import { Repository } from "./Repository";
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
@@ -272,6 +273,10 @@ export class Setting {
     static readonly BOTTOM_WINDOW_MODE : string = "BottomWindowMode";
     static readonly OBJECT_INSPECTOR_COLLAPSED_STATE : string = "ObjectInspectorVisibility";
     static readonly GRAPH_INSPECTOR_COLLAPSED_STATE : string = "GraphInspectorVisibility";
+    static readonly NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY : string = "NodeParamsTableDualValueDisplay";
+    
+    static readonly OPEN_BUILTIN_PALETTE: string = "OpenBuiltinPalette";
+    static readonly OPEN_TEMPLATE_PALETTE: string = "OpenTemplatePalette";
 
     static readonly ACTION_CONFIRMATIONS : string = "ActionConfirmations";
     static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
@@ -281,18 +286,19 @@ export class Setting {
     static readonly CONFIRM_DELETE_FILES : string = "ConfirmDeleteFiles";
     static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
 
+    static readonly SHOW_DEVELOPER_NOTIFICATIONS: string = "ShowDeveloperNotifications";
     static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
 
     static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
     static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
     static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
     static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
-    static readonly SHOW_NON_KEY_PARAMETERS : string = "ShowNonKeyParameters"; // TODO: maybe rename SHOW_NON_GRAPH_CONFIG_PARAMETERS?
+    static readonly SHOW_NON_CONFIG_PARAMETERS : string = "ShowNonConfigParameters";
     static readonly FILTER_NODE_SUGGESTIONS : string = "AutoSuggestDestinationNodes";
 
     static readonly ALLOW_PALETTE_EDITING : string = "AllowPaletteEditing";
     static readonly ALLOW_GRAPH_EDITING : string = "AllowGraphEditing";
-    static readonly ALLOW_SET_KEY_PARAMETER : string = "AllowSetKeyParameter"
+    static readonly ALLOW_MODIFY_GRAPH_CONFIG : string = "AllowModifyGraphConfig";
     static readonly STUDENT_SETTINGS_MODE : string = "StudentSettingsMode"
     static readonly VALUE_EDITING_PERMS : string = "ValueEditingPerms"
     static readonly AUTO_COMPLETE_EDGES_LEVEL : string = "AutoCompleteEdgesLevel"
@@ -304,9 +310,6 @@ export class Setting {
     static readonly EXPLORE_PALETTES_REPOSITORY : string = "ExplorePalettesRepository";
     static readonly EXPLORE_PALETTES_BRANCH : string = "ExplorePalettesBranch";
 
-    static readonly TRANSLATE_WITH_NEW_CATEGORIES: string = "TranslateWithNewCategories"; // temp fix for incompatibility with the DaLiuGE translator
-
-    static readonly OPEN_DEFAULT_PALETTE: string = "OpenDefaultPalette";
     static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
     static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
 
@@ -373,7 +376,8 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Confirm Reload Palettes", Setting.CONFIRM_RELOAD_PALETTES, "Prompt user to confirm when loading a palette that is already loaded.",false , Setting.Type.Boolean,true,true,true,true,true),
             new Setting(false, "Confirm Delete Files", Setting.CONFIRM_DELETE_FILES, "Prompt user to confirm when deleting files from a repository.", false, Setting.Type.Boolean, true,true,true,true,true),
             new Setting(false, "Confirm Delete Objects", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
-            new Setting(true, "Open Default Palette on Startup", Setting.OPEN_DEFAULT_PALETTE, "Open a default palette on startup. The palette contains an example of all known node categories", false, Setting.Type.Boolean, false,false,true,true,true, [], function(){Eagle.getInstance().toggleDefaultPalettes();}),
+            new Setting(false, "Open " + Palette.BUILTIN_PALETTE_NAME + " Palette on Startup", Setting.OPEN_BUILTIN_PALETTE, "Open the '" + Palette.BUILTIN_PALETTE_NAME + "' palette on startup.", true, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(false, "Open " + Palette.TEMPLATE_PALETTE_NAME + " Palette on Startup", Setting.OPEN_TEMPLATE_PALETTE, "Open the '" + Palette.TEMPLATE_PALETTE_NAME + "' palette on startup.", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Disable JSON Validation", Setting.DISABLE_JSON_VALIDATION, "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", false, Setting.Type.Boolean, false,false,false,false,false),
             new Setting(true, "Overwrite Existing Translator Tab", Setting.OVERWRITE_TRANSLATION_TAB, "When translating a graph, overwrite an existing translator tab", false, Setting.Type.Boolean, true,true,true,true,true),
         ]
@@ -382,7 +386,7 @@ const settings : SettingsGroup[] = [
         "UI Options",
         () => {return true;},
         [
-            new Setting(true, "Show non key parameters", Setting.SHOW_NON_KEY_PARAMETERS, "Show additional parameters that are not marked as key parameters for the current graph",false, Setting.Type.Boolean, false,true,true,true,true),
+            new Setting(true, "Show non key parameters", Setting.SHOW_NON_CONFIG_PARAMETERS, "Show additional parameters that are not part of a graph configuration for the current graph",false, Setting.Type.Boolean, false,true,true,true,true),
             new Setting(false, "Show Developer Tab", Setting.SHOW_DEVELOPER_TAB, "Reveals the developer tab in the settings menu", false, Setting.Type.Boolean, false,false,false,false,true),
             new Setting(true, "Translator Mode", Setting.USER_TRANSLATOR_MODE, "Configure the translator mode", false, Setting.Type.Select, Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Expert, Object.values(Setting.TranslatorMode)),
             new Setting(true, "Graph Zoom Divisor", Setting.GRAPH_ZOOM_DIVISOR, "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", false, Setting.Type.Number,1000,1000,1000,1000,1000),
@@ -399,6 +403,7 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Bottom Window Mode/Tab", Setting.BOTTOM_WINDOW_MODE, "saving the mode/tab of the bottom window", true, Setting.Type.Number, 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable'),
             new Setting(false, "Graph Objects Inspector", Setting.OBJECT_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(false, "Graph Info Inspector", Setting.GRAPH_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph inspector", true, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(false, "Node Parameter Table Dual Value Display", Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY, "Should both the graph value and config value be displayed", false, Setting.Type.Boolean, false, false, false, false, true),
         ]
     ),
     new SettingsGroup(
@@ -407,7 +412,7 @@ const settings : SettingsGroup[] = [
         [
             new Setting(true, "Allow Invalid edges", Setting.ALLOW_INVALID_EDGES, "Allow the user to create edges even if they would normally be determined invalid.", false, Setting.Type.Boolean, false, false, false, false, true),
             new Setting(true, "Allow Component Editing", Setting.ALLOW_COMPONENT_EDITING, "Allow the user to add/remove ports and parameters from components.",false, Setting.Type.Boolean,false, false, false, true,true),
-            new Setting(true, "Allow Set Key Parameter", Setting.ALLOW_SET_KEY_PARAMETER, "Allow the user to add/remove key parameter flags from parameters.", false, Setting.Type.Boolean,false, true, true, true,true),
+            new Setting(true, "Allow Modify Graph Configurations", Setting.ALLOW_MODIFY_GRAPH_CONFIG, "Allow the user to add/remove parameters from graph configurations.", false, Setting.Type.Boolean,false, true, true, true,true),
             new Setting(true, "Allow Graph Editing", Setting.ALLOW_GRAPH_EDITING, "Allow the user to edit and create graphs.", false, Setting.Type.Boolean, false, false, true, true, true),
             new Setting(true, "Allow Palette Editing", Setting.ALLOW_PALETTE_EDITING, "Allow the user to edit palettes.", false, Setting.Type.Boolean, false, false, false, true, true),
             new Setting(true, "Allow Readonly Palette Editing", Setting.ALLOW_READONLY_PALETTE_EDITING, "Allow the user to modify palettes that would otherwise be readonly.", false, Setting.Type.Boolean,false,false,false,false,true),
@@ -436,6 +441,7 @@ const settings : SettingsGroup[] = [
         "Developer",
         () => {return false;},
         [
+            new Setting(true, "Show Developer Notifications", Setting.SHOW_DEVELOPER_NOTIFICATIONS, "EAGLE generates a number of messages intended to alert developers to unusual occurrences or issues. Enabling this setting displays those messages.", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Show File Loading Warnings", Setting.SHOW_FILE_LOADING_ERRORS, "Display list of issues with files encountered during loading.", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Open Translator In Current Tab", Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, "When translating a graph, display the output of the translator in the current tab", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Create Applications for Construct Ports", Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, "When loading old graph files with ports on construct nodes, move the port to an embedded application", false, Setting.Type.Boolean, true, true, true, true, true),

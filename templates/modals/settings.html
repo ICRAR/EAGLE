@@ -1,5 +1,5 @@
 <!-- Settings Modal -->
-<div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalTitle" aria-hidden="true">
+<div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalTitle">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -47,8 +47,8 @@
                                                         <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName()}, eagleTooltip:$data.getDescription()" data-bs-placement="left" readonly>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-secondary btn-sm" type="button" data-bind=" attr:{id:'setting'+$data.getKey()+'Button'}">
-                                                                <i class="material-icons md-18" data-bind="visible: $data.value">radio_button_checked</i>
-                                                                <i class="material-icons md-18" data-bind="hidden: $data.value">radio_button_unchecked</i>
+                                                                <i class="material-icons md-18 iconHoverEffect" data-bind="visible: $data.value">radio_button_checked</i>
+                                                                <i class="material-icons md-18 iconHoverEffect" data-bind="hidden: $data.value">radio_button_unchecked</i>
                                                             </button>
                                                         </div>
                                                     </div>
@@ -60,7 +60,7 @@
                                                         <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName()}, eagleTooltip:$data.getDescription()" data-bs-placement="left" readonly>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-secondary btn-sm" type="button" data-bind="attr:{id:'setting'+$data.getKey()+'Function'}">
-                                                                <i class="material-icons-outlined md-18">ads_click</i>
+                                                                <i class="material-icons-outlined md-18 iconHoverEffect">ads_click</i>
                                                             </button>
                                                         </div>
                                                     </div>
@@ -74,7 +74,7 @@
                                                     <input type="password" autocomplete="off" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
                                                     <div class="input-group-append">
                                                         <button class="btn btn-secondary btn-sm" type="button" data-bind="click: $data.copy, attr:{id:'setting'+$data.getKey()+'Copy'}, eagleTooltip: 'Copy to clipboard'">
-                                                            <i class="material-icons md-18">content_copy</i>
+                                                            <i class="material-icons md-18 iconHoverEffect">content_copy</i>
                                                         </button>
                                                     </div>
                                                 </div>

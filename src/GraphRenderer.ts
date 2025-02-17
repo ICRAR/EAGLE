@@ -311,6 +311,9 @@ export class GraphRenderer {
     static dragSelectionHandled : any = ko.observable(true)
     static dragSelectionDoubleClick :boolean = false;
 
+    static findParent : boolean = false;
+    static parentTimeout : boolean = false;
+
     //drag selection region globals
     static altSelect : boolean = false;
     static shiftSelect : boolean = false;
@@ -320,6 +323,7 @@ export class GraphRenderer {
     static ctrlDrag:boolean = null;
     static editNodeName:boolean = false;
     static portDragStartPos = {x:0, y:0};
+    static simpleSelect : boolean = true; // used for node dragging/selecting. if the cursor position hasnt moved far when click/dragging a node. we wont update the node's position and handle it as a simple select action
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
@@ -1013,6 +1017,7 @@ export class GraphRenderer {
     }
 
     static startDrag(node: Node, event: MouseEvent) : void {
+        //if we click on the title of a node, cancel the drag handler
         if($(event.target).hasClass('changingHeader')){
             event.preventDefault()
             event.stopPropagation()
@@ -1022,7 +1027,9 @@ export class GraphRenderer {
                 GraphRenderer.closeEditTitleInGraph()
             }
         }
+        
         const eagle = Eagle.getInstance();
+
         // resetting the shift event
         GraphRenderer.dragSelectionHandled(false)
 
@@ -1030,13 +1037,13 @@ export class GraphRenderer {
         GraphRenderer.altSelect = event.altKey
         GraphRenderer.shiftSelect = event.shiftKey
 
-
         // if no node is selected, or we are dragging using middle mouse, then we are dragging the background
         if(node === null || event.button === 1){
             GraphRenderer.dragSelectionHandled(true)
             eagle.isDragging(true);
         } else if(!node.isEmbedded()){
             // embedded nodes, aka input and output applications of constructs, cant be dragged
+            //initiating node dragging
             eagle.isDragging(true);
             eagle.draggingNode(node);
             GraphRenderer.nodeDragElement = event.target
@@ -1044,6 +1051,7 @@ export class GraphRenderer {
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
+            //checking if the node is inside of a contruct, if so, fetching it's parent
             if(node.getParentId() != null){
                 const parentNode = eagle.logicalGraph().findNodeByIdQuiet(node.getParentId())
                 $('#'+parentNode.getId()).removeClass('transition')
@@ -1068,23 +1076,8 @@ export class GraphRenderer {
             }
         }else{
             if(event.shiftKey && event.button === 0){
-                //drag selection region handler
-                GraphRenderer.isDraggingSelectionRegion = true
-                GraphRenderer.selectionRegionStart = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
-                GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
-
-                //making the selection box visible
-                $('#selectionRectangle').show()
-
-                //setting start and end region to current mouse co-ordinates
-                $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','top':GraphRenderer.selectionRegionStart.y+'px'})
-                const containerWidth = $('#logicalGraph').width()
-                const containerHeight = $('#logicalGraph').height()
-
-                //turning the graph coordinates into a distance from bottom/right for css inset before applying
-                const selectionBottomOffset = containerHeight - GraphRenderer.selectionRegionEnd.y
-                const selectionRightOffset = containerWidth - GraphRenderer.selectionRegionEnd.x
-                $('#selectionRectangle').css({'right':selectionRightOffset+'px','bottom':selectionBottomOffset+'px'})
+                //initiating drag selection region handler
+                GraphRenderer.initiateDragSelection()
             }else{
                 //if node is null, the empty canvas has been clicked. clear the selection
                 eagle.setSelection(null, Eagle.FileType.Graph);
@@ -1102,91 +1095,47 @@ export class GraphRenderer {
         const e: MouseEvent = event.originalEvent as MouseEvent;
         GraphRenderer.ctrlDrag = event.ctrlKey;
 
+        //ive found that using the event.movementX and Y mouse tracking we were using, is not accurate when browser level zoom is applied. so i am calculating the movement per tick myself
+        //this is done by comparing the current position, with the position recorded by the previous tick of this function
+        let moveDistance = {x:0,y:0}
+        if(GraphRenderer.dragCurrentPosition){
+            moveDistance = {x:e.pageX - GraphRenderer.dragCurrentPosition?.x, y: e.pageY - GraphRenderer.dragCurrentPosition?.y}
+        }
+        
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
+
         if (eagle.isDragging()){
             if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
+                //check and note if the mouse has moved
+                GraphRenderer.simpleSelect = GraphRenderer.dragStartPosition.x - moveDistance.x < 5 && GraphRenderer.dragStartPosition.y - moveDistance.y < 5
 
                 //creating an array that contains all of the outermost nodes in the selected array
                 const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
+                
+                //this is to prevent the de-parent transition effect, which we dont want in this case
+                $('.node.transition').removeClass('transition')
 
-                const node:Node = eagle.draggingNode()
-                $('.node.transition').removeClass('transition') //this is for the bubble jump effect which we dont want here
-
-
-                // move node
-                eagle.selectedObjects().forEach(function(obj){
-                    if(obj instanceof Node){
-                        obj.changePosition(e.movementX/eagle.globalScale(), e.movementY/eagle.globalScale());
-                    }
-                })
-
-                outermostNodes.forEach(function(outerMostNode){
-                    // remember node parent from before things change
-                    const oldParent: Node = eagle.logicalGraph().findNodeByIdQuiet(outerMostNode.getParentId());
-
-                    // keep track of whether we would update any node parents
-                    const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
-                    //construct resizing 
-                    if(outerMostNode.getParentId() != null){
-                        if(oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
-                            oldParent.setRadius(GraphRenderer.NodeParentRadiusPreDrag) //HERE
-                            outerMostNode.setParentId(null)
+                // move node if the mouse has moved during the drag event
+                if(!GraphRenderer.simpleSelect){
+                    eagle.selectedObjects().forEach(function(obj){
+                        if(obj instanceof Node){
+                            obj.changePosition(moveDistance.x/eagle.globalScale(), moveDistance.y/eagle.globalScale());
                         }
-                    }
+                    })
+                }
 
-                    // check for nodes underneath the node we dropped
-                    const parent: Node = eagle.logicalGraph().checkForNodeAt(outerMostNode.getPosition().x, outerMostNode.getPosition().y, outerMostNode.getRadius(), true);
-
-                    // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
-                    const ancestorOfParent = GraphRenderer.isAncestor(parent, outerMostNode);
-
-                    // if a parent was found, update
-                    if (parent !== null && outerMostNode.getParentId() !== parent.getId() && outerMostNode.getId() !== parent.getId() && !ancestorOfParent && !outerMostNode.isEmbedded()){
-                        GraphRenderer.updateNodeParent(outerMostNode, parent.getId(),  allowGraphEditing);
-                        GraphRenderer.NodeParentRadiusPreDrag = eagle.logicalGraph().findNodeByIdQuiet(parent.getId()).getRadius()
-                        eagle.logicalGraph().fileInfo().modified = true;
-                    }
-
-                    // if no parent found, update
-                    if (parent === null && outerMostNode.getParentId() !== null && !outerMostNode.isEmbedded()){
-                        GraphRenderer.updateNodeParent(outerMostNode, null,  allowGraphEditing);
-                        eagle.logicalGraph().fileInfo().modified = true;
-                    }
-
-                    if (oldParent !== null){
-                        // moved out of a construct
-                        $('#'+oldParent.getId()).addClass('transition')
-                    }
-
-                    // recalculate size of parent (or oldParent)
-                    if (parent === null){
-                        
-                    } else {
-                        // moved into or within a construct
-                        $('#'+parent.getId()).removeClass('transition')
-                    }
-                })
+                //look for a construct at the current location that we would parent to
+                //the outermost node is the outermost construct for multiselection 
+                GraphRenderer.lookForParent()
             } else if(GraphRenderer.isDraggingSelectionRegion){
+                
+                //update selection region position then draw the rectangle
                 GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null), y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
-                const containerWidth = $('#logicalGraph').width()
-                const containerHeight = $('#logicalGraph').height()
-
-                if(GraphRenderer.selectionRegionEnd.x>GraphRenderer.selectionRegionStart.x){
-                    $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','right':containerWidth - GraphRenderer.selectionRegionEnd.x+'px'})
-                }else{
-                    $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionEnd.x+'px','right':containerWidth - GraphRenderer.selectionRegionStart.x+'px'})
-                }
-
-                if(GraphRenderer.selectionRegionEnd.y>GraphRenderer.selectionRegionStart.y){
-                    $('#selectionRectangle').css({'top':GraphRenderer.selectionRegionStart.y+'px','bottom':containerHeight - GraphRenderer.selectionRegionEnd.y+'px'})
-                }else{
-                    $('#selectionRectangle').css({'top':GraphRenderer.selectionRegionEnd.y+'px','bottom':containerHeight - GraphRenderer.selectionRegionStart.y+'px'})
-                }
-
+                GraphRenderer.drawSelectionRectangle()
             }else{
                 // move background
-                eagle.globalOffsetX(eagle.globalOffsetX() + e.movementX/eagle.globalScale());
-                eagle.globalOffsetY(eagle.globalOffsetY() + e.movementY/eagle.globalScale());
+                eagle.globalOffsetX(eagle.globalOffsetX() + moveDistance.x/eagle.globalScale());
+                eagle.globalOffsetY(eagle.globalOffsetY() + moveDistance.y/eagle.globalScale());
             }
         }
 
@@ -1201,6 +1150,7 @@ export class GraphRenderer {
         // if we dragged a selection region
         if (GraphRenderer.isDraggingSelectionRegion){
             const nodes: Node[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
+            
             //checking if there was no drag distance, if so we are clicking a single object and we will toggle its selection
             if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
                 if(GraphRenderer.altSelect){
@@ -1208,46 +1158,17 @@ export class GraphRenderer {
                 }
                 eagle.editSelection(node,Eagle.FileType.Graph);
             }else{
-                const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
-                const objects: (Node | Edge)[] = [];
-    
-                // depending on if its shift+ctrl or just shift we are either only adding or only removing nodes
-                if(!GraphRenderer.ctrlDrag){
-                    for (const node of nodes){
-                        if (!eagle.objectIsSelected(node)){
-                            objects.push(node);
-                        }
-                    }
-                    for (const edge of edges){
-                        if (!eagle.objectIsSelected(edge)){
-                            objects.push(edge);
-                        }
-                    }
-                }else{
-                    for (const node of nodes){
-                        if (eagle.objectIsSelected(node)){
-                            objects.push(node);
-                        }
-                    }
-                    for (const edge of edges){
-                        if (eagle.objectIsSelected(edge)){
-                            objects.push(edge);
-                        }
-                    }
-                }
-    
-                objects.forEach(function(element){
-                    eagle.editSelection(element, Eagle.FileType.Graph )
-                })
+                GraphRenderer.selectInRegion(nodes);
             }
-            GraphRenderer.ctrlDrag = false;
 
+            //resetting some helper variables
+            GraphRenderer.ctrlDrag = false;
+            
             GraphRenderer.selectionRegionStart.x = 0;
             GraphRenderer.selectionRegionStart.y = 0;
             GraphRenderer.selectionRegionEnd.x = 0;
             GraphRenderer.selectionRegionEnd.y = 0;
-
-            // finish selecting a region
+            
             GraphRenderer.isDraggingSelectionRegion = false;
 
             //hide the selection rectangle
@@ -1257,20 +1178,154 @@ export class GraphRenderer {
             eagle.logicalGraph.valueHasMutated();
         }
 
-        // if we dragged a node
-        if (!GraphRenderer.isDraggingSelectionRegion){
+        // if we arent multi selecting and the node has moved by a larger amount
+        if (!GraphRenderer.isDraggingSelectionRegion && !GraphRenderer.simpleSelect){
             // check if moving whole graph, or just a single node
             if (node !== null){
                 eagle.undo().pushSnapshot(eagle, "Move '" + node.getName() + "' node");
             }
         }
 
+        //reset helper globals defaults
+        GraphRenderer.simpleSelect = true;
         GraphRenderer.dragSelectionHandled(true)
         eagle.isDragging(false);
         eagle.draggingNode(null);
         
         //this is to make affected constructs re calculate their size
         eagle.selectedObjects.valueHasMutated()
+    }
+
+    static initiateDragSelection() : void {
+        GraphRenderer.isDraggingSelectionRegion = true
+        GraphRenderer.selectionRegionStart = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
+        GraphRenderer.selectionRegionEnd = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
+
+        //making the selection box visible
+        $('#selectionRectangle').show()
+
+        //setting start and end region to current mouse co-ordinates
+        $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','top':GraphRenderer.selectionRegionStart.y+'px'})
+        const containerWidth = $('#logicalGraph').width()
+        const containerHeight = $('#logicalGraph').height()
+
+        //turning the graph coordinates into a distance from bottom/right for css inset before applying
+        const selectionBottomOffset = containerHeight - GraphRenderer.selectionRegionEnd.y
+        const selectionRightOffset = containerWidth - GraphRenderer.selectionRegionEnd.x
+        $('#selectionRectangle').css({'right':selectionRightOffset+'px','bottom':selectionBottomOffset+'px'})
+    }
+
+    static drawSelectionRectangle() : void {
+        const containerWidth = $('#logicalGraph').width()
+        const containerHeight = $('#logicalGraph').height()
+
+        if(GraphRenderer.selectionRegionEnd.x>GraphRenderer.selectionRegionStart.x){
+            $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','right':containerWidth - GraphRenderer.selectionRegionEnd.x+'px'})
+        }else{
+            $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionEnd.x+'px','right':containerWidth - GraphRenderer.selectionRegionStart.x+'px'})
+        }
+
+        if(GraphRenderer.selectionRegionEnd.y>GraphRenderer.selectionRegionStart.y){
+            $('#selectionRectangle').css({'top':GraphRenderer.selectionRegionStart.y+'px','bottom':containerHeight - GraphRenderer.selectionRegionEnd.y+'px'})
+        }else{
+            $('#selectionRectangle').css({'top':GraphRenderer.selectionRegionEnd.y+'px','bottom':containerHeight - GraphRenderer.selectionRegionStart.y+'px'})
+        }
+    }
+
+    static selectInRegion(nodes:Node[]) : void {
+        const eagle = Eagle.getInstance()
+        const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
+        const objects: (Node | Edge)[] = [];
+
+        // depending on if its shift+ctrl or just shift we are either only adding or only removing nodes
+        if(!GraphRenderer.ctrlDrag){
+            for (const node of nodes){
+                if (!eagle.objectIsSelected(node)){
+                    objects.push(node);
+                }
+            }
+            for (const edge of edges){
+                if (!eagle.objectIsSelected(edge)){
+                    objects.push(edge);
+                }
+            }
+        }else{
+            for (const node of nodes){
+                if (eagle.objectIsSelected(node)){
+                    objects.push(node);
+                }
+            }
+            for (const edge of edges){
+                if (eagle.objectIsSelected(edge)){
+                    objects.push(edge);
+                }
+            }
+        }
+
+        objects.forEach(function(element){
+            eagle.editSelection(element, Eagle.FileType.Graph )
+        })
+    }
+
+    static lookForParent() : void {
+        const eagle = Eagle.getInstance()
+        const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
+        
+        for (const outermostNode of outermostNodes){
+            const oldParent: Node = eagle.logicalGraph().findNodeByIdQuiet(outermostNode.getParentId());
+            let parentingSuccessful = false; //if the detected parent of one node in the selection changes, we assign the new parent to the whole selection and exit this loop
+
+            // the parent construct is only allowed to grow by the amout specified(eagleConfig.construct_drag_out_distance) before allowing its children to escape
+            if(outermostNode.getParentId() != null && oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
+                $('#'+oldParent.getId()).addClass('transition')
+                GraphRenderer.parentSelection(outermostNodes, null);
+                parentingSuccessful = true;
+            }
+
+            // check for nodes underneath the node
+            const parent: Node = eagle.logicalGraph().checkForNodeAt(outermostNode.getPosition().x, outermostNode.getPosition().y, outermostNode.getRadius(), true);
+
+            // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
+            const ancestorOfParent = GraphRenderer.isAncestor(parent, outermostNode);
+
+            if(!ancestorOfParent && parent != oldParent && parent != null){
+                // setting the new parent for all outermost selected nodes
+                GraphRenderer.parentSelection(outermostNodes, parent)
+                parentingSuccessful = true;
+            }
+
+            if (parent === null && !outermostNode.isEmbedded() && oldParent !== null){
+                // moved out of a construct
+                $('#'+oldParent.getId()).addClass('transition')
+                GraphRenderer.parentSelection(outermostNodes, null);
+                parentingSuccessful = true;
+            }
+            
+            if(parentingSuccessful){
+                eagle.logicalGraph().fileInfo().modified = true;
+                return
+            }
+        }
+    }
+
+    static parentSelection(outermostNodes : Node[], parent:Node) : void {
+
+        const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+        outermostNodes.forEach(function(object){
+            if(object instanceof Node){
+                if(!object.isEmbedded() && parent === null){
+                    GraphRenderer.updateNodeParent(object, null,  allowGraphEditing);
+                }else if(object.getId() != parent?.getId() && !object.isEmbedded()){
+                    GraphRenderer.updateNodeParent(object, parent?.getId(), allowGraphEditing);
+                }
+            }
+        })
+
+        // resizing the parent construct to fit its new children
+        GraphRenderer.resizeConstruct(parent)
+
+        //updating the parent construct's "pre-drag" size at the end of parenting all the nodes
+        GraphRenderer.NodeParentRadiusPreDrag = Eagle.getInstance().logicalGraph().findNodeByIdQuiet(parent?.getId())?.getRadius()
     }
 
     static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
@@ -1610,10 +1665,14 @@ export class GraphRenderer {
     // resize a construct so that it contains its children
     // NOTE: does not move the construct
     static resizeConstruct = (construct: Node): void => {
+        if(construct === null){
+            return
+        }
+
         const eagle = Eagle.getInstance();
         let maxDistance = 0;
 
-        // loop through all children - find distance from center of construct
+        // loop through all nodes to fund children - then check to find distance from center of construct
         for (const node of eagle.logicalGraph().getNodes()){
             if(GraphRenderer.ctrlDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelectedById(node.getParentId())){
                 continue
