@@ -226,12 +226,14 @@
                 </div>
             </div>
         </div>
-        <div id="statusBar" data-bind="style: { 'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth(), right: Utils.getRightWindowWidth(), bottom: Utils.getBottomWindowHeight()+'vh'}">
+        <div id="statusBar" data-bind="event: { wheel: statusBarScroll }, style: { 'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth(), right: Utils.getRightWindowWidth(), bottom: Utils.getBottomWindowHeight()+'vh'}">
             <div id="scrollContainer">
                 <!-- ko foreach: StatusEntry.getStatusEntries() -->
                     <!-- ko if: $data.visibility -->
+                     <div class="statusWrapper">
                         <h5 data-bind="text: $data.action"></h5>
                         <span data-bind="text: $data.message"></span>
+                     </div>
                     <!-- /ko -->
                 <!-- /ko -->
             </div>
