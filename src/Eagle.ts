@@ -2721,8 +2721,9 @@ export class Eagle {
     }
 
     statusBarScroll = (data:any,e:any) : void => {
-        e.preventDefault()
-        $('#statusBar').scrollLeft(e.originalEvent.deltaY)
+        e.preventDefault();
+        const leftPos = $('#statusBar').scrollLeft();
+        $('#statusBar').scrollLeft(leftPos + e.originalEvent.deltaY)
     }
 
     smartToggleModal = (modal:string) : void => {

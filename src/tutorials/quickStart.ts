@@ -10,6 +10,8 @@ newTut.newTutStep("Graph Canvas", "In the graph canvas you can construct graphs 
 
 newTut.newTutStep("Right Panel", "Multipurpose panel with several tabs offering a variety of functions.", function(){return $(".rightWindow")})
 
+newTut.newTutStep("Hints Bar", "Keep an eye on this section to learn important shortcuts and methods. The content changes when selecting different components in the canvas.", function(){return $("#statusBar")})
+
 newTut.newTutStep("User Interface Element Tooltips", "Much of Eagle's interface is using icons. You can always hover over the icons and most of the other elements to get more information on what they do.", function(){return $("#navbarSupportedContent .btn-group")})
     .setBackPreFunction(function (eagle) {eagle.closeShortcuts()})
 
