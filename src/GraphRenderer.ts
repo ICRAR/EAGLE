@@ -286,6 +286,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
 export class GraphRenderer {
     static nodeData : Node[] = null
 
+    // TODO: group all the dragging variables. move into a structure?
     static isDragging : ko.Observable<boolean> = ko.observable(false);
     static draggingNode : ko.Observable<Node> = ko.observable(null);
     static draggingPaletteNode : boolean = false;
@@ -1386,52 +1387,6 @@ export class GraphRenderer {
         }
     }
 
-    static getEdges(graph: LogicalGraph, showDataNodes: boolean): Edge[]{
-        if (showDataNodes){
-            return graph.getEdges();
-        } else {
-            const edges: Edge[] = [];
-
-            for (const edge of graph.getEdges()){
-                let srcHasConnectedInput: boolean = false;
-                let destHasConnectedOutput: boolean = false;
-
-                for (const e of graph.getEdges()){
-                    if (e.getDestNodeId() === edge.getSrcNodeId()){
-                        srcHasConnectedInput = true;
-                    }
-                    if (e.getSrcNodeId() === edge.getDestNodeId()){
-                        destHasConnectedOutput = true;
-                    }
-                }
-
-                const srcIsDataNode: boolean = GraphRenderer.findNodeWithId(edge.getSrcNodeId(), graph.getNodes()).isData();
-                const destIsDataNode: boolean = GraphRenderer.findNodeWithId(edge.getDestNodeId(), graph.getNodes()).isData();
-                
-                if (destIsDataNode){
-                    if (!destHasConnectedOutput){
-                        // draw edge as normal
-                        edges.push(edge);
-                    }
-                    continue;
-                }
-
-                if (srcIsDataNode){
-                    if (srcHasConnectedInput){
-                        // build a new edge
-                        const newSrc = GraphRenderer.findInputToDataNode(graph.getEdges(), edge.getSrcNodeId());
-                        edges.push(new Edge(newSrc.nodeId, newSrc.portId, edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false));
-                    } else {
-                        // draw edge as normal
-                        edges.push(edge);
-                    }
-                }
-            }
-
-            return edges;
-        }
-    }
-
     static findEdgesContainedByNodes(edges: Edge[], nodes: Node[]): Edge[]{
         const result: Edge[] = [];
 
@@ -1461,20 +1416,6 @@ export class GraphRenderer {
         }
 
         return result;
-    }
-
-    // TODO: maybe this should be in LogicalGraph.ts?
-    static findInputToDataNode(edges: Edge[], nodeId: NodeId) : {nodeId: NodeId, portId: FieldId}{
-        for (const edge of edges){
-            if (edge.getDestNodeId() === nodeId){
-                return {
-                    nodeId: edge.getSrcNodeId(),
-                    portId: edge.getSrcPortId()
-                };
-            }
-        }
-
-        return null;
     }
 
     static centerConstructs(construct:Node, graphNodes:Node[]) : void {
