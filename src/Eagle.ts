@@ -1529,17 +1529,17 @@ export class Eagle {
         }, 100);
     }
 
-    saveGraph = () : void => {
+    saveGraph = async () => {
         switch (this.logicalGraph().fileInfo().repositoryService){
             case Repository.Service.File:
-                this.saveFileToLocal(Eagle.FileType.Graph);
+                await this.saveFileToLocal(Eagle.FileType.Graph);
                 break;
             case Repository.Service.GitHub:
             case Repository.Service.GitLab:
-                this.commitToGit(Eagle.FileType.Graph);
+                await this.commitToGit(Eagle.FileType.Graph);
                 break;
             default:
-                this.saveGraphAs();
+                await this.saveGraphAs();
                 break;
         }
     }
