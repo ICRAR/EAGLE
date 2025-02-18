@@ -286,6 +286,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
 export class GraphRenderer {
     static nodeData : Node[] = null
 
+    static isDragging : ko.Observable<boolean> = ko.observable(false);
+    static draggingNode : ko.Observable<Node> = ko.observable(null);
+    static draggingPaletteNode : boolean = false;
+
     //port drag handler globals
     static draggingPort : boolean = false;
     static isDraggingPortValid: ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown);
@@ -323,7 +327,7 @@ export class GraphRenderer {
     static ctrlDrag:boolean = null;
     static editNodeName:boolean = false;
     static portDragStartPos = {x:0, y:0};
-    static simpleSelect : boolean = true; // used for node dragging/selecting. if the cursor position hasnt moved far when click/dragging a node. we wont update the node's position and handle it as a simple select action
+    static simpleSelect : boolean = true; // used for node dragging/selecting. if the cursor position hasn't moved far when click/dragging a node. we wont update the node's position and handle it as a simple select action
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
@@ -928,7 +932,7 @@ export class GraphRenderer {
             return '';
         }
 
-        //this is a global variable to contains a port on mouse over. if we are mousing over a port we dont need to draw an edge
+        //this is a global variable to contains a port on mouse over. if we are mousing over a port we don't need to draw an edge
         if(GraphRenderer.destinationPort !== null){
             return '';
         }
@@ -1040,18 +1044,18 @@ export class GraphRenderer {
         // if no node is selected, or we are dragging using middle mouse, then we are dragging the background
         if(node === null || event.button === 1){
             GraphRenderer.dragSelectionHandled(true)
-            eagle.isDragging(true);
+            GraphRenderer.isDragging(true);
         } else if(!node.isEmbedded()){
             // embedded nodes, aka input and output applications of constructs, cant be dragged
             //initiating node dragging
-            eagle.isDragging(true);
-            eagle.draggingNode(node);
+            GraphRenderer.isDragging(true);
+            GraphRenderer.draggingNode(node);
             GraphRenderer.nodeDragElement = event.target
             GraphRenderer.nodeDragNode = node
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
-            //checking if the node is inside of a contruct, if so, fetching it's parent
+            //checking if the node is inside of a construct, if so, fetching it's parent
             if(node.getParentId() != null){
                 const parentNode = eagle.logicalGraph().findNodeByIdQuiet(node.getParentId())
                 $('#'+parentNode.getId()).removeClass('transition')
@@ -1104,15 +1108,12 @@ export class GraphRenderer {
         
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
 
-        if (eagle.isDragging()){
-            if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
+        if (GraphRenderer.isDragging()){
+            if (GraphRenderer.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
                 //check and note if the mouse has moved
                 GraphRenderer.simpleSelect = GraphRenderer.dragStartPosition.x - moveDistance.x < 5 && GraphRenderer.dragStartPosition.y - moveDistance.y < 5
-
-                //creating an array that contains all of the outermost nodes in the selected array
-                const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
                 
-                //this is to prevent the de-parent transition effect, which we dont want in this case
+                //this is to prevent the de-parent transition effect, which we don't want in this case
                 $('.node.transition').removeClass('transition')
 
                 // move node if the mouse has moved during the drag event
@@ -1125,7 +1126,7 @@ export class GraphRenderer {
                 }
 
                 //look for a construct at the current location that we would parent to
-                //the outermost node is the outermost construct for multiselection 
+                //the outermost node is the outermost construct for multi-selection 
                 GraphRenderer.lookForParent()
             } else if(GraphRenderer.isDraggingSelectionRegion){
                 
@@ -1178,7 +1179,7 @@ export class GraphRenderer {
             eagle.logicalGraph.valueHasMutated();
         }
 
-        // if we arent multi selecting and the node has moved by a larger amount
+        // if we aren't multi selecting and the node has moved by a larger amount
         if (!GraphRenderer.isDraggingSelectionRegion && !GraphRenderer.simpleSelect){
             // check if moving whole graph, or just a single node
             if (node !== null){
@@ -1189,8 +1190,8 @@ export class GraphRenderer {
         //reset helper globals defaults
         GraphRenderer.simpleSelect = true;
         GraphRenderer.dragSelectionHandled(true)
-        eagle.isDragging(false);
-        eagle.draggingNode(null);
+        GraphRenderer.isDragging(false);
+        GraphRenderer.draggingNode(null);
         
         //this is to make affected constructs re calculate their size
         eagle.selectedObjects.valueHasMutated()
@@ -1275,7 +1276,7 @@ export class GraphRenderer {
             const oldParent: Node = eagle.logicalGraph().findNodeByIdQuiet(outermostNode.getParentId());
             let parentingSuccessful = false; //if the detected parent of one node in the selection changes, we assign the new parent to the whole selection and exit this loop
 
-            // the parent construct is only allowed to grow by the amout specified(eagleConfig.construct_drag_out_distance) before allowing its children to escape
+            // the parent construct is only allowed to grow by the amount specified(eagleConfig.construct_drag_out_distance) before allowing its children to escape
             if(outermostNode.getParentId() != null && oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
                 $('#'+oldParent.getId()).addClass('transition')
                 GraphRenderer.parentSelection(outermostNodes, null);
