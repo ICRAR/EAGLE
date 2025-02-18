@@ -188,4 +188,16 @@ export class Translator {
             console.log("---------");
         }
     }
+
+    algorithmVisible = (algorithm: string) : boolean => {
+        const normalTranslatorMode :boolean = Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Normal;
+        if(!normalTranslatorMode){
+            return true
+        }
+        if(algorithm === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)){
+            return true
+        }
+    
+        return false
+    }
 }

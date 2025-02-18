@@ -2557,19 +2557,6 @@ export class Eagle {
             translatorURLSetting.value(userString);
         });
     };
-
-    // TODO: move to Translator.ts
-    translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        const normalTranslatorMode :boolean = Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Normal;
-        if(!normalTranslatorMode){
-            return true
-        }
-        if(currentAlg === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)){
-            return true
-        }
-    
-        return false
-    }
     
     saveGraphScreenshot = async () : Promise<void> =>  {
         const eagle = Eagle.getInstance()
