@@ -2544,19 +2544,6 @@ export class Eagle {
             this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
         });
     }
-
-    // TODO: move to Translator.ts
-    setTranslatorUrl = () : void => {
-        const translatorURLSetting : Setting = Setting.find(Setting.TRANSLATOR_URL);
-
-        Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false, (completed : boolean, userString : string) : void => {
-            // abort if user cancelled the action
-            if (!completed)
-                return;
-
-            translatorURLSetting.value(userString);
-        });
-    };
     
     saveGraphScreenshot = async () : Promise<void> =>  {
         const eagle = Eagle.getInstance()
