@@ -2669,11 +2669,6 @@ export class Eagle {
         window.open("https://github.com/ICRAR/EAGLE/issues/new?body="+bodyText, "_blank");
     }
 
-    // TODO: remove?
-    closeErrorsModal = () : void => {
-        Utils.closeErrorsModal();
-    }
-
     statusBarScroll = (data:any,e:any) : void => {
         e.preventDefault();
         const leftPos = $('#statusBar').scrollLeft();
@@ -2768,19 +2763,6 @@ export class Eagle {
         //activate selected tab content and button
         $("#"+btn).addClass("settingCategoryBtnActive");
         $("#"+target).addClass("settingCategoryActive");
-    }
-
-    // TODO: move to KeyboardShortcut.ts?
-    openShortcuts = () : void => {
-        if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
-            Eagle.shortcutModalCooldown = Date.now()
-            Utils.showShortcutsModal();
-        }
-    }
-
-    // TODO: move to KeyboardShortcut.ts?
-    closeShortcuts = () : void => {
-        Utils.closeShortcutsModal();
     }
 
     // TODO: move to Setting.ts?

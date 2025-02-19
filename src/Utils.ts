@@ -755,10 +755,13 @@ export class Utils {
     */
 
     static showShortcutsModal() : void {
-        $('#shortcutsModal').modal("show");
+        if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
+            Eagle.shortcutModalCooldown = Date.now()
+            $('#shortcutsModal').modal("show");
+        }
     }
 
-    static closeShortcutsModal() : void {
+    static hideShortcutsModal() : void {
         $('#shortcutsModal').modal("hide");
     }
 
