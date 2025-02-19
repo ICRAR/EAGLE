@@ -1,4 +1,5 @@
 import { test, expect,chromium } from '@playwright/test';
+import { enableMouseCursor } from '../playwrightHelpers';
 
 test.use({ 
   video: {
@@ -25,6 +26,8 @@ test('recording simple tutorial', async () => {
   // })
 
   await page.goto('http://localhost:8888/');
+
+  await enableMouseCursor(page);
   await page.getByRole('button', { name: 'Graph' }).hover();
   await page.getByRole('button', { name: 'Graph' }).click();
   await page.getByText('New Create New Graph [ N ]').hover();
