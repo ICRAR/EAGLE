@@ -1,4 +1,5 @@
 import {TutorialStep, TutorialSystem} from '../Tutorial';
+import { Utils } from '../Utils';
 
 const newTut = TutorialSystem.newTutorial('Quick Start', 'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.')
 
@@ -23,7 +24,7 @@ newTut.newTutStep("Keyboard Shortcuts", "Many of the major functions are availab
 newTut.newTutStep("Click To Open Settings", "The settings modal allows to customize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <em>To continue the tutorial please click the highlighted settings icon button!</em>", function(){return $("#settings")})
     .setType(TutorialStep.Type.Press)
     .setPreFunction(function(eagle){eagle.closeShortcuts();})
-    .setBackPreFunction(function(eagle){eagle.closeSettings();})
+    .setBackPreFunction(function(eagle){Utils.hideSettingsModal();})
 
 newTut.newTutStep("Set up Eagle to how you need it.", "Eagle has a lot of functionality, as such, there are various settings that affect how eagle behaves and how much of it is hidden.", function(){return $("#settingsModal .modal-body")})
     .setWaitType(TutorialStep.Wait.Modal)

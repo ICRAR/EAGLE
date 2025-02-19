@@ -2669,19 +2669,7 @@ export class Eagle {
         window.open("https://github.com/ICRAR/EAGLE/issues/new?body="+bodyText, "_blank");
     }
 
-    // TODO: move to Setting.ts?
-    openSettings = () : void => {
-        //if no tab is selected yet, default to the first tab
-        if(!$(".settingCategoryActive").length){
-            $(".settingsModalButton").first().trigger("click")
-        }
-        Utils.showSettingsModal();
-    }
-
-    closeSettings = () : void => {
-        Utils.hideSettingsModal();
-    }
-
+    // TODO: remove?
     closeErrorsModal = () : void => {
         Utils.closeErrorsModal();
     }

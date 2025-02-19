@@ -731,6 +731,11 @@ export class Utils {
     }
 
     static showSettingsModal() : void {
+        // if no tab is selected yet, default to the first tab
+        if(!$(".settingCategoryActive").length){
+            $(".settingsModalButton").first().trigger("click")
+        }
+
         $('#settingsModal').modal("show");
     }
 
