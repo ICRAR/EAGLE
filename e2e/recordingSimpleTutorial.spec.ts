@@ -1,5 +1,6 @@
 import { test, expect,chromium } from '@playwright/test';
-import { enableMouseCursor } from '../playwrightHelpers';
+import { enableMouseCursor, moveMouseCursor } from '../playwrightHelpers';
+// import * as $ from '../static/externals/jquery-3.6.0.min.js'; seems like jquery wont work
 
 test.use({ 
   video: {
@@ -28,6 +29,10 @@ test('recording simple tutorial', async () => {
   await page.goto('http://localhost:8888/');
 
   await enableMouseCursor(page);
+
+  await page.pause()
+
+  await moveMouseCursor(page,'navbarDropdownGraph')
   await page.getByRole('button', { name: 'Graph' }).hover();
   await page.getByRole('button', { name: 'Graph' }).click();
   await page.getByText('New Create New Graph [ N ]').hover();
