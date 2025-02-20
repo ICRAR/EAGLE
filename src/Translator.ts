@@ -115,7 +115,7 @@ export class Translator {
      * @param testingMode
      * @param format
      */
-     genPGT = (algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
+     genPGT = async (algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : Promise<void> => {
         const eagle: Eagle = Eagle.getInstance();
 
         // check if the graph has at least one node
@@ -132,14 +132,15 @@ export class Translator {
 
         // check if the graph is committed before translation
         if (this._checkGraphModified(eagle)){
-            // TODO: use the async function here
-            Utils.showNotification("Saving graph", "Automatically saving modified graph prior to translation", "info");
-            eagle.saveGraph();
+            // use the async function here
+            await eagle.saveGraph();
             
             // check again if graph is modified
             if (this._checkGraphModified(eagle)){
                 Utils.showNotification("Unable to Translate", "Please save/commit the graph before attempting translation", "danger");
                 return;
+            } else {
+                Utils.showNotification("Saved graph", "Automatically saved modified graph prior to translation", "info");
             }
         }
 
