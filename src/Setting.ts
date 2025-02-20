@@ -271,6 +271,24 @@ export class Setting {
         $("#"+target).addClass("settingCategoryActive");
     }
 
+    //copies currently set settings in case the user wishes to cancel changes in the setting modal
+    static copy(): void {
+        for (const group of Eagle.settings){
+            for (const setting of group.getSettings()){
+                setting.copyCurrentSettings();
+            }
+        }
+    }
+
+    //returns settings values to the previously copied settings, canceling the settings editing
+    static cancelChanges(): void {
+        for (const group of Eagle.settings){
+            for (const setting of group.getSettings()){
+                setting.cancelChanges();
+            }
+        }
+    }
+
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
     static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
     static readonly RIGHT_WINDOW_WIDTH : string = "RightWindowWidth";

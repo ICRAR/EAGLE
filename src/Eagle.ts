@@ -2754,26 +2754,6 @@ export class Eagle {
         return true
     }
 
-    // TODO: move to Setting.ts?
-    //copies currently set settings in case the user wishes to cancel changes in the setting modal
-    copyCurrentSettings = () : void => {
-        for (const group of Eagle.settings){
-            for (const setting of group.getSettings()){
-                setting.copyCurrentSettings();
-            }
-        }
-    }
-
-    // TODO: move to Setting.ts?
-    //returns settings values to the previously copied settings, canceling the settings editing
-    cancelSettingChanges = () : void => {
-        for (const group of Eagle.settings){
-            for (const setting of group.getSettings()){
-                setting.cancelChanges();
-            }
-        }
-    }
-
     addEdgeToLogicalGraph = () : void => {
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
