@@ -16,7 +16,7 @@
                 <!-- ko ifnot: Setting.findValue( Setting.STUDENT_SETTINGS_MODE) -->
                     <div id="settingsModalHeader">
                         <!-- ko foreach: Eagle.settings -->
-                            <button class="settingsModalButton" data-bind="attr:{id: $data.getHtmlId()}, text: $data.name, click: $root.toggleSettingsTab($data.getHtmlId(), 'settingsCategory'+$index()+'Content'), visible: $data.isVisible($root)"></button>
+                            <button class="settingsModalButton" data-bind="attr:{id: $data.getHtmlId()}, text: $data.name, click: Setting.toggleTab($data.getHtmlId(), 'settingsCategory'+$index()+'Content'), visible: $data.isVisible($root)"></button>
                         <!-- /ko -->
                     </div>
                     <form>

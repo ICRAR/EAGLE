@@ -2755,17 +2755,6 @@ export class Eagle {
     }
 
     // TODO: move to Setting.ts?
-    toggleSettingsTab = (btn:any, target:any) :void => {
-        //deselect and deactivate current tab content and buttons
-        $(".settingsModalButton").removeClass("settingCategoryBtnActive");
-        $(".settingsModalCategoryWrapper").removeClass("settingCategoryActive");
-
-        //activate selected tab content and button
-        $("#"+btn).addClass("settingCategoryBtnActive");
-        $("#"+target).addClass("settingCategoryActive");
-    }
-
-    // TODO: move to Setting.ts?
     //copies currently set settings in case the user wishes to cancel changes in the setting modal
     copyCurrentSettings = () : void => {
         for (const group of Eagle.settings){

@@ -261,6 +261,16 @@ export class Setting {
         }
     }
 
+    static toggleTab(btn: string, target: string): void {
+        //deselect and deactivate current tab content and buttons
+        $(".settingsModalButton").removeClass("settingCategoryBtnActive");
+        $(".settingsModalCategoryWrapper").removeClass("settingCategoryActive");
+
+        //activate selected tab content and button
+        $("#"+btn).addClass("settingCategoryBtnActive");
+        $("#"+target).addClass("settingCategoryActive");
+    }
+
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
     static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
     static readonly RIGHT_WINDOW_WIDTH : string = "RightWindowWidth";
