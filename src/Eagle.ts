@@ -2701,59 +2701,6 @@ export class Eagle {
         $('#loadingContainer').hide()
     }
 
-    // TODO: move to ParameterTable.ts
-    getCurrentParamReadonly = (field: Field) : boolean => {
-        // check that we actually found the right field, otherwise abort
-        if (field === null){
-            console.warn("Supplied field is null");
-            return false;
-        }
-
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
-                return false;
-            }else{
-                return field.isReadonly();
-            }
-        }else{
-            if(Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
-                return false;
-            }else{
-                return field.isReadonly();
-            }
-        }
-    }
-
-    // TODO: move to ParameterTable.ts
-    getCurrentParamValueReadonly = (field: Field) : boolean => {
-        // check that we actually found the right field, otherwise abort
-        if (field === null){
-            console.warn("Supplied field is null");
-            return true;
-        }
-
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
-            return false;
-        }
-        
-        if (Eagle.selectedLocation() != Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
-            return false;
-        }
-        
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.ReadOnly){
-            return false;
-        }
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.Normal){
-            return field.isReadonly();
-        }
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.ConfigOnly){
-            return field.isReadonly();
-        }
-        
-        console.warn("something in value readonly permissions has gone wrong!");
-        return true
-    }
-
     addEdgeToLogicalGraph = () : void => {
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
