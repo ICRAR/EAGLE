@@ -311,9 +311,9 @@ export class Eagle {
         Setting.setValue(Setting.SNAP_TO_GRID, this.snapToGrid());
     }
 
-    deployDefaultTranslationAlgorithm = () : void => {
+    deployDefaultTranslationAlgorithm = async () => {
         const defaultTranslatorAlgorithmMethod : string = $('#'+Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)+ ' .generatePgt').val().toString()
-        this.translator().genPGT(defaultTranslatorAlgorithmMethod, false, Daliuge.SchemaVersion.Unknown)
+        await this.translator().genPGT(defaultTranslatorAlgorithmMethod, false, Daliuge.SchemaVersion.Unknown)
     }
 
     // TODO: remove?
@@ -1529,19 +1529,56 @@ export class Eagle {
         }, 100);
     }
 
-    saveGraph = async () => {
-        switch (this.logicalGraph().fileInfo().repositoryService){
-            case Repository.Service.File:
-                await this.saveFileToLocal(Eagle.FileType.Graph);
-                break;
-            case Repository.Service.GitHub:
-            case Repository.Service.GitLab:
-                await this.commitToGit(Eagle.FileType.Graph);
-                break;
-            default:
-                await this.saveGraphAs();
-                break;
-        }
+    // TODO: just for testing, remove this!
+    saveGraphTest = async () : Promise<void> => {
+        console.log("saveGraphTest() start");
+
+        return new Promise(async(resolve, reject) => {
+            const eagle: Eagle = Eagle.getInstance();
+
+            setTimeout(function(){
+                eagle.logicalGraph().fileInfo().modified = false;
+
+                console.log("resolve()");
+                resolve();
+            }, 5000);
+        });
+    }
+
+    saveGraph = async () : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            const eagle: Eagle = Eagle.getInstance();
+
+            switch (eagle.logicalGraph().fileInfo().repositoryService){
+                case Repository.Service.File:
+                    try {
+                        await eagle.saveFileToLocal(Eagle.FileType.Graph);
+                    } catch (error) {
+                        reject(error);
+                        return;
+                    }
+                    break;
+                case Repository.Service.GitHub:
+                case Repository.Service.GitLab:
+                    try {
+                        await this.commitToGit(Eagle.FileType.Graph);
+                    } catch (error) {
+                        reject(error);
+                        return;
+                    }
+                    break;
+                default:
+                    try {
+                        await this.saveGraphAs();
+                    } catch (error) {
+                        reject(error);
+                        return;
+                    }
+                    break;
+            }
+
+            resolve();
+        });
     }
 
     saveGraphAs = async () => {
@@ -1568,7 +1605,7 @@ export class Eagle {
     saveFileToLocal = async (fileType : Eagle.FileType) : Promise<void> => {
         switch (fileType){
             case Eagle.FileType.Graph:
-                this.saveGraphToDisk(this.logicalGraph());
+                await this.saveGraphToDisk(this.logicalGraph());
                 break;
             case Eagle.FileType.Palette: {
                 // build a list of palette names
@@ -1585,7 +1622,7 @@ export class Eagle {
                     return;
                 }
 
-                this.savePaletteToDisk(destinationPalette);
+                await this.savePaletteToDisk(destinationPalette);
                 break;
             }
             default:
@@ -1597,7 +1634,7 @@ export class Eagle {
     saveAsFileToLocal = async (fileType: Eagle.FileType): Promise<void> => {
         switch (fileType){
             case Eagle.FileType.Graph:
-                this.saveAsFileToDisk(this.logicalGraph());
+                await this.saveAsFileToDisk(this.logicalGraph());
                 break;
             case Eagle.FileType.Palette: {
                 // build a list of palette names
@@ -1614,7 +1651,7 @@ export class Eagle {
                     return;
                 }
 
-                this.saveAsFileToDisk(destinationPalette);
+                await this.saveAsFileToDisk(destinationPalette);
                 break;
             }
             default:
