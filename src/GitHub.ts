@@ -52,55 +52,57 @@ export class GitHub {
     }
 
     static async loadRepoList(): Promise<Repository[]> {
-        return new Promise(async(resolve) => {
+        return new Promise(async(resolve, reject) => {
             const repositories: Repository[] = [];
 
             // find and add custom gitlab repositories from browser storage
             const customRepositories = Repositories.listCustomRepositories(Repository.Service.GitHub);
             repositories.push(...customRepositories);
 
-            Utils.httpGetJSON("/getGitHubRepositoryList", null, function(error : string, data: any){
-                if (error != null){
-                    console.error(error);
-                    resolve(repositories);
-                    return;
-                }
+            let data;
+            try {
+                data = await Utils.httpGetJSON("/getGitHubRepositoryList", null) as {repository: string, branch: string}[];
+            } catch (error){
+                console.error(error);
+                reject(error);
+                return;
+            }
 
-                // add the repositories from the POST response
-                for (const d of data){
-                    repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
-                }
+            // add the repositories from the POST response
+            for (const d of data){
+                repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
+            }
 
-                resolve(repositories);
-            });
+            resolve(repositories);
         });
     }
 
     /**
      * Loads the limited set of GitHub repositories intended for students.
      */
-    static loadStudentRepoList() : void {
-        Utils.httpGetJSON("/getStudentRepositoryList", null, function(error : string, data: any){
-            if (error != null){
-                console.error(error);
-                return;
-            }
+    static async loadStudentRepoList(){
+        let data;
+        try {
+            data = await Utils.httpGetJSON("/getStudentRepositoryList", null) as {repository: string, branch: string}[];
+        } catch (error){
+            console.error(error);
+            return;
+        }
 
-            // remove all GitHub repos from the list of repositories
-            for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-                if (Repositories.repositories()[i].service === Repository.Service.GitHub){
-                    Repositories.repositories.splice(i, 1);
-                }
+        // remove all GitHub repos from the list of repositories
+        for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
+            if (Repositories.repositories()[i].service === Repository.Service.GitHub){
+                Repositories.repositories.splice(i, 1);
             }
+        }
 
-            // add the repositories from the POST response
-            for (const d of data){
-                Repositories.repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
-            }
+        // add the repositories from the POST response
+        for (const d of data){
+            Repositories.repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
+        }
 
-            // sort the repository list
-            Repositories.sort();
-        });
+        // sort the repository list
+        Repositories.sort();
     }
 
     /**
@@ -125,9 +127,10 @@ export class GitHub {
                 token: token,
             };
 
-            Utils.httpPostJSON('/getGitHubFilesAll', jsonData, function(error:string, data:any){
-                repository.isFetching(false);
-
+            let data: any;
+            try {
+                data = await Utils.httpPostJSON('/getGitHubFilesAll', jsonData);
+            } catch (error) {
                 // check for unhandled errors
                 if (error !== null){
                     console.error(error, data);
@@ -135,47 +138,50 @@ export class GitHub {
                     reject(error);
                     return;
                 }
+            } finally {
+                repository.isFetching(false);
+            }
 
-                // check for errors that were handled correctly and passed to the client to display
-                if (typeof data.error !== 'undefined'){
-                    console.log("error", data.error);
-                    Utils.showUserMessage("Error", data.error);
-                    reject(error);
-                    return;
+            // check for errors that were handled correctly and passed to the client to display
+            if (typeof data.error !== 'undefined'){
+                console.log("error", data.error);
+                Utils.showUserMessage("Error", data.error);
+                reject(data.error);
+                return;
+            }
+
+            // flag the repository as fetched and expand by default
+            repository.fetched(true);
+            repository.expanded(true);
+
+            // delete current file list for this repository
+            repository.files.removeAll();
+            repository.folders.removeAll();
+
+            const fileNames : string[] = data[""];
+
+            // sort the fileNames
+            fileNames.sort(Repository.fileSortFunc);
+
+            // add files to repo
+            for (const fileName of fileNames){
+                // if file is not a .graph, .palette, or .json, just ignore it!
+                if (Utils.verifyFileExtension(fileName)){
+                    repository.files.push(new RepositoryFile(repository, "", fileName));
+                }
+            }
+
+            // add folders to repo
+            for (const path in data){
+                // skip the root directory
+                if (path === ""){
+                    continue;
                 }
 
-                // flag the repository as fetched and expand by default
-                repository.fetched(true);
-                repository.expanded(true);
+                repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
+            }
 
-                // delete current file list for this repository
-                repository.files.removeAll();
-                repository.folders.removeAll();
-
-                const fileNames : string[] = data[""];
-
-                // sort the fileNames
-                fileNames.sort(Repository.fileSortFunc);
-
-                // add files to repo
-                for (const fileName of fileNames){
-                    // if file is not a .graph, .palette, or .json, just ignore it!
-                    if (Utils.verifyFileExtension(fileName)){
-                        repository.files.push(new RepositoryFile(repository, "", fileName));
-                    }
-                }
-
-                // add folders to repo
-                for (const path in data){
-                    // skip the root directory
-                    if (path === "")
-                        continue;
-
-                    repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
-                }
-
-                resolve();
-            });
+            resolve();
         });
     }
 
@@ -212,47 +218,65 @@ export class GitHub {
      * Gets the specified remote file from the server
      * @param filePath File path.
      */
-    static openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+    static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
-        if (token === null || token === "") {
-            Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
-            return;
-        }
+            if (token === null || token === "") {
+                reject("The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
+                return;
+            }
 
-        const fullFileName : string = Utils.joinPath(filePath, fileName);
+            const fullFileName : string = Utils.joinPath(filePath, fileName);
 
-        // Add parameters in json data.
-        const jsonData = {
-            repositoryName: repositoryName,
-            repositoryBranch: repositoryBranch,
-            repositoryService: repositoryService,
-            token: token,
-            filename: fullFileName
-        };
+            // Add parameters in json data.
+            const jsonData = {
+                repositoryName: repositoryName,
+                repositoryBranch: repositoryBranch,
+                repositoryService: repositoryService,
+                token: token,
+                filename: fullFileName
+            };
 
-        Utils.httpPostJSON('/openRemoteGithubFile', jsonData, callback);
+            let data: any;
+            try {
+                data = await Utils.httpPostJSON('/openRemoteGithubFile', jsonData);
+            } catch (error){
+                reject(error);
+                return;
+            }
+            resolve(data);
+        });
     }
 
-    static deleteRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string) => void ) : void {
-        const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+    static async deleteRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
+        return new Promise(async(resolve, reject) => {
+            const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
-        if (token === null || token === "") {
-            Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
-            return;
-        }
+            if (token === null || token === "") {
+                Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
+                return;
+            }
 
-        const fullFileName : string = Utils.joinPath(filePath, fileName);
+            const fullFileName : string = Utils.joinPath(filePath, fileName);
 
-        // Add parameters in json data.
-        const jsonData = {
-            repositoryName: repositoryName,
-            repositoryBranch: repositoryBranch,
-            repositoryService: repositoryService,
-            token: token,
-            filename: fullFileName
-        };
+            // Add parameters in json data.
+            const jsonData = {
+                repositoryName: repositoryName,
+                repositoryBranch: repositoryBranch,
+                repositoryService: repositoryService,
+                token: token,
+                filename: fullFileName
+            };
 
-        Utils.httpPostJSON('/deleteRemoteGithubFile', jsonData, callback);
+            let data: any;
+            try {
+                data = await Utils.httpPostJSON('/deleteRemoteGithubFile', jsonData);
+            } catch (error){
+                reject(error);
+                return;
+            }
+            resolve(data);
+        });
     }
 }

@@ -5,16 +5,9 @@ import {Errors} from './Errors';
 
 export class ComponentUpdater {
 
-    static update(palettes: Palette[], graph: LogicalGraph, callback : (errorsWarnings : Errors.ErrorsWarnings, updatedNodes : Node[]) => void) : void {
+    static update(palettes: Palette[], graph: LogicalGraph): {updatedNodes: Node[], errorsWarnings: Errors.ErrorsWarnings} {
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const updatedNodes: Node[] = [];
-
-        // check if any nodes to update
-        if (graph.getNodes().length === 0){
-            errorsWarnings.errors.push(Errors.Message("Graph contains no components to update"));
-            callback(errorsWarnings, updatedNodes);
-            return;
-        }
 
         // make sure we have a palette available for each component in the graph
         for (const node of graph.getNodes()){
@@ -39,7 +32,7 @@ export class ComponentUpdater {
             updatedNodes.push(node);
         }
 
-        callback(errorsWarnings, updatedNodes);
+        return {updatedNodes: updatedNodes, errorsWarnings: errorsWarnings};
     }
 
     // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
