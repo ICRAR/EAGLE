@@ -1,6 +1,5 @@
 import * as ko from "knockout";
 
-import { Branded } from "./main";
 import { Eagle } from './Eagle';
 import { GitHub } from './GitHub';
 import { GitLab } from "./GitLab";
@@ -10,7 +9,7 @@ import { Utils } from './Utils';
 
 
 export class Repository {
-    _id : Repository.Id
+    _id : RepositoryId
     name : string
     service : Repository.Service
     branch : string
@@ -198,6 +197,22 @@ export namespace Repository {
         Url = "Url",
         Unknown = "Unknown"
     }
+}
 
-    export type Id = Branded<string, "Repository.Id">
+export class RepositoryCommit {
+    repositoryService : Repository.Service
+    repositoryName : string
+    repositoryBranch : string
+    filePath : string
+    fileName : string
+    message : string
+
+    constructor(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath: string, fileName: string, message: string){
+        this.repositoryService = repositoryService;
+        this.repositoryName = repositoryName;
+        this.repositoryBranch = repositoryBranch;
+        this.filePath = filePath;
+        this.fileName = fileName;
+        this.message = message;
+    }
 }
