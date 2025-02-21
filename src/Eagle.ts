@@ -317,6 +317,16 @@ export class Eagle {
             await this.translator().genPGT(defaultTranslatorAlgorithmMethod, false, Daliuge.SchemaVersion.Unknown);
         } catch (error){
             console.error("deployDefaultTranslationAlgorithm()", error);
+            Utils.showNotification("Error", error, "danger");
+        }
+    }
+
+    deployTranslationAlgorithm = async (algorithm: string, test: boolean) => {
+        try {
+            await this.translator().genPGT(algorithm, test, Daliuge.SchemaVersion.Unknown);
+        } catch (error){
+            console.error("deployDefaultTranslationAlgorithm()", error);
+            Utils.showNotification("Error", error, "danger");
         }
     }
 

@@ -120,18 +120,18 @@ export class Translator {
 
         // check if the graph has at least one node
         if (eagle.logicalGraph().getNumNodes() === 0) {
-            Utils.showUserMessage("Error", "Unable to translate. Logical graph has no nodes!");
-            return;
+            throw new Error("Unable to translate. Logical graph has no nodes!");
         }
 
         // check if the graph has a name
         if (eagle.logicalGraph().fileInfo().name === ""){
-            Utils.showUserMessage("Error", "Unable to translate. Logical graph does not have a name! Please save the graph first.");
-            return;
+            throw new Error("Unable to translate. Logical graph does not have a name! Please save the graph first.");
         }
 
         // check if the graph is committed before translation
         if (this._checkGraphModified(eagle)){
+            Utils.showNotification("Saving graph", "Automatically saving modified graph prior to translation", "info");
+
             // use the async function here, so that we can check isModified after saving
             await eagle.saveGraph();
             
@@ -139,8 +139,6 @@ export class Translator {
             if (this._checkGraphModified(eagle)){
                 Utils.showNotification("Unable to Translate", "Please save/commit the graph before attempting translation", "danger");
                 return;
-            } else {
-                Utils.showNotification("Saved graph", "Automatically saved modified graph prior to translation", "info");
             }
         }
 
