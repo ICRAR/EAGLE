@@ -20,21 +20,24 @@ test('recording simple tutorial', async () => {
   });
   const context = await browser.newContext();
   const page = await context.newPage();
-  // const testing123 = page.evaluate(() => {
-  //   function testing() {
-  //     alert('testing')
-  //   } 
-  // })
+  let clickTarget:any = null;
+
+  page.on('console', (msg) => {
+    console.log(msg);
+  });
 
   await page.goto('http://localhost:8888/');
 
   await enableMouseCursor(page);
 
+  clickTarget = await page.getByRole('button', { name: 'Graph' })
+  await moveMouseCursor(page, clickTarget)
+  // console.log(await clickTarget.boundingBox())
   await page.pause()
-
-  await moveMouseCursor(page,'navbarDropdownGraph')
   await page.getByRole('button', { name: 'Graph' }).hover();
   await page.getByRole('button', { name: 'Graph' }).click();
+
+
   await page.getByText('New Create New Graph [ N ]').hover();
   await page.getByRole('link', { name: 'Create New Graph [ N ]' }).hover();
   await page.getByRole('link', { name: 'Create New Graph [ N ]' }).click();
