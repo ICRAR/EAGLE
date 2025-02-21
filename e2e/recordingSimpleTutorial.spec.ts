@@ -32,23 +32,32 @@ test('recording simple tutorial', async () => {
 
   clickTarget = await page.getByRole('button', { name: 'Graph' })
   await moveMouseCursor(page, clickTarget)
-  // console.log(await clickTarget.boundingBox())
-  await page.pause()
-  await page.getByRole('button', { name: 'Graph' }).hover();
-  await page.getByRole('button', { name: 'Graph' }).click();
+  await page.waitForTimeout(700);
+  await clickTarget.click();
 
+  clickTarget = await page.getByText('New Create New Graph [ N ]')
+  await moveMouseCursor(page, clickTarget)
+  await page.waitForTimeout(300);
+  await clickTarget.hover();
 
-  await page.getByText('New Create New Graph [ N ]').hover();
-  await page.getByRole('link', { name: 'Create New Graph [ N ]' }).hover();
-  await page.getByRole('link', { name: 'Create New Graph [ N ]' }).click();
+  clickTarget = await page.getByRole('link', { name: 'Create New Graph [ N ]' })
+  await moveMouseCursor(page, clickTarget)
+  await page.waitForTimeout(700);
+  await clickTarget.hover();
+  //hover for a moment, then click
+  await page.waitForTimeout(200);
+  await clickTarget.click();
+
+  //enter a name for the new graph
   await page.locator('#inputModalInput').press('ControlOrMeta+a');
   await page.locator('#inputModalInput').pressSequentially('myNewGraph');
-  await page.locator('#inputModalInput').press('Enter');
 
-  await page.pause()
-  // await page.evaluate(() => {
-  //   testing123  
-  // })
-
-  // await page.close();
+  //click ok
+  clickTarget = await page.getByRole('button', { name: 'OK' })
+  await moveMouseCursor(page, clickTarget)
+  await page.waitForTimeout(700);
+  await clickTarget.click();
+  
+  // await page.pause()
+  await page.close();
 });
