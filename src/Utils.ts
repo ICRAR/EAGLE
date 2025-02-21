@@ -318,106 +318,56 @@ export class Utils {
     
     // , successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
     static async httpGet(url: string): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            $.ajax({
-                url: url,
-                success: function(data: string) {
-                    resolve(data);
-                },
-                error: function(xhr, status, error: string){
-                    reject(error);
-                }
-            });
+        return $.ajax({
+            url: url
         });
     }
 
     static async httpGetJSON(url: string, json: object): Promise<object> {
-        return new Promise(async(resolve, reject) => {
-            $.ajax({
-                url : url,
-                type : 'GET',
-                data : JSON.stringify(json),
-                contentType : 'application/json',
-                success : function(obj: object){
-                    resolve(obj);
-                },
-                error: function(xhr, status, error: string){
-                    reject(error);
-                }
-            });
+        return $.ajax({
+            url : url,
+            type : 'GET',
+            data : JSON.stringify(json),
+            contentType : 'application/json'
         });
     }
 
     static async httpPost(url : string, data : string): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            $.ajax({
-                url : url,
-                type : 'POST',
-                data : data,
-                processData: false,  // tell jQuery not to process the data
-                contentType: false,  // tell jQuery not to set contentType
-                success: function(data: string){
-                    resolve(data);
-                },
-                error: function(xhr, status, error: string){
-                    reject(error);
-                }
-            });
+        return $.ajax({
+            url : url,
+            type : 'POST',
+            data : data,
+            processData: false,  // tell jQuery not to process the data
+            contentType: false   // tell jQuery not to set contentType
         });
     }
 
     static async httpPostJSON(url : string, json : object): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            $.ajax({
-                url : url,
-                type : 'POST',
-                data : JSON.stringify(json),
-                contentType : 'application/json',
-                success : function(data : string){
-                    resolve(data);
-                },
-                error : function(xhr, status, error: string){
-                    reject(error);
-                }
-            });
+        return $.ajax({
+            url : url,
+            type : 'POST',
+            data : JSON.stringify(json),
+            contentType : 'application/json'
         });
     }
 
     static async httpPostJSONString(url : string, jsonString : string): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            console.log("httpPostJSONString(", url, ")")
-            $.ajax({
-                url : url,
-                type : 'POST',
-                data : jsonString,
-                contentType : 'application/json',
-                success : function(data : string){
-                    console.log("resolve httpPostJSONString");
-                    resolve(data);
-                },
-                error : function(xhr, status, error: string){
-                    reject(error);
-                }
-            });
+        return $.ajax({
+            url : url,
+            type : 'POST',
+            data : jsonString,
+            contentType : 'application/json'
         });
     }
 
     static async httpPostForm(url : string, formData : FormData): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            return $.ajax({
+        return $.ajax({
                 url : url,
                 type : 'POST',
                 data : formData,
                 processData: false,  // tell jQuery not to process the data
-                contentType: false,  // tell jQuery not to set contentType
-                success : function(data : string){
-                    resolve(data);
-                },
-                error : function(xhr, status, error: string){
-                    reject(error);
-                }
+                contentType: false   // tell jQuery not to set contentType
             });
-        });
     }
 
     static fieldTextToFieldName(text : string) : string {
