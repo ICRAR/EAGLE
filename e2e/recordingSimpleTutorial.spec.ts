@@ -1,17 +1,22 @@
-import { test, expect,chromium } from '@playwright/test';
+import { test, expect,chromium, Page,Browser } from '@playwright/test';
 import { enableMouseCursor, moveMouseCursor } from '../playwrightHelpers';
-// import * as $ from '../static/externals/jquery-3.6.0.min.js'; seems like jquery wont work
 
 test.use({ 
+  viewport: { width: 1920, height: 1080 },
+  contextOptions: {recordVideo: { 
+    dir: "./videos/"},
+    videoSize: { width: 1920, height: 1080 },
+    videosPath: "./videos/"
+  },
   video: {
     mode: 'on',
     size: { width: 1920, height: 1080 }
   },
-  viewport: { width: 1920, height: 1080 },
   launchOptions:{
     slowMo: 700
   }
 });
+
 
 test('recording simple tutorial', async () => {
 
@@ -31,18 +36,16 @@ test('recording simple tutorial', async () => {
   await enableMouseCursor(page);
 
   clickTarget = await page.getByRole('button', { name: 'Graph' })
+  // console.log(clickTarget)
   await moveMouseCursor(page, clickTarget)
-  await page.waitForTimeout(700);
   await clickTarget.click();
 
   clickTarget = await page.getByText('New Create New Graph [ N ]')
   await moveMouseCursor(page, clickTarget)
-  await page.waitForTimeout(300);
   await clickTarget.hover();
 
   clickTarget = await page.getByRole('link', { name: 'Create New Graph [ N ]' })
   await moveMouseCursor(page, clickTarget)
-  await page.waitForTimeout(700);
   await clickTarget.hover();
   //hover for a moment, then click
   await page.waitForTimeout(200);
@@ -55,7 +58,6 @@ test('recording simple tutorial', async () => {
   //click ok
   clickTarget = await page.getByRole('button', { name: 'OK' })
   await moveMouseCursor(page, clickTarget)
-  await page.waitForTimeout(700);
   await clickTarget.click();
   
   // await page.pause()

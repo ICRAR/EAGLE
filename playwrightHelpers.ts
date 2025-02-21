@@ -10,22 +10,26 @@ export async function enableMouseCursor(page){
 }
 
 export async function moveMouseCursor(page, targetElement){
-
-  //readying the new position elements. we cant pass the element itself into the evaluate funtion.
-  const newPos = await targetElement.boundingBox()
-  const newX = await newPos.x + newPos.width / 2
-  const newY = await newPos.y + newPos.height / 2
-
-  await page.evaluate(({newX, newY}) => {
-    //getting the fake cursor element note* the document is only reachable in the evaluate
-    const cursor =  document.getElementById('videoArrowContainer');
-
-    //setting the new position on screen
-    if(cursor){
-      cursor.style.top = newY + 'px';
-      cursor.style.left = newX + 'px';
-    }
-  },{newX, newY})
+  return new Promise<void>(async function(resolve){
+    //readying the new position elements. we cant pass the element itself into the evaluate funtion.
+    const newPos = await targetElement.boundingBox()
+    const newX = await newPos.x + newPos.width / 2
+    const newY = await newPos.y + newPos.height / 2
+  
+    await page.evaluate(({newX, newY}) => {
+      //getting the fake cursor element note* the document is only reachable in the evaluate
+      const cursor =  document.getElementById('videoArrowContainer');
+  
+      //setting the new position on screen
+      if(cursor){
+        cursor.style.top = newY + 'px';
+        cursor.style.left = newX + 'px';
+      }
+    },{newX, newY})
+    
+    await page.waitForTimeout(700);
+    resolve()
+  })
 }
 
 export async function addTextBox(page){
