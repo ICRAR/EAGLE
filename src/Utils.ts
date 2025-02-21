@@ -317,14 +317,14 @@ export class Utils {
     }
     
     // , successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
-    static async httpGet(url : string): Promise<string> {
+    static async httpGet(url: string): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $.ajax({
                 url: url,
-                success: function (data : string) {
+                success: function(data: string) {
                     resolve(data);
                 },
-                error: function(xhr, status, error : string){
+                error: function(xhr, status, error: string){
                     reject(error);
                 }
             });
@@ -332,49 +332,91 @@ export class Utils {
     }
 
     static async httpGetJSON(url: string, json: object): Promise<object> {
-        return $.ajax({
-            url : url,
-            type : 'GET',
-            data : JSON.stringify(json),
-            contentType : 'application/json'
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url : url,
+                type : 'GET',
+                data : JSON.stringify(json),
+                contentType : 'application/json',
+                success : function(obj: object){
+                    resolve(obj);
+                },
+                error: function(xhr, status, error: string){
+                    reject(error);
+                }
+            });
         });
     }
 
     static async httpPost(url : string, data : string): Promise<string> {
-        return $.ajax({
-            url : url,
-            type : 'POST',
-            data : data,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false   // tell jQuery not to set contentType
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url : url,
+                type : 'POST',
+                data : data,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false,  // tell jQuery not to set contentType
+                success: function(data: string){
+                    resolve(data);
+                },
+                error: function(xhr, status, error: string){
+                    reject(error);
+                }
+            });
         });
     }
 
     static async httpPostJSON(url : string, json : object): Promise<string> {
-        return $.ajax({
-            url : url,
-            type : 'POST',
-            data : JSON.stringify(json),
-            contentType : 'application/json'
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url : url,
+                type : 'POST',
+                data : JSON.stringify(json),
+                contentType : 'application/json',
+                success : function(data : string){
+                    resolve(data);
+                },
+                error : function(xhr, status, error: string){
+                    reject(error);
+                }
+            });
         });
     }
 
     static async httpPostJSONString(url : string, jsonString : string): Promise<string> {
-        return $.ajax({
-            url : url,
-            type : 'POST',
-            data : jsonString,
-            contentType : 'application/json'
+        return new Promise(async(resolve, reject) => {
+            console.log("httpPostJSONString(", url, ")")
+            $.ajax({
+                url : url,
+                type : 'POST',
+                data : jsonString,
+                contentType : 'application/json',
+                success : function(data : string){
+                    console.log("resolve httpPostJSONString");
+                    resolve(data);
+                },
+                error : function(xhr, status, error: string){
+                    reject(error);
+                }
+            });
         });
     }
 
     static async httpPostForm(url : string, formData : FormData): Promise<string> {
-        return $.ajax({
-            url : url,
-            type : 'POST',
-            data : formData,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false,  // tell jQuery not to set contentType
+        return new Promise(async(resolve, reject) => {
+            return $.ajax({
+                url : url,
+                type : 'POST',
+                data : formData,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false,  // tell jQuery not to set contentType
+                success : function(data : string){
+                    resolve(data);
+                },
+                error : function(xhr, status, error: string){
+                    reject(error);
+                }
+            });
         });
     }
 
@@ -1654,20 +1696,20 @@ export class Utils {
         return true;
     }
 
-    static downloadFile(error : string, data : string, fileName : string) : void {
-        if (error != null){
-            Utils.showUserMessage("Error", "Error saving the file!");
-            console.error(error);
-            return;
-        }
-
-        // NOTE: this stuff is a hacky way of saving a file locally
-        const blob = new Blob([data]);
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
+    static async downloadFile(data : string, fileName : string) : Promise<void> {
+        return new Promise(async(resolve) => {
+            // NOTE: this stuff is a hacky way of saving a file locally
+            const blob = new Blob([data]);
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            link.onclick = function(){
+                document.body.removeChild(link);
+                resolve();
+            };
+            document.body.appendChild(link);
+            link.click();
+        });
     }
 
 

@@ -132,9 +132,8 @@ export class Translator {
 
         // check if the graph is committed before translation
         if (this._checkGraphModified(eagle)){
-            // use the async function here
-            // TODO: switch back from TEST func here!
-            await eagle.saveGraphTest();
+            // use the async function here, so that we can check isModified after saving
+            await eagle.saveGraph();
             
             // check again if graph is modified
             if (this._checkGraphModified(eagle)){
