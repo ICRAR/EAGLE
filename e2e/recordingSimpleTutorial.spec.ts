@@ -1,13 +1,8 @@
-import { test, expect,chromium, Page,Browser } from '@playwright/test';
+import { test} from '@playwright/test';
 import { enableMouseCursor, moveMouseCursor } from '../playwrightHelpers';
 
 test.use({ 
   viewport: { width: 1920, height: 1080 },
-  contextOptions: {recordVideo: { 
-    dir: "./videos/"},
-    videoSize: { width: 1920, height: 1080 },
-    videosPath: "./videos/"
-  },
   video: {
     mode: 'on',
     size: { width: 1920, height: 1080 }
@@ -18,15 +13,10 @@ test.use({
 });
 
 
-test('recording simple tutorial', async () => {
-
-  const browser = await chromium.launch({
-    headless: false
-  });
-  const context = await browser.newContext();
-  const page = await context.newPage();
+test('Recording a simple tutorial', async ({ page }) => {
   let clickTarget:any = null;
 
+  //this is needed to catch and forward console logs to the test results console in visual studio code
   page.on('console', (msg) => {
     console.log(msg);
   });
@@ -36,7 +26,7 @@ test('recording simple tutorial', async () => {
   await enableMouseCursor(page);
 
   clickTarget = await page.getByRole('button', { name: 'Graph' })
-  // console.log(clickTarget)
+  console.log(clickTarget)
   await moveMouseCursor(page, clickTarget)
   await clickTarget.click();
 
@@ -47,6 +37,7 @@ test('recording simple tutorial', async () => {
   clickTarget = await page.getByRole('link', { name: 'Create New Graph [ N ]' })
   await moveMouseCursor(page, clickTarget)
   await clickTarget.hover();
+  
   //hover for a moment, then click
   await page.waitForTimeout(200);
   await clickTarget.click();
