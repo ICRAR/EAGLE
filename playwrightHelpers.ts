@@ -32,13 +32,21 @@ export async function moveMouseCursor(page, targetElement){
   })
 }
 
-export async function addTextBox(page){
-  await page.evaluate(() => {
-    const bar = document.createElement('div');
-    bar.textContent = 'Chrome is being controlled by automated test software.';
-    bar.style.cssText = 'position: fixed; top: 0; width: 100%; background: lightgrey; color: black; text-align: left; padding: 8px; font-size: 14px; border-bottom: 1px solid grey; z-index: 9999; pointer-events:none;';
-    document.body.style.paddingTop = '30px';
-    document.documentElement.prepend(bar);
+export async function textNotification(page, title, text){
+  return new Promise<void>(async function(resolve){
+    await page.evaluate(({title,text}) => {
+      const bar = document.createElement('div');
+      bar.id = 'playwrightVideoNotification'
+      bar.innerHTML = '<b>' + title + '</br></b>' + text;
+      bar.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #d8ddf0; color: black; text-align: left; padding: 8px; font-size: 14px; border: 1px solid #002349; z-index: 9999; pointer-events:none;';
+      document.body.style.paddingTop = '30px';
+      document.documentElement.prepend(bar);
+      setTimeout(() => {
+        document.getElementById('playwrightVideoNotification')?.remove()
+      }, 1000);
+    },{title,text});
+    page.waitForTimeout(1000);
 
-  });
+    resolve()
+  })
 }
