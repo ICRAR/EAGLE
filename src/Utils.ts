@@ -1728,7 +1728,7 @@ export class Utils {
             // request commit message from the user
             let userString;
             try {
-                userString = Utils.requestUserString("Commit Message", modalMessage, "", false);
+                userString = Utils.requestUserString("Saving to git", modalMessage, "", false);
             } catch (error){
                 reject(error);
                 return;
