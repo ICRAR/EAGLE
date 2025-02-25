@@ -111,6 +111,21 @@ export class TutorialSystem {
             return false
         }
     }
+
+    static findInPalettes(target:string) : void {
+        //expand all palettes
+        const paletteElements = $('#paletteList .accordion .paletteCardWrapper')
+        paletteElements.each(function(){
+            if(!$(this).find('.accordion-collapse').hasClass('show')){
+                $(this).find('.accordion-button')[0].click()
+            }
+        })
+
+        //find and scroll to the vertical location of the target node in the palette list
+        $('#paletteList').animate({
+            scrollTop: $(target).offset().top
+        },10);
+    }
 }
 
 export class Tutorial {

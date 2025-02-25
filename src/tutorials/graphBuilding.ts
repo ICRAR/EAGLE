@@ -6,52 +6,52 @@ import { Setting } from '../Setting';
 
 const newTut = TutorialSystem.newTutorial('Graph Building', 'An introduction to graph building.')
 
-newTut.newTutStep("Welcome to the Graph Building tutorial!", "You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", function(){return $("#logicalGraphParent")})
+// newTut.newTutStep("Welcome to the Graph Building tutorial!", "You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", function(){return $("#logicalGraphParent")})
 
-newTut.newTutStep("Creating a New Graph", "First we are going to create a new graph. Options for creating, loading and saving graphs can be found here. <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
-.setType(TutorialStep.Type.Press)
-.setBackPreFunction(function(){$('.forceShow').removeClass('forceShow');$('.modal').modal("hide");}) //allowing the graph navbar dropdown to hide
+// newTut.newTutStep("Creating a New Graph", "First we are going to create a new graph. Options for creating, loading and saving graphs can be found here. <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
+// .setType(TutorialStep.Type.Press)
+// .setBackPreFunction(function(){$('.forceShow').removeClass('forceShow');$('.modal').modal("hide");}) //allowing the graph navbar dropdown to hide
 
-newTut.newTutStep("Creating a New Graph", "<em>Click on 'New'.</em>", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-item').first()})
-.setType(TutorialStep.Type.Press)
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')}) //keeping the navbar graph dropdown open
-.setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('#createNewGraph').removeClass('forceShow')})//allowing the 'new' drop drop down section to close
-.setBackSkip(true)
+// newTut.newTutStep("Creating a New Graph", "<em>Click on 'New'.</em>", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-item').first()})
+// .setType(TutorialStep.Type.Press)
+// .setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')}) //keeping the navbar graph dropdown open
+// .setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('#createNewGraph').removeClass('forceShow')})//allowing the 'new' drop drop down section to close
+// .setBackSkip(true)
 
-newTut.newTutStep("Creating a New Graph", "<em>Click on 'Create new graph'</em>", function(){return $("#navbarDropdownGraph").parent().find('#createNewGraph')})
-.setType(TutorialStep.Type.Press)
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//keeping the 'new' drop drop down section open as well
-.setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('.dropdown-item').first().parent().addClass('forceShow');TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//force showing both of the navbar graph drop downs
-.setBackSkip(true)
+// newTut.newTutStep("Creating a New Graph", "<em>Click on 'Create new graph'</em>", function(){return $("#navbarDropdownGraph").parent().find('#createNewGraph')})
+// .setType(TutorialStep.Type.Press)
+// .setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//keeping the 'new' drop drop down section open as well
+// .setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('.dropdown-item').first().parent().addClass('forceShow');TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//force showing both of the navbar graph drop downs
+// .setBackSkip(true)
 
-newTut.newTutStep("Creating a new graph", "Then just <em>give it a name and press enter</em>", function(){return $("#inputModalInput")})
-.setWaitType(TutorialStep.Wait.Modal)
-.setType(TutorialStep.Type.Input)
-.setPreFunction(function(){$('.forceShow').removeClass('forceShow')}) //allowing the graph navbar dropdown to hide
-.setBackSkip(true)
+// newTut.newTutStep("Creating a new graph", "Then just <em>give it a name and press enter</em>", function(){return $("#inputModalInput")})
+// .setWaitType(TutorialStep.Wait.Modal)
+// .setType(TutorialStep.Type.Input)
+// .setPreFunction(function(){$('.forceShow').removeClass('forceShow')}) //allowing the graph navbar dropdown to hide
+// .setBackSkip(true)
 
-newTut.newTutStep("Creating a new graph", "<em>And 'Ok' to save!</em>", function(){return $("#inputModal .affirmativeBtn")})
-.setWaitType(TutorialStep.Wait.Modal)
-.setType(TutorialStep.Type.Press)
-.setBackSkip(true)
+// newTut.newTutStep("Creating a new graph", "<em>And 'Ok' to save!</em>", function(){return $("#inputModal .affirmativeBtn")})
+// .setWaitType(TutorialStep.Wait.Modal)
+// .setType(TutorialStep.Type.Press)
+// .setBackSkip(true)
 
-newTut.newTutStep("Graph Model Data", "This button brings up the 'Graph Modal Data' which allows you to add a description for your graph. <em>Try clicking it now to try it out</em>", function(){return $("#openGraphModelDataModal")})
-.setType(TutorialStep.Type.Press)
-.setBackPreFunction(function(){$('.modal').modal("hide");}) //hiding open modals
+// newTut.newTutStep("Graph Model Data", "This button brings up the 'Graph Modal Data' which allows you to add a description for your graph. <em>Try clicking it now to try it out</em>", function(){return $("#openGraphModelDataModal")})
+// .setType(TutorialStep.Type.Press)
+// .setBackPreFunction(function(){$('.modal').modal("hide");}) //hiding open modals
 
-newTut.newTutStep("Editing Graph Descriptions", "You are able to enter a simple first glance and a more detailed description in addition to description nodes in the graph, should you need it.", function(){return $("#modelDataDescription")})
-.setWaitType(TutorialStep.Wait.Modal)
+// newTut.newTutStep("Editing Graph Descriptions", "You are able to enter a simple first glance and a more detailed description in addition to description nodes in the graph, should you need it.", function(){return $("#modelDataDescription")})
+// .setWaitType(TutorialStep.Wait.Modal)
 
-newTut.newTutStep("Other Graph Information", "Most of the other information is automatically filled out when saving a graph, such as the version of EAGLE used for creating it.", function(){return $("#modelDataEagleVersion")})
-.setWaitType(TutorialStep.Wait.Modal)
+// newTut.newTutStep("Other Graph Information", "Most of the other information is automatically filled out when saving a graph, such as the version of EAGLE used for creating it.", function(){return $("#modelDataEagleVersion")})
+// .setWaitType(TutorialStep.Wait.Modal)
 
-newTut.newTutStep("Close the Modal", "<em>Press OK to close the modal and continue the Tutorial.</em>", function(){return $("#modelDataModalOKButton")})
-.setWaitType(TutorialStep.Wait.Modal)
-.setType(TutorialStep.Type.Press)
-.setBackPreFunction(function(){$('#modelDataModal').modal('show')})
+// newTut.newTutStep("Close the Modal", "<em>Press OK to close the modal and continue the Tutorial.</em>", function(){return $("#modelDataModalOKButton")})
+// .setWaitType(TutorialStep.Wait.Modal)
+// .setType(TutorialStep.Type.Press)
+// .setBackPreFunction(function(){$('#modelDataModal').modal('show')})
 
 newTut.newTutStep("Palette Components", "Each of these components in a palette performs a function that can be used in your graph", function(){return $("#palette_0_HelloWorldApp")})
-.setPreFunction(function(){SideWindow.setShown('left', true)})
+.setPreFunction(function(){SideWindow.setShown('left', true); TutorialSystem.findInPalettes('#palette_0_HelloWorldApp');})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(450)
 
