@@ -134,6 +134,10 @@ export class Translator {
 
             // use the async function here, so that we can check isModified after saving
             await eagle.saveGraph();
+
+            // short wait after saving, just to indicate to the user that saving is performed by EAGLE
+            // and that the translation is a separate step
+            await new Promise( resolve => setTimeout(resolve, 2000) );
             
             // check again if graph is modified
             if (this._checkGraphModified(eagle)){
