@@ -591,6 +591,7 @@ export class Eagle {
      * It resets all fields in the editor menu.
      */
     resetEditor = () : void => {
+        console.log('resetting the editor')
         this.selectedObjects([]);
         Eagle.selectedLocation(Eagle.FileType.Unknown);
     }
