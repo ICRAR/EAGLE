@@ -317,17 +317,9 @@ export class Utils {
     }
     
     // , successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
-    static async httpGet(url : string): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            $.ajax({
-                url: url,
-                success: function (data : string) {
-                    resolve(data);
-                },
-                error: function(xhr, status, error : string){
-                    reject(error);
-                }
-            });
+    static async httpGet(url: string): Promise<string> {
+        return $.ajax({
+            url: url
         });
     }
 
@@ -370,12 +362,12 @@ export class Utils {
 
     static async httpPostForm(url : string, formData : FormData): Promise<string> {
         return $.ajax({
-            url : url,
-            type : 'POST',
-            data : formData,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false,  // tell jQuery not to set contentType
-        });
+                url : url,
+                type : 'POST',
+                data : formData,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false   // tell jQuery not to set contentType
+            });
     }
 
     static fieldTextToFieldName(text : string) : string {
@@ -1654,20 +1646,20 @@ export class Utils {
         return true;
     }
 
-    static downloadFile(error : string, data : string, fileName : string) : void {
-        if (error != null){
-            Utils.showUserMessage("Error", "Error saving the file!");
-            console.error(error);
-            return;
-        }
-
-        // NOTE: this stuff is a hacky way of saving a file locally
-        const blob = new Blob([data]);
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
+    static async downloadFile(data : string, fileName : string) : Promise<void> {
+        return new Promise(async(resolve) => {
+            // NOTE: this stuff is a hacky way of saving a file locally
+            const blob = new Blob([data]);
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            link.onclick = function(){
+                document.body.removeChild(link);
+                resolve();
+            };
+            document.body.appendChild(link);
+            link.click();
+        });
     }
 
 
@@ -1736,7 +1728,7 @@ export class Utils {
             // request commit message from the user
             let userString;
             try {
-                userString = Utils.requestUserString("Commit Message", modalMessage, "", false);
+                userString = Utils.requestUserString("Saving to git", modalMessage, "", false);
             } catch (error){
                 reject(error);
                 return;

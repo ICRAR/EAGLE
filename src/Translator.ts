@@ -115,17 +115,35 @@ export class Translator {
      * @param testingMode
      * @param format
      */
-     genPGT = (algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
+     genPGT = async (algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : Promise<void> => {
         const eagle: Eagle = Eagle.getInstance();
 
+        // check if the graph has at least one node
         if (eagle.logicalGraph().getNumNodes() === 0) {
-            Utils.showUserMessage("Error", "Unable to translate. Logical graph has no nodes!");
-            return;
+            throw new Error("Unable to translate. Logical graph has no nodes!");
         }
 
+        // check if the graph has a name
         if (eagle.logicalGraph().fileInfo().name === ""){
-            Utils.showUserMessage("Error", "Unable to translate. Logical graph does not have a name! Please save the graph first.");
-            return;
+            throw new Error("Unable to translate. Logical graph does not have a name! Please save the graph first.");
+        }
+
+        // check if the graph is committed before translation
+        if (this._checkGraphModified(eagle)){
+            Utils.showNotification("Saving graph", "Automatically saving modified graph prior to translation", "info");
+
+            // use the async function here, so that we can check isModified after saving
+            await eagle.saveGraph();
+
+            // short wait after saving, just to indicate to the user that saving is performed by EAGLE
+            // and that the translation is a separate step
+            await new Promise( resolve => setTimeout(resolve, 2000) );
+            
+            // check again if graph is modified
+            if (this._checkGraphModified(eagle)){
+                Utils.showNotification("Unable to Translate", "Please save/commit the graph before attempting translation", "danger");
+                return;
+            }
         }
 
         const translatorURL : string = Setting.findValue(Setting.TRANSLATOR_URL);
@@ -135,13 +153,11 @@ export class Translator {
         this._genPGT(eagle, translatorURL, algorithmName, testingMode, Daliuge.SchemaVersion.OJS);
     }
 
-    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
-        // check if the graph is committed before translation
-        if (eagle.logicalGraph().fileInfo().modified && !Setting.findValue(Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION)){
-            Utils.showNotification("Unable to Translate", "Please save/commit the graph before attempting translation", "danger");
-            return;
-        }
+    private _checkGraphModified = (eagle: Eagle): boolean => {
+        return eagle.logicalGraph().fileInfo().modified && !Setting.findValue(Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION);
+    }
 
+    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
         // clone the logical graph
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
 
