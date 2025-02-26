@@ -113,23 +113,13 @@ export class Repositories {
     };
 
     _addCustomRepository = async (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) => {
-        // add extension to userString to indicate repository service
-        const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
-        if (localStorageKey === null){
-            Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
-            return;
-        }
+        // TODO: add to IndexedDB
 
-        // Adding the repo name into the local browser storage.
-        localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
+        // TODO: add to Repositories
+        //Repositories.repositories.push(newRepo);
 
-        // Reload the repository lists
-        if (repositoryService === Repository.Service.GitHub){
-            await GitHub.refresh();
-        }
-        if (repositoryService === Repository.Service.GitLab){
-            await GitLab.refresh();
-        }
+        // TODO: sort the repository list
+        Repositories.sort();
     }
 
     removeCustomRepository = async (repository : Repository): Promise<void> => {
@@ -163,15 +153,23 @@ export class Repositories {
         // remove from localStorage
         switch(repository.service){
             case Repository.Service.GitHub:
-                localStorage.removeItem(repository.name + ".repository");
-                localStorage.removeItem(repository.name + ".github_repository");
-                localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
-                GitHub.refresh();
+                //localStorage.removeItem(repository.name + ".repository");
+                //localStorage.removeItem(repository.name + ".github_repository");
+                //localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
+
+                // TODO: remove from IndexedDB
+
+                // TODO: remove from Repositories.repositories
+
                 break;
             case Repository.Service.GitLab:
-                localStorage.removeItem(repository.name + ".gitlab_repository");
-                localStorage.removeItem(repository.name + "|" + repository.branch + ".gitlab_repository_and_branch");
-                GitLab.refresh();
+                //localStorage.removeItem(repository.name + ".gitlab_repository");
+                //localStorage.removeItem(repository.name + "|" + repository.branch + ".gitlab_repository_and_branch");
+                
+                // TODO: remove from IndexedDB
+
+                // TODO: remove from Repositories.repositories
+
                 break;
             default:
                 Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");

@@ -153,7 +153,6 @@ $(function(){
     document.onkeydown = KeyboardShortcut.processKey;
     document.onkeyup = KeyboardShortcut.processKey;
 
-    EagleStorage.init();
     loadRepos();
 
     // auto load a tutorial, if specified on the url
@@ -261,6 +260,9 @@ $(function(){
 });
 
 async function loadRepos() {
+    // TODO: here is not the right place to put this! but async!
+    await EagleStorage.init();
+
     // Get the list of git repos
     if (UiModeSystem.getActiveUiMode().getName()==='Student'){
         GitHub.loadStudentRepoList();

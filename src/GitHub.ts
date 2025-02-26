@@ -22,6 +22,7 @@
 #
 */
 
+import { EagleStorage } from './EagleStorage';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
@@ -30,33 +31,12 @@ import { Setting } from './Setting';
 import { Utils } from './Utils';
 
 export class GitHub {
-    /**
-     * Loads the GitHub repository list.
-     */
-    static async refresh() {
-        // fetch repositories from server
-        const repositories: Repository[] = await GitHub.loadRepoList();
-
-        // remove all GitHub repos from the list of repositories
-        for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-            if (Repositories.repositories()[i].service === Repository.Service.GitHub){
-                Repositories.repositories.splice(i, 1);
-            }
-        }
-
-        // add new repositories
-        Repositories.repositories.push(...repositories);
-
-        // sort the repository list
-        Repositories.sort();
-    }
-
     static async loadRepoList(): Promise<Repository[]> {
         return new Promise(async(resolve, reject) => {
             const repositories: Repository[] = [];
 
-            // find and add custom gitlab repositories from browser storage
-            const customRepositories = Repositories.listCustomRepositories(Repository.Service.GitHub);
+            // find repos in IndexedDB
+            const customRepositories = await EagleStorage.listCustomRepositories(Repository.Service.GitHub);
             repositories.push(...customRepositories);
 
             let data;

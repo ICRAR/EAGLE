@@ -22,41 +22,20 @@
 #
 */
 
-import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFolder } from './RepositoryFolder';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
+import { EagleStorage } from './EagleStorage';
 
-export class GitLab {
-    /**
-     * Loads the GitLab repository list.
-     */
-    static async refresh() {
-        // fetch repositories from server
-        const repositories: Repository[] = await GitLab.loadRepoList();
-
-        // remove all GitLab repos from the list of repositories
-        for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-            if (Repositories.repositories()[i].service === Repository.Service.GitLab){
-                Repositories.repositories.splice(i, 1);
-            }
-        }
-
-        // add new repositories
-        Repositories.repositories.push(...repositories);
-
-        // sort the repository list
-        Repositories.sort();
-    }
-    
+export class GitLab {    
     static async loadRepoList(): Promise<Repository[]> {
         return new Promise(async(resolve) => {
             const repositories: Repository[] = [];
 
             // find and add custom gitlab repositories from browser storage
-            const customRepositories = Repositories.listCustomRepositories(Repository.Service.GitLab);
+            const customRepositories = await EagleStorage.listCustomRepositories(Repository.Service.GitLab);
             repositories.push(...customRepositories);
 
             // fetch additional gitlab repositories from the server

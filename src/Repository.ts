@@ -46,6 +46,10 @@ export class Repository {
         return this.name + " (" + this.branch + ")";
     }
 
+    setId = (id: RepositoryId) : void => {
+        this._id = id;
+    }
+
     select = () : void => {
         console.log("select(" + this.name + ")");
 
