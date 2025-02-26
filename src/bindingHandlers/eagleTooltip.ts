@@ -92,7 +92,7 @@ ko.bindingHandlers.eagleTooltip = {
 
             //in manual trigger mode the delay attribute of the bootstrap tooltip no longer works, we need to do this ourselves
             setTimeout(function(){
-                if(stillHovering && !GraphRenderer.draggingPort && !eagle.draggingPaletteNode){
+                if(stillHovering && !GraphRenderer.draggingPort && !GraphRenderer.draggingPaletteNode){
                     // make sure there is never more than one tooltip open
                     $(".tooltip").remove();
                     jQueryElement.tooltip('show');
@@ -108,7 +108,7 @@ ko.bindingHandlers.eagleTooltip = {
                     
                     //enter listener on the tooltip itself, we attach this when the tooltip is shown
                     $('.tooltip').on('mouseenter', function () {
-                        if(GraphRenderer.draggingPort || eagle.draggingPaletteNode){
+                        if(GraphRenderer.draggingPort || GraphRenderer.draggingPaletteNode){
                             jQueryElement.tooltip('hide');
                         }
                         stillHovering = true

@@ -546,8 +546,7 @@ export class Tutorial {
 
     //helpers
     openSettingsSection = (tab: string): void => {
-        const eagle = Eagle.getInstance()
-        eagle.openSettings()
+        Utils.showSettingsModal();
         $(':focus').trigger("blur")
         $(tab).trigger("click")
     }
