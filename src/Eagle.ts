@@ -591,9 +591,11 @@ export class Eagle {
      * It resets all fields in the editor menu.
      */
     resetEditor = () : void => {
-        console.log('resetting the editor')
-        this.selectedObjects([]);
-        Eagle.selectedLocation(Eagle.FileType.Unknown);
+        setTimeout(() => {
+            console.log('resetting the editor')
+            this.selectedObjects([]);
+            Eagle.selectedLocation(Eagle.FileType.Unknown);
+        }, 100);
     }
 
     // if selectedObjects contains nothing but one node, return the node, else null
@@ -629,6 +631,7 @@ export class Eagle {
     setSelection = (selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
         Eagle.selectedLocation(selectedLocation);
         GraphRenderer.clearPortPeek()
+        console.log('setting selection')
 
         if (selection === null){
             this.selectedObjects([]);

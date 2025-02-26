@@ -53,7 +53,7 @@ const newTut = TutorialSystem.newTutorial('Graph Building', 'An introduction to 
 newTut.newTutStep("Palette Components", "Each of these components in a palette performs a function that can be used in your graph", function(){return $("#palette_0_HelloWorldApp")})
 .setPreFunction(function(){SideWindow.setShown('left', true); TutorialSystem.findInPalettes('#palette_0_HelloWorldApp');})
 .setWaitType(TutorialStep.Wait.Delay)
-.setDelayAmount(450)
+.setDelayAmount(500)
 
 newTut.newTutStep("Adding base components into the graph", "To add one into the graph, simply click on the icon or drag the component into the graph.<em> Click on the icon to continue.</em>", function(){return $("#addPaletteNodeHelloWorldApp")})
 .setType(TutorialStep.Type.Press)
