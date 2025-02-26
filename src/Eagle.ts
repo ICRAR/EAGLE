@@ -4306,8 +4306,8 @@ export class Eagle {
             let randomY
 
             if (this.logicalGraph().getNumNodes() === 0){
-                //if there are no nodes in the graph we will put the new node in the center of the canvas
-                randomX = minX + (maxX - minX)/2
+                //if there are no nodes in the graph we will put the new node to the left of the center of the canvas
+                randomX = minX + (maxX - minX)/4
                 randomY = minY + (maxY - minY)/2
             }else{
                 // choose random position within minimums and maximums determined above
