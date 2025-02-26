@@ -33,6 +33,7 @@ import { CategoryData } from './CategoryData';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
+import { EagleStorage } from "./EagleStorage";
 import { Errors } from './Errors';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
@@ -78,6 +79,7 @@ $(function(){
     (<any>window).Daliuge = Daliuge;
     (<any>window).Eagle = Eagle;
     (<any>window).EagleConfig = EagleConfig;
+    (<any>window).EagleStorage = EagleStorage;
     (<any>window).Errors = Errors;
     (<any>window).GraphConfig = GraphConfig;
     (<any>window).GraphConfigurationsTable = GraphConfigurationsTable;
@@ -151,6 +153,7 @@ $(function(){
     document.onkeydown = KeyboardShortcut.processKey;
     document.onkeyup = KeyboardShortcut.processKey;
 
+    EagleStorage.init();
     loadRepos();
 
     // auto load a tutorial, if specified on the url

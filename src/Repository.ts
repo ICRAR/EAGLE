@@ -187,6 +187,17 @@ export class Repository {
 
         return fileNameA.toLowerCase() > fileNameB.toLowerCase() ? 1 : -1;
     }
+
+    public static toJson(repository: Repository) : object {
+        const result : any = {};
+
+        result.id = repository._id;
+        result.service = repository.service;
+        result.name = repository.name;
+        result.branch = repository.branch;
+
+        return result;
+    }
 }
 
 export namespace Repository {
