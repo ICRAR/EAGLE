@@ -5,6 +5,7 @@ import { Utils } from './Utils';
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { GraphRenderer } from "./GraphRenderer";
+import { Tutorial, TutorialSystem } from "./Tutorial";
 
 export class SideWindow {
     // The width remains on the sidewindow, this is because when we are dragging the width of a side window, there are frequent changes to the width. 
@@ -18,6 +19,11 @@ export class SideWindow {
     }
 
     static toggleShown = (window:string): void => {
+        if(TutorialSystem.activeTut){
+            //if a tutorial is active, the arrow keys are used for navigating through steps
+            return
+        }
+        
         SideWindow.toggleTransition()
 
         if(window === 'left'){

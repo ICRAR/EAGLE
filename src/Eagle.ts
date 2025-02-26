@@ -605,8 +605,10 @@ export class Eagle {
      * It resets all fields in the editor menu.
      */
     resetEditor = () : void => {
-        this.selectedObjects([]);
-        Eagle.selectedLocation(Eagle.FileType.Unknown);
+        setTimeout(() => {
+            this.selectedObjects([]);
+            Eagle.selectedLocation(Eagle.FileType.Unknown);
+        }, 100);
     }
 
     // if selectedObjects contains nothing but one node, return the node, else null
@@ -4433,9 +4435,18 @@ export class Eagle {
                 maxY = maxY + 300
             }
 
-            // choose random position within minimums and maximums determined above
-            const randomX = Math.floor(Math.random() * (maxX - minX + 1) + minX);
-            const randomY = Math.floor(Math.random() * (maxY - minY + 1) + minY);
+            let randomX
+            let randomY
+
+            if (this.logicalGraph().getNumNodes() === 0){
+                //if there are no nodes in the graph we will put the new node to the left of the center of the canvas
+                randomX = minX + (maxX - minX)/4
+                randomY = minY + (maxY - minY)/2
+            }else{
+                // choose random position within minimums and maximums determined above
+                randomX = Math.floor(Math.random() * (maxX - minX + 1) + minX);
+                randomY = Math.floor(Math.random() * (maxY - minY + 1) + minY);
+            }
 
             x = randomX;
             y = randomY;
