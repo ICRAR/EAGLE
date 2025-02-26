@@ -45,8 +45,7 @@ export async function textNotification(page, title, text){
         document.getElementById('playwrightVideoNotification')?.remove()
       }, 1000);
     },{title,text});
-    page.waitForTimeout(1000);
-
+    await page.waitForTimeout(1000);
     resolve()
   })
 }
