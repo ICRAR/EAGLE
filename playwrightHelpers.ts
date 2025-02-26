@@ -17,7 +17,7 @@ export async function moveMouseCursor(page, targetElement){
     const newY = await newPos.y + newPos.height / 2
   
     await page.evaluate(({newX, newY}) => {
-      //getting the fake cursor element note* the document is only reachable in the evaluate
+      //getting the fake cursor element note* the document is only reachable in the evaluate function
       const cursor =  document.getElementById('videoArrowContainer');
   
       //setting the new position on screen
@@ -34,18 +34,27 @@ export async function moveMouseCursor(page, targetElement){
 
 export async function textNotification(page, title, text){
   return new Promise<void>(async function(resolve){
-    await page.evaluate(({title,text}) => {
+
+    //the duration for which the textbox will be shown, the test pauses while the textbox is shown.
+    const timeoutDuration = 2000;
+
+    await page.evaluate(({title,text,timeoutDuration}) => {
+      //creating and attatching a text box with the requested text note* the document is only reachable in the evaluate function
       const bar = document.createElement('div');
       bar.id = 'playwrightVideoNotification'
       bar.innerHTML = '<b>' + title + '</br></b>' + text;
       bar.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #d8ddf0; color: black; text-align: left; padding: 8px; font-size: 14px; border: 1px solid #002349; z-index: 9999; pointer-events:none;';
       document.body.style.paddingTop = '30px';
       document.documentElement.prepend(bar);
+
+      //remove the text box after a certain time has passed
       setTimeout(() => {
         document.getElementById('playwrightVideoNotification')?.remove()
-      }, 1000);
-    },{title,text});
-    await page.waitForTimeout(1000);
+      }, timeoutDuration);
+    },{title,text,timeoutDuration});
+    //we will resolve the function after the same time has passed to continue the test
+    //resolve is not reachable from inside the evaluate and i wasnt able to pass it in.
+    await page.waitForTimeout(timeoutDuration);
     resolve()
   })
 }
