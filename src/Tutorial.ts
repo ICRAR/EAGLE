@@ -122,10 +122,12 @@ export class TutorialSystem {
         })
 
         //find and scroll to the vertical location of the target node in the palette list
-        const newScrollPos = $(target).position().top - 100; //the position of the target node in the palette list minus an offset 
-        $('#paletteList').animate({
-            scrollTop: newScrollPos
-        },10);
+        setTimeout(() => {
+            const newScrollPos = $(target).position().top - 100; //the position of the target node in the palette list minus an offset 
+            $('#paletteList').animate({
+                scrollTop: newScrollPos
+            },10);
+        }, 100);
     }
 }
 
