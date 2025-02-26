@@ -122,8 +122,9 @@ export class TutorialSystem {
         })
 
         //find and scroll to the vertical location of the target node in the palette list
+        const newScrollPos = $(target).position().top - 100; //the position of the target node in the palette list minus an offset 
         $('#paletteList').animate({
-            scrollTop: $(target).offset().top
+            scrollTop: newScrollPos
         },10);
     }
 }
