@@ -41,8 +41,7 @@ import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
 import { PaletteInfo } from './PaletteInfo';
-import { Repository } from './Repository';
-import { RepositoryFile } from "./RepositoryFile";
+import { Repository, RepositoryCommit } from './Repository';
 import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
 import { ParameterTable } from "./ParameterTable";
@@ -81,12 +80,12 @@ export class Utils {
         return Utils._uuidv4() as GraphConfig.Id;
     }
 
-    static generateRepositoryId(): Repository.Id {
-        return Utils._uuidv4() as Repository.Id;
+    static generateRepositoryId(): RepositoryId {
+        return Utils._uuidv4() as RepositoryId;
     }
 
-    static generateRepositoryFileId(): RepositoryFile.Id {
-        return Utils._uuidv4() as RepositoryFile.Id;
+    static generateRepositoryFileId(): RepositoryFileId {
+        return Utils._uuidv4() as RepositoryFileId;
     }
 
     /**
@@ -186,16 +185,20 @@ export class Utils {
     /**
      * Create a new diagram (graph, palette, config).
      */
-    static newDiagram(fileType : Eagle.FileType, callbackAction : (name : string) => void ) : void {
-        const defaultName: string = Utils.generateName(fileType);
+    static async requestDiagramFilename(fileType : Eagle.FileType): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            const defaultName: string = Utils.generateName(fileType);
 
-        Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false, (completed : boolean, userString : string) : void => {
-            if (!completed)
-            {   // Cancelling action.
+            let userString;
+            try {
+                userString = await Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false);
+            } catch(error) {
+                reject(error);
                 return;
             }
+
             if (userString === ""){
-            Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
+                reject( "Specified name is not valid for new " + fileType);
                 return;
             }
 
@@ -204,8 +207,7 @@ export class Utils {
                 userString = userString + "." + Utils.getDiagramExtension(fileType);
             }
 
-            // Callback.
-            callbackAction(userString);
+            resolve(userString);
         });
     }
 
@@ -314,121 +316,58 @@ export class Utils {
         return Daliuge.FieldUsage.NoPort;
     }
     
-    static httpGet(url : string, successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
-        $.ajax({
-            url: url,
-            success: function (data : string) {
-                successCallback(data);
-            },
-            error: function(xhr, status, error : string){
-                errorCallback(error);
-            }
+    // , successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
+    static async httpGet(url: string): Promise<string> {
+        return $.ajax({
+            url: url
         });
     }
 
-    static httpGetJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
-        $.ajax({
+    static async httpGetJSON(url: string, json: object): Promise<object> {
+        return $.ajax({
             url : url,
             type : 'GET',
             data : JSON.stringify(json),
-            contentType : 'application/json',
-            success : function(data : string) {
-                callback(null, data);
-            },
-            error: function(xhr, status, error : string) {
-                callback(error, null);
-            }
+            contentType : 'application/json'
         });
     }
 
-    static httpPost(url : string, data : string, callback : (error : string | null, data : string) => void) : void {
-        $.ajax({
+    static async httpPost(url : string, data : string): Promise<string> {
+        return $.ajax({
             url : url,
             type : 'POST',
             data : data,
             processData: false,  // tell jQuery not to process the data
-            contentType: false,  // tell jQuery not to set contentType
-            success : function(data : string) {
-                callback(null, data);
-            },
-            error: function(xhr, status, error : string) {
-                callback(error, null);
-            }
+            contentType: false   // tell jQuery not to set contentType
         });
     }
 
-    // TODO: gradually we should move to using the function below (httpPostJSONWithErrorHandler)
-    static httpPostJSON(url : string, json : object, callback : (error : string, data : string) => void) : void {
-        $.ajax({
+    static async httpPostJSON(url : string, json : object): Promise<string> {
+        return $.ajax({
             url : url,
             type : 'POST',
             data : JSON.stringify(json),
-            contentType : 'application/json',
-            success : function(data : string) {
-                callback(null, data);
-            },
-            error: function(xhr, status, error : string) {
-                if (typeof xhr.responseJSON === 'undefined'){
-                    callback(error, null);
-                } else {
-                    callback(xhr.responseJSON.error, null);
-                }
-            }
+            contentType : 'application/json'
         });
     }
 
-    static httpPostJSONWithErrorHandler(url : string, json : object, successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
-        $.ajax({
-            url : url,
-            type : 'POST',
-            data : JSON.stringify(json),
-            contentType : 'application/json',
-            success : function(data : string) {
-                successCallback(data);
-            },
-            error: function(xhr, status, error : string) {
-                if (typeof xhr.responseJSON === 'undefined'){
-                    errorCallback(error);
-                } else {
-                    errorCallback(xhr.responseJSON.error);
-                }
-            }
-        });
-    }
-
-    static httpPostJSONString(url : string, jsonString : string, callback : (error : string, data : string) => void) : void {
-        $.ajax({
+    static async httpPostJSONString(url : string, jsonString : string): Promise<string> {
+        return $.ajax({
             url : url,
             type : 'POST',
             data : jsonString,
-            contentType : 'application/json',
-            success : function(data : string) {
-                callback(null, data);
-            },
-            error: function(xhr, status, error : string) {
-                if (typeof xhr.responseJSON === 'undefined'){
-                    callback(error, null);
-                } else {
-                    callback(xhr.responseJSON.error, null);
-                }
-            }
+            contentType : 'application/json'
         });
     }
 
-    static httpPostForm(url : string, formData : FormData, callback : (error : string, data : string) => void) : void {
-        $.ajax({
-            url : url,
-            type : 'POST',
-            data : formData,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false,  // tell jQuery not to set contentType
-            success : function(data : string) {
-                callback(null, data);
-            },
-            error: function(xhr, status, error : string){
-                callback(error + " " + xhr.responseText, null);
-            }
-        });
+    static async httpPostForm(url : string, formData : FormData): Promise<string> {
+        return $.ajax({
+                url : url,
+                type : 'POST',
+                data : formData,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false   // tell jQuery not to set contentType
+            });
     }
 
     static fieldTextToFieldName(text : string) : string {
@@ -507,173 +446,239 @@ export class Utils {
         });
     }
 
-    static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, callback : (completed : boolean, userString : string) => void ) : void {
-        $('#inputModalTitle').text(title);
-        $('#inputModalMessage').html(message);
-        $('#inputModalInput').attr('type', isPassword ? 'password' : 'text');
+    static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $('#inputModalTitle').text(title);
+            $('#inputModalMessage').html(message);
+            $('#inputModalInput').attr('type', isPassword ? 'password' : 'text');
 
-        $('#inputModalInput').val(defaultString);
+            $('#inputModalInput').val(defaultString);
 
-        // store data about the choices, callback, result on the modal HTML element
-        // so that the info is available to event handlers
-        $('#inputModal').data('completed', false);
-        $('#inputModal').data('callback', callback);
-        $('#inputModal').data('returnType', "string");
-
-        $('#inputModal').modal("toggle");
-    }
-
-    static requestUserText(title : string, message : string, defaultText: string, callback : (completed : boolean, userText : string) => void) : void {
-        $('#inputTextModalTitle').text(title);
-        $('#inputTextModalMessage').html(message);
-
-        $('#inputTextModalInput').val(defaultText);
-
-        // store the callback, result on the modal HTML element
-        // so that the info is available to event handlers
-        $('#inputTextModal').data('completed', false);
-        $('#inputTextModal').data('callback', callback);
-
-        $('#inputTextModal').modal("toggle");
-    }
-
-    static requestUserNumber(title : string, message : string, defaultNumber: number, callback : (completed : boolean, userNumber : number) => void ) : void {
-        $('#inputModalTitle').text(title);
-        $('#inputModalMessage').html(message);
-        $('#inputModalInput').val(defaultNumber);
-
-        // store data about the choices, callback, result on the modal HTML element
-        // so that the info is available to event handlers
-        $('#inputModal').data('completed', false);
-        $('#inputModal').data('callback', callback);
-        $('#inputModal').data('returnType', "number");
-
-        $('#inputModal').modal("toggle");
-    }
-
-    static requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string, callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void ) : void {
-        $('#choiceModalTitle').text(title);
-        $('#choiceModalMessage').html(message);
-        $('#choiceModalCustomChoiceText').text(customChoiceText);
-        $('#choiceModalString').val("");
-
-        // remove existing options from the select tag
-        $('#choiceModalSelect').empty();
-
-        // add options to the modal select tag
-        for (let i = 0 ; i < choices.length ; i++){
-            $('#choiceModalSelect').append($('<option>', {
-                value: i,
-                text: choices[i]
-            }));
-        }
-
-        // pre-selected the currently selected index
-        $('#choiceModalSelect').val(selectedChoiceIndex);
-
-        // add the custom choice select option
-        if (allowCustomChoice){
-            $('#choiceModalSelect').append($('<option>', {
-                value: choices.length,
-                text: "Custom (enter below)"
-            }));
-        }
-
-        // if no choices were supplied, hide the select
-        $('#choiceModalStringRow').toggle(allowCustomChoice);
-
-        // store data about the choices, callback, result on the modal HTML element
-        // so that the info is available to event handlers
-        $('#choiceModal').data('completed', false);
-        $('#choiceModal').data('callback', callback);
-        $('#choiceModal').data('choices', choices);
-
-        // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
-        $('#choiceModalSelect').trigger('change');
-        $('#choiceModal').modal("toggle");
-        $('#choiceModalSelect').click()
-    }
-
-    static requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting, callback : (confirmed : boolean) => void ) : void {
-        $('#confirmModalTitle').text(title);
-        $('#confirmModalMessage').html(message);
-        $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
-        $('#confirmModalNegativeAnswer').text(negativeAnswer);
-        
-        $('#confirmModalDontShowAgain button').off()
-        if(confirmSetting === null){
-            $('#confirmModalDontShowAgain').hide()
-        }else{
-            $('#confirmModalDontShowAgain').show()
-            $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
-            $('#confirmModalDontShowAgain button').on('click', function(){
-                confirmSetting.toggle();
-                if($('#confirmModalDontShowAgain button').text() === 'check_box_outline_blank'){
-                    $('#confirmModalDontShowAgain button').text('check_box')
-                }else{
-                    $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
+            // store data about the choices, callback, result on the modal HTML element
+            // so that the info is available to event handlers
+            $('#inputModal').data('completed', false);
+            $('#inputModal').data('callback', (completed : boolean, userString : string): void => {
+                if (!completed){
+                    reject();
+                } else {
+                    resolve(userString);
                 }
-            })
-        }
-        
-        $('#confirmModal').data('callback', callback);
+            });
+            $('#inputModal').data('returnType', "string");
 
-        $('#confirmModal').modal("toggle");
+            $('#inputModal').modal("toggle");
+        });
     }
 
-    static requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, fileType: Eagle.FileType, callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
-        $('#gitCommitModal').data('completed', false);
-        $('#gitCommitModal').data('fileType', fileType);
-        $('#gitCommitModal').data('callback', callback);
-        $('#gitCommitModal').data('repositories', repositories);
-        $('#gitCommitModal').modal("toggle");
+    static requestUserText(title : string, message : string, defaultText: string) : Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $('#inputTextModalTitle').text(title);
+            $('#inputTextModalMessage').html(message);
 
-        //
-        let defaultRepositoryService: Repository.Service = Repository.Service.Unknown;
-        if (defaultRepository !== null){
-            defaultRepositoryService = defaultRepository.service;
-        }
+            $('#inputTextModalInput').val(defaultText);
 
-        // remove existing options from the repository service select tag
-        $('#gitCommitModalRepositoryServiceSelect').empty();
+            // store the callback, result on the modal HTML element
+            // so that the info is available to event handlers
+            $('#inputTextModal').data('completed', false);
+            $('#inputTextModal').data('callback', (completed : boolean, userText : string) => {
+                if (!completed){
+                    reject();
+                } else {
+                    resolve(userText);
+                }
+            });
 
-        // add options to the repository service select tag
-        $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
-            value: Repository.Service.GitHub,
-            text: Repository.Service.GitHub,
-            selected: defaultRepositoryService === Repository.Service.GitHub
-        }));
-        $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
-            value: Repository.Service.GitLab,
-            text: Repository.Service.GitLab,
-            selected: defaultRepositoryService === Repository.Service.GitLab
-        }));
-
-        Utils.updateGitCommitRepositoriesList(repositories, defaultRepository);
-
-        $('#gitCommitModalFilePathInput').val(filePath);
-        $('#gitCommitModalFileNameInput').val(fileName);
-
-        // validate fileName input
-        Modals.validateCommitModalFileNameInputText();
+            $('#inputTextModal').modal("toggle");
+        });
     }
 
-    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[], callback: (completed: boolean, field: Field) => void) : void {
-        eagle.currentField(field)
+    static requestUserNumber(title : string, message : string, defaultNumber: number) : Promise<number> {
+        return new Promise(async(resolve, reject) => {
+            $('#inputModalTitle').text(title);
+            $('#inputModalMessage').html(message);
+            $('#inputModalInput').val(defaultNumber);
 
-        $('#editFieldModal').data('completed', false);
-        $('#editFieldModal').data('callback', callback);
-        $('#editFieldModal').data('choices', choices);
-        $('#editFieldModal').modal("toggle");
+            // store data about the choices, callback, result on the modal HTML element
+            // so that the info is available to event handlers
+            $('#inputModal').data('completed', false);
+            $('#inputModal').data('callback', (completed : boolean, userNumber : number) => {
+                if (!completed){
+                    reject();
+                } else {
+                    resolve(userNumber);
+                }
+            });
+            $('#inputModal').data('returnType', "number");
+
+            $('#inputModal').modal("toggle");
+        });
     }
 
-    static requestUserAddCustomRepository(callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) => void) : void {
-        $('#gitCustomRepositoryModalRepositoryNameInput').val("");
-        $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
+    // , callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void
+    static async requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $('#choiceModalTitle').text(title);
+            $('#choiceModalMessage').html(message);
+            $('#choiceModalCustomChoiceText').text(customChoiceText);
+            $('#choiceModalString').val("");
 
-        $('#gitCustomRepositoryModal').data('completed', false);
-        $('#gitCustomRepositoryModal').data('callback', callback);
-        $('#gitCustomRepositoryModal').modal("toggle");
+            // remove existing options from the select tag
+            $('#choiceModalSelect').empty();
+
+            // add options to the modal select tag
+            for (let i = 0 ; i < choices.length ; i++){
+                $('#choiceModalSelect').append($('<option>', {
+                    value: i,
+                    text: choices[i]
+                }));
+            }
+
+            // pre-selected the currently selected index
+            $('#choiceModalSelect').val(selectedChoiceIndex);
+
+            // add the custom choice select option
+            if (allowCustomChoice){
+                $('#choiceModalSelect').append($('<option>', {
+                    value: choices.length,
+                    text: "Custom (enter below)"
+                }));
+            }
+
+            // if no choices were supplied, hide the select
+            $('#choiceModalStringRow').toggle(allowCustomChoice);
+
+            // store data about the choices, callback, result on the modal HTML element
+            // so that the info is available to event handlers
+            $('#choiceModal').data('completed', false);
+            $('#choiceModal').data('callback', function(completed: boolean, choice: string): void {
+                if (completed){
+                    resolve(choice);
+                } else {
+                    reject("User aborted")
+                }
+            });
+            $('#choiceModal').data('choices', choices);
+
+            // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
+            $('#choiceModalSelect').trigger('change');
+            $('#choiceModal').modal("toggle");
+            $('#choiceModalSelect').click()
+        });
+    }
+
+    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<void> {
+        return new Promise(async(resolve, reject) => {
+            $('#confirmModalTitle').text(title);
+            $('#confirmModalMessage').html(message);
+            $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
+            $('#confirmModalNegativeAnswer').text(negativeAnswer);
+
+            $('#confirmModalDontShowAgain button').off()
+            if(confirmSetting === null){
+                $('#confirmModalDontShowAgain').hide()
+            }else{
+                $('#confirmModalDontShowAgain').show()
+                $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
+                $('#confirmModalDontShowAgain button').on('click', function(){
+                    confirmSetting.toggle();
+                    if($('#confirmModalDontShowAgain button').text() === 'check_box_outline_blank'){
+                        $('#confirmModalDontShowAgain button').text('check_box')
+                    }else{
+                        $('#confirmModalDontShowAgain button').text('check_box_outline_blank')
+                    }
+                })
+            }
+
+            $('#confirmModal').data('callback', function(completed: boolean){
+                if (completed){
+                    resolve();
+                } else {
+                    reject("User aborted")
+                }
+            });
+
+            $('#confirmModal').modal("toggle");
+        });
+    }
+
+    // , callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
+    static async requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, fileType: Eagle.FileType): Promise<RepositoryCommit> {
+        return new Promise(async(resolve, reject) => {
+            $('#gitCommitModal').data('completed', false);
+            $('#gitCommitModal').data('fileType', fileType);
+            $('#gitCommitModal').data('callback', function(completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string): void {
+                if (completed){
+                    resolve(new RepositoryCommit(repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage));
+                } else {
+                    reject("User aborted");
+                }
+            });
+            $('#gitCommitModal').data('repositories', repositories);
+            $('#gitCommitModal').modal("toggle");
+
+            //
+            let defaultRepositoryService: Repository.Service = Repository.Service.Unknown;
+            if (defaultRepository !== null){
+                defaultRepositoryService = defaultRepository.service;
+            }
+
+            // remove existing options from the repository service select tag
+            $('#gitCommitModalRepositoryServiceSelect').empty();
+
+            // add options to the repository service select tag
+            $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
+                value: Repository.Service.GitHub,
+                text: Repository.Service.GitHub,
+                selected: defaultRepositoryService === Repository.Service.GitHub
+            }));
+            $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
+                value: Repository.Service.GitLab,
+                text: Repository.Service.GitLab,
+                selected: defaultRepositoryService === Repository.Service.GitLab
+            }));
+
+            Utils.updateGitCommitRepositoriesList(repositories, defaultRepository);
+
+            $('#gitCommitModalFilePathInput').val(filePath);
+            $('#gitCommitModalFileNameInput').val(fileName);
+
+            // validate fileName input
+            Modals.validateCommitModalFileNameInputText();
+        });
+    }
+
+    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[]): Promise<Field> {
+        return new Promise(async(resolve, reject) => {
+            eagle.currentField(field)
+
+            $('#editFieldModal').data('completed', false);
+            $('#editFieldModal').data('callback', (completed: boolean, field: Field): void => {
+                if (!completed){
+                    reject();
+                } else {
+                    resolve(field);
+                }
+            });
+            $('#editFieldModal').data('choices', choices);
+            $('#editFieldModal').modal("toggle");
+        });
+    }
+
+    static requestUserAddCustomRepository(): Promise<Repository> {
+        return new Promise(async(resolve, reject) => {
+            $('#gitCustomRepositoryModalRepositoryNameInput').val("");
+            $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
+
+            $('#gitCustomRepositoryModal').data('completed', false);
+            $('#gitCustomRepositoryModal').data('callback', (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) => {
+                if (!completed){
+                    reject();
+                } else {
+                    resolve(new Repository(repositoryService, repositoryName, repositoryBranch, false));
+                }
+            });
+            $('#gitCustomRepositoryModal').modal("toggle");
+        });
     }
 
     static validateCustomRepository() : boolean {
@@ -781,7 +786,7 @@ export class Utils {
         palette.expanded(paletteListItem.expanded);
     }
 
-    static showPalettesModal(eagle: Eagle) : void {
+    static async showPalettesModal(eagle: Eagle): Promise<void> {
         const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
         if (token === null || token === "") {
@@ -802,27 +807,27 @@ export class Utils {
 
         $('#explorePalettesModal').modal("toggle");
 
-        Utils.httpPostJSON('/getExplorePalettes', jsonData, function(error:string, data:any){
+        let data: any;
+        try {
+            data = await Utils.httpPostJSON('/getExplorePalettes', jsonData);
+        } catch (error) {
+            // NOTE: if we immediately get an error, the explore palettes modal may still be transitioning to visible,
+            //       so we wait here for a second before hiding the modal and displaying an error
+            setTimeout(function(){
+                $('#explorePalettesModal').modal("toggle");
+                Utils.showUserMessage("Error", "Unable to fetch list of palettes");
+            }, 1000);
 
-            if (error !== null){
-                // NOTE: if we immediately get an error, the explore palettes modal may still be transitioning to visible,
-                //       so we wait here for a second before hiding the modal and displaying an error
-                setTimeout(function(){
-                    $('#explorePalettesModal').modal("toggle");
-                    Utils.showUserMessage("Error", "Unable to fetch list of palettes");
-                }, 1000);
+            return;
+        }
 
-                return;
-            }
+        const explorePalettes: PaletteInfo[] = [];
+        for (const palette of data){
+            explorePalettes.push(new PaletteInfo(jsonData.service, jsonData.repository, jsonData.branch, palette.name, palette.path));
+        }
 
-            const explorePalettes: PaletteInfo[] = [];
-            for (const palette of data){
-                explorePalettes.push(new PaletteInfo(jsonData.service, jsonData.repository, jsonData.branch, palette.name, palette.path));
-            }
-
-            // process files into a more complex structure
-            eagle.explorePalettes().initialise(explorePalettes);
-        });
+        // process files into a more complex structure
+        eagle.explorePalettes().initialise(explorePalettes);
     }
 
     static showModelDataModal(title: string, fileInfo: FileInfo) : void {
@@ -833,16 +838,24 @@ export class Utils {
         $('#modelDataModal').modal("toggle");
     }
 
-    static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph, callback: (completed: boolean, edge: Edge) => void) : void {
-        Utils.updateEditEdgeModal(edge, logicalGraph);
+    static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph): Promise<Edge> {
+        return new Promise(async(resolve, reject) => {
+            Utils.updateEditEdgeModal(edge, logicalGraph);
 
-        $('#editEdgeModal').data('completed', false);
-        $('#editEdgeModal').data('callback', callback);
+            $('#editEdgeModal').data('completed', false);
+            $('#editEdgeModal').data('callback', (completed: boolean, edge: Edge): void => {
+                if (!completed){
+                    reject();
+                } else {
+                    resolve(edge);
+                }
+            });
 
-        $('#editEdgeModal').data('edge', edge);
-        $('#editEdgeModal').data('logicalGraph', logicalGraph);
+            $('#editEdgeModal').data('edge', edge);
+            $('#editEdgeModal').data('logicalGraph', logicalGraph);
 
-        $('#editEdgeModal').modal("toggle");
+            $('#editEdgeModal').modal("toggle");
+        });
     }
 
     static updateEditEdgeModal(edge: Edge, logicalGraph: LogicalGraph): void {
@@ -1641,20 +1654,20 @@ export class Utils {
         return true;
     }
 
-    static downloadFile(error : string, data : string, fileName : string) : void {
-        if (error != null){
-            Utils.showUserMessage("Error", "Error saving the file!");
-            console.error(error);
-            return;
-        }
-
-        // NOTE: this stuff is a hacky way of saving a file locally
-        const blob = new Blob([data]);
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
+    static async downloadFile(data : string, fileName : string) : Promise<void> {
+        return new Promise(async(resolve) => {
+            // NOTE: this stuff is a hacky way of saving a file locally
+            const blob = new Blob([data]);
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            link.onclick = function(){
+                document.body.removeChild(link);
+                resolve();
+            };
+            document.body.appendChild(link);
+            link.click();
+        });
     }
 
 
@@ -1702,31 +1715,33 @@ export class Utils {
     }
 
     static async userChoosePalette(paletteNames : string[]) : Promise<string> {
-        return new Promise<string>((resolve, reject) => {
+        return new Promise<string>(async (resolve, reject) => {
 
-            // ask user to select the destination node
-            Utils.requestUserChoice("Choose Palette", "Please select the palette you'd like to save", paletteNames, 0, false, "", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
-                // reject if the user aborted
-                if (!completed){
-                    resolve(null);
-                }
+            // ask user to select a palette
+            let userChoice: string;
+            try {
+                userChoice = await Utils.requestUserChoice("Choose Palette", "Please select the palette you'd like to save", paletteNames, 0, false, "");
+            } catch (error) {
+                reject(error);
+                return;
+            }
 
-                // resolve with chosen palette name
-                resolve(paletteNames[userChoiceIndex]);
-            });
+            // resolve with chosen palette name
+            resolve(userChoice);
         });
     }
 
     static async userEnterCommitMessage(modalMessage: string) : Promise<string> {
         return new Promise<string>((resolve, reject) => {
             // request commit message from the user
-            Utils.requestUserString("Commit Message", modalMessage, "", false, (completed : boolean, userString : string) : void => {
-                if (!completed){
-                    resolve(null);
-                }
-
-                resolve(userString);
-            });
+            let userString;
+            try {
+                userString = Utils.requestUserString("Saving to git", modalMessage, "", false);
+            } catch (error){
+                reject(error);
+                return;
+            }
+            resolve(userString);
         });
     }
 
@@ -2437,7 +2452,7 @@ export class Utils {
         return (object instanceof Node);
     }
 
-    static loadSchemas() : void {
+    static async loadSchemas(){
         function _setSchemas(schema: object) : void {
             Utils.ojsGraphSchema = schema;
             Utils.ojsPaletteSchema = schema;
@@ -2449,24 +2464,25 @@ export class Utils {
         }
 
         // try to fetch the schema
-        Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL,
-            (data : string) => {
-                _setSchemas(JSON.parse(data));
+        let data;
+        try {
+            data = await Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL);
+        } catch (error) {
+            const schemaData = localStorage.getItem('ojsGraphSchema');
 
-                // write to localStorage
-                localStorage.setItem('ojsGraphSchema', data);
-            },
-            (error : string) => {
-                const data = localStorage.getItem('ojsGraphSchema');
-
-                if (data === null){
-                    console.warn("Unable to fetch graph schema. Schema also unavailable from localStorage.");
-                } else {
-                    console.warn("Unable to fetch graph schema. Schema loaded from localStorage.");
-                    _setSchemas(JSON.parse(data));
-                }
+            if (schemaData === null){
+                console.warn("Unable to fetch graph schema. Schema also unavailable from localStorage.");
+            } else {
+                console.warn("Unable to fetch graph schema. Schema loaded from localStorage.");
+                _setSchemas(JSON.parse(schemaData));
             }
-        );
+            return;
+        }
+
+        _setSchemas(JSON.parse(data));
+
+        // write to localStorage
+        localStorage.setItem('ojsGraphSchema', data);
     }
 
     static snapToGrid(coord: number, offset: number) : number {
@@ -2495,8 +2511,17 @@ export class Utils {
         return result;
     }
 
-    static openRemoteFileFromUrl(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, callback: (error : string, data : string) => void ) : void {
-        Utils.httpGet(fileName, (data: string) => {callback(null, data)}, (error: string) => {callback(error, null)});
+    static async openRemoteFileFromUrl(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            let data;
+            try {
+                data = await Utils.httpGet(fileName);
+            } catch (error) {
+                reject(error)
+            }
+
+            resolve(data);
+        });
     }
 
     static copyFieldsFromPrototype(node: Node, paletteName: string, category: Category) : void {

@@ -2204,20 +2204,19 @@ export class GraphRenderer {
         return '';
     }
 
-    static addEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean) : void {
+    static async addEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean): Promise<void> {
         const eagle = Eagle.getInstance();
         if (srcPort.getId() === destPort.getId()){
             console.warn("Abort addLink() from port to itself!");
             return;
         }
 
-        eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, (edge : Edge) : void => {
-            eagle.checkGraph();
-            eagle.undo().pushSnapshot(eagle, "Added edge from " + srcNode.getName() + " to " + destNode.getName());
-            eagle.logicalGraph().fileInfo().modified = true;
-            eagle.logicalGraph.valueHasMutated();
-            GraphRenderer.clearEdgeVars();
-        });
+        await eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop);
+        eagle.checkGraph();
+        eagle.undo().pushSnapshot(eagle, "Added edge from " + srcNode.getName() + " to " + destNode.getName());
+        eagle.logicalGraph().fileInfo().modified = true;
+        eagle.logicalGraph.valueHasMutated();
+        GraphRenderer.clearEdgeVars();
     }
 
     static clearEdgeVars(){

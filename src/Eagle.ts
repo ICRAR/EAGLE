@@ -50,7 +50,7 @@ import { Node } from './Node';
 import { Palette } from './Palette';
 import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
-import { Repository } from './Repository';
+import { Repository, RepositoryCommit } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { RightClick } from "./RightClick";
 import { Setting, SettingsGroup } from './Setting';
@@ -303,9 +303,23 @@ export class Eagle {
         Setting.setValue(Setting.SNAP_TO_GRID, this.snapToGrid());
     }
 
-    deployDefaultTranslationAlgorithm = () : void => {
+    deployDefaultTranslationAlgorithm = async () => {
         const defaultTranslatorAlgorithmMethod : string = $('#'+Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)+ ' .generatePgt').val().toString()
-        this.translator().genPGT(defaultTranslatorAlgorithmMethod, false, Daliuge.SchemaVersion.Unknown)
+        try {
+            await this.translator().genPGT(defaultTranslatorAlgorithmMethod, false, Daliuge.SchemaVersion.Unknown);
+        } catch (error){
+            console.error("deployDefaultTranslationAlgorithm()", error);
+            Utils.showNotification("Error", error, "danger");
+        }
+    }
+
+    deployTranslationAlgorithm = async (algorithm: string, test: boolean) => {
+        try {
+            await this.translator().genPGT(algorithm, test, Daliuge.SchemaVersion.Unknown);
+        } catch (error){
+            console.error("deployDefaultTranslationAlgorithm()", error);
+            Utils.showNotification("Error", error, "danger");
+        }
     }
 
     // TODO: remove?
@@ -977,8 +991,7 @@ export class Eagle {
         data.show()
     }
 
-    createConstructFromSelection = () : void => {
-        console.log("createConstructFromSelection()");
+    createConstructFromSelection = async () => {
         const eagle = Eagle.getInstance()
         if(eagle.selectedObjects().length === 0){
             Utils.showNotification('Error','At least one node must be selected', 'warning')
@@ -990,42 +1003,35 @@ export class Eagle {
         });
 
         // ask the user what type of construct to use
-        Utils.requestUserChoice("Choose Construct", "Please choose a construct type to contain the selection", constructs, 0, false, "", (completed: boolean, userChoiceIndex: number, userCustomString: string) => {
-            if (!completed)
-            {   // Cancelling action.
-                return;
+        const userChoice: string = await Utils.requestUserChoice("Choose Construct", "Please choose a construct type to contain the selection", constructs, 0, false, "");
+
+        // create new subgraph
+        const parentNode: Node = new Node(userChoice, "", userChoice as Category);
+
+        // add the parent node to the logical graph
+        this.logicalGraph().addNodeComplete(parentNode);
+
+        // switch items in selection to be children of subgraph
+        for (const node of this.selectedObjects()){
+            if (!(node instanceof Node)){
+                continue;
             }
 
-            const userChoice: string = constructs[userChoiceIndex];
+            node.setParentId(parentNode.getId());
+        }
 
-            // create new subgraph
-            const parentNode: Node = new Node(userChoice, "", userChoice as Category);
+        // shrink/expand subgraph node to fit children
+        this.logicalGraph().shrinkNode(parentNode);
 
-            // add the parent node to the logical graph
-            this.logicalGraph().addNodeComplete(parentNode);
-
-            // switch items in selection to be children of subgraph
-            for (const node of this.selectedObjects()){
-                if (!(node instanceof Node)){
-                    continue;
-                }
-
-                node.setParentId(parentNode.getId());
-            }
-
-            // shrink/expand subgraph node to fit children
-            this.logicalGraph().shrinkNode(parentNode);
-
-            // flag graph as changed
-            this.flagActiveFileModified();
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Add Selection to Construct");
-            this.logicalGraph.valueHasMutated();
-        });
+        // flag graph as changed
+        this.flagActiveFileModified();
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Add Selection to Construct");
+        this.logicalGraph.valueHasMutated();
     }
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
-    insertGraph = (nodes: Node[], edges: Edge[], parentNode: Node, errorsWarnings: Errors.ErrorsWarnings) : void => {
+    insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node, errorsWarnings: Errors.ErrorsWarnings) => {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
@@ -1051,62 +1057,61 @@ export class Eagle {
 
         // insert nodes from lg into the existing logicalGraph
         for (const node of nodes){
-            this.addNode(node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y, (insertedNode: Node) => {
-                // save mapping for node itself
-                nodeMap.set(node.getId(), insertedNode);
+            const insertedNode: Node = await this.addNode(node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y);
+            // save mapping for node itself
+            nodeMap.set(node.getId(), insertedNode);
 
-                // if insertedNode has no parent, make it a parent of the parent node
-                if (insertedNode.getParentId() === null && parentNode !== null){
-                    insertedNode.setParentId(parentNode.getId());
-                }
+            // if insertedNode has no parent, make it a parent of the parent node
+            if (insertedNode.getParentId() === null && parentNode !== null){
+                insertedNode.setParentId(parentNode.getId());
+            }
+            
+            // copy embedded input application
+            if (node.hasInputApplication()){
+                const oldInputApplication : Node = node.getInputApplication();
+                const newInputApplication : Node = insertedNode.getInputApplication();
                 
-                // copy embedded input application
-                if (node.hasInputApplication()){
-                    const oldInputApplication : Node = node.getInputApplication();
-                    const newInputApplication : Node = insertedNode.getInputApplication();
-                   
-                    nodeMap.set(oldInputApplication.getId(), newInputApplication);
-
-                    // save mapping for input ports
-                    for (let j = 0 ; j < oldInputApplication.getInputPorts().length; j++ ){
-                        portMap.set(oldInputApplication.getInputPorts()[j].getId(), newInputApplication.getInputPorts()[j]);
-                        
-                    }
-
-                    // save mapping for output ports
-                    for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
-                        portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
-                    }
-                }
-
-                // copy embedded output application
-                if (node.hasOutputApplication()){
-                    const oldOutputApplication : Node = node.getOutputApplication();
-                    const newOutputApplication : Node = insertedNode.getOutputApplication();
-                    
-                    nodeMap.set(oldOutputApplication.getId(), newOutputApplication);
-                    
-                    // save mapping for input ports
-                    for (let j = 0 ; j < oldOutputApplication.getInputPorts().length; j++){
-                        portMap.set(oldOutputApplication.getInputPorts()[j].getId(), newOutputApplication.getInputPorts()[j]);
-                    }
-
-                    // save mapping for output ports
-                    for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
-                        portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
-                    }
-                }
+                nodeMap.set(oldInputApplication.getId(), newInputApplication);
 
                 // save mapping for input ports
-                for (let j = 0 ; j < node.getInputPorts().length; j++){
-                    portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j]);
+                for (let j = 0 ; j < oldInputApplication.getInputPorts().length; j++ ){
+                    portMap.set(oldInputApplication.getInputPorts()[j].getId(), newInputApplication.getInputPorts()[j]);
+                    
                 }
 
                 // save mapping for output ports
-                for (let j = 0 ; j < node.getOutputPorts().length; j++){
-                    portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j]);
+                for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
+                    portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
                 }
-            });
+            }
+
+            // copy embedded output application
+            if (node.hasOutputApplication()){
+                const oldOutputApplication : Node = node.getOutputApplication();
+                const newOutputApplication : Node = insertedNode.getOutputApplication();
+                
+                nodeMap.set(oldOutputApplication.getId(), newOutputApplication);
+                
+                // save mapping for input ports
+                for (let j = 0 ; j < oldOutputApplication.getInputPorts().length; j++){
+                    portMap.set(oldOutputApplication.getInputPorts()[j].getId(), newOutputApplication.getInputPorts()[j]);
+                }
+
+                // save mapping for output ports
+                for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
+                    portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
+                }
+            }
+
+            // save mapping for input ports
+            for (let j = 0 ; j < node.getInputPorts().length; j++){
+                portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j]);
+            }
+
+            // save mapping for output ports
+            for (let j = 0 ; j < node.getOutputPorts().length; j++){
+                portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j]);
+            }
         }
 
         // update some other details of the nodes are updated correctly
@@ -1159,7 +1164,7 @@ export class Eagle {
             }
 
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
-            this.addEdge(srcNode, portMap.get(edge.getSrcPortId()), destNode, portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop(),  null);
+            this.addEdge(srcNode, portMap.get(edge.getSrcPortId()), destNode, portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop());
         }
 
         //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
@@ -1314,78 +1319,89 @@ export class Eagle {
     /**
      * Creates a new logical graph for editing.
      */
-    newLogicalGraph = () : void => {
-        Utils.newDiagram(Eagle.FileType.Graph, (name: string) => {
-            this.logicalGraph(new LogicalGraph());
-            this.logicalGraph().fileInfo().name = name;
-            this.checkGraph();
-            this.undo().clear();
-            this.undo().pushSnapshot(this, "New Logical Graph");
-            this.logicalGraph.valueHasMutated();
-            Utils.showNotification("New Graph Created", name, "success");
-        });
+    newLogicalGraph = async(): Promise<void> => {
+        let filename: string;
+        try {
+            filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
+        } catch (error) {
+            console.error(error);
+            Utils.showNotification("Error", error, "danger");
+            return;
+        }
+
+        this.logicalGraph(new LogicalGraph());
+        this.logicalGraph().fileInfo().name = filename;
+        this.checkGraph();
+        this.undo().clear();
+        this.undo().pushSnapshot(this, "New Logical Graph");
+        this.logicalGraph.valueHasMutated();
+        Utils.showNotification("New Graph Created", filename, "success");
+
         this.resetEditor()
     }
 
     /**
      * Presents the user with a textarea in which to paste JSON. Reads the JSON and parses it into a logical graph for editing.
      */
-    newLogicalGraphFromJson = () : void => {
-        Utils.requestUserText("New Logical Graph from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
-            if (!completed)
-            {   // Cancelling action.
-                return;
-            }
+    newLogicalGraphFromJson = async (): Promise<void> => {
+        let userText: string;
+        try{
+            userText = await Utils.requestUserText("New Logical Graph from JSON", "Enter the JSON below", "");
+        } catch (error){
+            console.error(error);
+            return;
+        }
 
-            this._loadGraphJSON(userText, "", (lg: LogicalGraph) : void => {
-                this.logicalGraph(lg);
-            });
+        this._loadGraphJSON(userText, "", (lg: LogicalGraph) : void => {
+            this.logicalGraph(lg);
         });
+
         this.resetEditor()
     }
 
-    addToGraphFromJson = () : void => {
-        Utils.requestUserText("Add to Graph from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
-            if (!completed)
-            {   // Cancelling action.
-                return;
-            }
+    addToGraphFromJson = async (): Promise<void> => {
+        let userText: string;
+        try {
+            userText = await Utils.requestUserText("Add to Graph from JSON", "Enter the JSON below", "");
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            let clipboard = null;
-            try {
-                clipboard = JSON.parse(userText);
-            } catch(e) {
-                Utils.showNotification(e.name, e.message, "danger");
-                return;
-            }
+        let clipboard = null;
+        try {
+            clipboard = JSON.parse(userText);
+        } catch(e) {
+            Utils.showNotification(e.name, e.message, "danger");
+            return;
+        }
 
-            const nodes : Node[] = [];
-            const edges : Edge[] = [];
-            const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
+        const nodes : Node[] = [];
+        const edges : Edge[] = [];
+        const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
 
-            for (const n of clipboard.nodes){
-                const node = Node.fromOJSJson(n, null, false);
+        for (const n of clipboard.nodes){
+            const node = Node.fromOJSJson(n, null, false);
 
-                nodes.push(node);
-            }
+            nodes.push(node);
+        }
 
-            for (const e of clipboard.edges){
-                const edge = Edge.fromOJSJson(e, null);
+        for (const e of clipboard.edges){
+            const edge = Edge.fromOJSJson(e, null);
 
-                edges.push(edge);
-            }
+            edges.push(edge);
+        }
 
-            this.insertGraph(nodes, edges, null, errorsWarnings);
+        this.insertGraph(nodes, edges, null, errorsWarnings);
 
-            // display notification to user
-            Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
-            // TODO: show errors
+        // display notification to user
+        Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
+        // TODO: show errors
 
-            // ensure changes are reflected in display
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Added from JSON");
-            this.logicalGraph.valueHasMutated();
-        });
+        // ensure changes are reflected in display
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Added from JSON");
+        this.logicalGraph.valueHasMutated();
     }
 
     displayObjectAsJson = (fileType: Eagle.FileType) : void => {
@@ -1417,46 +1433,52 @@ export class Eagle {
                 break;
         }
 
-        Utils.requestUserText("Export " + fileType + " to JSON", "", jsonString, null);
+        Utils.requestUserText("Export " + fileType + " to JSON", "", jsonString);
     }
 
     /**
      * Creates a new palette for editing.
      */
-    newPalette = () : void => {
-        Utils.newDiagram(Eagle.FileType.Palette, (name : string) => {
-            const p: Palette = new Palette();
-            p.fileInfo().name = name;
+    newPalette = async () : Promise<void> => {
+        let filename: string;
+        try {
+            filename = await Utils.requestDiagramFilename(Eagle.FileType.Palette);
+        } catch (error){
+            console.warn(error);
+            return;
+        }
+        const p: Palette = new Palette();
+        p.fileInfo().name = filename;
 
-            // mark the palette as modified and readwrite
-            p.fileInfo().modified = true;
-            p.fileInfo().readonly = false;
+        // mark the palette as modified and readwrite
+        p.fileInfo().modified = true;
+        p.fileInfo().readonly = false;
 
-            // add to palettes
-            this.palettes.unshift(p);
+        // add to palettes
+        this.palettes.unshift(p);
 
-            Utils.showNotification("New Palette Created", name, "success");
-        });
+        Utils.showNotification("New Palette Created", filename, "success");
     }
 
     /**
      * Presents the user with a textarea in which to paste JSON. Reads the JSON and parses it into a palette.
      */
-    newPaletteFromJson = () : void => {
-        Utils.requestUserText("New Palette from JSON", "Enter the JSON below", "", (completed : boolean, userText : string) : void => {
-            if (!completed)
-            {   // Cancelling action.
-                return;
-            }
+    newPaletteFromJson = async (): Promise<void> => {
+        let userText: string;
+        try {
+            userText = await Utils.requestUserText("New Palette from JSON", "Enter the JSON below", "");
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            this._loadPaletteJSON(userText, "");
-        });
+        this._loadPaletteJSON(userText, "");
     }
 
     /**
      * Reloads a previously loaded palette.
      */
-     reloadPalette = (palette: Palette, index: number) : void => {
+     reloadPalette = async (palette: Palette, index: number): Promise<void> => {
          const fileInfo : FileInfo = palette.fileInfo();
          // remove palette
          this.closePalette(palette);
@@ -1471,15 +1493,15 @@ export class Eagle {
                 Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
                 break;
             case Repository.Service.Url:
-                this.loadPalettes([
+                const {palettes, errorsWarnings} = await this.loadPalettes([
                     {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly, expanded: true}
-                ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
-                    for (const palette of palettes){
-                        if (palette !== null){
-                            this.palettes.splice(index, 0, palette);
-                        }
+                ]);
+
+                for (const palette of palettes){
+                    if (palette !== null){
+                        this.palettes.splice(index, 0, palette);
                     }
-                });
+                }
                 break;
             default:
                 // can't be fetched
@@ -1513,37 +1535,71 @@ export class Eagle {
         }, 100);
     }
 
-    saveGraph = () : void => {
-        switch (this.logicalGraph().fileInfo().repositoryService){
-            case Repository.Service.File:
-                this.saveFileToLocal(Eagle.FileType.Graph);
-                break;
-            case Repository.Service.GitHub:
-            case Repository.Service.GitLab:
-                this.commitToGit(Eagle.FileType.Graph);
-                break;
-            default:
-                this.saveGraphAs();
-                break;
-        }
+    saveGraph = async () : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            const eagle: Eagle = Eagle.getInstance();
+
+            switch (eagle.logicalGraph().fileInfo().repositoryService){
+                case Repository.Service.File:
+                    try {
+                        await eagle.saveFileToLocal(Eagle.FileType.Graph);
+                    } catch (error) {
+                        reject(error);
+                        return;
+                    }
+                    break;
+                case Repository.Service.GitHub:
+                case Repository.Service.GitLab:
+                    try {
+                        await this.commitToGit(Eagle.FileType.Graph);
+                    } catch (error) {
+                        reject(error);
+                        return;
+                    }
+                    break;
+                default:
+                    try {
+                        await this.saveGraphAs();
+                    } catch (error) {
+                        reject(error);
+                        return;
+                    }
+                    break;
+            }
+
+            resolve();
+        });
     }
 
-    saveGraphAs = () : void => {
-        const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
+    saveGraphAs = async () : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
 
-        Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "", (completed: boolean, userChoiceIndex: number) => {
-            if (!completed)
-            {   // Cancelling action.
+            const userChoice: string = await Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
+
+            if (userChoice === null){
                 return;
             }
 
             const fileType = this.logicalGraph().fileInfo().type;
 
-            if (userChoiceIndex === 0){
-                this.saveAsFileToLocal(fileType);
+            if (userChoice === "Local File"){
+                try {
+                    this.saveAsFileToLocal(fileType);
+                } catch (error) {
+                    reject(error);
+                    return;
+                }
             } else {
-                this.commitToGitAs(fileType);
+                try {
+                    this.commitToGitAs(fileType);
+                } catch(error) {
+                    reject(error);
+                    return;
+                }
             }
+
+            resolve();
         });
     }
 
@@ -1551,88 +1607,118 @@ export class Eagle {
      * Saves the file to a local download folder.
      */
     saveFileToLocal = async (fileType : Eagle.FileType) : Promise<void> => {
-        switch (fileType){
-            case Eagle.FileType.Graph:
-                this.saveGraphToDisk(this.logicalGraph());
-                break;
-            case Eagle.FileType.Palette: {
-                // build a list of palette names
-                const paletteNames: string[] = this.buildReadablePaletteNamesList();
+        return new Promise(async(resolve, reject) => {
+            switch (fileType){
+                case Eagle.FileType.Graph:
+                    try {
+                        await this.saveGraphToDisk(this.logicalGraph());
+                    } catch(error) {
+                        reject(error);
+                        return;
+                    }
+                    break;
+                case Eagle.FileType.Palette: {
+                    // build a list of palette names
+                    const paletteNames: string[] = this.buildReadablePaletteNamesList();
 
-                // ask user to select the palette
-                const paletteName = await Utils.userChoosePalette(paletteNames);
+                    // ask user to select the palette
+                    const paletteName = await Utils.userChoosePalette(paletteNames);
 
-                // get reference to palette (based on paletteName)
-                const destinationPalette = this.findPalette(paletteName, false);
+                    // get reference to palette (based on paletteName)
+                    const destinationPalette = this.findPalette(paletteName, false);
 
-                // check that a palette was found
-                if (destinationPalette === null){
-                    return;
+                    // check that a palette was found
+                    if (destinationPalette === null){
+                        return;
+                    }
+
+                    try {
+                        await this.savePaletteToDisk(destinationPalette);
+                    } catch (error){
+                        reject(error);
+                        return;
+                    }
+                    break;
                 }
-
-                this.savePaletteToDisk(destinationPalette);
-                break;
+                default:
+                    Utils.showUserMessage("Not implemented", "Not sure which fileType is the right one to save locally :" + fileType);
+                    break;
             }
-            default:
-                Utils.showUserMessage("Not implemented", "Not sure which fileType is the right one to save locally :" + fileType);
-                break;
-        }
+            resolve();
+        });
     }
 
     saveAsFileToLocal = async (fileType: Eagle.FileType): Promise<void> => {
-        switch (fileType){
-            case Eagle.FileType.Graph:
-                this.saveAsFileToDisk(this.logicalGraph());
-                break;
-            case Eagle.FileType.Palette: {
-                // build a list of palette names
-                const paletteNames: string[] = this.buildReadablePaletteNamesList();
+        return new Promise(async(resolve, reject) => {
+            switch (fileType){
+                case Eagle.FileType.Graph:
+                    try {
+                        await this.saveAsFileToDisk(this.logicalGraph());
+                    } catch (error){
+                        reject(error);
+                        return;
+                    }
+                    break;
+                case Eagle.FileType.Palette: {
+                    // build a list of palette names
+                    const paletteNames: string[] = this.buildReadablePaletteNamesList();
 
-                // ask user to select the palette
-                const paletteName = await Utils.userChoosePalette(paletteNames);
+                    // ask user to select the palette
+                    const paletteName: string = await Utils.userChoosePalette(paletteNames);
 
-                // get reference to palette (based on paletteName)
-                const destinationPalette = this.findPalette(paletteName, false);
+                    // get reference to palette (based on paletteName)
+                    const destinationPalette = this.findPalette(paletteName, false);
 
-                // check that a palette was found
-                if (destinationPalette === null){
-                    return;
+                    // check that a palette was found
+                    if (destinationPalette === null){
+                        return;
+                    }
+
+                    try {
+                        await this.saveAsFileToDisk(destinationPalette);
+                    } catch (error){
+                        reject(error);
+                        return;
+                    }
+                    break;
                 }
-
-                this.saveAsFileToDisk(destinationPalette);
-                break;
+                default:
+                    Utils.showUserMessage("Not implemented", "Not sure which fileType is the right one to save locally :" + fileType);
+                    break;
             }
-            default:
-                Utils.showUserMessage("Not implemented", "Not sure which fileType is the right one to save locally :" + fileType);
-                break;
-        }
+
+            resolve();
+        });
     }
 
     /**
      * Saves a file to the remote server repository.
      */
-    saveFileToRemote = (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, jsonString : string) : void => {
-        console.log("saveFileToRemote() repository.name", repository.name, "repository.service", repository.service);
+    saveFileToRemote = async (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, jsonString : string): Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            console.log("saveFileToRemote() repository.name", repository.name, "repository.service", repository.service);
 
-        let url : string;
+            let url : string;
 
-        switch (repository.service){
-            case Repository.Service.GitHub:
-                url = '/saveFileToRemoteGithub';
-                break;
-            case Repository.Service.GitLab:
-                url = '/saveFileToRemoteGitlab';
-                break;
-            default:
-                Utils.showUserMessage("Error", "Unknown repository service : " + repository.service);
-                return;
-        }
+            switch (repository.service){
+                case Repository.Service.GitHub:
+                    url = '/saveFileToRemoteGithub';
+                    break;
+                case Repository.Service.GitLab:
+                    url = '/saveFileToRemoteGitlab';
+                    break;
+                default:
+                    Utils.showUserMessage("Error", "Unknown repository service : " + repository.service);
+                    return;
+            }
 
-
-        Utils.httpPostJSONString(url, jsonString, (error : string, data: string) : void => {
-            if (error !== null){
+            let data: any;
+            try {
+                data = await Utils.httpPostJSONString(url, jsonString);
+            } catch (error){
                 Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
                 console.error("Error: " + JSON.stringify(error, null, EagleConfig.JSON_INDENT) + " Data: " + data);
+                reject(error);
                 return;
             }
 
@@ -1645,7 +1731,7 @@ export class Eagle {
             }
 
             // show repo in the right window
-            this.changeRightWindowMode(Eagle.RightWindowMode.Repository)
+            this.changeRightWindowMode(Eagle.RightWindowMode.Repository);
 
             // Show success message
             if (repository.service === Repository.Service.GitHub){
@@ -1677,6 +1763,8 @@ export class Eagle {
 
             // flag fileInfo object as modified
             fileInfo.valueHasMutated();
+
+            resolve();
         });
     }
 
@@ -1741,21 +1829,20 @@ export class Eagle {
                 }
             }
 
-            Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, fileType, (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
-                // check completed boolean
-                if (!completed){
-                    console.log("Abort commit");
-                    reject("Abort commit");
-                    return;
-                }
+            let commit: RepositoryCommit;
+            try {
+                commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, fileType);
+            } catch (error){
+                reject(error);
+                return;
+            }
 
-                // check repository name
-                const repository : Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
+            // check repository name
+            const repository : Repository = Repositories.get(commit.repositoryService, commit.repositoryName, commit.repositoryBranch);
 
-                this._commit(repository, fileType, filePath, fileName, fileInfo, commitMessage, obj);
+            this._commit(repository, fileType, commit.filePath, commit.fileName, fileInfo, commit.message, obj);
 
-                resolve();
-            });
+            resolve();
         });
     }
 
@@ -1763,213 +1850,244 @@ export class Eagle {
      * Performs a Git commit of a graph/palette.
      */
     commitToGit = async (fileType : Eagle.FileType) : Promise<void> => {
-        let fileInfo : ko.Observable<FileInfo>;
-        let obj : LogicalGraph | Palette;
+        return new Promise(async(resolve, reject) => {
+            let fileInfo : ko.Observable<FileInfo>;
+            let obj : LogicalGraph | Palette;
 
-        // determine which object of the given filetype we are committing
-        switch (fileType){
-            case Eagle.FileType.Graph:
-                fileInfo = this.logicalGraph().fileInfo;
-                obj = this.logicalGraph();
-                break;
-            case Eagle.FileType.Palette: {
-                // build a list of palettes, as user to choose the one to save, abort if no palette is chosen
-                const paletteNames: string[] = this.buildReadablePaletteNamesList();
-                const paletteName = await Utils.userChoosePalette(paletteNames);
-                const palette = this.findPalette(paletteName, false);
-                if (palette === null){
-                    return;
+            // determine which object of the given filetype we are committing
+            switch (fileType){
+                case Eagle.FileType.Graph:
+                    fileInfo = this.logicalGraph().fileInfo;
+                    obj = this.logicalGraph();
+                    break;
+                case Eagle.FileType.Palette: {
+                    // build a list of palettes, as user to choose the one to save, abort if no palette is chosen
+                    const paletteNames: string[] = this.buildReadablePaletteNamesList();
+                    const paletteName = await Utils.userChoosePalette(paletteNames);
+                    const palette = this.findPalette(paletteName, false);
+                    if (palette === null){
+                        return;
+                    }
+
+                    fileInfo = palette.fileInfo;
+                    obj = palette;
+                    break;
                 }
-
-                fileInfo = palette.fileInfo;
-                obj = palette;
-                break;
+                default:
+                    Utils.showUserMessage("Not implemented", "Not sure which fileType is the right one to commit :" + fileType);
+                    break;
             }
-            default:
-                Utils.showUserMessage("Not implemented", "Not sure which fileType is the right one to commit :" + fileType);
-                break;
-        }
 
-        console.log("fileInfo().repositoryService", fileInfo().repositoryService);
-        console.log("fileInfo().repositoryName", fileInfo().repositoryName);
+            console.log("fileInfo().repositoryService", fileInfo().repositoryService);
+            console.log("fileInfo().repositoryName", fileInfo().repositoryName);
 
-        // if there is no git repository or filename defined for this file. Please use 'save as' instead!
-        if (
-            fileInfo().repositoryService === Repository.Service.Unknown ||
-            fileInfo().repositoryService === Repository.Service.File ||
-            fileInfo().repositoryService === Repository.Service.Url ||
-            fileInfo().repositoryName === null
-        ) {
-            this.commitToGitAs(fileType);
-            return;
-        }
-
-        // check that filetype is appropriate for a file with this extension
-        if (fileInfo().name === "") {
-            if (fileType == Eagle.FileType.Graph) {
-                Utils.showUserMessage('Error', 'Graph is not chosen! Open existing or create a new graph.');
-            } else if (fileType == Eagle.FileType.Palette) {
-                Utils.showUserMessage('Error', 'Palette is not chosen! Open existing or create a new palette.');
+            // if there is no git repository or filename defined for this file. Please use 'save as' instead!
+            if (
+                fileInfo().repositoryService === Repository.Service.Unknown ||
+                fileInfo().repositoryService === Repository.Service.File ||
+                fileInfo().repositoryService === Repository.Service.Url ||
+                fileInfo().repositoryName === null
+            ) {
+                await this.commitToGitAs(fileType);
+                return;
             }
-            return;
-        }
 
-        // request commit message from the user, abort if none entered
-        const commitMessage = await Utils.userEnterCommitMessage("Enter a commit message for this " + fileType);
-        if (commitMessage === null){
-            return;
-        }
+            // check that filetype is appropriate for a file with this extension
+            if (fileInfo().name === "") {
+                if (fileType == Eagle.FileType.Graph) {
+                    Utils.showUserMessage('Error', 'Graph is not chosen! Open existing or create a new graph.');
+                } else if (fileType == Eagle.FileType.Palette) {
+                    Utils.showUserMessage('Error', 'Palette is not chosen! Open existing or create a new palette.');
+                }
+                return;
+            }
 
-        // set the EAGLE version etc according to this running version
-        fileInfo().updateEagleInfo();
+            // request commit message from the user, abort if none entered
+            const commitMessage = await Utils.userEnterCommitMessage("Enter a commit message for this " + fileType);
+            if (commitMessage === null){
+                return;
+            }
 
-        const repository = Repositories.get(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch);
+            // set the EAGLE version etc according to this running version
+            fileInfo().updateEagleInfo();
 
-        this._commit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, commitMessage, obj);
+            const repository = Repositories.get(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch);
+
+            try {
+                await this._commit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, commitMessage, obj);
+            } catch (error) {
+                reject(error);
+                return;
+            }
+
+            resolve();
+        });
     }
 
-    _commit = (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : void => {
-        // check that repository was found, if not try "save as"!
-        if (repository === null){
-            this.commitToGitAs(fileType);
-            return;
-        }
+    _commit = async (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            // check that repository was found, if not try "save as"!
+            if (repository === null){
+                try {
+                    await this.commitToGitAs(fileType);
+                } catch (error){
+                    reject(error);
+                    return;
+                }
+                resolve();
+                return;
+            }
 
-        this.saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, obj);
+            try {
+                await this.saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, obj);
+            } catch (error) {
+                reject(error);
+                return;
+            }
+            resolve();
+        });
     }
 
     /**
      * Saves a graph/palette file to the GitHub repository.
      */
-    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette) : void => {
-        console.log("saveDiagramToGit() repositoryName", repository.name, "fileType", fileType, "filePath", filePath, "fileName", fileName, "commitMessage", commitMessage);
+    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette) : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            console.log("saveDiagramToGit() repositoryName", repository.name, "fileType", fileType, "filePath", filePath, "fileName", fileName, "commitMessage", commitMessage);
 
-        const clone: LogicalGraph | Palette | Eagle = obj.clone();
-        clone.fileInfo().updateEagleInfo();
+            const clone: LogicalGraph | Palette | Eagle = obj.clone();
+            clone.fileInfo().updateEagleInfo();
 
-        let jsonString: string = "";
-        switch (fileType){
-            case Eagle.FileType.Graph:
-                jsonString = LogicalGraph.toOJSJsonString(<LogicalGraph>clone, false);
-                break;
-            case Eagle.FileType.Palette:
-                jsonString = Palette.toOJSJsonString(<Palette>clone);
-                break;
-        }
+            let jsonString: string = "";
+            switch (fileType){
+                case Eagle.FileType.Graph:
+                    jsonString = LogicalGraph.toOJSJsonString(<LogicalGraph>clone, false);
+                    break;
+                case Eagle.FileType.Palette:
+                    jsonString = Palette.toOJSJsonString(<Palette>clone);
+                    break;
+            }
 
-        this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
-    }
-
-    _saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string) : void => {
-        // generate filename
-        const fullFileName : string = Utils.joinPath(filePath, fileName);
-
-        // get access token for this type of repository
-        let token : string;
-
-        switch (repository.service){
-            case Repository.Service.GitHub:
-                token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
-                break;
-            case Repository.Service.GitLab:
-                token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
-                break;
-            default:
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
+            try {
+                await this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
+            } catch (error){
+                reject(error);
                 return;
-        }
+            }
 
-        // check that access token is defined
-        if (token === null || token === "") {
-            Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
-            return;
-        }
-
-        // validate json
-        Utils.validateJSON(jsonString, fileType);
-
-        const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
-        this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
+            resolve();
+        });
     }
 
-    loadDefaultPalettes = () : void => {
+    _saveDiagramToGit = async (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string) : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            // generate filename
+            const fullFileName : string = Utils.joinPath(filePath, fileName);
+
+            // get access token for this type of repository
+            let token : string;
+
+            switch (repository.service){
+                case Repository.Service.GitHub:
+                    token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+                    break;
+                case Repository.Service.GitLab:
+                    token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
+                    break;
+                default:
+                    reject("Unknown repository service. Not GitHub or GitLab!");
+                    return;
+            }
+
+            // check that access token is defined
+            if (token === null || token === "") {
+                reject("The GitHub access token is not set! To save files on GitHub, set the access token.");
+                return;
+            }
+
+            // validate json
+            Utils.validateJSON(jsonString, fileType);
+
+            const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
+
+            try {
+                await this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
+            } catch (error){
+                reject(error);
+                return;
+            }
+
+            resolve();
+        });
+    }
+
+    loadDefaultPalettes = async (): Promise<void> => {
         // get collapsed/expanded state of palettes from html local storage
         let templatePaletteExpanded: boolean = Setting.findValue(Setting.OPEN_TEMPLATE_PALETTE);
         let builtinPaletteExpanded: boolean = Setting.findValue(Setting.OPEN_BUILTIN_PALETTE);
         templatePaletteExpanded = templatePaletteExpanded === null ? false : templatePaletteExpanded;
         builtinPaletteExpanded = builtinPaletteExpanded === null ? false : builtinPaletteExpanded;
 
-
-        // fetch the palettes
-        this.loadPalettes([
+        const {palettes, errorsWarnings} = await this.loadPalettes([
             {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true, expanded: builtinPaletteExpanded},
             {name:Palette.TEMPLATE_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true, expanded: templatePaletteExpanded}
-        ], (errorsWarnings: Errors.ErrorsWarnings, palettes: Palette[]):void => {
-            const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
+        ]);
 
-            // display of errors if setting is true
-            if (showErrors && (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings))){
-                // add warnings/errors to the arrays
-                this.loadingErrors(errorsWarnings.errors);
-                this.loadingWarnings(errorsWarnings.warnings);
+        const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
-                this.errorsMode(Errors.Mode.Loading);
-                Utils.showErrorsModal("Loading File");
-            }
+        // display of errors if setting is true
+        if (showErrors && (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings))){
+            // add warnings/errors to the arrays
+            this.loadingErrors(errorsWarnings.errors);
+            this.loadingWarnings(errorsWarnings.warnings);
 
-            for (const palette of palettes){
-                if (palette !== null){
-                    this.palettes.push(palette);
-                }
-            }
-        });
-    }
-
-    loadPalettes = (paletteList: {name:string, filename:string, readonly:boolean, expanded: boolean}[], callback: (errorsWarnings: Errors.ErrorsWarnings, data: Palette[]) => void ) : void => {
-        const results: Palette[] = [];
-        const complete: boolean[] = [];
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-
-        // define a function to check if all requests are now complete, if so we can call the callback
-        function _checkAllPalettesComplete() : void {
-            let allComplete = true;
-            for (const requestComplete of complete){
-                if (!requestComplete){
-                    allComplete = false;
-                }
-            }
-            if (allComplete){
-                callback(errorsWarnings, results);
-            }
+            this.errorsMode(Errors.Mode.Loading);
+            Utils.showErrorsModal("Loading File");
         }
 
-        // start trying to load the palettes
-        for (let i = 0 ; i < paletteList.length ; i++){
-            results.push(null);
-            complete.push(false);
-            const index = i;
-            const data = {url: paletteList[i].filename};
+        for (const palette of palettes){
+            if (palette !== null){
+                this.palettes.push(palette);
+            }
+        }
+    }
 
-            Utils.httpPostJSONWithErrorHandler("/openRemoteUrlFile", data,
-                (data: string) => {
-                    // palette fetched successfully
-                    complete[index] = true;
+    loadPalettes = async (paletteList: {name:string, filename:string, readonly:boolean, expanded:boolean}[]): Promise<{palettes: Palette[], errorsWarnings: Errors.ErrorsWarnings}> => {
+        return new Promise(async(resolve, reject) => {
+            const results: Palette[] = [];
+            const complete: boolean[] = [];
+            const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
-                    const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.dummy(), "", paletteList[index].name), errorsWarnings);
-                    Utils.preparePalette(palette, paletteList[index]);
+            // define a function to check if all requests are now complete, if so we can return the list of palettes
+            function _checkAllPalettesComplete() : void {
+                let allComplete = true;
 
-                    // add to results
-                    results[index] = palette;
+                for (const requestComplete of complete){
+                    if (!requestComplete){
+                        allComplete = false;
+                    }
+                }
+                if (allComplete){
+                    resolve({palettes: results, errorsWarnings: errorsWarnings});
+                }
+            }
 
-                    // save to localStorage
-                    localStorage.setItem(paletteList[index].filename, data);
-                    
-                    _checkAllPalettesComplete();
-                },
-                (error: string) => {
+            // initialise the state
+            for (let i = 0 ; i < paletteList.length ; i++){
+                results.push(null);
+                complete.push(false);
+            }
+
+            // start trying to load the palettes
+            for (let i = 0 ; i < paletteList.length ; i++){
+                const index = i;
+                const postData = {url: paletteList[i].filename};
+
+                let data: any;
+                try {
+                    data = await Utils.httpPostJSON("/openRemoteUrlFile", postData);
+                } catch (error){
                     // an error occurred when fetching the palette
-                    complete[index] = true;
-
                     errorsWarnings.errors.push(Errors.Message(error));
 
                     // try to load palette from localStorage
@@ -1987,17 +2105,33 @@ export class Eagle {
                     }
 
                     _checkAllPalettesComplete();
+                    return;
+                } finally {
+                    complete[index] = true;
                 }
-            );
-        }
+
+                // palette fetched successfully
+
+                const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.dummy(), "", paletteList[index].name), errorsWarnings);
+                Utils.preparePalette(palette, paletteList[index]);
+
+                // add to results
+                results[index] = palette;
+
+                // save to localStorage
+                localStorage.setItem(paletteList[index].filename, data);
+
+                _checkAllPalettesComplete();
+            }
+        });
     }
 
-    openRemoteFile =(file : RepositoryFile) : void => {
+    openRemoteFile = async (file : RepositoryFile): Promise<void> => {
         // flag file as being fetched
         file.isFetching(true);
 
         // check the service required to fetch the file
-        let openRemoteFileFunc;
+        let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
         switch (file.repository.service){
             case Repository.Service.GitHub:
                 openRemoteFileFunc = GitHub.openRemoteFile;
@@ -2014,73 +2148,75 @@ export class Eagle {
         }
 
         // load file from github or gitlab
-        openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string, data : string) : void => {
+        let data: string;
+        try {
+            data = await openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+        } catch (error){
+            Utils.showUserMessage("Error", error);
+            this.hideEagleIsLoading()
+            return;
+        } finally {
             // flag fetching as complete
             file.isFetching(false);
+        }
+        
+        // determine file extension
+        const fileExtension = Utils.getFileExtension(file.name);
+        let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
+        let dataObject: any = null;
 
-            // display error if one occurred
-            if (error != null){
-                Utils.showUserMessage("Error", error);
-                this.hideEagleIsLoading()
+        if (fileExtension !== "md"){
+            // attempt to parse the JSON
+            try {
+                dataObject = JSON.parse(data);
+            }
+            catch(err){
+                Utils.showUserMessage("Error parsing file JSON", err.message);
                 return;
             }
 
-            // determine file extension
-            const fileExtension = Utils.getFileExtension(file.name);
-            let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
-            let dataObject: any = null;
+            fileTypeLoaded = Utils.determineFileType(dataObject);
+        } else {
+            fileTypeLoaded = Eagle.FileType.Markdown;
+        }        
 
-            if (fileExtension !== "md"){
-                // attempt to parse the JSON
-                try {
-                    dataObject = JSON.parse(data);
+        switch (fileTypeLoaded){
+            case Eagle.FileType.Graph: {
+                // attempt to determine schema version from FileInfo
+                const eagleVersion: string = Utils.determineEagleVersion(dataObject);
+
+                // check if we need to update the graph from keys to ids
+                if (GraphUpdater.usesNodeKeys(dataObject)){
+                    GraphUpdater.updateKeysToIds(dataObject);
                 }
-                catch(err){
-                    Utils.showUserMessage("Error parsing file JSON", err.message);
-                    return;
-                }
 
-                fileTypeLoaded = Utils.determineFileType(dataObject);
-            } else {
-                fileTypeLoaded = Eagle.FileType.Markdown;
-            }        
-
-            switch (fileTypeLoaded){
-                case Eagle.FileType.Graph: {
-                    // attempt to determine schema version from FileInfo
-                    const eagleVersion: string = Utils.determineEagleVersion(dataObject);
-
-                    // check if we need to update the graph from keys to ids
-                    if (GraphUpdater.usesNodeKeys(dataObject)){
-                        GraphUpdater.updateKeysToIds(dataObject);
+                // warn user if file newer than EAGLE
+                if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
+                    try {
+                        await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null);
+                    } catch (error){
+                        console.error(error);
+                        return;
                     }
-
-                    // warn user if file newer than EAGLE
-                    if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
-                        Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null, (confirmed : boolean) : void => {
-                            if (confirmed){
-                                this._loadGraph(dataObject, file);
-                            }
-                        });
-                    } else {
-                        this._loadGraph(dataObject, file);
-                    }
-                    break;
+                    this._loadGraph(dataObject, file);
+                } else {
+                    this._loadGraph(dataObject, file);
                 }
-                case Eagle.FileType.Palette:
-                    this._remotePaletteLoaded(file, data);
-                    break;
-
-                case Eagle.FileType.Markdown:
-                    Utils.showUserMessage(file.name, Utils.markdown2html(data));
-                    break;
-
-                default:
-                    // Show error message
-                    Utils.showUserMessage("Error", "The file type is unknown!");
+                break;
             }
-        this.resetEditor()
-        });
+            case Eagle.FileType.Palette:
+                this._remotePaletteLoaded(file, data);
+                break;
+
+            case Eagle.FileType.Markdown:
+                Utils.showUserMessage(file.name, Utils.markdown2html(data));
+                break;
+
+            default:
+                // Show error message
+                Utils.showUserMessage("Error", "The file type is unknown!");
+        }
+        this.resetEditor();
     };
 
     _loadGraph = (dataObject: any, file: RepositoryFile) : void => {
@@ -2113,12 +2249,12 @@ export class Eagle {
         this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
     }
 
-    insertRemoteFile = (file : RepositoryFile) : void => {
+    insertRemoteFile = async (file : RepositoryFile): Promise<void> => {
         // flag file as being fetched
         file.isFetching(true);
 
         // check the service required to fetch the file
-        let insertRemoteFileFunc;
+        let insertRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
         switch (file.repository.service){
             case Repository.Service.GitHub:
                 insertRemoteFileFunc = GitHub.openRemoteFile;
@@ -2132,84 +2268,83 @@ export class Eagle {
         }
 
         // load file from github or gitlab
-        insertRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string, data : string) : void => {
+        let data: string;
+        try {
+            data = await insertRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+        } catch (error) {
+            Utils.showUserMessage("Error", "Failed to load a file!");
+            console.error(error);
+            return;
+        } finally {
             // flag fetching as complete
             file.isFetching(false);
+        }
 
-            // display error if one occurred
-            if (error != null){
-                Utils.showUserMessage("Error", "Failed to load a file!");
-                console.error(error);
-                return;
-            }
+        // attempt to parse the JSON
+        let dataObject;
+        try {
+            dataObject = JSON.parse(data);
+        }
+        catch(err){
+            Utils.showUserMessage("Error parsing file JSON", err.message);
+            return;
+        }
 
-            // attempt to parse the JSON
-            let dataObject;
-            try {
-                dataObject = JSON.parse(data);
-            }
-            catch(err){
-                Utils.showUserMessage("Error parsing file JSON", err.message);
-                return;
-            }
+        const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
 
-            const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
+        // only do this for graphs at the moment
+        if (fileTypeLoaded !== Eagle.FileType.Graph){
+            Utils.showUserMessage("Error", "Unable to insert non-graph!");
+            console.error("Unable to insert non-graph!");
+            return;
+        }
 
-            // only do this for graphs at the moment
-            if (fileTypeLoaded !== Eagle.FileType.Graph){
-                Utils.showUserMessage("Error", "Unable to insert non-graph!");
-                console.error("Unable to insert non-graph!");
-                return;
-            }
+        // attempt to determine schema version from FileInfo
+        const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-            // attempt to determine schema version from FileInfo
-            const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
+        // check if we need to update the graph from keys to ids
+        if (GraphUpdater.usesNodeKeys(dataObject)){
+            GraphUpdater.updateKeysToIds(dataObject);
+        }
 
-            // check if we need to update the graph from keys to ids
-            if (GraphUpdater.usesNodeKeys(dataObject)){
-                GraphUpdater.updateKeysToIds(dataObject);
-            }
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
-            const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        // use the correct parsing function based on schema version
+        let lg: LogicalGraph;
+        switch (schemaVersion){
+            case Daliuge.SchemaVersion.OJS:
+            case Daliuge.SchemaVersion.Unknown:
+                lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
+                break;
+        }
 
-            // use the correct parsing function based on schema version
-            let lg: LogicalGraph;
-            switch (schemaVersion){
-                case Daliuge.SchemaVersion.OJS:
-                case Daliuge.SchemaVersion.Unknown:
-                    lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
-                    break;
-            }
+        // create parent node
+        const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
-            // create parent node
-            const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+        // perform insert
+        this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
 
-            // perform insert
-            this.insertGraph(lg.getNodes(), lg.getEdges(), parentNode, errorsWarnings);
+        // trigger re-render
+        this.logicalGraph.valueHasMutated();
+        this.undo().pushSnapshot(this, "Inserted " + file.name);
+        this.checkGraph();
 
-            // trigger re-render
-            this.logicalGraph.valueHasMutated();
-            this.undo().pushSnapshot(this, "Inserted " + file.name);
-            this.checkGraph();
-
-            // show errors/warnings
-            this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
-        });
+        // show errors/warnings
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
     };
 
-    deleteRemoteFile = (file : RepositoryFile) : void => {
+    deleteRemoteFile = async (file : RepositoryFile): Promise<void> => {
         // request confirmation from user
-        Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_FILES), (confirmed : boolean) : void => {
-            if (!confirmed){
-                console.log("User aborted deleteRemoteFile()");
-                return;
-            }
-
-            this._deleteRemoteFile(file);
-        });
+        try {
+            await Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_FILES));
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+        this._deleteRemoteFile(file);
     }
 
-    private _deleteRemoteFile = (file: RepositoryFile): void => {
+    private _deleteRemoteFile = async (file: RepositoryFile): Promise<void> => {
         // check the service required to delete the file
         let deleteRemoteFileFunc;
 
@@ -2226,7 +2361,9 @@ export class Eagle {
         }
 
         // run the delete file function
-        deleteRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name, (error : string) : void => {
+        try {
+            await deleteRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+        } catch (error) {
             // display error if one occurred
             if (error != null){
                 Utils.showNotification("Error deleting file", error, "danger");
@@ -2236,10 +2373,10 @@ export class Eagle {
             Utils.showNotification("Success", "File deleted", "success");
             
             file.repository.deleteFile(file);
-        });
+        }
     }
 
-    private _remotePaletteLoaded = (file : RepositoryFile, data : string) : void => {
+    private _remotePaletteLoaded = async (file : RepositoryFile, data : string): Promise<void> => {
         // load the remote palette into EAGLE's palettes object.
 
         // check palette is not already loaded
@@ -2247,11 +2384,13 @@ export class Eagle {
 
         // if dictated by settings, reload the palette immediately
         if (alreadyLoadedPalette !== null && Setting.findValue(Setting.CONFIRM_RELOAD_PALETTES)){
-            Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.find(Setting.CONFIRM_RELOAD_PALETTES), (confirmed : boolean) : void => {
-                if (confirmed){
-                    this._reloadPalette(file, data, alreadyLoadedPalette);
-                }
-            });
+            try {
+                await Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.find(Setting.CONFIRM_RELOAD_PALETTES));
+            } catch (error){
+                console.error(error);
+                return;
+            }
+            this._reloadPalette(file, data, alreadyLoadedPalette);
         } else {
             this._reloadPalette(file, data, alreadyLoadedPalette);
         }
@@ -2305,7 +2444,7 @@ export class Eagle {
         $("#paletteList .dropdown-menu").removeClass("show")
     }
 
-    closePalette = (palette : Palette) : void => {
+    closePalette = async (palette : Palette): Promise<void> => {
         for (let i = 0 ; i < this.palettes().length ; i++){
             const p = this.palettes()[i];
 
@@ -2313,11 +2452,13 @@ export class Eagle {
 
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
                 if (p.fileInfo().modified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
-                    Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", null, (confirmed : boolean) : void => {
-                        if (confirmed){
-                            this.palettes.splice(i, 1);
-                        }
-                    });
+                    try {
+                        await Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", null);
+                    } catch (error){
+                        console.error(error);
+                        return;
+                    }
+                    this.palettes.splice(i, 1);
                 } else {
                     this.palettes.splice(i, 1);
                 }
@@ -2373,7 +2514,8 @@ export class Eagle {
     }
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
-    savePaletteToDisk = (palette : Palette) : void => {
+    savePaletteToDisk = async (palette : Palette) : Promise<void> => {
+        // TODO: promise
         console.log("savePaletteToDisk()", palette.fileInfo().name, palette.fileInfo().type);
 
         let fileName = palette.fileInfo().name;
@@ -2392,69 +2534,78 @@ export class Eagle {
         // validate json
         Utils.validateJSON(jsonString, Eagle.FileType.Palette);
 
-        Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
-            if (error != null){
-                Utils.showUserMessage("Error", "Error saving the file!");
-                console.error(error);
-                return;
-            }
+        let data: any;
+        try {
+            data = Utils.httpPostJSONString('/saveFileToLocal', jsonString);
+        } catch (error){
+            Utils.showUserMessage("Error", "Error saving the file!");
+            console.error(error);
+            return;
+        }
 
-            Utils.downloadFile(error, data, fileName);
+        Utils.downloadFile(data, fileName);
 
-            // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
-            // clear the modified flag
-            palette.fileInfo().modified = false;
-            palette.fileInfo().repositoryService = Repository.Service.Unknown;
-            palette.fileInfo().repositoryName = "";
-            palette.fileInfo().repositoryUrl = "";
-            palette.fileInfo().commitHash = "";
-            palette.fileInfo().downloadUrl = "";
-            palette.fileInfo.valueHasMutated();
-        });
+        // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
+        // clear the modified flag
+        palette.fileInfo().modified = false;
+        palette.fileInfo().repositoryService = Repository.Service.Unknown;
+        palette.fileInfo().repositoryName = "";
+        palette.fileInfo().repositoryUrl = "";
+        palette.fileInfo().commitHash = "";
+        palette.fileInfo().downloadUrl = "";
+        palette.fileInfo.valueHasMutated();
     }
 
     /**
      * Saves the file to a local download folder.
      */
-    saveGraphToDisk = (graph : LogicalGraph) : void => {
-        console.log("saveGraphToDisk()", graph.fileInfo().name, graph.fileInfo().type);
+    saveGraphToDisk = async (graph : LogicalGraph): Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            console.log("saveGraphToDisk()", graph.fileInfo().name, graph.fileInfo().type);
 
-        // check that the fileType has been set for the logicalGraph
-        if (graph.fileInfo().type !== Eagle.FileType.Graph){
-            Utils.showUserMessage("Error", "Graph fileType not set correctly. Could not save file.");
-            return;
-        }
+            // check that the fileType has been set for the logicalGraph
+            if (graph.fileInfo().type !== Eagle.FileType.Graph){
+                Utils.showUserMessage("Error", "Graph fileType not set correctly. Could not save file.");
+                return;
+            }
 
-        // abort if graph has no filename
-        if (graph.fileInfo().name === "") {
-            // abort and notify user
-            Utils.showNotification("Unable to save Graph with no name", "Please name the graph before saving", "danger");
-            return;
-        }
+            // abort if graph has no filename
+            if (graph.fileInfo().name === "") {
+                // abort and notify user
+                Utils.showNotification("Unable to save Graph with no name", "Please name the graph before saving", "danger");
+                return;
+            }
 
-        // abort if graph empty
-        if (graph.getNumNodes() === 0){
-            Utils.showNotification("Error", "Can't save an empty graph", "danger");
-            return;
-        }
+            // abort if graph empty
+            if (graph.getNumNodes() === 0){
+                Utils.showNotification("Error", "Can't save an empty graph", "danger");
+                return;
+            }
 
-        // clone the logical graph and remove github info ready for local save
-        const lg_clone : LogicalGraph = this.logicalGraph().clone();
-        lg_clone.fileInfo().removeGitInfo();
-        lg_clone.fileInfo().updateEagleInfo();
-        const jsonString : string = LogicalGraph.toOJSJsonString(lg_clone, false);
+            // clone the logical graph and remove github info ready for local save
+            const lg_clone : LogicalGraph = this.logicalGraph().clone();
+            lg_clone.fileInfo().removeGitInfo();
+            lg_clone.fileInfo().updateEagleInfo();
+            const jsonString : string = LogicalGraph.toOJSJsonString(lg_clone, false);
 
-        // validate json
-        Utils.validateJSON(jsonString, Eagle.FileType.Graph);
+            // validate json
+            Utils.validateJSON(jsonString, Eagle.FileType.Graph);
 
-        Utils.httpPostJSONString('/saveFileToLocal', jsonString, (error : string, data : string) : void => {
-            if (error != null){
+            let data: any;
+            try {
+                data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
+            } catch (error){
                 Utils.showUserMessage("Error", "Error saving the file!");
                 console.error(error);
                 return;
             }
 
-            Utils.downloadFile(error, data, graph.fileInfo().name);
+            try {
+                await Utils.downloadFile(data, graph.fileInfo().name);
+            } catch (error){
+                reject(error);
+                return;
+            }
 
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
@@ -2465,84 +2616,87 @@ export class Eagle {
             graph.fileInfo().commitHash = "";
             graph.fileInfo().downloadUrl = "";
             graph.fileInfo.valueHasMutated();
+
+            resolve();
         });
     }
 
-    saveAsFileToDisk = (file: LogicalGraph | Palette): void => {
-        Utils.requestUserString("Save As", "Please enter a filename for the " + file.fileInfo().type, file.fileInfo().name, false, (completed: boolean, userString: string) => {
-            // abort if incomplete
-            if (!completed){
-                console.log("User aborted saveAs");
-                return;
-            }
+    saveAsFileToDisk = async (file: LogicalGraph | Palette): Promise<void> => {
+        let userString: string;
+        try {
+            userString = await Utils.requestUserString("Save As", "Please enter a filename for the " + file.fileInfo().type, file.fileInfo().name, false);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            file.fileInfo().name = userString;
 
-            switch(file.fileInfo().type){
-                case Eagle.FileType.Graph:
-                    this.saveGraphToDisk(file as LogicalGraph);
-                    break;
-                case Eagle.FileType.Palette:
-                    this.savePaletteToDisk(file as Palette);
-                    break;
-                default:
-                    console.warn("saveAsFileToDisk(): fileType", file.fileInfo().type, "not implemented, aborting.");
-                    Utils.showUserMessage("Error", "Unable to save file: file type '" + file.fileInfo().type + "' is not supported.");
-            }
-        });
+        file.fileInfo().name = userString;
+
+        switch(file.fileInfo().type){
+            case Eagle.FileType.Graph:
+                this.saveGraphToDisk(file as LogicalGraph);
+                break;
+            case Eagle.FileType.Palette:
+                this.savePaletteToDisk(file as Palette);
+                break;
+            default:
+                console.warn("saveAsFileToDisk(): fileType", file.fileInfo().type, "not implemented, aborting.");
+                Utils.showUserMessage("Error", "Unable to save file: file type '" + file.fileInfo().type + "' is not supported.");
+        }
     }
 
-    savePaletteToGit = (palette: Palette): void => {
+    savePaletteToGit = async (palette: Palette): Promise<void> => {
         console.log("savePaletteToGit()", palette.fileInfo().name, palette.fileInfo().type);
 
         const defaultRepository: Repository = new Repository(palette.fileInfo().repositoryService, palette.fileInfo().repositoryName, palette.fileInfo().repositoryBranch, false);
 
-        Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Repository.Service.GitHub),  palette.fileInfo().path, palette.fileInfo().name, Eagle.FileType.Palette, (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) : void => {
-            // check completed boolean
-            if (!completed){
-                console.log("Abort commit");
+        let commit: RepositoryCommit;
+        try {
+            commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Repository.Service.GitHub),  palette.fileInfo().path, palette.fileInfo().name, Eagle.FileType.Palette);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        // check repository name
+        const repository : Repository = Repositories.get(commit.repositoryService, commit.repositoryName, commit.repositoryBranch);
+        if (repository === null){
+            console.log("Abort commit");
+            return;
+        }
+
+        // get access token for this type of repository
+        let token : string;
+
+        switch (commit.repositoryService){
+            case Repository.Service.GitHub:
+                token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+                break;
+            case Repository.Service.GitLab:
+                token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
+                break;
+            default:
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
                 return;
-            }
+        }
 
-            // check repository name
-            const repository : Repository = Repositories.get(repositoryService, repositoryName, repositoryBranch);
-            if (repository === null){
-                console.log("Abort commit");
-                return;
-            }
+        // check that access token is defined
+        if (token === null || token === "") {
+            Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
+            return;
+        }
 
-            // get access token for this type of repository
-            let token : string;
+        const fullFileName : string = Utils.joinPath(commit.filePath, commit.fileName);
 
-            switch (repositoryService){
-                case Repository.Service.GitHub:
-                    token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
-                    break;
-                case Repository.Service.GitLab:
-                    token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
-                    break;
-                default:
-                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
-                    return;
-            }
+        // clone the palette
+        const p_clone : Palette = palette.clone();
+        p_clone.fileInfo().updateEagleInfo();
+        const jsonString: string = Palette.toOJSJsonString(p_clone);
 
-            // check that access token is defined
-            if (token === null || token === "") {
-                Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
-                return;
-            }
+        const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commit.message);
 
-            const fullFileName : string = Utils.joinPath(filePath, fileName);
-
-            // clone the palette
-            const p_clone : Palette = palette.clone();
-            p_clone.fileInfo().updateEagleInfo();
-            const jsonString: string = Palette.toOJSJsonString(p_clone);
-
-            const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
-
-            this.saveFileToRemote(repository, filePath, fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
-        });
+        this.saveFileToRemote(repository, commit.filePath, commit.fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
     }
     
     saveGraphScreenshot = async () : Promise<void> =>  {
@@ -2701,7 +2855,7 @@ export class Eagle {
         $('#loadingContainer').hide()
     }
 
-    addEdgeToLogicalGraph = () : void => {
+    addEdgeToLogicalGraph = async () : Promise<void> => {
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
             Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
@@ -2718,36 +2872,37 @@ export class Eagle {
         const newEdge = new Edge(this.logicalGraph().getNodes()[0].getId(), null, this.logicalGraph().getNodes()[0].getId(), null, false, false, false);
 
         // display edge editing modal UI
-        Utils.requestUserEditEdge(newEdge, this.logicalGraph(), (completed: boolean, edge: Edge) => {
-            if (!completed){
-                console.log("User aborted addEdgeToLogicalGraph()");
-                return;
-            }
+        let edge: Edge;
+        try {
+            edge = await Utils.requestUserEditEdge(newEdge, this.logicalGraph());
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            // validate edge
-            const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-            if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
-                Utils.showUserMessage("Error", "Invalid edge");
-                return;
-            }
+        // validate edge
+        const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+        if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
+            Utils.showUserMessage("Error", "Invalid edge");
+            return;
+        }
 
-            const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
-            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-            const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
-            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+        const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
+        const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
+        const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
+        const destPort: Field = destNode.findFieldById(edge.getDestPortId());
 
-            // new edges might require creation of new nodes, don't use addEdgeComplete() here!
-            this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Add edge");
-                this.logicalGraph().fileInfo().modified = true;
-                // trigger the diagram to re-draw with the modified edge
-                this.logicalGraph.valueHasMutated();
-            });
-        });
+        // new edges might require creation of new nodes, don't use addEdgeComplete() here!
+        await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
+
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Add edge");
+        this.logicalGraph().fileInfo().modified = true;
+        // trigger the diagram to re-draw with the modified edge
+        this.logicalGraph.valueHasMutated();
     }
 
-    editSelectedEdge = () : void => {
+    editSelectedEdge = async (): Promise<void> => {
         const selectedEdge: Edge = this.selectedEdge();
 
         if (selectedEdge === null){
@@ -2764,34 +2919,35 @@ export class Eagle {
         // clone selected edge so that no changes to the original can be made by the user request modal
         const clone: Edge = selectedEdge.clone();
 
-        Utils.requestUserEditEdge(clone, this.logicalGraph(), (completed: boolean, edge: Edge) => {
-            if (!completed){
-                console.log("User aborted editSelectedEdge()");
-                return;
-            }
+        let edge: Edge;
+        try {
+            edge = await Utils.requestUserEditEdge(clone, this.logicalGraph());
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            // validate edge
-            const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-            if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
-                Utils.showUserMessage("Error", "Invalid edge");
-                return;
-            }
+        // validate edge
+        const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+        if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
+            Utils.showUserMessage("Error", "Invalid edge");
+            return;
+        }
 
-            const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
-            const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-            const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
-            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+        const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
+        const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
+        const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
+        const destPort: Field = destNode.findFieldById(edge.getDestPortId());
 
-            // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
-            this.logicalGraph().removeEdgeById(selectedEdge.getId());
-            this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), () => {
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Edit edge");
-                this.logicalGraph().fileInfo().modified = true;
-                // trigger the diagram to re-draw with the modified edge
-                this.logicalGraph.valueHasMutated();
-            });
-        });
+        // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
+        this.logicalGraph().removeEdgeById(selectedEdge.getId());
+        await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
+
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Edit edge");
+        this.logicalGraph().fileInfo().modified = true;
+        // trigger the diagram to re-draw with the modified edge
+        this.logicalGraph.valueHasMutated();
     }
 
     duplicateSelection = (mode:string) : void => {
@@ -3042,68 +3198,63 @@ export class Eagle {
         this.selectedObjects([]);
     }
 
-    addNodesToPalette = (nodes: Node[]) : void => {
+    addNodesToPalette = async (nodes: Node[]) => {
         console.log("addNodesToPalette()");
 
         // build a list of palette names
         const paletteNames: string[] = this.buildWritablePaletteNamesList();
 
         // ask user to select the destination node
-        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node(s)", paletteNames, 0, true, "New Palette Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
-            // abort if the user aborted
-            if (!completed){
-                return;
+        const userChoice = await Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node(s)", paletteNames, 0, true, "New Palette Name");
+
+        if (userChoice === null){
+            return;
+        }
+
+        // if user made custom choice
+        let userString: string = userChoice;
+
+        // Adding file extension to the title if it does not have it.
+        if (!Utils.verifyFileExtension(userString)) {
+            userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
+        }
+
+        // get reference to palette (based on userString)
+        const destinationPalette = this.findPalette(userString, true);
+
+        // check that a palette was found
+        if (destinationPalette === null){
+            Utils.showUserMessage("Error", "Unable to find selected palette!");
+            return;
+        }
+
+        for (const node of nodes){
+            // skip non-node objects
+            if (!(node instanceof Node)){
+                console.warn("addNodesToPalette(): skipped a non-node object");
+                continue;
             }
 
-            // if user made custom choice
-            let userString: string = "";
-            if (userChoiceIndex === paletteNames.length){
-                userString = userCustomChoice;
-            } else {
-                userString = paletteNames[userChoiceIndex];
+            // add clone to palette
+            destinationPalette.addNode(node, true);
+
+            // get key of just-added node
+            const id: NodeId = destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].getId();
+
+            // check if clone has embedded applications, if so, add them to destination palette and remove
+            if (node.hasInputApplication()){
+                destinationPalette.addNode(node.getInputApplication(), true);
+                destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedId(id);
+            }
+            if (node.hasOutputApplication()){
+                destinationPalette.addNode(node.getOutputApplication(), true);
+                destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedId(id);
             }
 
-            // Adding file extension to the title if it does not have it.
-            if (!Utils.verifyFileExtension(userString)) {
-                userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
-            }
-
-            // get reference to palette (based on userString)
-            const destinationPalette = this.findPalette(userString, true);
-
-            // check that a palette was found
-            if (destinationPalette === null){
-                Utils.showUserMessage("Error", "Unable to find selected palette!");
-                return;
-            }
-
-            for (const node of nodes){
-                // skip non-node objects
-                if (!(node instanceof Node)){
-                    console.warn("addNodesToPalette(): skipped a non-node object");
-                    continue;
-                }
-
-                // add clone to palette
-                destinationPalette.addNode(node, true);
-
-                // get key of just-added node
-                const id: NodeId = destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].getId();
-
-                // check if clone has embedded applications, if so, add them to destination palette and remove
-                if (node.hasInputApplication()){
-                    destinationPalette.addNode(node.getInputApplication(), true);
-                    destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedId(id);
-                }
-                if (node.hasOutputApplication()){
-                    destinationPalette.addNode(node.getOutputApplication(), true);
-                    destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedId(id);
-                }
-
-                // mark the palette as modified
-                destinationPalette.fileInfo().modified = true;
-            }
-        });
+            // mark the palette as modified
+            destinationPalette.fileInfo().modified = true;
+            destinationPalette.sort();
+        }
     }
 
     // TODO: mode enum?
@@ -3130,7 +3281,7 @@ export class Eagle {
         this.addNodesToPalette(nodes);
     }
 
-    deleteSelection = (rightClick: boolean, suppressUserConfirmationRequest: boolean, deleteChildren: boolean) : void => {
+    deleteSelection = async (rightClick: boolean, suppressUserConfirmationRequest: boolean, deleteChildren: boolean): Promise<void> => {
         let data: (Node | Edge)[] = [];
         let location: Eagle.FileType = Eagle.FileType.Unknown;
 
@@ -3262,19 +3413,19 @@ export class Eagle {
         }
 
         // request confirmation from user
-        Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_OBJECTS), (confirmed : boolean) : void => {
-            if (!confirmed){
-                console.log("User aborted deleteSelection()");
-                return;
-            }
+        try {
+            await Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_OBJECTS));
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
-            this._deleteSelection(deleteChildren, data, location);
+        this._deleteSelection(deleteChildren, data, location);
 
-            // if we're NOT in rightClick mode, empty the selected objects, should have all been deleted
-            if(!rightClick){
-                this.selectedObjects([]);
-            }
-        });
+        // if we're NOT in rightClick mode, empty the selected objects, should have all been deleted
+        if(!rightClick){
+            this.selectedObjects([]);
+        }
     }
 
     private _findChildren = (parent : Node) : Node[] => {
@@ -3351,99 +3502,99 @@ export class Eagle {
         }
     }
 
-    addNodeToLogicalGraphAndConnect = (newNodeId: NodeId) : void => {
-        this.addNodeToLogicalGraph(null, newNodeId, Eagle.AddNodeMode.ContextMenu, (node: Node)=>{
-            const realSourceNode: Node = RightClick.edgeDropSrcNode;
-            const realSourcePort: Field = RightClick.edgeDropSrcPort;
-            const realDestNode: Node = node;
-            let realDestPort = node.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
+    addNodeToLogicalGraphAndConnect = async (newNodeId: NodeId) => {
+        const node: Node = await this.addNodeToLogicalGraph(null, newNodeId, Eagle.AddNodeMode.ContextMenu);
 
-            // if no dest port was found, just use first input port on dest node
-            if (realDestPort === null){
-                realDestPort = node.findPortOfAnyType(true);
+        const realSourceNode: Node = RightClick.edgeDropSrcNode;
+        const realSourcePort: Field = RightClick.edgeDropSrcPort;
+        const realDestNode: Node = node;
+        let realDestPort = node.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
+
+        // if no dest port was found, just use first input port on dest node
+        if (realDestPort === null){
+            realDestPort = node.findPortOfAnyType(true);
+        }
+
+        // create edge (in correct direction)
+        if (!RightClick.edgeDropSrcIsInput){
+            const edge: Edge = await this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false);
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Add edge " + edge.getId());
+            this.logicalGraph().fileInfo().modified = true;
+            this.logicalGraph.valueHasMutated();
+
+            // if the new node is a Data node, name the new node according to source port
+            const newName = realSourcePort.getDisplayText();
+            if (node.isData()){
+                node.setName(newName);
             }
+            realDestPort.setDisplayText(newName);
+        } else {
+            const edge: Edge = await this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false);
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Add edge " + edge.getId());
+            this.logicalGraph().fileInfo().modified = true;
+            this.logicalGraph.valueHasMutated();
 
-            // create edge (in correct direction)
-            if (!RightClick.edgeDropSrcIsInput){
-                this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false, (edge: Edge) => {
-                    this.checkGraph();
-                    this.undo().pushSnapshot(this, "Add edge " + edge.getId());
-                    this.logicalGraph().fileInfo().modified = true;
-                    this.logicalGraph.valueHasMutated();
-                });
-
-                // if the new node is a Data node, name the new node according to source port
-                const newName = realSourcePort.getDisplayText();
-                if (node.isData()){
-                    node.setName(newName);
-                }
-                realDestPort.setDisplayText(newName);
-            } else {
-                this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, (edge: Edge) => {
-                    this.checkGraph();
-                    this.undo().pushSnapshot(this, "Add edge " + edge.getId());
-                    this.logicalGraph().fileInfo().modified = true;
-                    this.logicalGraph.valueHasMutated();
-                });
-
-                // if the new node is a Data node, name the new node according to destination port
-                const newName = realDestPort.getDisplayText();
-                if (node.isData()){
-                    node.setName(newName);
-                }
-                realSourcePort.setDisplayText(newName);
+            // if the new node is a Data node, name the new node according to destination port
+            const newName = realDestPort.getDisplayText();
+            if (node.isData()){
+                node.setName(newName);
             }
-        });
+            realSourcePort.setDisplayText(newName);
+        }
     }
 
-    addNodeToLogicalGraph = (node: Node, nodeId: NodeId, mode: Eagle.AddNodeMode, callback: (node: Node) => void) : void => {
-        let pos : {x:number, y:number};
-        pos = {x:0,y:0}
-        let searchAreaExtended = false; //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
-        
-        // check that graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.showNotification("Unable to Add Component", "Graph Editing is disabled", "danger");
-            if (callback !== null) callback(null);
-            return;
-        }
+    addNodeToLogicalGraph = (node: Node, nodeId: NodeId, mode: Eagle.AddNodeMode): Promise<Node> => {
+        return new Promise(async(resolve, reject) => {
+            let pos : {x:number, y:number};
+            pos = {x:0,y:0}
+            let searchAreaExtended = false; //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
 
-        if(mode === Eagle.AddNodeMode.ContextMenu){
-            // we addNodeToLogicalGraph is called from the ContextMenu, we expect node to be null. The node is specified by the nodeId instead
-            console.assert(node === null);
-
-            // try to find the node (by nodeId) in the palettes
-            node = Utils.getPaletteComponentById(nodeId);
-
-            // if node not found yet, try find in the graph
-            if (node === null){
-                node = this.logicalGraph().findNodeById(nodeId);
+            // check that graph editing is allowed
+            if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                const message: string = "Unable to Add Component. Graph Editing is disabled";
+                Utils.showNotification("Error", message, "danger");
+                reject(message);
+                return;
             }
 
-            // use the position where the right click occurred
-            pos = Eagle.selectedRightClickPosition;
+            if(mode === Eagle.AddNodeMode.ContextMenu){
+                // we addNodeToLogicalGraph is called from the ContextMenu, we expect node to be null. The node is specified by the nodeId instead
+                console.assert(node === null);
 
-            RightClick.closeCustomContextMenu(true);
-        }
+                // try to find the node (by nodeId) in the palettes
+                node = Utils.getPaletteComponentById(nodeId);
 
-        // if node is a construct, set width and height a little larger
-        if (node.isGroup()){
-            node.setRadius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
-        }
+                // if node not found yet, try find in the graph
+                if (node === null){
+                    node = this.logicalGraph().findNodeById(nodeId);
+                }
 
-        //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
-        if(pos.x === 0 && pos.y === 0){
-            // get new position for node
-            if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
-                const result = this.getNewNodePosition(node.getRadius());
-                searchAreaExtended = result.extended
-                pos = {x:result.x,y:result.y}
-            } else {
-                pos = Eagle.nodeDropLocation;
+                // use the position where the right click occurred
+                pos = Eagle.selectedRightClickPosition;
+
+                RightClick.closeCustomContextMenu(true);
             }
-        }
 
-        this.addNode(node, pos.x, pos.y, (newNode: Node) => {
+            // if node is a construct, set width and height a little larger
+            if (node.isGroup()){
+                node.setRadius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
+            }
+
+            //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
+            if(pos.x === 0 && pos.y === 0){
+                // get new position for node
+                if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
+                    const result = this.getNewNodePosition(node.getRadius());
+                    searchAreaExtended = result.extended
+                    pos = {x:result.x,y:result.y}
+                } else {
+                    pos = Eagle.nodeDropLocation;
+                }
+            }
+
+            const newNode: Node = await this.addNode(node, pos.x, pos.y);
             // make sure the new node is selected
             this.setSelection(newNode, Eagle.FileType.Graph);
 
@@ -3486,50 +3637,47 @@ export class Eagle {
                 // add node to LogicalGraph
                 const OBJECT_OFFSET_X = 100;
                 const OBJECT_OFFSET_Y = 100;
-                this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y, (pythonObjectNode: Node) => {
-                    // set parent to same as PythonMemberFunction
-                    pythonObjectNode.setParentId(newNode.getParentId());
+                const pythonObjectNode: Node = await this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y);
+                // set parent to same as PythonMemberFunction
+                pythonObjectNode.setParentId(newNode.getParentId());
 
-                    // copy all fields from a "PythonObject" node in the palette
-                    Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
+                // copy all fields from a "PythonObject" node in the palette
+                Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
 
-                    // find the "object" port on the PythonMemberFunction
-                    let sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);
+                // find the "object" port on the PythonMemberFunction
+                let sourcePort: Field = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);
 
-                    // make sure we can find a port on the PythonMemberFunction
-                    if (sourcePort === null){
-                        sourcePort = Daliuge.selfField.clone();
-                        sourcePort.setId(Utils.generateFieldId());
-                        newNode.addField(sourcePort);
-                        Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
-                    }
+                // make sure we can find a port on the PythonMemberFunction
+                if (sourcePort === null){
+                    sourcePort = Daliuge.selfField.clone();
+                    sourcePort.setId(Utils.generateFieldId());
+                    newNode.addField(sourcePort);
+                    Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
+                }
 
-                    // create a new input/output "object" port on the PythonObject
-                    const inputOutputPort = new Field(Utils.generateFieldId(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput);
-                    pythonObjectNode.addField(inputOutputPort);
+                // create a new input/output "object" port on the PythonObject
+                const inputOutputPort = new Field(Utils.generateFieldId(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput);
+                pythonObjectNode.addField(inputOutputPort);
 
-                    // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
-                    this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, null);
-                });
+                // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
+                this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false);
             }
 
             this.checkGraph();
             this.undo().pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
 
-            if (callback !== null){
-                callback(newNode);
+            resolve(newNode);
+
+            if(searchAreaExtended){
+                setTimeout(function(){
+                    Eagle.getInstance().centerGraph()
+                },100)
             }
         });
-        
-        if(searchAreaExtended){
-            setTimeout(function(){
-                Eagle.getInstance().centerGraph()
-            },100)
-        }
     }
 
-    addGraphNodesToPalette = () : void => {
+    addGraphNodesToPalette = async () => {
         //check if there are any nodes in the graph
         if  (this.logicalGraph().getNodes().length === 0){
             Utils.showNotification("Unable to add nodes to palette", "No nodes found in graph", "danger");
@@ -3540,56 +3688,49 @@ export class Eagle {
         const paletteNames: string[] = this.buildWritablePaletteNamesList();
 
         // ask user to select the destination node
-        Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, true, "New Palette Name", (completed : boolean, userChoiceIndex: number, userCustomChoice : string) => {
-            // abort if the user aborted
-            if (!completed){
-                return;
+        const userChoice = await Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, true, "New Palette Name");
+        // abort if the user aborted
+        if (userChoice === null){
+            return;
+        }
+
+        let userString: string = userChoice;
+
+        // if the userString is empty, then abort, we should not allow empty palette names
+        if (userString === ""){
+            Utils.showNotification("Invalid palette name", "Please enter a name for the new palette", "danger");
+            return;
+        }
+
+        // Adding file extension to the title if it does not have it.
+        if (!Utils.verifyFileExtension(userString)) {
+            userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
+        }
+
+        // get reference to palette (based on userString)
+        const destinationPalette = this.findPalette(userString, true);
+
+        // check that a palette was found
+        if (destinationPalette === null){
+            Utils.showUserMessage("Error", "Unable to find selected palette!");
+            return;
+        }
+
+        // copy nodes to palette
+        for (const node of this.logicalGraph().getNodes()){
+            // check if clone has embedded applications, if so, add them to destination palette and remove
+            if (node.hasInputApplication()){
+                destinationPalette.addNode(node.getInputApplication(), false);
+            }
+            if (node.hasOutputApplication()){
+                destinationPalette.addNode(node.getOutputApplication(), false);
             }
 
-            // if user made custom choice
-            let userString: string = "";
-            if (userChoiceIndex === paletteNames.length){
-                userString = userCustomChoice;
-            } else {
-                userString = paletteNames[userChoiceIndex];
-            }
+            destinationPalette.addNode(node, false);
+        }
 
-            // if the userString is empty, then abort, we should not allow empty palette names
-            if (userString === ""){
-                Utils.showNotification("Invalid palette name", "Please enter a name for the new palette", "danger");
-                return;
-            }
-
-            // Adding file extension to the title if it does not have it.
-            if (!Utils.verifyFileExtension(userString)) {
-                userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
-            }
-
-            // get reference to palette (based on userString)
-            const destinationPalette = this.findPalette(userString, true);
-
-            // check that a palette was found
-            if (destinationPalette === null){
-                Utils.showUserMessage("Error", "Unable to find selected palette!");
-                return;
-            }
-
-            // copy nodes to palette
-            for (const node of this.logicalGraph().getNodes()){
-                // check if clone has embedded applications, if so, add them to destination palette and remove
-                if (node.hasInputApplication()){
-                    destinationPalette.addNode(node.getInputApplication(), false);
-                }
-                if (node.hasOutputApplication()){
-                    destinationPalette.addNode(node.getOutputApplication(), false);
-                }
-
-                destinationPalette.addNode(node, false);
-            }
-
-            // mark the palette as modified
-            destinationPalette.fileInfo().modified = true;
-        });
+        // mark the palette as modified
+        destinationPalette.fileInfo().modified = true;
     }
 
     private buildWritablePaletteNamesList = () : string[] => {
@@ -3769,7 +3910,7 @@ export class Eagle {
         field.setType(newType);
     }
 
-    changeNodeParent = () : void => {
+    changeNodeParent = async () => {
         // build list of node name + ids (exclude self)
         const selectedNode: Node = this.selectedNode();
 
@@ -3817,32 +3958,33 @@ export class Eagle {
         nodeList.unshift("None : 0");
 
         // ask user to choose a parent
-        Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number) => {
-            if (!completed)
-                return;
+        const userChoice: string = await Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "");
+        
+        if (userChoice === null){
+            return;
+        }
 
-            const choice: string = nodeList[userChoiceIndex];
+        const choice: string = userChoice;
 
-            // change the parent
-            const newParentId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1).toString() as NodeId
+        // change the parent
+        const newParentId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1).toString() as NodeId
 
-            // key '0' is a special case
-            if (newParentId === null){
-                selectedNode.setParentId(null);
-            } else {
-                selectedNode.setParentId(newParentId);
-            }
+        // key '0' is a special case
+        if (newParentId === null){
+            selectedNode.setParentId(null);
+        } else {
+            selectedNode.setParentId(newParentId);
+        }
 
-            // refresh the display
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Change Node Parent");
-            this.logicalGraph().fileInfo().modified = true;
-            this.selectedObjects.valueHasMutated();
-            this.logicalGraph.valueHasMutated();
-        });
+        // refresh the display
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Change Node Parent");
+        this.logicalGraph().fileInfo().modified = true;
+        this.selectedObjects.valueHasMutated();
+        this.logicalGraph.valueHasMutated();
     }
 
-    changeNodeSubject = () : void => {
+    changeNodeSubject = async () => {
         // build list of node name + ids (exclude self)
         const selectedNode: Node = this.selectedNode();
 
@@ -3872,23 +4014,23 @@ export class Eagle {
         }
 
         // ask user for parent
-        Utils.requestUserChoice("Node Subject Id", "Select a subject node", nodeList, selectedChoiceIndex, false, "", (completed : boolean, userChoiceIndex: number) => {
-            if (!completed)
-                return;
+        const userChoice: string = await Utils.requestUserChoice("Node Subject Id", "Select a subject node", nodeList, selectedChoiceIndex, false, "");
 
-            const choice = nodeList[userChoiceIndex];
+        if (userChoice === null)
+            return;
 
-            // change the subject
-            const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId;
-            selectedNode.setSubjectId(newSubjectId);
+        const choice = userChoice;
 
-            // refresh the display
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Change Node Subject");
-            this.logicalGraph().fileInfo().modified = true;
-            this.selectedObjects.valueHasMutated();
-            this.logicalGraph.valueHasMutated();
-        });
+        // change the subject
+        const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId;
+        selectedNode.setSubjectId(newSubjectId);
+
+        // refresh the display
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Change Node Subject");
+        this.logicalGraph().fileInfo().modified = true;
+        this.selectedObjects.valueHasMutated();
+        this.logicalGraph.valueHasMutated();
     }
 
     nodeDropLogicalGraph = (eagle : Eagle, event: JQuery.TriggeredEvent) : void => {
@@ -3921,7 +4063,7 @@ export class Eagle {
 
         // add each of the nodes we are moving
         for (const sourceComponent of sourceComponents){
-            this.addNodeToLogicalGraph(sourceComponent, null, Eagle.AddNodeMode.Default, null);
+            this.addNodeToLogicalGraph(sourceComponent, null, Eagle.AddNodeMode.Default);
 
             // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
             Eagle.nodeDropLocation.x += 20;
@@ -4000,7 +4142,7 @@ export class Eagle {
     }
 
     // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
-    editField = (node:Node, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, id: string) : void => {
+    editField = async (node:Node, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, id: string): Promise<void> => {
         // get field names list from the logical graph
         const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), parameterType);
         const allFieldNames: string[] = [];
@@ -4021,39 +4163,39 @@ export class Eagle {
             // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
             const field: Field = new Field(Utils.generateFieldId(), "", "", "", "", false, Daliuge.DataType.Integer, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort);
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
-                // abort if the user aborted
-                if (!completed){
-                    return;
-                }
+            let newField: Field;
+            try {
+                newField = await Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, usage, field, allFieldNames);
+            } catch (error){
+                console.error(error);
+                return;
+            }
 
-                // check selected option in select tag
-                const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
+            // check selected option in select tag
+            const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
 
-                // abort if -1 selected
-                if (choice === -1){
-                    return;
-                }
+            // abort if -1 selected
+            if (choice === -1){
+                return;
+            }
 
-                // hide the custom text input unless the first option in the select is chosen
-                if (choice === 0){
-                    newField.setParameterType(parameterType);
+            // hide the custom text input unless the first option in the select is chosen
+            if (choice === 0){
+                newField.setParameterType(parameterType);
 
-                    //create field from user input in modal
-                    node.addField(newField);
+                //create field from user input in modal
+                node.addField(newField);
 
-                } else {
-                    const clone : Field = this.currentField().clone();
-                    clone.setId(Utils.generateFieldId());
-                    clone.setParameterType(parameterType);
-                    node.addField(clone);
-                }
+            } else {
+                const clone : Field = this.currentField().clone();
+                clone.setId(Utils.generateFieldId());
+                clone.setParameterType(parameterType);
+                node.addField(clone);
+            }
 
-                this.checkGraph();
-                this.logicalGraph().fileInfo().modified = true;
-                this.undo().pushSnapshot(this, "Add field");
-            });
-
+            this.checkGraph();
+            this.logicalGraph().fileInfo().modified = true;
+            this.undo().pushSnapshot(this, "Add field");
         } else {
             //if editing an existing field
             const field: Field = this.selectedNode().findFieldById(id);
@@ -4067,18 +4209,24 @@ export class Eagle {
 
             $("#addParameterWrapper").hide();
 
-            Utils.requestUserEditField(this, Eagle.ModalType.Edit, parameterType, usage, field, allFieldNames, (completed : boolean, newField: Field) => {
-                // abort if the user aborted
-                if (!completed){
-                    return;
-                }
+            let newField: Field;
+            try {
+                newField = await Utils.requestUserEditField(this, Eagle.ModalType.Edit, parameterType, usage, field, allFieldNames);
+            } catch (error){
+                console.error(error);
+                return;
+            }
 
-                // update field data (keep existing nodeKey and id)
-                field.copyWithIds(newField, field.getNodeId(), field.getId());
+            // update field data (keep existing nodeKey and id)
+            field.copyWithIds(newField, field.getNodeId(), field.getId());
 
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Edit Field");
-            });
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Edit Field");
+
+            // if we summoned this editField modal from the params table, now that we are done, re-open the params table
+            if (modalType === Eagle.ModalType.Field){
+                Utils.showField(this, field.getNodeId(), field);
+            }
         }
     };
 
@@ -4214,137 +4362,136 @@ export class Eagle {
         }
     }
 
-    addEdge = (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, callback: (edge: Edge) => void) : void => {
-        // check that none of the supplied nodes and ports are null
-        if (srcNode === null){
-            console.warn("addEdge(): srcNode is null");
-            if (callback !== null) callback(null);
-            return;
-        }
-        if (srcPort === null){
-            console.warn("addEdge(): srcPort is null");
-            if (callback !== null) callback(null);
-            return;
-        }
-        if (destNode === null){
-            console.warn("addEdge(): destNode is null");
-            if (callback !== null) callback(null);
-            return;
-        }
-        if (destPort === null){
-            console.warn("addEdge(): destPort is null");
-            if (callback !== null) callback(null);
-            return;
-        }
-
-        // check that graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
-            if (callback !== null) callback(null);
-            return;
-        }
-
-        const edgeConnectsTwoApplications : boolean =
-            (srcNode.isApplication() || srcNode.isGroup()) &&
-            (destNode.isApplication() || destNode.isGroup());
-
-        const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
-
-        // Normally we can use a Memory component in-between two apps
-        // but if the destination app is a BashShellApp, then a Memory component will cause an error
-        // since the BashShellApp can't read from a memory location
-        // Instead, we use a File component as the intermediary
-        let intermediaryComponent;
-        if (destNode.getCategory() === Category.BashShellApp){
-            intermediaryComponent = Utils.getPaletteComponentByName(Category.File);
-        } else {
-            intermediaryComponent = Utils.getPaletteComponentByName(Category.Memory);
-        }
-
-        // if edge DOES NOT connect two applications, process normally
-        // if edge connects two event ports, process normally
-        // if the definition of the intermediaryComponent cannot be found, process normally
-        if (!edgeConnectsTwoApplications || twoEventPorts || (edgeConnectsTwoApplications && intermediaryComponent === null)){
-            const edge : Edge = new Edge(srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
-            this.logicalGraph().addEdgeComplete(edge);
-            setTimeout(() => {
-                this.setSelection(edge,Eagle.FileType.Graph)
-            }, 30);
-            if (callback !== null) callback(edge);
-            return;
-        }
-
-        // by default, use the positions of the nodes themselves to calculate position of new node
-        let srcNodePosition = srcNode.getPosition();
-        let destNodePosition = destNode.getPosition();
-
-        // if source or destination node is an embedded application, use position of parent construct node
-        if (srcNode.isEmbedded()){
-            srcNodePosition = this.logicalGraph().findNodeById(srcNode.getEmbedId()).getPosition();
-        }
-        if (destNode.isEmbedded()){
-            destNodePosition = this.logicalGraph().findNodeById(destNode.getEmbedId()).getPosition();
-        }
-
-        // count number of edges between source and destination
-        const PORT_HEIGHT : number = 24;
-        const numIncidentEdges = this.logicalGraph().countEdgesIncidentOnNode(srcNode);
-
-        // calculate a position for a new data component, halfway between the srcPort and destPort
-        const dataComponentPosition = {
-            x: (srcNodePosition.x + destNodePosition.x) / 2.0,
-            y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
-        };
-
-        // Add a duplicate of the memory component to the graph
-        const newNode : Node = this.logicalGraph().addDataComponentToGraph(Utils.duplicateNode(intermediaryComponent), dataComponentPosition);
-
-        // set name of new node (use user-facing name)
-        newNode.setName(srcPort.getDisplayText());
-
-        // remove existing ports from the memory node
-        newNode.removeAllInputPorts();
-        newNode.removeAllOutputPorts();
-
-        // add InputOutput port for dataType
-        const newInputOutputPort = new Field(Utils.generateFieldId(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputOutput);
-        newNode.addField(newInputOutputPort);
-
-        // set the parent of the new node
-        // by default, set parent to parent of dest node,
-        newNode.setParentId(destNode.getParentId());
-
-        // if source node is a child of dest node, make the new node a child too
-        if (srcNode.getParentId() === destNode.getId()){
-            newNode.setParentId(destNode.getId());
-        }
-
-         // if dest node is a child of source node, make the new node a child too
-        if (destNode.getParentId() === srcNode.getId()){
-            newNode.setParentId(srcNode.getId());
-        }
-
-        // create TWO edges, one from src to data component, one from data component to dest
-        const firstEdge : Edge = new Edge(srcNode.getId(), srcPort.getId(), newNode.getId(), newInputOutputPort.getId(), loopAware, closesLoop, false);
-        const secondEdge : Edge = new Edge(newNode.getId(), newInputOutputPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
-
-        this.logicalGraph().addEdgeComplete(firstEdge);
-        this.logicalGraph().addEdgeComplete(secondEdge);
-
-        // reply with one of the edges
-        if (callback !== null) callback(firstEdge);
-    }
-
-    editNodeDescription = () : void => {
-        console.log("editNodeDescription()");
-
-        Utils.requestUserText("Node Description", "Please edit the description for the node", this.selectedNode().getDescription(), (completed, userText) => {
-            if (!completed){
+    addEdge = async (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean): Promise<Edge> => {
+        return new Promise(async(resolve, reject) => {
+            // check that none of the supplied nodes and ports are null
+            if (srcNode === null){
+                reject("addEdge(): srcNode is null");
+                return;
+            }
+            if (srcPort === null){
+                reject("addEdge(): srcPort is null");
+                return;
+            }
+            if (destNode === null){
+                reject("addEdge(): destNode is null");
+                return;
+            }
+            if (destPort === null){
+                reject("addEdge(): destPort is null");
                 return;
             }
 
-            this.selectedNode().setDescription(userText);
-        })
+            // check that graph editing is allowed
+            if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                reject("Unable to Add Edge: Graph Editing is disabled");
+                return;
+            }
+
+            const edgeConnectsTwoApplications : boolean =
+                (srcNode.isApplication() || srcNode.isGroup()) &&
+                (destNode.isApplication() || destNode.isGroup());
+
+            const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
+
+            // Normally we can use a Memory component in-between two apps
+            // but if the destination app is a BashShellApp, then a Memory component will cause an error
+            // since the BashShellApp can't read from a memory location
+            // Instead, we use a File component as the intermediary
+            let intermediaryComponent;
+            if (destNode.getCategory() === Category.BashShellApp){
+                intermediaryComponent = Utils.getPaletteComponentByName(Category.File);
+            } else {
+                intermediaryComponent = Utils.getPaletteComponentByName(Category.Memory);
+            }
+
+            // if edge DOES NOT connect two applications, process normally
+            // if edge connects two event ports, process normally
+            // if the definition of the intermediaryComponent cannot be found, process normally
+            if (!edgeConnectsTwoApplications || twoEventPorts || (edgeConnectsTwoApplications && intermediaryComponent === null)){
+                const edge : Edge = new Edge(srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
+                this.logicalGraph().addEdgeComplete(edge);
+                setTimeout(() => {
+                    this.setSelection(edge,Eagle.FileType.Graph)
+                }, 30);
+                resolve(edge);
+                return;
+            }
+
+            // by default, use the positions of the nodes themselves to calculate position of new node
+            let srcNodePosition = srcNode.getPosition();
+            let destNodePosition = destNode.getPosition();
+
+            // if source or destination node is an embedded application, use position of parent construct node
+            if (srcNode.isEmbedded()){
+                srcNodePosition = this.logicalGraph().findNodeById(srcNode.getEmbedId()).getPosition();
+            }
+            if (destNode.isEmbedded()){
+                destNodePosition = this.logicalGraph().findNodeById(destNode.getEmbedId()).getPosition();
+            }
+
+            // count number of edges between source and destination
+            const PORT_HEIGHT : number = 24;
+            const numIncidentEdges = this.logicalGraph().countEdgesIncidentOnNode(srcNode);
+
+            // calculate a position for a new data component, halfway between the srcPort and destPort
+            const dataComponentPosition = {
+                x: (srcNodePosition.x + destNodePosition.x) / 2.0,
+                y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
+            };
+
+            // Add a duplicate of the memory component to the graph
+            const newNode : Node = this.logicalGraph().addDataComponentToGraph(Utils.duplicateNode(intermediaryComponent), dataComponentPosition);
+
+            // set name of new node (use user-facing name)
+            newNode.setName(srcPort.getDisplayText());
+
+            // remove existing ports from the memory node
+            newNode.removeAllInputPorts();
+            newNode.removeAllOutputPorts();
+
+            // add InputOutput port for dataType
+            const newInputOutputPort = new Field(Utils.generateFieldId(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputOutput);
+            newNode.addField(newInputOutputPort);
+
+            // set the parent of the new node
+            // by default, set parent to parent of dest node,
+            newNode.setParentId(destNode.getParentId());
+
+            // if source node is a child of dest node, make the new node a child too
+            if (srcNode.getParentId() === destNode.getId()){
+                newNode.setParentId(destNode.getId());
+            }
+
+            // if dest node is a child of source node, make the new node a child too
+            if (destNode.getParentId() === srcNode.getId()){
+                newNode.setParentId(srcNode.getId());
+            }
+
+            // create TWO edges, one from src to data component, one from data component to dest
+            const firstEdge : Edge = new Edge(srcNode.getId(), srcPort.getId(), newNode.getId(), newInputOutputPort.getId(), loopAware, closesLoop, false);
+            const secondEdge : Edge = new Edge(newNode.getId(), newInputOutputPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
+
+            this.logicalGraph().addEdgeComplete(firstEdge);
+            this.logicalGraph().addEdgeComplete(secondEdge);
+
+            // reply with one of the edges
+            resolve(firstEdge);
+        });
+    }
+
+    editNodeDescription = async (): Promise<void> => {
+        console.log("editNodeDescription()");
+
+        let nodeDescription: string;
+        try {
+            nodeDescription = await Utils.requestUserText("Node Description", "Please edit the description for the node", this.selectedNode().getDescription());
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        this.selectedNode().setDescription(nodeDescription);
     }
 
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
@@ -4359,18 +4506,18 @@ export class Eagle {
         return Utils.getCategoriesWithInputsAndOutputs(categoryType);
     }, this)
 
-    inspectorChangeNodeCategoryRequest = (event: Event) : void => {
+    inspectorChangeNodeCategoryRequest = async (event: Event): Promise<void> => {
         if (Setting.findValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES)){
 
             // request confirmation from user
-            Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.find(Setting.CONFIRM_NODE_CATEGORY_CHANGES), (confirmed : boolean) : void => {
-                if (!confirmed){
-                    //we need to reset the input select to the previous value
-                    $(event.target).val(this.selectedNode().getCategory())
-                    return;
-                }
-                this.inspectorChangeNodeCategory(event)
-            });
+            try {
+                await Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.find(Setting.CONFIRM_NODE_CATEGORY_CHANGES));
+            } catch (error){
+                //we need to reset the input select to the previous value
+                $(event.target).val(this.selectedNode().getCategory())
+                return;
+            }
+            this.inspectorChangeNodeCategory(event)
         }else{
             this.inspectorChangeNodeCategory(event)
         }
@@ -4411,7 +4558,7 @@ export class Eagle {
     }
     
     // NOTE: clones the node internally
-    addNode = (node : Node, x: number, y: number, callback : (node: Node) => void) : void => {
+    addNode = async (node : Node, x: number, y: number): Promise<Node> => {
         // copy node
         const newNode : Node = Utils.duplicateNode(node);
         newNode.setPosition(x, y);
@@ -4423,41 +4570,50 @@ export class Eagle {
 
         // check if node was added to an empty graph, if so prompt user to specify graph name
         if (this.logicalGraph().fileInfo().name === ""){
-            Utils.newDiagram(Eagle.FileType.Graph, (name: string) => {
-                this.logicalGraph().fileInfo().name = name;
-                this.checkGraph();
-                this.undo().pushSnapshot(this, "Named Logical Graph");
-                this.logicalGraph.valueHasMutated();
-                Utils.showNotification("Graph named", name, "success");
-            });
+            let filename: string;
+            try {
+                filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
+            } catch (error){
+                console.warn(error);
+                return newNode;
+            }
+            this.logicalGraph().fileInfo().name = filename;
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Named Logical Graph");
+            this.logicalGraph.valueHasMutated();
+            Utils.showNotification("Graph named", filename, "success");
         }
 
-        if (callback !== null) callback(newNode);
+        return newNode;
     }
 
-    checkForComponentUpdates = () : void => {
-        console.log("checkForComponentUpdates()");
+    checkForComponentUpdates = () => {
+        // check if any nodes to update
+        if (this.logicalGraph().getNodes().length === 0){
+            const message: string = "Graph contains no components to update";
+            Utils.showNotification("Error", message, "danger");
+            console.warn(message);
+            return;
+        }
 
-        ComponentUpdater.update(this.palettes(), this.logicalGraph(), function(errorsWarnings:Errors.ErrorsWarnings, updatedNodes:Node[]){
-            console.log("callback", errorsWarnings, updatedNodes);
+        const {updatedNodes, errorsWarnings} = ComponentUpdater.update(this.palettes(), this.logicalGraph());
 
-            // report missing palettes to the user
-            if (errorsWarnings.errors.length > 0){
-                const errorStrings = [];
-                for (const error of errorsWarnings.errors){
-                    errorStrings.push(error.message);
-                }
-
-                Utils.showNotification("Error", errorStrings.join("\n"), "danger");
-            } else {
-                const nodeNames = [];
-                for (const node of updatedNodes){
-                    nodeNames.push(node.getName());
-                }
-
-                Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
+        // report missing palettes to the user
+        if (errorsWarnings.errors.length > 0){
+            const errorStrings = [];
+            for (const error of errorsWarnings.errors){
+                errorStrings.push(error.message);
             }
-        });
+
+            Utils.showNotification("Error", errorStrings.join("\n"), "danger");
+        } else {
+            const nodeNames = [];
+            for (const node of updatedNodes){
+                nodeNames.push(node.getName());
+            }
+
+            Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
+        }
     }
 
     findPaletteContainingNode = (nodeId: string): Palette => {
