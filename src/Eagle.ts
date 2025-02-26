@@ -99,11 +99,6 @@ export class Eagle {
     explorePalettes : ko.Observable<ExplorePalettes>;
     dockerHubBrowser : ko.Observable<DockerHubBrowser>;
 
-    // TODO: move these to GraphRenderer.ts
-    isDragging : ko.Observable<boolean>;
-    draggingNode : ko.Observable<Node>;
-    draggingPaletteNode : boolean;
-
     errorsMode : ko.Observable<Errors.Mode>;
     graphWarnings : ko.ObservableArray<Errors.Issue>;
     graphErrors : ko.ObservableArray<Errors.Issue>;
@@ -183,9 +178,6 @@ export class Eagle {
         this.explorePalettes = ko.observable(new ExplorePalettes());
         this.dockerHubBrowser = ko.observable(new DockerHubBrowser());
 
-        this.isDragging = ko.observable(false);
-        this.draggingNode = ko.observable(null);
-        this.draggingPaletteNode = false;
         this.errorsMode = ko.observable(Errors.Mode.Loading);
         this.graphWarnings = ko.observableArray([]);
         this.graphErrors = ko.observableArray([]);
@@ -605,8 +597,10 @@ export class Eagle {
      * It resets all fields in the editor menu.
      */
     resetEditor = () : void => {
-        this.selectedObjects([]);
-        Eagle.selectedLocation(Eagle.FileType.Unknown);
+        setTimeout(() => {
+            this.selectedObjects([]);
+            Eagle.selectedLocation(Eagle.FileType.Unknown);
+        }, 100);
     }
 
     // if selectedObjects contains nothing but one node, return the node, else null
@@ -2706,34 +2700,6 @@ export class Eagle {
 
         this.saveFileToRemote(repository, commit.filePath, commit.fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
     }
-
-    // TODO: move to Translator.ts
-    setTranslatorUrl = async (): Promise<void> => {
-        const translatorURLSetting : Setting = Setting.find(Setting.TRANSLATOR_URL);
-
-        let userString: string;
-        try {
-            userString = await Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false);
-        } catch (error){
-            console.error(error);
-            return;
-        }
-
-        translatorURLSetting.value(userString);
-    };
-
-    // TODO: move to Translator.ts
-    translatorAlgorithmVisible = ( currentAlg:string) : boolean => {
-        const normalTranslatorMode :boolean = Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Normal;
-        if(!normalTranslatorMode){
-            return true
-        }
-        if(currentAlg === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)){
-            return true
-        }
-    
-        return false
-    }
     
     saveGraphScreenshot = async () : Promise<void> =>  {
         const eagle = Eagle.getInstance()
@@ -2859,23 +2825,6 @@ export class Eagle {
         window.open("https://github.com/ICRAR/EAGLE/issues/new?body="+bodyText, "_blank");
     }
 
-    // TODO: move to Setting.ts?
-    openSettings = () : void => {
-        //if no tab is selected yet, default to the first tab
-        if(!$(".settingCategoryActive").length){
-            $(".settingsModalButton").first().trigger("click")
-        }
-        Utils.showSettingsModal();
-    }
-
-    closeSettings = () : void => {
-        Utils.hideSettingsModal();
-    }
-
-    closeErrorsModal = () : void => {
-        Utils.closeErrorsModal();
-    }
-
     statusBarScroll = (data:any,e:any) : void => {
         e.preventDefault();
         const leftPos = $('#statusBar').scrollLeft();
@@ -2908,104 +2857,7 @@ export class Eagle {
         $('#loadingContainer').hide()
     }
 
-    // TODO: move to ParameterTable.ts
-    getCurrentParamReadonly = (field: Field) : boolean => {
-        // check that we actually found the right field, otherwise abort
-        if (field === null){
-            console.warn("Supplied field is null");
-            return false;
-        }
-
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
-                return false;
-            }else{
-                return field.isReadonly();
-            }
-        }else{
-            if(Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
-                return false;
-            }else{
-                return field.isReadonly();
-            }
-        }
-    }
-
-    // TODO: move to ParameterTable.ts
-    getCurrentParamValueReadonly = (field: Field) : boolean => {
-        // check that we actually found the right field, otherwise abort
-        if (field === null){
-            console.warn("Supplied field is null");
-            return true;
-        }
-
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
-            return false;
-        }
-        
-        if (Eagle.selectedLocation() != Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
-            return false;
-        }
-        
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.ReadOnly){
-            return false;
-        }
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.Normal){
-            return field.isReadonly();
-        }
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.ConfigOnly){
-            return field.isReadonly();
-        }
-        
-        console.warn("something in value readonly permissions has gone wrong!");
-        return true
-    }
-
-    // TODO: move to Setting.ts?
-    toggleSettingsTab = (btn:any, target:any) :void => {
-        //deselect and deactivate current tab content and buttons
-        $(".settingsModalButton").removeClass("settingCategoryBtnActive");
-        $(".settingsModalCategoryWrapper").removeClass("settingCategoryActive");
-
-        //activate selected tab content and button
-        $("#"+btn).addClass("settingCategoryBtnActive");
-        $("#"+target).addClass("settingCategoryActive");
-    }
-
-    // TODO: move to KeyboardShortcut.ts?
-    openShortcuts = () : void => {
-        if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
-            Eagle.shortcutModalCooldown = Date.now()
-            Utils.showShortcutsModal();
-        }
-    }
-
-    // TODO: move to KeyboardShortcut.ts?
-    closeShortcuts = () : void => {
-        Utils.closeShortcutsModal();
-    }
-
-    // TODO: move to Setting.ts?
-    //copies currently set settings in case the user wishes to cancel changes in the setting modal
-    copyCurrentSettings = () : void => {
-        for (const group of Eagle.settings){
-            for (const setting of group.getSettings()){
-                setting.copyCurrentSettings();
-            }
-        }
-    }
-
-    // TODO: move to Setting.ts?
-    //returns settings values to the previously copied settings, canceling the settings editing
-    cancelSettingChanges = () : void => {
-        for (const group of Eagle.settings){
-            for (const setting of group.getSettings()){
-                setting.cancelChanges();
-            }
-        }
-    }
-
-    addEdgeToLogicalGraph = async (): Promise<void> => {
+    addEdgeToLogicalGraph = async () : Promise<void> => {
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
             Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
@@ -4433,9 +4285,18 @@ export class Eagle {
                 maxY = maxY + 300
             }
 
-            // choose random position within minimums and maximums determined above
-            const randomX = Math.floor(Math.random() * (maxX - minX + 1) + minX);
-            const randomY = Math.floor(Math.random() * (maxY - minY + 1) + minY);
+            let randomX
+            let randomY
+
+            if (this.logicalGraph().getNumNodes() === 0){
+                //if there are no nodes in the graph we will put the new node to the left of the center of the canvas
+                randomX = minX + (maxX - minX)/4
+                randomY = minY + (maxY - minY)/2
+            }else{
+                // choose random position within minimums and maximums determined above
+                randomX = Math.floor(Math.random() * (maxX - minX + 1) + minX);
+                randomY = Math.floor(Math.random() * (maxY - minY + 1) + minY);
+            }
 
             x = randomX;
             y = randomY;

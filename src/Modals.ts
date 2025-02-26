@@ -7,6 +7,7 @@ import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
+import { Setting } from './Setting';
 import { SideWindow } from './SideWindow';
 import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
@@ -233,7 +234,7 @@ export class Modals {
         // #settingsModal - showSettingsModal()
         $('#settingsModal').on('shown.bs.modal', function(){
             $('#settingsModal').data('completed', false);
-            eagle.copyCurrentSettings()
+            Setting.copy();
             if(TutorialSystem.activeTut===null){
                 $('#settingsModalAffirmativeButton').trigger("focus");
             }
@@ -247,7 +248,7 @@ export class Modals {
         $('#settingsModal').on('hidden.bs.modal', function () {
             const completed : boolean = $('#settingsModal').data('completed');
             if(!completed){
-                eagle.cancelSettingChanges()
+                Setting.cancelChanges();
             }
 
             eagle.setSelection(null,Eagle.FileType.Graph)

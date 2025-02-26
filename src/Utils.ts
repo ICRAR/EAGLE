@@ -736,6 +736,11 @@ export class Utils {
     }
 
     static showSettingsModal() : void {
+        // if no tab is selected yet, default to the first tab
+        if(!$(".settingCategoryActive").length){
+            $(".settingsModalButton").first().trigger("click")
+        }
+
         $('#settingsModal').modal("show");
     }
 
@@ -755,10 +760,13 @@ export class Utils {
     */
 
     static showShortcutsModal() : void {
-        $('#shortcutsModal').modal("show");
+        if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
+            Eagle.shortcutModalCooldown = Date.now()
+            $('#shortcutsModal').modal("show");
+        }
     }
 
-    static closeShortcutsModal() : void {
+    static hideShortcutsModal() : void {
         $('#shortcutsModal').modal("hide");
     }
 
