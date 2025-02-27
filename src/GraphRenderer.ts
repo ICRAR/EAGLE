@@ -1646,11 +1646,17 @@ export class GraphRenderer {
     // TODO: can we use the Daliuge.FieldUsage type here for the 'usage' parameter?
     static portDragStart(port:Field, usage:string) : void {
         const eagle = Eagle.getInstance();
+        const e:any = event; //somehow the event here will always log in the console as a mouseevent. this allows the following line to access the button attribute.
+        //furter down we are calling stopPropagation on the same event object and it works, eventhough stopPropagation shouldnt exist on a mouseEvent. this is why i created a constant of type any. its working as it should but i dont kow how.
+        if(e.button === 1){
+            //we return if the button pressed is a middle mouse button, and allow the other drag events to handle this event. middle mouse is used for panning the canvas.
+            return
+        }
 
         GraphRenderer.updateMousePos();
 
         //prevents moving the node when dragging the port
-        event.stopPropagation();
+        e.stopPropagation();
         
         //preparing necessary port info
         GraphRenderer.draggingPort = true
