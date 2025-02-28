@@ -286,6 +286,11 @@ ko.bindingHandlers.graphRendererPortPosition = {
 export class GraphRenderer {
     static nodeData : Node[] = null
 
+    // TODO: group all the dragging variables. move into a structure?
+    static isDragging : ko.Observable<boolean> = ko.observable(false);
+    static draggingNode : ko.Observable<Node> = ko.observable(null);
+    static draggingPaletteNode : boolean = false;
+
     //port drag handler globals
     static draggingPort : boolean = false;
     static isDraggingPortValid: ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown);
@@ -323,7 +328,7 @@ export class GraphRenderer {
     static ctrlDrag:boolean = null;
     static editNodeName:boolean = false;
     static portDragStartPos = {x:0, y:0};
-    static simpleSelect : boolean = true; // used for node dragging/selecting. if the cursor position hasnt moved far when click/dragging a node. we wont update the node's position and handle it as a simple select action
+    static simpleSelect : boolean = true; // used for node dragging/selecting. if the cursor position hasn't moved far when click/dragging a node. we wont update the node's position and handle it as a simple select action
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
     static mousePosY : ko.Observable<number> = ko.observable(-1);
@@ -928,7 +933,7 @@ export class GraphRenderer {
             return '';
         }
 
-        //this is a global variable to contains a port on mouse over. if we are mousing over a port we dont need to draw an edge
+        //this is a global variable to contains a port on mouse over. if we are mousing over a port we don't need to draw an edge
         if(GraphRenderer.destinationPort !== null){
             return '';
         }
@@ -1040,18 +1045,18 @@ export class GraphRenderer {
         // if no node is selected, or we are dragging using middle mouse, then we are dragging the background
         if(node === null || event.button === 1){
             GraphRenderer.dragSelectionHandled(true)
-            eagle.isDragging(true);
+            GraphRenderer.isDragging(true);
         } else if(!node.isEmbedded()){
             // embedded nodes, aka input and output applications of constructs, cant be dragged
             //initiating node dragging
-            eagle.isDragging(true);
-            eagle.draggingNode(node);
+            GraphRenderer.isDragging(true);
+            GraphRenderer.draggingNode(node);
             GraphRenderer.nodeDragElement = event.target
             GraphRenderer.nodeDragNode = node
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
-            //checking if the node is inside of a contruct, if so, fetching it's parent
+            //checking if the node is inside of a construct, if so, fetching it's parent
             if(node.getParentId() != null){
                 const parentNode = eagle.logicalGraph().findNodeByIdQuiet(node.getParentId())
                 $('#'+parentNode.getId()).removeClass('transition')
@@ -1104,15 +1109,12 @@ export class GraphRenderer {
         
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
 
-        if (eagle.isDragging()){
-            if (eagle.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
+        if (GraphRenderer.isDragging()){
+            if (GraphRenderer.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
                 //check and note if the mouse has moved
                 GraphRenderer.simpleSelect = GraphRenderer.dragStartPosition.x - moveDistance.x < 5 && GraphRenderer.dragStartPosition.y - moveDistance.y < 5
-
-                //creating an array that contains all of the outermost nodes in the selected array
-                const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
                 
-                //this is to prevent the de-parent transition effect, which we dont want in this case
+                //this is to prevent the de-parent transition effect, which we don't want in this case
                 $('.node.transition').removeClass('transition')
 
                 // move node if the mouse has moved during the drag event
@@ -1125,7 +1127,7 @@ export class GraphRenderer {
                 }
 
                 //look for a construct at the current location that we would parent to
-                //the outermost node is the outermost construct for multiselection 
+                //the outermost node is the outermost construct for multi-selection 
                 GraphRenderer.lookForParent()
             } else if(GraphRenderer.isDraggingSelectionRegion){
                 
@@ -1178,7 +1180,7 @@ export class GraphRenderer {
             eagle.logicalGraph.valueHasMutated();
         }
 
-        // if we arent multi selecting and the node has moved by a larger amount
+        // if we aren't multi selecting and the node has moved by a larger amount
         if (!GraphRenderer.isDraggingSelectionRegion && !GraphRenderer.simpleSelect){
             // check if moving whole graph, or just a single node
             if (node !== null){
@@ -1189,8 +1191,8 @@ export class GraphRenderer {
         //reset helper globals defaults
         GraphRenderer.simpleSelect = true;
         GraphRenderer.dragSelectionHandled(true)
-        eagle.isDragging(false);
-        eagle.draggingNode(null);
+        GraphRenderer.isDragging(false);
+        GraphRenderer.draggingNode(null);
         
         //this is to make affected constructs re calculate their size
         eagle.selectedObjects.valueHasMutated()
@@ -1275,7 +1277,7 @@ export class GraphRenderer {
             const oldParent: Node = eagle.logicalGraph().findNodeByIdQuiet(outermostNode.getParentId());
             let parentingSuccessful = false; //if the detected parent of one node in the selection changes, we assign the new parent to the whole selection and exit this loop
 
-            // the parent construct is only allowed to grow by the amout specified(eagleConfig.construct_drag_out_distance) before allowing its children to escape
+            // the parent construct is only allowed to grow by the amount specified(eagleConfig.construct_drag_out_distance) before allowing its children to escape
             if(outermostNode.getParentId() != null && oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
                 $('#'+oldParent.getId()).addClass('transition')
                 GraphRenderer.parentSelection(outermostNodes, null);
@@ -1385,52 +1387,6 @@ export class GraphRenderer {
         }
     }
 
-    static getEdges(graph: LogicalGraph, showDataNodes: boolean): Edge[]{
-        if (showDataNodes){
-            return graph.getEdges();
-        } else {
-            const edges: Edge[] = [];
-
-            for (const edge of graph.getEdges()){
-                let srcHasConnectedInput: boolean = false;
-                let destHasConnectedOutput: boolean = false;
-
-                for (const e of graph.getEdges()){
-                    if (e.getDestNodeId() === edge.getSrcNodeId()){
-                        srcHasConnectedInput = true;
-                    }
-                    if (e.getSrcNodeId() === edge.getDestNodeId()){
-                        destHasConnectedOutput = true;
-                    }
-                }
-
-                const srcIsDataNode: boolean = GraphRenderer.findNodeWithId(edge.getSrcNodeId(), graph.getNodes()).isData();
-                const destIsDataNode: boolean = GraphRenderer.findNodeWithId(edge.getDestNodeId(), graph.getNodes()).isData();
-                
-                if (destIsDataNode){
-                    if (!destHasConnectedOutput){
-                        // draw edge as normal
-                        edges.push(edge);
-                    }
-                    continue;
-                }
-
-                if (srcIsDataNode){
-                    if (srcHasConnectedInput){
-                        // build a new edge
-                        const newSrc = GraphRenderer.findInputToDataNode(graph.getEdges(), edge.getSrcNodeId());
-                        edges.push(new Edge(newSrc.nodeId, newSrc.portId, edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false));
-                    } else {
-                        // draw edge as normal
-                        edges.push(edge);
-                    }
-                }
-            }
-
-            return edges;
-        }
-    }
-
     static findEdgesContainedByNodes(edges: Edge[], nodes: Node[]): Edge[]{
         const result: Edge[] = [];
 
@@ -1460,20 +1416,6 @@ export class GraphRenderer {
         }
 
         return result;
-    }
-
-    // TODO: maybe this should be in LogicalGraph.ts?
-    static findInputToDataNode(edges: Edge[], nodeId: NodeId) : {nodeId: NodeId, portId: FieldId}{
-        for (const edge of edges){
-            if (edge.getDestNodeId() === nodeId){
-                return {
-                    nodeId: edge.getSrcNodeId(),
-                    portId: edge.getSrcPortId()
-                };
-            }
-        }
-
-        return null;
     }
 
     static centerConstructs(construct:Node, graphNodes:Node[]) : void {
@@ -1704,11 +1646,17 @@ export class GraphRenderer {
     // TODO: can we use the Daliuge.FieldUsage type here for the 'usage' parameter?
     static portDragStart(port:Field, usage:string) : void {
         const eagle = Eagle.getInstance();
+        const e:any = event; //somehow the event here will always log in the console as a mouseevent. this allows the following line to access the button attribute.
+        //furter down we are calling stopPropagation on the same event object and it works, eventhough stopPropagation shouldnt exist on a mouseEvent. this is why i created a constant of type any. its working as it should but i dont kow how.
+        if(e.button === 1){
+            //we return if the button pressed is a middle mouse button, and allow the other drag events to handle this event. middle mouse is used for panning the canvas.
+            return
+        }
 
         GraphRenderer.updateMousePos();
 
         //prevents moving the node when dragging the port
-        event.stopPropagation();
+        e.stopPropagation();
         
         //preparing necessary port info
         GraphRenderer.draggingPort = true
@@ -2262,20 +2210,19 @@ export class GraphRenderer {
         return '';
     }
 
-    static addEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean) : void {
+    static async addEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean): Promise<void> {
         const eagle = Eagle.getInstance();
         if (srcPort.getId() === destPort.getId()){
             console.warn("Abort addLink() from port to itself!");
             return;
         }
 
-        eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, (edge : Edge) : void => {
-            eagle.checkGraph();
-            eagle.undo().pushSnapshot(eagle, "Added edge from " + srcNode.getName() + " to " + destNode.getName());
-            eagle.logicalGraph().fileInfo().modified = true;
-            eagle.logicalGraph.valueHasMutated();
-            GraphRenderer.clearEdgeVars();
-        });
+        await eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop);
+        eagle.checkGraph();
+        eagle.undo().pushSnapshot(eagle, "Added edge from " + srcNode.getName() + " to " + destNode.getName());
+        eagle.logicalGraph().fileInfo().modified = true;
+        eagle.logicalGraph.valueHasMutated();
+        GraphRenderer.clearEdgeVars();
     }
 
     static clearEdgeVars(){

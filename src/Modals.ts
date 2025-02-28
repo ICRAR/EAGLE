@@ -7,6 +7,7 @@ import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
+import { Setting } from './Setting';
 import { SideWindow } from './SideWindow';
 import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
@@ -83,26 +84,27 @@ export class Modals {
             $('#choiceModalAffirmativeButton').trigger("focus");
         });
         $('#choiceModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, userChoiceIndex : number, userCustomChoice : string) => void = $('#choiceModal').data('callback');
+            const callback : (completed : boolean, choice : string) => void = $('#choiceModal').data('callback');
             const completed : boolean = $('#choiceModal').data('completed');
-
+            
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
-                callback(false, -1, "");
+                callback(false, "");
                 return;
             }
 
             // check selected option in select tag
             const choices : string[] = $('#choiceModal').data('choices');
-            const choice : number = parseInt($('#choiceModalSelect').val().toString(), 10);
+            const choiceIndex : number = parseInt($('#choiceModalSelect').val().toString(), 10);
+            const choice = $('#choiceModalSelect option:selected').text();
+            const customChoice = $('#choiceModalString').val().toString();
 
             // if the last item in the select was selected, then return the custom value,
             // otherwise return the selected choice
-            if (choice === choices.length){
-                callback(true, choices.length, $('#choiceModalString').val().toString());
-            }
-            else {
-                callback(true, choice, choices[choice]);
+            if (choiceIndex === choices.length){
+                callback(true, customChoice);
+            } else {
+                callback(true, choice);
             }
         });
         $('#choiceModalString').on('keypress', function(e){
@@ -232,7 +234,7 @@ export class Modals {
         // #settingsModal - showSettingsModal()
         $('#settingsModal').on('shown.bs.modal', function(){
             $('#settingsModal').data('completed', false);
-            eagle.copyCurrentSettings()
+            Setting.copy();
             if(TutorialSystem.activeTut===null){
                 $('#settingsModalAffirmativeButton').trigger("focus");
             }
@@ -246,7 +248,7 @@ export class Modals {
         $('#settingsModal').on('hidden.bs.modal', function () {
             const completed : boolean = $('#settingsModal').data('completed');
             if(!completed){
-                eagle.cancelSettingChanges()
+                Setting.cancelChanges();
             }
 
             eagle.setSelection(null,Eagle.FileType.Graph)

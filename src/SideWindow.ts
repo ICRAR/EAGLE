@@ -5,10 +5,11 @@ import { Utils } from './Utils';
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { GraphRenderer } from "./GraphRenderer";
+import { Tutorial, TutorialSystem } from "./Tutorial";
 
 export class SideWindow {
-    // The width remains on the sidewindow, this is because when we are dragging the width of a side window, there are frequent changes to the width. 
-    // We dont want these rapid changes to affect the setting and be saved into local storage, until we stop dragging.
+    // The width remains on the sideWindow, this is because when we are dragging the width of a side window, there are frequent changes to the width. 
+    // We don't want these rapid changes to affect the setting and be saved into local storage, until we stop dragging.
     size : ko.Observable<number>;
     adjusting : ko.Observable<boolean>;
 
@@ -18,6 +19,11 @@ export class SideWindow {
     }
 
     static toggleShown = (window:string): void => {
+        if(TutorialSystem.activeTut){
+            //if a tutorial is active, the arrow keys are used for navigating through steps
+            return
+        }
+        
         SideWindow.toggleTransition()
 
         if(window === 'left'){
@@ -66,7 +72,7 @@ export class SideWindow {
         const eagle: Eagle = Eagle.getInstance();
 
         //for hiding any tooltips while dragging and preventing them from showing
-        eagle.draggingPaletteNode = true;
+        GraphRenderer.draggingPaletteNode = true;
         $(e.target).find('.input-group').tooltip('hide');
 
         // retrieve data about the node being dragged
@@ -100,8 +106,7 @@ export class SideWindow {
     }
 
     static nodeDragEnd() : boolean {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.draggingPaletteNode = false;
+        GraphRenderer.draggingPaletteNode = false;
 
         $(".rightWindow").removeClass("noDropTarget");
         $(".navbar").removeClass("noDropTarget");

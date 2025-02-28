@@ -29,7 +29,7 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await page.getByRole('button', { name: 'OK' }).click();
 
   //-----------EDITING THE NODE IN THE PARAMETERS TABLE--------
-  //open the parameters table via keybaord shortcut
+  //open the parameters table via keyboard shortcut
   await page.press('body','t');
 
   //add a new parameter

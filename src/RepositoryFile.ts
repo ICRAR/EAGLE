@@ -1,12 +1,11 @@
 import * as ko from "knockout";
 
-import { Branded } from "./main";
 import { Eagle } from './Eagle';
 import { Repository } from './Repository';
 import { Utils } from './Utils';
 
 export class RepositoryFile {
-    _id : RepositoryFile.Id
+    _id : RepositoryFileId
     repository: Repository
     name : string
     path : string
@@ -39,8 +38,4 @@ export class RepositoryFile {
     htmlId : ko.PureComputed<string> = ko.pureComputed(() => {
         return "id_" + this.name.replace('.', '_');
     }, this);
-}
-
-export namespace RepositoryFile {
-    export type Id = Branded<string, "RepositoryFile.Id">
 }

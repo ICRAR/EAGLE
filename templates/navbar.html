@@ -215,12 +215,12 @@
                     <a class="dropdown-item" id="onlineDocs" href="#" data-bind="click: onlineDocs">Online Docs</a>
                     <a class="dropdown-item" id="readme" href="#" data-bind="click: readme">GitHub README</a>
                     <a class="dropdown-item" id="submitIssue" href="#" data-bind="click: submitIssue">Submit Issue</a>
-                    <a class="dropdown-item" id="keyboardShortcuts" href="#" data-bind="click: openShortcuts">Keyboard Shortcuts
+                    <a class="dropdown-item" id="keyboardShortcuts" href="#" data-bind="click: Utils.showShortcutsModal">Keyboard Shortcuts
                         <span data-bind="text: KeyboardShortcut.idToText('open_keyboard_shortcut_modal', true)"></span>
                     </a>
                 </div>
             </li>
-            <a id="settings" class="nav-link iconHoverEffect" data-bs-placement="bottom" alt="Settings" href="#" data-bind="click: openSettings, eagleTooltip: 'Settings'">
+            <a id="settings" class="nav-link iconHoverEffect" data-bs-placement="bottom" alt="Settings" href="#" data-bind="click: Utils.showSettingsModal, eagleTooltip: 'Settings'">
                 <i class="icon-cog md-18"></i>
             </a>
         </ul>

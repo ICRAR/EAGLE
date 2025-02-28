@@ -3,6 +3,7 @@ import { RightClick } from '../RightClick';
 import { TutorialStep, TutorialSystem } from '../Tutorial';
 import { SideWindow } from '../SideWindow';
 import { Setting } from '../Setting';
+import { Utils } from '../Utils';
 
 const newTut = TutorialSystem.newTutorial('Graph Building', 'An introduction to graph building.')
 
@@ -51,9 +52,9 @@ newTut.newTutStep("Close the Modal", "<em>Press OK to close the modal and contin
 .setBackPreFunction(function(){$('#modelDataModal').modal('show')})
 
 newTut.newTutStep("Palette Components", "Each of these components in a palette performs a function that can be used in your graph", function(){return $("#palette_0_HelloWorldApp")})
-.setPreFunction(function(){SideWindow.setShown('left', true)})
+.setPreFunction(function(){SideWindow.setShown('left', true); TutorialSystem.findInPalettes('#palette_0_HelloWorldApp');})
 .setWaitType(TutorialStep.Wait.Delay)
-.setDelayAmount(450)
+.setDelayAmount(500)
 
 newTut.newTutStep("Adding base components into the graph", "To add one into the graph, simply click on the icon or drag the component into the graph.<em> Click on the icon to continue.</em>", function(){return $("#addPaletteNodeHelloWorldApp")})
 .setType(TutorialStep.Type.Press)
@@ -126,7 +127,7 @@ newTut.newTutStep("Graph Errors and warnings", "This is the error checking syste
 
 newTut.newTutStep("Saving a Graph", "Options to save your graph are available in the graph menu <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(eagle:Eagle){eagle.closeErrorsModal()})
+.setPreFunction(function(eagle:Eagle){Utils.closeErrorsModal()})
 .setBackPreFunction(function(){$('.forceShow').removeClass('forceShow');$(".dropdown-toggle").removeClass("show");$(".dropdown-menu").removeClass("show")}) //allowing the graph navbar dropdown to hide
 
 newTut.newTutStep("Saving a Graph", "You are able to download the graph in the 'local storage' section, or save the graph into your github repository under 'git storage'", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-menu')})
