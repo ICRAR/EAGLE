@@ -59,7 +59,16 @@ export async function textNotification(page, title, text){
   })
 }
 
-export async function explainElement(page, targetElement, direction, title, message){
+export async function explainElement(page, targetElement, direction, message){
+
+  const target = await targetElement.boundingBox()
+  console.log(target)
+  const box_top = target.y;
+  const box_bottom = target.y + target.height;
+  const box_left = target.x;
+  const box_right = target.x + target.width;
+  console.log(box_top,box_bottom,box_left,box_right)
+  await page.evaluate(({message, direction, box_top, box_bottom, box_left, box_right}) => {
     let box_trans;
     let box_offset;
     let top;
@@ -71,12 +80,7 @@ export async function explainElement(page, targetElement, direction, title, mess
     let arrowTop;
     let arrowLeft;
     let arrow_trans;
-
-    const target = await targetElement.boundingBox()
-    const box_top = target.top;
-    const box_bottom = target.bottom;
-    const box_left = target.left;
-    const box_right = target.right;
+  
     const timeout_time = 2500;
 
     switch (direction) {
@@ -106,7 +110,7 @@ export async function explainElement(page, targetElement, direction, title, mess
         arrowLeft = '0%';
         arrow_trans = '-100%,-50%';
         break;
-      case 'above':
+      case 'up':
         top = box_top;
         left = box_left + 0.5*(box_right - box_left);
         box_trans = '-50%,-100%';
@@ -119,7 +123,7 @@ export async function explainElement(page, targetElement, direction, title, mess
         arrowLeft = '50%';
         arrow_trans = '-50%,0%';
         break;
-      case 'below':
+      case 'down':
         top = box_bottom;
         left = box_left + 0.5*(box_right - box_left);
         box_trans = '-50%,0%';
@@ -133,7 +137,7 @@ export async function explainElement(page, targetElement, direction, title, mess
         arrow_trans = '-50%,-100%';
         break;
     }
-    
+
     return new Promise<void>(resolve => {
         const noteBox = document.createElement('div');
         noteBox.textContent = message;
@@ -171,4 +175,5 @@ export async function explainElement(page, targetElement, direction, title, mess
             resolve();
         }, timeout_time);
     });
+  },{message, direction, box_top, box_bottom, box_left, box_right});
 }
