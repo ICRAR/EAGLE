@@ -61,13 +61,13 @@ export async function textNotification(page, title, text){
 
 export async function explainElement(page, targetElement, direction, message){
 
+  //i need to process this first then pass it into the evaluate function because i can only pass in numbers on strings.
   const target = await targetElement.boundingBox()
-  console.log(target)
   const box_top = target.y;
   const box_bottom = target.y + target.height;
   const box_left = target.x;
   const box_right = target.x + target.width;
-  console.log(box_top,box_bottom,box_left,box_right)
+  
   await page.evaluate(({message, direction, box_top, box_bottom, box_left, box_right}) => {
     let box_trans;
     let box_offset;

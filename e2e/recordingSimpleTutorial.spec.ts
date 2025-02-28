@@ -37,7 +37,7 @@ test('Recording a simple tutorial', async ({ page }) => {
 
 
   clickTarget = await page.getByRole('button', { name: 'Graph' })
-  await explainElement(page,clickTarget,'down', 'this is a test button message123')
+  await explainElement(page, clickTarget, 'down', 'this is a test button message123')
   // await page2.pause()
 
   await moveMouseCursor(page, clickTarget)
