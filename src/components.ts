@@ -14,27 +14,6 @@ ko.components.register('repository-folder', {
     template: { require: "text!static/components/repository-folder.html" }
 });
 
-// custom component for repositories
-ko.components.register('repository', {
-    viewModel: function(params : {data : any, parent : any}){
-        this.name = params.data.name;
-        this.service = params.data.service;
-        this.branch = params.data.branch;
-        this.htmlId = params.data.htmlId;
-        this.fetched = params.data.fetched;
-        this.isFetching = params.data.isFetching;
-        this.isBuiltIn = params.data.isBuiltIn;
-        this.expanded = params.data.expanded;
-        this.files = params.data.files;
-        this.folders = params.data.folders;
-
-        this.refresh = params.data.refresh;
-        this.select = params.data.select;
-        this.remove = params.parent.repositories().removeCustomRepository;
-    },
-    template: { require: "text!static/components/repository.html" }
-});
-
 // custom component for the hierarchy
 ko.components.register('hierarchy', {
     viewModel: function(params : {data : any}){
