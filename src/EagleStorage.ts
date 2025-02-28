@@ -52,13 +52,19 @@ export class EagleStorage {
     }
 
     static async listCustomRepositories(service: Repository.Service): Promise<Repository[]> {
-        return new Promise(async(resolve) => {
+        return new Promise(async(resolve, reject) => {
             const customRepositories: Repository[] = [];
 
             // query IndexedDB
             const repositoriesObjectStore = EagleStorage.db.transaction(EagleStorage.TRANSACTION_NAME).objectStore(EagleStorage.OBJECT_STORE_NAME);
 
-            repositoriesObjectStore.getAll().onsuccess = (event) => {
+            const request = repositoriesObjectStore.getAll();
+            
+            request.onerror = (event) => {
+                reject(`ObjectStore request error: ${(<any>event.target).error?.message}`);
+            };
+
+            request.onsuccess = (event) => {
                 const repos: {id: RepositoryId, service: Repository.Service, name: string, branch: string}[] = (<any>event.target).result;
 
                 repos.forEach((repo) => {
