@@ -24,7 +24,6 @@
 
 import * as Ajv from "ajv";
 import * as Showdown from "showdown";
-import * as ko from "knockout";
 
 import { Category } from './Category';
 import { CategoryData } from "./CategoryData";
@@ -2663,5 +2662,38 @@ export class Utils {
         if (node.getDescription() === sourceTemplate.getDescription()){
             node.setDescription(destinationTemplate.getDescription());
         }
+    }
+
+    static findOldRepositoriesInLocalStorage(): Repository[] {
+        const customRepositories: Repository[] = [];
+
+        // search for custom repositories, and add them into the list.
+        for (let i = 0; i < localStorage.length; i++) {
+            const key : string = localStorage.key(i);
+            const value : string = localStorage.getItem(key);
+            const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
+
+            // handle legacy repositories where the branch is not specified (assume master)
+            if (keyExtension === "github_repository"){
+                customRepositories.push(new Repository(Repository.Service.GitHub, value, "master", false));
+            }
+            if (keyExtension === "gitlab_repository"){
+                customRepositories.push(new Repository(Repository.Service.GitLab, value, "master", false));
+            }
+
+            // handle the current method of storing repositories where both the service and branch are specified
+            if (keyExtension === "github_repository_and_branch") {
+                const repositoryName = value.split("|")[0];
+                const repositoryBranch = value.split("|")[1];
+                customRepositories.push(new Repository(Repository.Service.GitHub, repositoryName, repositoryBranch, false));
+            }
+            if (keyExtension === "gitlab_repository_and_branch") {
+                const repositoryName = value.split("|")[0];
+                const repositoryBranch = value.split("|")[1];
+                customRepositories.push(new Repository(Repository.Service.GitLab, repositoryName, repositoryBranch, false));
+            }
+        }
+
+        return customRepositories;
     }
 }

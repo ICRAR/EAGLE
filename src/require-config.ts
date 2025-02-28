@@ -23,6 +23,7 @@ require.config({
         "GraphConfig": "./static/built/GraphConfig",
         "Eagle": "./static/built/Eagle",
         "EagleConfig": "./static/built/EagleConfig",
+        "EagleStorage": "./static/built/EagleStorage",
         "Utils": "./static/built/Utils",
         "Modals": "./static/built/Modals",
         "GraphUpdater": "./static/built/GraphUpdater",
