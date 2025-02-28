@@ -9,6 +9,7 @@ import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
 import {Setting} from './Setting';
 import {Utils} from './Utils';
+import { EagleStorage } from "./EagleStorage";
 
 export class Repositories {
 
@@ -63,6 +64,7 @@ export class Repositories {
         }
     }
 
+    // TODO: rename and more to Utils?
     static listCustomRepositories(service: Repository.Service): Repository[] {
         const customRepositories: Repository[] = [];
         const prefix: string = service.toLowerCase();
@@ -113,12 +115,14 @@ export class Repositories {
     };
 
     _addCustomRepository = async (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) => {
-        // TODO: add to IndexedDB
+        // create repo
+        const newRepo = new Repository(repositoryService, repositoryName, repositoryBranch, false);
 
-        // TODO: add to Repositories
-        //Repositories.repositories.push(newRepo);
+        // add to IndexedDB
+        EagleStorage.addCustomRepository(newRepo);
 
-        // TODO: sort the repository list
+        // add to Repositories, and re-sort the repository list
+        Repositories.repositories.push(newRepo);
         Repositories.sort();
     }
 
@@ -150,30 +154,14 @@ export class Repositories {
             return;
         }
 
-        // remove from localStorage
-        switch(repository.service){
-            case Repository.Service.GitHub:
-                //localStorage.removeItem(repository.name + ".repository");
-                //localStorage.removeItem(repository.name + ".github_repository");
-                //localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
+        // remove from IndexedDB
+        EagleStorage.removeCustomRepository(repository);
 
-                // TODO: remove from IndexedDB
-
-                // TODO: remove from Repositories.repositories
-
-                break;
-            case Repository.Service.GitLab:
-                //localStorage.removeItem(repository.name + ".gitlab_repository");
-                //localStorage.removeItem(repository.name + "|" + repository.branch + ".gitlab_repository_and_branch");
-                
-                // TODO: remove from IndexedDB
-
-                // TODO: remove from Repositories.repositories
-
-                break;
-            default:
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
-                return;
+        // remove from Repositories.repositories
+        for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
+            if (Repositories.repositories()[i]._id === repository._id){
+                Repositories.repositories.splice(i, 1);
+            }
         }
     }
 

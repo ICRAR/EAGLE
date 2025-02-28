@@ -1,4 +1,3 @@
-import { Eagle } from "./Eagle";
 import { Repositories } from "./Repositories";
 import { Repository } from "./Repository";
 
@@ -84,5 +83,21 @@ export class EagleStorage {
                 resolve(customRepositories);
             };
         });
+    }
+
+    static addCustomRepository(repository: Repository): void {
+        console.log("Add", repository.name);
+
+        const repositoriesObjectStore = EagleStorage.db.transaction(EagleStorage.TRANSACTION_NAME, "readwrite").objectStore(EagleStorage.OBJECT_STORE_NAME);
+
+        repositoriesObjectStore.add(Repository.toJson(repository));
+    }
+
+    static removeCustomRepository(repository: Repository): void {
+        console.log("Remove", repository.name, repository._id);
+
+        const repositoriesObjectStore = EagleStorage.db.transaction(EagleStorage.TRANSACTION_NAME, "readwrite").objectStore(EagleStorage.OBJECT_STORE_NAME);
+
+        repositoriesObjectStore.delete(repository._id);
     }
 }
