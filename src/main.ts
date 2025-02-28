@@ -260,7 +260,7 @@ $(function(){
 });
 
 async function loadRepos() {
-    // TODO: here is not the right place to put this! but async!
+    // initialise EagleStorage
     await EagleStorage.init();
 
     // Get the list of git repos
