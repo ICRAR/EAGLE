@@ -63,34 +63,7 @@ export class Repositories {
             eagle.openRemoteFile(file);
         }
     }
-
-    // TODO: rename and more to Utils?
-    static listCustomRepositories(service: Repository.Service): Repository[] {
-        const customRepositories: Repository[] = [];
-        const prefix: string = service.toLowerCase();
-
-        // search for custom repositories, and add them into the list.
-        for (let i = 0; i < localStorage.length; i++) {
-            const key : string = localStorage.key(i);
-            const value : string = localStorage.getItem(key);
-            const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
-
-            // handle legacy repositories where the branch is not specified (assume master)
-            if (keyExtension === prefix + "_repository"){
-                customRepositories.push(new Repository(service, value, "master", false));
-            }
-
-            // handle the current method of storing repositories where both the service and branch are specified
-            if (keyExtension === prefix + "_repository_and_branch") {
-                const repositoryName = value.split("|")[0];
-                const repositoryBranch = value.split("|")[1];
-                customRepositories.push(new Repository(service, repositoryName, repositoryBranch, false));
-            }
-        }
-
-        return customRepositories;
-    }
-
+    
     // use a custom modal to ask user for repository service and url at the same time
     addCustomRepository = async () => {
         let customRepository: Repository;

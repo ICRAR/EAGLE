@@ -1,6 +1,5 @@
-import { Repositories } from "./Repositories";
 import { Repository } from "./Repository";
-
+import { Utils } from "./Utils";
 
 export class EagleStorage {
 
@@ -12,19 +11,17 @@ export class EagleStorage {
 
     static async init(): Promise<void>{
         return new Promise(async(resolve, reject) => {
-            console.log("EagleStorage.init()");
 
             const request = indexedDB.open(EagleStorage.DATABASE_NAME);
             request.onerror = (event) => {
-                console.error("Why didn't you allow my web app to use IndexedDB?!");
-                reject();
+                reject("IndexedDB not available, or access refused");
             };
             request.onsuccess = (event) => {
                 EagleStorage.db = (<any>event.target).result;
 
                 EagleStorage.db.onerror = (event) => {
                     // generic error handler for all errors targeted at this database's requests!
-                    console.error(`Database error: ${(<any>event.target).error?.message}`);
+                    reject(`Database error: ${(<any>event.target).error?.message}`);
                 };
 
                 resolve();
@@ -43,13 +40,10 @@ export class EagleStorage {
                     const repositoriesObjectStore = db.transaction(EagleStorage.TRANSACTION_NAME, "readwrite").objectStore(EagleStorage.OBJECT_STORE_NAME);
 
                     // read list of repositories from localStorage
-                    const githubRepos = Repositories.listCustomRepositories(Repository.Service.GitHub);
-                    const gitlabRepos = Repositories.listCustomRepositories(Repository.Service.GitLab);
+                    const oldRepositories = Utils.findOldRepositoriesInLocalStorage();
+                    console.log("Found", oldRepositories.length, "old repositories in localStorage, converting to IndexedDB");
 
-                    githubRepos.forEach((repo) => {
-                        repositoriesObjectStore.add(Repository.toJson(repo));
-                    });
-                    gitlabRepos.forEach((repo) => {
+                    oldRepositories.forEach((repo) => {
                         repositoriesObjectStore.add(Repository.toJson(repo));
                     });
                 };
