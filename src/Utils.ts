@@ -45,7 +45,6 @@ import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
 import { ParameterTable } from "./ParameterTable";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
-import { Repositories } from "./Repositories";
 
 export class Utils {
     // Allowed file extensions
