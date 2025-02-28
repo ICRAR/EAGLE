@@ -18,7 +18,7 @@ test('Recording a simple tutorial', async ({ page }) => {
   let clickTarget:any = null;
 
   // const browser = await chromium.launch({
-  //   headless: false
+  //   headless: true
   // });
   // const context = await browser.newContext();
   // const page2 = await context.newPage();

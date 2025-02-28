@@ -58,3 +58,117 @@ export async function textNotification(page, title, text){
     resolve()
   })
 }
+
+export async function explainElement(page, targetElement, direction, title, message){
+    let box_trans;
+    let box_offset;
+    let top;
+    let left;
+    let arrowBorderTop;
+    let arrowBorderBottom;
+    let arrowBorderLeft;
+    let arrowBorderRight;
+    let arrowTop;
+    let arrowLeft;
+    let arrow_trans;
+
+    const target = await targetElement.boundingBox()
+    const box_top = target.top;
+    const box_bottom = target.bottom;
+    const box_left = target.left;
+    const box_right = target.right;
+    const timeout_time = 2500;
+
+    switch (direction) {
+      case 'left':
+        top = box_top + 0.5*(box_bottom - box_top);
+        left = box_left
+        box_trans = '-100%,-50%';
+        box_offset = '-10px,0';
+        arrowBorderTop = '5px solid transparent';
+        arrowBorderBottom = '5px solid transparent';
+        arrowBorderLeft = '10px solid #f8e5b4';
+        arrowBorderRight = '0';
+        arrowTop = '50%';
+        arrowLeft = '100%';
+        arrow_trans = '0%, -50%';
+        break;
+      case 'right':
+        top = box_top + 0.5*(box_bottom - box_top);
+        left = box_right;
+        box_trans = '0%,-50%';
+        box_offset = '10px,0';
+        arrowBorderTop = '5px solid transparent';
+        arrowBorderBottom = '5px solid transparent';
+        arrowBorderLeft = '0';
+        arrowBorderRight = '10px solid #f8e5b4';
+        arrowTop = '50%';
+        arrowLeft = '0%';
+        arrow_trans = '-100%,-50%';
+        break;
+      case 'above':
+        top = box_top;
+        left = box_left + 0.5*(box_right - box_left);
+        box_trans = '-50%,-100%';
+        box_offset = '0,-10px';
+        arrowBorderTop = '10px solid #f8e5b4';
+        arrowBorderBottom = '0';
+        arrowBorderLeft = '5px solid transparent';
+        arrowBorderRight = '5px solid transparent';
+        arrowTop = '100%';
+        arrowLeft = '50%';
+        arrow_trans = '-50%,0%';
+        break;
+      case 'below':
+        top = box_bottom;
+        left = box_left + 0.5*(box_right - box_left);
+        box_trans = '-50%,0%';
+        box_offset = '0,10px';
+        arrowBorderTop = '0';
+        arrowBorderBottom = '10px solid #f8e5b4';
+        arrowBorderLeft = '5px solid transparent';
+        arrowBorderRight = '5px solid transparent';
+        arrowTop = '0%';
+        arrowLeft = '50%';
+        arrow_trans = '-50%,-100%';
+        break;
+    }
+    
+    return new Promise<void>(resolve => {
+        const noteBox = document.createElement('div');
+        noteBox.textContent = message;
+        noteBox.style['transform-box'] = 'border-box';
+        noteBox.style['top'] = top + 'px';
+        noteBox.style['left'] = left + 'px';
+        noteBox.style['max-width'] = '300px';
+        noteBox.style['min-width'] = '300px';
+        noteBox.style['transform'] = 'translate('+ box_trans + ') translate(' + box_offset + ')';
+        noteBox.style['position'] = 'absolute';
+        noteBox.style['font-size'] = 'medium';
+        noteBox.style['box-shadow'] = '10px 10px 30px #555';
+        noteBox.style['padding'] = '16px';
+        //noteBox.style['border'] = '3px solid black';
+        noteBox.style['border-radius'] = '.25rem';
+        noteBox.style['background-color'] = '#f8e5b4';
+        noteBox.style['z-index'] = '999999';
+
+        const arrow = document.createElement('div')
+        arrow.style['width'] = '0';
+        arrow.style['height'] = '0';
+        arrow.style['border-top'] = arrowBorderTop;
+        arrow.style['border-bottom'] = arrowBorderBottom;
+        arrow.style['border-left'] = arrowBorderLeft;
+        arrow.style['border-right'] = arrowBorderRight;
+        arrow.style['position'] = 'absolute';
+        arrow.style['top'] = arrowTop;
+        arrow.style['left'] = arrowLeft;
+        arrow.style['transform'] = 'translate('+ arrow_trans + ')';
+
+        noteBox.appendChild(arrow);
+        document.body.appendChild(noteBox);
+        setTimeout(() => {
+            document.body.removeChild(noteBox);
+            resolve();
+        }, timeout_time);
+    });
+}
