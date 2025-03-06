@@ -32,11 +32,8 @@ export async function moveMouseCursor(page, targetElement){
   })
 }
 
-export async function textNotification(page, title, text){
+export async function textNotification(page, title, text, timeoutDuration){
   return new Promise<void>(async function(resolve){
-
-    //the duration for which the textbox will be shown, the test pauses while the textbox is shown.
-    const timeoutDuration = 2000;
 
     await page.evaluate(({title,text,timeoutDuration}) => {
       //creating and attatching a text box with the requested text note* the document is only reachable in the evaluate function
@@ -59,7 +56,7 @@ export async function textNotification(page, title, text){
   })
 }
 
-export async function explainElement(page, targetElement, direction, message){
+export async function explainElement(page, targetElement, direction, message, timeout_time){
 
   //i need to process this first then pass it into the evaluate function because i can only pass in numbers on strings.
   const target = await targetElement.boundingBox()
@@ -68,7 +65,7 @@ export async function explainElement(page, targetElement, direction, message){
   const box_left = target.x;
   const box_right = target.x + target.width;
   
-  await page.evaluate(({message, direction, box_top, box_bottom, box_left, box_right}) => {
+  await page.evaluate(({message, direction, box_top, box_bottom, box_left, box_right, timeout_time}) => {
     let box_trans;
     let box_offset;
     let top;
@@ -80,8 +77,6 @@ export async function explainElement(page, targetElement, direction, message){
     let arrowTop;
     let arrowLeft;
     let arrow_trans;
-  
-    const timeout_time = 2500;
 
     switch (direction) {
       case 'left':
@@ -175,5 +170,5 @@ export async function explainElement(page, targetElement, direction, message){
             resolve();
         }, timeout_time);
     });
-  },{message, direction, box_top, box_bottom, box_left, box_right});
+  },{message, direction, box_top, box_bottom, box_left, box_right, timeout_time});
 }
