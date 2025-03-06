@@ -77,6 +77,7 @@ export async function explainElement(page, targetElement, direction, message, ti
     let arrowTop;
     let arrowLeft;
     let arrow_trans;
+    const textBoxColor = '#f8e5b4'
 
     switch (direction) {
       case 'left':
@@ -86,7 +87,7 @@ export async function explainElement(page, targetElement, direction, message, ti
         box_offset = '-10px,0';
         arrowBorderTop = '5px solid transparent';
         arrowBorderBottom = '5px solid transparent';
-        arrowBorderLeft = '10px solid #f8e5b4';
+        arrowBorderLeft = '10px solid ' + textBoxColor;
         arrowBorderRight = '0';
         arrowTop = '50%';
         arrowLeft = '100%';
@@ -100,7 +101,7 @@ export async function explainElement(page, targetElement, direction, message, ti
         arrowBorderTop = '5px solid transparent';
         arrowBorderBottom = '5px solid transparent';
         arrowBorderLeft = '0';
-        arrowBorderRight = '10px solid #f8e5b4';
+        arrowBorderRight = '10px solid ' + textBoxColor;
         arrowTop = '50%';
         arrowLeft = '0%';
         arrow_trans = '-100%,-50%';
@@ -110,7 +111,7 @@ export async function explainElement(page, targetElement, direction, message, ti
         left = box_left + 0.5*(box_right - box_left);
         box_trans = '-50%,-100%';
         box_offset = '0,-10px';
-        arrowBorderTop = '10px solid #f8e5b4';
+        arrowBorderTop = '10px solid ' + textBoxColor;
         arrowBorderBottom = '0';
         arrowBorderLeft = '5px solid transparent';
         arrowBorderRight = '5px solid transparent';
@@ -124,7 +125,7 @@ export async function explainElement(page, targetElement, direction, message, ti
         box_trans = '-50%,0%';
         box_offset = '0,10px';
         arrowBorderTop = '0';
-        arrowBorderBottom = '10px solid #f8e5b4';
+        arrowBorderBottom = '10px solid ' + textBoxColor;
         arrowBorderLeft = '5px solid transparent';
         arrowBorderRight = '5px solid transparent';
         arrowTop = '0%';
