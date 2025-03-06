@@ -42,8 +42,8 @@ test('Creating Hellow World Example', async ({ page }) => {
 
   //explain then click on the graph button in the navbar
   clickTarget = await page.getByRole('button', { name: 'Graph' })
-  await explainElement(page, clickTarget, 'down', 'First, create a graph using this menu. This allows you to give your graph a name.', 6000)
   await moveMouseCursor(page, clickTarget)
+  await explainElement(page, clickTarget, 'down', 'First, create a graph using this menu. This allows you to give your graph a name.', 6000)
   await clickTarget.click();
 
   // hover on the new option to expand 
@@ -97,10 +97,15 @@ test('Creating Hellow World Example', async ({ page }) => {
   clickTarget = await page.locator('#addPaletteNodeHelloWorldApp')
   await moveMouseCursor(page, clickTarget)
   await clickTarget.click();
-  
-  await page.getByText('HelloWorldApp hello').click({
+
+  //add a hello world app
+  clickTarget = await page.getByText('HelloWorldApp hello')
+  await moveMouseCursor(page, clickTarget)
+  await clickTarget.click({
     button: 'right'
   });
+
+  
   await page.getByText('File', { exact: true }).click();
   await page.locator('.body').first().click();
   await page.locator('.body').first().click();
