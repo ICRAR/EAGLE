@@ -109,8 +109,8 @@ test('Creating Hellow World Example', async ({ page }) => {
   //right click on the empty canvas to open the right click menu to add a node
   clickTarget = await page.locator('#customContextMenu .searchBarContainer')
   await moveMouseCursor(page, clickTarget)
-  await explainElement(page, clickTarget, 'down', 'You can right click on many elements in eagle to get extra options. If you right click on an empty part of the canvas, you can quickly add a node to the graph.', 6000)
-  await explainElement(page, clickTarget, 'down', 'We will search for "file" and press "enter" to quickly add a file node to our graph.', 4000)
+  await explainElement(page, clickTarget, 'up', 'You can right click on many elements in eagle to get extra options. If you right click on an empty part of the canvas, you can quickly add a node to the graph.', 6000)
+  await explainElement(page, clickTarget, 'up', 'We will search for "file" and press "enter" to quickly add a file node to our graph.', 4000)
   //search for file then press enter to add the file node to the graph
   await clickTarget.pressSequentially('file')
   await page.press('body','Enter');
@@ -118,7 +118,7 @@ test('Creating Hellow World Example', async ({ page }) => {
   await page.locator('.body').first().click();
   await page.locator('.body').first().click();
   await page.locator('#HelloWorldApp div').first().click();
-  await page.locator('.inputPort').click();
+  // await page.locator('.inputPort').click();
   await page.getByRole('button', { name: '' }).click();
   await page.locator('.body').first().click();
   await page.locator('#openNodeParamsTable').click();
