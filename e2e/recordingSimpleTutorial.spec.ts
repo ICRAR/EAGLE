@@ -134,9 +134,8 @@ test('Creating Hellow World Example', async ({ page }) => {
 
   // await page.getByRole('button', { name: '' }).click();
   await page.locator('.body').first().click();
-  await page.locator('#openNodeParamsTable').click();
   await page.getByRole('row', { name: 'greet World World String' }).getByRole('textbox').nth(1).click();
-  await page.getByRole('row', { name: 'greet World World String' }).getByRole('textbox').nth(1).fill('Felicia');
+  await page.getByRole('row', { name: 'greet World World String' }).getByRole('textbox').nth(1).pressSequentially('Felicia');
   await page.getByRole('button', { name: '' }).click();
 
   // await page2.pause()
