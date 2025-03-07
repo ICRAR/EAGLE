@@ -3,7 +3,7 @@ import { test, expect,chromium, Page,Browser } from '@playwright/test';
 import { enableMouseCursor, explainElement, moveMouseCursor, textNotification } from '../playwrightHelpers';
 
 test.use({ 
-  viewport: { width: 1920, height: 1080 },
+  viewport: { width: 2160, height: 1440 },
   video: {
     mode: 'on',
     size: { width: 1920, height: 1080 }
@@ -99,14 +99,14 @@ test('Creating Hellow World Example', async ({ page }) => {
   await explainElement(page, clickTarget, 'right', 'Hover over the icon of a palette component to find out information about it. Then click it to add it to the graph.', 6000)
   await clickTarget.click();
 
-  //add a hello world app
+  //use right click on the canvas to add a file node
   clickTarget = await page.getByText('HelloWorldApp hello')
   await moveMouseCursor(page, clickTarget)
   await clickTarget.click({
     button: 'right'
   });
   
-  //right click on the empty canvas to open the right click menu to add a node
+  //explain the right click menu and search then add the file node by pressing enter
   clickTarget = await page.locator('#customContextMenu .searchBarContainer')
   await moveMouseCursor(page, clickTarget)
   await explainElement(page, clickTarget, 'up', 'You can right click on many elements in eagle to get extra options. If you right click on an empty part of the canvas, you can quickly add a node to the graph.', 6000)
@@ -115,11 +115,27 @@ test('Creating Hellow World Example', async ({ page }) => {
   await clickTarget.pressSequentially('file')
   await page.press('body','Enter');
 
-  await page.locator('.body').first().click();
-  await page.locator('.body').first().click();
-  await page.locator('#HelloWorldApp div').first().click();
+  // await page.locator('.body').first().click();
+  // await page.locator('.body').first().click();
+  clickTarget = await page.locator('#HelloWorldApp div').first()
+  await moveMouseCursor(page, clickTarget)
+  await explainElement(page, clickTarget, 'down',"Nodes can be selected to view and edit their parameters. A node's name can be edited by clicking on it in the graph.", 5000)
+  await clickTarget.click()
+
   // await page.locator('.inputPort').click();
-  await page.getByRole('button', { name: '' }).click();
+
+  //explaination for the inspector
+  clickTarget = await page.getByText('close link fingerprint')
+  await explainElement(page, clickTarget, 'up',"Basic information and some simple actions for the selected element can be seen here.", 4000)
+
+  //explain then click on the parameter table button
+  clickTarget = await page.getByRole('button', { name: '' })
+  await moveMouseCursor(page, clickTarget)
+  await explainElement(page, clickTarget, 'up',"The node fields table is for more advanced aditing of the node. You can access it here.", 4000)
+  await clickTarget.click()
+
+
+  // await page.getByRole('button', { name: '' }).click();
   await page.locator('.body').first().click();
   await page.locator('#openNodeParamsTable').click();
   await page.getByRole('row', { name: 'greet World World String' }).getByRole('textbox').nth(1).click();
