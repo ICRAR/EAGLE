@@ -3,7 +3,7 @@ import { test, expect,chromium, Page,Browser } from '@playwright/test';
 import { enableMouseCursor, explainElement, moveMouseCursor, textNotification } from '../playwrightHelpers';
 
 test.use({ 
-  viewport: { width: 2160, height: 1440 },
+  viewport: { width: 2560, height: 1440 },
   video: {
     mode: 'on',
     size: { width: 1920, height: 1080 }
@@ -117,7 +117,8 @@ test('Creating Hellow World Example', async ({ page }) => {
 
   // await page.locator('.body').first().click();
   // await page.locator('.body').first().click();
-  clickTarget = await page.locator('#HelloWorldApp div').first()
+  // clickTarget = await page.locator('#HelloWorldApp div').first()
+  clickTarget = await page.locator('#logicalGraph .node').first().locator('.body')
   await moveMouseCursor(page, clickTarget)
   await explainElement(page, clickTarget, 'down',"Nodes can be selected to view and edit their parameters. A node's name can be edited by clicking on it in the graph.", 5000)
   await clickTarget.click()
@@ -125,11 +126,11 @@ test('Creating Hellow World Example', async ({ page }) => {
   // await page.locator('.inputPort').click();
 
   //explaination for the inspector
-  clickTarget = await page.getByText('close link fingerprint')
+  clickTarget = await page.locator('#inspector .container')
   await explainElement(page, clickTarget, 'up',"Basic information and some simple actions for the selected element can be seen here.", 4000)
 
   //explain then click on the parameter table button
-  clickTarget = await page.getByRole('button', { name: '' })
+  clickTarget = await page.locator('#openNodeParamsTable')
   await moveMouseCursor(page, clickTarget)
   await explainElement(page, clickTarget, 'up',"The node fields table is for more advanced aditing of the node. You can access it here.", 4000)
   await clickTarget.click()
