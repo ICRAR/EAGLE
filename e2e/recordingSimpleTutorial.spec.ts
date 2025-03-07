@@ -6,7 +6,7 @@ test.use({
   viewport: { width: 2560, height: 1440 },
   video: {
     mode: 'on',
-    size: { width: 1920, height: 1080 }
+    size: { width: 2560, height: 1440 }
   },
   launchOptions:{
     slowMo: 700,
@@ -96,6 +96,7 @@ test('Creating Hellow World Example', async ({ page }) => {
   //add a hello world app
   clickTarget = await page.locator('#addPaletteNodeHelloWorldApp')
   await moveMouseCursor(page, clickTarget)
+  await clickTarget.hover();
   await explainElement(page, clickTarget, 'right', 'Hover over the icon of a palette component to find out information about it. Then click it to add it to the graph.', 6000)
   await clickTarget.click();
 
@@ -115,15 +116,10 @@ test('Creating Hellow World Example', async ({ page }) => {
   await clickTarget.pressSequentially('file')
   await page.press('body','Enter');
 
-  // await page.locator('.body').first().click();
-  // await page.locator('.body').first().click();
-  // clickTarget = await page.locator('#HelloWorldApp div').first()
   clickTarget = await page.locator('#logicalGraph .node').first().locator('.body')
   await moveMouseCursor(page, clickTarget)
   await explainElement(page, clickTarget, 'down',"Nodes can be selected to view and edit their parameters. A node's name can be edited by clicking on it in the graph.", 5000)
   await clickTarget.click()
-
-  // await page.locator('.inputPort').click();
 
   //explaination for the inspector
   clickTarget = await page.locator('#inspector .container')
