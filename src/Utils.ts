@@ -1348,7 +1348,6 @@ export class Utils {
         if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
             return 0
         }
-        console.log('getting bottom window height: ',Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT))
         return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
     }
 
