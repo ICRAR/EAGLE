@@ -3,7 +3,8 @@ import { test, expect,chromium, Page,Browser } from '@playwright/test';
 import { enableMouseCursor, explainElement, moveMouseCursor, textNotification } from '../playwrightHelpers';
 
 test.use({ 
-  viewport: { width: 2560, height: 1440 },
+  // viewport: { width: 2560, height: 1440 },
+  viewport: { width: 1920, height: 1080 },
   video: {
     mode: 'on',
     size: { width: 2560, height: 1440 }
@@ -137,6 +138,12 @@ test('Creating Hellow World Example', async ({ page }) => {
   await page.getByRole('row', { name: 'greet World World String' }).getByRole('textbox').nth(1).click();
   await page.getByRole('row', { name: 'greet World World String' }).getByRole('textbox').nth(1).pressSequentially('Felicia');
   await page.getByRole('button', { name: '' }).click();
+
+
+  clickTarget = await page.locator('#HelloWorldApp .outputPort')
+  await moveMouseCursor(page, clickTarget)
+  await moveMouseCursor(page, await page.locator('#File .inputPort'))
+  await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
 
   // await page2.pause()
   await page.close();
