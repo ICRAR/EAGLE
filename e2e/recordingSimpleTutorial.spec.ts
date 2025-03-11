@@ -3,8 +3,7 @@ import { test, expect,chromium, Page,Browser } from '@playwright/test';
 import { enableMouseCursor, explainElement, moveMouseCursor, textNotification } from '../playwrightHelpers';
 
 test.use({ 
-  // viewport: { width: 2560, height: 1440 },
-  viewport: { width: 1920, height: 1080 },
+  viewport: { width: 2560, height: 1440 },
   video: {
     mode: 'on',
     size: { width: 2560, height: 1440 }
@@ -19,15 +18,6 @@ test('Creating Hellow World Example', async ({ page }) => {
   let clickTarget:any = null;
   //over write the test timeout limit. these tutorials are way longer than normal tests.
   test.setTimeout(120000);
-
-  // there is a bug in the playwright code that with the way we are creating the test here, we page.pause does not work as intended. 
-  // creating a secont browser context allows us to pause the test
-  // the reason i dont just create the browser context this way in the first place is that with this method, the video recording doesnt work...
-  // const browser = await chromium.launch({
-  //   headless: false
-  // });
-  // const context = await browser.newContext();
-  // const page2 = await context.newPage();
 
   //this is needed to catch and forward console logs to the test results console in visual studio code
   page.on('console', (msg) => {
@@ -132,19 +122,28 @@ test('Creating Hellow World Example', async ({ page }) => {
   await explainElement(page, clickTarget, 'up',"The node fields table is for more advanced aditing of the node. You can access it here.", 4000)
   await clickTarget.click()
 
-
-  // await page.getByRole('button', { name: '' }).click();
-  await page.locator('.body').first().click();
-  await page.getByRole('row', { name: 'greet World World String' }).getByRole('textbox').nth(1).click();
-  await page.getByRole('row', { name: 'greet World World String' }).getByRole('textbox').nth(1).pressSequentially('Felicia');
-  await page.getByRole('button', { name: '' }).click();
-
-
-  clickTarget = await page.locator('#HelloWorldApp .outputPort')
+  //change the name of who we are greeting
+  clickTarget = await page.getByRole('row', { name: 'greet World World String' }).getByRole('textbox').nth(1)
   await moveMouseCursor(page, clickTarget)
-  await moveMouseCursor(page, await page.locator('#File .inputPort'))
+  await clickTarget.click();
+  await clickTarget.press('ControlOrMeta+a');
+  await clickTarget.pressSequentially('Felicia');
+
+  //close the bottom window
+  clickTarget = await page.locator('.closeBottomWindowBtn')
+  await moveMouseCursor(page, clickTarget)
+  await clickTarget.click();
+
+  //draw an edge between the nodes
+  const outputPort = await page.locator('#HelloWorldApp .outputPort')
+  const inputPort = await page.locator('#File .inputPort')
+  await explainElement(page, outputPort, 'down', 'This is the output port of the hello world app.',3000)
+  await explainElement(page, inputPort, 'down', 'And this is the input port of the File node. Connecting these two nodes means we are saving the output of hello world to disk.',6000)
+  await moveMouseCursor(page, outputPort)
+  await moveMouseCursor(page, inputPort)
   await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
 
-  // await page2.pause()
+  await textNotification(page, 'Tutorial: ', 'Finished graph creation tutorial.', 2500);
+
   await page.close();
 });
