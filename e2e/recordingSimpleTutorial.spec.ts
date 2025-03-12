@@ -32,7 +32,7 @@ test('Creating Hellow World Example', async ({ page }) => {
   await textNotification(page, 'Tutorial: ', 'Creating a Hello World graph', 2500)
 
   //explain then click on the graph button in the navbar
-  clickTarget = await page.getByRole('button', { name: 'Graph' })
+  clickTarget = await page.locator('#navbarDropdownGraph')
   await moveMouseCursor(page, clickTarget)
   await explainElement(page, clickTarget, 'down', 'First, create a graph using this menu. This allows you to give your graph a name.', 6000)
   await clickTarget.click();
@@ -103,6 +103,7 @@ test('Creating Hellow World Example', async ({ page }) => {
   clickTarget = await page.locator('#customContextMenu .searchBarContainer')
   await moveMouseCursor(page, clickTarget)
   await explainElement(page, clickTarget, 'up', 'You can right click on many elements in eagle to get extra options. If you right click on an empty part of the canvas, you can quickly add a node to the graph.', 7500)
+  await page.waitForTimeout(500); // small wait to allow one the first pop up to disappear before the next one comes up
   await explainElement(page, clickTarget, 'up', 'We will search for "file" and press "enter" to quickly add a file node to our graph.', 4000)
   //search for file then press enter to add the file node to the graph
   await clickTarget.pressSequentially('file')
@@ -140,11 +141,13 @@ test('Creating Hellow World Example', async ({ page }) => {
   //draw an edge between the nodes
   const outputPort = await page.locator('#HelloWorldApp .outputPort')
   const inputPort = await page.locator('#File .inputPort')
-  await explainElement(page, outputPort, 'down', 'This is the output port of the hello world app.',3000)
-  await explainElement(page, inputPort, 'down', 'And this is the input port of the File node. Connecting these two nodes means we are saving the output of the hello world app to disk.',6000)
   await moveMouseCursor(page, outputPort)
+  await explainElement(page, outputPort, 'down', 'This is the output port of the hello world app.',3000)
+  await explainElement(page, inputPort, 'down', 'And this is the input port of the File node.',3000)
+  await explainElement(page, outputPort, 'down', 'Drag and drop from one port to the other to create a connection.',4000)
   await moveMouseCursor(page, inputPort)
   await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
+  await explainElement(page, inputPort, 'down', 'The output of the Hello World App will now be saved to disk as a file.',4000)
 
   //end notification
   await textNotification(page, 'Tutorial: ', 'Finished graph creation tutorial.', 3000);
