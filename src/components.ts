@@ -20,16 +20,3 @@ ko.components.register('hierarchy-node', {
     },
     template: { require: "text!static/components/hierarchy-node.html" }
 });
-
-// custom component for a component that appears in the palette
-/*
-ko.components.register('palette-component', {
-    viewModel: function(params : {data : any, paletteIndex : any, index : any}){
-        const vm = params.data;
-        vm.paletteIndex = params.paletteIndex;
-        vm.index = params.index;
-        return vm;
-    },
-    template: { require: "text!static/components/palette-component.html" }
-});
-*/
