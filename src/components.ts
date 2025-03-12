@@ -14,14 +14,6 @@ ko.components.register('repository-folder', {
     template: { require: "text!static/components/repository-folder.html" }
 });
 
-// custom component for the hierarchy
-ko.components.register('hierarchy', {
-    viewModel: function(params : {data : any}){
-        this.nodes = params.data().getNodes();
-    },
-    template: { require: "text!static/components/hierarchy.html" }
-});
-
 ko.components.register('hierarchy-node', {
     viewModel: function(params : {data : any}){
         return params.data;
