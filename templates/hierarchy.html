@@ -13,7 +13,7 @@
                 <!-- /ko -->
 
                 <ul class="nodes" data-bind="foreach: $root.logicalGraph().getRootNodes()">
-                    <hierarchy-node params="data: $data"></hierarchy-node>
+                    <div data-bind="template: {name: 'hierarchy-node-template'}"></div>
                 </ul>
             <!-- /ko -->
         </div>
