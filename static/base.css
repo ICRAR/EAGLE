@@ -1320,18 +1320,18 @@ select.form-control{
     width: 70%;
 }
 
-#paletteList palette-component .input-group-prepend{
+#paletteList .palette-component .input-group-prepend{
     height: 100%;
     width: 52px;
 }
 
-#paletteList palette-component button, #paletteList palette-component span {
+#paletteList .palette-component button, #paletteList .palette-component span {
     height: 100%;
     width: 100%;
     color:white;
 }
 
-#paletteList palette-component i {
+#paletteList .palette-component i {
     margin-left:50%;
     transform: translateX(-50%);
     pointer-events: none;
@@ -2150,7 +2150,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
     visibility: hidden;
 }
 
-palette-component input.form-control.selected {
+.palette-component input.form-control.selected {
     background-color: lightgrey;
 }
 

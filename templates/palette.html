@@ -1,7 +1,7 @@
 <div class="container px-0">
     <!-- ko foreach: nodes -->
         <!-- ko if: $data.fitsSearchQuery() -->
-            <palette-component params="data: $data, paletteIndex: $parentContext.$index(), index: $index(), showAdd: true, showEdit: false, callback: null"></palette-component>
+            {% include 'palette-component.html' %}
         <!-- /ko -->
     <!-- /ko -->
 </div>

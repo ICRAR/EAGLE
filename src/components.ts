@@ -22,6 +22,7 @@ ko.components.register('hierarchy-node', {
 });
 
 // custom component for a component that appears in the palette
+/*
 ko.components.register('palette-component', {
     viewModel: function(params : {data : any, paletteIndex : any, index : any}){
         const vm = params.data;
@@ -31,3 +32,4 @@ ko.components.register('palette-component', {
     },
     template: { require: "text!static/components/palette-component.html" }
 });
+*/
