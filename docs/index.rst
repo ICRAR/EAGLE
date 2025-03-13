@@ -6,6 +6,7 @@ Introduction to Eagle
 
    Installation <installation>
    Quick Start <quickStart2>
+   Quick Start new<quickStart>
    Settings <settings>
    Hello World Example <helloWorld>
    Components <components>
