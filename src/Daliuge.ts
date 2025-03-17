@@ -250,7 +250,8 @@ export namespace Daliuge {
         },
         {
             categories: [
-                Category.PythonApp
+                Category.PythonApp,
+                Category.PythonMemberFunction
             ],
             fields: [
                 Daliuge.funcCodeField,
