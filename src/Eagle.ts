@@ -1726,10 +1726,10 @@ export class Eagle {
 
             // Load the file list again.
             if (repository.service === Repository.Service.GitHub){
-                GitHub.loadRepoContent(repository);
+                GitHub.loadRepoContent(repository, filePath);
             }
             if (repository.service === Repository.Service.GitLab){
-                GitLab.loadRepoContent(repository);
+                GitLab.loadRepoContent(repository, filePath);
             }
 
             // show repo in the right window

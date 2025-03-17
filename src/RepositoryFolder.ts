@@ -1,21 +1,45 @@
 import * as ko from "knockout";
 
-import {RepositoryFile} from './RepositoryFile';
+import { Repository } from "./Repository";
+import { RepositoryFile } from './RepositoryFile';
 
 export class RepositoryFolder {
     name : string
     expanded : ko.Observable<boolean>
+    fetched : ko.Observable<boolean>
     folders : ko.ObservableArray<RepositoryFolder>
     files : ko.ObservableArray<RepositoryFile>
+    repository : Repository;
+    path: string;
 
-    constructor(name : string){
+    constructor(name : string, repository: Repository, path: string){
         this.name = name;
         this.expanded = ko.observable(false);
+        this.fetched = ko.observable(false);
         this.folders = ko.observableArray([]);
         this.files = ko.observableArray([]);
+        this.repository = repository;
+        this.path = path;
     }
 
     htmlId : ko.PureComputed<string> = ko.pureComputed(() => {
         return "folder_" + this.name.replace('.', '_');
     }, this);
+
+    // TODO: async?
+    select = () : void => {
+        console.log("RepositoryFolder.select(" + this.name + ")");
+
+        // if we have already fetched data for this folder, just expand or collapse the list as appropriate
+        // otherwise fetch the data
+        if (this.fetched()){
+            this.expanded(!this.expanded());
+        } else {
+            Repository.fetch(this.repository, this.path);
+        }
+    }
+
+    refresh = async () : Promise<void> => {
+        return Repository.fetch(this.repository, this.path);
+    }
 }

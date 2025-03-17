@@ -323,6 +323,7 @@ def get_git_hub_files_all():
         repo_name = content["repository"]
         repo_branch = content["branch"]
         repo_token = content["token"]
+        repo_path = content["path"]
     except KeyError as ke:
         print("KeyError {1}: {0}".format(str(ke), repo_name))
         return jsonify({"error":"Repository, Branch or Token not specified in request"})
@@ -338,7 +339,7 @@ def get_git_hub_files_all():
         return jsonify({"error":uoe.message})
 
     # get results
-    d = parse_github_folder(repo, "", repo_branch)
+    d = parse_github_folder(repo, repo_path, repo_branch)
 
     # if unable to parse github folder, return the error
 
@@ -985,7 +986,7 @@ def parse_github_folder(repo, path, branch):
         file_content = contents.pop(0)
 
         if file_content.type == "dir":
-            result[file_content.path] = parse_github_folder(repo, file_content.path, branch)
+            result[file_content.path] = file_content.name #parse_github_folder(repo, file_content.path, branch)
         else:
             result[""].append(file_content.name)
 

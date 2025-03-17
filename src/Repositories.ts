@@ -20,11 +20,6 @@ export class Repositories {
         Repositories.repositories = ko.observableArray();
     }
 
-    static selectFolder(folder : RepositoryFolder) : void {
-        // toggle expanded state
-        folder.expanded(!folder.expanded());
-    }
-
     static async selectFile(file : RepositoryFile): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
 

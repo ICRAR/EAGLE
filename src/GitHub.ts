@@ -88,7 +88,7 @@ export class GitHub {
     /**
      * Shows the remote files on the GitHub.
      */
-    static async loadRepoContent(repository : Repository): Promise<void> {
+    static async loadRepoContent(repository : Repository, path: string): Promise<void> {
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
@@ -105,6 +105,7 @@ export class GitHub {
                 repository: repository.name,
                 branch: repository.branch,
                 token: token,
+                path: path
             };
 
             let data: any;
@@ -122,6 +123,9 @@ export class GitHub {
                 repository.isFetching(false);
             }
 
+            // debug
+            console.log("data", data);
+
             // check for errors that were handled correctly and passed to the client to display
             if (typeof data.error !== 'undefined'){
                 console.log("error", data.error);
@@ -130,15 +134,19 @@ export class GitHub {
                 return;
             }
 
-            // flag the repository as fetched and expand by default
-            repository.fetched(true);
-            repository.expanded(true);
+            // get location
+            const location: Repository | RepositoryFolder = repository.findPath(path);
+
+            // flag as fetched and expand by default
+            location.fetched(true);
+            location.expanded(true);
 
             // delete current file list for this repository
-            repository.files.removeAll();
-            repository.folders.removeAll();
+            location.files.removeAll();
+            location.folders.removeAll();
 
             const fileNames : string[] = data[""];
+            console.log("fileNames", fileNames)
 
             // sort the fileNames
             fileNames.sort(Repository.fileSortFunc);
@@ -147,7 +155,9 @@ export class GitHub {
             for (const fileName of fileNames){
                 // if file is not a .graph, .palette, or .json, just ignore it!
                 if (Utils.verifyFileExtension(fileName)){
-                    repository.files.push(new RepositoryFile(repository, "", fileName));
+                    
+
+                    location.files.push(new RepositoryFile(repository, "", fileName));
                 }
             }
 
@@ -158,7 +168,9 @@ export class GitHub {
                     continue;
                 }
 
-                repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
+                //repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
+                const folderName : string = path.substring(path.lastIndexOf('/') + 1);
+                location.folders.push(new RepositoryFolder(folderName, repository, path));
             }
 
             resolve();
@@ -167,7 +179,7 @@ export class GitHub {
 
     private static parseFolder = (repository : Repository, path : string, data : any) : RepositoryFolder => {
         const folderName : string = path.substring(path.lastIndexOf('/') + 1);
-        const folder = new RepositoryFolder(folderName);
+        const folder = new RepositoryFolder(folderName, repository, path);
 
         const fileNames : string[] = data[""];
 
@@ -199,6 +211,8 @@ export class GitHub {
      * @param filePath File path.
      */
     static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
+        console.log("openRemoteFile", filePath, fileName);
+
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
@@ -217,6 +231,8 @@ export class GitHub {
                 token: token,
                 filename: fullFileName
             };
+
+            console.log("openRemoteFile", jsonData);
 
             let data: any;
             try {

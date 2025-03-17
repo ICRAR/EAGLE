@@ -60,7 +60,7 @@ export class GitLab {
     /**
      * Shows the remote files
      */
-    static async loadRepoContent(repository : Repository): Promise<void> {
+    static async loadRepoContent(repository : Repository, path: string): Promise<void> {
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
@@ -77,6 +77,7 @@ export class GitLab {
                 repository: repository.name,
                 branch: repository.branch,
                 token: token,
+                path: path
             };
 
             let data: any;
@@ -136,7 +137,7 @@ export class GitLab {
 
     private static parseFolder = (repository : Repository, path : string, data : any) : RepositoryFolder => {
         const folderName : string = path.substring(path.lastIndexOf('/') + 1);
-        const folder = new RepositoryFolder(folderName);
+        const folder = new RepositoryFolder(folderName, repository, path);
 
         const fileNames : string[] = data[""];
 
