@@ -1081,6 +1081,13 @@ select.form-control{
     filter: drop-shadow(2px 7px 10px #000);
 }
 
+@media only screen and (max-width: 1920px) {
+    .modal-content {
+        height:80vh;
+        width:80vw;
+    }
+}
+
 .modal-body{
     height: calc(100% - 103px) !important ;
     top: 50px;
@@ -2050,6 +2057,12 @@ ul.nav.navbar-nav .dropdown-item:hover{
     position: absolute;
     left: 50%;
     transform: translatex(-50%) !important;
+}
+
+@media only screen and (max-width: 1380px) {
+    .navbar-nav.navbar-center {
+        left: 40%;
+    }
 }
 
 .template-title {
