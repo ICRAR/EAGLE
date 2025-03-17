@@ -646,9 +646,13 @@ export class Utils {
         });
     }
 
-    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[]): Promise<Field> {
+    static requestUserEditField(eagle: Eagle, field: Field, choices: string[]): Promise<Field> {
         return new Promise(async(resolve, reject) => {
-            eagle.currentField(field)
+            // clone the field, so changes do not effect the original
+            const clone: Field = field.clone();
+
+            // set the currently edited field
+            eagle.currentField(clone);
 
             $('#editFieldModal').data('completed', false);
             $('#editFieldModal').data('callback', (completed: boolean, field: Field): void => {

@@ -3843,21 +3843,6 @@ export class Eagle {
         Utils.showPalettesModal(this);
     }
 
-    // Adds an application param to the selected node via HTML
-    addApplicationArgHTML = () : void => {
-        const node: Node = this.selectedNode();
-
-        if (node === null){
-            console.error("Attempt to add application param when no node selected");
-            return;
-        }
-
-        this.editField(node, Eagle.ModalType.Add, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.NoPort, null);
-        $("#editFieldModal").addClass("forceHide");
-        $("#editFieldModal").removeClass("fade");
-        $(".modal-backdrop").addClass("forceHide");
-    }
-
     addEmptyTableRow = () : void => {
         let fieldIndex:number
 
@@ -3886,16 +3871,6 @@ export class Eagle {
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
-    }
-
-    editFieldDropdownClick = (newType: string, oldType: string) : void => {
-        // check if the types already match, therefore nothing to do
-        if (Utils.dataTypePrefix(oldType) === newType){
-            return;
-        }
-
-        // NOTE: this changes the value (using val()), then triggers a change event, so that validation can be done
-        $('#editFieldModalTypeInput').val(newType).trigger("change");
     }
 
     tableDropdownClick = (newType: Daliuge.DataType, field: Field) : void => {
@@ -4143,10 +4118,18 @@ export class Eagle {
         this.setSelection(this.selectedNode().getOutputApplication(), Eagle.FileType.Graph);
     }
 
-    // TODO: looks like the node argument is not used here (or maybe just not used in the 'edit' half of the func)?
-    editField = async (node:Node, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage, id: string): Promise<void> => {
+    editField = async (field: Field): Promise<void> => {
+        // check that field exists
+        if (field === null || typeof field === 'undefined'){
+            console.error("Could not find the field to edit. parameterType", field.getParameterType(), "id", field.getId());
+            return;
+        }
+
+        // set modal header text
+        $("#editFieldModalTitle").html(this.selectedNode().getName() + " - " + field.getDisplayText() + " : " + Field.getHtmlTitleText(field.getParameterType(), field.getUsage()));
+
         // get field names list from the logical graph
-        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), parameterType);
+        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), field.getParameterType());
         const allFieldNames: string[] = [];
 
         // once done, sort fields and then collect names into the allFieldNames list
@@ -4155,81 +4138,23 @@ export class Eagle {
             allFieldNames.push(field.getDisplayText() + " (" + field.getType() + ")");
         }
 
-        //if creating a new field
-        if (modalType === Eagle.ModalType.Add) {
-            $("#editFieldModalTitle").html(this.selectedNode().getName() + " - " + Field.getHtmlTitleText(parameterType, usage));
-
-            // show hide part of the UI appropriate for adding
-            $("#addParameterWrapper").show();
-
-            // create a field variable to serve as temporary field when "editing" the information. If the add field modal is completed the actual field component parameter is created.
-            const field: Field = new Field(Utils.generateFieldId(), "", "", "", "", false, Daliuge.DataType.Integer, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort);
-
-            let newField: Field;
-            try {
-                newField = await Utils.requestUserEditField(this, Eagle.ModalType.Add, parameterType, usage, field, allFieldNames);
-            } catch (error){
-                console.error(error);
-                return;
-            }
-
-            // check selected option in select tag
-            const choice : number = parseInt(<string>$('#fieldModalSelect').val(), 10);
-
-            // abort if -1 selected
-            if (choice === -1){
-                return;
-            }
-
-            // hide the custom text input unless the first option in the select is chosen
-            if (choice === 0){
-                newField.setParameterType(parameterType);
-
-                //create field from user input in modal
-                node.addField(newField);
-
-            } else {
-                const clone : Field = this.currentField().clone();
-                clone.setId(Utils.generateFieldId());
-                clone.setParameterType(parameterType);
-                node.addField(clone);
-            }
-
-            this.checkGraph();
-            this.logicalGraph().fileInfo().modified = true;
-            this.undo().pushSnapshot(this, "Add field");
-        } else {
-            //if editing an existing field
-            const field: Field = this.selectedNode().findFieldById(id);
-            $("#editFieldModalTitle").html(this.selectedNode().getName() + " - " + field.getDisplayText() + " : " + Field.getHtmlTitleText(parameterType, usage));
-
-            // check that we found a field
-            if (field === null || typeof field === 'undefined'){
-                console.error("Could not find the field to edit. parameterType", parameterType, "id", id);
-                return;
-            }
-
-            $("#addParameterWrapper").hide();
-
-            let newField: Field;
-            try {
-                newField = await Utils.requestUserEditField(this, Eagle.ModalType.Edit, parameterType, usage, field, allFieldNames);
-            } catch (error){
-                console.error(error);
-                return;
-            }
-
-            // update field data (keep existing nodeKey and id)
-            field.copyWithIds(newField, field.getNodeId(), field.getId());
-
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Edit Field");
-
-            // if we summoned this editField modal from the params table, now that we are done, re-open the params table
-            if (modalType === Eagle.ModalType.Field){
-                Utils.showField(this, field.getNodeId(), field);
-            }
+        // open editing modal
+        let newField: Field;
+        try {
+            newField = await Utils.requestUserEditField(this, field, allFieldNames);
+        } catch (error){
+            console.error(error);
+            return;
         }
+
+        // update field data (keep existing nodeKey and id)
+        field.copyWithIds(newField, field.getNodeId(), field.getId());
+
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Edit Field");
+
+        // now that we are done, re-open the params table
+        Utils.showField(this, field.getNodeId(), field);
     };
 
     duplicateParameter = (index:number) : void => {
@@ -4694,12 +4619,6 @@ export namespace Eagle
         JSON = "JSON",
         Markdown = "Markdown",
         Unknown = "Unknown"
-    }
-
-    export enum ModalType {
-        Add = "Add",
-        Edit = "Edit",
-        Field = "Field"
     }
 
     export enum Direction {
