@@ -30,10 +30,13 @@
                 <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >
                     <i class="material-icons md-18">content_copy</i>
                 </button>
+                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, eagleTooltip: 'Center Graph ' + KeyboardShortcut.idToText('center_graph', true)" >
+                    <i class="material-icons md-18">filter_center_focus</i>
+                </button>
             </div>
 
             <!-- navbar category -->
-            <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example">
+            <!-- <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example">
                 <button id="centerGraph" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, eagleTooltip: 'Center Graph ' + KeyboardShortcut.idToText('center_graph', true)" >
                     <i class="material-icons md-18">filter_center_focus</i>
                 </button>
@@ -41,7 +44,7 @@
                     <i class="material-icons md-18">photo_camera</i>
                 </button>
                 <span class="navBarToolBarTitle">View</span>
-            </div>
+            </div> -->
 
             <!-- navbar category -->
             <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example">
@@ -132,6 +135,7 @@
                         </span>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: function(){displayObjectAsJson(Eagle.FileType.Graph);}">Display As Json</a>
+                        <a class="dropdown-item" id="screenshotGraph" href="#" data-bind="click: saveGraphScreenshot">Screenshot</a>
                     <!-- /ko -->
                     <!-- ko ifnot: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                         <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save</a>
