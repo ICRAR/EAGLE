@@ -4121,7 +4121,7 @@ export class Eagle {
     editField = async (field: Field): Promise<void> => {
         // check that field exists
         if (field === null || typeof field === 'undefined'){
-            console.error("Could not find the field to edit. parameterType", field.getParameterType(), "id", field.getId());
+            console.error("No field to edit");
             return;
         }
 
