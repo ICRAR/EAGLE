@@ -370,7 +370,6 @@ export class Modals {
         });
 
         $('.parameterTable').on('hidden.bs.modal', function(){
-            ParameterTable.showTableModal(false)
             eagle.checkGraph();
         });
 

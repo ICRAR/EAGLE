@@ -751,17 +751,6 @@ export class Utils {
         $('#settingsModal').modal("hide");
     }
 
-    /*
-    static showOpenParamsTableModal(mode: ParameterTable.Mode) : void {
-        ParameterTable.mode(mode);
-        $('#parameterTableModal').modal("show");
-    }
-
-    static showOpengraphConfigurationsTable() : void {
-        $('#graphConfigurationsTable').modal("show");
-    }
-    */
-
     static showShortcutsModal() : void {
         if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
             Eagle.shortcutModalCooldown = Date.now()
