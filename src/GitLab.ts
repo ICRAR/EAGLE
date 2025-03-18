@@ -89,6 +89,7 @@ export class GitLab {
                 reject(error);
                 return;
             } finally {
+                // TODO: indicate here?
                 repository.isFetching(false);
             }
 
@@ -100,13 +101,16 @@ export class GitLab {
                 return;
             }
 
-            // flag the repository as fetched and expand by default
-            repository.fetched(true);
-            repository.expanded(true);
+            // get location
+            const location: Repository | RepositoryFolder = repository.findPath(path);
+
+            // flag as fetched and expand by default
+            location.fetched(true);
+            location.expanded(true);
 
             // delete current file list for this repository
-            repository.files.removeAll();
-            repository.folders.removeAll();
+            location.files.removeAll();
+            location.folders.removeAll();
 
             const fileNames : string[] = data[""];
 
@@ -117,7 +121,7 @@ export class GitLab {
             for (const fileName of fileNames){
                 // if file is not a .graph, .palette, or .json, just ignore it!
                 if (Utils.verifyFileExtension(fileName)){
-                    repository.files.push(new RepositoryFile(repository, "", fileName));
+                    repository.files.push(new RepositoryFile(repository, path, fileName));
                 }
             }
 
@@ -128,7 +132,9 @@ export class GitLab {
                     continue;
                 }
 
-                repository.folders.push(GitLab.parseFolder(repository, path, data[path]));
+                //repository.folders.push(GitLab.parseFolder(repository, path, data[path]));
+                const folderName : string = path.substring(path.lastIndexOf('/') + 1);
+                location.folders.push(new RepositoryFolder(folderName, repository, path));
             }
 
             resolve();

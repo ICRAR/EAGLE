@@ -120,6 +120,7 @@ export class GitHub {
                     return;
                 }
             } finally {
+                // TODO: indicate here?
                 repository.isFetching(false);
             }
 
@@ -205,8 +206,6 @@ export class GitHub {
      * @param filePath File path.
      */
     static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
-        console.log("openRemoteFile", filePath, fileName);
-
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
@@ -225,8 +224,6 @@ export class GitHub {
                 token: token,
                 filename: fullFileName
             };
-
-            console.log("openRemoteFile", jsonData);
 
             let data: any;
             try {
