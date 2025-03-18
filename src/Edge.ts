@@ -157,9 +157,9 @@ export class Edge {
         const srcPort = eagle.logicalGraph().findNodeByIdQuiet(this.getSrcNodeId())?.getFieldById(this.getSrcPortId())
         const destPort = eagle.logicalGraph().findNodeByIdQuiet(this.getDestNodeId())?.getFieldById(this.getDestPortId())
 
-        if(srcPort.getEncoding() === Daliuge.Encoding.Path){
+        if(srcPort?.getEncoding() === Daliuge.Encoding.Path){
             return true
-        }else if(destPort.getEncoding() === Daliuge.Encoding.Path){
+        }else if(destPort?.getEncoding() === Daliuge.Encoding.Path){
             return true
         }
 
