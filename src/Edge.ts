@@ -152,6 +152,20 @@ export class Edge {
         }
     }
 
+    isPath = () : boolean => {
+        const eagle = Eagle.getInstance()
+        const srcPort = eagle.logicalGraph().findNodeByIdQuiet(this.getSrcNodeId())?.getFieldById(this.getSrcPortId())
+        const destPort = eagle.logicalGraph().findNodeByIdQuiet(this.getDestNodeId())?.getFieldById(this.getDestPortId())
+
+        if(srcPort.getEncoding() === Daliuge.Encoding.Path){
+            return true
+        }else if(destPort.getEncoding() === Daliuge.Encoding.Path){
+            return true
+        }
+
+        return false
+    }
+
     clear = () : void => {
         this.id = null;
         this.srcNodeId = null;
