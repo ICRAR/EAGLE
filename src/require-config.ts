@@ -15,7 +15,6 @@ require.config({
         "bindingHandlers/disabled":"./static/built/bindingHandlers/disabled",
         "bindingHandlers/eagleTooltip":"./static/built/bindingHandlers/eagleTooltip",
         "bindingHandlers/eagleRightClick":"./static/built/bindingHandlers/eagleRightClick",
-        "components":"./static/built/components",
         "main":"./static/built/main",
         "Daliuge": "./static/built/Daliuge",
         "GitHub": "./static/built/GitHub",
