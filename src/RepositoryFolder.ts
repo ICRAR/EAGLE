@@ -27,15 +27,13 @@ export class RepositoryFolder {
     }, this);
 
     // TODO: async?
-    select = () : void => {
-        console.log("RepositoryFolder.select(" + this.name + ")");
-
+    select = async () : Promise<void> => {
         // if we have already fetched data for this folder, just expand or collapse the list as appropriate
         // otherwise fetch the data
         if (this.fetched()){
             this.expanded(!this.expanded());
         } else {
-            Repository.fetch(this.repository, this.path);
+            return Repository.fetch(this.repository, this.path);
         }
     }
 

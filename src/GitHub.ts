@@ -123,9 +123,6 @@ export class GitHub {
                 repository.isFetching(false);
             }
 
-            // debug
-            console.log("data", data);
-
             // check for errors that were handled correctly and passed to the client to display
             if (typeof data.error !== 'undefined'){
                 console.log("error", data.error);
@@ -146,7 +143,6 @@ export class GitHub {
             location.folders.removeAll();
 
             const fileNames : string[] = data[""];
-            console.log("fileNames", fileNames)
 
             // sort the fileNames
             fileNames.sort(Repository.fileSortFunc);
@@ -155,9 +151,7 @@ export class GitHub {
             for (const fileName of fileNames){
                 // if file is not a .graph, .palette, or .json, just ignore it!
                 if (Utils.verifyFileExtension(fileName)){
-                    
-
-                    location.files.push(new RepositoryFile(repository, "", fileName));
+                    location.files.push(new RepositoryFile(repository, path, fileName));
                 }
             }
 

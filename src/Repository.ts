@@ -50,10 +50,7 @@ export class Repository {
         this._id = id;
     }
 
-    // TODO: async!
     select = async () : Promise<void> => {
-        console.log("select(" + this.name + ")");
-
         // if we have already fetched data for this repo, just expand or collapse the list as appropriate
         // otherwise fetch the data
         if (this.fetched()){
