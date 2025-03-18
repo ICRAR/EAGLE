@@ -1955,31 +1955,31 @@ export class Node {
             }
         }
         
-        // check that all nodes have correct numbers of inputs and outputs
+        // check that node has correct number of inputs and outputs
         const cData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
 
         if (node.getInputPorts().length < cData.minInputs){
             const message: string = "Node (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + cData.minInputs;
-            const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, null, "");
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
         if ((node.getInputPorts().length - node.getInputEventPorts().length) > cData.maxInputs){
             const message: string = "Node (" + node.getName() + ") has too many input ports. Should have at most " + cData.maxInputs;
-            const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, null, "");
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
         if (node.getOutputPorts().length < cData.minOutputs){
             const message: string = "Node (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + cData.minOutputs;
-            const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, null, "");
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
         if ((node.getOutputPorts().length - node.getOutputEventPorts().length) > cData.maxOutputs){
             const message: string = "Node (" + node.getName() + ") may have too many output ports. Should have at most " + cData.maxOutputs;
-            const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, null, "");
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
-        // check that all nodes should have at least one connected edge, otherwise what purpose do they serve?
+        // check that node has at least one connected edge, otherwise what purpose does it serve?
         let hasInputEdge: boolean = false;
         let hasOutputEdge: boolean = false;
         for (const edge of eagle.logicalGraph().getEdges()){
@@ -1996,22 +1996,22 @@ export class Node {
         }
         const isConnected: boolean = hasInputEdge || hasOutputEdge;
 
+        // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
+        // only check this if the component has been selected in the graph. If it was selected from the palette, it doesn't make sense to complain that it is not connected.
+        if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && selectedLocation === Eagle.FileType.Graph){
+            const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.showNode(eagle, node.getId())});
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+        }
+
         // check that Memory and SharedMemory nodes have at least one input OR have a pydata field with a non-"None" value
         if (node.category() === Category.Memory || node.category() === Category.SharedMemory){
             const hasPydataValue: boolean = node.getFieldByDisplayText(Daliuge.FieldName.PYDATA)?.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
 
             if (!hasInputEdge && !hasPydataValue){
                 const message: string = node.category() + " node (" + node.getName() + ") has no connected input edges, and no data in its '" + Daliuge.FieldName.PYDATA + "' field.";
-                const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, null, "");
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
                 node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
-        }
-
-        // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
-        // only check this if the component has been selected in the graph. If it was selected from the palette, it doesn't make sense to complain that it is not connected.
-        if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && selectedLocation === Eagle.FileType.Graph){
-            const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.showNode(eagle, node.getId())}, null, "");
-            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
         // check embedded application categories are not 'None'
@@ -2044,6 +2044,19 @@ export class Node {
             if (requirement.categoryTypes.includes(node.getCategoryType())){
                 for (const requiredField of requirement.fields){
                     Node._checkForField(eagle, node, requiredField);
+                }
+            }
+        }
+
+        // check PyFuncApp nodes to make sure contents of func_name field is actually found within the func_code field
+        if (node.category() === Category.PythonApp){
+            const funcCodeField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
+            const funcNameField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_NAME);
+
+            if (funcCodeField && funcNameField){
+                if (!funcCodeField.getValue().includes(funcNameField.getValue())){
+                    const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameField.getValue() + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, node.getId())});
+                    node.issues().push({issue:issue,validity:Errors.Validity.Error});
                 }
             }
         }

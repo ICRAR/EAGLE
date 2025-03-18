@@ -16,12 +16,12 @@
         <!-- ko if: expanded -->
         <ul class="folders" data-bind="foreach: folders">
             <li>
-                <repository-folder params="data: $data"></repository-folder>
+                <div data-bind="template: {name: 'repository-folder-template'}"></div>
             </li>
         </ul>
         <ul class="files" data-bind="foreach: files">
             <li>
-                <repository-file params="data: $data"></repository-file>
+                <div data-bind="template: {name: 'repository-file-template'}"></div>
             </li>
         </ul>
         <!-- /ko -->
