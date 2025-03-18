@@ -364,6 +364,7 @@ def get_git_lab_files_all():
         repo_name = content["repository"]
         repo_branch = content["branch"]
         repo_token = content["token"]
+        repo_path = content["path"]
     except KeyError as ke:
         print("KeyError {1}: {0}".format(str(ke), repo_name))
         return jsonify({"error":"Repository, Branch or Token not specified in request"})
@@ -378,12 +379,12 @@ def get_git_lab_files_all():
 
     try:
         project = gl.projects.get(repo_name)
-        items = project.repository_tree(recursive='true', all=True, ref=repo_branch)
+        items = project.repository_tree(recursive='false', all=True, ref=repo_branch)
     except gitlab.exceptions.GitlabGetError as gge:
         print("GitlabGetError {1}: {0}".format(str(gge), repo_name))
         return jsonify({"error": "Unable to get repository. Repository or branch name may be incorrect, or repository may be empty." + "\n" + str(gge)})
 
-    d = parse_gitlab_folder(items, "")
+    d = parse_gitlab_folder(items, repo_path)
 
     # return correct result
     return jsonify(d)
