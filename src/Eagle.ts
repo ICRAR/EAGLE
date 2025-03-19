@@ -1724,12 +1724,11 @@ export class Eagle {
                 return;
             }
 
-            // Load the file list again.
-            if (repository.service === Repository.Service.GitHub){
-                GitHub.loadRepoContent(repository, filePath);
-            }
-            if (repository.service === Repository.Service.GitLab){
-                GitLab.loadRepoContent(repository, filePath);
+            // we have to refresh this whole path, since any part of it might be new
+            try {
+                await repository.refreshPath(filePath);
+            } catch (error){
+                console.log("error during refreshPath", error);
             }
 
             // show repo in the right window
@@ -2371,11 +2370,11 @@ export class Eagle {
                 Utils.showNotification("Error deleting file", error, "danger");
                 return;
             }
-
-            Utils.showNotification("Success", "File deleted", "success");
-            
-            file.repository.deleteFile(file);
         }
+
+        Utils.showNotification("Success", "File deleted", "success");
+
+        file.repository.deleteFile(file);
     }
 
     private _remotePaletteLoaded = async (file : RepositoryFile, data : string): Promise<void> => {
@@ -2538,7 +2537,7 @@ export class Eagle {
 
         let data: any;
         try {
-            data = Utils.httpPostJSONString('/saveFileToLocal', jsonString);
+            data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
         } catch (error){
             Utils.showUserMessage("Error", "Error saving the file!");
             console.error(error);
@@ -2698,7 +2697,11 @@ export class Eagle {
 
         const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commit.message);
 
-        this.saveFileToRemote(repository, commit.filePath, commit.fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
+        try {
+            await this.saveFileToRemote(repository, commit.filePath, commit.fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
+        } catch (error){
+            console.log(error);
+        }
     }
     
     saveGraphScreenshot = async () : Promise<void> =>  {

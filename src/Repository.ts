@@ -87,15 +87,27 @@ export class Repository {
 
     // browse down into a repository, along the path, and return the RepositoryFolder there
     // or if no path, just return the Repository
+    // or if path not found, return null
     findPath = (path: string): Repository | RepositoryFolder => {
+        if (path === ""){
+            return this;
+        }
+
         let pointer: Repository | RepositoryFolder = this;
         const pathParts: string[] = path.split('/');
 
         for (const pathPart of pathParts){
+            let foundPathPart = false;
+
             for (const folder of pointer.folders()){
-                if (folder.name === pathPart){ 
+                if (folder.name === pathPart){
+                    foundPathPart = true;
                     pointer = folder;
                 }
+            }
+
+            if (!foundPathPart){
+                return null;
             }
         }
     
@@ -122,7 +134,37 @@ export class Repository {
 
                 // if we could not find one step in the path, then abort
                 if (!foundPathPart){
-                    reject();
+                    reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointer.name));
+                }
+            }
+
+            resolve();
+        });
+    }
+
+    // refresh all the directories along a given path
+    refreshPath = async (path: string) : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            await this.refresh();
+
+            let pointer: Repository | RepositoryFolder = this;
+            const pathParts: string[] = path.split('/');
+
+            for (const pathPart of pathParts){
+                let foundPathPart = false;
+
+                for (const folder of pointer.folders()){
+                    if (folder.name === pathPart){
+                        foundPathPart = true;
+                        pointer = folder;
+                        await folder.refresh();
+                        break;
+                    }
+                }
+
+                // if we could not find one step in the path, then abort
+                if (!foundPathPart){
+                    reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointer.name));
                 }
             }
 
