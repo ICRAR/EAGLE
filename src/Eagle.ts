@@ -4139,16 +4139,12 @@ export class Eagle {
         }
 
         // open editing modal
-        let newField: Field;
         try {
-            newField = await Utils.requestUserEditField(this, field, allFieldNames);
+            await Utils.requestUserEditField(this, field, allFieldNames);
         } catch (error){
             console.error(error);
             return;
         }
-
-        // update field data (keep existing nodeKey and id)
-        field.copyWithIds(newField, field.getNodeId(), field.getId());
 
         this.checkGraph();
         this.undo().pushSnapshot(this, "Edit Field");

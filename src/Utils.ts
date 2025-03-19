@@ -648,19 +648,12 @@ export class Utils {
 
     static requestUserEditField(eagle: Eagle, field: Field, choices: string[]): Promise<Field> {
         return new Promise(async(resolve, reject) => {
-            // clone the field, so changes do not effect the original
-            const clone: Field = field.clone();
-
             // set the currently edited field
-            eagle.currentField(clone);
+            eagle.currentField(field);
 
             $('#editFieldModal').data('completed', false);
             $('#editFieldModal').data('callback', (completed: boolean, field: Field): void => {
-                if (!completed){
-                    reject();
-                } else {
-                    resolve(field);
-                }
+                resolve(field);
             });
             $('#editFieldModal').data('choices', choices);
             $('#editFieldModal').modal("toggle");
