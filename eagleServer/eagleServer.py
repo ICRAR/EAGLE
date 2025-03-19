@@ -1056,8 +1056,10 @@ def save_to_temp(lg_name, logical_graph):
             json.dump(logical_graph, outfile, sort_keys=True, indent=4)
     except Exception as exp:
         raise GraphException(
-            "Failed to save a pre-translated graph {0}:{1}".format(lg_name, str(exp))
-        )
+            "Failed to save a pre-translated graph {0}:{1}".format(
+                lg_name, str(exp)
+            )
+        ) from exp
     finally:
         pass
 
