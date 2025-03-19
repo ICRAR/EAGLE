@@ -89,8 +89,6 @@ export class GitHub {
      * Shows the remote files on the GitHub.
      */
     static async loadRepoContent(repository : Repository, path: string): Promise<void> {
-        console.log("GitHub.loadRepoContent() path", path);
-
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
@@ -134,11 +132,8 @@ export class GitHub {
                 return;
             }
 
-            console.log("data", data);
-
             // get location
             const location: Repository | RepositoryFolder = repository.findPath(path);
-            console.log("location", location);
 
             // flag as fetched and expand by default
             location.fetched(true);
@@ -168,7 +163,6 @@ export class GitHub {
                     continue;
                 }
 
-                //repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
                 const folderName : string = path.substring(path.lastIndexOf('/') + 1);
                 location.folders.push(new RepositoryFolder(folderName, repository, path));
             }

@@ -61,7 +61,6 @@ export class GitLab {
      * Shows the remote files
      */
     static async loadRepoContent(repository : Repository, path: string): Promise<void> {
-        console.log("GitLab.loadRepoContent() path", path);
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
@@ -102,11 +101,8 @@ export class GitLab {
                 return;
             }
 
-            console.log("data", data);
-
             // get location
             const location: Repository | RepositoryFolder = repository.findPath(path);
-            console.log("location", location);
 
             // flag as fetched and expand by default
             location.fetched(true);
@@ -136,7 +132,6 @@ export class GitLab {
                     continue;
                 }
 
-                //repository.folders.push(GitLab.parseFolder(repository, path, data[path]));
                 const folderName : string = path.substring(path.lastIndexOf('/') + 1);
                 location.folders.push(new RepositoryFolder(folderName, repository, path));
             }

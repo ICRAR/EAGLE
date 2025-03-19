@@ -26,7 +26,6 @@ export class RepositoryFolder {
         return "folder_" + this.name.replace('.', '_');
     }, this);
 
-    // TODO: async?
     select = async () : Promise<void> => {
         // if we have already fetched data for this folder, just expand or collapse the list as appropriate
         // otherwise fetch the data

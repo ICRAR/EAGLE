@@ -987,7 +987,7 @@ def parse_github_folder(repo, path, branch):
         file_content = contents.pop(0)
 
         if file_content.type == "dir":
-            result[file_content.path] = file_content.name #parse_github_folder(repo, file_content.path, branch)
+            result[file_content.path] = file_content.name
         else:
             result[""].append(file_content.name)
 
@@ -1001,7 +1001,6 @@ def parse_gitlab_folder(items, path):
     result = {"": []}
 
     for item in items:
-        print("item:", item)
         name = item[u'name']
         path = item[u'path']
         type = item[u'type']
@@ -1057,7 +1056,7 @@ def save_to_temp(lg_name, logical_graph):
             json.dump(logical_graph, outfile, sort_keys=True, indent=4)
     except Exception as exp:
         raise GraphException(
-            "Failed to save a pretranslated graph {0}:{1}".format(lg_name, str(exp))
+            "Failed to save a pre-translated graph {0}:{1}".format(lg_name, str(exp))
         )
     finally:
         pass
