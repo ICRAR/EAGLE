@@ -1001,14 +1001,14 @@ def parse_gitlab_folder(items, path):
     result = {"": []}
 
     for item in items:
-        name = item[u'name']
-        path = item[u'path']
-        type = item[u'type']
+        itemName = item[u'name']
+        itemPath = item[u'path']
+        itemType = item[u'type']
 
-        if type == u'tree':
-            result[path] = name
-        if type == u'blob':
-            result[""].append(name)
+        if itemType == u'tree':
+            result[itemPath] = itemName
+        elif itemType == u'blob':
+            result[""].append(itemName)
 
     return result
 
