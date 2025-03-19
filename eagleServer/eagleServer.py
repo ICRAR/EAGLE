@@ -379,7 +379,7 @@ def get_git_lab_files_all():
 
     try:
         project = gl.projects.get(repo_name)
-        items = project.repository_tree(recursive='false', all=True, ref=repo_branch)
+        items = project.repository_tree(recursive='false', all=True, ref=repo_branch, path=repo_path)
     except gitlab.exceptions.GitlabGetError as gge:
         print("GitlabGetError {1}: {0}".format(str(gge), repo_name))
         return jsonify({"error": "Unable to get repository. Repository or branch name may be incorrect, or repository may be empty." + "\n" + str(gge)})
@@ -1001,37 +1001,15 @@ def parse_gitlab_folder(items, path):
     result = {"": []}
 
     for item in items:
-        #print(item)
+        print("item:", item)
+        name = item[u'name']
+        path = item[u'path']
+        type = item[u'type']
 
-        if item[u'type'] == u'tree':
-            name = item[u'name']
-            path = item[u'path']
-            folders = path.split('/')
-            #print("tree", name, path, folders)
-
-            # find folder in hierarchy
-            x = result
-            for i in range(0, len(folders[:-1])):
-                partialPath = "/".join(folders[:i+1])
-                #print("partialPath", partialPath)
-                x = x[partialPath]
-
-            #print("Add", path, "to", x)
-            if path not in x:
-                x[path] = {"" : []};
-            #print("result", result);
-
-        if item[u'type'] == u'blob':
-            name = item[u'name']
-            path = item[u'path']
-            folders = path.split('/')
-            #print("blob", name, path, folders)
-
-            x = result
-            for i in range(1, len(folders)):
-                partialPath = "/".join(folders[:i])
-                x = x[partialPath]
-            x[""].append(item[u'name'])
+        if type == u'tree':
+            result[path] = name
+        if type == u'blob':
+            result[""].append(name)
 
     return result
 

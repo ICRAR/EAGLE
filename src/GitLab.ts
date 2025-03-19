@@ -61,6 +61,7 @@ export class GitLab {
      * Shows the remote files
      */
     static async loadRepoContent(repository : Repository, path: string): Promise<void> {
+        console.log("GitLab.loadRepoContent() path", path);
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
@@ -101,8 +102,11 @@ export class GitLab {
                 return;
             }
 
+            console.log("data", data);
+
             // get location
             const location: Repository | RepositoryFolder = repository.findPath(path);
+            console.log("location", location);
 
             // flag as fetched and expand by default
             location.fetched(true);
@@ -121,7 +125,7 @@ export class GitLab {
             for (const fileName of fileNames){
                 // if file is not a .graph, .palette, or .json, just ignore it!
                 if (Utils.verifyFileExtension(fileName)){
-                    repository.files.push(new RepositoryFile(repository, path, fileName));
+                    location.files.push(new RepositoryFile(repository, path, fileName));
                 }
             }
 
