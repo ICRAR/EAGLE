@@ -103,18 +103,31 @@ export class Repository {
     }
 
     // expand all the directories along a given path
-    expandPath = (path: string): void => {
-        let pointer: Repository | RepositoryFolder = this;
-        const pathParts: string[] = path.split('/');
+    expandPath = async (path: string) : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            let pointer: Repository | RepositoryFolder = this;
+            const pathParts: string[] = path.split('/');
 
-        for (const pathPart of pathParts){
-            for (const folder of pointer.folders()){
-                if (folder.name === pathPart){ 
-                    pointer = folder;
-                    folder.expanded(true);
+            for (const pathPart of pathParts){
+                let foundPathPart = false;
+
+                for (const folder of pointer.folders()){
+                    if (folder.name === pathPart){
+                        foundPathPart = true;
+                        pointer = folder;
+                        await folder.select();
+                        break;
+                    }
+                }
+
+                // if we could not find one step in the path, then abort
+                if (!foundPathPart){
+                    reject();
                 }
             }
-        }
+
+            resolve();
+        });
     }
 
     deleteFile = (file: RepositoryFile) : void => {
