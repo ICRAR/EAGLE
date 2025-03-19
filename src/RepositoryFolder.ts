@@ -6,6 +6,7 @@ import { RepositoryFile } from './RepositoryFile';
 export class RepositoryFolder {
     name : string
     expanded : ko.Observable<boolean>
+    isFetching: ko.Observable<boolean>
     fetched : ko.Observable<boolean>
     folders : ko.ObservableArray<RepositoryFolder>
     files : ko.ObservableArray<RepositoryFile>
@@ -15,6 +16,7 @@ export class RepositoryFolder {
     constructor(name : string, repository: Repository, path: string){
         this.name = name;
         this.expanded = ko.observable(false);
+        this.isFetching = ko.observable(false);
         this.fetched = ko.observable(false);
         this.folders = ko.observableArray([]);
         this.files = ko.observableArray([]);

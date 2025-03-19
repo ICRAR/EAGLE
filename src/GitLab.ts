@@ -69,8 +69,11 @@ export class GitLab {
                 reject("The GitLab access token is not set! To access GitLab repository, set the token via settings.");
             }
 
-            // flag the repository as being fetched
-            repository.isFetching(true);
+            // get location
+            const location: Repository | RepositoryFolder = repository.findPath(path);
+
+            // flag the location as being fetched
+            location.isFetching(true);
 
             // Add parameters in json data.
             const jsonData = {
@@ -89,8 +92,7 @@ export class GitLab {
                 reject(error);
                 return;
             } finally {
-                // TODO: indicate here?
-                repository.isFetching(false);
+                location.isFetching(false);
             }
 
             // check for errors that were handled correctly and passed to the client to display
@@ -100,9 +102,6 @@ export class GitLab {
                 reject(data.error);
                 return;
             }
-
-            // get location
-            const location: Repository | RepositoryFolder = repository.findPath(path);
 
             // flag as fetched and expand by default
             location.fetched(true);

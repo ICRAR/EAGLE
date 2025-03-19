@@ -1,11 +1,17 @@
 <div class="repoIndent">
     <div class="row">
         <div class="col col-1">
-            <!-- ko if: expanded -->
-            <i class="material-icons md-18" data-bind="click: refresh, eagleTooltip: 'Refresh'">folder_open</i>
+            <!-- ko if: isFetching -->
+            <div class="spinner-border spinner-border-sm" role="status">
+            </div>
             <!-- /ko -->
-            <!-- ko ifnot: expanded -->
-            <i class="material-icons md-18" data-bind="click: refresh, eagleTooltip: 'Refresh'">folder</i>
+            <!-- ko ifnot: isFetching -->
+                <!-- ko if: expanded -->
+                <i class="material-icons md-18" data-bind="click: refresh, eagleTooltip: 'Refresh'">folder_open</i>
+                <!-- /ko -->
+                <!-- ko ifnot: expanded -->
+                <i class="material-icons md-18" data-bind="click: refresh, eagleTooltip: 'Refresh'">folder</i>
+                <!-- /ko -->
             <!-- /ko -->
         </div>
         <div class="col col-10">
