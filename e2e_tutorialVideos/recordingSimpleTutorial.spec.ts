@@ -13,9 +13,11 @@ test.use({
   }
 });
 
-
 test('Hello World Tutorial Video', async ({ page }) => {
+  
+  //used throughout the test to store the target element
   let clickTarget:any = null;
+
   //over write the test timeout limit. these tutorials are way longer than normal tests.
   test.setTimeout(120000);
 
