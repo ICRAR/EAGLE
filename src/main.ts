@@ -33,6 +33,7 @@ import { CategoryData } from './CategoryData';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
+import { EagleStorage } from "./EagleStorage";
 import { Errors } from './Errors';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
@@ -78,6 +79,7 @@ $(function(){
     (<any>window).Daliuge = Daliuge;
     (<any>window).Eagle = Eagle;
     (<any>window).EagleConfig = EagleConfig;
+    (<any>window).EagleStorage = EagleStorage;
     (<any>window).Errors = Errors;
     (<any>window).GraphConfig = GraphConfig;
     (<any>window).GraphConfigurationsTable = GraphConfigurationsTable;
@@ -258,6 +260,9 @@ $(function(){
 });
 
 async function loadRepos() {
+    // initialise EagleStorage
+    await EagleStorage.init();
+
     // Get the list of git repos
     if (UiModeSystem.getActiveUiMode().getName()==='Student'){
         GitHub.loadStudentRepoList();
@@ -331,7 +336,7 @@ async function autoLoad() {
 
         // fetch the repository contents, then open the folder hierarchy to display the location of the graph
         await repo.refresh();
-        repo.expandPath(path);
+        await repo.expandPath(path);
     }
 }
 

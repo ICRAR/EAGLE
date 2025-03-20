@@ -1081,6 +1081,13 @@ select.form-control{
     filter: drop-shadow(2px 7px 10px #000);
 }
 
+@media only screen and (max-width: 1920px) {
+    .modal-content {
+        height:80vh;
+        width:80vw;
+    }
+}
+
 .modal-body{
     height: calc(100% - 103px) !important ;
     top: 50px;
@@ -1320,18 +1327,18 @@ select.form-control{
     width: 70%;
 }
 
-#paletteList palette-component .input-group-prepend{
+#paletteList .palette-component .input-group-prepend{
     height: 100%;
     width: 52px;
 }
 
-#paletteList palette-component button, #paletteList palette-component span {
+#paletteList .palette-component button, #paletteList .palette-component span {
     height: 100%;
     width: 100%;
     color:white;
 }
 
-#paletteList palette-component i {
+#paletteList .palette-component i {
     margin-left:50%;
     transform: translateX(-50%);
     pointer-events: none;
@@ -2052,6 +2059,12 @@ ul.nav.navbar-nav .dropdown-item:hover{
     transform: translatex(-50%) !important;
 }
 
+@media only screen and (max-width: 1380px) {
+    .navbar-nav.navbar-center {
+        left: 40%;
+    }
+}
+
 .template-title {
     display: inline-block;
 }
@@ -2150,7 +2163,7 @@ ul.nav.navbar-nav .dropdown-item:hover{
     visibility: hidden;
 }
 
-palette-component input.form-control.selected {
+.palette-component input.form-control.selected {
     background-color: lightgrey;
 }
 

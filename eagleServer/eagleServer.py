@@ -323,6 +323,7 @@ def get_git_hub_files_all():
         repo_name = content["repository"]
         repo_branch = content["branch"]
         repo_token = content["token"]
+        repo_path = content["path"]
     except KeyError as ke:
         print("KeyError {1}: {0}".format(str(ke), repo_name))
         return jsonify({"error":"Repository, Branch or Token not specified in request"})
@@ -338,7 +339,7 @@ def get_git_hub_files_all():
         return jsonify({"error":uoe.message})
 
     # get results
-    d = parse_github_folder(repo, "", repo_branch)
+    d = parse_github_folder(repo, repo_path, repo_branch)
 
     # if unable to parse github folder, return the error
 
@@ -363,6 +364,7 @@ def get_git_lab_files_all():
         repo_name = content["repository"]
         repo_branch = content["branch"]
         repo_token = content["token"]
+        repo_path = content["path"]
     except KeyError as ke:
         print("KeyError {1}: {0}".format(str(ke), repo_name))
         return jsonify({"error":"Repository, Branch or Token not specified in request"})
@@ -377,12 +379,12 @@ def get_git_lab_files_all():
 
     try:
         project = gl.projects.get(repo_name)
-        items = project.repository_tree(recursive='true', all=True, ref=repo_branch)
+        items = project.repository_tree(recursive='false', all=True, ref=repo_branch, path=repo_path)
     except gitlab.exceptions.GitlabGetError as gge:
         print("GitlabGetError {1}: {0}".format(str(gge), repo_name))
         return jsonify({"error": "Unable to get repository. Repository or branch name may be incorrect, or repository may be empty." + "\n" + str(gge)})
 
-    d = parse_gitlab_folder(items, "")
+    d = parse_gitlab_folder(items, repo_path)
 
     # return correct result
     return jsonify(d)
@@ -985,7 +987,7 @@ def parse_github_folder(repo, path, branch):
         file_content = contents.pop(0)
 
         if file_content.type == "dir":
-            result[file_content.path] = parse_github_folder(repo, file_content.path, branch)
+            result[file_content.path] = file_content.name
         else:
             result[""].append(file_content.name)
 
@@ -999,37 +1001,14 @@ def parse_gitlab_folder(items, path):
     result = {"": []}
 
     for item in items:
-        #print(item)
+        itemName = item[u'name']
+        itemPath = item[u'path']
+        itemType = item[u'type']
 
-        if item[u'type'] == u'tree':
-            name = item[u'name']
-            path = item[u'path']
-            folders = path.split('/')
-            #print("tree", name, path, folders)
-
-            # find folder in hierarchy
-            x = result
-            for i in range(0, len(folders[:-1])):
-                partialPath = "/".join(folders[:i+1])
-                #print("partialPath", partialPath)
-                x = x[partialPath]
-
-            #print("Add", path, "to", x)
-            if path not in x:
-                x[path] = {"" : []};
-            #print("result", result);
-
-        if item[u'type'] == u'blob':
-            name = item[u'name']
-            path = item[u'path']
-            folders = path.split('/')
-            #print("blob", name, path, folders)
-
-            x = result
-            for i in range(1, len(folders)):
-                partialPath = "/".join(folders[:i])
-                x = x[partialPath]
-            x[""].append(item[u'name'])
+        if itemType == u'tree':
+            result[itemPath] = itemName
+        elif itemType == u'blob':
+            result[""].append(itemName)
 
     return result
 
@@ -1077,8 +1056,10 @@ def save_to_temp(lg_name, logical_graph):
             json.dump(logical_graph, outfile, sort_keys=True, indent=4)
     except Exception as exp:
         raise GraphException(
-            "Failed to save a pretranslated graph {0}:{1}".format(lg_name, str(exp))
-        )
+            "Failed to save a pre-translated graph {0}:{1}".format(
+                lg_name, str(exp)
+            )
+        ) from exp
     finally:
         pass
 

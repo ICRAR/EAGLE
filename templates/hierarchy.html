@@ -12,7 +12,9 @@
                 <span>No Nodes</span>
                 <!-- /ko -->
 
-                <hierarchy params="data: logicalGraph()"></hierarchy>
+                <ul class="nodes" data-bind="foreach: $root.logicalGraph().getRootNodes()">
+                    <div data-bind="template: {name: 'hierarchy-node-template'}"></div>
+                </ul>
             <!-- /ko -->
         </div>
     </div>
