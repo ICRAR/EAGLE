@@ -60,7 +60,7 @@ export class GitLab {
     /**
      * Shows the remote files
      */
-    static async loadRepoContent(repository : Repository): Promise<void> {
+    static async loadRepoContent(repository : Repository, path: string): Promise<void> {
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
@@ -69,14 +69,18 @@ export class GitLab {
                 reject("The GitLab access token is not set! To access GitLab repository, set the token via settings.");
             }
 
-            // flag the repository as being fetched
-            repository.isFetching(true);
+            // get location
+            const location: Repository | RepositoryFolder = repository.findPath(path);
+
+            // flag the location as being fetched
+            location.isFetching(true);
 
             // Add parameters in json data.
             const jsonData = {
                 repository: repository.name,
                 branch: repository.branch,
                 token: token,
+                path: path
             };
 
             let data: any;
@@ -88,7 +92,7 @@ export class GitLab {
                 reject(error);
                 return;
             } finally {
-                repository.isFetching(false);
+                location.isFetching(false);
             }
 
             // check for errors that were handled correctly and passed to the client to display
@@ -99,13 +103,13 @@ export class GitLab {
                 return;
             }
 
-            // flag the repository as fetched and expand by default
-            repository.fetched(true);
-            repository.expanded(true);
+            // flag as fetched and expand by default
+            location.fetched(true);
+            location.expanded(true);
 
             // delete current file list for this repository
-            repository.files.removeAll();
-            repository.folders.removeAll();
+            location.files.removeAll();
+            location.folders.removeAll();
 
             const fileNames : string[] = data[""];
 
@@ -116,7 +120,7 @@ export class GitLab {
             for (const fileName of fileNames){
                 // if file is not a .graph, .palette, or .json, just ignore it!
                 if (Utils.verifyFileExtension(fileName)){
-                    repository.files.push(new RepositoryFile(repository, "", fileName));
+                    location.files.push(new RepositoryFile(repository, path, fileName));
                 }
             }
 
@@ -127,7 +131,8 @@ export class GitLab {
                     continue;
                 }
 
-                repository.folders.push(GitLab.parseFolder(repository, path, data[path]));
+                const folderName : string = path.substring(path.lastIndexOf('/') + 1);
+                location.folders.push(new RepositoryFolder(folderName, repository, path));
             }
 
             resolve();
@@ -136,7 +141,7 @@ export class GitLab {
 
     private static parseFolder = (repository : Repository, path : string, data : any) : RepositoryFolder => {
         const folderName : string = path.substring(path.lastIndexOf('/') + 1);
-        const folder = new RepositoryFolder(folderName);
+        const folder = new RepositoryFolder(folderName, repository, path);
 
         const fileNames : string[] = data[""];
 

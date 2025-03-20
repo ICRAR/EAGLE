@@ -336,7 +336,7 @@ async function autoLoad() {
 
         // fetch the repository contents, then open the folder hierarchy to display the location of the graph
         await repo.refresh();
-        repo.expandPath(path);
+        await repo.expandPath(path);
     }
 }
 
