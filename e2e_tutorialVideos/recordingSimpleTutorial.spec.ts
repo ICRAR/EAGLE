@@ -26,6 +26,7 @@ test('Hello World Tutorial Video', async ({ page }) => {
 
   await page.goto('http://localhost:8888/');
 
+  //this will add our custom mouse cursor svg into the body of the website, so we can move it around later.
   await enableMouseCursor(page);
 
   //show a title message
