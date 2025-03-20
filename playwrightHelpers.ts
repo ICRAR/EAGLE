@@ -1,4 +1,5 @@
 export async function enableMouseCursor(page){
+  //adding a mouse cursor svg to the body of the website, so we can move it around later
   await page.evaluate(() => {
     const arrowContainer = document.createElement('div');
     arrowContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 35px; height:35px; z-index: 9999; transition:left 0.7s ease-in-out, top 0.7s ease-in-out; pointer-events:none;';
@@ -10,6 +11,7 @@ export async function enableMouseCursor(page){
 }
 
 export async function moveMouseCursor(page, targetElement){
+  //moving the svg cursor to the target element
   return new Promise<void>(async function(resolve){
     //readying the new position elements. we cant pass the element itself into the evaluate funtion.
     const newPos = await targetElement.boundingBox()
@@ -33,6 +35,7 @@ export async function moveMouseCursor(page, targetElement){
 }
 
 export async function textNotification(page, title, text, timeoutDuration){
+  //show a text notification
   return new Promise<void>(async function(resolve){
 
     await page.evaluate(({title,text,timeoutDuration}) => {
@@ -57,7 +60,7 @@ export async function textNotification(page, title, text, timeoutDuration){
 }
 
 export async function explainElement(page, targetElement, direction, message, timeout_time){
-
+  //display a textbox similar to a tooltip next to the target element
   //i need to process this first then pass it into the evaluate function because i can only pass in numbers on strings.
   const target = await targetElement.boundingBox()
   const box_top = target.y;
