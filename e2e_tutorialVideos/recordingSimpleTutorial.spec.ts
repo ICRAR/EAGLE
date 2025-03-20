@@ -1,6 +1,6 @@
 // import { test } from '@playwright/test';
 import { test, expect,chromium, Page,Browser } from '@playwright/test';
-import { enableMouseCursor, explainElement, moveMouseCursor, textNotification } from '../../playwrightHelpers';
+import { enableMouseCursor, explainElement, moveMouseCursor, textNotification } from '../playwrightHelpers';
 
 test.use({ 
   viewport: { width: 2560, height: 1440 },
@@ -14,7 +14,7 @@ test.use({
 });
 
 
-test('Creating Hellow World Example', async ({ page }) => {
+test('Hello World Tutorial Video', async ({ page }) => {
   let clickTarget:any = null;
   //over write the test timeout limit. these tutorials are way longer than normal tests.
   test.setTimeout(120000);
