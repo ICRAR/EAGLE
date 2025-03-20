@@ -22,6 +22,7 @@
 #
 */
 
+import { EagleStorage } from './EagleStorage';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
@@ -30,33 +31,12 @@ import { Setting } from './Setting';
 import { Utils } from './Utils';
 
 export class GitHub {
-    /**
-     * Loads the GitHub repository list.
-     */
-    static async refresh() {
-        // fetch repositories from server
-        const repositories: Repository[] = await GitHub.loadRepoList();
-
-        // remove all GitHub repos from the list of repositories
-        for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-            if (Repositories.repositories()[i].service === Repository.Service.GitHub){
-                Repositories.repositories.splice(i, 1);
-            }
-        }
-
-        // add new repositories
-        Repositories.repositories.push(...repositories);
-
-        // sort the repository list
-        Repositories.sort();
-    }
-
     static async loadRepoList(): Promise<Repository[]> {
         return new Promise(async(resolve, reject) => {
             const repositories: Repository[] = [];
 
-            // find and add custom gitlab repositories from browser storage
-            const customRepositories = Repositories.listCustomRepositories(Repository.Service.GitHub);
+            // find repos in IndexedDB
+            const customRepositories = await EagleStorage.listCustomRepositories(Repository.Service.GitHub);
             repositories.push(...customRepositories);
 
             let data;
@@ -108,7 +88,7 @@ export class GitHub {
     /**
      * Shows the remote files on the GitHub.
      */
-    static async loadRepoContent(repository : Repository): Promise<void> {
+    static async loadRepoContent(repository : Repository, path: string): Promise<void> {
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
@@ -117,14 +97,18 @@ export class GitHub {
                 reject("The GitHub access token is not set! To access GitHub repository, set the token via settings.");
             }
 
-            // flag the repository as being fetched
-            repository.isFetching(true);
+            // get location
+            const location: Repository | RepositoryFolder = repository.findPath(path);
+
+            // flag the location as being fetched
+            location.isFetching(true);
 
             // Add parameters in json data.
             const jsonData = {
                 repository: repository.name,
                 branch: repository.branch,
                 token: token,
+                path: path
             };
 
             let data: any;
@@ -139,7 +123,7 @@ export class GitHub {
                     return;
                 }
             } finally {
-                repository.isFetching(false);
+                location.isFetching(false);
             }
 
             // check for errors that were handled correctly and passed to the client to display
@@ -150,13 +134,13 @@ export class GitHub {
                 return;
             }
 
-            // flag the repository as fetched and expand by default
-            repository.fetched(true);
-            repository.expanded(true);
+            // flag as fetched and expand by default
+            location.fetched(true);
+            location.expanded(true);
 
             // delete current file list for this repository
-            repository.files.removeAll();
-            repository.folders.removeAll();
+            location.files.removeAll();
+            location.folders.removeAll();
 
             const fileNames : string[] = data[""];
 
@@ -167,7 +151,7 @@ export class GitHub {
             for (const fileName of fileNames){
                 // if file is not a .graph, .palette, or .json, just ignore it!
                 if (Utils.verifyFileExtension(fileName)){
-                    repository.files.push(new RepositoryFile(repository, "", fileName));
+                    location.files.push(new RepositoryFile(repository, path, fileName));
                 }
             }
 
@@ -178,7 +162,8 @@ export class GitHub {
                     continue;
                 }
 
-                repository.folders.push(GitHub.parseFolder(repository, path, data[path]));
+                const folderName : string = path.substring(path.lastIndexOf('/') + 1);
+                location.folders.push(new RepositoryFolder(folderName, repository, path));
             }
 
             resolve();
@@ -187,7 +172,7 @@ export class GitHub {
 
     private static parseFolder = (repository : Repository, path : string, data : any) : RepositoryFolder => {
         const folderName : string = path.substring(path.lastIndexOf('/') + 1);
-        const folder = new RepositoryFolder(folderName);
+        const folder = new RepositoryFolder(folderName, repository, path);
 
         const fileNames : string[] = data[""];
 

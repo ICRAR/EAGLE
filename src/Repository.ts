@@ -46,9 +46,11 @@ export class Repository {
         return this.name + " (" + this.branch + ")";
     }
 
-    select = () : void => {
-        console.log("select(" + this.name + ")");
+    setId = (id: RepositoryId) : void => {
+        this._id = id;
+    }
 
+    select = async () : Promise<void> => {
         // if we have already fetched data for this repo, just expand or collapse the list as appropriate
         // otherwise fetch the data
         if (this.fetched()){
@@ -56,11 +58,9 @@ export class Repository {
         } else {
             switch(this.service){
                 case Repository.Service.GitHub:
-                    GitHub.loadRepoContent(this);
-                    break;
+                    return GitHub.loadRepoContent(this, "");
                 case Repository.Service.GitLab:
-                    GitLab.loadRepoContent(this);
-                    break;
+                    return GitLab.loadRepoContent(this, "");
                 default:
                     Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + this.service + ")");
             }
@@ -71,11 +71,11 @@ export class Repository {
         return new Promise(async(resolve, reject) => {
             switch(this.service){
                 case Repository.Service.GitHub:
-                    await GitHub.loadRepoContent(this);
+                    await GitHub.loadRepoContent(this, "");
                     resolve();
                     break;
                 case Repository.Service.GitLab:
-                    GitLab.loadRepoContent(this);
+                    GitLab.loadRepoContent(this, "");
                     resolve();
                     break;
                 default:
@@ -85,19 +85,91 @@ export class Repository {
         });
     }
 
-    // expand all the directories along a given path
-    expandPath = (path: string): void => {
+    // browse down into a repository, along the path, and return the RepositoryFolder there
+    // or if no path, just return the Repository
+    // or if path not found, return null
+    findPath = (path: string): Repository | RepositoryFolder => {
+        if (path === ""){
+            return this;
+        }
+
         let pointer: Repository | RepositoryFolder = this;
         const pathParts: string[] = path.split('/');
 
         for (const pathPart of pathParts){
+            let foundPathPart = false;
+
             for (const folder of pointer.folders()){
-                if (folder.name === pathPart){ 
+                if (folder.name === pathPart){
+                    foundPathPart = true;
                     pointer = folder;
-                    folder.expanded(true);
                 }
             }
+
+            if (!foundPathPart){
+                return null;
+            }
         }
+    
+        return pointer;
+    }
+
+    // expand all the directories along a given path
+    expandPath = async (path: string) : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            let pointer: Repository | RepositoryFolder = this;
+            const pathParts: string[] = path.split('/');
+
+            for (const pathPart of pathParts){
+                let foundPathPart = false;
+
+                for (const folder of pointer.folders()){
+                    if (folder.name === pathPart){
+                        foundPathPart = true;
+                        pointer = folder;
+                        await folder.select();
+                        break;
+                    }
+                }
+
+                // if we could not find one step in the path, then abort
+                if (!foundPathPart){
+                    reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointer.name));
+                }
+            }
+
+            resolve();
+        });
+    }
+
+    // refresh all the directories along a given path
+    refreshPath = async (path: string) : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            await this.refresh();
+
+            let pointer: Repository | RepositoryFolder = this;
+            const pathParts: string[] = path.split('/');
+
+            for (const pathPart of pathParts){
+                let foundPathPart = false;
+
+                for (const folder of pointer.folders()){
+                    if (folder.name === pathPart){
+                        foundPathPart = true;
+                        pointer = folder;
+                        await folder.refresh();
+                        break;
+                    }
+                }
+
+                // if we could not find one step in the path, then abort
+                if (!foundPathPart){
+                    reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointer.name));
+                }
+            }
+
+            resolve();
+        });
     }
 
     deleteFile = (file: RepositoryFile) : void => {
@@ -186,6 +258,35 @@ export class Repository {
         }
 
         return fileNameA.toLowerCase() > fileNameB.toLowerCase() ? 1 : -1;
+    }
+
+    public static toJson(repository: Repository) : object {
+        const result : any = {};
+
+        result.id = repository._id;
+        result.service = repository.service;
+        result.name = repository.name;
+        result.branch = repository.branch;
+
+        return result;
+    }
+
+    public static async fetch(repository: Repository, path: string) : Promise<void> {
+        return new Promise(async(resolve, reject) => {
+            switch(repository.service){
+                case Repository.Service.GitHub:
+                    await GitHub.loadRepoContent(repository, path);
+                    resolve();
+                    break;
+                case Repository.Service.GitLab:
+                    GitLab.loadRepoContent(repository, path);
+                    resolve();
+                    break;
+                default:
+                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
+                    reject("Unknown repository service. Not GitHub or GitLab!");
+            }
+        });
     }
 }
 

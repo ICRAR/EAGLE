@@ -16,9 +16,6 @@ import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { SideWindow } from "./SideWindow";
 
 export class ParameterTable {
-
-    static showTableModal : ko.Observable<boolean> = ko.observable(false);
-
     static selectionParent : ko.Observable<Field | null>; // row in the parameter table that is currently selected
     static selectionParentIndex : ko.Observable<number> // id of the selected field
     static selection : ko.Observable<string | null>; // cell in the parameter table that is currently selected
@@ -418,9 +415,10 @@ export class ParameterTable {
         }
     }
 
-    // TODO: remove parameter?
     static requestEditConfig(config: GraphConfig): void {
-        GraphConfigurationsTable.closeModal();
+        // TODO: actually, there is a difference between wanting to make a config active, and wanting to edit a config, but we don't have that separation at the moment
+        Eagle.getInstance().logicalGraph().setActiveGraphConfig(config.getId());
+
         ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);
     }
 

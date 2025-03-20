@@ -26,18 +26,18 @@
         </div>
         <!-- ko ifnot: isBuiltIn -->
         <div class="col col-1">
-            <i class="material-icons md-18 interactive iconHoverEffect" data-bind="click: remove, attr: {id: htmlId() + '-eject'}">eject</i>
+            <i class="material-icons md-18 interactive iconHoverEffect" data-bind="click: $root.repositories().removeCustomRepository, attr: {id: htmlId() + '-eject'}">eject</i>
         </div>
         <!-- /ko -->
         <!-- ko if: expanded -->
         <ul class="folders" data-bind="foreach: folders">
             <li>
-                <repository-folder params="data: $data"></repository-folder>
+                <div data-bind="template: {name: 'repository-folder-template'}"></div>
             </li>
         </ul>
         <ul class="files" data-bind="foreach: files">
             <li>
-                <repository-file params="data: $data"></repository-file>
+                <div data-bind="template: {name: 'repository-file-template'}"></div>
             </li>
         </ul>
         <!-- /ko -->

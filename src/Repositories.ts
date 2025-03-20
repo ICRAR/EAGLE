@@ -9,6 +9,7 @@ import {RepositoryFolder} from './RepositoryFolder';
 import {RepositoryFile} from './RepositoryFile';
 import {Setting} from './Setting';
 import {Utils} from './Utils';
+import { EagleStorage } from "./EagleStorage";
 
 export class Repositories {
 
@@ -17,11 +18,6 @@ export class Repositories {
 
     constructor(){
         Repositories.repositories = ko.observableArray();
-    }
-
-    static selectFolder(folder : RepositoryFolder) : void {
-        // toggle expanded state
-        folder.expanded(!folder.expanded());
     }
 
     static async selectFile(file : RepositoryFile): Promise<void> {
@@ -62,33 +58,7 @@ export class Repositories {
             eagle.openRemoteFile(file);
         }
     }
-
-    static listCustomRepositories(service: Repository.Service): Repository[] {
-        const customRepositories: Repository[] = [];
-        const prefix: string = service.toLowerCase();
-
-        // search for custom repositories, and add them into the list.
-        for (let i = 0; i < localStorage.length; i++) {
-            const key : string = localStorage.key(i);
-            const value : string = localStorage.getItem(key);
-            const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
-
-            // handle legacy repositories where the branch is not specified (assume master)
-            if (keyExtension === prefix + "_repository"){
-                customRepositories.push(new Repository(service, value, "master", false));
-            }
-
-            // handle the current method of storing repositories where both the service and branch are specified
-            if (keyExtension === prefix + "_repository_and_branch") {
-                const repositoryName = value.split("|")[0];
-                const repositoryBranch = value.split("|")[1];
-                customRepositories.push(new Repository(service, repositoryName, repositoryBranch, false));
-            }
-        }
-
-        return customRepositories;
-    }
-
+    
     // use a custom modal to ask user for repository service and url at the same time
     addCustomRepository = async () => {
         let customRepository: Repository;
@@ -113,23 +83,15 @@ export class Repositories {
     };
 
     _addCustomRepository = async (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) => {
-        // add extension to userString to indicate repository service
-        const localStorageKey : string = Utils.getLocalStorageKey(repositoryService, repositoryName, repositoryBranch);
-        if (localStorageKey === null){
-            Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repositoryService + ")");
-            return;
-        }
+        // create repo
+        const newRepo = new Repository(repositoryService, repositoryName, repositoryBranch, false);
 
-        // Adding the repo name into the local browser storage.
-        localStorage.setItem(localStorageKey, Utils.getLocalStorageValue(repositoryService, repositoryName, repositoryBranch));
+        // add to IndexedDB
+        EagleStorage.addCustomRepository(newRepo);
 
-        // Reload the repository lists
-        if (repositoryService === Repository.Service.GitHub){
-            await GitHub.refresh();
-        }
-        if (repositoryService === Repository.Service.GitLab){
-            await GitLab.refresh();
-        }
+        // add to Repositories, and re-sort the repository list
+        Repositories.repositories.push(newRepo);
+        Repositories.sort();
     }
 
     removeCustomRepository = async (repository : Repository): Promise<void> => {
@@ -160,22 +122,14 @@ export class Repositories {
             return;
         }
 
-        // remove from localStorage
-        switch(repository.service){
-            case Repository.Service.GitHub:
-                localStorage.removeItem(repository.name + ".repository");
-                localStorage.removeItem(repository.name + ".github_repository");
-                localStorage.removeItem(repository.name + "|" + repository.branch + ".github_repository_and_branch");
-                GitHub.refresh();
-                break;
-            case Repository.Service.GitLab:
-                localStorage.removeItem(repository.name + ".gitlab_repository");
-                localStorage.removeItem(repository.name + "|" + repository.branch + ".gitlab_repository_and_branch");
-                GitLab.refresh();
-                break;
-            default:
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + repository.service + ")");
-                return;
+        // remove from IndexedDB
+        EagleStorage.removeCustomRepository(repository);
+
+        // remove from Repositories.repositories
+        for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
+            if (Repositories.repositories()[i]._id === repository._id){
+                Repositories.repositories.splice(i, 1);
+            }
         }
     }
 

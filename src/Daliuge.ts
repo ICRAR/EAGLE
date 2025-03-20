@@ -159,6 +159,9 @@ export namespace Daliuge {
     export const baseNameField = new Field(null, FieldName.BASE_NAME, "", "", "The base name of the class of this Member function", false, DataType.String, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort);
     export const selfField = new Field(null, FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.ComponentParameter, FieldUsage.InputOutput);
 
+    export const funcCodeField = new Field(null, FieldName.FUNC_CODE, "", "def func_name(args): return args", "Python function code", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.ComponentParameter, FieldUsage.NoPort);
+    export const funcNameField = new Field(null, FieldName.FUNC_NAME, "", "func_name", "Python function name", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.ComponentParameter, FieldUsage.NoPort);
+
     // This list defines the fields required for ALL nodes belonging to a given Category.Type
     // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
     export const categoryTypeFieldsRequired = [
@@ -243,6 +246,16 @@ export namespace Daliuge {
             fields: [
                 Daliuge.baseNameField,
                 Daliuge.selfField
+            ]
+        },
+        {
+            categories: [
+                Category.PythonApp,
+                Category.PythonMemberFunction
+            ],
+            fields: [
+                Daliuge.funcCodeField,
+                Daliuge.funcNameField
             ]
         }
     ];

@@ -273,10 +273,16 @@ export class Modals {
         });
 
         $('#editFieldModal').on('hidden.bs.modal', function(){
-            // TODO: this is a bit of a hack to make sure the graph is re-checked after using the editFieldModal.
-            //       it will not catch errors introduced when a user just edits fields within the ParameterTable
-            //       so eventually we'll need a better system here
-            Eagle.getInstance().checkGraph();
+            const callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
+            const completed : boolean = $('#editFieldModal').data('completed');
+
+            // check if the modal was completed (user clicked OK), if not, return false
+            if (!completed){
+                callback(false, null);
+                return;
+            }
+
+            callback(true, eagle.currentField())
         });
 
         // #editEdgeModal - requestUserEditEdge()
@@ -364,7 +370,6 @@ export class Modals {
         });
 
         $('.parameterTable').on('hidden.bs.modal', function(){
-            ParameterTable.showTableModal(false)
             eagle.checkGraph();
         });
 
