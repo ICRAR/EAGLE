@@ -39,7 +39,6 @@ test('Creating a Simple Graph', async ({ page }) => {
   const box = await page.locator('#logicalGraphParent').boundingBox();
   let centerX :number;
   let centerY : number;
-
   if(box){
     centerX = box.x + box.width / 2;
     centerY = box.y + box.height / 2;
@@ -48,6 +47,9 @@ test('Creating a Simple Graph', async ({ page }) => {
     await page.mouse.wheel(0,400)
     await page.waitForTimeout(500);
   }
+
+  //additional little wait to prevent timeouts on the next line
+  await page.waitForTimeout(200);
 
   //drag an edge from helloWorldApp -> File
   await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
