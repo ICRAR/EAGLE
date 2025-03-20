@@ -646,17 +646,14 @@ export class Utils {
         });
     }
 
-    static requestUserEditField(eagle: Eagle, modalType: Eagle.ModalType, parameterType: Daliuge.FieldType, parameterUsage: Daliuge.FieldUsage, field: Field, choices: string[]): Promise<Field> {
+    static requestUserEditField(eagle: Eagle, field: Field, choices: string[]): Promise<Field> {
         return new Promise(async(resolve, reject) => {
-            eagle.currentField(field)
+            // set the currently edited field
+            eagle.currentField(field);
 
             $('#editFieldModal').data('completed', false);
             $('#editFieldModal').data('callback', (completed: boolean, field: Field): void => {
-                if (!completed){
-                    reject();
-                } else {
-                    resolve(field);
-                }
+                resolve(field);
             });
             $('#editFieldModal').data('choices', choices);
             $('#editFieldModal').modal("toggle");
@@ -746,17 +743,6 @@ export class Utils {
     static hideSettingsModal() : void {
         $('#settingsModal').modal("hide");
     }
-
-    /*
-    static showOpenParamsTableModal(mode: ParameterTable.Mode) : void {
-        ParameterTable.mode(mode);
-        $('#parameterTableModal').modal("show");
-    }
-
-    static showOpengraphConfigurationsTable() : void {
-        $('#graphConfigurationsTable').modal("show");
-    }
-    */
 
     static showShortcutsModal() : void {
         if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
