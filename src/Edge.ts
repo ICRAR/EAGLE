@@ -22,36 +22,36 @@
 #
 */
 
+import * as ko from "knockout";
+
 import { Category } from './Category';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
-import { LogicalGraph } from './LogicalGraph';
-import { Node } from './Node';
-import { Field } from './Field';
-import { Utils } from './Utils';
-import { Errors } from './Errors';
-import * as ko from "knockout";
 import { EagleConfig } from './EagleConfig';
+import { Errors } from './Errors';
+import { Field } from './Field';
+import { Node } from './Node';
+import { Utils } from './Utils';
 
 export class Edge {
     private id: EdgeId;
-    private srcNodeId: NodeId;
-    private srcPortId: FieldId;
-    private destNodeId: NodeId;
-    private destPortId: FieldId;
+    private srcNode: Node;
+    private srcPort: Field;
+    private destNode: Node;
+    private destPort: Field;
     private loopAware : ko.Observable<boolean>; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
     private closesLoop : ko.Observable<boolean>; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
     private selectionRelative : boolean // indicates if the edge is either selected or attached to a selected node
     private isShortEdge : ko.Observable<boolean>;
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of edge errors
 
-    constructor(srcNodeId: NodeId, srcPortId: FieldId, destNodeId: NodeId, destPortId: FieldId, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
+    constructor(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
         this.id = Utils.generateEdgeId();
 
-        this.srcNodeId = srcNodeId;
-        this.srcPortId = srcPortId;
-        this.destNodeId = destNodeId;
-        this.destPortId = destPortId;
+        this.srcNode = srcNode;
+        this.srcPort = srcPort;
+        this.destNode = destNode;
+        this.destPort = destPort;
 
         this.loopAware = ko.observable(loopAware);
         this.closesLoop = ko.observable(closesLoop);
@@ -68,40 +68,40 @@ export class Edge {
         this.id = id;
     }
 
-    getSrcNodeId = () : NodeId => {
-        return this.srcNodeId;
+    getSrcNode = () : Node => {
+        return this.srcNode;
     }
 
-    setSrcNodeId = (id: NodeId): void => {
-        this.srcNodeId = id;
+    setSrcNode = (node: Node): void => {
+        this.srcNode = node;
     }
 
-    getSrcPortId = () : FieldId => {
-        return this.srcPortId;
+    getSrcPort = () : Field => {
+        return this.srcPort;
     }
 
-    setSrcPortId = (id: FieldId) : void => {
-        this.srcPortId = id;
+    setSrcPort = (field: Field) : void => {
+        this.srcPort = field;
     }
 
-    getDestNodeId = () : NodeId => {
-        return this.destNodeId;
+    getDestNode = () : Node => {
+        return this.destNode;
     }
 
-    setDestNodeId = (id: NodeId): void => {
-        this.destNodeId = id;
+    setDestNode = (node: Node): void => {
+        this.destNode = node;
     }
 
-    getDestPortId = () : FieldId => {
-        return this.destPortId;
+    getDestPort = () : Field => {
+        return this.destPort;
+    }
+
+    setDestPort = (field: Field) : void => {
+        this.destPort = field;
     }
 
     getSelectionRelative = () : boolean => {
         return this.selectionRelative;
-    }
-
-    setDestPortId = (id: FieldId) : void => {
-        this.destPortId = id;
     }
 
     isLoopAware = () : boolean => {
@@ -153,9 +153,8 @@ export class Edge {
     }
 
     isPath = () : boolean => {
-        const eagle = Eagle.getInstance()
-        const srcPort = eagle.logicalGraph().findNodeByIdQuiet(this.getSrcNodeId())?.getFieldById(this.getSrcPortId())
-        const destPort = eagle.logicalGraph().findNodeByIdQuiet(this.getDestNodeId())?.getFieldById(this.getDestPortId())
+        const srcPort = this.getSrcPort();
+        const destPort = this.getDestPort();
 
         if(srcPort?.getEncoding() === Daliuge.Encoding.Path){
             return true
@@ -168,16 +167,19 @@ export class Edge {
 
     clear = () : void => {
         this.id = null;
-        this.srcNodeId = null;
-        this.srcPortId = null;
-        this.destNodeId = null;
-        this.destPortId = null;
+        this.srcNode = null;
+        this.srcPort = null;
+        this.destNode = null;
+        this.destPort = null;
         this.loopAware(false);
         this.closesLoop(false);
+        this.selectionRelative = false;
+        this.isShortEdge(false);
+        this.issues([]);
     }
 
     clone = () : Edge => {
-        const result : Edge = new Edge(this.srcNodeId, this.srcPortId, this.destNodeId, this.destPortId, this.loopAware(), this.closesLoop(), this.selectionRelative);
+        const result : Edge = new Edge(this.srcNode, this.srcPort, this.destNode, this.destPort, this.loopAware(), this.closesLoop(), this.selectionRelative);
 
         result.id = this.id;
 
@@ -221,10 +223,10 @@ export class Edge {
 
     static toOJSJson(edge : Edge) : object {
         return {
-            from: edge.srcNodeId,
-            fromPort: edge.srcPortId,
-            to: edge.destNodeId,
-            toPort: edge.destPortId,
+            from: edge.srcNode,
+            fromPort: edge.srcPort,
+            to: edge.destNode,
+            toPort: edge.destPort,
             loop_aware: edge.loopAware() ? "1" : "0",
             closesLoop: edge.closesLoop()
         };
@@ -281,7 +283,7 @@ export class Edge {
         let impossibleEdge : boolean = false;
         let draggingEdgeFixable : boolean = false;
 
-        const edge = eagle.logicalGraph().findEdgeById(edgeId)
+        const edge = eagle.logicalGraph().findEdgeById(edgeId);
         if(edge){
             edge.issues([]) //clear old issues
         }

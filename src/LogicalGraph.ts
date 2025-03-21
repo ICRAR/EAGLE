@@ -29,6 +29,7 @@ import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
+import { Edges } from "./Edges";
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
@@ -44,7 +45,7 @@ import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
     private nodes : ko.ObservableArray<Node>;
-    private edges : ko.ObservableArray<Edge>;
+    private edges : ko.Observable<Edges>;
     private graphConfigs : ko.ObservableArray<GraphConfig>;
     private activeGraphConfigId : ko.Observable<GraphConfig.Id>
 
@@ -57,7 +58,7 @@ export class LogicalGraph {
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
         this.nodes = ko.observableArray([]);
-        this.edges = ko.observableArray([]);
+        this.edges = ko.observable(new Edges());
         this.graphConfigs = ko.observableArray([]);
         this.activeGraphConfigId = ko.observable(null); // can be null, or an id (can't be undefined)
         this.issues = ko.observableArray([])
@@ -202,7 +203,7 @@ export class LogicalGraph {
                 continue;
             }
 
-            result.edges.push(newEdge);
+            result.edges().add(newEdge);
         }
 
         // load configs (if present)
@@ -232,7 +233,7 @@ export class LogicalGraph {
 
         // add a step here to check that no edges are incident on constructs, and move any edges found to the embedded applications
         // add warnings to errorsWarnings
-        for (const edge of result.edges()){
+        for (const edge of result.edges().all()){
             // get references to actual source and destination nodes (from the keys)
             const sourceNode : Node = result.findNodeById(edge.getSrcNodeId());
             const destinationNode : Node = result.findNodeById(edge.getDestNodeId());
@@ -307,15 +308,15 @@ export class LogicalGraph {
     }
 
     addEdgeComplete = (edge : Edge) => {
-        this.edges.push(edge);
+        this.edges().add(edge);
     }
 
     getEdges = () : Edge[] => {
-        return this.edges();
+        return this.edges().all();
     }
 
     getNumEdges = () : number => {
-        return this.edges().length;
+        return this.edges().all().length;
     }
 
     getCommentNodes = () : Node[] => {
@@ -419,7 +420,7 @@ export class LogicalGraph {
     countEdgesIncidentOnNode = (node : Node) : number => {
         let result: number = 0;
 
-        for (const edge of this.edges()){
+        for (const edge of this.edges().all()){
             if ((edge.getSrcNodeId() === node.getId() ) || ( edge.getDestNodeId() === node.getId() )){
                 result += 1;
             }
@@ -432,7 +433,7 @@ export class LogicalGraph {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Graph;
         this.nodes([]);
-        this.edges([]);
+        this.edges().clear();
         this.graphConfigs([]);
         this.activeGraphConfigId(null)
     }
@@ -448,8 +449,8 @@ export class LogicalGraph {
         }
 
         // copy edges
-        for (const edge of this.edges()){
-            result.edges.push(edge.clone());
+        for (const edge of this.edges().all()){
+            result.edges().add(edge.clone());
         }
 
         // copy graph configs
@@ -628,6 +629,7 @@ export class LogicalGraph {
         }
     }
 
+    /*
     findEdgeById = (id: EdgeId) : Edge => {
         for (let i = this.edges().length - 1; i >= 0 ; i--){
             if (this.edges()[i].getId() === id){
@@ -636,7 +638,12 @@ export class LogicalGraph {
         }
         return null;
     }
+    */
+    findEdgeById = (id: EdgeId) : Edge => {
+        return this.edges().get(id);
+    }
 
+    /*
     removeEdgeById = (id: EdgeId) : void => {
         let found = false;
 
@@ -651,13 +658,19 @@ export class LogicalGraph {
             console.warn("Could not removeEdgeById(), edge not found with id:", id);
         }
     }
+    */
+    removeEdgeById = (id: EdgeId) : void => {
+        this.edges().remove(id);
+    }
 
     // delete edges that start from or end at the node with the given id
     removeEdgesById = (id: NodeId) : void => {
-        for (let i = this.edges().length - 1 ; i >= 0; i--){
-            const edge : Edge = this.edges()[i];
+        const edges: Edge[] = this.edges().all();
+
+        for (let i = edges.length - 1 ; i >= 0; i--){
+            const edge : Edge = edges[i];
             if (edge.getSrcNodeId() === id || edge.getDestNodeId() === id){
-                this.edges.splice(i, 1);
+                this.edges().remove(edge.getId());
             }
         }
     }
@@ -672,13 +685,13 @@ export class LogicalGraph {
         node.removeFieldById(id);
 
         // remove any edges connected to that port
-        const edges: ko.ObservableArray<Edge> = this.edges;
+        const edges: Edge[] = this.edges().all();
 
-        for (let i = edges().length - 1; i >= 0; i--){
-            const edge: Edge = edges()[i];
+        for (let i = edges.length - 1; i >= 0; i--){
+            const edge: Edge = edges[i];
 
             if (edge.getSrcPortId() === id || edge.getDestPortId() === id){
-                edges.splice(i, 1);
+                this.edges().remove(edge.getId());
             }
         }
 
@@ -695,7 +708,7 @@ export class LogicalGraph {
         let result:{input:boolean,output:boolean} = {'input':false,'output':false}
         let input = false
         let output = false
-        for (const edge of this.edges()){
+        for (const edge of this.edges().all()){
             if(edge.getSrcNodeId() === nodeId && edge.getSrcPortId() === portId){
                 output = true
             }

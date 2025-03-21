@@ -1157,8 +1157,8 @@ export class Eagle {
 
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
-            const srcNode = nodeMap.get(edge.getSrcNodeId());
-            const destNode = nodeMap.get(edge.getDestNodeId());
+            const srcNode = nodeMap.get(edge.getSrcNode().getId());
+            const destNode = nodeMap.get(edge.getDestNode().getId());
 
             if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
                 errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
@@ -1166,7 +1166,7 @@ export class Eagle {
             }
 
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
-            this.addEdge(srcNode, portMap.get(edge.getSrcPortId()), destNode, portMap.get(edge.getDestPortId()), edge.isLoopAware(), edge.isClosesLoop());
+            this.addEdge(srcNode, portMap.get(edge.getSrcPort().getId()), destNode, portMap.get(edge.getDestPort().getId()), edge.isLoopAware(), edge.isClosesLoop());
         }
 
         //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
@@ -2772,8 +2772,8 @@ export class Eagle {
         this.selectedEdge().toggleClosesLoop();
 
         // get nodes from edge
-        const sourceNode = this.logicalGraph().findNodeById(this.selectedEdge().getSrcNodeId());
-        const destNode = this.logicalGraph().findNodeById(this.selectedEdge().getDestNodeId());
+        const sourceNode = this.selectedEdge().getSrcNode();//this.logicalGraph().findNodeById(this.selectedEdge().getSrcNodeId());
+        const destNode = this.selectedEdge().getDestNode();//this.logicalGraph().findNodeById(this.selectedEdge().getDestNodeId());
 
         sourceNode.setGroupEnd(this.selectedEdge().isClosesLoop());
         destNode.setGroupStart(this.selectedEdge().isClosesLoop());
@@ -2874,7 +2874,7 @@ export class Eagle {
         }
 
         // if input edge is null, then we are creating a new edge here, so initialise it with some default values
-        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getId(), null, this.logicalGraph().getNodes()[0].getId(), null, false, false, false);
+        const newEdge = new Edge(this.logicalGraph().getNodes()[0], null, this.logicalGraph().getNodes()[0], null, false, false, false);
 
         // display edge editing modal UI
         let edge: Edge;
@@ -2886,16 +2886,16 @@ export class Eagle {
         }
 
         // validate edge
-        const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+        const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNode().getId(), edge.getSrcPort().getId(), edge.getDestNode().getId(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
         if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
             Utils.showUserMessage("Error", "Invalid edge");
             return;
         }
 
-        const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
-        const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-        const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
-        const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+        const srcNode: Node = edge.getSrcNode();
+        const srcPort: Field = edge.getSrcPort();
+        const destNode: Node = edge.getDestNode();
+        const destPort: Field = edge.getDestPort();
 
         // new edges might require creation of new nodes, don't use addEdgeComplete() here!
         await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
@@ -2933,16 +2933,16 @@ export class Eagle {
         }
 
         // validate edge
-        const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
+        const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNode().getId(), edge.getSrcPort().getId(), edge.getDestNode().getId(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
         if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
             Utils.showUserMessage("Error", "Invalid edge");
             return;
         }
 
-        const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
-        const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-        const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
-        const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+        const srcNode: Node = edge.getSrcNode();
+        const srcPort: Field = edge.getSrcPort();
+        const destNode: Node = edge.getDestNode();
+        const destPort: Field = edge.getDestPort();
 
         // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
         this.logicalGraph().removeEdgeById(selectedEdge.getId());
@@ -4344,7 +4344,7 @@ export class Eagle {
             // if edge connects two event ports, process normally
             // if the definition of the intermediaryComponent cannot be found, process normally
             if (!edgeConnectsTwoApplications || twoEventPorts || (edgeConnectsTwoApplications && intermediaryComponent === null)){
-                const edge : Edge = new Edge(srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
+                const edge : Edge = new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
                 this.logicalGraph().addEdgeComplete(edge);
                 setTimeout(() => {
                     this.setSelection(edge,Eagle.FileType.Graph)
@@ -4404,8 +4404,8 @@ export class Eagle {
             }
 
             // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge(srcNode.getId(), srcPort.getId(), newNode.getId(), newInputOutputPort.getId(), loopAware, closesLoop, false);
-            const secondEdge : Edge = new Edge(newNode.getId(), newInputOutputPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
+            const firstEdge : Edge = new Edge(srcNode, srcPort, newNode, newInputOutputPort, loopAware, closesLoop, false);
+            const secondEdge : Edge = new Edge(newNode, newInputOutputPort, destNode, destPort, loopAware, closesLoop, false);
 
             this.logicalGraph().addEdgeComplete(firstEdge);
             this.logicalGraph().addEdgeComplete(secondEdge);
