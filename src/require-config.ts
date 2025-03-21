@@ -35,6 +35,7 @@ require.config({
         "Palette": "./static/built/Palette",
         "Node": "./static/built/Node",
         "Field": "./static/built/Field",
+        "Edges": "./static/built/Edges",
         "Edge": "./static/built/Edge",
         "FileInfo": "./static/built/FileInfo",
         "Setting": "./static/built/Setting",
