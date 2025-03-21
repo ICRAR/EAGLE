@@ -252,8 +252,8 @@ color: #00bb00;}
 #bottomWindow div.dragHandle{
     position: absolute;
     width: 100%;
-    top: -5px;
-    height: 10px;
+    top: -10px;
+    height: 20px;
     cursor: ns-resize;
     z-index: 150;
 }
