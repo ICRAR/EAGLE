@@ -159,7 +159,11 @@ export class ParameterTable {
 
         switch (Setting.findValue(Setting.BOTTOM_WINDOW_MODE)){
             case Eagle.BottomWindowMode.NodeParameterTable:
-                return eagle.selectedNode()?.getFields();
+                console.log(eagle.selectedNode()?.getFields())
+
+                //.sort(compare) will use the compare function to sort the array compare needs to return a number. 
+                //depending on the global ascending or descending observable we will need to reverse the array returned by the sort function
+                return eagle.selectedNode()?.getFields().sort(ParameterTable.compare).reverse();
             
             case Eagle.BottomWindowMode.ConfigParameterTable:
                 const lg: LogicalGraph = eagle.logicalGraph();
@@ -193,6 +197,9 @@ export class ParameterTable {
                         displayedFields.push(lgField);
                     }
                 }
+                
+                console.log('comparing!')
+                displayedFields.sort(ParameterTable.compare)
 
                 return displayedFields;
 
@@ -200,6 +207,30 @@ export class ParameterTable {
                 return []
         }
     }, this);
+
+    // static sortFieldsBy = (unsortedFields : Field[]) : Field[] => {
+    //     console.log('sorting fields')
+    //     let result = []
+    //     console.log(unsortedFields)
+    //     console.log(result)
+    //     return result
+    // }
+
+    static compare = (a : Field , b : Field) : number => {
+        //will need a global observable that stores which column is being sorted, and a click event on each column header to switch  between them
+        //will also need a observable to store the switch between ascending and descending
+        //here we will then need a switch or list of ifs to get the correct value we want to sort by
+        
+        const valA = a.getParameterType()
+        const valB = b.getParameterType()
+        console.log(valA.toString().localeCompare(valB))
+        
+        //need to unpack the comparison below to decide wether we compare strings or numbers 
+        // $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB)
+
+        return valA.toString().localeCompare(valB)
+
+    }
 
     // TODO: move to Eagle.ts?
     //       doesn't seem to depend on any ParameterTable state, only Eagle state
