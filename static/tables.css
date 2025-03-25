@@ -260,6 +260,7 @@
 .eagleTableWrapper th, .eagleTableWrapper td, .eagleTableWrapper input{
     font-size: 14px;
     position: relative;
+    cursor: pointer;
 }
 
 .showBothValues{

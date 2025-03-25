@@ -27,6 +27,9 @@ export class ParameterTable {
     static tableHeaderX : any;
     static tableHeaderW : any;
 
+    static sortingColumn : string = '';
+    static sortOrderReversed : boolean = false;
+
     static init(){
 
         ParameterTable.selectionParent = ko.observable(null);
@@ -161,14 +164,19 @@ export class ParameterTable {
             case Eagle.BottomWindowMode.NodeParameterTable:
                 console.log(eagle.selectedNode()?.getFields())
 
+                let tableFields : Field[] = []
+
                 //.sort(compare) will use the compare function to sort the array compare needs to return a number. 
                 //depending on the global ascending or descending observable we will need to reverse the array returned by the sort function
-                return eagle.selectedNode()?.getFields().sort(ParameterTable.compare).reverse();
+                tableFields = eagle.selectedNode()?.getFields()
+                tableFields = ParameterTable.sortFieldsBy(tableFields)
+                return tableFields
+                // return eagle.selectedNode()?.getFields().sort(ParameterTable.compare);
             
             case Eagle.BottomWindowMode.ConfigParameterTable:
                 const lg: LogicalGraph = eagle.logicalGraph();
                 const config: GraphConfig = lg.getActiveGraphConfig();
-                const displayedFields: Field[] = [];
+                let displayedFields: Field[] = [];
 
                 if (!config){
                     return [];
@@ -199,23 +207,25 @@ export class ParameterTable {
                 }
                 
                 console.log('comparing!')
-                displayedFields.sort(ParameterTable.compare)
+                displayedFields = ParameterTable.sortFieldsBy(displayedFields)
 
                 return displayedFields;
 
             default:
                 return []
         }
-    }, this);
+    }, this)
 
-    // static sortFieldsBy = (unsortedFields : Field[]) : Field[] => {
-    //     console.log('sorting fields')
-    //     let result = []
-    //     console.log(unsortedFields)
-    //     console.log(result)
-    //     return result
-    // }
+    static sortFieldsBy = (fields : Field[]) : Field[] => {
+        const sortedFields = fields.sort(ParameterTable.compare)
 
+        if(ParameterTable.sortOrderReversed){
+            sortedFields.reverse()
+        }
+
+        return sortedFields
+    }
+    
     static compare = (a : Field , b : Field) : number => {
         //will need a global observable that stores which column is being sorted, and a click event on each column header to switch  between them
         //will also need a observable to store the switch between ascending and descending
@@ -230,6 +240,14 @@ export class ParameterTable {
 
         return valA.toString().localeCompare(valB)
 
+    }
+
+    static sortTableBy (columnName : string) : void{
+        if(ParameterTable.sortingColumn === columnName){
+            ParameterTable.sortOrderReversed = !ParameterTable.sortOrderReversed
+        }else{
+            ParameterTable.sortingColumn = columnName
+        }
     }
 
     // TODO: move to Eagle.ts?
