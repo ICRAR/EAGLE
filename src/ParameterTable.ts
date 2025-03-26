@@ -162,7 +162,7 @@ export class ParameterTable {
 
         switch (Setting.findValue(Setting.BOTTOM_WINDOW_MODE)){
             case Eagle.BottomWindowMode.NodeParameterTable:
-                console.log(eagle.selectedNode()?.getFields())
+                console.log('og',eagle.selectedNode()?.getFields())  
 
                 let tableFields : Field[] = []
 
@@ -206,7 +206,6 @@ export class ParameterTable {
                     }
                 }
                 
-                console.log('comparing!')
                 displayedFields = ParameterTable.sortFieldsBy(displayedFields)
 
                 return displayedFields;
@@ -217,6 +216,12 @@ export class ParameterTable {
     }, this)
 
     static sortFieldsBy = (fields : Field[]) : Field[] => {
+
+        //early out if we dont need to sort        
+        if(ParameterTable.sortingColumn === ''){
+            return fields
+        }
+
         const sortedFields = fields.sort(ParameterTable.compare)
 
         if(ParameterTable.sortOrderReversed){
@@ -231,15 +236,46 @@ export class ParameterTable {
         //will also need a observable to store the switch between ascending and descending
         //here we will then need a switch or list of ifs to get the correct value we want to sort by
         
-        const valA = a.getParameterType()
-        const valB = b.getParameterType()
-        console.log(valA.toString().localeCompare(valB))
+        let valA : any
+        let valB : any
+
+        if(ParameterTable.sortingColumn === 'displayText'){
+            valA = a.getDisplayText()
+            valB = b.getDisplayText()
+        }else if(ParameterTable.sortingColumn === 'fieldId'){
+            valA = a.getId()
+            valB = b.getId()
+        }else if(ParameterTable.sortingColumn === 'value'){
+            valA = a.getValue()
+            valB = b.getValue()
+        }else if(ParameterTable.sortingColumn === 'defaultValue'){
+            valA = a.getDefaultValue()
+            valB = b.getDefaultValue()
+        }else if(ParameterTable.sortingColumn === 'description'){
+            valA = a.getDescription()
+            valB = b.getDescription()
+        }else if(ParameterTable.sortingColumn === 'type'){
+            valA = a.getType()
+            valB = b.getType()
+        }else if(ParameterTable.sortingColumn === 'parameterType'){
+            valA = a.getParameterType()
+            valB = b.getParameterType()
+        }else if(ParameterTable.sortingColumn === 'usage'){
+            valA = a.getUsage()
+            valB = b.getUsage()
+        }else if(ParameterTable.sortingColumn === 'encoding'){
+            valA = a.getEncoding()
+            valB = b.getEncoding()
+        }
         
         //need to unpack the comparison below to decide wether we compare strings or numbers 
         // $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB)
 
-        return valA.toString().localeCompare(valB)
-
+        if($.isNumeric(valA) && $.isNumeric(valB)){
+            return valA - valB
+        }else{
+            return valA.toString().localeCompare(valB)
+        }
     }
 
     static sortTableBy (columnName : string) : void{
