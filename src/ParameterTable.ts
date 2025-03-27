@@ -166,9 +166,14 @@ export class ParameterTable {
 
                 let tableFields : Field[] = []
 
+                // make a "shallow" copy of the node fields, as opposed to a "deep" clone
+                // we can re-order the copy independently, but all the attributes of the fields are actually the originals (not clones)
+                for (const field of eagle.selectedNode()?.getFields()){
+                    tableFields.push(field.shallowCopy());
+                }
+
                 //.sort(compare) will use the compare function to sort the array compare needs to return a number. 
                 //depending on the global ascending or descending observable we will need to reverse the array returned by the sort function
-                tableFields = eagle.selectedNode()?.getFields()
                 tableFields = ParameterTable.sortFieldsBy(tableFields)
                 return tableFields
                 // return eagle.selectedNode()?.getFields().sort(ParameterTable.compare);
@@ -216,8 +221,7 @@ export class ParameterTable {
     }, this)
 
     static sortFieldsBy = (fields : Field[]) : Field[] => {
-
-        //early out if we dont need to sort        
+        //early out if we don't need to sort
         if(ParameterTable.sortingColumn === ''){
             return fields
         }
