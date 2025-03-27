@@ -36,11 +36,9 @@ import { FileInfo } from './FileInfo';
 import { GraphConfig } from './GraphConfig';
 import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
-import { ParameterTable } from "./ParameterTable";
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
-import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
@@ -91,8 +89,8 @@ export class LogicalGraph {
 
             const linkData : any = Edge.toOJSJson(edge);
 
-            let srcId = edge.getSrcNodeId();
-            let destId = edge.getDestNodeId();
+            let srcId = edge.getSrcNode().getId();
+            let destId = edge.getDestNode().getId();
 
             const srcNode = graph.findNodeById(srcId);
             const destNode = graph.findNodeById(destId);
@@ -197,7 +195,7 @@ export class LogicalGraph {
 
         // add edges
         for (const linkData of dataObject.linkDataArray){       
-            const newEdge = Edge.fromOJSJson(linkData, errorsWarnings);
+            const newEdge = Edge.fromOJSJson(linkData, result.nodes(), errorsWarnings);
 
             if (newEdge === null){
                 continue;
@@ -234,13 +232,15 @@ export class LogicalGraph {
         // add a step here to check that no edges are incident on constructs, and move any edges found to the embedded applications
         // add warnings to errorsWarnings
         for (const edge of result.edges().all()){
+            console.log("edge", edge.getSrcNode(), edge.getDestNode(), edge.getSrcPort(), edge.getDestPort());
+
             // get references to actual source and destination nodes (from the keys)
-            const sourceNode : Node = result.findNodeById(edge.getSrcNodeId());
-            const destinationNode : Node = result.findNodeById(edge.getDestNodeId());
+            const sourceNode : Node = edge.getSrcNode();
+            const destinationNode : Node = edge.getDestNode();
 
             // check that source and destination nodes were found
             if (sourceNode === null || destinationNode === null){
-                console.error("Could not find source (" + edge.getSrcNodeId() + ") or destination (" + edge.getDestNodeId() + ") node of edge " + edge.getId());
+                console.error("Could not find source (" + edge.getSrcNode().getId() + ") or destination (" + edge.getDestNode().getId() + ") node of edge " + edge.getId());
                 continue;
             }
 
@@ -251,16 +251,16 @@ export class LogicalGraph {
 
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
             if (sourceNode.getCategoryType() === Category.Type.Construct){
-                const srcIdAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPortId());
-                const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNodeId() + " to embedded application " + srcIdAndPort.id;
+                const srcIdAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPort().getId());
+                const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNode().getId() + " to embedded application " + srcIdAndPort.node.getId();
                 errorsWarnings.warnings.push(Errors.Message(warning));
-                edge.setSrcNodeId(srcIdAndPort.id);
+                edge.getSrcNode().setId(srcIdAndPort.node.getId());
             }
             if (destinationNode.getCategoryType() === Category.Type.Construct){
-                const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPortId());
-                const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNodeId() + " to embedded application " + destKeyAndPort.id;
+                const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPort().getId());
+                const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNode().getId() + " to embedded application " + destKeyAndPort.node.getId();
                 errorsWarnings.warnings.push(Errors.Message(warning));
-                edge.setDestNodeId(destKeyAndPort.id);
+                edge.getDestNode().setId(destKeyAndPort.node.getId());
             }
         }
 
@@ -421,7 +421,7 @@ export class LogicalGraph {
         let result: number = 0;
 
         for (const edge of this.edges().all()){
-            if ((edge.getSrcNodeId() === node.getId() ) || ( edge.getDestNodeId() === node.getId() )){
+            if ((edge.getSrcNode().getId() === node.getId() ) || ( edge.getDestNode().getId() === node.getId() )){
                 result += 1;
             }
         }
@@ -577,7 +577,7 @@ export class LogicalGraph {
             node.getFields().forEach(function(field:Field){
                 if(field.isInputPort() || field.isOutputPort()){
                     that.getEdges().forEach(function(edge:Edge){
-                        if(edge.getDestPortId() === field.getId() || edge.getSrcPortId() === field.getId()){
+                        if(edge.getDestPort().getId() === field.getId() || edge.getSrcPort().getId() === field.getId()){
                             that.removeEdgeById(edge.getId())
                         }
                     })
@@ -669,7 +669,7 @@ export class LogicalGraph {
 
         for (let i = edges.length - 1 ; i >= 0; i--){
             const edge : Edge = edges[i];
-            if (edge.getSrcNodeId() === id || edge.getDestNodeId() === id){
+            if (edge.getSrcNode().getId() === id || edge.getDestNode().getId() === id){
                 this.edges().remove(edge.getId());
             }
         }
@@ -690,7 +690,7 @@ export class LogicalGraph {
         for (let i = edges.length - 1; i >= 0; i--){
             const edge: Edge = edges[i];
 
-            if (edge.getSrcPortId() === id || edge.getDestPortId() === id){
+            if (edge.getSrcPort().getId() === id || edge.getDestPort().getId() === id){
                 this.edges().remove(edge.getId());
             }
         }
@@ -709,10 +709,10 @@ export class LogicalGraph {
         let input = false
         let output = false
         for (const edge of this.edges().all()){
-            if(edge.getSrcNodeId() === nodeId && edge.getSrcPortId() === portId){
+            if(edge.getSrcNode().getId() === nodeId && edge.getSrcPort().getId() === portId){
                 output = true
             }
-            if(edge.getDestNodeId() === nodeId && edge.getDestPortId() === portId){
+            if(edge.getDestNode().getId() === nodeId && edge.getDestPort().getId() === portId){
                 input = true
             }
         }
@@ -832,7 +832,7 @@ export class LogicalGraph {
             }
 
             if(findEligibleGroups){
-                //when finding eligable parent groups for nodes, we want to know if the centroid of the node we are dragging has entered a constuct
+                //when finding eligible parent groups for nodes, we want to know if the centroid of the node we are dragging has entered a construct
                 if(Utils.nodeCentroidOverlaps(node.getPosition().x, node.getPosition().y,node.getRadius(), x,y)){
                     overlaps.push(node);
                 }

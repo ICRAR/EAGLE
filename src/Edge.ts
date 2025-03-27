@@ -32,6 +32,7 @@ import { Errors } from './Errors';
 import { Field } from './Field';
 import { Node } from './Node';
 import { Utils } from './Utils';
+import { LogicalGraph } from "./LogicalGraph";
 
 export class Edge {
     private id: EdgeId;
@@ -232,7 +233,7 @@ export class Edge {
         };
     }
 
-    static fromOJSJson(linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge {
+    static fromOJSJson(linkData: any, nodes: Node[], errorsWarnings: Errors.ErrorsWarnings) : Edge {
         // try to read source and destination nodes and ports
         let srcNodeId: NodeId = null;
         let srcPortId: FieldId = null;
@@ -275,8 +276,36 @@ export class Edge {
             closesLoop = linkData.closesLoop;
         }
 
+        // TODO: this could be better?
+        let srcNode: Node = null;
+        let destNode: Node = null;
+
+        for (const node of nodes){
+            if (node.getId() === srcNodeId){
+                srcNode = node;
+                continue;
+            }
+            if (node.getId() === destNodeId){
+                destNode = node;
+                continue;
+            }
+        }
+
+        const srcPort: Field = srcNode.findFieldById(srcPortId);
+        const destPort: Field = destNode.findFieldById(destPortId);
+
+        // debug
+        if (srcPort === null){
+            console.warn("Could not find source port for edge");
+            return null;
+        }
+        if (destPort === null){
+            console.warn("Could not find dest port for edge");
+            return null;
+        }
+
         // TODO: validate ids
-        return new Edge(srcNodeId, srcPortId, destNodeId, destPortId, loopAware, closesLoop, false);
+        return new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
     }
 
     static isValid(eagle: Eagle, draggingPortMode: boolean, edgeId: EdgeId, sourceNodeId: NodeId, sourcePortId: FieldId, destinationNodeId: NodeId, destinationPortId: FieldId, loopAware: boolean, closesLoop: boolean, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
@@ -453,8 +482,8 @@ export class Edge {
 
         // check if the edge already exists in the graph, there is no point in a duplicate
         for (const edge of eagle.logicalGraph().getEdges()){
-            const isSrcMatch = edge.getSrcNodeId() === sourceNodeId && edge.getSrcPortId() === sourcePortId;
-            const isDestMatch = edge.getDestNodeId() === destinationNodeId && edge.getDestPortId() === destinationPortId;
+            const isSrcMatch = edge.getSrcNode().getId() === sourceNodeId && edge.getSrcPort().getId() === sourcePortId;
+            const isDestMatch = edge.getDestNode().getId() === destinationNodeId && edge.getDestPort().getId() === destinationPortId;
 
             if ( isSrcMatch && isDestMatch && edge.getId() !== edgeId){
                 const x = Errors.ShowFix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.showEdge(eagle, edgeId);}, function(){Utils.fixDeleteEdge(eagle, edgeId);}, "Delete edge");

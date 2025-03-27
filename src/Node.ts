@@ -779,17 +779,17 @@ export class Node {
         return null;
     }
 
-    findPortInApplicationsById = (portId : string) : {id: NodeId, port: Field} => {
+    findPortInApplicationsById = (portId : string) : {node: Node, port: Field} => {
         // if node has an inputApplication, check those ports too
         if (this.hasInputApplication()){
             for (const inputPort of this.inputApplication().getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {id: this.inputApplication().id(), port: inputPort};
+                    return {node: this.inputApplication(), port: inputPort};
                 }
             }
             for (const outputPort of this.inputApplication().getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {id: this.inputApplication().id(), port: outputPort};
+                    return {node: this.inputApplication(), port: outputPort};
                 }
             }
         }
@@ -798,17 +798,17 @@ export class Node {
         if (this.hasOutputApplication()){
             for (const inputPort of this.outputApplication().getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {id: this.outputApplication().id(), port: inputPort};
+                    return {node: this.outputApplication(), port: inputPort};
                 }
             }
             for (const outputPort of this.outputApplication().getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {id: this.outputApplication().id(), port: outputPort};
+                    return {node: this.outputApplication(), port: outputPort};
                 }
             }
         }
 
-        return {id: null, port: null};
+        return {node: null, port: null};
     }
 
     findPortIndexById = (portId: FieldId) : number => {
@@ -1983,10 +1983,10 @@ export class Node {
         let hasInputEdge: boolean = false;
         let hasOutputEdge: boolean = false;
         for (const edge of eagle.logicalGraph().getEdges()){
-            if (!hasOutputEdge && edge.getSrcNodeId() === node.getId()){
+            if (!hasOutputEdge && edge.getSrcNode().getId() === node.getId()){
                 hasOutputEdge = true;
             }
-            if (!hasInputEdge && edge.getDestNodeId() === node.getId()){
+            if (!hasInputEdge && edge.getDestNode().getId() === node.getId()){
                 hasInputEdge = true;
             }
             // abort loop if we've found both input and output already

@@ -1389,7 +1389,7 @@ export class Eagle {
         }
 
         for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, null);
+            const edge = Edge.fromOJSJson(e, nodes, null);
 
             edges.push(edge);
         }
@@ -3056,7 +3056,7 @@ export class Eagle {
         if (copyChildren){
             for (const edge of this.logicalGraph().getEdges()){
                 for (const node of nodes){
-                    if (node.getId() === edge.getSrcNodeId() || node.getId() === edge.getDestNodeId()){
+                    if (node.getId() === edge.getSrcNode().getId() || node.getId() === edge.getDestNode().getId()){
                         this._addUniqueEdge(edges, edge);
                     }
                 }
@@ -3161,7 +3161,7 @@ export class Eagle {
         }
 
         for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, errorsWarnings);
+            const edge = Edge.fromOJSJson(e, nodes, errorsWarnings);
 
             edges.push(edge);
         }
@@ -3379,7 +3379,7 @@ export class Eagle {
         // find child edges
         for (const edge of this.logicalGraph().getEdges()){
             for (const node of childNodes){
-                if (edge.getSrcNodeId() === node.getId() || edge.getDestNodeId() === node.getId()){
+                if (edge.getSrcNode().getId() === node.getId() || edge.getDestNode().getId() === node.getId()){
                     // check if edge is already in selectedObjects
                     if (this.objectIsSelected(edge)){
                         continue;

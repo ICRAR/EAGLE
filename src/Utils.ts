@@ -858,7 +858,7 @@ export class Utils {
                 $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
                     value: node.getId(),
                     text: node.getName(),
-                    selected: edge.getSrcNodeId() === node.getId()
+                    selected: edge.getSrcNode().getId() === node.getId()
                 }));
             }
 
@@ -869,7 +869,7 @@ export class Utils {
                 $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
                     value: inputApp.getId(),
                     text: inputApp.getName(),
-                    selected: edge.getSrcNodeId() === inputApp.getId()
+                    selected: edge.getSrcNode().getId() === inputApp.getId()
                 }));
             }
 
@@ -880,7 +880,7 @@ export class Utils {
                 $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
                     value: outputApp.getId(),
                     text: outputApp.getName(),
-                    selected: edge.getSrcNodeId() === outputApp.getId()
+                    selected: edge.getSrcNode().getId() === outputApp.getId()
                 }));
             }
         }
@@ -905,7 +905,7 @@ export class Utils {
                 $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getDisplayText(),
-                    selected: edge.getSrcPortId() === port.getId()
+                    selected: edge.getSrcPort().getId() === port.getId()
                 }));
             }
         }
@@ -917,7 +917,7 @@ export class Utils {
                 $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
                     value: node.getId(),
                     text: node.getName(),
-                    selected: edge.getDestNodeId() === node.getId()
+                    selected: edge.getDestNode().getId() === node.getId()
                 }));
             }
 
@@ -928,7 +928,7 @@ export class Utils {
                 $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
                     value: inputApp.getId(),
                     text: inputApp.getName(),
-                    selected: edge.getDestNodeId() === inputApp.getId()
+                    selected: edge.getDestNode().getId() === inputApp.getId()
                 }));
             }
 
@@ -939,7 +939,7 @@ export class Utils {
                 $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
                     value: outputApp.getId(),
                     text: outputApp.getName(),
-                    selected: edge.getDestNodeId() === outputApp.getId()
+                    selected: edge.getDestNode().getId() === outputApp.getId()
                 }));
             }
         }
@@ -963,7 +963,7 @@ export class Utils {
                 $('#editEdgeModalDestPortIdSelect').append($('<option>', {
                     value: port.getId(),
                     text: port.getDisplayText(),
-                    selected: edge.getDestPortId() === port.getId()
+                    selected: edge.getDestPort().getId() === port.getId()
                 }));
             }
         }
@@ -1887,13 +1887,13 @@ export class Utils {
         // update all edges to use new field
         for (const edge of eagle.logicalGraph().getEdges()){
             // update src port
-            if (edge.getSrcPortId() === oldFieldId){
-                edge.setSrcPortId(newFieldId);
+            if (edge.getSrcPort().getId() === oldFieldId){
+                edge.getSrcPort().setId(newFieldId);
             }
 
             // update dest port
-            if (edge.getDestPortId() === oldFieldId){
-                edge.setDestPortId(newFieldId);
+            if (edge.getDestPort().getId() === oldFieldId){
+                edge.getDestPort().setId(newFieldId);
             }
         }
     }
@@ -1985,12 +1985,11 @@ export class Utils {
 
     static addSourcePortToSourceNode(eagle: Eagle, edgeId: EdgeId){
         const edge = eagle.logicalGraph().findEdgeById(edgeId);
-        const srcNode = eagle.logicalGraph().findNodeById(edge.getSrcNodeId());
-        const destNode = eagle.logicalGraph().findNodeById(edge.getDestNodeId());
-        const destPort = destNode.findFieldById(edge.getDestPortId());
+        const srcNode = edge.getSrcNode();
+        const destPort = edge.getDestPort();
 
         // abort fix if source port exists on source node
-        if (srcNode.findFieldById(edge.getSrcPortId()) !== null){
+        if (srcNode.findFieldById(edge.getSrcPort().getId()) !== null){
             return;
         }
 
@@ -1998,7 +1997,7 @@ export class Utils {
         const srcPortType = destPort.getType() === undefined ? Daliuge.DataType.Object : destPort.getType();
 
         // create new source port
-        const srcPort = new Field(edge.getSrcPortId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort);
+        const srcPort = new Field(edge.getSrcPort().getId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort);
 
         // add port to source node
         srcNode.addField(srcPort);
@@ -2006,12 +2005,11 @@ export class Utils {
 
     static addDestinationPortToDestinationNode(eagle: Eagle, edgeId: EdgeId){
         const edge = eagle.logicalGraph().findEdgeById(edgeId);
-        const srcNode = eagle.logicalGraph().findNodeById(edge.getSrcNodeId());
-        const destNode = eagle.logicalGraph().findNodeById(edge.getDestNodeId());
-        const srcPort = srcNode.findFieldById(edge.getSrcPortId());
+        const destNode = edge.getDestNode();
+        const srcPort = edge.getSrcPort();
 
         // abort fix if destination port exists on destination node
-        if (destNode.findFieldById(edge.getDestPortId()) !== null){
+        if (destNode.findFieldById(edge.getDestPort().getId()) !== null){
             return;
         }
 
@@ -2019,7 +2017,7 @@ export class Utils {
         const destPortType = srcPort.getType() === undefined ? Daliuge.DataType.Object : srcPort.getType();
 
         // create new destination port
-        const destPort = new Field(edge.getDestPortId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort);
+        const destPort = new Field(edge.getDestPort().getId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort);
 
         // add port to destination node
         destNode.addField(destPort);
@@ -2027,24 +2025,24 @@ export class Utils {
 
     static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: EdgeId){
         const edge = eagle.logicalGraph().findEdgeById(edgeId);
-        const srcNode = eagle.logicalGraph().findNodeById(edge.getSrcNodeId());
-        const destNode = eagle.logicalGraph().findNodeById(edge.getDestNodeId());
+        const srcNode = edge.getSrcNode();
+        const destNode = edge.getDestNode();
 
         // if the SOURCE node is a construct, find the port within the embedded apps, and modify the edge with a new source node
         if (srcNode.getCategoryType() === Category.Type.Construct){
-            const embeddedApplicationKeyAndPort = srcNode.findPortInApplicationsById(edge.getSrcPortId());
+            const embeddedApplicationKeyAndPort = srcNode.findPortInApplicationsById(edge.getSrcPort().getId());
 
-            if (embeddedApplicationKeyAndPort.id !== null){
-                edge.setSrcNodeId(embeddedApplicationKeyAndPort.id);
+            if (embeddedApplicationKeyAndPort.node !== null){
+                edge.setSrcNode(embeddedApplicationKeyAndPort.node);
             }
         }
 
         // if the DESTINATION node is a construct, find the port within the embedded apps, and modify the edge with a new destination node
         if (destNode.getCategoryType() === Category.Type.Construct){
-            const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPortId());
+            const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPort().getId());
 
-            if (embeddedApplicationKeyAndPort.id !== null){
-                edge.setDestNodeId(embeddedApplicationKeyAndPort.id);
+            if (embeddedApplicationKeyAndPort.node !== null){
+                edge.setDestNode(embeddedApplicationKeyAndPort.node);
             }
         }
     }
@@ -2145,12 +2143,12 @@ export class Utils {
         // loop over all edges
         for (const edge of eagle.logicalGraph().getEdges()){
             // update the src port id, if required
-            if (edge.getSrcNodeId() === node.getId() && edge.getSrcPortId() === oldId){
-                edge.setSrcPortId(newId);
+            if (edge.getSrcNode().getId() === node.getId() && edge.getSrcPort().getId() === oldId){
+                edge.getSrcPort().setId(newId);
             }
             // update the dest port id, if required
-            if (edge.getDestNodeId() === node.getId() && edge.getDestPortId() === oldId){
-                edge.setDestPortId(newId);
+            if (edge.getDestNode().getId() === node.getId() && edge.getDestPort().getId() === oldId){
+                edge.getDestPort().setId(newId);
             }
         }
 
@@ -2298,23 +2296,23 @@ export class Utils {
 
         // add logical graph nodes to table
         for (const edge of eagle.logicalGraph().getEdges()){
-            const sourceNode: Node = eagle.logicalGraph().findNodeById(edge.getSrcNodeId());
-            const sourcePort: Field = sourceNode.findFieldById(edge.getSrcPortId());
-            const destNode: Node = eagle.logicalGraph().findNodeById(edge.getDestNodeId());
-            const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+            const sourceNode: Node = edge.getSrcNode();
+            const sourcePort: Field = edge.getSrcPort();
+            const destNode: Node = edge.getDestNode();
+            const destPort: Field = edge.getDestPort();
 
             tableData.push({
-                "_id":edge.getId(),
+                "_id": edge.getId(),
                 "sourceNode": sourceNode.getName(),
-                "sourceNodeId":edge.getSrcNodeId(),
+                "sourceNodeId": sourceNode.getId(),
                 "sourcePort": sourcePort.getDisplayText(),
-                "sourcePortId":edge.getSrcPortId(),
+                "sourcePortId": sourcePort.getId(),
                 "destNode": destNode.getName(),
-                "destNodeId":edge.getDestNodeId(),
+                "destNodeId": destNode.getId(),
                 "destPort": destPort.getDisplayText(),
-                "destPortId":edge.getDestPortId(),
-                "loopAware":edge.isLoopAware(),
-                "isSelectionRelative":edge.getSelectionRelative()
+                "destPortId": destPort.getId(),
+                "loopAware": edge.isLoopAware(),
+                "isSelectionRelative": edge.getSelectionRelative()
             });
         }
 

@@ -881,7 +881,7 @@ export class Field {
         if (node.getCategory() === Category.PythonObject && field.getDisplayText() === Daliuge.FieldName.SELF){
             let numSelfPortConnections: number = 0;
             for (const edge of eagle.logicalGraph().getEdges()){
-                if (edge.getDestPortId() === field.getId()){
+                if (edge.getDestPort().getId() === field.getId()){
                     numSelfPortConnections += 1;
                 }
             }

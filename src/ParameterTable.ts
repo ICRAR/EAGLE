@@ -244,13 +244,13 @@ export class ParameterTable {
 
         for (const edge of eagle.logicalGraph().getEdges()){
             // check edges whose source is this field
-            if (edge.getSrcPortId() === field.getId() && !field.isOutputPort()){
+            if (edge.getSrcPort().getId() === field.getId() && !field.isOutputPort()){
                 // remove edge
                 edgesToRemove.push(edge.getId());
             }
 
             // check edges whose destination is this field
-            if (edge.getDestPortId() === field.getId() && !field.isInputPort()){
+            if (edge.getDestPort().getId() === field.getId() && !field.isInputPort()){
                 // remove edge
                 edgesToRemove.push(edge.getId());
             }

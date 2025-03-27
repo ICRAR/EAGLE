@@ -181,11 +181,11 @@ ko.bindingHandlers.graphRendererPortPosition = {
             }
             case 'inputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
-                    if(field != null && field.getId()===edge.getDestPortId()){
-                        const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getSrcNodeId());
+                    if(field != null && field.getId()===edge.getDestPort().getId()){
+                        const adjacentNode: Node = edge.getSrcNode();
                         
                         if (adjacentNode === null){
-                            console.warn("Could not find adjacentNode for inputPort or inputApp with SrcNodeId", edge.getSrcNodeId());
+                            console.warn("Edge (" + edge.getId() + ") source node is null");
                             return;
                         }
 
@@ -197,11 +197,11 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
             case 'outputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
-                    if(field.getId()===edge.getSrcPortId()){
-                        const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getDestNodeId());
+                    if(field != null && field.getId()===edge.getSrcPort().getId()){
+                        const adjacentNode: Node = edge.getDestNode();
 
                         if (adjacentNode === null){
-                            console.warn("Could not find adjacentNode for outputPort or outputApp with DestNodeId", edge.getDestNodeId());
+                            console.warn("Edge (" + edge.getId() + ") destination node is null");
                             return;
                         }
 
@@ -674,16 +674,14 @@ export class GraphRenderer {
 
         if (input){
             for(const edge of eagle.logicalGraph().getEdges()){
-                if(field.getId()===edge.getDestPortId()){
-                    const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getSrcNodeId());
-                    adjacentNodes.push(adjacentNode);
+                if(field.getId()===edge.getDestPort().getId()){
+                    adjacentNodes.push(edge.getSrcNode());
                 }
             }
         } else {
             for(const edge of eagle.logicalGraph().getEdges()){
-                if(field.getId()===edge.getSrcPortId()){
-                    const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getDestNodeId());
-                    adjacentNodes.push(adjacentNode);
+                if(field.getId()===edge.getSrcPort().getId()){
+                    adjacentNodes.push(edge.getDestNode());
                 }
             }
         }
@@ -883,17 +881,15 @@ export class GraphRenderer {
     }
 
     static getPath(edge: Edge) : string {
-        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
-
-        const srcNode: Node = lg.findNodeByIdQuiet(edge.getSrcNodeId());
-        const destNode: Node = lg.findNodeByIdQuiet(edge.getDestNodeId());
+        const srcNode: Node = edge.getSrcNode();
+        const destNode: Node = edge.getDestNode();
         if(srcNode===null||destNode===null){
             return ''
         }
-        const srcField: Field = srcNode.findFieldById(edge.getSrcPortId());
-        const destField: Field = destNode.findFieldById(edge.getDestPortId());
+        const srcField: Field = edge.getSrcPort();
+        const destField: Field = edge.getDestPort();
 
-        return GraphRenderer._getPath(edge,srcNode, destNode, srcField, destField);
+        return GraphRenderer._getPath(edge, srcNode, destNode, srcField, destField);
     }
 
     static getPathComment(commentNode: Node) : string {
@@ -1391,8 +1387,8 @@ export class GraphRenderer {
         const result: Edge[] = [];
 
         for (const edge of edges){
-            const srcId = edge.getSrcNodeId();
-            const destId = edge.getDestNodeId();
+            const srcId = edge.getSrcNode().getId();
+            const destId = edge.getDestNode().getId();
             let srcFound = false;
             let destFound = false;
 
@@ -1922,11 +1918,11 @@ export class GraphRenderer {
 
             // check if node has connected input and output
             for (const edge of graph.getEdges()){
-                if (edge.getDestNodeId() === node.getId()){
+                if (edge.getDestNode().getId() === node.getId()){
                     nodeHasConnectedInput = true;
                 }
 
-                if (edge.getSrcNodeId() === node.getId()){
+                if (edge.getSrcNode().getId() === node.getId()){
                     nodeHasConnectedOutput = true;
                 }
             }
@@ -2272,9 +2268,8 @@ export class GraphRenderer {
     }
 
     static setPortPeekForEdge(edge:Edge, value:boolean) : void {
-        const eagle = Eagle.getInstance();
-        const inputPort = eagle.logicalGraph().findNodeByIdQuiet(edge.getSrcNodeId()).findFieldById(edge.getSrcPortId())
-        const outputPort = eagle.logicalGraph().findNodeByIdQuiet(edge.getDestNodeId()).findFieldById(edge.getDestPortId())
+        const inputPort = edge.getSrcPort()
+        const outputPort = edge.getDestPort()
         
         // if the input port found, set peek
         if (inputPort !== null){
@@ -2298,10 +2293,10 @@ export class GraphRenderer {
         let selectedColor: string = EagleConfig.getColor('edgeDefaultSelected');
 
         // check if source node is an event, if so, draw in blue
-        const srcNode : Node = eagle.logicalGraph().findNodeById(edge.getSrcNodeId());
+        const srcNode : Node = edge.getSrcNode();
 
         if (srcNode !== null){
-            const srcPort : Field = srcNode.findFieldById(edge.getSrcPortId());
+            const srcPort : Field = edge.getSrcPort();
 
             if (srcPort !== null && srcPort.getIsEvent()){
                 normalColor = EagleConfig.getColor('edgeEvent');
