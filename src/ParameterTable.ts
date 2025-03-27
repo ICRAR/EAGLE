@@ -12,7 +12,6 @@ import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
 import { GraphConfig, GraphConfigField } from "./GraphConfig";
-import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { SideWindow } from "./SideWindow";
 
 export class ParameterTable {
@@ -220,6 +219,10 @@ export class ParameterTable {
             return
         }
 
+        if (typeof fields === 'undefined'){
+            return
+        }
+
         fields.sort(ParameterTable.compare)
 
         if(ParameterTable.sortOrderReversed){
@@ -372,8 +375,6 @@ export class ParameterTable {
     }
 
     static select(selection: string, selectionName: string, selectionParent: Field, selectionIndex: number) : void {
-        const eagle: Eagle = Eagle.getInstance();
-
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);
         ParameterTable.selectionParentIndex(selectionIndex);
