@@ -12,7 +12,6 @@ import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
 import { GraphConfig, GraphConfigField } from "./GraphConfig";
-import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { SideWindow } from "./SideWindow";
 
 export class ParameterTable {
@@ -162,26 +161,20 @@ export class ParameterTable {
 
         switch (Setting.findValue(Setting.BOTTOM_WINDOW_MODE)){
             case Eagle.BottomWindowMode.NodeParameterTable:
-                console.log('og',eagle.selectedNode()?.getFields())  
+                console.log('og',eagle.selectedNode()?.getSortedFields())  
 
-                let tableFields : Field[] = []
-
-                // make a "shallow" copy of the node fields, as opposed to a "deep" clone
-                // we can re-order the copy independently, but all the attributes of the fields are actually the originals (not clones)
-                for (const field of eagle.selectedNode()?.getFields()){
-                    tableFields.push(field.shallowCopy());
-                }
+                const tableFields : Field[] = eagle.selectedNode()?.getSortedFields();
 
                 //.sort(compare) will use the compare function to sort the array compare needs to return a number. 
                 //depending on the global ascending or descending observable we will need to reverse the array returned by the sort function
-                tableFields = ParameterTable.sortFieldsBy(tableFields)
+                ParameterTable.sortFieldsBy(tableFields)
                 return tableFields
                 // return eagle.selectedNode()?.getFields().sort(ParameterTable.compare);
             
             case Eagle.BottomWindowMode.ConfigParameterTable:
                 const lg: LogicalGraph = eagle.logicalGraph();
                 const config: GraphConfig = lg.getActiveGraphConfig();
-                let displayedFields: Field[] = [];
+                const displayedFields: Field[] = [];
 
                 if (!config){
                     return [];
@@ -211,7 +204,7 @@ export class ParameterTable {
                     }
                 }
                 
-                displayedFields = ParameterTable.sortFieldsBy(displayedFields)
+                ParameterTable.sortFieldsBy(displayedFields)
 
                 return displayedFields;
 
@@ -220,19 +213,21 @@ export class ParameterTable {
         }
     }, this)
 
-    static sortFieldsBy = (fields : Field[]) : Field[] => {
+    static sortFieldsBy = (fields : Field[]) : void => {
         //early out if we don't need to sort
         if(ParameterTable.sortingColumn === ''){
-            return fields
+            return
         }
 
-        const sortedFields = fields.sort(ParameterTable.compare)
+        if (typeof fields === 'undefined'){
+            return
+        }
+
+        fields.sort(ParameterTable.compare)
 
         if(ParameterTable.sortOrderReversed){
-            sortedFields.reverse()
+            fields.reverse()
         }
-
-        return sortedFields
     }
     
     static compare = (a : Field , b : Field) : number => {
@@ -375,13 +370,11 @@ export class ParameterTable {
                 eagle.logicalGraph().fileInfo().modified = true;
                 break;
         }
-
-        eagle.selectedObjects.valueHasMutated();
+        // NOTE: deleted this to prevent infinite loop
+        //eagle.selectedObjects.valueHasMutated();
     }
 
     static select(selection: string, selectionName: string, selectionParent: Field, selectionIndex: number) : void {
-        const eagle: Eagle = Eagle.getInstance();
-
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);
         ParameterTable.selectionParentIndex(selectionIndex);
