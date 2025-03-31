@@ -739,6 +739,19 @@ export class Node {
         }
     }
 
+    sortFields = (column: string, reversed: boolean, compareFunc: (left: Field, right: Field) => number) : void => {
+        // early out if we don't need to sort
+        if(column === ''){
+            return
+        }
+
+        this.sortedFields.sort(compareFunc);
+
+        if (reversed){
+            this.sortedFields.reverse();
+        }
+    }
+
     clear = () : void => {
         this.id(null);
         this.name("");

@@ -161,15 +161,7 @@ export class ParameterTable {
 
         switch (Setting.findValue(Setting.BOTTOM_WINDOW_MODE)){
             case Eagle.BottomWindowMode.NodeParameterTable:
-                console.log('og',eagle.selectedNode()?.getSortedFields())  
-
-                const tableFields : Field[] = eagle.selectedNode()?.getSortedFields();
-
-                //.sort(compare) will use the compare function to sort the array compare needs to return a number. 
-                //depending on the global ascending or descending observable we will need to reverse the array returned by the sort function
-                ParameterTable.sortFieldsBy(tableFields)
-                return tableFields
-                // return eagle.selectedNode()?.getFields().sort(ParameterTable.compare);
+                return eagle.selectedNode()?.getSortedFields();
             
             case Eagle.BottomWindowMode.ConfigParameterTable:
                 const lg: LogicalGraph = eagle.logicalGraph();
@@ -229,7 +221,7 @@ export class ParameterTable {
             fields.reverse()
         }
     }
-    
+
     static compare = (a : Field , b : Field) : number => {
         //will need a global observable that stores which column is being sorted, and a click event on each column header to switch  between them
         //will also need a observable to store the switch between ascending and descending
@@ -277,12 +269,16 @@ export class ParameterTable {
         }
     }
 
-    static sortTableBy (columnName : string) : void{
+    static sortTableBy (columnName : string) : void {
         if(ParameterTable.sortingColumn === columnName){
             ParameterTable.sortOrderReversed = !ParameterTable.sortOrderReversed
         }else{
             ParameterTable.sortingColumn = columnName
         }
+
+        // sort the selected node
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.selectedNode()?.sortFields(ParameterTable.sortingColumn, ParameterTable.sortOrderReversed, ParameterTable.compare);
     }
 
     // TODO: move to Eagle.ts?
