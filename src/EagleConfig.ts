@@ -1,5 +1,6 @@
 const colors: {[name: string]: string} =
     {
+        // node colors
         bodyBorder:                  '#2e3192',
         branchBackground:            '#dcdee2',
         constructBackground:         '#05142912',
