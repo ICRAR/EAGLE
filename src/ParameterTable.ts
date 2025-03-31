@@ -268,9 +268,6 @@ export class ParameterTable {
             }
         }
         
-        //need to unpack the comparison below to decide wether we compare strings or numbers 
-        // $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB)
-
         if($.isNumeric(valA) && $.isNumeric(valB)){
             return valA - valB
         }else{

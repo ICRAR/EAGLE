@@ -740,8 +740,9 @@ export class Node {
     }
 
     sortFields = (column: string, reversed: boolean, compareFunc: (left: Field, right: Field) => number) : void => {
-        // early out if we don't need to sort
+        // fresh copy of the node field structure, then skip the sorting process
         if(column === ''){
+            this.copyToSortedFields()
             return
         }
 
