@@ -623,4 +623,5 @@
 
 .paramsTableWrapper th i.tableSortIcon{
     font-size:15px;
+    pointer-events: none;
 }
