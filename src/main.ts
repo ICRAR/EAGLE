@@ -240,13 +240,7 @@ $(function(){
     // check that all categories have category data
     for (const category of Utils.enumKeys(Category)){
         CategoryData.getCategoryData(<Category>category);
-
-        // exit after the last category
-        if (category === Category.Component){
-            break;
-        }
     }
-
     
     //initiating all the eagle ui when the graph is ready
     eagle.eagleIsReady(true);

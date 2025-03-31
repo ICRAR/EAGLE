@@ -250,7 +250,7 @@ export namespace Daliuge {
         },
         {
             categories: [
-                Category.PyFuncApp
+                Category.PythonFunction
             ],
             fields: [
                 Daliuge.funcCodeField,
@@ -266,4 +266,19 @@ export namespace Daliuge {
             ]
         }
     ];
+
+    export const legacyCategories = [
+        {
+            old: Category.PyFuncApp,
+            new: Category.PythonFunction
+        },
+        {
+            old: Category.PythonApp,
+            new: Category.DALiuGEApp,
+        },
+        {
+            old: Category.Component,
+            new: Category.PythonFunction
+        }
+    ]
 }
