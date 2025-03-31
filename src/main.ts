@@ -239,11 +239,12 @@ $(function(){
 
     // check that all categories have category data
     for (const category of Utils.enumKeys(Category)){
-        if (category === Category.PythonApp){
+        CategoryData.getCategoryData(<Category>category);
+
+        // exit after the last category, before we get to the other enums in the Category object
+        if (category === Category.UnknownApplication){
             break;
         }
-
-        CategoryData.getCategoryData(<Category>category);
     }
     
     //initiating all the eagle ui when the graph is ready
