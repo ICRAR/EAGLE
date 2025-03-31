@@ -177,7 +177,7 @@ export class Hierarchy {
         const parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
 
         // determine colour of edge
-        const colour: string = edgeSelected ? EagleConfig.getColor('hierarchyEdgeSelectedColor') : EagleConfig.getColor('hierarchyEdgeDefaultColor');
+        const colour: string = edgeSelected ? EagleConfig.getColor('hierarchyEdgeSelected') : EagleConfig.getColor('hierarchyEdgeDefault');
 
         let p1x, p1y, p2x, p2y, arrowX, mpx;
         if(use==="input"){
