@@ -1,4 +1,4 @@
-const colors: { [name: string]:string } = 
+const colors: {[name: string]: string} =
     {
         bodyBorder:                  '#2e3192',
         branchBackground:            '#dcdee2',
