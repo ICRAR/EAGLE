@@ -1933,7 +1933,7 @@ export class Node {
 
          // check that node has modern (not legacy) category
          if (node.getCategory() === Category.Component){
-            const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has legacy category (" + node.getCategory() + ")", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeCategory(eagle, node, Category.PythonApp, Category.Type.Application)}, "");
+            const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has legacy category (" + node.getCategory() + ")", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeCategory(eagle, node, Category.PyFuncApp, Category.Type.Application)}, "");
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
@@ -2050,7 +2050,7 @@ export class Node {
 
         // check PyFuncApp nodes to make sure contents of func_name field is actually found within the func_code field
         // check whether the value of func_name is also present in func_code should only be applied if func_code is not empty
-        if (node.category() === Category.PythonApp){
+        if (node.category() === Category.PyFuncApp){
             const funcCodeField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
             const funcNameField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_NAME);
 

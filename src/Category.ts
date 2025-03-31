@@ -7,7 +7,8 @@ export enum Category {
     GroupBy = "GroupBy",
     Loop = "Loop",
 
-    PythonApp = "PythonApp",
+    DALiuGEApp = "DALiuGEApp",
+    PyFuncApp = "PyFuncApp",
     BashShellApp = "BashShellApp",
     DynlibApp = "DynlibApp",
     DynlibProcApp = "DynlibProcApp",
