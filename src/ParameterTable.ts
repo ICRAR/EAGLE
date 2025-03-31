@@ -282,6 +282,16 @@ export class ParameterTable {
             ParameterTable.sortingColumn = columnName
         }
 
+        //reset all the icons to sort none
+        $('.paramsTableWrapper th i.tableSortIcon').removeClass('icon-tableSortDescending').removeClass('icon-tableSortAscending').addClass('icon-tableSortNone')
+
+        //set the appropriate icon for the click target column header
+        if(ParameterTable.sortOrderReversed){
+            $(event.target).find('i.tableSortIcon').removeClass('icon-tableSortNone').addClass('icon-tableSortAscending')
+        }else{
+            $(event.target).find('i.tableSortIcon').removeClass('icon-tableSortNone').addClass('icon-tableSortDescending')
+        }
+
         ParameterTable._sort();
     }
 
