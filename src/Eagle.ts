@@ -646,6 +646,10 @@ export class Eagle {
             if(selection instanceof Edge){
                 GraphRenderer.setPortPeekForEdge(selection,true)
             }
+
+            if(selection instanceof Node){
+                ParameterTable._sortNode(selection);
+            }
         }
     }
 

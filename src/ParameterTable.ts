@@ -196,7 +196,7 @@ export class ParameterTable {
                     }
                 }
                 
-                ParameterTable.sortFieldsBy(displayedFields)
+                ParameterTable.sortFields(displayedFields)
 
                 return displayedFields;
 
@@ -205,7 +205,7 @@ export class ParameterTable {
         }
     }, this)
 
-    static sortFieldsBy = (fields : Field[]) : void => {
+    static sortFields = (fields : Field[]) : void => {
         //early out if we don't need to sort
         if(ParameterTable.sortingColumn === ''){
             return
@@ -287,10 +287,22 @@ export class ParameterTable {
 
         ParameterTable._sort();
     }
+
     static _sort(): void {
         // sort the selected node
         const eagle: Eagle = Eagle.getInstance();
-        eagle.selectedNode()?.sortFields(ParameterTable.sortingColumn, ParameterTable.sortOrderReversed, ParameterTable.compare);
+        const selectedNode = eagle.selectedNode();
+
+        if (selectedNode === null){
+            console.warn("Attempted to sort Node fields with no selected node!");
+            return
+        }
+
+        ParameterTable._sortNode(selectedNode);
+    }
+
+    static _sortNode(node: Node): void {
+        node.sortFields(ParameterTable.sortingColumn, ParameterTable.sortOrderReversed, ParameterTable.compare);
     }
 
     // TODO: move to Eagle.ts?
