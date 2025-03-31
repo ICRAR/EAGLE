@@ -432,7 +432,7 @@
                                                     <!-- /ko -->
                                                     <!-- ko ifnot: $data.usage() === Daliuge.FieldUsage.NoPort-->
                                                         <div class="checkboxWrapper">
-                                                            <select class="tbaleFieldEncoding" data-bind="options: Object.values(Daliuge.Encoding), value: encoding, disabled: ParameterTable.getParamsTableEditState() , event: {change: ParameterTable.encodingChanged}">
+                                                            <select class="tbaleFieldEncoding" data-bind="options: Object.values(Daliuge.Encoding), value: encoding, disabled: ParameterTable.getParamsTableEditState()">
                                                                 <!-- options are added dynamically -->
                                                             </select>
                                                         </div>

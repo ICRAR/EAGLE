@@ -257,6 +257,15 @@ export class ParameterTable {
         }else if(ParameterTable.sortingColumn === 'encoding'){
             valA = a.getEncoding()
             valB = b.getEncoding()
+
+            // NOTE: if the field is not a port, then the encoding is shown as "N/A".
+            // we should sort these last instead of according to the contents of the encoding attribute, which defaults to "pickle"
+            if (!a.isInputPort() && !a.isOutputPort()){
+                valA = "zzzz";
+            }
+            if (!b.isInputPort() && !b.isOutputPort()){
+                valB = "zzzz";
+            }
         }
         
         //need to unpack the comparison below to decide wether we compare strings or numbers 
@@ -276,6 +285,9 @@ export class ParameterTable {
             ParameterTable.sortingColumn = columnName
         }
 
+        ParameterTable._sort();
+    }
+    static _sort(): void {
         // sort the selected node
         const eagle: Eagle = Eagle.getInstance();
         eagle.selectedNode()?.sortFields(ParameterTable.sortingColumn, ParameterTable.sortOrderReversed, ParameterTable.compare);
