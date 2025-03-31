@@ -2049,14 +2049,17 @@ export class Node {
         }
 
         // check PyFuncApp nodes to make sure contents of func_name field is actually found within the func_code field
+        // check whether the value of func_name is also present in func_code should only be applied if func_code is not empty
         if (node.category() === Category.PythonApp){
             const funcCodeField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
             const funcNameField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_NAME);
 
             if (funcCodeField && funcNameField){
-                if (!funcCodeField.getValue().includes(funcNameField.getValue())){
-                    const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameField.getValue() + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, node.getId())});
-                    node.issues().push({issue:issue,validity:Errors.Validity.Error});
+                if (funcCodeField.getValue().trim() !== ""){
+                    if (!funcCodeField.getValue().includes(funcNameField.getValue())){
+                        const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameField.getValue() + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, node.getId())});
+                        node.issues().push({issue:issue,validity:Errors.Validity.Error});
+                    }
                 }
             }
         }
