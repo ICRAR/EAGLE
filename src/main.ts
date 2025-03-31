@@ -239,6 +239,10 @@ $(function(){
 
     // check that all categories have category data
     for (const category of Utils.enumKeys(Category)){
+        if (category === Category.PythonApp){
+            break;
+        }
+
         CategoryData.getCategoryData(<Category>category);
     }
     
