@@ -2025,16 +2025,22 @@ export class Node {
         }
 
         // check if this category of node is a legacy node
-        for (const legacyCategory of Daliuge.legacyCategories){
-            if (legacyCategory.old === node.getCategory()){
-                const issue : Errors.Issue = Errors.ShowFix(
-                    "Node (" + node.getName() + ") is a " + node.getCategory() + " node, which is a legacy category. The node should be updated to a " + legacyCategory.new + " node.",
-                    function(){Utils.showNode(eagle, node.getId())},
-                    function(){Utils.fixNodeCategory(eagle, node, legacyCategory.new, node.getCategoryType())},
-                    "Change node category from " + legacyCategory.old + " to " + legacyCategory.new
-                );
-                node.issues().push({issue:issue,validity:Errors.Validity.Error});
+        if (node.getCategory() === Category.PythonApp){
+            let newCategory: Category = Category.DALiuGEApp;
+            const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+
+            // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
+            if (dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
+                newCategory = Category.PyFuncApp;
             }
+
+            const issue : Errors.Issue = Errors.ShowFix(
+                "Node (" + node.getName() + ") is a " + node.getCategory() + " node, which is a legacy category. The node should be updated to a " + newCategory + " node.",
+                function(){Utils.showNode(eagle, node.getId())},
+                function(){Utils.fixNodeCategory(eagle, node, newCategory, node.getCategoryType())},
+                "Change node category from " + node.getCategory() + " to " + newCategory
+            );
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning});
         }
 
         // check that this category of node contains all the fields it requires

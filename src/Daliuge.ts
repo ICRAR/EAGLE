@@ -42,6 +42,7 @@ export class Daliuge {
 
 export namespace Daliuge {
     export const DEFAULT_PYDATA_VALUE: string = "None";
+    export const DEFAULT_PYFUNCAPP_DROPCLASS_VALUE: string = "dlg.apps.pyfunc.PyFuncApp";
 
     export enum FieldName {
         DATA_VOLUME = "data_volume",
@@ -266,19 +267,4 @@ export namespace Daliuge {
             ]
         }
     ];
-
-    export const legacyCategories = [
-        {
-            old: Category.PyFuncApp,
-            new: Category.PythonFunction
-        },
-        {
-            old: Category.PythonApp,
-            new: Category.DALiuGEApp,
-        },
-        {
-            old: Category.Component,
-            new: Category.PythonFunction
-        }
-    ]
 }
