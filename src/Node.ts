@@ -34,6 +34,7 @@ import { Field } from './Field';
 import { GraphRenderer } from "./GraphRenderer";
 import { Setting } from './Setting';
 import { Utils } from './Utils';
+import { ParameterTable } from "./ParameterTable";
 
 export class Node {
     private id : ko.Observable<NodeId>;
@@ -743,6 +744,9 @@ export class Node {
         // fresh copy of the node field structure, then skip the sorting process
         if(column === ''){
             this.copyToSortedFields()
+            if(ParameterTable.sortOrderReversed){
+                this.sortedFields().reverse()
+            }
             return
         }
 

@@ -99,7 +99,7 @@
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().value() -->
                                         <th class="parameter_table_value" data-bind="click: function(){ParameterTable.sortTableBy('value')},eagleTooltip:'The value of this parameter'" data-bs-placement="top">
                                             <i class="md-18 tableSortIcon icon-tableSortNone"></i>
-                                            <span>Value</span>
+                                            Value
                                             <!-- ko ifnot: Setting.findValue(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY) -->
                                                 <button class="showBothValues" data-bind="click: Setting.find(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY).toggle, eagleTooltip:'Toggle On Dual Value Display. This shows both the configured value and the graphs own value.'">
                                                     <div>

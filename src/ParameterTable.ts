@@ -276,10 +276,14 @@ export class ParameterTable {
     }
 
     static sortTableBy (columnName : string) : void {
+
         if(ParameterTable.sortingColumn === columnName){
-            ParameterTable.sortOrderReversed = !ParameterTable.sortOrderReversed
+            //if the already selected column header was clicked again, reverse the sorting order
+            ParameterTable.sortOrderReversed = !ParameterTable.sortOrderReversed;
         }else{
-            ParameterTable.sortingColumn = columnName
+            //if a new column header was clicked, reset the sorting order and sort via the new column
+            ParameterTable.sortOrderReversed = false;
+            ParameterTable.sortingColumn = columnName;
         }
 
         //reset all the icons to sort none
