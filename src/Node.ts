@@ -34,7 +34,6 @@ import { Field } from './Field';
 import { GraphRenderer } from "./GraphRenderer";
 import { Setting } from './Setting';
 import { Utils } from './Utils';
-import { ParameterTable } from "./ParameterTable";
 
 export class Node {
     private id : ko.Observable<NodeId>;
@@ -51,7 +50,6 @@ export class Node {
     private outputApplication : ko.Observable<Node>;
 
     private fields : ko.ObservableArray<Field>;
-    private sortedFields : ko.ObservableArray<Field>;
 
     private category : ko.Observable<Category>;
     private categoryType : ko.Observable<Category.Type>;
@@ -96,7 +94,6 @@ export class Node {
         this.outputApplication = ko.observable(null);
 
         this.fields = ko.observableArray([]);
-        this.sortedFields = ko.observableArray([]);
         this.category = ko.observable(category);
 
         // lookup correct categoryType based on category
@@ -433,10 +430,6 @@ export class Node {
         return this.fields().length;
     }
 
-    getSortedFields = () : Field[] => {
-        return this.sortedFields();
-    }
-
     getComponentParameters = () : Field[] => {
         const result: Field[] = [];
 
@@ -730,33 +723,6 @@ export class Node {
         return this.outputApplication() !== null;
     }
 
-    // make a "shallow" copy of the node fields, as opposed to a "deep" clone
-    // we can re-order the copy independently, but all the attributes of the fields are actually the originals (not clones)
-    copyToSortedFields = () : void => {
-        this.sortedFields([]);
-
-        for (const field of this.fields()){
-            this.sortedFields.push(field.shallowCopy());
-        }
-    }
-
-    sortFields = (column: string, reversed: boolean, compareFunc: (left: Field, right: Field) => number) : void => {
-        // fresh copy of the node field structure, then skip the sorting process
-        if(column === ''){
-            this.copyToSortedFields()
-            if(ParameterTable.sortOrderReversed){
-                this.sortedFields().reverse()
-            }
-            return
-        }
-
-        this.sortedFields.sort(compareFunc);
-
-        if (reversed){
-            this.sortedFields.reverse();
-        }
-    }
-
     clear = () : void => {
         this.id(null);
         this.name("");
@@ -982,15 +948,11 @@ export class Node {
     addField = (field : Field) : void => {
         this.fields.push(field);
         field.setNodeId(this.id());
-
-        this.copyToSortedFields();
     }
 
     addFieldByIndex = (field : Field, i : number) : void => {
         this.fields.splice(i, 0, field);
         field.setNodeId(this.id());
-
-        this.copyToSortedFields();
     }
 
     setGroupStart = (value: boolean) => {
@@ -1035,15 +997,12 @@ export class Node {
 
     removeFieldByIndex = (index : number) : void => {
         this.fields.splice(index, 1);
-
-        this.copyToSortedFields();
     }
 
     removeFieldById = (id: string) : void => {
         for (let i = 0; i < this.fields().length ; i++){
             if (this.fields()[i].getId() === id){
                 this.fields.splice(i, 1);
-                this.copyToSortedFields();
                 return;
             }
         }
@@ -1053,7 +1012,6 @@ export class Node {
 
     removeAllFields = () : void => {
         this.fields([]);
-        this.sortedFields([]);
     }
 
     removeAllComponentParameters = () : void => {
@@ -1062,7 +1020,6 @@ export class Node {
                 this.fields.splice(i, 1);
             }
         }
-        this.copyToSortedFields();
     }
 
     removeAllApplicationArguments = () : void => {
@@ -1071,7 +1028,6 @@ export class Node {
                 this.fields.splice(i, 1);
             }
         }
-        this.copyToSortedFields();
     }
 
     // removes all InputPort ports, and changes all InputOutput ports to be OutputPort
@@ -1086,7 +1042,6 @@ export class Node {
                 field.setUsage(Daliuge.FieldUsage.OutputPort);
             }
         }
-        this.copyToSortedFields();
     }
 
     // removes all OutputPort ports, and changes all InputOutput ports to be InputPort
@@ -1101,7 +1056,6 @@ export class Node {
                 field.setUsage(Daliuge.FieldUsage.InputPort);
             }
         }
-        this.copyToSortedFields();
     }
 
     clone = () : Node => {
@@ -1128,7 +1082,6 @@ export class Node {
         for (const field of this.fields()){
             result.fields.push(field.clone());
         }
-        this.copyToSortedFields();
 
         result.repositoryUrl(this.repositoryUrl());
         result.commitHash(this.commitHash());

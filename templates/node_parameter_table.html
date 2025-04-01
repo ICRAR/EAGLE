@@ -57,7 +57,7 @@
     <div class="tableBody">
         <div class="wrapper">
             <!-- ko if: eagle.selectedNode() != null -->
-                <!-- ko if: ParameterTable.getTableFields().length === 0 -->
+                <!-- ko if: ParameterTable.fields().length === 0 -->
                     <div class="container h-100">
                         <div class="row align-items-center h-100">
                             <div class="col-md-12 text-center">
@@ -68,7 +68,7 @@
                         </div>
                     </div>
                 <!-- /ko -->
-                <!-- ko if: ParameterTable.getTableFields().length !== 0 -->
+                <!-- ko if: ParameterTable.fields().length !== 0 -->
                     <div class="tableInspector">
                         <input id="tableInspectorSelection" type="text" placeholder="Selection" data-bind="value: ParameterTable.formatTableInspectorSelection()" readonly>
                         <input id="tableInspectorValue" type="text" placeholder="Content" data-bind="value: ParameterTable.formatTableInspectorValue(), readonly: ParameterTable.selectionReadonly(), event: {keyup: ParameterTable.tableInspectorUpdateSelection($element.value)}">
@@ -164,7 +164,7 @@
                                     <!-- /ko -->
                                 </tr>
                             </thead>
-                            <tbody data-bind="foreach: ParameterTable.getTableFields()">
+                            <tbody data-bind="foreach: ParameterTable.fields()">
                                 <!-- ko if: $data.fitsTableSearchQuery() -->
                                     <!-- ko if: Setting.findValue(Setting.SHOW_NON_CONFIG_PARAMETERS) || $root.logicalGraph().getActiveGraphConfig()?.hasField($data) -->
                                         <tr data-bind="attr: {'id' : 'tableRow_'+$data.getId()}">

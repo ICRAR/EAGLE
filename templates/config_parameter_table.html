@@ -19,7 +19,7 @@
     </div>
     <div class="tableBody">
         <div class="wrapper">
-            <!-- ko if: ParameterTable.getTableFields().length === 0 -->
+            <!-- ko if: ParameterTable.fields().length === 0 -->
                 <div class="container h-100">
                     <div class="row align-items-center h-100">
                         <div class="col-md-12 text-center">
@@ -30,7 +30,7 @@
                     </div>
                 </div>
             <!-- /ko -->
-            <!-- ko if: ParameterTable.getTableFields().length !== 0 -->
+            <!-- ko if: ParameterTable.fields().length !== 0 -->
                 <div class="tableInspector">
                     <input id="configTableInspectorSelection" type="text" placeholder="Selection" data-bind="value: ParameterTable.formatTableInspectorSelection()" readonly>
                     <input id="configTableInspectorValue" type="text" placeholder="Content" data-bind="value: ParameterTable.formatTableInspectorValue(), readonly: ParameterTable.selectionReadonly(), event: {keyup: ParameterTable.tableInspectorUpdateSelection($element.value)}">
@@ -61,7 +61,7 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody data-bind="foreach: ParameterTable.getTableFields()">
+                        <tbody data-bind="foreach: ParameterTable.fields">
                             <!-- ko if: $data.fitsTableSearchQuery() -->
                                 <!-- ko if: Setting.findValue(Setting.SHOW_NON_CONFIG_PARAMETERS) || $root.logicalGraph().getActiveGraphConfig()?.hasField($data) -->
                                     <tr data-bind="attr: {'id' : 'tableRow_'+$data.getId()}">
@@ -118,12 +118,15 @@
                                             <input class="tableParameter tableFieldCommentInput" type="string" data-bind="value: $data.getGraphConfigField().comment, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.getGraphConfigField().comment, 'comment', $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().comment, 'comment', $data, $index())}}">
                                             <button class="parameterTableCommentBtn icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditCommentInModal($data)}"></button>
                                         </td>
+                                        <!-- /ko -->
+                                        <!-- ko ifnot: $data.getGraphConfigField() -->
+                                        <td class='columnCell column_Comment'>missing</td>
+                                        <!-- /ko -->
                                         <td class='columnCell column_Remove'>
                                             <button data-bind="click: function(){ParameterTable.requestRemoveField($data)}, disabled: !Setting.findValue(Setting.ALLOW_MODIFY_GRAPH_CONFIG), eagleTooltip:'Remove Field from Graph Config', clickBubble:false">
                                                 <i class="material-icons iconHoverEffect">remove</i>
                                             </button>
                                         </td>
-                                        <!-- /ko -->
                                     </tr>
                                 <!-- /ko -->
                             <!-- /ko -->
