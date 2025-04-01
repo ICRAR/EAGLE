@@ -68,6 +68,9 @@ console.assert(graphConfigs != null) //this is needed to run the tutorial file
 let eagle : Eagle;
 
 $(function(){
+    //Check if the user is a first time visitor to the site
+    const firstTimeVisit = localStorage.getItem('activeUiMode') === null;
+
     // Global variables.
     eagle = new Eagle();
 
@@ -157,6 +160,9 @@ $(function(){
 
     // auto load a tutorial, if specified on the url
     autoTutorial();
+
+    //request a first time visitor welcome to eagle if applicable
+    initiateWelcome(firstTimeVisit);
 
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").on("mouseleave", function(){
@@ -349,6 +355,14 @@ function autoTutorial(): void {
         setTimeout(function () {
             TutorialSystem.initiateTutorial(tutorialName);
         },1000)
+    }
+}
+
+function initiateWelcome(firstTimeVisit:boolean): void {
+
+    console.log(localStorage.getItem('activeUiMode'), firstTimeVisit)
+    if(firstTimeVisit){
+        alert('first time visit!!')
     }
 }
 
