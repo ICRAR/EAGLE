@@ -208,6 +208,10 @@ export class ParameterTable {
     static sortFields = (fields : Field[]) : void => {
         //early out if we don't need to sort
         if(ParameterTable.sortingColumn === ''){
+            // this.copyToSortedFields()
+            // if(ParameterTable.sortOrderReversed){
+            //     this.sortedFields().reverse()
+            // }
             return
         }
 
