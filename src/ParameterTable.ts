@@ -28,6 +28,7 @@ export class ParameterTable {
 
     static sortingColumn : string = '';
     static sortOrderReversed : boolean = false;
+
     static fields : ko.ObservableArray<Field>;
 
     static init(){
@@ -154,8 +155,59 @@ export class ParameterTable {
         }
     }
 
+    // TODO: could be renamed to getFields()
+    static getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
+        const eagle: Eagle = Eagle.getInstance();
+
+        //resets the table field selections used for the little editor at the top of the table
+        ParameterTable.resetSelection()
+
+        switch (Setting.findValue(Setting.BOTTOM_WINDOW_MODE)){
+            case Eagle.BottomWindowMode.NodeParameterTable:
+                return ParameterTable.fields();
+
+            case Eagle.BottomWindowMode.ConfigParameterTable:
+                const lg: LogicalGraph = eagle.logicalGraph();
+                const config: GraphConfig = lg.getActiveGraphConfig();
+                const displayedFields: Field[] = [];
+
+                if (!config){
+                    return [];
+                }
+
+                for (const node of config.getNodes()){
+                    for (const field of node.getFields()){
+                        const lgNode = lg.findNodeByIdQuiet(node.getId());
+
+                        if (lgNode === null){
+                            const dummyField: Field = new Field(field.getId(), "<Missing Node:" + node.getId() +">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            dummyField.setNodeId(node.getId());
+                            displayedFields.push(dummyField);
+                            continue;
+                        }
+
+                        const lgField = lgNode.findFieldById(field.getId());
+        
+                        if (lgField === null){
+                            const dummyField: Field = new Field(field.getId(), "<Missing Field: " + field.getId() + ">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            dummyField.setNodeId(node.getId());
+                            displayedFields.push(dummyField);
+                            continue;
+                        }
+        
+                        displayedFields.push(lgField);
+                    }
+                }
+
+                return displayedFields;
+
+            default:
+                return []
+        }
+    }, this);
+
     static sortFields = () : void => {
-        //early out if we don't need to sort
+        // early out if we don't need to sort
         if(ParameterTable.sortingColumn === ''){
             return
         }
@@ -211,6 +263,10 @@ export class ParameterTable {
             if (!b.isInputPort() && !b.isOutputPort()){
                 valB = "zzzz";
             }
+        } else {
+            console.warn("ParameterTable.compare(): Unknown ParameterTable.sortingColumn:", ParameterTable.sortingColumn);
+            valA = "";
+            valB = "";
         }
         
         if($.isNumeric(valA) && $.isNumeric(valB)){
@@ -221,7 +277,6 @@ export class ParameterTable {
     }
 
     static sortTableBy (columnName : string) : void {
-
         if(ParameterTable.sortingColumn === columnName){
             //if the already selected column header was clicked again, reverse the sorting order
             ParameterTable.sortOrderReversed = !ParameterTable.sortOrderReversed;
@@ -600,15 +655,6 @@ export class ParameterTable {
 
             RightClick.closeCustomContextMenu(true);
         }
-
-        switch (mode){
-            case Eagle.BottomWindowMode.ConfigParameterTable:
-                ParameterTable.setConfig(eagle.logicalGraph().getActiveGraphConfig());
-                break;
-            case Eagle.BottomWindowMode.NodeParameterTable:
-                ParameterTable.setNode(eagle.selectedNode());
-                break;
-        }
     }
     
     // TODO: can we combine this with openTable(), maybe use an extra parameter to the function?
@@ -712,51 +758,13 @@ export class ParameterTable {
         ParameterTable.fields([]);
 
         for (const field of fields){
-            this.fields.push(field.shallowCopy());
+            ParameterTable.fields.push(field.shallowCopy());
         }
     }
 
     static setNode = (node: Node) : void => {
         console.log("ParameterTable.setNode(", node.getName(), ")");
         ParameterTable.copyFields(node.getFields());
-        ParameterTable.sortFields()
-    }
-
-    static setConfig = (config: GraphConfig): void => {
-        console.log("ParameterTable.setConfig(", config.getName(), ")");
-
-        if (!config){
-            return;
-        }
-
-        const displayedFields: Field[] = [];
-        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
-
-        for (const node of config.getNodes()){
-            for (const field of node.getFields()){
-                const lgNode = lg.findNodeByIdQuiet(node.getId());
-
-                if (lgNode === null){
-                    const dummyField: Field = new Field(field.getId(), "<Missing Node:" + node.getId() +">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
-                    dummyField.setNodeId(node.getId());
-                    displayedFields.push(dummyField);
-                    continue;
-                }
-
-                const lgField = lgNode.findFieldById(field.getId());
-
-                if (lgField === null){
-                    const dummyField: Field = new Field(field.getId(), "<Missing Field: " + field.getId() + ">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
-                    dummyField.setNodeId(node.getId());
-                    displayedFields.push(dummyField);
-                    continue;
-                }
-
-                displayedFields.push(lgField);
-            }
-        }
-        
-        ParameterTable.fields(displayedFields)
         ParameterTable.sortFields();
     }
 }
