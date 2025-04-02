@@ -1182,7 +1182,7 @@ export class Node {
             if(eagle.objectIsSelectedById(this.id())){
                 return EagleConfig.getColor('selectBackground')
             }else{
-                return EagleConfig.getColor('nodeBg');
+                return EagleConfig.getColor('nodeBackground');
             }
         }else{
             return '' //returning nothing lets the means we are not over writing the default css behaviour

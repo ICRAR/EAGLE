@@ -1,12 +1,12 @@
 #logicalGraphParent{
     /* declaring custom variables used in css set via ts later from the graph config variables */
     --selectedBg : red;
-    --selectedConstructBg:red;
+    --selectedConstructBackground:red;
     --nodeBorder : red;
-    --nodeBg:red;
+    --nodeBackground:red;
     --graphText:red;
-    --branchBg:red;
-    --constructBg:red;
+    --branchBackground:red;
+    --constructBackground:red;
     --embeddedApp:red;
     --constructIcon:red;
     --edgeColor:red;
@@ -189,7 +189,7 @@
 
 .node .body {
     position: relative;
-    background-color: var(--nodeBg);
+    background-color: var(--nodeBackground);
     border-radius: 50%;
     border: 1.5px solid var(--nodeBorder);
     width: 100%;
@@ -203,7 +203,7 @@
 }
 
 .node .innerRing {
-    background-color: var(--nodeBg);
+    background-color: var(--nodeBackground);
     border-radius: 50%;
     border: 1.5px solid var(--nodeBorder);
     position: absolute;
@@ -215,7 +215,7 @@
     border-radius: 50%;
     border: 1.5px solid var(--nodeBorder);
     position: absolute;
-    background-color: var(--branchBg);
+    background-color: var(--branchBackground);
     inset: -7px -7px -7px -7px;
     box-shadow: -2px 5px 5px -4px #555555;
 }
@@ -234,7 +234,7 @@
 }
 
 .node .construct_node .body {
-    background-color: var(--constructBg);
+    background-color: var(--constructBackground);
 }
 
 .node .construct_node .basic_node .body {
@@ -346,7 +346,7 @@
 }
 
 .node .construct_node .container.selected .body {
-    background-color: var(--selectedConstructBg);
+    background-color: var(--selectedConstructBackground);
 }
 
 .node .construct_node .basic_node .container.selected .body {
