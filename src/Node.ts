@@ -2061,9 +2061,9 @@ export class Node {
             }
         }
 
-        // check PythonFunction nodes to make sure contents of func_name field is actually found within the func_code field
+        // check PyFuncApp nodes to make sure contents of func_name field is actually found within the func_code field
         // check whether the value of func_name is also present in func_code should only be applied if func_code is not empty
-        if (node.category() === Category.PythonFunction){
+        if (node.category() === Category.PyFuncApp){
             const funcCodeField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
             const funcNameField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_NAME);
 
