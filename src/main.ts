@@ -359,8 +359,6 @@ function autoTutorial(): void {
 }
 
 function initiateWelcome(firstTimeVisit:boolean): void {
-
-    console.log(localStorage.getItem('activeUiMode'), firstTimeVisit)
     if(firstTimeVisit){
         alert('first time visit!!')
     }
