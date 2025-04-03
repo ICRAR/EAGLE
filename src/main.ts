@@ -57,10 +57,12 @@ import { TutorialSystem } from "./Tutorial";
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 
+import * as welcome from './tutorials/welcome'
 import * as quickStart from './tutorials/quickStart'
 import * as graphBuilding from './tutorials/graphBuilding'
 import * as graphConfigs from './tutorials/graphConfigs'
 
+console.assert(welcome != null) //this is needed to run the tutorial file
 console.assert(quickStart != null) //this is needed to run the tutorial file
 console.assert(graphBuilding != null) //this is needed to run the tutorial file
 console.assert(graphConfigs != null) //this is needed to run the tutorial file
