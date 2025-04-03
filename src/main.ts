@@ -249,12 +249,11 @@ $(function(){
     for (const category of Utils.enumKeys(Category)){
         CategoryData.getCategoryData(<Category>category);
 
-        // exit after the last category
-        if (category === Category.Component){
+        // exit after the last category, before we get to the other enums in the Category object
+        if (category === Category.UnknownApplication){
             break;
         }
     }
-
     
     //initiating all the eagle ui when the graph is ready
     eagle.eagleIsReady(true);

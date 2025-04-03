@@ -2058,6 +2058,17 @@ export class Utils {
         field.setParameterType(newType);
     }
 
+    static fixAppToAppEdge(eagle: Eagle, edgeId: EdgeId){
+        const edge: Edge = eagle.logicalGraph().findEdgeById(edgeId);
+        const srcNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getSrcNodeId());
+        const destNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getDestNodeId());
+        const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
+        const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+
+        eagle.logicalGraph().removeEdgeById(edge.getId());
+        eagle.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop())
+    }
+
     static addMissingRequiredField(eagle: Eagle, node: Node, requiredField: Field){
         // if requiredField is "dropclass", and node already contains an "appclass" field, then just rename it
         if (requiredField.getDisplayText() === Daliuge.FieldName.DROP_CLASS){

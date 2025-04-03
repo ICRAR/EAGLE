@@ -7,7 +7,8 @@ export enum Category {
     GroupBy = "GroupBy",
     Loop = "Loop",
 
-    PythonApp = "PythonApp",
+    DALiuGEApp = "DALiuGEApp",
+    PyFuncApp = "PyFuncApp",
     BashShellApp = "BashShellApp",
     DynlibApp = "DynlibApp",
     DynlibProcApp = "DynlibProcApp",
@@ -43,6 +44,7 @@ export enum Category {
     // legacy only
     Component = "Component",
     Description = "Description",
+    PythonApp = "PythonApp"
 }
 
 export namespace Category {
