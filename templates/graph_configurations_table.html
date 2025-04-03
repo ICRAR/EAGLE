@@ -51,7 +51,7 @@
                                 <input class="tableParameter" type="string" data-bind="value: $data.name, eagleTooltip: $data.getName()">
                             </td>
                             <td class='columnCell column-description'>
-                                <input class="tableParameter" type="string" data-bind="value: $data.description, eagleTooltip: $data.getDescription()">
+                                <textarea  style="resize: none;" class="tableParameter" type="string" data-bind="value: $data.description, eagleTooltip: $data.getDescription()"></textarea>
                             </td>
                             <td class='columnCell column-fields'>
                                 <input class="tableParameter" type="string" data-bind="value: $data.numFields(), eagleTooltip: 'number of fields added to the graph configuration'">
