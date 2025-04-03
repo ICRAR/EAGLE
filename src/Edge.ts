@@ -260,6 +260,8 @@ export class Edge {
         } else {
             destPortId = linkData.toPort;
         }
+        
+        console.log("srcNodeId", srcNodeId, "srcPortId", srcPortId, "destNodeId", destNodeId, "destPortId", destPortId);
 
         // try to read loop_aware attribute
         let loopAware: boolean = false;
@@ -289,7 +291,32 @@ export class Edge {
                 destNode = node;
                 continue;
             }
+            if (node.hasInputApplication()){
+                if (node.getInputApplication().getId() === srcNodeId){
+                    console.log("found srcNode as inputApp on node", node.getName(), node.getInputApplication().getName());
+                    srcNode = node.getInputApplication();
+                    continue;
+                }
+                if (node.getInputApplication().getId() === destNodeId){
+                    console.log("found destNode as inputApp on node", node.getName(), node.getInputApplication().getName());
+                    destNode = node.getInputApplication();
+                    continue;
+                }
+            }
+            if (node.hasOutputApplication()){
+                if (node.getOutputApplication().getId() === srcNodeId){
+                    console.log("found srcNode as outputApp on node", node.getName(), node.getOutputApplication().getName());
+                    srcNode = node.getOutputApplication();
+                    continue;
+                }
+                if (node.getOutputApplication().getId() === destNodeId){
+                    console.log("found destNode as outputApp on node", node.getName(), node.getOutputApplication().getName());
+                    destNode = node.getOutputApplication();
+                    continue;
+                }
+            }
         }
+        console.log("srcNode", srcNode.getName(), "destNode", destNode.getName());
 
         const srcPort: Field = srcNode.findFieldById(srcPortId);
         const destPort: Field = destNode.findFieldById(destPortId);
