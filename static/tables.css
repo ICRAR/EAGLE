@@ -396,11 +396,6 @@
     padding: 0px;
 }
 
-.eagleTableDisplay .eagleTableWrapper .configValueInput{
-    border: 2px solid #002e5f;
-    margin: 3px;
-}
-
 .eagleTableDisplay .eagleTableWrapper .configValueInput.checkboxWrapper {
     margin: unset;
 }
@@ -409,6 +404,7 @@
     right: unset;
     margin: unset;
     left: 3px;
+    border: 2px solid #002e5f;
 }
 
 .eagleTableDisplay  input[type="checkbox"]{
