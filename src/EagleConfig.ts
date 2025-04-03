@@ -1,117 +1,50 @@
-const colors: { name: string; color: string; }[] = [
-    {
-    //node colors
-        name: 'bodyBorder',
-        color: '#2e3192'
-    },{
-        name: 'branchBg',
-        color: '#dcdee2'
-    },{
-        name: 'constructBg',
-        color: '#05142912'
-    },{
-        name: 'embeddedApp',
-        color: '#dcdee2'
-    },{
-        name: 'constructIcon',
-        color: '#0000000f'
-    },{
-        name: 'graphText',
-        color: 'black'
-    },{
-        name: 'nodeBg',
-        color: 'white'
-    },{
-        name: 'nodeInputPort',
-        color: '#2bb673'
-    },{
-        name: 'nodeOutputPort',
-        color: '#4346ac'
-    },{
-        name: 'nodeUtilPort',
-        color: '#6fa7f1'
-    },{
-        name: 'selectBackground',
-        color: '#b4d4ff'
-    },{
-        name: 'selectConstructBackground',
-        color: '#85b9ff94'
-    },{
-        name: 'errorBackground',
-        color: '#ffdcdc'
-    },{
-        name: 'warningBackground',
-        color: '#ffeac4'
-    },{
+type ColorMap = {[name: string]: string};
 
-    //edge colors
-        name: 'edgeDefault',
-        color: '#58595b'
-    },{
-        name: 'edgeDefaultSelected',
-        color: '#4247df'
-    },{
-        name: 'commentEdge',
-        color: '#7c7e81'
-    },{
-        name: 'edgeValid',
-        color: '#32cd32'
-    },{
-        name: 'edgeWarning',
-        color: '#ffa500'
-    },{
-        name: 'edgeFixable',
-        color: '#6dc7bd'
-    },{
-        name: 'edgeWarningSelected',
-        color: '#4247df'
-    },{
-        name: 'edgeInvalid',
-        color: '#ff0000'
-    },{
-        name: 'edgeInvalidSelected',
-        color: '#4247df'
-    },{
-        name: 'edgeEvent',
-        color: '#a6a6fe'
-    },{
-        name: 'edgeEventSelected',
-        color: '#4247df'
-    },{
-        name: 'edgeAutoCompleteSuggestion',
-        color: '#dbcfe1'
-    },{
-        name: 'edgeAutoComplete',
-        color: '#9c3bca'
-    },{
-        name: 'edgeClosesLoop',
-        color: '#58595b'
-    },{
-        name: 'edgeClosesLoopSelected',
-        color: '#4247df'
-    },{
+const colors: ColorMap = {
+    // node colors
+    bodyBorder:                  '#2e3192',
+    branchBackground:            '#dcdee2',
+    constructBackground:         '#05142912',
+    embeddedApp:                 '#dcdee2',
+    constructIcon:               '#0000000f',
+    graphText:                   'black',
+    nodeBackground:              'white',
+    nodeInputPort:               '#2bb673',
+    nodeOutputPort:              '#4346ac',
+    nodeUtilPort:                '#6fa7f1',
+    selectBackground:            '#b4d4ff',
+    selectedConstructBackground: '#85b9ff94',
+    errorBackground:             '#ffdcdc',
+    warningBackground:           '#ffeac4',
+
+    // edge colors
+    edgeDefault:                 '#58595b',
+    edgeDefaultSelected:         '#4247df',
+    commentEdge:                 '#7c7e81',
+    edgeValid:                   '#32cd32',
+    edgeWarning:                 '#ffa500',
+    edgeFixable:                 '#6dc7bd',
+    edgeWarningSelected:         '#4247df',
+    edgeInvalid:                 '#ff0000',
+    edgeInvalidSelected:         '#4247df',
+    edgeEvent:                   '#a6a6fe',
+    edgeEventSelected:           '#4247df',
+    edgeAutoCompleteSuggestion:  '#dbcfe1',
+    edgeAutoComplete:            '#9c3bca',
+    edgeClosesLoop:              '#58595b',
+    edgeClosesLoopSelected:      '#4247df',
 
     // hierarchy colors
-        name: 'hierarchyEdgeSelectedColor',
-        color: '#2F16D5'
-    },{
-        name: 'hierarchyEdgeDefaultColor',
-        color: '#000000'
-    },{
+    hierarchyEdgeSelected:       '#2F16D5',
+    hierarchyEdgeDefault:        '#000000',
 
-    //graph issue colors
-        name: 'graphError',
-        color: '#ea2727'
-    },{
-        name: 'graphWarning',
-        color: '#ffa500'
-    },{
-        
-    //eagle colors
-        name: 'hoverHighlight',
-        color: '#feb609'
-    }
-]
+    // graph issue colors
+    graphError:                  '#ea2727',
+    graphWarning:                '#ffa500',
+    
+    // eagle colors
+    hoverHighlight:              '#feb609'
+};
 
 export class EagleConfig {
 
@@ -142,16 +75,9 @@ export class EagleConfig {
     public static readonly JSON_INDENT: number = 4;
 
     static getColor(name:string) : string {
-        let result: string = null;
+        let result: string = colors[name];
 
-        for (const color of colors) {
-            if(color.name === name){
-                result = color.color
-                break;
-            }
-        }
-
-        if (result === null){
+        if (typeof result === 'undefined'){
             console.warn("EagleConfig.getColor() could not find color with name", name);
             result = 'red';
         }
@@ -160,20 +86,22 @@ export class EagleConfig {
     }
 
     static initCSS(){
+        const style: CSSStyleDeclaration = $("#logicalGraphParent").get(0).style;
+
         //overwriting css variables using colors from EagleConfig. I am using this for simple styling to avoid excessive css data binds in the node html files
-        $("#logicalGraphParent").get(0).style.setProperty("--selectedBg", EagleConfig.getColor('selectBackground'));
-        $("#logicalGraphParent").get(0).style.setProperty("--selectedConstructBg", EagleConfig.getColor('selectConstructBackground'));
-        $("#logicalGraphParent").get(0).style.setProperty("--nodeBorder", EagleConfig.getColor('bodyBorder'));
-        $("#logicalGraphParent").get(0).style.setProperty("--nodeBg", EagleConfig.getColor('nodeBg'));
-        $("#logicalGraphParent").get(0).style.setProperty("--graphText", EagleConfig.getColor('graphText'));
-        $("#logicalGraphParent").get(0).style.setProperty("--branchBg", EagleConfig.getColor('branchBg'));
-        $("#logicalGraphParent").get(0).style.setProperty("--constructBg", EagleConfig.getColor('constructBg'));
-        $("#logicalGraphParent").get(0).style.setProperty("--embeddedApp", EagleConfig.getColor('embeddedApp'));
-        $("#logicalGraphParent").get(0).style.setProperty("--constructIcon", EagleConfig.getColor('constructIcon'));
-        $("#logicalGraphParent").get(0).style.setProperty("--commentEdgeColor", EagleConfig.getColor('commentEdge'));
-        $("#logicalGraphParent").get(0).style.setProperty("--matchingEdgeColor", EagleConfig.getColor('edgeAutoComplete'));
-        $("#logicalGraphParent").get(0).style.setProperty("--nodeOutputColor", EagleConfig.getColor('nodeOutputPort'));
-        $("#logicalGraphParent").get(0).style.setProperty("--nodeInputColor", EagleConfig.getColor('nodeInputPort'));
+        style.setProperty("--selectedBg", EagleConfig.getColor('selectBackground'));
+        style.setProperty("--selectedConstructBackground", EagleConfig.getColor('selectedConstructBackground'));
+        style.setProperty("--nodeBorder", EagleConfig.getColor('bodyBorder'));
+        style.setProperty("--nodeBackground", EagleConfig.getColor('nodeBackground'));
+        style.setProperty("--graphText", EagleConfig.getColor('graphText'));
+        style.setProperty("--branchBackground", EagleConfig.getColor('branchBackground'));
+        style.setProperty("--constructBackground", EagleConfig.getColor('constructBackground'));
+        style.setProperty("--embeddedApp", EagleConfig.getColor('embeddedApp'));
+        style.setProperty("--constructIcon", EagleConfig.getColor('constructIcon'));
+        style.setProperty("--commentEdgeColor", EagleConfig.getColor('commentEdge'));
+        style.setProperty("--matchingEdgeColor", EagleConfig.getColor('edgeAutoComplete'));
+        style.setProperty("--nodeOutputColor", EagleConfig.getColor('nodeOutputPort'));
+        style.setProperty("--nodeInputColor", EagleConfig.getColor('nodeInputPort'));
         $("html").get(0).style.setProperty("--hoverHighlight", EagleConfig.getColor('hoverHighlight'));
     }
 }

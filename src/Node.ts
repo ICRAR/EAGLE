@@ -1182,7 +1182,7 @@ export class Node {
             if(eagle.objectIsSelectedById(this.id())){
                 return EagleConfig.getColor('selectBackground')
             }else{
-                return EagleConfig.getColor('nodeBg');
+                return EagleConfig.getColor('nodeBackground');
             }
         }else{
             return '' //returning nothing lets the means we are not over writing the default css behaviour
@@ -1931,12 +1931,6 @@ export class Node {
         const eagle = Eagle.getInstance()
         node.issues([])//clear old issues
 
-         // check that node has modern (not legacy) category
-         if (node.getCategory() === Category.Component){
-            const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has legacy category (" + node.getCategory() + ")", function(){Utils.showNode(eagle, node.getId());}, function(){Utils.fixNodeCategory(eagle, node, Category.PythonApp, Category.Type.Application)}, "");
-            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
-        }
-
         // looping through and checking all the fields on the node
         for (let i = 0 ; i < node.getFields().length ; i++){
             const field:Field = node.getFields()[i]
@@ -2030,6 +2024,25 @@ export class Node {
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
         }
 
+        // check if this category of node is a legacy node
+        if (node.getCategory() === Category.PythonApp){
+            let newCategory: Category = Category.DALiuGEApp;
+            const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+
+            // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
+            if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
+                newCategory = Category.PyFuncApp;
+            }
+
+            const issue : Errors.Issue = Errors.ShowFix(
+                "Node (" + node.getName() + ") is a " + node.getCategory() + " node, which is a legacy category. The node should be updated to a " + newCategory + " node.",
+                function(){Utils.showNode(eagle, node.getId())},
+                function(){Utils.fixNodeCategory(eagle, node, newCategory, node.getCategoryType())},
+                "Change node category from " + node.getCategory() + " to " + newCategory
+            );
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning});
+        }
+
         // check that this category of node contains all the fields it requires
         for (const requirement of Daliuge.categoryFieldsRequired){
             if (requirement.categories.includes(node.getCategory())){
@@ -2049,14 +2062,17 @@ export class Node {
         }
 
         // check PyFuncApp nodes to make sure contents of func_name field is actually found within the func_code field
-        if (node.category() === Category.PythonApp){
+        // check whether the value of func_name is also present in func_code should only be applied if func_code is not empty
+        if (node.category() === Category.PyFuncApp){
             const funcCodeField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
             const funcNameField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_NAME);
 
             if (funcCodeField && funcNameField){
-                if (!funcCodeField.getValue().includes(funcNameField.getValue())){
-                    const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameField.getValue() + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, node.getId())});
-                    node.issues().push({issue:issue,validity:Errors.Validity.Error});
+                if (funcCodeField.getValue().trim() !== ""){
+                    if (!funcCodeField.getValue().includes(funcNameField.getValue())){
+                        const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameField.getValue() + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, node.getId())});
+                        node.issues().push({issue:issue,validity:Errors.Validity.Error});
+                    }
                 }
             }
         }
