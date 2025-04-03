@@ -364,6 +364,8 @@
     bottom: 0px;
     right: 0px;
     left: 0px;
+    overflow-x: auto;
+    overflow-wrap: normal;
 }
 
 .eagleTableDisplay  input:read-only, .eagleTableDisplay  textarea:read-only{

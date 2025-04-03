@@ -739,6 +739,7 @@ color: #00bb00;}
 /* width */
 ::-webkit-scrollbar {
     width: 5px;
+    height: 5px;
 }
 
 /* Track */
