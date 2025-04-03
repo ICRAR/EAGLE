@@ -2058,10 +2058,10 @@ export class Utils {
 
     static fixAppToAppEdge(eagle: Eagle, edgeId: EdgeId){
         const edge: Edge = eagle.logicalGraph().findEdgeById(edgeId);
-        const srcNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getSrcNodeId());
-        const destNode: Node = eagle.logicalGraph().findNodeByIdQuiet(edge.getDestNodeId());
-        const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-        const destPort: Field = destNode.findFieldById(edge.getDestPortId());
+        const srcNode: Node = edge.getSrcNode();
+        const destNode: Node = edge.getDestNode();
+        const srcPort: Field = edge.getSrcPort();
+        const destPort: Field = edge.getDestPort();
 
         eagle.logicalGraph().removeEdgeById(edge.getId());
         eagle.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop())
