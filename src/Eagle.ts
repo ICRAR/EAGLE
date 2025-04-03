@@ -2539,7 +2539,7 @@ export class Eagle {
         try {
             data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
         } catch (error){
-            Utils.showUserMessage("Error", "Error saving the file!");
+            Utils.showUserMessage("Error", "Error saving the file! " + error);
             console.error(error);
             return;
         }
@@ -2596,8 +2596,7 @@ export class Eagle {
             try {
                 data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
             } catch (error){
-                Utils.showUserMessage("Error", "Error saving the file!");
-                console.error(error);
+                Utils.showUserMessage("Error", "Error saving the file! " + error);
                 return;
             }
 

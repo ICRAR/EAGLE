@@ -315,58 +315,124 @@ export class Utils {
         return Daliuge.FieldUsage.NoPort;
     }
     
-    // , successCallback : (data : string) => void, errorCallback : (error : string) => void) : void {
     static async httpGet(url: string): Promise<string> {
-        return $.ajax({
-            url: url
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url: url,
+                success: function (data){
+                    resolve(data);
+                },
+                error: function (xhr, textStatus){
+                    reject(Utils.parseAjaxError(xhr, textStatus));
+                }
+            });
         });
     }
 
     static async httpGetJSON(url: string, json: object): Promise<object> {
-        return $.ajax({
-            url : url,
-            type : 'GET',
-            data : JSON.stringify(json),
-            contentType : 'application/json'
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: JSON.stringify(json),
+                contentType: 'application/json',
+                success: function (data){
+                    resolve(data);
+                },
+                error: function (xhr, textStatus){
+                    reject(Utils.parseAjaxError(xhr, textStatus));
+                }
+            });
         });
     }
 
     static async httpPost(url : string, data : string): Promise<string> {
-        return $.ajax({
-            url : url,
-            type : 'POST',
-            data : data,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false   // tell jQuery not to set contentType
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: data,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false,   // tell jQuery not to set contentType
+                success: function (data){
+                    resolve(data);
+                },
+                error: function (xhr, textStatus){
+                    reject(Utils.parseAjaxError(xhr, textStatus));
+                }
+            });
         });
     }
 
     static async httpPostJSON(url : string, json : object): Promise<string> {
-        return $.ajax({
-            url : url,
-            type : 'POST',
-            data : JSON.stringify(json),
-            contentType : 'application/json'
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: JSON.stringify(json),
+                contentType: 'application/json',
+                success: function(data){
+                    resolve(data);
+                },
+                error: function(xhr, textStatus){
+                    reject(Utils.parseAjaxError(xhr, textStatus));
+                }
+            });
         });
     }
 
     static async httpPostJSONString(url : string, jsonString : string): Promise<string> {
-        return $.ajax({
-            url : url,
-            type : 'POST',
-            data : jsonString,
-            contentType : 'application/json'
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: jsonString,
+                contentType: 'application/json',
+                success: function (data){
+                    resolve(data);
+                },
+                error: function (xhr, textStatus){
+                    reject(Utils.parseAjaxError(xhr, textStatus));
+                }
+            });
         });
     }
 
     static async httpPostForm(url : string, formData : FormData): Promise<string> {
-        return $.ajax({
-                url : url,
-                type : 'POST',
-                data : formData,
+        return new Promise(async(resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
                 processData: false,  // tell jQuery not to process the data
-                contentType: false   // tell jQuery not to set contentType
+                contentType: false,   // tell jQuery not to set contentType
+                success: function (data){
+                    resolve(data);
+                },
+                error: function (xhr, textStatus){
+                    reject(Utils.parseAjaxError(xhr, textStatus));
+                }
             });
+        });
+    }
+
+    // https://stackoverflow.com/questions/6792878/jquery-ajax-error-function
+    static parseAjaxError(xhr: JQuery.jqXHR, textStatus: JQuery.Ajax.ErrorTextStatus): string {
+        if (xhr.status === 0) {
+            return "Unable to connect to server.";
+        } else if (xhr.status === 404) {
+            return "Requested page not found. [404]";
+        } else if (xhr.status === 500) {
+            return "Internal Server Error [500].";
+        } else if (textStatus === "parsererror") {
+            return "Requested JSON parse failed.";
+        } else if (textStatus === "timeout") {
+            return "Time out error.";
+        } else if (textStatus === "abort") {
+            return "Ajax request aborted.";
+        } else {
+            return "Uncaught Error. " + xhr.responseText;
+        }
     }
 
     static fieldTextToFieldName(text : string) : string {
@@ -458,7 +524,7 @@ export class Utils {
             $('#inputModal').data('completed', false);
             $('#inputModal').data('callback', (completed : boolean, userString : string): void => {
                 if (!completed){
-                    reject();
+                    reject("Utils.requestUserString() aborted by user");
                 } else {
                     resolve(userString);
                 }
@@ -481,7 +547,7 @@ export class Utils {
             $('#inputTextModal').data('completed', false);
             $('#inputTextModal').data('callback', (completed : boolean, userText : string) => {
                 if (!completed){
-                    reject();
+                    reject("Utils.requestUserText() aborted by user");
                 } else {
                     resolve(userText);
                 }
@@ -502,7 +568,7 @@ export class Utils {
             $('#inputModal').data('completed', false);
             $('#inputModal').data('callback', (completed : boolean, userNumber : number) => {
                 if (!completed){
-                    reject();
+                    reject("Utils.requestUserNumber() aborted by user");
                 } else {
                     resolve(userNumber);
                 }
@@ -553,7 +619,7 @@ export class Utils {
                 if (completed){
                     resolve(choice);
                 } else {
-                    reject("User aborted")
+                    reject("Utils.requestUserChoice() aborted by user");
                 }
             });
             $('#choiceModal').data('choices', choices);
@@ -592,7 +658,7 @@ export class Utils {
                 if (completed){
                     resolve();
                 } else {
-                    reject("User aborted")
+                    reject("Utils.requestUserConfirm() aborted by user");
                 }
             });
 
@@ -668,7 +734,7 @@ export class Utils {
             $('#gitCustomRepositoryModal').data('completed', false);
             $('#gitCustomRepositoryModal').data('callback', (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) => {
                 if (!completed){
-                    reject();
+                    reject("Utils.requestUserAddCustomRepository aborted by user");
                 } else {
                     resolve(new Repository(repositoryService, repositoryName, repositoryBranch, false));
                 }
@@ -830,7 +896,7 @@ export class Utils {
             $('#editEdgeModal').data('completed', false);
             $('#editEdgeModal').data('callback', (completed: boolean, edge: Edge): void => {
                 if (!completed){
-                    reject();
+                    reject("Utils.requestUserEditEdge() aborted by user");
                 } else {
                     resolve(edge);
                 }
