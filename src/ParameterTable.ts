@@ -159,6 +159,19 @@ export class ParameterTable {
     static getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
+        //reset all the icons to sort none
+        $('.paramsTableWrapper th i.tableSortIcon').removeClass('icon-tableSortDescending').removeClass('icon-tableSortAscending').addClass('icon-tableSortNone')
+        
+        // get the column header sorting icon that we are currently sorting by 
+        const target = $('#tableSort_'+ParameterTable.sortingColumn)
+
+        //set the appropriate icon for the click target column header
+        if(ParameterTable.sortOrderReversed){
+            target.removeClass('icon-tableSortNone').addClass('icon-tableSortAscending')
+        }else{
+            target.removeClass('icon-tableSortNone').addClass('icon-tableSortDescending')
+        }
+
         //resets the table field selections used for the little editor at the top of the table
         ParameterTable.resetSelection()
 
@@ -284,16 +297,6 @@ export class ParameterTable {
             //if a new column header was clicked, reset the sorting order and sort via the new column
             ParameterTable.sortOrderReversed = false;
             ParameterTable.sortingColumn = columnName;
-        }
-
-        //reset all the icons to sort none
-        $('.paramsTableWrapper th i.tableSortIcon').removeClass('icon-tableSortDescending').removeClass('icon-tableSortAscending').addClass('icon-tableSortNone')
-
-        //set the appropriate icon for the click target column header
-        if(ParameterTable.sortOrderReversed){
-            $(event.target).find('i.tableSortIcon').removeClass('icon-tableSortNone').addClass('icon-tableSortAscending')
-        }else{
-            $(event.target).find('i.tableSortIcon').removeClass('icon-tableSortNone').addClass('icon-tableSortDescending')
         }
 
         ParameterTable.sortFields();

@@ -38,6 +38,6 @@
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",
     "eslint": "^7.32.0",
-    "typescript": "^3.9.9"
+    "typescript": "^3.9.10"
   }
 }
