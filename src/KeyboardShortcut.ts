@@ -247,6 +247,8 @@ export class KeyboardShortcut {
     static getShortcuts() : KeyboardShortcut[] {
         return [
             new KeyboardShortcut("new_graph", "New Graph", [new Key("n")], "keydown", true, false, ['create','canvas'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.newLogicalGraph();}),
+            new KeyboardShortcut("create_new_graph_from_json", "Create New Graph From Json", [], "keydown", true, false, ['create','graph','json'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.newLogicalGraphFromJson();}),
+            new KeyboardShortcut("add_to_graph_from_json", "Add To Graph From Json", [], "keydown", true, false, ['add','graph','json'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.addToGraphFromJson();}),
             new KeyboardShortcut("new_palette", "New palette", [new Key("n", KeyboardShortcut.Modifier.Shift)], "keydown", true, false, ['create','palettes','pallette'], KeyboardShortcut.true,KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newPalette();}),
             new KeyboardShortcut("new_config", "New config", [new Key("n", KeyboardShortcut.Modifier.Alt)], "keydown", true, false, ['create','configs','config'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newConfig();}),
             new KeyboardShortcut("open_graph_from_repo", "Open graph from repo", [new Key("g")], "keydown", true, false, ['git','repository','github','gitlab','load','canvas'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository); SideWindow.setShown('right',true);}),
@@ -307,7 +309,6 @@ export class KeyboardShortcut {
             KeyboardShortcut.QUICK_ACTION("createNewPaletteFromJson", "Create New Palette From Json", [], (eagle): void => {eagle.newPaletteFromJson();}),
             KeyboardShortcut.QUICK_ACTION("savePaletteAs", "Save Palette To Git", ['save as '], (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Palette);}),
             KeyboardShortcut.QUICK_ACTION("loadFromRepository", "Load From Repository", [], (eagle): void => {SideWindow.setShown('right',true);eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository);}),
-            KeyboardShortcut.QUICK_ACTION("createNewGraphFromJson", "Create New Graph From Json", [], (eagle): void => {eagle.newLogicalGraphFromJson();}),
             KeyboardShortcut.QUICK_ACTION("addToGraphFromJson", "Add To Graph From Json", [], (eagle): void => {eagle.addToGraphFromJson();}),
             KeyboardShortcut.QUICK_ACTION("displayGraphAsJson", "Display Graph As Json", [], (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph);}),
             KeyboardShortcut.QUICK_ACTION("aboutEagle", "About Eagle", [], (eagle): void => {eagle.showAbout();}),

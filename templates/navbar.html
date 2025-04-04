@@ -97,27 +97,18 @@
                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                         <span class="dropdown-item dropDropDownParent" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownGraphNew">New
                             <div class="dropDropDown">
-                                <a class="dropdown-item" id="createNewGraph" href="#" data-bind="click: KeyboardShortcut.idToRun('new_graph')">
-                                    <span data-bind="text: KeyboardShortcut.idToName('new_graph')"></span>
-                                    <span data-bind="text: KeyboardShortcut.idToText('new_graph', true)"></span>
-                                </a>
-                                <a class="dropdown-item" id="createNewGraphFromJson" href="#" data-bind="click: newLogicalGraphFromJson">Create New Graph from JSON</a>
-                                <a class="dropdown-item" id="addToGraphFromJson" href="#" data-bind="click: addToGraphFromJson">Add to Graph from JSON</a>
-                                <a class="dropdown-item" id="addEdgeToLogicalGraph" href="#" data-bind="click: addEdgeToLogicalGraph">Add Edge to Graph
-                                    <span data-bind="text: KeyboardShortcut.idToText('add_edge', true)"></span>
-                                </a>
-                                <a class="dropdown-item" id="createSubgraphFromSelection" href="#" data-bind="click: createSubgraphFromSelection">Create Subgraph from Selection
-                                    <span data-bind="text: KeyboardShortcut.idToText('create_subgraph_from_selection', true)"></span>
-                                </a>
-                                <a class="dropdown-item" id="createConstructFromSelection" href="#" data-bind="click: createConstructFromSelection">Create Construct from Selection
-                                    <span data-bind="text: KeyboardShortcut.idToText('create_construct_from_selection', true)"></span>
-                                </a>
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'new_graph'}"></div>
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'create_new_graph_from_json'}"></div>
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'add_to_graph_from_json'}"></div>
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'add_edge'}"></div>
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'create_subgraph_from_selection'}"></div>
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'create_construct_from_selection'}"></div>
                             </div>
                         </span>
                         <div class="dropdown-divider"></div>
                         <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                             <div class="dropDropDown">
-                                <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(eagle.logicalGraph().fileInfo().type)}">Save</a>
+                                <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){commitToGit(eagle.logicalGraph().fileInfo().type)}">Save</a>
                                 <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(eagle.logicalGraph().fileInfo().type)}">Save As</a>
                                 <a class="dropdown-item" id="gitLoadGraphFromRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}">Load From Repository</a>
                             </div>
