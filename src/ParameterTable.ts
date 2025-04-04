@@ -222,10 +222,10 @@ export class ParameterTable {
     static sortFields = () : void => {
         // early out if we don't need to sort
         if(ParameterTable.sortingColumn === ''){
-            return
+            ParameterTable.copySelectedNodeFields()
+        }else{
+            ParameterTable.fields.sort(ParameterTable.compare)
         }
-
-        ParameterTable.fields.sort(ParameterTable.compare)
 
         if(ParameterTable.sortOrderReversed){
             ParameterTable.fields.reverse()
@@ -688,6 +688,9 @@ export class ParameterTable {
             fieldIndex = selectedNode.getFields().length-1;
         }
 
+        //update the parameter table fields array
+        ParameterTable.copySelectedNodeFields()
+
         //a timeout was necessary to wait for the element to be added before counting how many there are
         setTimeout(function() {
             //handling selecting and highlighting the newly created row
@@ -702,6 +705,34 @@ export class ParameterTable {
                 scrollTop: (fieldIndex*30)
             }, 1000);
         }, 100);
+    }
+
+    static duplicateTableRow = (index:number) : void => {
+        const eagle = Eagle.getInstance()
+
+        eagle.duplicateParameter(index)
+        eagle.selectedObjects.valueHasMutated()
+        eagle.flagActiveFileModified()
+
+        //update the parameter table fields array
+        ParameterTable.copySelectedNodeFields()
+        
+        //scroll to new row
+        $(".parameterTable .modal-body").animate({
+            scrollTop: ((index+1)*30)
+        }, 1000);
+    }
+
+    static deleteTableRow = (field:Field) : void => {
+        const eagle = Eagle.getInstance()
+
+        eagle.logicalGraph().removeFieldFromNodeById(eagle.selectedNode(),field.getId())
+        eagle.selectedObjects.valueHasMutated()
+        eagle.flagActiveFileModified()
+
+        //update the parameter table fields array
+        ParameterTable.copySelectedNodeFields()
+        
     }
 
     static getCurrentParamReadonly = (field: Field) : boolean => {
@@ -762,6 +793,15 @@ export class ParameterTable {
 
         for (const field of fields){
             ParameterTable.fields.push(field.shallowCopy());
+        }
+    }
+
+    static copySelectedNodeFields = () : void => {
+        const eagle = Eagle.getInstance()
+        const fields = eagle.selectedNode()?.getFields()
+
+        if(fields){
+            ParameterTable.copyFields(fields)
         }
     }
 
