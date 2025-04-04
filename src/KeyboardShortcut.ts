@@ -346,15 +346,30 @@ export class KeyboardShortcut {
         ];
     }
 
-    static idToText(id: string, addBrackets: boolean): string {
+    static findById(id: string) : KeyboardShortcut {
         for (const shortcut of Eagle.shortcuts){
             if (shortcut.id === id){
-                return shortcut.getText(addBrackets);
+                return shortcut;
             }
         }
+        console.warn("Could not find keyboard shortcut with id", id);
+        return null;
+    }
 
-        console.warn("Could not find keyboard shortcut text for id", id);
-        return "";
+    static idToName(id: string): string {
+        const ks = KeyboardShortcut.findById(id);
+        return ks ? ks.name : "";
+    }
+
+    // TODO: maybe idToShortcut is a better name?
+    static idToText(id: string, addBrackets: boolean): string {
+        const ks = KeyboardShortcut.findById(id);
+        return ks ? ks.getText(addBrackets) : "";
+    }
+
+    static idToRun(id: string): (eagle: Eagle, event: KeyboardEvent) => void {
+        const ks = KeyboardShortcut.findById(id);
+        return ks ? ks.run : undefined;
     }
 
     static detectPlatform(): KeyboardShortcut.Platform {

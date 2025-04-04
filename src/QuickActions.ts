@@ -1,5 +1,6 @@
 import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
+import { Utils } from './Utils';
 
 // TODO: name and type are confusing here
 let wordMatch:     QuickActionsResult[] = []
@@ -25,10 +26,9 @@ type QuickActionsMatch = {
 }
 
 type QuickActionsResult = {
-    title: string,
-    action: (eagle: Eagle, event: KeyboardEvent) => void
-    shortcut: string,
-    icon: string
+    shortcut: KeyboardShortcut,
+    icon: string,
+    text: string
 }
 
 export class QuickActions {
@@ -144,14 +144,10 @@ export class QuickActions {
         //generating the result
         if(match){
             funcElement = {
-                title: func.name,
-                action: func.run,
-                shortcut: "",
-                icon: ""
+                shortcut: func,
+                icon: "",
+                text: func.getText(true)
             };
-
-            // generate text for this shortcut
-            funcElement.shortcut = func.getText(true);
 
             if(func.id.startsWith('docs_')){
                 funcElement.icon = 'icon-book'
@@ -213,7 +209,16 @@ export class QuickActions {
     static executeQuickAction(result: QuickActionsResult) : void {
         const eagle: Eagle = Eagle.getInstance();
         QuickActions.initiateQuickAction()
-        result.action(eagle, null)
+
+        const canRun = result.shortcut.canRun(eagle);
+
+        if (canRun){
+            result.shortcut.run(eagle, null);
+        } else {
+            if (result.shortcut.warnWhenCantRun){
+                Utils.showNotification("Warning", "Quick Action (" + result.shortcut.name + ") not available in current state.", "warning");
+            }
+        }
     }
 
     static updateQuickActionSearchTerm(eagle: Eagle, event: KeyboardEvent ): void {

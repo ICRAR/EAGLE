@@ -97,7 +97,8 @@
                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                         <span class="dropdown-item dropDropDownParent" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownGraphNew">New
                             <div class="dropDropDown">
-                                <a class="dropdown-item" id="createNewGraph" href="#" data-bind="click: newLogicalGraph">Create New Graph
+                                <a class="dropdown-item" id="createNewGraph" href="#" data-bind="click: KeyboardShortcut.idToRun('new_graph')">
+                                    <span data-bind="text: KeyboardShortcut.idToName('new_graph')"></span>
                                     <span data-bind="text: KeyboardShortcut.idToText('new_graph', true)"></span>
                                 </a>
                                 <a class="dropdown-item" id="createNewGraphFromJson" href="#" data-bind="click: newLogicalGraphFromJson">Create New Graph from JSON</a>

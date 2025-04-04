@@ -1326,7 +1326,6 @@ export class Eagle {
         try {
             filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
         } catch (error) {
-            console.error(error);
             Utils.showNotification("Error", error, "danger");
             return;
         }
