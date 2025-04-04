@@ -1241,16 +1241,8 @@ export class Eagle {
             return;
         }
 
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const p : Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)), errorsWarnings);
-
-        // show errors (if found)
-        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
-
-        // add new palette to the START of the palettes array
-        this.palettes.unshift(p);
-
-        Utils.showNotification("Success", Utils.getFileNameFromFullPath(fileFullPath) + " has been loaded.", "success");
+        // load the palette, handle errors and add palettes list
+        this._reloadPalette(new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)), data, null);
     }
 
     /**
@@ -2415,6 +2407,8 @@ export class Eagle {
 
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+
+        Utils.showNotification("Success", file.name + " has been loaded.", "success");
     }
 
     private updateLogicalGraphFileInfo = (repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
