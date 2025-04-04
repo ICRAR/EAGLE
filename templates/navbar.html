@@ -108,13 +108,14 @@
                         <div class="dropdown-divider"></div>
                         <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                             <div class="dropDropDown">
-                                <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){commitToGit(eagle.logicalGraph().fileInfo().type)}">Save</a>
-                                <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(eagle.logicalGraph().fileInfo().type)}">Save As</a>
-                                <a class="dropdown-item" id="gitLoadGraphFromRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}">Load From Repository</a>
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'save_graph_to_repo'}"></div>
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'save_graph_to_repo_as'}"></div>
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'open_graph_from_repo'}"></div>
                             </div>
                         </span>
                         <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                             <div class="dropDropDown">
+                                <!--
                                 <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save</a>
                                 <a class="dropdown-item" id="saveAsGraph" href="#" data-bind="click: function(){saveAsFileToLocal(Eagle.FileType.Graph)}">Save As</a>
                                 <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load
@@ -123,6 +124,11 @@
                                 <a class="dropdown-item" id="insertGraph" href="#" data-bind="click: getGraphFileToInsert">Insert
                                     <span data-bind="text: KeyboardShortcut.idToText('insert_graph_from_local_disk', true)"></span>
                                 </a>
+                                -->
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'save_graph_to_local_disk'}"></div>
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'save_graph_to_local_disk_as'}"></div>
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'open_graph_from_local_disk'}"></div>
+                                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'insert_graph_from_local_disk'}"></div>
                             </div>
                         </span>
                         <div class="dropdown-divider"></div>
