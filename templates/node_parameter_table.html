@@ -78,23 +78,28 @@
                             <thead>
                                 <tr>
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
-                                        <th class="parameter_table_isKeyAttribute" data-bind="eagleTooltip:'Add/remove Field from Graph Config'" data-bs-placement="top"></th>
+                                        <th class="parameter_table_isKeyAttribute" data-bind="click: function(){ParameterTable.sortTableBy('')}, eagleTooltip:'Sort by original field order'" data-bs-placement="top">
+                                            <i id="tableSort_" class="md-18 tableSortIcon icon-tableSortDescending"></i>
+                                        </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
-                                        <th class="parameter_table_text" data-bind="eagleTooltip:'User-facing name'" data-bs-placement="top">
+                                        <th class="parameter_table_text" data-bind="click: function(){ParameterTable.sortTableBy('displayText')},eagleTooltip:'User-facing name'" data-bs-placement="top">
+                                            <i id="tableSort_displayText" class="md-18 tableSortIcon icon-tableSortNone"></i>
                                             Attribute Name
                                             <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_text') === true}"></div>
                                         </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().fieldId() -->
-                                        <th class="parameter_table_id" data-bind="eagleTooltip:'backend id'" data-bs-placement="top">
+                                        <th class="parameter_table_id" data-bind="click: function(){ParameterTable.sortTableBy('fieldId')}, eagleTooltip:'backend id'" data-bs-placement="top">
+                                            <i id="tableSort_fieldId" class="md-18 tableSortIcon icon-tableSortNone"></i>
                                             Field ID
                                             <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_id') === true}"></div>
                                         </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().value() -->
-                                        <th class="parameter_table_value" data-bind="eagleTooltip:'The value of this parameter'" data-bs-placement="top">
-                                            <span>Value</span>
+                                        <th class="parameter_table_value" data-bind="click: function(){ParameterTable.sortTableBy('value')},eagleTooltip:'The value of this parameter'" data-bs-placement="top">
+                                            <i id="tableSort_value" class="md-18 tableSortIcon icon-tableSortNone"></i>
+                                            Value
                                             <!-- ko ifnot: Setting.findValue(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY) -->
                                                 <button class="showBothValues" data-bind="click: Setting.find(Setting.NODE_PARAMS_TABLE_DUAL_VALUE_DISPLAY).toggle, eagleTooltip:'Toggle On Dual Value Display. This shows both the configured value and the graphs own value.'">
                                                     <div>
@@ -114,31 +119,45 @@
                                         </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().defaultValue() -->
-                                        <th class="parameter_table_default_value" data-bind="eagleTooltip:'The default value of this parameter before user modifications'" data-bs-placement="top">
+                                        <th class="parameter_table_default_value" data-bind="click: function(){ParameterTable.sortTableBy('defaultValue')}, eagleTooltip:'The default value of this parameter before user modifications'" data-bs-placement="top">
+                                            <i id="tableSort_defaultValue" class="md-18 tableSortIcon icon-tableSortNone"></i>
                                             Default Value
                                             <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_default_value') === true}"></div>
                                         </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
-                                        <th class="parameter_table_description" data-bind="eagleTooltip:'A description of the purpose of this parameter'" data-bs-placement="top">
+                                        <th class="parameter_table_description" data-bind="click: function(){ParameterTable.sortTableBy('description')}, eagleTooltip:'A description of the purpose of this parameter'" data-bs-placement="top">
+                                            <i id="tableSort_description" class="md-18 tableSortIcon icon-tableSortNone"></i>
                                             Description
                                             <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_description') === true}"></div>
                                         </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
-                                        <th class="parameter_table_type" data-bind="eagleTooltip:'The type of the data stored in this parameter (e.g. Integer, Float, String etc)'" data-bs-placement="top">Type</th>
+                                        <th class="parameter_table_type" data-bind="click: function(){ParameterTable.sortTableBy('type')}, eagleTooltip:'The type of the data stored in this parameter (e.g. Integer, Float, String etc)'" data-bs-placement="top">
+                                            <i id="tableSort_type" class="md-18 tableSortIcon icon-tableSortNone"></i>
+                                            Type
+                                        </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().flags() -->
                                         <th class="parameter_table_flags" data-bind="eagleTooltip:'Parameter flags'" data-bs-placement="top">Flags</th>
                                         <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().parameterType() -->
-                                        <th class="parameter_table_parameter_type" data-bind="eagleTooltip:'The way this parameter will be used by the component. ComponentParameters are passed to the DALiuGE execution framework. ApplicationArguments are passed to the Application executed by this component.'" data-bs-placement="top">Parameter Type</th>
+                                        <th class="parameter_table_parameter_type" data-bind="click: function(){ParameterTable.sortTableBy('parameterType')}, eagleTooltip:'The way this parameter will be used by the component. ComponentParameters are passed to the DALiuGE execution framework. ApplicationArguments are passed to the Application executed by this component.'" data-bs-placement="top">
+                                            <i id="tableSort_parameterType" class="md-18 tableSortIcon icon-tableSortNone"></i>
+                                            Parameter Type
+                                        </th>
                                     <!-- /ko -->                                        
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
-                                    <th class="parameter_table_usage" data-bind="eagleTooltip:'InputPorts and OutputPorts are used to specify named inputs and outputs from this Component.'" data-bs-placement="top">Use As</th>
+                                        <th class="parameter_table_usage" data-bind="click: function(){ParameterTable.sortTableBy('usage')}, eagleTooltip:'InputPorts and OutputPorts are used to specify named inputs and outputs from this Component.'" data-bs-placement="top">
+                                            <i id="tableSort_usage" class="md-18 tableSortIcon icon-tableSortNone"></i>
+                                            Use As
+                                        </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().encoding() && eagle.selectedNode().isApplication() -->
-                                    <th class="parameter_table_encoding" data-bind="eagleTooltip:'The way data is encoded when passing through this port.'" data-bs-placement="top">Encoding</th>
+                                        <th class="parameter_table_encoding" data-bind="click: function(){ParameterTable.sortTableBy('encoding')}, eagleTooltip:'The way data is encoded when passing through this port.'" data-bs-placement="top">
+                                            <i id="tableSort_encoding" class="md-18 tableSortIcon icon-tableSortNone"></i>
+                                            Encoding
+                                        </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
                                         <th class="parameter_table_actions" data-bind="eagleTooltip:'Additional operations that are possible on this parameter (e.g. Delete, Duplicate etc)'" data-bs-placement="top">Actions</th>
@@ -432,7 +451,7 @@
                                                     <!-- /ko -->
                                                     <!-- ko ifnot: $data.usage() === Daliuge.FieldUsage.NoPort-->
                                                         <div class="checkboxWrapper">
-                                                            <select class="tbaleFieldEncoding" data-bind="options: Object.values(Daliuge.Encoding), value: encoding, disabled: ParameterTable.getParamsTableEditState() , event: {change: ParameterTable.encodingChanged}">
+                                                            <select class="tbaleFieldEncoding" data-bind="options: Object.values(Daliuge.Encoding), value: encoding, disabled: ParameterTable.getParamsTableEditState()">
                                                                 <!-- options are added dynamically -->
                                                             </select>
                                                         </div>
@@ -445,8 +464,8 @@
                                                     <button class="resetDefaults iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: ParameterTable.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
                                                     <!-- ko ifnot: ParameterTable.getNodeLockedState($data) -->
                                                         <button class="edit iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: $root.editField, disabled: ParameterTable.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-icons">edit</i></button>
-                                                        <button class="duplicate iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.duplicateParameter($index());$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: ParameterTable.getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
-                                                        <button class="delete iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$root.logicalGraph().removeFieldFromNodeById($root.selectedNode(),$data.getId());}, disabled: ParameterTable.getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
+                                                        <button class="duplicate iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){ParameterTable.duplicateTableRow($index())}, disabled: ParameterTable.getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-icons">content_copy</i></button>
+                                                        <button class="delete iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){ParameterTable.deleteTableRow($data)}, disabled: ParameterTable.getNodeLockedState($data), eagleTooltip:'Remove parameter'"><i class="material-icons md-24">delete</i></button>
                                                     <!-- /ko -->
                                                     <!-- ko if: $data.getHasErrors()-->
                                                         <button class="text-danger iconHoverEffect" disabled data-bind="eagleTooltip:ParameterTable.getErrorsWarningsAsHtml($data)"><i class="material-icons">error</i></button>

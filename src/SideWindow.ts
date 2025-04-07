@@ -215,7 +215,7 @@ export class SideWindow {
             //we are only doing it for the bottom window, as it typically takes up a large part of the screen, causing it to become larger than the screen itself if switching from a 4k display to a smaller one.
             newSize = ((window.innerHeight - e.clientY)/window.innerHeight)*100
             //making sure the height we are setting is not smaller than the minimum height
-            const minBottomWindowVh = (Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal()/window.innerHeight)*100
+            const minBottomWindowVh = Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal()
             const maxBottomWindowVh = 80
 
             if(newSize <= minBottomWindowVh){

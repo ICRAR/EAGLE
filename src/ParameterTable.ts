@@ -12,7 +12,6 @@ import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
 import { GraphConfig, GraphConfigField } from "./GraphConfig";
-import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { SideWindow } from "./SideWindow";
 
 export class ParameterTable {
@@ -27,13 +26,21 @@ export class ParameterTable {
     static tableHeaderX : any;
     static tableHeaderW : any;
 
-    static init(){
+    static sortingColumn : string = '';
+    static sortOrderReversed : boolean = false;
 
+    static fields : ko.ObservableArray<Field>;
+
+    private static readonly ROW_HEIGHT: number = 30;
+
+    static init(){
         ParameterTable.selectionParent = ko.observable(null);
         ParameterTable.selectionParentIndex = ko.observable(-1);
         ParameterTable.selection = ko.observable(null);
         ParameterTable.selectionName = ko.observable('');
         ParameterTable.selectionReadonly = ko.observable(false);
+
+        ParameterTable.fields = ko.observableArray([]);
     }
 
     static setActiveColumnVisibility = () :void => {
@@ -101,13 +108,26 @@ export class ParameterTable {
     static getTableFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
+        //reset all the icons to sort none
+        $('.paramsTableWrapper th i.tableSortIcon').removeClass('icon-tableSortDescending').removeClass('icon-tableSortAscending').addClass('icon-tableSortNone')
+        
+        // get the column header sorting icon that we are currently sorting by 
+        const target = $('#tableSort_'+ParameterTable.sortingColumn)
+
+        //set the appropriate icon for the click target column header
+        if(ParameterTable.sortOrderReversed){
+            target.removeClass('icon-tableSortNone').addClass('icon-tableSortAscending')
+        }else{
+            target.removeClass('icon-tableSortNone').addClass('icon-tableSortDescending')
+        }
+
         //resets the table field selections used for the little editor at the top of the table
         ParameterTable.resetSelection()
 
         switch (Setting.findValue(Setting.BOTTOM_WINDOW_MODE)){
             case Eagle.BottomWindowMode.NodeParameterTable:
-                return eagle.selectedNode()?.getFields();
-            
+                return ParameterTable.fields();
+
             case Eagle.BottomWindowMode.ConfigParameterTable:
                 const lg: LogicalGraph = eagle.logicalGraph();
                 const config: GraphConfig = lg.getActiveGraphConfig();
@@ -147,6 +167,90 @@ export class ParameterTable {
                 return []
         }
     }, this);
+
+    static sortFields = () : void => {
+        // early out if we don't need to sort
+        if(ParameterTable.sortingColumn === ''){
+            ParameterTable.copySelectedNodeFields()
+        }else{
+            ParameterTable.fields.sort(ParameterTable.compare)
+            
+        }
+
+        if(ParameterTable.sortOrderReversed){
+            ParameterTable.fields.reverse()
+        }
+    }
+
+    static compare = (a : Field , b : Field) : number => {
+        //will need a global observable that stores which column is being sorted, and a click event on each column header to switch  between them
+        //will also need a observable to store the switch between ascending and descending
+        //here we will then need a switch or list of ifs to get the correct value we want to sort by
+        
+        let valA : any
+        let valB : any
+
+        if(ParameterTable.sortingColumn === 'displayText'){
+            valA = a.getDisplayText()
+            valB = b.getDisplayText()
+        }else if(ParameterTable.sortingColumn === 'fieldId'){
+            valA = a.getId()
+            valB = b.getId()
+        }else if(ParameterTable.sortingColumn === 'value'){
+            valA = a.getValue()
+            valB = b.getValue()
+        }else if(ParameterTable.sortingColumn === 'defaultValue'){
+            valA = a.getDefaultValue()
+            valB = b.getDefaultValue()
+        }else if(ParameterTable.sortingColumn === 'description'){
+            valA = a.getDescription()
+            valB = b.getDescription()
+        }else if(ParameterTable.sortingColumn === 'type'){
+            valA = a.getType()
+            valB = b.getType()
+        }else if(ParameterTable.sortingColumn === 'parameterType'){
+            valA = a.getParameterType()
+            valB = b.getParameterType()
+        }else if(ParameterTable.sortingColumn === 'usage'){
+            valA = a.getUsage()
+            valB = b.getUsage()
+        }else if(ParameterTable.sortingColumn === 'encoding'){
+            valA = a.getEncoding()
+            valB = b.getEncoding()
+
+            // NOTE: if the field is not a port, then the encoding is shown as "N/A".
+            // we should sort these last instead of according to the contents of the encoding attribute, which defaults to "pickle"
+            if (!a.isInputPort() && !a.isOutputPort()){
+                valA = "zzzz";
+            }
+            if (!b.isInputPort() && !b.isOutputPort()){
+                valB = "zzzz";
+            }
+        } else {
+            console.warn("ParameterTable.compare(): Unknown ParameterTable.sortingColumn:", ParameterTable.sortingColumn);
+            valA = "";
+            valB = "";
+        }
+        
+        if($.isNumeric(valA) && $.isNumeric(valB)){
+            return valA - valB
+        }else{
+            return valA.toString().localeCompare(valB)
+        }
+    }
+
+    static sortTableBy (columnName : string) : void {
+        if(ParameterTable.sortingColumn === columnName){
+            //if the already selected column header was clicked again, reverse the sorting order
+            ParameterTable.sortOrderReversed = !ParameterTable.sortOrderReversed;
+        }else{
+            //if a new column header was clicked, reset the sorting order and sort via the new column
+            ParameterTable.sortOrderReversed = false;
+            ParameterTable.sortingColumn = columnName;
+        }
+
+        ParameterTable.sortFields();
+    }
 
     // TODO: move to Eagle.ts?
     //       doesn't seem to depend on any ParameterTable state, only Eagle state
@@ -233,13 +337,9 @@ export class ParameterTable {
                 eagle.logicalGraph().fileInfo().modified = true;
                 break;
         }
-
-        eagle.selectedObjects.valueHasMutated();
     }
 
     static select(selection: string, selectionName: string, selectionParent: Field, selectionIndex: number) : void {
-        const eagle: Eagle = Eagle.getInstance();
-
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);
         ParameterTable.selectionParentIndex(selectionIndex);
@@ -536,6 +636,9 @@ export class ParameterTable {
             fieldIndex = selectedNode.getFields().length-1;
         }
 
+        //update the parameter table fields array
+        ParameterTable.copySelectedNodeFields()
+
         //a timeout was necessary to wait for the element to be added before counting how many there are
         setTimeout(function() {
             //handling selecting and highlighting the newly created row
@@ -547,9 +650,62 @@ export class ParameterTable {
 
             //scroll to new row
             $(".parameterTable .modal-body").animate({
-                scrollTop: (fieldIndex*30)
+                scrollTop: (fieldIndex*ParameterTable.ROW_HEIGHT)
             }, 1000);
         }, 100);
+    }
+
+    static duplicateParameter = (index:number) : void => {
+        let fieldIndex:number //variable holds the index of which row to highlight after creation
+        const eagle = Eagle.getInstance()
+
+        const copiedField = eagle.selectedNode().getFields()[index].clone()
+        copiedField.setId(Utils.generateFieldId())
+        copiedField.setDisplayText(copiedField.getDisplayText()+' copy')
+        if(ParameterTable.hasSelection()){
+            //if a cell in the table is selected in this case the new node will be placed below the currently selected node
+            fieldIndex = ParameterTable.selectionParentIndex() + 1
+            eagle.selectedNode().addFieldByIndex(copiedField,fieldIndex)
+        }else{
+            //if no cell in the table is selected, in this case the new node is appended at the bottom
+            eagle.selectedNode().addField(copiedField)
+            fieldIndex = eagle.selectedNode().getFields().length -1
+        }
+
+        setTimeout(function() {
+            //handling selecting and highlighting the newly created field on the node
+            const clickTarget = $(".paramsTableWrapper tr:nth-child(" + (fieldIndex+1) + ") .selectionTargets")[0]
+            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update process
+            clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
+            $(clickTarget).trigger("select")
+
+            $(".parameterTable .modal-body").animate({
+                scrollTop: (fieldIndex*ParameterTable.ROW_HEIGHT)
+            }, 1000);
+        }, 100);
+    }
+
+    static duplicateTableRow = (index:number) : void => {
+        const eagle = Eagle.getInstance()
+
+        ParameterTable.duplicateParameter(index)
+        eagle.selectedObjects.valueHasMutated()
+        eagle.flagActiveFileModified()
+
+        //update the parameter table fields array
+        ParameterTable.copySelectedNodeFields()
+    }
+
+    static deleteTableRow = (field:Field) : void => {
+        const eagle = Eagle.getInstance()
+
+        eagle.logicalGraph().removeFieldFromNodeById(eagle.selectedNode(),field.getId())
+        eagle.selectedObjects.valueHasMutated()
+        eagle.flagActiveFileModified()
+
+        //update the parameter table fields array
+        ParameterTable.copySelectedNodeFields()
+        
     }
 
     static getCurrentParamReadonly = (field: Field) : boolean => {
@@ -602,14 +758,37 @@ export class ParameterTable {
         console.warn("something in value readonly permissions has gone wrong!");
         return true
     }
+
+    // make a "shallow" copy of the node fields, as opposed to a "deep" clone
+    // we can re-order the copy independently, but all the attributes of the fields are actually the originals (not clones)
+    static copyFields = (fields: Field[]) : void => {
+        ParameterTable.fields([]);
+        for (const field of fields){
+            ParameterTable.fields.push(field.shallowCopy());
+        }
+    }
+
+    static copySelectedNodeFields = () : void => {
+        const eagle = Eagle.getInstance()
+        //this is doing essantially the same as eagle.selectedNode() but for some reason selected node would still return the previously selected node, not the newly selected one
+        const selectedNode = eagle.selectedObjects()[0]
+
+        if( eagle.selectedObjects().length === 1 && selectedNode instanceof Node){
+            const fields = selectedNode.getFields()
+
+            if(fields){
+                ParameterTable.copyFields(fields)
+            }
+        }
+    }
+
+    static setNode = (node: Node) : void => {
+        ParameterTable.copyFields(node.getFields());
+        ParameterTable.sortFields();
+    }
 }
 
 export namespace ParameterTable {
-    export enum Mode {
-        NodeFields = "NodeFields", //node fields table
-        GraphConfig = "GraphConfig", //graph config fields table
-    }
-
     export enum SelectType {
         Normal = "Normal",
         RightClick = "RightClick",
