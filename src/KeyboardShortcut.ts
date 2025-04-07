@@ -273,6 +273,7 @@ export class KeyboardShortcut {
             // these are "smart saves", that use the current graph location (local or git), to save again in the same place
             new KeyboardShortcut("save_graph", "Save Graph", [new Key("s")], "keydown", true, false, ['canvas','commit','github','repository','gitlab'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.saveGraph();}),
             new KeyboardShortcut("save_as_graph", "Save Graph As", [new Key("s", KeyboardShortcut.Modifier.Shift)], "keydown", true, false, ['download','canvas','save as '], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.saveGraphAs()}),
+            // TODO: two for palettes
 
             // misc
             new KeyboardShortcut("add_graph_nodes_to_palette", "Add graph nodes to palette", [new Key("a")], "keydown", true, false, ['template','canvas'], KeyboardShortcut.true, KeyboardShortcut.allowPaletteEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.addGraphNodesToPalette();}),
@@ -332,7 +333,6 @@ export class KeyboardShortcut {
             KeyboardShortcut.QUICK_ACTION("quickIntroTut", "Start UI Quick Intro Tutorial", ['ui','interface'], (eagle): void => {TutorialSystem.initiateTutorial('Quick Start');}),
             KeyboardShortcut.QUICK_ACTION("graphBuildingTut", "Start Graph Building Tutorial", [], (eagle): void => {TutorialSystem.initiateTutorial('Graph Building');}),
             KeyboardShortcut.QUICK_ACTION("graphConfigTut", "Start Graph Configuration Tutorial", [], (eagle): void => {TutorialSystem.initiateTutorial('Graph Configurations');}),
-            KeyboardShortcut.QUICK_ACTION("savePaletteLocally", "Save Palette Locally", [], (eagle): void => {eagle.saveFileToLocal(Eagle.FileType.Palette);}),
             KeyboardShortcut.QUICK_ACTION("createNewPaletteFromJson", "Create New Palette From Json", [], (eagle): void => {eagle.newPaletteFromJson();}),
             KeyboardShortcut.QUICK_ACTION("loadFromRepository", "Load From Repository", [], (eagle): void => {SideWindow.setShown('right',true);eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository);}),
             KeyboardShortcut.QUICK_ACTION("addToGraphFromJson", "Add To Graph From Json", [], (eagle): void => {eagle.addToGraphFromJson();}),
