@@ -253,7 +253,7 @@
     transform: translate(-50%,-50%);
 }
 
-.eagleTableWrapper input{
+.eagleTableWrapper input, .eagleTableWrapper textarea{
     background-color: transparent;
 }
 
@@ -300,7 +300,7 @@
     font-size:20px;
 }
 
-.eagleTableWrapper input:focus{
+.eagleTableWrapper input:focus, .eagleTableWrapper textarea:focus{
     outline: none;
 }
 
@@ -355,19 +355,21 @@
     box-shadow: none !important;
 }
 
-.eagleTableDisplay  input, #editFieldModal  .dropdown input{
+.eagleTableDisplay  input, #editFieldModal .dropdown input, .eagleTableDisplay textarea{
     border: none;
 }
 
-.eagleTableDisplay tbody input{
+.eagleTableDisplay tbody input,.eagleTableDisplay tbody textarea{
     position: absolute;
     top: 0px;
     bottom: 0px;
     right: 0px;
     left: 0px;
+    overflow-x: auto;
+    overflow-wrap: normal;
 }
 
-.eagleTableDisplay  input:read-only{
+.eagleTableDisplay  input:read-only, .eagleTableDisplay  textarea:read-only{
     color: rgb(91 91 91);
 }
 
@@ -392,11 +394,7 @@
     top: 3px;
     bottom: 3px;
     right: 3px;
-}
-
-.eagleTableDisplay .eagleTableWrapper .configValueInput{
-    border: 2px solid #002e5f;
-    margin: 3px;
+    padding: 0px;
 }
 
 .eagleTableDisplay .eagleTableWrapper .configValueInput.checkboxWrapper {
@@ -407,6 +405,7 @@
     right: unset;
     margin: unset;
     left: 3px;
+    border: 2px solid #002e5f;
 }
 
 .eagleTableDisplay  input[type="checkbox"]{
@@ -432,6 +431,10 @@
 .eagleTableDisplay .eagleTableWrapper .selectedTableParameter {
     background-color: rgb(162 202 255 / 95%);
     border: #002e5f 2px solid;
+}
+
+.eagleTableDisplay .eagleTableWrapper textarea.selectedTableParameter {
+    padding: 1px 3px;
 }
 
 .eagleTableDisplay  td i, #editFieldModal .tableBody .dropdown-item i{

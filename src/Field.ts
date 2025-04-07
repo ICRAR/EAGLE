@@ -436,6 +436,8 @@ export class Field {
         this.value(this.defaultValue());
     }
 
+    // TODO: rename this slightly so that it is more obvious that it is a user-facing version of the value
+    //       as it is I get confused between this and getValue() when auto-completing
     getFieldValue = () : string => {
         const tooltipText = "Val: " + this.value();
         if  (tooltipText === "Val: "){
