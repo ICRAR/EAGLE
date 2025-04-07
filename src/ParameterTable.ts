@@ -650,7 +650,7 @@ export class ParameterTable {
 
             //scroll to new row
             $(".parameterTable .modal-body").animate({
-                scrollTop: (fieldIndex*30)
+                scrollTop: (fieldIndex*ParameterTable.ROW_HEIGHT)
             }, 1000);
         }, 100);
     }
