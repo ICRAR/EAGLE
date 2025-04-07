@@ -67,14 +67,6 @@ export class Modals {
         $('#inputTextModal').on('shown.bs.modal', function(){
             $('#inputTextModalInput').trigger("focus");
         });
-        $('#inputTextModalInput').on('keypress', function(e){
-            if(TutorialSystem.activeTut === null){
-                if (e.key === "Enter"){
-                    $('#inputTextModal').data('completed', true);
-                    $('#inputTextModal').modal('hide');
-                }
-            }
-        });
 
         // #choiceModal - requestUserChoice()
         $('#choiceModal .modal-footer button').on('click', function(){

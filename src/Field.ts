@@ -10,7 +10,6 @@ import { GraphConfigField } from "./GraphConfig";
 import { Node } from './Node';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
-import { ParameterTable } from "./ParameterTable";
 
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
@@ -407,6 +406,29 @@ export class Field {
         f.encoding(this.encoding());
         f.isEvent(this.isEvent());
         f.nodeId(this.nodeId());
+        return f;
+    }
+
+    shallowCopy = () : Field => {
+        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage());
+
+        f.id = this.id;
+        f.displayText = this.displayText;
+        f.value = this.value;
+        f.defaultValue = this.defaultValue;
+        f.description = this.description;
+        f.readonly = this.readonly;
+        f.type = this.type;
+        f.precious = this.precious;
+        f.options = this.options;
+        f.positional = this.positional;
+        f.parameterType = this.parameterType;
+        f.usage = this.usage;
+
+        f.encoding = this.encoding;
+        f.isEvent = this.isEvent;
+        f.nodeId = this.nodeId;
+
         return f;
     }
 
