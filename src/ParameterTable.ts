@@ -225,8 +225,9 @@ export class ParameterTable {
             ParameterTable.copySelectedNodeFields()
         }else{
             ParameterTable.fields.sort(ParameterTable.compare)
+            
         }
-
+        
         if(ParameterTable.sortOrderReversed){
             ParameterTable.fields.reverse()
         }
@@ -790,7 +791,6 @@ export class ParameterTable {
     // we can re-order the copy independently, but all the attributes of the fields are actually the originals (not clones)
     static copyFields = (fields: Field[]) : void => {
         ParameterTable.fields([]);
-
         for (const field of fields){
             ParameterTable.fields.push(field.shallowCopy());
         }
@@ -798,15 +798,19 @@ export class ParameterTable {
 
     static copySelectedNodeFields = () : void => {
         const eagle = Eagle.getInstance()
-        const fields = eagle.selectedNode()?.getFields()
+        //this is doing essantially the same as eagle.selectedNode() but for some reason selected node would still return the previously selected node, not the newly selected one
+        const selectedNode = eagle.selectedObjects()[0]
 
-        if(fields){
-            ParameterTable.copyFields(fields)
+        if( eagle.selectedObjects().length === 1 && selectedNode instanceof Node){
+            const fields = selectedNode.getFields()
+
+            if(fields){
+                ParameterTable.copyFields(fields)
+            }
         }
     }
 
     static setNode = (node: Node) : void => {
-        console.log("ParameterTable.setNode(", node.getName(), ")");
         ParameterTable.copyFields(node.getFields());
         ParameterTable.sortFields();
     }
