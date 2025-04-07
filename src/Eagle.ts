@@ -3843,36 +3843,6 @@ export class Eagle {
         Utils.showPalettesModal(this);
     }
 
-    addEmptyTableRow = () : void => {
-        let fieldIndex:number
-
-        if(ParameterTable.hasSelection()){
-            // A cell in the table is selected well insert new row instead of adding at the end
-            fieldIndex = ParameterTable.selectionParentIndex() + 1
-            this.selectedNode().addEmptyField(fieldIndex)
-        }else{
-            this.selectedNode().addEmptyField(-1)
-
-            //getting the length of the array to use as an index to select the last row in the table
-            fieldIndex = this.selectedNode().getFields().length-1;
-        }
-
-        //a timeout was necessary to wait for the element to be added before counting how many there are
-        setTimeout(function() {
-            //handling selecting and highlighting the newly created row
-            const clickTarget = $($(".paramsTableWrapper tbody").children()[fieldIndex]).find('.selectionTargets')[0]
-
-            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update processes
-            clickTarget.focus() // used to focus the field allowing the user to immediately start typing
-            $(clickTarget).trigger("select")
-
-            //scroll to new row
-            $(".parameterTable .modal-body").animate({
-                scrollTop: (fieldIndex*30)
-            }, 1000);
-        }, 100);
-    }
-
     tableDropdownClick = (newType: Daliuge.DataType, field: Field) : void => {
         // if the field contains no options, then it's value will be immediately set to undefined
         // therefore, we add at least one option, so the value remains well defined
@@ -4152,36 +4122,6 @@ export class Eagle {
         // now that we are done, re-open the params table
         Utils.showField(this, field.getNodeId(), field);
     };
-
-    duplicateParameter = (index:number) : void => {
-        let fieldIndex:number //variable holds the index of which row to highlight after creation
-
-        const copiedField = this.selectedNode().getFields()[index].clone()
-        copiedField.setId(Utils.generateFieldId())
-        copiedField.setDisplayText(copiedField.getDisplayText()+' copy')
-        if(ParameterTable.hasSelection()){
-            //if a cell in the table is selected in this case the new node will be placed below the currently selected node
-            fieldIndex = ParameterTable.selectionParentIndex() + 1
-            this.selectedNode().addFieldByIndex(copiedField,fieldIndex)
-        }else{
-            //if no cell in the table is selected, in this case the new node is appended at the bottom
-            this.selectedNode().addField(copiedField)
-            fieldIndex = this.selectedNode().getFields().length -1
-        }
-
-        setTimeout(function() {
-            //handling selecting and highlighting the newly created field on the node
-            const clickTarget = $(".paramsTableWrapper tr:nth-child(" + (fieldIndex+1) + ") .selectionTargets")[0]
-            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update process
-            clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
-            $(clickTarget).trigger("select")
-
-            $(".parameterTable .modal-body").animate({
-                scrollTop: (fieldIndex*30)
-            }, 1000);
-        }, 100);
-    }
-
     getNewNodePosition = (radius: number) : {x:number, y:number, extended:boolean} => {
         const MARGIN = 100; // buffer to keep new nodes away from the maxX and maxY sides of the LG display area
         const navBarHeight = 84

@@ -31,6 +31,8 @@ export class ParameterTable {
 
     static fields : ko.ObservableArray<Field>;
 
+    private static readonly ROW_HEIGHT: number = 30;
+
     static init(){
         ParameterTable.selectionParent = ko.observable(null);
         ParameterTable.selectionParentIndex = ko.observable(-1);
@@ -174,7 +176,7 @@ export class ParameterTable {
             ParameterTable.fields.sort(ParameterTable.compare)
             
         }
-        
+
         if(ParameterTable.sortOrderReversed){
             ParameterTable.fields.reverse()
         }
@@ -335,8 +337,6 @@ export class ParameterTable {
                 eagle.logicalGraph().fileInfo().modified = true;
                 break;
         }
-        // NOTE: deleted this to prevent infinite loop
-        //eagle.selectedObjects.valueHasMutated();
     }
 
     static select(selection: string, selectionName: string, selectionParent: Field, selectionIndex: number) : void {
@@ -655,20 +655,45 @@ export class ParameterTable {
         }, 100);
     }
 
+    static duplicateParameter = (index:number) : void => {
+        let fieldIndex:number //variable holds the index of which row to highlight after creation
+        const eagle = Eagle.getInstance()
+
+        const copiedField = eagle.selectedNode().getFields()[index].clone()
+        copiedField.setId(Utils.generateFieldId())
+        copiedField.setDisplayText(copiedField.getDisplayText()+' copy')
+        if(ParameterTable.hasSelection()){
+            //if a cell in the table is selected in this case the new node will be placed below the currently selected node
+            fieldIndex = ParameterTable.selectionParentIndex() + 1
+            eagle.selectedNode().addFieldByIndex(copiedField,fieldIndex)
+        }else{
+            //if no cell in the table is selected, in this case the new node is appended at the bottom
+            eagle.selectedNode().addField(copiedField)
+            fieldIndex = eagle.selectedNode().getFields().length -1
+        }
+
+        setTimeout(function() {
+            //handling selecting and highlighting the newly created field on the node
+            const clickTarget = $(".paramsTableWrapper tr:nth-child(" + (fieldIndex+1) + ") .selectionTargets")[0]
+            clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update process
+            clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
+            $(clickTarget).trigger("select")
+
+            $(".parameterTable .modal-body").animate({
+                scrollTop: (fieldIndex*ParameterTable.ROW_HEIGHT)
+            }, 1000);
+        }, 100);
+    }
+
     static duplicateTableRow = (index:number) : void => {
         const eagle = Eagle.getInstance()
 
-        eagle.duplicateParameter(index)
+        ParameterTable.duplicateParameter(index)
         eagle.selectedObjects.valueHasMutated()
         eagle.flagActiveFileModified()
 
         //update the parameter table fields array
         ParameterTable.copySelectedNodeFields()
-        
-        //scroll to new row
-        $(".parameterTable .modal-body").animate({
-            scrollTop: ((index+1)*30)
-        }, 1000);
     }
 
     static deleteTableRow = (field:Field) : void => {
