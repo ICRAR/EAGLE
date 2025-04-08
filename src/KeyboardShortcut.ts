@@ -248,12 +248,14 @@ export class KeyboardShortcut {
         return [
             // new
             new KeyboardShortcut("new_graph", "New Graph", [new Key("n")], "keydown", true, false, ['create','canvas'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.newLogicalGraph();}),
-            new KeyboardShortcut("create_new_graph_from_json", "Create New Graph From Json", [], "", true, false, ['create','graph','json'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.newLogicalGraphFromJson();}),
             new KeyboardShortcut("new_palette", "New palette", [new Key("n", KeyboardShortcut.Modifier.Shift)], "keydown", true, false, ['create','palettes','pallette'], KeyboardShortcut.true,KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newPalette();}),
-            new KeyboardShortcut("new_config", "New config", [new Key("n", KeyboardShortcut.Modifier.Alt)], "keydown", true, false, ['create','configs','config'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newConfig();}),
+            new KeyboardShortcut("new_config", "New config", [new Key("n", KeyboardShortcut.Modifier.Alt), new Key("n", KeyboardShortcut.Modifier.Ctrl)], "keydown", true, false, ['create','configs','config'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newConfig();}),
 
             // json
             new KeyboardShortcut("add_to_graph_from_json", "Add To Graph From Json", [], "", true, false, ['add','graph','json'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.addToGraphFromJson();}),
+            new KeyboardShortcut("create_new_graph_from_json", "Create New Graph From Json", [], "", true, false, ['create','graph','json'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.newLogicalGraphFromJson();}),
+            new KeyboardShortcut("create_new_palette_from_json", "Create New Palette From Json", [], "", true, false, ['create','palette','json'], KeyboardShortcut.true, KeyboardShortcut.allowPaletteEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newPaletteFromJson();}),
+            new KeyboardShortcut("display_graph_as_json", "Display Graph As Json", [], "", true, false, ['display','graph','json'], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph);}),
 
             // load/save
             // TODO: this one (open_graph_from_repo) does almost nothing! we should have a real modal
@@ -276,7 +278,8 @@ export class KeyboardShortcut {
             // TODO: two for palettes
 
             // misc
-            new KeyboardShortcut("add_graph_nodes_to_palette", "Add graph nodes to palette", [new Key("a")], "keydown", true, false, ['template','canvas'], KeyboardShortcut.true, KeyboardShortcut.allowPaletteEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.addGraphNodesToPalette();}),
+            new KeyboardShortcut("add_graph_nodes_to_palette", "Add Graph Nodes To Palette", [new Key("a")], "keydown", true, false, ['template','canvas'], KeyboardShortcut.true, KeyboardShortcut.allowPaletteEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.addGraphNodesToPalette();}),
+            new KeyboardShortcut("add_selected_nodes_to_palette", "Add Selected Nodes To Palette", [], "", true, false, [], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.nodeIsSelected, (eagle): void => {eagle.addSelectedNodesToPalette('normal');}),
             new KeyboardShortcut("insert_graph_from_local_disk", "Insert graph from local disk", [new Key("i")], "keydown", true, false, ['canvas','subGraph','upload'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.getGraphFileToInsert();}),
             new KeyboardShortcut("deploy_translator", "Generate PGT Using Default Algorithm", [new Key("d", KeyboardShortcut.Modifier.Shift)], "keydown", true, false, ['deploy','translate','translator'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => { eagle.deployDefaultTranslationAlgorithm(); }),
             new KeyboardShortcut("delete_selection", "Delete Selection", [new Key("Delete"), new Key("Backspace")], "keydown", true, false, ['remove'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.deleteSelection(false, false, true);}),
@@ -291,18 +294,20 @@ export class KeyboardShortcut {
             new KeyboardShortcut("center_graph", "Center graph", [new Key("c")], "keydown", true, false, ['canvas','reset','controls'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}),
             new KeyboardShortcut("center_construct_around_children", "Center Construct Around Children", [new Key("c", KeyboardShortcut.Modifier.Alt)], "keydown", true, false, ['construct','center','fit'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())}),
             new KeyboardShortcut("check_for_component_updates", "Check for Component Updates", [new Key("q")], "keydown", true, false, ['nodes'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, function(){return KeyboardShortcut.graphNotEmpty && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, (eagle): void => { eagle.checkForComponentUpdates(); }),
+            new KeyboardShortcut("screenshot_graph","Save Graph as PNG (Screenshot)", [], "", true, false, ['print','printScreen','screen','save','png'], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraphScreenshot();}),
+            new KeyboardShortcut("show_graph_info", "Show Graph Info", [], "", true, false, [], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());}),
+            new KeyboardShortcut("copy_graph_url", "Copy Graph Url", [], "", true, false, [], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.copyGraphUrl();}),
 
             // window management
             new KeyboardShortcut("toggle_left_window", "Toggle left window", [new Key("ArrowLeft")], "keydown", true, false, ['close','open'], KeyboardShortcut.true, KeyboardShortcut.allowPaletteEditing, function(){return Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, (eagle): void => {SideWindow.toggleShown('left')}),
             new KeyboardShortcut("toggle_right_window", "Toggle right window", [new Key("ArrowRight")], "keydown", true, false, ['close','open'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {SideWindow.toggleShown('right')}),
             new KeyboardShortcut("toggle_bottom_window", "Toggle bottom window", [new Key("ArrowDown")], "keydown", true, false, ['close','open'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {SideWindow.toggleShown('bottom')}),
             new KeyboardShortcut("toggle_all_window", "Toggle all windows", [new Key("ArrowUp")], "keydown", true, false, ['close','open'], KeyboardShortcut.true, function(){return Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, function(){return Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, (eagle): void => {eagle.toggleWindows();}),
-            new KeyboardShortcut("open_settings", "Open setting", [new Key("o")], "keydown", true, false, ['menu','options'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.smartToggleModal('settingsModal');}),
             new KeyboardShortcut("open_help", "Open Online Documentation", [new Key("h")], "keydown", true, false, ['read me','guide','documentation'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.onlineDocs();}),
             new KeyboardShortcut("open_keyboard_shortcut_modal", "Open Keyboard Shortcut Modal", [new Key("k")], "keydown", true, false, ['shortcuts'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.smartToggleModal('shortcutsModal')}),
-            new KeyboardShortcut("open_parameter_table", "Open Parameter Table Modal", [new Key("t")], "keydown", true, false, ['fields','field','node','table'], KeyboardShortcut.true, KeyboardShortcut.notInStudentMode, KeyboardShortcut.notInStudentMode, (eagle): void => {ParameterTable.toggleTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}),
-            new KeyboardShortcut("open_graph_attributes_configuration_table", "Open Graph Attributes Configuration Table Modal", [new Key("t", KeyboardShortcut.Modifier.Shift)], "keydown", true, false, ['fields','field','node','graph','table','favourites'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {ParameterTable.toggleTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);}),
-            new KeyboardShortcut("open_graph_configurations_table", "Open Graph Configurations Table Modal", [new Key("t", KeyboardShortcut.Modifier.Alt), new Key("t", KeyboardShortcut.Modifier.Ctrl)], "keydown", true, false, ['config','graph','table'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {GraphConfigurationsTable.toggleTable();}),
+            new KeyboardShortcut("open_parameter_table", "Open Parameter Table", [new Key("t")], "keydown", true, false, ['fields','field','node','table'], KeyboardShortcut.true, KeyboardShortcut.notInStudentMode, KeyboardShortcut.notInStudentMode, (eagle): void => {ParameterTable.toggleTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}),
+            new KeyboardShortcut("open_graph_attributes_configuration_table", "Open Graph Attributes Configuration Table", [new Key("t", KeyboardShortcut.Modifier.Shift)], "keydown", true, false, ['fields','field','node','graph','table','favourites'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {ParameterTable.toggleTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);}),
+            new KeyboardShortcut("open_graph_configurations_table", "Open Graph Configurations Table", [new Key("t", KeyboardShortcut.Modifier.Alt), new Key("t", KeyboardShortcut.Modifier.Ctrl)], "keydown", true, false, ['config','graph','table'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {GraphConfigurationsTable.toggleTable();}),
             new KeyboardShortcut("open_repository_tab", "Open Repository", [new Key("1")], "keydown", true, false, ['tab','tabs','window','menu','right'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => { eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository)}),
             new KeyboardShortcut("open_translation_tab", "Open Translation", [new Key("3")], "keydown", true, false, ['tab','tabs','window','menu','right'], KeyboardShortcut.true, function(){return Setting.findValue(Setting.USER_TRANSLATOR_MODE) != Setting.TranslatorMode.Minimal}, function(){return Setting.findValue(Setting.USER_TRANSLATOR_MODE) != Setting.TranslatorMode.Minimal}, (eagle): void => { eagle.changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}),
             new KeyboardShortcut("open_hierarchy_tab", "Open Hierarchy", [new Key("2")], "keydown", true, false, ['tab','tabs','window','menu','right'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => { eagle.changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}),
@@ -318,33 +323,31 @@ export class KeyboardShortcut {
             
             // selection
             new KeyboardShortcut("select_all_in_graph", "Select all in graph", [new Key("a", KeyboardShortcut.Modifier.Ctrl)], "keydown", true, false, [''], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.graphNotEmpty, (eagle): void => { eagle.selectAllInGraph(); }),
-            new KeyboardShortcut("select_none_in_graph", "Select none in graph", [new Key("Escape")], "keydown", true, false, ['deselect'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.somethingIsSelected, (eagle): void => { eagle.selectNoneInGraph(); }),
+            new KeyboardShortcut("select_none_in_graph", "Select none in graph", [new Key("Escape")], "keydown", false, false, ['deselect'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.somethingIsSelected, (eagle): void => { eagle.selectNoneInGraph(); }),
 
             // checking and fixing
             new KeyboardShortcut("check_graph", "Check Graph", [new Key("!", KeyboardShortcut.Modifier.Shift)], "keydown", true, false, ['error','errors','fix'], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.showGraphErrors();}),
             new KeyboardShortcut("fix_all", "Fix all errors in graph", [new Key("f")], "keydown", true, false, [''], KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => { Errors.fixAll(); }),
             
             new KeyboardShortcut("quick_action", "Quick Action", [new Key("`"), new Key("\\")], "keydown", true, false, [''], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.quickActionsClosed, (eagle): void => { QuickActions.initiateQuickAction();}),
+
+            // help menu
+            new KeyboardShortcut("show_about_eagle", "About Eagle", [], "", false, false, [], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.showAbout();}),
+            new KeyboardShortcut("show_github_readme", "GitHub ReadMe", [], "", true, false, [], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.readme();}),
+            new KeyboardShortcut("submit_issue", "Submit GitHub Issue", [], "", true, false, ['bug','report'], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.submitIssue();}),
+            new KeyboardShortcut("open_keyboard_shortcuts", "Open Keyboard Shortcut", [], "", true, false, [], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {Utils.showShortcutsModal();}),
+            new KeyboardShortcut("show_online_docs", "Show Online Documentation", [], "", true, false, ['docs'], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.onlineDocs();}),
+            new KeyboardShortcut("show_settings", "Open setting", [new Key("o")], "keydown", true, false, ['menu','options'], KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.smartToggleModal('settingsModal');}),
+
+            // tutorials
+            new KeyboardShortcut("quick_intro_tutorial", "Start UI Quick Intro Tutorial", [], "", false, false, ['ui','interface'], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {TutorialSystem.initiateTutorial('Quick Start');}),
+            new KeyboardShortcut("graph_building_tutorial", "Start Graph Building Tutorial", [], "", false, false, [], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {TutorialSystem.initiateTutorial('Graph Building');}),
+            new KeyboardShortcut("graph_config_tutorial", "Start Graph Configuration Tutorial", [], "", false, false, [], KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {TutorialSystem.initiateTutorial('Graph Configurations');}),
          ];
     }
 
     static getQuickActions() : KeyboardShortcut[] {
         return [
-            KeyboardShortcut.QUICK_ACTION("quickIntroTut", "Start UI Quick Intro Tutorial", ['ui','interface'], (eagle): void => {TutorialSystem.initiateTutorial('Quick Start');}),
-            KeyboardShortcut.QUICK_ACTION("graphBuildingTut", "Start Graph Building Tutorial", [], (eagle): void => {TutorialSystem.initiateTutorial('Graph Building');}),
-            KeyboardShortcut.QUICK_ACTION("graphConfigTut", "Start Graph Configuration Tutorial", [], (eagle): void => {TutorialSystem.initiateTutorial('Graph Configurations');}),
-            KeyboardShortcut.QUICK_ACTION("createNewPaletteFromJson", "Create New Palette From Json", [], (eagle): void => {eagle.newPaletteFromJson();}),
-            KeyboardShortcut.QUICK_ACTION("loadFromRepository", "Load From Repository", [], (eagle): void => {SideWindow.setShown('right',true);eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository);}),
-            KeyboardShortcut.QUICK_ACTION("addToGraphFromJson", "Add To Graph From Json", [], (eagle): void => {eagle.addToGraphFromJson();}),
-            KeyboardShortcut.QUICK_ACTION("displayGraphAsJson", "Display Graph As Json", [], (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph);}),
-            KeyboardShortcut.QUICK_ACTION("aboutEagle", "About Eagle", [], (eagle): void => {eagle.showAbout();}),
-            KeyboardShortcut.QUICK_ACTION("gitHubReadme", "GitHub ReadMe", [], (eagle): void => {eagle.readme();}),
-            KeyboardShortcut.QUICK_ACTION("submitIssue", "Submit GitHub Issue", [], (eagle): void => {eagle.submitIssue();}),
-            KeyboardShortcut.QUICK_ACTION("graphInfo", "Show Graph Info", [], (eagle): void => {Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());}),
-            KeyboardShortcut.QUICK_ACTION("copyGraphUrl", "Copy Graph Url", [], (eagle): void => {eagle.copyGraphUrl();}),
-            KeyboardShortcut.QUICK_ACTION("addSelectedNodeToPalette", "Add Selected Nodes To Palette", [], (eagle): void => {eagle.addSelectedNodesToPalette('normal');}),
-            KeyboardShortcut.QUICK_ACTION("screenshotGraph", "Save Graph as PNG (Screenshot)", ['print','printScreen','screen','save','png'], (eagle): void => {eagle.saveGraphScreenshot();}),
-
             //docs
             KeyboardShortcut.QUICK_ACTION_DOCS("docs_load_a_palette", "Loading a Palette", ['documentation','help'], 'https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#loading-a-palette'),
             KeyboardShortcut.QUICK_ACTION_DOCS("docs_creating_a_graph", "Creating a Graph", ['documentation','help'], 'https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#creating-a-new-graph'),

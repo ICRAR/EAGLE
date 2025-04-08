@@ -122,14 +122,12 @@
                             </div>
                         </span>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: function(){displayObjectAsJson(Eagle.FileType.Graph);}">Display As Json</a>
-                        <a class="dropdown-item" id="screenshotGraph" href="#" data-bind="click: saveGraphScreenshot">Screenshot</a>
+                        <div data-bind="template: {name: 'navbar-menu-item-template', data: 'display_graph_as_json'}"></div>
+                        <div data-bind="template: {name: 'navbar-menu-item-template', data: 'screenshot_graph'}"></div>
                     <!-- /ko -->
                     <!-- ko ifnot: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                        <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save</a>
-                        <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load
-                            <span data-bind="text: KeyboardShortcut.idToText('open_graph_from_local_disk', true)"></span>
-                        </a>
+                        <div data-bind="template: {name: 'navbar-menu-item-template', data: 'open_graph_from_local_disk'}"></div>
+                        <div data-bind="template: {name: 'navbar-menu-item-template', data: 'save_graph_to_local_disk'}"></div>
                     <!-- /ko -->
                 </div>
             </li>
@@ -142,37 +140,31 @@
                 <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                     <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
-                            <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create
-                                <span data-bind="text: KeyboardShortcut.idToText('new_palette', true)"></span>
-                            </a>
-                            <a class="dropdown-item" id="createNewPaletteFromJson" href="#" data-bind="click: newPaletteFromJson">Create From Json</a>
+                            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'new_palette'}"></div>
+                            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'create_new_palette_from_json'}"></div>
                         </div>
                     </span>
                     <div class="dropdown-divider"></div>
                     <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
-                            <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Palette)}">Save</a>
-                            <a class="dropdown-item" id="commitToGitAsPalette" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Palette)}">Save As</a>
-                            <a class="dropdown-item" id="loadPaletteFromGitRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}">Load From Repository</a>
+                            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'save_palette_to_repo'}"></div>
+                            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'save_palette_to_repo_as'}"></div>
+                            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'open_palette_from_repo'}"></div>
                         </div>
                     </span>
                     <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
-                            <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save</a>
-                            <a class="dropdown-item" id="saveAsPalette" href="#" data-bind="click: function(){saveAsFileToLocal(Eagle.FileType.Palette)}">Save As</a>
-                            <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load
-                                <span data-bind="text: KeyboardShortcut.idToText('open_palette_from_local_disk', true)"></span>
-                            </a>
+                            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'save_palette_to_local_disk'}"></div>
+                            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'save_palette_to_local_disk_as'}"></div>
+                            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'open_palette_from_local_disk'}"></div>
                         </div>
                     </span>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="saveToPalette" href="#" data-bind="click: addGraphNodesToPalette">Add Graph Nodes</a>
+                    <div data-bind="template: {name: 'navbar-menu-item-template', data: 'add_graph_nodes_to_palette'}"></div>
                 <!-- /ko -->
                 <!-- ko ifnot: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                    <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load
-                        <span data-bind="text: KeyboardShortcut.idToText('open_palette_from_local_disk', true)"></span>
-                    </a>
-                    <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save</a>
+                    <div data-bind="template: {name: 'navbar-menu-item-template', data: 'open_palette_from_local_disk'}"></div>
+                    <div data-bind="template: {name: 'navbar-menu-item-template', data: 'save_palette_to_local_disk'}"></div>
                 <!-- /ko -->
                 </div>
             </li>
@@ -182,39 +174,37 @@
                     Config
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownConfig">
-                    <a class="dropdown-item" id="createNewConfig" href="#" data-bind="click: newConfig">New
-                        <span data-bind="text: KeyboardShortcut.idToText('new_config', true)"></span>
-                    </a>
+                    <div data-bind="template: {name: 'navbar-menu-item-template', data: 'new_config'}"></div>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="displayAllConfigs" href="#" data-bind="click: GraphConfigurationsTable.openTable">Display All
-                        <span data-bind="text: KeyboardShortcut.idToText('open_graph_configurations_table', true)"></span>
-                    </a>
-                </div>
+                    <div data-bind="template: {name: 'navbar-menu-item-template', data: 'open_graph_configurations_table'}"></div>
+                    <div data-bind="template: {name: 'navbar-menu-item-template', data: 'open_graph_attributes_configuration_table'}"></div>
+                </div>  
             </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle iconHoverEffect" href="#" id="navbarDropdownHelp" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Help
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownHelp">
-                    <a class="dropdown-item" id="about" href="#" data-bind="click: showAbout">About</a>
+                    <div data-bind="template: {name: 'navbar-menu-item-template', data: 'show_about_eagle'}"></div>
                     <span class="dropdown-item dropDropDownParent" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownTutorials">Tutorials
                         <div class="dropDropDown">
-                            <a class="dropdown-item" id="quickIntroTutBtn" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Quick Start')}">Quick Introduction</a>
-                            <a class="dropdown-item" id="graphBuildingTutBtn" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Graph Building')}">Graph Building</a>
-                            <a class="dropdown-item" id="graphConfigurationTutBtn" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Graph Configurations')}">Graph Configurations</a>
+                            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'quick_intro_tutorial'}"></div>
+                            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'graph_building_tutorial'}"></div>
+                            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'graph_config_tutorial'}"></div>
                         </div>
                     </span>
-                    <a class="dropdown-item" id="onlineDocs" href="#" data-bind="click: onlineDocs">Online Docs</a>
-                    <a class="dropdown-item" id="readme" href="#" data-bind="click: readme">GitHub README</a>
-                    <a class="dropdown-item" id="submitIssue" href="#" data-bind="click: submitIssue">Submit Issue</a>
-                    <a class="dropdown-item" id="keyboardShortcuts" href="#" data-bind="click: Utils.showShortcutsModal">Keyboard Shortcuts
-                        <span data-bind="text: KeyboardShortcut.idToText('open_keyboard_shortcut_modal', true)"></span>
-                    </a>
+                    <div data-bind="template: {name: 'navbar-menu-item-template', data: 'show_online_docs'}"></div>
+                    <div data-bind="template: {name: 'navbar-menu-item-template', data: 'show_github_readme'}"></div>
+                    <div data-bind="template: {name: 'navbar-menu-item-template', data: 'submit_issue'}"></div>
+                    <div data-bind="template: {name: 'navbar-menu-item-template', data: 'open_keyboard_shortcuts'}"></div>
                 </div>
             </li>
+            <!--
             <a id="settings" class="nav-link iconHoverEffect" data-bs-placement="bottom" alt="Settings" href="#" data-bind="click: Utils.showSettingsModal, eagleTooltip: 'Settings'">
                 <i class="icon-cog md-18"></i>
             </a>
+            -->
+            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'show_settings'}"></div>
         </ul>
 
     </div>

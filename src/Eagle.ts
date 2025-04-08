@@ -2794,8 +2794,6 @@ export class Eagle {
     }
 
     onlineDocs = () : void => {
-        console.log("online help");
-
         // open in new tab:
         window.open(
           'https://eagle-dlg.readthedocs.io/',
@@ -2804,8 +2802,6 @@ export class Eagle {
     }
 
     readme = () : void => {
-        console.log("readme");
-
         // open in new tab:
         window.open(
           'https://github.com/ICRAR/EAGLE/blob/master/README.md',
@@ -2814,8 +2810,6 @@ export class Eagle {
     }
 
     submitIssue = () : void => {
-        console.log("submitIssue");
-
         // automatically add the EAGLE version and commit hash to the body of the new issue
         let bodyText: string = "\n\nVersion: "+(<any>window).version+"\nCommit Hash: "+(<any>window).commit_hash;
 
@@ -2953,7 +2947,7 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    duplicateSelection = (mode:string) : void => {
+    duplicateSelection = (mode: "normal"|"contextMenuRequest") : void => {
         // console.log("duplicateSelection()", this.selectedObjects().length, "objects");
 
         if(this.selectedObjects().length === 0){
@@ -3260,8 +3254,7 @@ export class Eagle {
         }
     }
 
-    // TODO: mode enum?
-    addSelectedNodesToPalette = (mode:string) : void => {
+    addSelectedNodesToPalette = (mode: "normal"|"contextMenuRequest") : void => {
         const nodes = []
 
         if(mode === 'normal'){
