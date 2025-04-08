@@ -15,13 +15,15 @@ newTut.newTutStep("Tutorials", "All the of our tutorials, including this one, wi
 
 newTut.newTutStep("Read The Docs", "This is a link to our in depth documentation on Read The Docs.", function(){return $("#onlineDocs")})
 .setPreFunction(function(){$("#navTutorials").find('.dropDropDown').removeClass('forceShow')}) //hiding the contents of the tutorials drop down
+.setBackPreFunction(function(){$('.modal').modal("hide");}) //hide the modal in case it has been opened by the user
 
-newTut.newTutStep("Keyboard Shortcuts", "Eagle has many keyboard shortcuts to boost productivity, this is the keyboard shortcut cheat sheet. We encourage to note frequently taken actions and learning the keyboard shortcuts for them as you go.", function(){return $("#keyboardShortcuts")})
+newTut.newTutStep("Keyboard Shortcuts", "Eagle has many keyboard shortcuts to boost productivity, this is the cheat sheet. The shortcut for this is [K]", function(){return $("#keyboardShortcuts")})
+.setBackPreFunction(function(){$('.modal').modal("hide");}) //hide the modal in case it has been opened by the user
 
-newTut.newTutStep("Keyboard Shortcuts", "Notice, navbar functions will display their keyboard shortcut if one is available. This can often also seen in the tooltip, when hovering on elements in the ui.", function(){return $("#keyboardShortcuts")})
-.setBackPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow');$("#navTutorials").find('.dropDropDown').addClass('forceShow')}) //keeping the navbar graph dropdown open and showing the contents of the tutorials drop down
+newTut.newTutStep("Quick run", "Another important tool to help with quick use of functions and keyboard shortcuts is the Quick actions menu.", function(){return $("#quickAction")})
+.setPreFunction(function(){$('.forceShow').removeClass('forceShow');$('.modal').modal("hide");}) //allowing the help section in the navbar to close and closing any modals in case they are open
 
-newTut.newTutStep("Quick run", "Another important tool to help with finding functions and keyboard shortcuts is the Quick actions menu", function(){return $("#logicalGraphParent")})
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().removeClass('forceShow')}) //keeping the navbar graph dropdown open and showing the contents of the tutorials drop down
+newTut.newTutStep("Tooltips", "You can get more information about most UI Elements by hovering on them. ", function(){return $("#quickAction")})
+.setPreFunction(function(){$("#quickAction").trigger('mouseenter');}) //allowing the help section in the navbar to close and closing any modals in case they are open
 
 newTut.newTutStep("Well Done!", "You have completed the quick introduction tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance. To continue to our tutorial on graph building press <a  onclick='TutorialSystem.initiateTutorial(`Graph Building`)' href='#'>here!</a>", function(){return $("#logicalGraphParent")})

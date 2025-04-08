@@ -18,6 +18,11 @@
 
         <ul id="navBarToolBar" class="nav navbar-nav navbar-center">
 
+            <!-- quick run  -->
+            <button id="quickAction" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: QuickActions.initiateQuickAction, eagleTooltip: 'Search and run functions or look for documentation ' + KeyboardShortcut.idToText('quick_action', true)" >
+                <i class="md-18 material-icons">smart_button</i>
+            </button>
+
             <!-- navbar category -->
             <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example">
                 <span class="navBarToolBarTitle">Graph</span>

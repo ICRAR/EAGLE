@@ -1892,9 +1892,11 @@ ul.nav.navbar-nav .dropdown-item{
     color: white;
 }
 
-ul.nav.navbar-nav .dropdown-item:hover{
+ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
     background-color: #001d3b;
     color: white;
+    border:none;
+    outline: none;
 }
 
 #translationMenu .accordion button{
@@ -2064,6 +2066,20 @@ ul.nav.navbar-nav .dropdown-item:hover{
     .navbar-nav.navbar-center {
         left: 40%;
     }
+}
+
+#quickAction{
+    padding: 0px 6px;
+    width: 40px;
+    position: relative;
+}
+
+#quickAction i {
+    font-size:34px;
+    position:absolute;
+    transform:translate(-50%, -50%);
+    top:50%;
+    left:50%;
 }
 
 .template-title {
