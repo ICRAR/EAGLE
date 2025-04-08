@@ -296,7 +296,7 @@ export class KeyboardShortcut {
             new KeyboardShortcut("center_graph", "Center Graph", [new Key("c")], "keydown", true, false, ['canvas','reset','controls'], "filter_center_focus", KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {eagle.centerGraph();}),
             new KeyboardShortcut("center_construct_around_children", "Center Construct Around Children", [new Key("c", KeyboardShortcut.Modifier.Alt)], "keydown", true, false, ['construct','center','fit'], "", KeyboardShortcut.true, KeyboardShortcut.true, KeyboardShortcut.true, (eagle): void => {GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())}),
             new KeyboardShortcut("check_for_component_updates", "Check for Component Updates", [new Key("q")], "keydown", true, false, ['nodes'], "", KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, function(){return KeyboardShortcut.graphNotEmpty && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, (eagle): void => { eagle.checkForComponentUpdates(); }),
-            new KeyboardShortcut("screenshot_graph","Save Graph as PNG (Screenshot)", [], "", true, false, ['print','printScreen','screen','save','png'], "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraphScreenshot();}),
+            new KeyboardShortcut("screenshot_graph","Save Graph as PNG (Screenshot)", [], "", true, false, ['print','printScreen','screen','save','png'], "photo_camera", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraphScreenshot();}),
             new KeyboardShortcut("show_graph_info", "Show Graph Info", [], "", true, false, [], "info", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());}),
             new KeyboardShortcut("copy_graph_url", "Copy Graph Url", [], "", true, false, [], "content_copy", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.copyGraphUrl();}),
 
@@ -335,7 +335,7 @@ export class KeyboardShortcut {
 
             // help menu
             new KeyboardShortcut("show_about_eagle", "About Eagle", [], "", false, false, [], "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.showAbout();}),
-            new KeyboardShortcut("show_github_readme", "GitHub ReadMe", [], "", true, false, [], "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.readme();}),
+            new KeyboardShortcut("show_github_readme", "Show GitHub ReadMe", [], "", true, false, [], "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.readme();}),
             new KeyboardShortcut("submit_issue", "Submit GitHub Issue", [], "", true, false, ['bug','report'], "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.submitIssue();}),
             new KeyboardShortcut("open_keyboard_shortcuts", "Open Keyboard Shortcut", [], "", true, false, [], "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {Utils.showShortcutsModal();}),
             new KeyboardShortcut("show_online_docs", "Show Online Documentation", [], "", true, false, ['docs'], "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.onlineDocs();}),
