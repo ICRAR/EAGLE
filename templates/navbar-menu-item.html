@@ -1,5 +1,5 @@
 <!-- ko with: KeyboardShortcut.findById($data) -->
-<a class="dropdown-item" href="#" data-bind="click: function(){run($root)}, attr: {id: id}">
+<a class="dropdown-item" href="#" data-bind="click: function(){run($root)}, attr: {id: 'menu_'+id}">
     <span data-bind="text: name"></span>
     <span data-bind="text: getText(true)"></span>
 </a>

@@ -1,5 +1,5 @@
 <!-- ko with: KeyboardShortcut.findById($data) -->
-<button class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="attr: {id: id}, click: function(){run($root)}, eagleTooltip: name + ' ' + getText(true)">
+<button class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="attr: {id: 'button_'+id}, click: function(){run($root)}, eagleTooltip: name + ' ' + getText(true)">
     <!-- ko if: icon.startsWith('icon-')-->
     <i class="md-18" data-bind="class: icon"></i>
     <!-- /ko -->

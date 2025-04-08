@@ -94,7 +94,7 @@ newTut.newTutStep("Creating Graph Configurations", "A graph may have many config
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(200)
 
-newTut.newTutStep("Graph Configurations", "You can view the graph configuration fields by opening the Graph Configurations table here. <em>click to continue</em>", function(){return $("#open_graph_attributes_configuration_table")})
+newTut.newTutStep("Graph Configurations", "You can view the graph configuration fields by opening the Graph Configurations table here. <em>click to continue</em>", function(){return $("#button_open_graph_attributes_configuration_table")})
 .setType(TutorialStep.Type.Press)
 // .setPreFunction(function(){$('.parameterTable').modal('hide')})
 
