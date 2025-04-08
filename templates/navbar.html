@@ -191,7 +191,9 @@
                     <div data-bind="template: {name: 'navbar-menu-item-template', data: 'open_keyboard_shortcuts'}"></div>
                 </div>
             </li>
-            <div data-bind="template: {name: 'navbar-button-template', data: 'show_settings'}"></div>
+            <a id="settings" class="nav-link iconHoverEffect" data-bs-placement="bottom" alt="Settings" href="#" data-bind="click: Utils.showSettingsModal, eagleTooltip: 'Settings'">
+                <i class="icon-cog md-18"></i>
+            </a>
         </ul>
 
     </div>
