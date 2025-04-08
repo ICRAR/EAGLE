@@ -21,18 +21,10 @@
             <!-- navbar category -->
             <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example">
                 <span class="navBarToolBarTitle">Graph</span>
-                <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
-                    <i class="material-icons md-18">info</i>
-                </button>
-                <button id="openGraphConfigurationTable" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Attributes Configuration ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
-                    <i class="md-18 icon-key_attribute_table"></i>
-                </button>
-                <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >
-                    <i class="material-icons md-18">content_copy</i>
-                </button>
-                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, eagleTooltip: 'Center Graph ' + KeyboardShortcut.idToText('center_graph', true)" >
-                    <i class="material-icons md-18">filter_center_focus</i>
-                </button>
+                <div data-bind="template: {name: 'navbar-button-template', data: 'show_graph_info'}"></div>
+                <div data-bind="template: {name: 'navbar-button-template', data: 'open_graph_attributes_configuration_table'}"></div>
+                <div data-bind="template: {name: 'navbar-button-template', data: 'copy_graph_url'}"></div>
+                <div data-bind="template: {name: 'navbar-button-template', data: 'center_graph'}"></div>
             </div>
 
             <!-- navbar category -->
@@ -199,12 +191,7 @@
                     <div data-bind="template: {name: 'navbar-menu-item-template', data: 'open_keyboard_shortcuts'}"></div>
                 </div>
             </li>
-            <!--
-            <a id="settings" class="nav-link iconHoverEffect" data-bs-placement="bottom" alt="Settings" href="#" data-bind="click: Utils.showSettingsModal, eagleTooltip: 'Settings'">
-                <i class="icon-cog md-18"></i>
-            </a>
-            -->
-            <div data-bind="template: {name: 'navbar-menu-item-template', data: 'show_settings'}"></div>
+            <div data-bind="template: {name: 'navbar-button-template', data: 'show_settings'}"></div>
         </ul>
 
     </div>
