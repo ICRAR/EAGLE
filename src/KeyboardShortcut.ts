@@ -307,6 +307,7 @@ export class KeyboardShortcut {
         }
     }
 
+    // TODO: check all tags, remove words that appear in the name, since I think they are already part of the search?
     static shortcuts: KeyboardShortcut[] = [
         // new
         new KeyboardShortcut({
@@ -365,7 +366,12 @@ export class KeyboardShortcut {
             canRun: KeyboardShortcut.allowPaletteEditing,
             run: (eagle): void => {eagle.newPaletteFromJson();}
         }),
-            new KeyboardShortcut("display_graph_as_json", "Display Graph As Json", [], "", true, false, ['display','graph','json'], "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph);}),
+        new KeyboardShortcut({
+            id: "display_graph_as_json",
+            name: "Display Graph As Json",
+            tags: ['display','graph','json'],
+            run: (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph);}
+        }),
 
             // load/save
             // TODO: this one (open_graph_from_repo) does almost nothing! we should have a real modal
