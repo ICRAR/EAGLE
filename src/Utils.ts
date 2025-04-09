@@ -1770,7 +1770,7 @@ export class Utils {
         const displayShortcuts : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void} []=[];
         const eagle: Eagle = Eagle.getInstance();
 
-        for (const object of Eagle.shortcuts){
+        for (const object of KeyboardShortcut.shortcuts){
             // skip if shortcut should not be displayed
             if (!object.shortcutListDisplay(eagle)){
                 continue;

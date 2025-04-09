@@ -10,11 +10,20 @@ import { GraphRenderer } from './GraphRenderer';
 import { GraphConfigurationsTable } from './GraphConfigurationsTable';
 import { SideWindow } from './SideWindow';
 
+export enum Modifier {
+    Alt = "Alt",
+    Ctrl = "Ctrl",
+    Meta = "Meta",
+    Shift = "Shift",
+    None = "None",
+    MetaShift = "Meta + Shift",
+}
+
 export class Key {
     key: string;
-    modifier: KeyboardShortcut.Modifier;
+    modifier: Modifier;
 
-    constructor(key: string, modifier: KeyboardShortcut.Modifier = KeyboardShortcut.Modifier.None){
+    constructor(key: string, modifier: Modifier = Modifier.None){
         this.key = key;
         this.modifier = modifier;
     }
@@ -107,7 +116,7 @@ export class KeyboardShortcut {
             let result = key.key.charAt(0).toUpperCase() + key.key.slice(1);
 
             // prepend modifier if required
-            if (key.modifier !== KeyboardShortcut.Modifier.None){
+            if (key.modifier !== Modifier.None){
                 result = key.modifier + "+" + result;
             }
 
@@ -218,7 +227,7 @@ export class KeyboardShortcut {
         const inputElementInFocus = $("input,textarea").is(":focus");
 
         // loop through all the keyboard shortcuts here
-        for (const shortcut of Eagle.shortcuts){
+        for (const shortcut of KeyboardShortcut.shortcuts){
             // check that the event is of the correct type
             if (e.type !== shortcut.eventType){
                 continue;
@@ -242,33 +251,33 @@ export class KeyboardShortcut {
 
                 // abort if modifier keys are not being held
                 switch(key.modifier){
-                    case KeyboardShortcut.Modifier.None:
+                    case Modifier.None:
                         if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey){
                             continue;
                         }
                         break;
-                    case KeyboardShortcut.Modifier.Alt:
+                    case Modifier.Alt:
                         //alt seems useless as is because mac uses that key to type special characters("alt + i" cannot be used as a shortcut because the event key passed would be "ˆ")
                         if (!e.altKey || e.shiftKey || e.metaKey || e.ctrlKey){
                             continue;
                         }
                         break;
-                    case KeyboardShortcut.Modifier.Ctrl:
+                    case Modifier.Ctrl:
                         if (!e.ctrlKey || e.metaKey || e.altKey || e.shiftKey){
                             continue;
                         }
                         break;
-                    case KeyboardShortcut.Modifier.Meta:
+                    case Modifier.Meta:
                         if (!e.metaKey || e.altKey || e.shiftKey || e.ctrlKey){
                             continue;
                         }
                         break;
-                    case KeyboardShortcut.Modifier.Shift:
+                    case Modifier.Shift:
                         if (!e.shiftKey || e.altKey || e.metaKey || e.ctrlKey){
                             continue;
                         }
                         break;
-                    case KeyboardShortcut.Modifier.MetaShift:
+                    case Modifier.MetaShift:
                         if (!e.shiftKey || !e.metaKey || e.ctrlKey || e.altKey){
                             continue;
                         }
@@ -298,35 +307,64 @@ export class KeyboardShortcut {
         }
     }
 
-    static getShortcuts() : KeyboardShortcut[] {
-        return [
-            // new
-            new KeyboardShortcut({
-                id: "new_graph",
-                name: "New Graph",
-                keys: [new Key("n")],
-                eventType: "keydown",
-                tags: ['create','canvas'],
-                shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
-                canRun: KeyboardShortcut.allowGraphEditing,
-                run: (eagle): void => {eagle.newLogicalGraph();}
-            }),
-            new KeyboardShortcut({
-                id: "new_palette",
-                name: "New palette",
-                keys: [new Key("n", KeyboardShortcut.Modifier.Shift)],
-                eventType: "keydown",
-                tags: ['create','palettes','pallette'],
-                shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
-                canRun: KeyboardShortcut.allowPaletteEditing,
-                run: (eagle): void => {eagle.newPalette();}
-            }),
-            new KeyboardShortcut("new_config", "New config", [new Key("n", KeyboardShortcut.Modifier.Alt), new Key("n", KeyboardShortcut.Modifier.Ctrl)], "keydown", true, false, ['create','configs','config'], "", KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newConfig();}),
+    static shortcuts: KeyboardShortcut[] = [
+        // new
+        new KeyboardShortcut({
+            id: "new_graph",
+            name: "New Graph",
+            keys: [new Key("n")],
+            eventType: "keydown",
+            tags: ['create','canvas'],
+            shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
+            canRun: KeyboardShortcut.allowGraphEditing,
+            run: (eagle): void => {eagle.newLogicalGraph();}
+        }),
+        new KeyboardShortcut({
+            id: "new_palette",
+            name: "New palette",
+            keys: [new Key("n", Modifier.Shift)],
+            eventType: "keydown",
+            tags: ['create','palettes','pallette'],
+            shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
+            canRun: KeyboardShortcut.allowPaletteEditing,
+            run: (eagle): void => {eagle.newPalette();}
+        }),
+        new KeyboardShortcut({
+            id: "new_config",
+            name: "New config",
+            keys: [new Key("n", Modifier.Alt), new Key("n", Modifier.Ctrl)],
+            eventType: "keydown",
+            tags: ['create','configs','config'],
+            shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
+            canRun: KeyboardShortcut.allowPaletteEditing, // TODO: this and the line above seem wrong?
+            run: (eagle): void => {eagle.newConfig();}
+        }),
 
-            // json
-            new KeyboardShortcut("add_to_graph_from_json", "Add To Graph From Json", [], "", true, false, ['add','graph','json'], "", KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.addToGraphFromJson();}),
-            new KeyboardShortcut("create_new_graph_from_json", "Create New Graph From Json", [], "", true, false, ['create','graph','json'], "", KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.newLogicalGraphFromJson();}),
-            new KeyboardShortcut("create_new_palette_from_json", "Create New Palette From Json", [], "", true, false, ['create','palette','json'], "", KeyboardShortcut.true, KeyboardShortcut.allowPaletteEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newPaletteFromJson();}),
+        // json
+        new KeyboardShortcut({
+            id: "add_to_graph_from_json",
+            name: "Add To Graph From Json",
+            tags: ['add','graph','json'],
+            shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
+            canRun: KeyboardShortcut.allowGraphEditing,
+            run: (eagle): void => {eagle.addToGraphFromJson();}
+        }),
+        new KeyboardShortcut({
+            id: "create_new_graph_from_json",
+            name: "Create New Graph From Json",
+            tags: ['create','graph','json'],
+            shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
+            canRun: KeyboardShortcut.allowGraphEditing,
+            run: (eagle): void => {eagle.newLogicalGraphFromJson();}
+        }),
+        new KeyboardShortcut({
+            id: "create_new_palette_from_json",
+            name: "Create New Palette From Json",
+            tags: ['create','palette','json'],
+            shortcutListDisplay: KeyboardShortcut.allowPaletteEditing,
+            canRun: KeyboardShortcut.allowPaletteEditing,
+            run: (eagle): void => {eagle.newPaletteFromJson();}
+        }),
             new KeyboardShortcut("display_graph_as_json", "Display Graph As Json", [], "", true, false, ['display','graph','json'], "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph);}),
 
             // load/save
@@ -417,7 +455,6 @@ export class KeyboardShortcut {
             new KeyboardShortcut("graph_building_tutorial", "Start Graph Building Tutorial", [], "", false, false, [], "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {TutorialSystem.initiateTutorial('Graph Building');}),
             new KeyboardShortcut("graph_config_tutorial", "Start Graph Configuration Tutorial", [], "", false, false, [], "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {TutorialSystem.initiateTutorial('Graph Configurations');}),
          ];
-    }
 
     static getQuickActions() : KeyboardShortcut[] {
         return [
@@ -450,7 +487,7 @@ export class KeyboardShortcut {
     }
 
     static findById(id: string) : KeyboardShortcut {
-        for (const shortcut of Eagle.shortcuts){
+        for (const shortcut of KeyboardShortcut.shortcuts){
             if (shortcut.id === id){
                 return shortcut;
             }
@@ -507,15 +544,6 @@ export class KeyboardShortcut {
 }
 
 export namespace KeyboardShortcut{
-    export enum Modifier {
-        Alt = "Alt",
-        Ctrl = "Ctrl",
-        Meta = "Meta",
-        Shift = "Shift",
-        None = "None",
-        MetaShift = "Meta + Shift",
-    }
-
     export enum Platform {
         All = "All",
         Linux = "Linux",

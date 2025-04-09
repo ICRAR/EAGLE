@@ -131,7 +131,6 @@ export class Eagle {
         Eagle._instance = this;
         Eagle.settings = Setting.getSettings();
         UiModeSystem.initialise()
-        Eagle.shortcuts = KeyboardShortcut.getShortcuts();
 
         this.palettes = ko.observableArray();
         this.logicalGraph = ko.observable(null);
