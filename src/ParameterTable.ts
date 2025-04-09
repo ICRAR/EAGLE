@@ -655,11 +655,11 @@ export class ParameterTable {
         }, 100);
     }
 
-    static duplicateParameter = (index:number) : void => {
+    static duplicateParameter = (index:number,fieldId:string) : void => {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
         const eagle = Eagle.getInstance()
 
-        const copiedField = eagle.selectedNode().getFields()[index].clone()
+        const copiedField = eagle.selectedNode().findFieldById(fieldId).clone()
         copiedField.setId(Utils.generateFieldId())
         copiedField.setDisplayText(copiedField.getDisplayText()+' copy')
         if(ParameterTable.hasSelection()){
@@ -685,11 +685,11 @@ export class ParameterTable {
         }, 100);
     }
 
-    static duplicateTableRow = (index:number) : void => {
+    static duplicateTableRow = (index:number, fieldId:string) : void => {
         const eagle = Eagle.getInstance()
 
-        ParameterTable.duplicateParameter(index)
-        eagle.selectedObjects.valueHasMutated()
+        ParameterTable.duplicateParameter(index, fieldId)
+        // eagle.selectedObjects.valueHasMutated()
         eagle.flagActiveFileModified()
 
         //update the parameter table fields array
