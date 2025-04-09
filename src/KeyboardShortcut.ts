@@ -311,7 +311,16 @@ export class KeyboardShortcut {
                 canRun: KeyboardShortcut.allowGraphEditing,
                 run: (eagle): void => {eagle.newLogicalGraph();}
             }),
-            new KeyboardShortcut("new_palette", "New palette", [new Key("n", KeyboardShortcut.Modifier.Shift)], "keydown", true, false, ['create','palettes','pallette'], "", KeyboardShortcut.true,KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newPalette();}),
+            new KeyboardShortcut({
+                id: "new_palette",
+                name: "New palette",
+                keys: [new Key("n", KeyboardShortcut.Modifier.Shift)],
+                eventType: "keydown",
+                tags: ['create','palettes','pallette'],
+                shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
+                canRun: KeyboardShortcut.allowPaletteEditing,
+                run: (eagle): void => {eagle.newPalette();}
+            }),
             new KeyboardShortcut("new_config", "New config", [new Key("n", KeyboardShortcut.Modifier.Alt), new Key("n", KeyboardShortcut.Modifier.Ctrl)], "keydown", true, false, ['create','configs','config'], "", KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newConfig();}),
 
             // json
