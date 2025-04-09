@@ -299,6 +299,7 @@ export class KeyboardShortcut {
             new KeyboardShortcut("screenshot_graph","Save Graph as PNG (Screenshot)", [], "", true, false, ['print','printScreen','screen','save','png'], "photo_camera", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.graphNotEmpty, (eagle): void => {eagle.saveGraphScreenshot();}),
             new KeyboardShortcut("show_graph_info", "Show Graph Info", [], "", true, false, [], "info", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());}),
             new KeyboardShortcut("copy_graph_url", "Copy Graph Url", [], "", true, false, [], "content_copy", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {eagle.copyGraphUrl();}),
+            new KeyboardShortcut("toggle_all_palettes", "Toggle All Palettes", [], "", true, false, ['open','close','collapse','expand','palette'], "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle):void => {eagle.toggleAllPalettes();}),
 
             // window management
             new KeyboardShortcut("toggle_left_window", "Toggle left window", [new Key("ArrowLeft")], "keydown", true, false, ['close','open'], "", KeyboardShortcut.true, KeyboardShortcut.allowPaletteEditing, function(){return Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, (eagle): void => {SideWindow.toggleShown('left')}),
