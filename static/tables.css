@@ -107,7 +107,7 @@
 }
 
 .parameter_table_encoding{
-    width: 80px;
+    width: 90px;
 }
 
 .parameter_table_node_name{
@@ -260,6 +260,7 @@
 .eagleTableWrapper th, .eagleTableWrapper td, .eagleTableWrapper input{
     font-size: 14px;
     position: relative;
+    cursor: pointer;
 }
 
 .showBothValues{
@@ -621,4 +622,9 @@
 
 #graph_configurations_table_actions_column{
     width: 80px;
+}
+
+.paramsTableWrapper th i.tableSortIcon{
+    font-size:15px;
+    pointer-events: none;
 }
