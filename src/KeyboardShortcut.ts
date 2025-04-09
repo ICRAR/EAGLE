@@ -35,20 +35,62 @@ export class KeyboardShortcut {
     canRun: (eagle: Eagle) => boolean;
     run: (eagle: Eagle, event: KeyboardEvent) => void;
 
-    constructor(id: string, name: string, keys: Key[], eventType: string, warnWhenCantRun: boolean, inputOK: boolean, tags: string[], icon: string, quickActionDisplay: (eagle: Eagle) => boolean, shortcutListDisplay: (eagle: Eagle) => boolean, canRun: (eagle: Eagle) => boolean, run: (eagle: Eagle, event: KeyboardEvent) => void){
-        this.id = id;
-        this.name = name;
-        this.keys = keys;
-        this.eventType = eventType;
-        this.warnWhenCantRun = warnWhenCantRun;
-        this.inputOK = inputOK;
-        this.tags = tags;
-        this.icon = icon;
+    constructor(options: KeyboardShortcut.Options){
+        this.id = options.id;
+        this.name = options.name;
+        this.run = options.run;
 
-        this.quickActionDisplay = quickActionDisplay;
-        this.shortcutListDisplay = shortcutListDisplay;
-        this.canRun = canRun;
-        this.run = run;
+        if ("keys" in options){
+            this.keys = options.keys;
+        } else {
+            this.keys = [];
+        }
+        if ("eventType" in options){
+            this.eventType = options.eventType;
+        } else {
+            // TODO: maybe we don't need this, if keys is empty, set to "", if keys is not empty, set to "keydown"?
+            this.eventType = "";
+        }
+        if ("warnWhenCantRun" in options){
+            this.warnWhenCantRun = options.warnWhenCantRun;
+        } else {
+            this.warnWhenCantRun = true;
+        }
+        if ("inputOK" in options){
+            this.inputOK = options.inputOK;
+        } else {
+            this.inputOK = false;
+        }
+        if ("tags" in options){
+            this.tags = options.tags;
+        } else {
+            this.tags = [];
+        }
+        if ("icon" in options){
+            this.icon = options.icon;
+        } else {
+            // TODO: maybe some placeholder icon?
+            this.icon = "";
+        }
+        if ("quickActionDisplay" in options){
+            this.quickActionDisplay = options.quickActionDisplay;
+        } else {
+            this.quickActionDisplay = KeyboardShortcut.true;
+        }
+        if ("shortcutListDisplay" in options){
+            this.shortcutListDisplay = options.shortcutListDisplay;
+        } else {
+            // TODO: maybe change this to true, we're moving towards always displaying the actions,
+            // even when they are not runnable, we'll rely on the checks within the function to notify users
+            // TODO: does this need to be a function then, maybe can just be a boolean type
+            this.shortcutListDisplay = KeyboardShortcut.false;
+        }
+        if ("canRun" in options){
+            this.canRun = options.canRun;
+        } else {
+            // TODO: we'll probably replace this with permissions checking
+            this.canRun = KeyboardShortcut.true;
+        }
     }
 
     getText(addBrackets: boolean): string {
@@ -136,11 +178,21 @@ export class KeyboardShortcut {
     }
 
     static QUICK_ACTION(id: string, name: string, tags: string[], run: (eagle: Eagle, event: KeyboardEvent) => void): KeyboardShortcut {
-        return new KeyboardShortcut(id, name, [], "keydown", true, false, tags, "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, run);
+        return new KeyboardShortcut({
+            id: id,
+            name: name,
+            tags: tags,
+            run: run
+        });
     }
 
     static QUICK_ACTION_DOCS(id: string, name: string, tags: string[], url: string): KeyboardShortcut {
-        return new KeyboardShortcut(id, name, [], "keydown", true, false, tags, "", KeyboardShortcut.true, KeyboardShortcut.false, KeyboardShortcut.true, (eagle): void => {QuickActions.quickOpenDocsLink(url);});
+        return new KeyboardShortcut({
+            id: id,
+            name: name,
+            tags: tags,
+            run: (eagle): void => {QuickActions.quickOpenDocsLink(url);}
+        });
     }
 
     static processKey(e: KeyboardEvent) : void {
@@ -249,7 +301,16 @@ export class KeyboardShortcut {
     static getShortcuts() : KeyboardShortcut[] {
         return [
             // new
-            new KeyboardShortcut("new_graph", "New Graph", [new Key("n")], "keydown", true, false, ['create','canvas'], "", KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowGraphEditing, (eagle): void => {eagle.newLogicalGraph();}),
+            new KeyboardShortcut({
+                id: "new_graph",
+                name: "New Graph",
+                keys: [new Key("n")],
+                eventType: "keydown",
+                tags: ['create','canvas'],
+                shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
+                canRun: KeyboardShortcut.allowGraphEditing,
+                run: (eagle): void => {eagle.newLogicalGraph();}
+            }),
             new KeyboardShortcut("new_palette", "New palette", [new Key("n", KeyboardShortcut.Modifier.Shift)], "keydown", true, false, ['create','palettes','pallette'], "", KeyboardShortcut.true,KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newPalette();}),
             new KeyboardShortcut("new_config", "New config", [new Key("n", KeyboardShortcut.Modifier.Alt), new Key("n", KeyboardShortcut.Modifier.Ctrl)], "keydown", true, false, ['create','configs','config'], "", KeyboardShortcut.true, KeyboardShortcut.allowGraphEditing, KeyboardShortcut.allowPaletteEditing, (eagle): void => {eagle.newConfig();}),
 
@@ -452,5 +513,20 @@ export namespace KeyboardShortcut{
         Mac = "Mac",
         Windows = "Windows",
         Unknown = "Unknown"
+    }
+
+    export interface Options {
+        id: string,
+        name: string,
+        keys?: Key[],
+        eventType?: string,
+        warnWhenCantRun?: boolean,
+        inputOK?: boolean,
+        tags?: string[],
+        icon?: string,
+        quickActionDisplay?: (eagle: Eagle) => boolean,
+        shortcutListDisplay?: (eagle: Eagle) => boolean,
+        canRun?: (eagle: Eagle) => boolean,
+        run: (eagle: Eagle, event: KeyboardEvent) => void
     }
 }
