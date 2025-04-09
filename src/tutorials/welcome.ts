@@ -20,10 +20,14 @@ newTut.newTutStep("Read The Docs", "This is a link to our in depth documentation
 newTut.newTutStep("Keyboard Shortcuts", "Eagle has many keyboard shortcuts to boost productivity, this is the cheat sheet. The shortcut for this is [K]", function(){return $("#keyboardShortcuts")})
 .setBackPreFunction(function(){$('.modal').modal("hide");}) //hide the modal in case it has been opened by the user
 
-newTut.newTutStep("Quick run", "Another important tool to help with quick use of functions and keyboard shortcuts is the Quick actions menu.", function(){return $("#quickAction")})
+newTut.newTutStep("Quick Actions", "Another important tool to help with quick use of functions and keyboard shortcuts is the Quick actions menu.", function(){return $("#quickAction")})
 .setPreFunction(function(){$('.forceShow').removeClass('forceShow');$('.modal').modal("hide");}) //allowing the help section in the navbar to close and closing any modals in case they are open
+.setBackPreFunction(function(){$("#quickAction").trigger('mouseleave');}) //hide the quickaction tooltip
 
-newTut.newTutStep("Tooltips", "You can get more information about most UI Elements by hovering on them. ", function(){return $("#quickAction")})
+newTut.newTutStep("Tooltips", "You can get more information about most UI Elements by hovering on them. This is a shortcut to remember!", function(){return $("#quickAction")})
 .setPreFunction(function(){$("#quickAction").trigger('mouseenter');}) //allowing the help section in the navbar to close and closing any modals in case they are open
+
+newTut.newTutStep("Status Bar", "This section dipslays some of the major actions available in the current UI state. This information will change when selecting different things ", function(){return $("#quickAction")})
+.setPreFunction(function(){$("#quickAction").trigger('mouseleave');}) //hide the quickaction tooltip
 
 newTut.newTutStep("Well Done!", "You have completed the quick introduction tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance. To continue to our tutorial on graph building press <a  onclick='TutorialSystem.initiateTutorial(`Graph Building`)' href='#'>here!</a>", function(){return $("#logicalGraphParent")})
