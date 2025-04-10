@@ -20,8 +20,7 @@ enum Priority {
 }
 
 type QuickActionsMatch = {
-    match: boolean,
-    funcObject: QuickActionsResult,
+    result: QuickActionsResult,
     priority: Priority
 }
 
@@ -66,21 +65,21 @@ export class QuickActions {
 
         if(searchTerm != ''){
 
-            //processing the keyboard shortcuts array
+            // processing the keyboard shortcuts array
             KeyboardShortcut.shortcuts.forEach(function(shortcut:KeyboardShortcut){
-                const result: QuickActionsMatch = QuickActions.matchAndSortFunction(shortcut,searchTerm)
-                if(result.match){
+                const match: QuickActionsMatch = QuickActions.matchAndSortFunction(shortcut, searchTerm);
+                if(match !== null){
                     //pushing the results in order of priority
-                    QuickActions.pushResultUsingPriority(result)
+                    QuickActions.pushResultUsingPriority(match)
                 }
             })
 
-            //processing the quick start array
+            // processing the quick start array
             KeyboardShortcut.quickActions.forEach(function(shortcut:KeyboardShortcut){
-                const result = QuickActions.matchAndSortFunction(shortcut,searchTerm)
-                if(result.match){
+                const match = QuickActions.matchAndSortFunction(shortcut, searchTerm);
+                if(match){
                     //pushing the results in order of priority
-                    QuickActions.pushResultUsingPriority(result)
+                    QuickActions.pushResultUsingPriority(match)
                 }
             })
 
@@ -102,37 +101,33 @@ export class QuickActions {
         return resultsList
     }
 
-    static pushResultUsingPriority(result: QuickActionsMatch) : void {
-        if(result.priority === Priority.Word){
-            wordMatch.push(result.funcObject)
-        }else if(result.priority === Priority.Tag){
-            tagMatch.push(result.funcObject)
-        }else if(result.priority === Priority.Start){
-            startMatch.push(result.funcObject)
-        }else if(result.priority === Priority.TagStart){
-            tagStartMatch.push(result.funcObject)
+    static pushResultUsingPriority(match: QuickActionsMatch) : void {
+        if(match.priority === Priority.Word){
+            wordMatch.push(match.result)
+        }else if(match.priority === Priority.Tag){
+            tagMatch.push(match.result)
+        }else if(match.priority === Priority.Start){
+            startMatch.push(match.result)
+        }else if(match.priority === Priority.TagStart){
+            tagStartMatch.push(match.result)
         }else{
             // anyMatch.push(result.funcObject)
         }
     }
 
-    // TODO: the boolean specifying whether a match was found is inside the return type (QuickActionsMatch)
-    //       but maybe we should just return null if there was no match?
     // TODO: this function prioritises matches post-search. Better to just search in priority order and return immediately if found?
-    // TODO: rename the input parameter 'func' to 'shortcut'
-    static matchAndSortFunction(func: KeyboardShortcut, searchTerm: string) : QuickActionsMatch {
-        let result: QuickActionsMatch; // TODO: we don't need this, construct just-in-time instead
-        let funcElement: QuickActionsResult;
-        let bestMatch: Priority = Priority.Unknown;
+    static matchAndSortFunction(shortcut: KeyboardShortcut, searchTerm: string) : QuickActionsMatch {
+        let result: QuickActionsResult;
+        let priority: Priority = Priority.Unknown;
 
         //checks if there is a match
         let match = false
 
-        if(func.text.toLocaleLowerCase().includes(searchTerm)){
+        if(shortcut.text.toLocaleLowerCase().includes(searchTerm)){
             match = true
         }
         
-        func.tags.forEach(function(tag){
+        shortcut.tags.forEach(function(tag){
             if(tag.toLocaleLowerCase().includes(searchTerm)){
                 match = true
             }
@@ -146,13 +141,13 @@ export class QuickActions {
 
         //generating the result
         if(match){
-            funcElement = {
-                shortcut: func,
-                keysText: func.getKeysText(true)
+            result = {
+                shortcut: shortcut,
+                keysText: shortcut.getKeysText(true)
             };
      
             // adding priority to each search result, this affects the order in which the result appear
-            const searchableArr = func.text.split(' ');
+            const searchableArr = shortcut.text.split(' ');
             const searchTermArr = searchTerm.split(' ')
 
             for(const searchWord of searchTermArr){
@@ -173,7 +168,7 @@ export class QuickActions {
 
                 //checking priority for function tags
                 if(!wordMatched){
-                    for(const tag of func.tags){
+                    for(const tag of shortcut.tags){
                         if(searchWord.toLocaleLowerCase() === tag.toLocaleLowerCase()){
                             tagMatched = true
                             break
@@ -185,21 +180,20 @@ export class QuickActions {
                 }
             }
             if(wordMatched){
-                bestMatch = Priority.Word
+                priority = Priority.Word
             }else if(tagMatched){
-                bestMatch = Priority.Tag
+                priority = Priority.Tag
             }else if(startMatched){
-                bestMatch = Priority.Start
+                priority = Priority.Start
             }else if(tagStartMatched){
-                bestMatch = Priority.TagStart
+                priority = Priority.TagStart
             }else{
-                bestMatch = Priority.Any
+                priority = Priority.Any
             }
-            result = {match:match, funcObject:funcElement, priority:bestMatch}
-        }else{
-            result = {match:match, funcObject:funcElement, priority:bestMatch}
+            return {result: result, priority: priority}
         }
-        return result
+
+        return null;
     }
 
     static executeQuickAction(result: QuickActionsResult) : void {

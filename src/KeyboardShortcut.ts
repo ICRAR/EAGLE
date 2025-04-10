@@ -887,9 +887,7 @@ export class KeyboardShortcut {
         }),
     ];
 
-    // TODO: modify this similar to shortcuts
     static quickActions: KeyboardShortcut[] = [
-        //docs
         KeyboardShortcut.QUICK_ACTION_DOCS("docs_load_a_palette", "Loading a Palette", ['documentation','help'], 'https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#loading-a-palette'),
         KeyboardShortcut.QUICK_ACTION_DOCS("docs_creating_a_graph", "Creating a Graph", ['documentation','help'], 'https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#creating-a-new-graph'),
         KeyboardShortcut.QUICK_ACTION_DOCS("docs_saving_graph_to_github", "Saving a Graph To Github", ['documentation','help'], 'https://eagle-dlg.readthedocs.io/en/master/quickStart2.html#saving-a-graph-to-github'),
