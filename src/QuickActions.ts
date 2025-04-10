@@ -28,7 +28,7 @@ type QuickActionsMatch = {
 type QuickActionsResult = {
     shortcut: KeyboardShortcut,
     icon: string,
-    text: string
+    keysText: string
 }
 
 export class QuickActions {
@@ -68,7 +68,7 @@ export class QuickActions {
         if(searchTerm != ''){
 
             //processing the keyboard shortcuts array
-            KeyboardShortcut.getShortcuts().forEach(function(shortcut:KeyboardShortcut){
+            KeyboardShortcut.shortcuts.forEach(function(shortcut:KeyboardShortcut){
                 const result: QuickActionsMatch = QuickActions.matchAndSortFunction(shortcut,searchTerm)
                 if(result.match){
                     //pushing the results in order of priority
@@ -77,7 +77,7 @@ export class QuickActions {
             })
 
             //processing the quick start array
-            KeyboardShortcut.getQuickActions().forEach(function(shortcut:KeyboardShortcut){
+            KeyboardShortcut.quickActions.forEach(function(shortcut:KeyboardShortcut){
                 const result = QuickActions.matchAndSortFunction(shortcut,searchTerm)
                 if(result.match){
                     //pushing the results in order of priority
@@ -117,15 +117,19 @@ export class QuickActions {
         }
     }
 
+    // TODO: the boolean specifying whether a match was found is inside the return type (QuickActionsMatch)
+    //       but maybe we should just return null if there was no match?
+    // TODO: this function prioritises matches post-search. Better to just search in priority order and return immediately if found?
+    // TODO: rename the input parameter 'func' to 'shortcut'
     static matchAndSortFunction(func: KeyboardShortcut, searchTerm: string) : QuickActionsMatch {
-        let result: QuickActionsMatch;
+        let result: QuickActionsMatch; // TODO: we don't need this, construct just-in-time instead
         let funcElement: QuickActionsResult;
         let bestMatch: Priority = Priority.Unknown;
 
         //checks if there is a match
         let match = false
 
-        if(func.name.toLocaleLowerCase().includes(searchTerm)){
+        if(func.text.toLocaleLowerCase().includes(searchTerm)){
             match = true
         }
         
@@ -146,9 +150,10 @@ export class QuickActions {
             funcElement = {
                 shortcut: func,
                 icon: "",
-                text: func.getText(true)
+                keysText: func.getKeysText(true)
             };
 
+            // TODO: can we move this icon into the KeyboardShortcut?
             if(func.id.startsWith('docs_')){
                 funcElement.icon = 'icon-book'
             }else{
@@ -156,7 +161,7 @@ export class QuickActions {
             }
      
             // adding priority to each search result, this affects the order in which the result appear
-            const searchableArr = func.name.split(' ');
+            const searchableArr = func.text.split(' ');
             const searchTermArr = searchTerm.split(' ')
 
             for(const searchWord of searchTermArr){
@@ -216,7 +221,7 @@ export class QuickActions {
             result.shortcut.run(eagle, null);
         } else {
             if (result.shortcut.warnWhenCantRun){
-                Utils.showNotification("Warning", "Quick Action (" + result.shortcut.name + ") not available in current state.", "warning");
+                Utils.showNotification("Warning", "Quick Action (" + result.shortcut.text + ") not available in current state.", "warning");
             }
         }
     }

@@ -1776,9 +1776,9 @@ export class Utils {
                 continue;
             }
 
-            const shortcut: string = KeyboardShortcut.idToText(object.id, false);
+            const shortcut: string = KeyboardShortcut.idToKeysText(object.id, false);
             displayShortcuts.push({
-                description: object.name,
+                description: object.text,
                 shortcut: shortcut,
                 function: object.run
             });

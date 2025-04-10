@@ -62,8 +62,8 @@
                 </div>
             </div>
             <div class="modal-footer" style="justify-content: space-between;">
-                <button id= 'errorModalFixAll' class="btn btn-primary iconHoverEffect" data-bind="click: Errors.fixAll, eagleTooltip: Errors.getNumFixableIssues() + ' fix(es) available'">Fix All
-                    <span data-bind="text: KeyboardShortcut.idToText('fix_all', true)"></span>
+                <button id= 'errorModalFixAll' class="btn btn-primary iconHoverEffect" data-bind="click: Errors.fixAll, eagleTooltip: Errors.getNumFixableIssues() + ' fix(es) available'">
+                    <span data-bind="text: KeyboardShortcut.idToFullText('fix_all')"></span>
                 </button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
             </div>

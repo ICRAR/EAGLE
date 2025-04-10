@@ -7,8 +7,9 @@
             <div data-bind="foreach: QuickActions.findQuickActionResults()">
                 <a data-bind="click:function(){QuickActions.executeQuickAction($data)}">
                     <i data-bind="class:$data.icon"></i>
-                    <span class="quickActionName" data-bind="text: $data.shortcut.name"></span>
-                    <span class="quickActionShortcut" data-bind="text: $data.text"></span></a>
+                    <span class="quickActionName" data-bind="text: $data.shortcut.text"></span>
+                    <span class="quickActionShortcut" data-bind="text: $data.keysText"></span>
+                </a>
             </div>
         </div>
     </div>
