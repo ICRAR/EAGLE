@@ -51,13 +51,9 @@ export class KeyboardShortcut {
 
         if ("keys" in options){
             this.keys = options.keys;
+            this.eventType = "keydown";
         } else {
             this.keys = [];
-        }
-        if ("eventType" in options){
-            this.eventType = options.eventType;
-        } else {
-            // TODO: maybe we don't need this, if keys is empty, set to "", if keys is not empty, set to "keydown"?
             this.eventType = "";
         }
         if ("warnWhenCantRun" in options){
@@ -307,7 +303,6 @@ export class KeyboardShortcut {
             id: "new_graph",
             text: "New Graph",
             keys: [new Key("n")],
-            eventType: "keydown",
             tags: ['create','canvas'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
@@ -317,7 +312,6 @@ export class KeyboardShortcut {
             id: "new_palette",
             text: "New palette",
             keys: [new Key("n", Modifier.Shift)],
-            eventType: "keydown",
             tags: ['create'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowPaletteEditing,
@@ -327,7 +321,6 @@ export class KeyboardShortcut {
             id: "new_config",
             text: "New config",
             keys: [new Key("n", Modifier.Alt), new Key("n", Modifier.Ctrl)],
-            eventType: "keydown",
             tags: ['create'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowPaletteEditing, // TODO: this and the line above seem wrong?
@@ -368,7 +361,6 @@ export class KeyboardShortcut {
             id: "open_graph_from_repo",
             text: "Open Graph From Repo",
             keys: [new Key("g")],
-            eventType: "keydown",
             tags: ['git','repository','github','gitlab','load','canvas'],
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository); SideWindow.setShown('right',true);}
@@ -377,7 +369,6 @@ export class KeyboardShortcut {
             id: "open_graph_from_local_disk",
             text: "Open Graph From Local Disk",
             keys: [new Key("g", Modifier.Shift)],
-            eventType: "keydown",
             tags: ['upload','load','canvas'],
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => {eagle.getGraphFileToLoad();}
@@ -386,7 +377,6 @@ export class KeyboardShortcut {
             id: "open_palette_from_repo",
             text: "Open Palette From Repo",
             keys: [new Key("p")],
-            eventType: "keydown",
             tags: ['git','repository','github','gitlab','load','template'],
             shortcutListDisplay: KeyboardShortcut.allowPaletteEditing,
             canRun: KeyboardShortcut.allowPaletteEditing,
@@ -396,7 +386,6 @@ export class KeyboardShortcut {
             id: "open_palette_from_local_disk",
             text: "Open Palette From Local Disk",
             keys: [new Key("p", Modifier.Shift)],
-            eventType: "keydown",
             tags: ['template', 'upload'],
             shortcutListDisplay: KeyboardShortcut.allowPaletteEditing,
             canRun: KeyboardShortcut.allowPaletteEditing,
@@ -460,7 +449,6 @@ export class KeyboardShortcut {
             id: "save_graph",
             text: "Save Graph",
             keys: [new Key("s")],
-            eventType: "keydown",
             tags: ['canvas','commit','github','repository','gitlab'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
@@ -470,7 +458,6 @@ export class KeyboardShortcut {
             id: "save_as_graph",
             text: "Save Graph As",
             keys: [new Key("s", Modifier.Shift)],
-            eventType: "keydown",
             tags: ['download','canvas'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
@@ -483,7 +470,6 @@ export class KeyboardShortcut {
             id: "add_graph_nodes_to_palette",
             text: "Add Graph Nodes To Palette",
             keys: [new Key("a")],
-            eventType: "keydown",
             tags: ['template','canvas'],
             shortcutListDisplay: KeyboardShortcut.allowPaletteEditing,
             canRun: KeyboardShortcut.allowPaletteEditing,
@@ -499,7 +485,6 @@ export class KeyboardShortcut {
             id: "insert_graph_from_local_disk",
             text: "Insert graph from local disk",
             keys: [new Key("i")],
-            eventType: "keydown",
             tags: ['canvas','subGraph','upload'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
@@ -509,7 +494,6 @@ export class KeyboardShortcut {
             id: "deploy_translator",
             text: "Generate PGT Using Default Algorithm",
             keys: [new Key("d", Modifier.Shift)],
-            eventType: "keydown",
             tags: ['deploy','translate','translator'],
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => {eagle.deployDefaultTranslationAlgorithm();}
@@ -518,7 +502,6 @@ export class KeyboardShortcut {
             id: "delete_selection",
             text: "Delete Selection",
             keys: [new Key("Delete"), new Key("Backspace")],
-            eventType: "keydown",
             tags: ['remove'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
@@ -528,7 +511,6 @@ export class KeyboardShortcut {
             id: "delete_selection_except_children",
             text: "Delete Without Children",
             keys: [new Key("Backspace", Modifier.Shift), new Key("Delete", Modifier.Shift)],
-            eventType: "keydown",
             tags: ['remove'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
@@ -538,7 +520,6 @@ export class KeyboardShortcut {
             id: "duplicate_selection",
             text: "Duplicate Selection",
             keys: [new Key("d")],
-            eventType: "keydown",
             tags: ['copy'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
@@ -548,7 +529,6 @@ export class KeyboardShortcut {
             id: "create_subgraph_from_selection",
             text: "Create subgraph from selection",
             keys: [new Key("[")],
-            eventType: "keydown",
             tags: ['group'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: function(){return KeyboardShortcut.somethingIsSelected && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, // TODO: move 'something is selected' to the function
@@ -558,7 +538,6 @@ export class KeyboardShortcut {
             id: "create_construct_from_selection",
             text: "Create construct from selection",
             keys: [new Key("]")],
-            eventType: "keydown",
             tags: ['group'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: function(){return KeyboardShortcut.somethingIsSelected && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, // TODO: move 'something is selected' to the function
@@ -568,7 +547,6 @@ export class KeyboardShortcut {
             id: "change_selected_node_parent",
             text: "Change Selected Node Parent",
             keys: [new Key("u")],
-            eventType: "keydown",
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: function(){return KeyboardShortcut.nodeIsSelected && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)},
             run: (eagle): void => {eagle.changeNodeParent();}
@@ -577,7 +555,6 @@ export class KeyboardShortcut {
             id: "change_selected_node_subject",
             text: "Change Selected Node Subject",
             keys: [new Key("u", Modifier.Shift)],
-            eventType: "keydown",
             tags: ['comment'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: function(){return KeyboardShortcut.commentNodeIsSelected && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, // TODO: move 'comment node is selected' to the function
@@ -587,7 +564,6 @@ export class KeyboardShortcut {
             id: "add_edge",
             text: "Add Edge",
             keys: [new Key("e")],
-            eventType: "keydown",
             tags: ['create'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
@@ -597,7 +573,6 @@ export class KeyboardShortcut {
             id: "modify_selected_edge",
             text: "Modify Selected Edge",
             keys: [new Key("m")],
-            eventType: "keydown",
             tags: ['edit'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
@@ -607,7 +582,6 @@ export class KeyboardShortcut {
             id: "center_graph",
             text: "Center Graph",
             keys: [new Key("c")],
-            eventType: "keydown",
             tags: ['canvas','reset','controls'],
             icon: "filter_center_focus",
             shortcutListDisplay: KeyboardShortcut.true,
@@ -617,7 +591,6 @@ export class KeyboardShortcut {
             id: "center_construct_around_children",
             text: "Center Construct Around Children",
             keys: [new Key("c", Modifier.Alt)],
-            eventType: "keydown",
             tags: ['fit'],
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => {GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())}
@@ -626,7 +599,6 @@ export class KeyboardShortcut {
             id: "check_for_component_updates",
             text: "Check for Component Updates",
             keys: [new Key("q")],
-            eventType: "keydown",
             tags: ['nodes'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: function(){return KeyboardShortcut.graphNotEmpty && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, // TODO: move 'graph not empty' to the function
@@ -664,7 +636,6 @@ export class KeyboardShortcut {
             id: "toggle_left_window",
             text: "Toggle left window",
             keys: [new Key("ArrowLeft")],
-            eventType: "keydown",
             tags: ['close','open'],
             shortcutListDisplay: KeyboardShortcut.allowPaletteEditing,
             canRun: function(){return Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING)},
@@ -674,7 +645,6 @@ export class KeyboardShortcut {
             id: "toggle_right_window",
             text: "Toggle right window",
             keys: [new Key("ArrowRight")],
-            eventType: "keydown",
             tags: ['close','open'],
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => {SideWindow.toggleShown('right')}
@@ -683,7 +653,6 @@ export class KeyboardShortcut {
             id: "toggle_bottom_window",
             text: "Toggle bottom window",
             keys: [new Key("ArrowDown")],
-            eventType: "keydown",
             tags: ['close','open'],
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => {SideWindow.toggleShown('bottom')}
@@ -692,7 +661,6 @@ export class KeyboardShortcut {
             id: "toggle_all_window",
             text: "Toggle all windows",
             keys: [new Key("ArrowUp")],
-            eventType: "keydown",
             tags: ['close','open'],
             shortcutListDisplay: function(){return Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING)},
             canRun: function(){return Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING)},
@@ -702,7 +670,6 @@ export class KeyboardShortcut {
             id: "open_keyboard_shortcut_modal",
             text: "Open Keyboard Shortcut Modal",
             keys: [new Key("k")],
-            eventType: "keydown",
             tags: ['shortcuts'],
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => {eagle.smartToggleModal('shortcutsModal')}
@@ -711,7 +678,6 @@ export class KeyboardShortcut {
             id: "open_parameter_table",
             text: "Open Parameter Table",
             keys: [new Key("t")],
-            eventType: "keydown",
             tags: ['fields','field','node'],
             shortcutListDisplay: KeyboardShortcut.notInStudentMode,
             canRun: KeyboardShortcut.notInStudentMode,
@@ -721,7 +687,6 @@ export class KeyboardShortcut {
             id: "open_graph_attributes_configuration_table",
             text: "Open Graph Attributes Configuration Table",
             keys: [new Key("t", Modifier.Shift)],
-            eventType: "keydown",
             tags: ['fields','field','node','favourites','favorites'],
             icon: "icon-key_attribute_table",
             shortcutListDisplay: KeyboardShortcut.true,
@@ -731,7 +696,6 @@ export class KeyboardShortcut {
             id: "open_graph_configurations_table",
             text: "Open Graph Configurations Table",
             keys: [new Key("t", Modifier.Alt), new Key("t", Modifier.Ctrl)],
-            eventType: "keydown",
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => {GraphConfigurationsTable.toggleTable();}
         }),
@@ -739,7 +703,6 @@ export class KeyboardShortcut {
             id: "open_repository_tab",
             text: "Open Repository",
             keys: [new Key("1")],
-            eventType: "keydown",
             tags: ['tab','tabs','window','menu','right'],
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => { eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository)}
@@ -748,7 +711,6 @@ export class KeyboardShortcut {
             id: "open_translation_tab",
             text: "Open Translation",
             keys: [new Key("3")],
-            eventType: "keydown",
             tags: ['tab','tabs','window','menu','right'],
             shortcutListDisplay: function(){return Setting.findValue(Setting.USER_TRANSLATOR_MODE) != Setting.TranslatorMode.Minimal},
             canRun: function(){return Setting.findValue(Setting.USER_TRANSLATOR_MODE) != Setting.TranslatorMode.Minimal},
@@ -758,7 +720,6 @@ export class KeyboardShortcut {
             id: "open_hierarchy_tab",
             text: "Open Hierarchy",
             keys: [new Key("2")],
-            eventType: "keydown",
             tags: ['tab','tabs','window','menu','right'],
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => { eagle.changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}
@@ -769,7 +730,6 @@ export class KeyboardShortcut {
             id: "undo",
             text: "Undo",
             keys: [new Key("z")],
-            eventType: "keydown",
             tags: ['back','history'],
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => {eagle.undo().prevSnapshot(eagle)}
@@ -778,7 +738,6 @@ export class KeyboardShortcut {
             id: "redo",
             text: "Redo",
             keys: [new Key("z", Modifier.Shift)],
-            eventType: "keydown",
             tags: ['forward','history'],
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => {eagle.undo().nextSnapshot(eagle)}
@@ -789,7 +748,6 @@ export class KeyboardShortcut {
             id: "copy_from_graph_without_children",
             text: "Copy from graph without children",
             keys: [new Key("c", Modifier.Shift)],
-            eventType: "keydown",
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.copySelectionToClipboard(false);}
@@ -798,7 +756,6 @@ export class KeyboardShortcut {
             id: "copy_from_graph",
             text: "Copy from graph",
             keys: [new Key("c", Modifier.Ctrl)],
-            eventType: "keydown",
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.copySelectionToClipboard(true);}
@@ -807,7 +764,6 @@ export class KeyboardShortcut {
             id: "paste_to_graph",
             text: "Paste to graph",
             keys: [new Key("v", Modifier.Ctrl)],
-            eventType: "keydown",
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.pasteFromClipboard();}
@@ -818,7 +774,6 @@ export class KeyboardShortcut {
             id: "select_all_in_graph",
             text: "Select all in graph",
             keys: [new Key("a", Modifier.Ctrl)],
-            eventType: "keydown",
             shortcutListDisplay: KeyboardShortcut.true,
             canRun: KeyboardShortcut.graphNotEmpty,
             run: (eagle): void => { eagle.selectAllInGraph();}
@@ -827,7 +782,6 @@ export class KeyboardShortcut {
             id: "select_none_in_graph",
             text: "Select none in graph",
             keys: [new Key("Escape")],
-            eventType: "keydown",
             warnWhenCantRun: false,
             tags: ['deselect'],
             shortcutListDisplay: KeyboardShortcut.true,
@@ -840,7 +794,6 @@ export class KeyboardShortcut {
             id: "check_graph",
             text: "Check Graph",
             keys: [new Key("!", Modifier.Shift)],
-            eventType: "keydown",
             tags: ['error','errors','fix'],
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
@@ -850,7 +803,6 @@ export class KeyboardShortcut {
             id: "fix_all",
             text: "Fix all errors in graph",
             keys: [new Key("f")],
-            eventType: "keydown",
             shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => { Errors.fixAll(); }
@@ -859,7 +811,6 @@ export class KeyboardShortcut {
             id: "quick_action",
             text: "Quick Action",
             keys: [new Key("`"), new Key("\\")],
-            eventType: "keydown",
             shortcutListDisplay: KeyboardShortcut.true,
             canRun: KeyboardShortcut.quickActionsClosed,
             run: (eagle): void => { QuickActions.initiateQuickAction();}
@@ -870,7 +821,6 @@ export class KeyboardShortcut {
             id: "open_help",
             text: "Open Online Documentation",
             keys: [new Key("h")],
-            eventType: "keydown",
             tags: ['read','me','guide'],
             shortcutListDisplay: KeyboardShortcut.true,
             run: (eagle): void => {eagle.onlineDocs();}
@@ -906,7 +856,6 @@ export class KeyboardShortcut {
             id: "show_settings",
             text: "Open setting",
             keys: [new Key("o")],
-            eventType: "keydown",
             tags: ['menu','options'],
             icon: "icon-cog",
             shortcutListDisplay: KeyboardShortcut.true,
@@ -1039,7 +988,6 @@ export namespace KeyboardShortcut{
         id: string,
         text: string,
         keys?: Key[],
-        eventType?: string,
         warnWhenCantRun?: boolean,
         inputOK?: boolean,
         tags?: string[],
