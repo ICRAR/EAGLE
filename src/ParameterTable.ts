@@ -692,7 +692,7 @@ export class ParameterTable {
         // eagle.selectedObjects.valueHasMutated()
         eagle.flagActiveFileModified()
 
-        //update the parameter table fields array        
+        //update the parameter table fields array
         ParameterTable.updateContent(eagle.selectedNode())
     }
 
