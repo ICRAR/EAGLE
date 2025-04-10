@@ -648,7 +648,7 @@ export class Eagle {
             }
 
             if(selection instanceof Node){
-                ParameterTable.setNode(selection);
+                ParameterTable.updateContent(selection);
             }
         }
     }

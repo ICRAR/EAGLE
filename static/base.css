@@ -759,6 +759,10 @@ color: #00bb00;}
     background: white;
 }
 
+.tooltip pre{
+    overflow:unset;
+}
+
 .rightWindow ::-webkit-scrollbar-thumb, .parameterTable ::-webkit-scrollbar-thumb, #issuesDisplay ::-webkit-scrollbar-thumb{
     background: #002349;
     border-radius: 5px;
