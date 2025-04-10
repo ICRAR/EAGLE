@@ -27,7 +27,6 @@ type QuickActionsMatch = {
 
 type QuickActionsResult = {
     shortcut: KeyboardShortcut,
-    icon: string,
     keysText: string
 }
 
@@ -149,16 +148,8 @@ export class QuickActions {
         if(match){
             funcElement = {
                 shortcut: func,
-                icon: "",
                 keysText: func.getKeysText(true)
             };
-
-            // TODO: can we move this icon into the KeyboardShortcut?
-            if(func.id.startsWith('docs_')){
-                funcElement.icon = 'icon-book'
-            }else{
-                funcElement.icon = 'icon-build'
-            }
      
             // adding priority to each search result, this affects the order in which the result appear
             const searchableArr = func.text.split(' ');
