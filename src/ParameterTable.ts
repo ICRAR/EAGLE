@@ -317,6 +317,9 @@ export class ParameterTable {
         if (edgesToRemove.length > 0){
             Utils.showNotification("Removed edges", "Removed " + edgesToRemove.length + " edge(s) made invalid by the change in port usage", "info");
         }
+
+        // trigger graph check, since changing the usage of a field may break some rules
+        eagle.checkGraph();
     }
 
     // when a field value is modified in the parameter table, we need to flag the containing palette or logical graph as modified

@@ -191,8 +191,8 @@ class Page {
       .click(Selector('#paramsTableWrapper').find('tr').nth(-1).find('.tableFieldParamTypeSelect').find('option').withText(parameterType))
 
       //setting the requested use as 
-      .click(Selector('#paramsTableWrapper').find('tr').nth(-1).find('.tbaleFieldUseAs'))
-      .click(Selector('#paramsTableWrapper').find('tr').nth(-1).find('.tbaleFieldUseAs').find('option').withText(useAs))
+      .click(Selector('#paramsTableWrapper').find('tr').nth(-1).find('.tableFieldUseAs'))
+      .click(Selector('#paramsTableWrapper').find('tr').nth(-1).find('.tableFieldUseAs').find('option').withText(useAs))
     
     if(value != ''){
       await t

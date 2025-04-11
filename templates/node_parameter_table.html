@@ -437,7 +437,7 @@
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
                                                 <td class='columnCell column_Usage'>
                                                     <div class="checkboxWrapper">
-                                                        <select class="tbaleFieldUseAs" data-bind="options: Object.values(Daliuge.FieldUsage), value: usage, disabled: ParameterTable.getParamsTableEditState() , event: {change: ParameterTable.fieldUsageChanged}">
+                                                        <select class="tableFieldUseAs" data-bind="options: eagle.selectedNode().usageOptions, value: usage, disabled: ParameterTable.getParamsTableEditState() , event: {change: ParameterTable.fieldUsageChanged}">
                                                             <!-- options are added dynamically -->
                                                         </select>
                                                     </div>
@@ -451,7 +451,7 @@
                                                     <!-- /ko -->
                                                     <!-- ko ifnot: $data.usage() === Daliuge.FieldUsage.NoPort-->
                                                         <div class="checkboxWrapper">
-                                                            <select class="tbaleFieldEncoding" data-bind="options: Object.values(Daliuge.Encoding), value: encoding, disabled: ParameterTable.getParamsTableEditState()">
+                                                            <select class="tableFieldEncoding" data-bind="options: Object.values(Daliuge.Encoding), value: encoding, disabled: ParameterTable.getParamsTableEditState()">
                                                                 <!-- options are added dynamically -->
                                                             </select>
                                                         </div>
