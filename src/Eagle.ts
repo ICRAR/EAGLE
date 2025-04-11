@@ -3255,7 +3255,6 @@ export class Eagle {
 
             // mark the palette as modified
             destinationPalette.fileInfo().modified = true;
-            destinationPalette.sort();
         }
     }
 

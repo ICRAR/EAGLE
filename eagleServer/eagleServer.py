@@ -944,18 +944,9 @@ def open_url_file():
     if not "modelData" in graph:
         graph["modelData"] = {}
 
-    # add the repository information
-    graph["modelData"]["repo"] = ""
-    graph["modelData"]["repoBranch"] = ""
+    # overwrite some modelData information
     graph["modelData"]["repoService"] = "Url"
-    graph["modelData"]["filePath"] = ""
-
-    # add the GitLab file information
-    graph["modelData"]["commitHash"] = ""
     graph["modelData"]["downloadUrl"] = url
-    graph["modelData"]["lastModifiedName"] = ""
-    graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = 0
 
     # for palettes, put downloadUrl in every component
     if extension == ".palette":
