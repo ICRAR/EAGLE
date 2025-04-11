@@ -49,16 +49,22 @@
                             <!-- /ko -->
                             <!-- /ko -->
                         </tr>
-                        <tr id="modelDataEagleVersion">
-                            <td data-bind="text: 'Eagle Version', eagleTooltip: ''"></td>
+                        <tr id="modelDataGeneratorName">
+                            <td data-bind="text: 'Generator Name', eagleTooltip: ''"></td>
                             <!-- ko if: $root.currentFileInfo -->
-                                <td data-bind="text: $root.currentFileInfo()._eagleVersion"></td>
+                                <td data-bind="text: $root.currentFileInfo()._generatorName"></td>
+                            <!-- /ko -->
+                        </tr>
+                        <tr id="modelDataGeneratorVersion">
+                            <td data-bind="text: 'Generator Version', eagleTooltip: ''"></td>
+                            <!-- ko if: $root.currentFileInfo -->
+                                <td data-bind="text: $root.currentFileInfo()._generatorVersion"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Eagle Commit Hash', eagleTooltip: ''"></td>
+                            <td data-bind="text: 'Generator Commit Hash', eagleTooltip: ''"></td>
                             <!-- ko if: $root.currentFileInfo -->
-                                <td data-bind="text: $root.currentFileInfo()._eagleCommitHash"></td>
+                                <td data-bind="text: $root.currentFileInfo()._generatorCommitHash"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
