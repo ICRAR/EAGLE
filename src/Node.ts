@@ -298,6 +298,14 @@ export class Node {
         }
     }, this);
 
+    usageOptions : ko.PureComputed<Daliuge.FieldUsage[]> = ko.pureComputed(() => {
+        // fields on construct nodes cannot be ports
+        if (this.categoryType() === Category.Type.Construct){
+            return [Daliuge.FieldUsage.NoPort];
+        }
+        return Object.values(Daliuge.FieldUsage)
+    }, this);
+
     getInputPorts = () : Field[] => {
         const result: Field[] = []
 
