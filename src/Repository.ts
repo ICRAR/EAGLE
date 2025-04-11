@@ -99,7 +99,9 @@ export class Repository {
         for (const pathPart of pathParts){
             let foundPathPart = false;
 
-            for (const folder of pointer.folders()){
+            for (let i = 0 ; i < pointer.folders().length ; i++){
+                const folder: RepositoryFolder = pointer.folders()[i];
+                
                 if (folder.name === pathPart){
                     foundPathPart = true;
                     pointer = folder;
@@ -123,7 +125,9 @@ export class Repository {
             for (const pathPart of pathParts){
                 let foundPathPart = false;
 
-                for (const folder of pointer.folders()){
+                for (let i = 0 ; i < pointer.folders().length ; i++){
+                    const folder: RepositoryFolder = pointer.folders()[i];
+
                     if (folder.name === pathPart){
                         foundPathPart = true;
                         pointer = folder;
@@ -153,7 +157,8 @@ export class Repository {
             for (const pathPart of pathParts){
                 let foundPathPart = false;
 
-                for (const folder of pointer.folders()){
+                for (let i = 0 ; i < pointer.folders().length ; i++){
+                    const folder: RepositoryFolder = pointer.folders()[i];
                     if (folder.name === pathPart){
                         foundPathPart = true;
                         pointer = folder;
@@ -181,7 +186,8 @@ export class Repository {
             // traverse down the folder structure
             const pathParts: string[] = file.path.split('/');
             for (const pathPart of pathParts){
-                for (const folder of pointer.folders()){
+                for (let i = 0 ; i < pointer.folders().length ; i++){
+                    const folder: RepositoryFolder = pointer.folders()[i];
                     if (folder.name === pathPart){
                         lastPointer = pointer;
                         pointer = folder;
