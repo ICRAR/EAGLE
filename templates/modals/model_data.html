@@ -16,19 +16,19 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td data-bind="text: 'File Type', eagleTooltip: 'The type of content in the file. Options: ' + Utils.enumKeys(Eagle.FileType)"></td>
+                            <td data-bind="eagleTooltip: 'The type of content in the file. Options: ' + Utils.enumKeys(Eagle.FileType)">File Type</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._type"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Location', eagleTooltip: 'The location in which this file is stored'"></td>
+                            <td data-bind="eagleTooltip: 'The location in which this file is stored'">Location</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo().getText()"></td>
                             <!-- /ko -->
                         </tr>
                         <tr id="modelDataDescription">
-                            <td data-bind="text: 'Short Descripton', eagleTooltip: 'A one-line description of the purpose of this file'"></td>
+                            <td data-bind="eagleTooltip: 'A one-line description of the purpose of this file'">Short Description</td>
                             <!-- ko if: $root.currentFileInfo -->
                             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                                 <td><input type="text" data-bind="value: $root.currentFileInfo()._shortDescription, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
@@ -39,7 +39,7 @@
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Detailed Descripton', eagleTooltip: 'A complete description of the purpose of this file'"></td>
+                            <td data-bind="eagleTooltip: 'A complete description of the purpose of this file'">Detailed Description</td>
                             <!-- ko if: $root.currentFileInfo -->
                             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                                 <td><textarea data-bind="value: $root.currentFileInfo()._detailedDescription, event: {keyup: function(){$root.flagActiveFileModified();}}"></textarea></td>
@@ -50,79 +50,79 @@
                             <!-- /ko -->
                         </tr>
                         <tr id="modelDataGeneratorName">
-                            <td data-bind="text: 'Generator Name', eagleTooltip: ''"></td>
+                            <td data-bind="eagleTooltip: 'The name of the program or service that generated this palette'">Generator Name</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._generatorName"></td>
                             <!-- /ko -->
                         </tr>
                         <tr id="modelDataGeneratorVersion">
-                            <td data-bind="text: 'Generator Version', eagleTooltip: ''"></td>
+                            <td data-bind="eagleTooltip: 'The version of the program or service that generated this palette'">Generator Version</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._generatorVersion"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Generator Commit Hash', eagleTooltip: ''"></td>
+                            <td data-bind="eagleTooltip: 'The commit hash of the program or service that generated this palette'">Generator Commit Hash</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._generatorCommitHash"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Schema Version', eagleTooltip: ''"></td>
+                            <td data-bind="eagleTooltip: 'The name of the schema to which this palette file complies'">Schema Version</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._schemaVersion"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Readonly', eagleTooltip: ''"></td>
+                            <td data-bind="eagleTooltip: 'True, if this palette is not intended to be modified by users'">Readonly</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._readonly"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Repository URL', eagleTooltip: ''"></td>
+                            <td data-bind="eagleTooltip: 'The URL of the repository from which this palette was generated'">Repository URL</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._repositoryUrl"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Commit Hash', eagleTooltip: ''"></td>
+                            <td data-bind="eagleTooltip: 'The commit hash of the repository from which this palette was generated'">Commit Hash</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._commitHash"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Download URL', eagleTooltip: ''"></td>
+                            <td data-bind="eagleTooltip: 'The URL from which this palette was downloaded'">Download URL</td>
                             <!-- ko if: $root.currentFileInfo -->
-                                <td data-bind="text: $root.currentFileInfo()._downloadURL"></td>
+                                <td data-bind="text: $root.currentFileInfo()._downloadUrl"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Signature', eagleTooltip: ''"></td>
+                            <td data-bind="eagleTooltip: 'A hash encoding the unique contents of this palette'">Signature</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._signature"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Last Modified Name', eagleTooltip: 'Name of the user who last modified this file'"></td>
+                            <td data-bind="eagleTooltip: 'Name of the user who last modified this file'">Last Modified Name</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._lastModifiedName"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Last Modified Email', eagleTooltip: 'Email of the user who last modified this file'"></td>
+                            <td data-bind="eagleTooltip: 'Email of the user who last modified this file'">Last Modified Email</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._lastModifiedEmail"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Last Modified Datetime', eagleTooltip: 'Date and time when this file was last modified'"></td>
+                            <td data-bind="eagleTooltip: 'Date and time when this file was last modified'">Last Modified Datetime</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo().lastModifiedDatetimeText()"></td>
                             <!-- /ko -->
                         </tr>
                         <tr>
-                            <td data-bind="text: 'Num Nodes', eagleTooltip: 'Number of nodes within this file'"></td>
+                            <td data-bind="eagleTooltip: 'Number of nodes within this file'">Num Nodes</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td data-bind="text: $root.currentFileInfo()._numLGNodes"></td>
                             <!-- /ko -->
