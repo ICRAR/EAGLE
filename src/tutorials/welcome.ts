@@ -41,4 +41,4 @@ newTut.newTutStep("Eagle UI modes", "To help with this, there are a few <a targe
     .setPreFunction(function(eagle){eagle.tutorial().openSettingsSection('#settingCategoryUserOptions');})
     .setBackPreFunction( function(eagle){eagle.tutorial().openSettingsSection('#settingCategoryUserOptions');})
 
-newTut.newTutStep("Well Done!", "You have completed the quick introduction tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance. To continue to our tutorial on graph building press <a  onclick='TutorialSystem.initiateTutorial(`Graph Building`)' href='#'>here!</a>", function(){return $("#logicalGraphParent")})
+newTut.newTutStep("Well Done!", "You have completed the quick introduction tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance. To continue to our tutorial on graph building press <a  onclick='TutorialSystem.initiateTutorial(`Quick Start`)' href='#'>here!</a>", function(){return $("#logicalGraphParent")})
