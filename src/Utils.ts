@@ -709,7 +709,7 @@ export class Utils {
         });
     }
 
-    static requestUserEditField(eagle: Eagle, field: Field, choices: string[]): Promise<Field> {
+    static requestUserEditField(eagle: Eagle, field: Field, title: string, choices: string[]): Promise<Field> {
         return new Promise(async(resolve, reject) => {
             // set the currently edited field
             eagle.currentField(field);
@@ -718,6 +718,7 @@ export class Utils {
             $('#editFieldModal').data('callback', (completed: boolean, field: Field): void => {
                 resolve(field);
             });
+            $("#editFieldModalTitle").html(title);
             $('#editFieldModal').data('choices', choices);
             $('#editFieldModal').modal("toggle");
         });
