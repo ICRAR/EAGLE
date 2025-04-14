@@ -527,6 +527,33 @@ export class Utils {
         });
     }
 
+    // uses: https://github.com/paul-norman/codemirror6-prebuilt
+    static requestUserCode(title: string, message: string, defaultText: string): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $('#inputCodeModalTitle').text(title);
+            $('#inputCodeModalMessage').html(message);
+
+            $('#inputCodeModalInput').val(defaultText);
+
+            // store the callback, result on the modal HTML element
+            // so that the info is available to event handlers
+            $('#inputCodeModal').data('completed', false);
+            $('#inputCodeModal').data('callback', (completed : boolean, userText : string) => {
+                if (!completed){
+                    reject("Utils.requestUserCode() aborted by user");
+                } else {
+                    resolve(userText);
+                }
+            });
+
+            const editor = document.querySelector('#inputCodeModalEditor');
+            const options = { dark: true };
+			cm6.load().textarea(editor, options);
+
+            $('#inputCodeModal').modal("toggle");
+        })
+    }
+
     static requestUserNumber(title : string, message : string, defaultNumber: number) : Promise<number> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
