@@ -18,15 +18,11 @@ Ui modes are collections of settings creating separate workspaces, each designed
 
 **Minimal** - Designed for student use or when the goal is loading a graph, tweaking its key attributes and executing it through the translator.
 
-**Default** - The ideal mode when deploying or editing graphs with additional information shown compared to minimal
-
 **Graph** - Unlocks the permissions required for graph creation from pre-existing palettes and palette components
 
-**Palette** - Being able to change all values on palette and graph components, as well as graph deployment functionality
+**Component** - Change all values on palette and graph components, as well as graph deployment functionality
 
 **Expert** - Unlocks everything Eagle has to offer
-
-**Custom** - Your mode, your way
 
 Tabs Breakdown
 --------------

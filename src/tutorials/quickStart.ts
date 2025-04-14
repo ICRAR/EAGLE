@@ -21,18 +21,10 @@ newTut.newTutStep("Keyboard Shortcuts", "Many of the major functions are availab
     .setBackPreFunction(function(eagle){Utils.showShortcutsModal()})
     .setPreFunction(function(eagle){Utils.showShortcutsModal()})
 
-newTut.newTutStep("Click To Open Settings", "The settings modal allows to customize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <em>To continue the tutorial please click the highlighted settings icon button!</em>", function(){return $("#settings")})
+newTut.newTutStep("Click To Open Settings", "The settings modal allows to customize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <em>Click the Settings Button to continue.</em>", function(){return $("#settings")})
     .setType(TutorialStep.Type.Press)
     .setPreFunction(function(eagle){Utils.hideShortcutsModal();})
     .setBackPreFunction(function(eagle){Utils.hideSettingsModal();})
-
-newTut.newTutStep("Set up Eagle to how you need it.", "Eagle has a lot of functionality, as such, there are various settings that affect how eagle behaves and how much of it is hidden.", function(){return $("#settingsModal .modal-body")})
-    .setWaitType(TutorialStep.Wait.Modal)
-    
-newTut.newTutStep("Eagle UI modes", "To help with this, there are a few <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#ui-modes'>UI modes</a> for different use cases of EAGLE.", function(){return $("#settingUserInterfaceModeValue")})
-    .setWaitType(TutorialStep.Wait.Modal)
-    .setPreFunction(function(eagle){eagle.tutorial().openSettingsSection('#settingCategoryUserOptions');})
-    .setBackPreFunction( function(eagle){eagle.tutorial().openSettingsSection('#settingCategoryUserOptions');})
 
 newTut.newTutStep("Setup the URL for the Translator Service", "This is required when you want to submit a graph for translation and execution. The default value is correct, if the translator has been started on the same node as EAGLE. Feel free to change it now. This setting is also used to configure the function of the 'Translate' button.", function(){return $("#settingTranslatorURLValue")})
     .setWaitType(TutorialStep.Wait.Modal)
