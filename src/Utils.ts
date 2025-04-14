@@ -528,12 +528,16 @@ export class Utils {
     }
 
     // uses: https://github.com/paul-norman/codemirror6-prebuilt
-    static requestUserCode(title: string, message: string, defaultText: string): Promise<string> {
+    static requestUserCode(title: string, defaultText: string): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputCodeModalTitle').text(title);
-            $('#inputCodeModalMessage').html(message);
 
-            $('#inputCodeModalInput').val(defaultText);
+            // set defaultText (replace all current text)
+            const editor = $('#inputTextModal').data('editor');
+            const contentLength = editor.state.doc.length;
+            editor.dispatch({
+                changes: {from: 0, to: contentLength, insert: defaultText}
+            });
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
@@ -545,10 +549,6 @@ export class Utils {
                     resolve(userText);
                 }
             });
-
-            const editor = document.querySelector('#inputCodeModalEditor');
-            const options = { dark: true };
-			cm6.load().textarea(editor, options);
 
             $('#inputCodeModal').modal("toggle");
         })
