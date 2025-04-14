@@ -95,8 +95,9 @@ export class Modals {
             callback($('#inputCodeModal').data('completed'), content);
         });
         $('#inputCodeModal').on('shown.bs.modal', function(){
-            // TODO: focus where?
-            //$('#inputCodeModalInput').trigger("focus");
+            // focus
+            const editor = $('#inputTextModal').data('editor');
+            editor.focus();
         });
 
         // #choiceModal - requestUserChoice()
