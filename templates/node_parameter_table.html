@@ -44,7 +44,9 @@
                 <!-- ko ifnot: selectedNode()?.isConstruct() -->
                     <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleUsage()}"><span>Use As</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().usage()"></div>
                 <!-- /ko -->
-                <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleEncoding()}"><span>Encoding</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().encoding()"></div>
+                <!-- ko if: selectedNode() === null || selectedNode().isApplication() -->
+                    <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleEncoding()}"><span>Encoding</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().encoding()"></div>
+                <!-- /ko -->
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleActions()}"><span>Actions</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().actions()"></div>
             </div>
         </div>
