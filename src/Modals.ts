@@ -74,8 +74,8 @@ export class Modals {
         {
             // initialise the editor, and save as data-attribute on the modal html element
             const parent = document.querySelector('#inputCodeModalEditor');
-		    const editor = cm6.load().textarea(parent, {dark: true});
-            $('#inputTextModal').data('editor', editor);
+		    const view = cm6.load().textarea(parent, {dark: true});
+            $('#inputTextModal').data('view', view);
         }
 
         $('#inputCodeModal .modal-footer button').on('click', function(){
@@ -90,14 +90,14 @@ export class Modals {
             }
 
             // get content of code editor - and return via callback
-            const editor = $('#inputTextModal').data('editor');
-            const content = editor.state.doc.toString();
+            const view = $('#inputTextModal').data('view');
+            const content = view.state.doc.toString();
             callback($('#inputCodeModal').data('completed'), content);
         });
         $('#inputCodeModal').on('shown.bs.modal', function(){
             // focus
-            const editor = $('#inputTextModal').data('editor');
-            editor.focus();
+            const view = $('#inputTextModal').data('view');
+            view.focus();
         });
 
         // #choiceModal - requestUserChoice()

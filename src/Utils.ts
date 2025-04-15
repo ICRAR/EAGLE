@@ -528,15 +528,44 @@ export class Utils {
     }
 
     // uses: https://github.com/paul-norman/codemirror6-prebuilt
-    static requestUserCode(title: string, defaultText: string): Promise<string> {
+    static requestUserCode(language: "json"|"markdown"|"python"|"text", title: string, defaultText: string): Promise<string> {
         return new Promise(async(resolve, reject) => {
+            // set title
             $('#inputCodeModalTitle').text(title);
 
+            // get the codemirror view (stored on modal html element)
+            const view = $('#inputTextModal').data('view');
+            //console.log("view", view);
+            //console.log("state", view.state);
+            //console.log("view.setState", view.setState);
+
+            // get language configuration
+            let config;
+            switch(language){
+                case "json":
+                    //config = json()
+                    break;
+                case "markdown":
+                    //config = markdown()
+                    break;
+                case "python":
+                    //config = python()
+                    break;
+                case "text":
+                    //config = text()
+                    break;
+                default:
+                    console.warn("requestUserCode(): Unsupported language:", language);
+                    //config = text()
+                    break;
+            }
+
+            let languageConf: any;
+
             // set defaultText (replace all current text)
-            const editor = $('#inputTextModal').data('editor');
-            const contentLength = editor.state.doc.length;
-            editor.dispatch({
-                changes: {from: 0, to: contentLength, insert: defaultText}
+            view.dispatch({
+                changes: {from: 0, to: view.state.doc.length, insert: defaultText},
+                //effects: languageConf.reconfigure(config)
             });
 
             // store the callback, result on the modal HTML element
