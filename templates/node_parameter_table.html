@@ -41,7 +41,9 @@
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleType()}"><span>Type</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().type()"></div>
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleFlags()}"><span>Flags</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().flags()"></div>
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleParameterType()}"><span>Parameter Type</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().parameterType()"></div>
-                <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleUsage()}"><span>Use As</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().usage()"></div>
+                <!-- ko ifnot: selectedNode()?.isConstruct() -->
+                    <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleUsage()}"><span>Use As</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().usage()"></div>
+                <!-- /ko -->
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleEncoding()}"><span>Encoding</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().encoding()"></div>
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleActions()}"><span>Actions</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().actions()"></div>
             </div>
@@ -147,13 +149,13 @@
                                             Parameter Type
                                         </th>
                                     <!-- /ko -->                                        
-                                    <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
+                                    <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() && !eagle.selectedNode()?.isConstruct() -->
                                         <th class="parameter_table_usage" data-bind="click: function(){ParameterTable.sortTableBy('usage')}, eagleTooltip:'InputPorts and OutputPorts are used to specify named inputs and outputs from this Component.'" data-bs-placement="top">
                                             <i id="tableSort_usage" class="md-18 tableSortIcon icon-tableSortNone"></i>
                                             Use As
                                         </th>
                                     <!-- /ko -->
-                                    <!-- ko if: ParameterTable.getActiveColumnVisibility().encoding() && eagle.selectedNode().isApplication() -->
+                                    <!-- ko if: ParameterTable.getActiveColumnVisibility().encoding() && eagle.selectedNode()?.isApplication() -->
                                         <th class="parameter_table_encoding" data-bind="click: function(){ParameterTable.sortTableBy('encoding')}, eagleTooltip:'The way data is encoded when passing through this port.'" data-bs-placement="top">
                                             <i id="tableSort_encoding" class="md-18 tableSortIcon icon-tableSortNone"></i>
                                             Encoding
@@ -434,7 +436,7 @@
                                                 </td>
                                             <!-- /ko -->
                                             
-                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() -->
+                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() && !eagle.selectedNode()?.isConstruct() -->
                                                 <td class='columnCell column_Usage'>
                                                     <div class="checkboxWrapper">
                                                         <select class="tableFieldUseAs" data-bind="options: eagle.selectedNode().usageOptions, value: usage, disabled: ParameterTable.getParamsTableEditState() , event: {change: ParameterTable.fieldUsageChanged}">
@@ -444,7 +446,7 @@
                                                 </td>
                                             <!-- /ko -->
 
-                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().encoding() && eagle.selectedNode().isApplication() -->
+                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().encoding() && eagle.selectedNode()?.isApplication() -->
                                                 <td class='columnCell column_Encoding'>
                                                     <!-- ko if: $data.usage() === Daliuge.FieldUsage.NoPort-->
                                                         <span class="faded">N/A</span>
