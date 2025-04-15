@@ -2049,77 +2049,66 @@ export class Eagle {
         }
     }
 
+    _loadPalette = async(paletteInfo:{name: string, filename:string, readonly:boolean, expanded:boolean}, errorsWarnings: Errors.ErrorsWarnings): Promise<Palette> => {
+        return new Promise(async(resolve, reject) => {
+            const postData = {url: paletteInfo.filename};
+
+            let data: any;
+            try {
+                data = await Utils.httpPostJSON("/openRemoteUrlFile", postData);
+            } catch (error){
+                // an error occurred when fetching the palette
+                errorsWarnings.errors.push(Errors.Message(error));
+
+                // try to load palette from localStorage
+                const paletteData = localStorage.getItem(paletteInfo.filename);
+
+                if (paletteData === null){
+                    reject("Unable to fetch palette '" + name + "'. Palette also unavailable from localStorage.");
+                    return;
+                }
+                
+                console.warn("Unable to fetch palette '" + name + "'. Palette loaded from localStorage.");
+
+                const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.dummy(), "", paletteInfo.name), errorsWarnings);
+                Utils.preparePalette(palette, paletteInfo);
+
+                resolve(palette);
+                return;
+            }
+
+            // palette fetched successfully
+            const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.dummy(), "", paletteInfo.name), errorsWarnings);
+            Utils.preparePalette(palette, paletteInfo);
+
+            // save to localStorage
+            localStorage.setItem(paletteInfo.filename, data);
+
+            // add to results
+            resolve(palette);
+        });
+    }
+
     loadPalettes = async (paletteList: {name:string, filename:string, readonly:boolean, expanded:boolean}[]): Promise<{palettes: Palette[], errorsWarnings: Errors.ErrorsWarnings}> => {
         return new Promise(async(resolve, reject) => {
-            const results: Palette[] = [];
-            const complete: boolean[] = [];
             const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+            const jobs: Promise<Palette>[] = [];
 
-            // define a function to check if all requests are now complete, if so we can return the list of palettes
-            function _checkAllPalettesComplete() : void {
-                let allComplete = true;
-
-                for (const requestComplete of complete){
-                    if (!requestComplete){
-                        allComplete = false;
-                    }
-                }
-                if (allComplete){
-                    resolve({palettes: results, errorsWarnings: errorsWarnings});
-                }
-            }
-
-            // initialise the state
+            // create a job for each palette
             for (let i = 0 ; i < paletteList.length ; i++){
-                results.push(null);
-                complete.push(false);
+                jobs.push(this._loadPalette(paletteList[i], errorsWarnings));
             }
 
-            // start trying to load the palettes
-            for (let i = 0 ; i < paletteList.length ; i++){
-                const index = i;
-                const postData = {url: paletteList[i].filename};
-
-                let data: any;
-                try {
-                    data = await Utils.httpPostJSON("/openRemoteUrlFile", postData);
-                } catch (error){
-                    // an error occurred when fetching the palette
-                    errorsWarnings.errors.push(Errors.Message(error));
-
-                    // try to load palette from localStorage
-                    const paletteData = localStorage.getItem(paletteList[i].filename);
-
-                    if (paletteData === null){
-                        console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette also unavailable from localStorage.");
-                    } else {
-                        console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
-
-                        const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.dummy(), "", paletteList[i].name), errorsWarnings);
-                        Utils.preparePalette(palette, paletteList[i]);
-
-                        results[index] = palette;
-                    }
-
-                    _checkAllPalettesComplete();
-                    return;
-                } finally {
-                    complete[index] = true;
-                }
-
-                // palette fetched successfully
-
-                const palette: Palette = Palette.fromOJSJson(data, new RepositoryFile(Repository.dummy(), "", paletteList[index].name), errorsWarnings);
-                Utils.preparePalette(palette, paletteList[index]);
-
-                // add to results
-                results[index] = palette;
-
-                // save to localStorage
-                localStorage.setItem(paletteList[index].filename, data);
-
-                _checkAllPalettesComplete();
+            // start all the jobs
+            let palettes;
+            try {
+                palettes = await Promise.all(jobs);
+            } catch (error){
+                reject(error);
+                return;
             }
+
+            resolve({palettes: palettes, errorsWarnings: errorsWarnings});
         });
     }
 
