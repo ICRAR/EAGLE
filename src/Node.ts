@@ -1343,12 +1343,11 @@ export class Node {
         }
 
         // translate categories if required
-        let category: Category = nodeData.category;
+        const category: Category = nodeData.category;
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
             errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
-            category = Category.Unknown;
         }
 
         const node : Node = new Node(name, "", category);
