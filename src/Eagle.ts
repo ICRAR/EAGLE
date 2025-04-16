@@ -28,6 +28,7 @@ import * as ko from "knockout";
 import * as bootstrap from 'bootstrap';
 
 import { Category } from './Category';
+import { CategoryData } from "./CategoryData";
 import { ComponentUpdater } from './ComponentUpdater';
 import { Daliuge } from './Daliuge';
 import { DockerHubBrowser } from "./DockerHubBrowser";
@@ -4377,7 +4378,11 @@ export class Eagle {
             categoryType = this.selectedNode().getCategoryType();
         }
 
-        // if selectedNode is not set, return the list of all categories, even though it won't be rendered (I guess)
+        // if selectedNode categoryType is Unknown, return list of all categories
+        if (categoryType === Category.Type.Unknown){
+            return Utils.buildComponentList((cData: CategoryData) => {return true});
+        }
+
         // if selectedNode is set, return a list of categories within the same category type
         return Utils.getCategoriesWithInputsAndOutputs(categoryType);
     }, this)

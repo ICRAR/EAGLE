@@ -1944,6 +1944,12 @@ export class Node {
             Field.isValid(node,field,selectedLocation,i)
         }
 
+        if(!Utils.isKnownCategory(node.getCategory())){
+            const message: string = "Node (" + node.getName() + ") has unrecognised category " + node.getCategory();
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning});
+        }
+
         if(node.isConstruct()){
             //checking the input application if one is present
             if(node.hasInputApplication()){
