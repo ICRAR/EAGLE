@@ -4417,16 +4417,22 @@ export class Eagle {
             Utils.showNotification(Palette.BUILTIN_PALETTE_NAME + " palette not found", "Unable to transform node according to a template. Instead just changing category.", "warning");
         } else {
             // find node with new type in builtinPalette
-            const oldCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
+            let oldCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
             const newCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(newNodeCategory);
 
-            // check that prototypes were found for old category and new category
-            if (oldCategoryTemplate === null || newCategoryTemplate === null){
-                console.warn("Prototypes for old and/or new categories could not be found in palettes", oldNode.getCategory(), newNodeCategory);
+            // check that new category prototype was found, if not, skip transform node
+            if (newCategoryTemplate === null){
+                console.warn("Prototype for new category (" + newNodeCategory + ") could not be found in palettes. Can't intelligently transform old node into new node, will just set new category.");
                 return;
-            }
+            } else {
+                // check that old category prototype was found, if not, use 'Unknown' as a placeholder for transform node
+                if (oldCategoryTemplate === null){
+                    console.warn("Prototype for old category (" + oldNode.getCategory() + ") could not be found in palettes. Using existing node as template to transform into new node.");
+                    oldCategoryTemplate = oldNode;
+                }
 
-            Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate);
+                Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate);
+            }
         }
 
         oldNode.setCategory(newNodeCategory);

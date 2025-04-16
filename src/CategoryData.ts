@@ -56,10 +56,8 @@ export class CategoryData {
         const c = CategoryData.cData[category];
 
         if (typeof c === 'undefined'){
-            console.error("Could not fetch category data for category", category);
             return {
                 categoryType: Category.Type.Unknown,
-               
                 isGroup: false,
                 minInputs: 0,
                 maxInputs: 0,

@@ -2694,6 +2694,11 @@ export class Utils {
         if (node.getDescription() === sourceTemplate.getDescription()){
             node.setDescription(destinationTemplate.getDescription());
         }
+
+        // set some other rendering attributes of the node, to ensure they match the destinationTemplate
+        node.setCategoryType(destinationTemplate.getCategoryType());
+        node.setRadius(destinationTemplate.getRadius());
+        node.setColor(destinationTemplate.getColor());
     }
 
     static findOldRepositoriesInLocalStorage(): Repository[] {
