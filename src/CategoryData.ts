@@ -68,7 +68,7 @@ export class CategoryData {
                 canHaveComponentParameters: false,
                 canHaveApplicationArguments: false,
                 canHaveConstructParameters: false,
-                icon: "error",
+                icon: "icon-none",
                 color: "pink",
                 sortOrder: Number.MAX_SAFE_INTEGER,
             };
