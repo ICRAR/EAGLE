@@ -70,7 +70,6 @@ export namespace Category {
         Application = "Application",
         Construct = "Construct",
         Container = "Container",
-        Control = "Control",
         Data = "Data",
         Other = "Other",
         Service = "Service",
@@ -80,11 +79,10 @@ export namespace Category {
 
     export enum Color {
         Application = "#0059a5",
-        Control = "rgb(46 161 55)",
+        Construct = "rgb(227 189 100)",
         Data = "#2c2c2c",
         Description = "rgb(157 43 96)",
         Error = "#FF66CC",
-        Group = "rgb(227 189 100)",
         Legacy = "#FF66CC",
         Object = "#00bfa6",
         Service = "purple"
@@ -92,7 +90,6 @@ export namespace Category {
 
     // by default, these enums are given ascending integer values, so the sort order is implicit in the ordering of items
     export enum SortOrder {
-        Control,
         Application,
         Object,
         Data,
