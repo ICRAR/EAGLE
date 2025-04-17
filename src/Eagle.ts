@@ -3518,33 +3518,19 @@ export class Eagle {
         }
 
         // create edge (in correct direction)
+        let edge: Edge;
         if (!RightClick.edgeDropSrcIsInput){
-            const edge: Edge = await this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false);
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Add edge " + edge.getId());
-            this.logicalGraph().fileInfo().modified = true;
-            this.logicalGraph.valueHasMutated();
-
-            // if the new node is a Data node, name the new node according to source port
-            const newName = realSourcePort.getDisplayText();
-            if (node.isData()){
-                node.setName(newName);
-            }
-            realDestPort.setDisplayText(newName);
+            edge = await this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false);
         } else {
-            const edge: Edge = await this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false);
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Add edge " + edge.getId());
-            this.logicalGraph().fileInfo().modified = true;
-            this.logicalGraph.valueHasMutated();
+            edge = await this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false);
 
-            // if the new node is a Data node, name the new node according to destination port
-            const newName = realDestPort.getDisplayText();
-            if (node.isData()){
-                node.setName(newName);
-            }
-            realSourcePort.setDisplayText(newName);
         }
+
+        // check, undo, modified etc
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Add edge " + edge.getId());
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph.valueHasMutated();
     }
 
     addNodeToLogicalGraph = (node: Node, nodeId: NodeId, mode: Eagle.AddNodeMode): Promise<Node> => {
@@ -4288,6 +4274,18 @@ export class Eagle {
             if (!edgeConnectsTwoApplications || twoEventPorts || (edgeConnectsTwoApplications && intermediaryComponent === null)){
                 const edge : Edge = new Edge(srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
                 this.logicalGraph().addEdgeComplete(edge);
+
+                // re-name node and port according to the port name of the Application node
+                if (srcNode.isApplication()){
+                    const newName = srcPort.getDisplayText();
+                    destNode.setName(newName);
+                    destPort.setDisplayText(newName);
+                } else {
+                    const newName = destPort.getDisplayText();
+                    srcNode.setName(newName);
+                    srcPort.setDisplayText(newName);
+                }
+
                 setTimeout(() => {
                     this.setSelection(edge,Eagle.FileType.Graph)
                 }, 30);
