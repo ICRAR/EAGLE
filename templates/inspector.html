@@ -81,10 +81,10 @@
                                     <h5>Category:</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <!-- ko if: $data.getCategoryType() === Category.Type.Data -->
+                                    <!-- ko if: $data.getCategoryType() === Category.Type.Data || $data.getCategoryType() === Category.Type.Unknown -->
                                         <select id="objectInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategoryRequest(event)}}, valueAllowUnset: true, disabled: $data.isLocked(), eagleTooltip:'NOTE: changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category'"></select>
                                     <!-- /ko -->
-                                    <!-- ko if: $data.getCategoryType() !== Category.Type.Data -->
+                                    <!-- ko if: $data.getCategoryType() !== Category.Type.Data && $data.getCategoryType() !== Category.Type.Unknown -->
                                         <span data-bind="text:$data.getCategory()"></span>
                                     <!-- /ko -->
                                 </div>  

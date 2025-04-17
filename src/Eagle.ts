@@ -28,6 +28,7 @@ import * as ko from "knockout";
 import * as bootstrap from 'bootstrap';
 
 import { Category } from './Category';
+import { CategoryData } from "./CategoryData";
 import { ComponentUpdater } from './ComponentUpdater';
 import { Daliuge } from './Daliuge';
 import { DockerHubBrowser } from "./DockerHubBrowser";
@@ -4377,7 +4378,11 @@ export class Eagle {
             categoryType = this.selectedNode().getCategoryType();
         }
 
-        // if selectedNode is not set, return the list of all categories, even though it won't be rendered (I guess)
+        // if selectedNode categoryType is Unknown, return list of all categories
+        if (categoryType === Category.Type.Unknown){
+            return Utils.buildComponentList((cData: CategoryData) => {return true});
+        }
+
         // if selectedNode is set, return a list of categories within the same category type
         return Utils.getCategoriesWithInputsAndOutputs(categoryType);
     }, this)
@@ -4412,16 +4417,22 @@ export class Eagle {
             Utils.showNotification(Palette.BUILTIN_PALETTE_NAME + " palette not found", "Unable to transform node according to a template. Instead just changing category.", "warning");
         } else {
             // find node with new type in builtinPalette
-            const oldCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
+            let oldCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
             const newCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(newNodeCategory);
 
-            // check that prototypes were found for old category and new category
-            if (oldCategoryTemplate === null || newCategoryTemplate === null){
-                console.warn("Prototypes for old and/or new categories could not be found in palettes", oldNode.getCategory(), newNodeCategory);
+            // check that new category prototype was found, if not, skip transform node
+            if (newCategoryTemplate === null){
+                console.warn("Prototype for new category (" + newNodeCategory + ") could not be found in palettes. Can't intelligently transform old node into new node, will just set new category.");
                 return;
-            }
+            } else {
+                // check that old category prototype was found, if not, use 'Unknown' as a placeholder for transform node
+                if (oldCategoryTemplate === null){
+                    console.warn("Prototype for old category (" + oldNode.getCategory() + ") could not be found in palettes. Using existing node as template to transform into new node.");
+                    oldCategoryTemplate = oldNode;
+                }
 
-            Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate);
+                Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate);
+            }
         }
 
         oldNode.setCategory(newNodeCategory);
