@@ -11,13 +11,17 @@
                 <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                 <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                     <div class="dropDropDown">
-                        <div data-bind="template: {name: 'navbar-menu-item-template', data: 'new_palette'}"></div>
-                        <div data-bind="template: {name: 'navbar-menu-item-template', data: 'create_new_palette_from_json'}"></div>
+                        <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette
+                            <span data-bind="text: KeyboardShortcut.idToText('new_palette', true)"></span>
+                        </a>
+                        <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPaletteFromJson">Create New Palette From Json</a>
                     </div>
                 </span>
                 <!-- /ko -->
-                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'open_palette_from_local_disk'}"></div>
-                <div data-bind="template: {name: 'navbar-menu-item-template', data: 'toggle_all_palettes'}"></div>
+                <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Local Palette
+                    <span data-bind="text: KeyboardShortcut.idToText('open_palette_from_local_disk', true)"></span>
+                </a>
+                <a class="dropdown-item" id="toggleAllPalettes" href="#" data-bind="click: toggleAllPalettes">Toggle All Palettes</a>
             </div>
         </span>
         <div class="searchBarContainer">
