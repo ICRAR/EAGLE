@@ -40,7 +40,6 @@ require.config({
         "Setting": "./static/built/Setting",
         "UiModes": "./static/built/UiModes",
         "Tutorial": "./static/built/Tutorial",
-        "tutorials/welcome": "./static/built/tutorials/welcome",
         "tutorials/quickStart": "./static/built/tutorials/quickStart",
         "tutorials/graphBuilding": "./static/built/tutorials/graphBuilding",
         "tutorials/graphConfigs": "./static/built/tutorials/graphConfigs",
