@@ -91,7 +91,7 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await page.locator('.closeBottomWindowBtn button').click();
 
   //open the key graph parameter table modal
-  await page.locator('#button_open_graph_attributes_configuration_table').click();
+  await page.locator('#openGraphConfigurationTable').click();
 
   await page.waitForTimeout(500);
 
