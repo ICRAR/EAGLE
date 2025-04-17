@@ -23,7 +23,6 @@
                                     <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">link</i>
                                     <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'Id: '+$data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
                                     <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.editNodeDescription() data-bs-placement="right" data-bind="eagleTooltip: $data.getDescriptionHTML()" data-bs-toggle="tooltip" data-html="true">library_books</i>
-                                
                                     <!-- ko if: $data.getAllErrorsWarnings().errors.length > 0 || $data.getAllErrorsWarnings().warnings.length > 0 -->
                                         <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
                                     <!-- /ko -->
@@ -42,6 +41,9 @@
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + KeyboardShortcut.idToText('duplicate_selection', true)" data-bs-placement="left">
                                             <i class="material-icons md-20 clickable iconHoverEffect">content_copy</i>
+                                        </button>
+                                        <button type="button" id="displaySelectedNodeAsJson" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.displayNodeAsJson($data)}, clickBubble: false, eagleTooltip: 'Display Node as JSON'" data-bs-placement="left">
+                                            <i class="material-icons md-20 clickable iconHoverEffect">open_in_new</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
