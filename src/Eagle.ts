@@ -1404,35 +1404,24 @@ export class Eagle {
     }
 
     displayObjectAsJson = (fileType: Eagle.FileType) : void => {
-        let clone: LogicalGraph | Palette;
+        let jsonString: string;
         
         switch(fileType){
             case Eagle.FileType.Graph:
-                clone = this.logicalGraph().clone();
+                jsonString = LogicalGraph.toOJSJsonString(this.logicalGraph(), false);
                 break;
             default:
                 console.error("displayObjectAsJson(): Un-handled fileType", fileType);
                 return;
         }
-        
-        // zero-out some info that isn't useful for comparison
-        clone.fileInfo().repositoryUrl = "";
-        clone.fileInfo().commitHash = "";
-        clone.fileInfo().downloadUrl = "";
-        clone.fileInfo().signature = "";
-        clone.fileInfo().lastModifiedName = "";
-        clone.fileInfo().lastModifiedEmail = "";
-        clone.fileInfo().lastModifiedDatetime = 0;
 
-        let jsonString: string;
-        
-        switch(fileType){
-            case Eagle.FileType.Graph:
-                jsonString = LogicalGraph.toOJSJsonString(clone as LogicalGraph, false);
-                break;
-        }
+        Utils.requestUserText("Display " + fileType + " as JSON", "", jsonString);
+    }
 
-        Utils.requestUserText("Export " + fileType + " to JSON", "", jsonString);
+    displayNodeAsJson = (node: Node) : void => {
+        const jsonString: string = JSON.stringify(Node.toOJSGraphJson(node), null, EagleConfig.JSON_INDENT);
+
+        Utils.requestUserText("Display Node as JSON", "", jsonString);
     }
 
     /**
