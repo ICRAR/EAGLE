@@ -12,8 +12,7 @@ export class TutorialSystem {
     static conditionCheck:number = null //this stores the condition interval function
 
     static initiateTutorial(tutorialName: string): void {
-        Eagle.tutorials.forEach(function (tut) {
-
+        for (const tut of Eagle.tutorials){
             if (tutorialName === tut.getName()) {
                 //this is the requested tutorial
                 TutorialSystem.activeTut = tut
@@ -21,8 +20,12 @@ export class TutorialSystem {
                 TutorialSystem.activeTutCurrentStepIndex = 0
                 TutorialSystem.activeTut.initiateTutStep(TutorialStep.Direction.Next)
                 TutorialSystem.addTutKeyboardShortcuts()
+                return;
             }
-        })
+        }
+
+        // couldn't find a tutorial with the given name
+        console.warn("Could not find a tutorial with the name:", tutorialName);
     }
 
     static addTutKeyboardShortcuts(): void {
