@@ -1796,7 +1796,7 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
     z-index:100;
 }
 
-.navbar a, .navbar a span{
+.navbar a{
     color: white !important;
 }
 
