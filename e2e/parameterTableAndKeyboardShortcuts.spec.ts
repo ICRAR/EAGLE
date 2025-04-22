@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   
-  await page.goto('http://localhost:8888/');
+  await page.goto('http://localhost:8888/?tutorial=none');
 
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/EAGLE/);
