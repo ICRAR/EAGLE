@@ -200,15 +200,7 @@ export class QuickActions {
         const eagle: Eagle = Eagle.getInstance();
         QuickActions.initiateQuickAction()
 
-        const canRun = result.shortcut.canRun(eagle);
-
-        if (canRun){
-            result.shortcut.run(eagle, null);
-        } else {
-            if (result.shortcut.warnWhenCantRun){
-                Utils.showNotification("Warning", "Quick Action (" + result.shortcut.text + ") not available in current state.", "warning");
-            }
-        }
+        result.shortcut.run(eagle, null);
     }
 
     static updateQuickActionSearchTerm(eagle: Eagle, event: KeyboardEvent ): void {

@@ -34,14 +34,8 @@ export class KeyboardShortcut {
     text: string;
     keys: Key[];
     eventType: string;
-    warnWhenCantRun: boolean; // warn the user (via notification) if the canRun function returns false
-    inputOK: boolean;         // if true, this shortcut can run when an input element is focussed
     tags: string[];           // tags or key words that are associated with the function to help searchability
     icon: string;
-    
-    quickActionDisplay: (eagle: Eagle) => boolean;   // determine if this shortcut should be shown in the quick actions list, given the current state of EAGLE
-    shortcutListDisplay: (eagle: Eagle) => boolean; // determine if this shortcut should be shown in the shortcut list, given the current state of EAGLE
-    canRun: (eagle: Eagle) => boolean;
     run: (eagle: Eagle, event: KeyboardEvent) => void;
 
     constructor(options: KeyboardShortcut.Options){
@@ -56,16 +50,6 @@ export class KeyboardShortcut {
             this.keys = [];
             this.eventType = "";
         }
-        if ("warnWhenCantRun" in options){
-            this.warnWhenCantRun = options.warnWhenCantRun;
-        } else {
-            this.warnWhenCantRun = true;
-        }
-        if ("inputOK" in options){
-            this.inputOK = options.inputOK;
-        } else {
-            this.inputOK = false;
-        }
         if ("tags" in options){
             this.tags = options.tags;
         } else {
@@ -75,25 +59,6 @@ export class KeyboardShortcut {
             this.icon = options.icon;
         } else {
             this.icon = "icon-build";
-        }
-        if ("quickActionDisplay" in options){
-            this.quickActionDisplay = options.quickActionDisplay;
-        } else {
-            this.quickActionDisplay = KeyboardShortcut.true;
-        }
-        if ("shortcutListDisplay" in options){
-            this.shortcutListDisplay = options.shortcutListDisplay;
-        } else {
-            // TODO: maybe change this to true, we're moving towards always displaying the actions,
-            // even when they are not runnable, we'll rely on the checks within the function to notify users
-            // TODO: does this need to be a function then, maybe can just be a boolean type
-            this.shortcutListDisplay = KeyboardShortcut.false;
-        }
-        if ("canRun" in options){
-            this.canRun = options.canRun;
-        } else {
-            // TODO: we'll probably replace this with permissions checking
-            this.canRun = KeyboardShortcut.true;
         }
     }
 
@@ -132,53 +97,11 @@ export class KeyboardShortcut {
         }
     }
 
-    static nodeIsSelected(eagle: Eagle) : boolean {
-        return eagle.selectedNode() !== null;
-    }
-
-    static commentNodeIsSelected(eagle: Eagle) : boolean {
-        const selectedNode = eagle.selectedNode();
-        return selectedNode !== null && selectedNode.getCategory() === Category.Comment;
-    }
-
-    static edgeIsSelected(eagle: Eagle) : boolean {
-        return eagle.selectedEdge() !== null;
-    }
-
-    static somethingIsSelected(eagle: Eagle) : boolean {
-        return eagle.selectedObjects().length > 0;
-    }
-
     static true(eagle: Eagle) : boolean {
         return true;
     }
-
     static false(eagle: Eagle) : boolean {
         return false;
-    }
-
-    static allowPaletteEditing(eagle: Eagle) : boolean {
-        return Setting.findValue(Setting.ALLOW_PALETTE_EDITING);
-    }
-
-    static allowGraphEditing(eagle: Eagle) : boolean {
-        return Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
-    }
-
-    static graphNotEmpty(eagle: Eagle) : boolean {
-        if (eagle.logicalGraph() === null){
-            return false;
-        }
-
-        return eagle.logicalGraph().getNumNodes() > 0;
-    }
-
-    static quickActionsClosed(eagle: Eagle): boolean {
-        return !eagle.quickActionOpen();
-    }
-
-    static notInStudentMode(eagle: Eagle): boolean {
-        return !Setting.findValue(Setting.STUDENT_SETTINGS_MODE);
     }
 
     static QUICK_ACTION_DOCS(id: string, text: string, tags: string[], url: string): KeyboardShortcut {
@@ -220,8 +143,8 @@ export class KeyboardShortcut {
                 continue;
             }
 
-            // if an input element is focussed, check that it's OK to run this shortcut
-            if (inputElementInFocus && !shortcut.inputOK){
+            // if an input element is focussed, abort
+            if (inputElementInFocus){
                 continue;
             }
 
@@ -271,14 +194,6 @@ export class KeyboardShortcut {
                         break;
                 }
 
-                // abort if we can't run the shortcut in the current EAGLE state
-                if (!shortcut.canRun(eagle)){
-                    if (shortcut.warnWhenCantRun){
-                        Utils.showNotification("Warning", "Shortcut (" + shortcut.text + ") not available in current state.", "warning");
-                    }
-                    continue;
-                }
-
                 // otherwise, run the shortcut
                 shortcut.run(eagle, e);
 
@@ -303,7 +218,6 @@ export class KeyboardShortcut {
             text: "New Graph",
             keys: [new Key("n")],
             tags: ['create','canvas'],
-            shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.newLogicalGraph();}
         }),
@@ -312,7 +226,6 @@ export class KeyboardShortcut {
             text: "New palette",
             keys: [new Key("n", Modifier.Shift)],
             tags: ['create'],
-            shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowPaletteEditing,
             run: (eagle): void => {eagle.newPalette();}
         }),
@@ -321,7 +234,6 @@ export class KeyboardShortcut {
             text: "New config",
             keys: [new Key("n", Modifier.Alt), new Key("n", Modifier.Ctrl)],
             tags: ['create'],
-            shortcutListDisplay: KeyboardShortcut.allowGraphEditing,
             canRun: KeyboardShortcut.allowPaletteEditing, // TODO: this and the line above seem wrong?
             run: (eagle): void => {eagle.newConfig();}
         }),
@@ -781,7 +693,6 @@ export class KeyboardShortcut {
             id: "select_none_in_graph",
             text: "Select none in graph",
             keys: [new Key("Escape")],
-            warnWhenCantRun: false,
             tags: ['deselect'],
             shortcutListDisplay: KeyboardShortcut.true,
             canRun: KeyboardShortcut.somethingIsSelected,
@@ -811,7 +722,6 @@ export class KeyboardShortcut {
             text: "Quick Action",
             keys: [new Key("`"), new Key("\\")],
             shortcutListDisplay: KeyboardShortcut.true,
-            canRun: KeyboardShortcut.quickActionsClosed,
             run: (eagle): void => { QuickActions.initiateQuickAction();}
         }),
 
@@ -866,7 +776,6 @@ export class KeyboardShortcut {
         new KeyboardShortcut({
             id: "quick_intro_tutorial",
             text: "Start UI Quick Intro Tutorial",
-            warnWhenCantRun: false,
             tags: ['ui','interface'],
             icon: 'icon-question_mark',
             run: (eagle): void => {TutorialSystem.initiateTutorial('Quick Start');}
@@ -874,14 +783,12 @@ export class KeyboardShortcut {
         new KeyboardShortcut({
             id: "graph_building_tutorial",
             text: "Start Graph Building Tutorial",
-            warnWhenCantRun: false,
             icon: 'icon-question_mark',
             run: (eagle): void => {TutorialSystem.initiateTutorial('Graph Building');}
         }),
         new KeyboardShortcut({
             id: "graph_config_tutorial",
             text: "Start Graph Configuration Tutorial",
-            warnWhenCantRun: false,
             icon: 'icon-question_mark',
             run: (eagle): void => {TutorialSystem.initiateTutorial('Graph Configurations');}
         }),
@@ -988,13 +895,8 @@ export namespace KeyboardShortcut{
         id: string,
         text: string,
         keys?: Key[],
-        warnWhenCantRun?: boolean,
-        inputOK?: boolean,
         tags?: string[],
         icon?: string,
-        quickActionDisplay?: (eagle: Eagle) => boolean,
-        shortcutListDisplay?: (eagle: Eagle) => boolean,
-        canRun?: (eagle: Eagle) => boolean,
         run: (eagle: Eagle, event: KeyboardEvent) => void
     }
 }

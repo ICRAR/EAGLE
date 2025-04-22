@@ -1766,13 +1766,13 @@ export class Utils {
         });
     }
 
+    // TODO: could we return a list of KeyboardShortcut here?
     static getShortcutDisplay() : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void}[] {
         const displayShortcuts : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void} []=[];
-        const eagle: Eagle = Eagle.getInstance();
 
         for (const object of KeyboardShortcut.shortcuts){
-            // skip if shortcut should not be displayed
-            if (!object.shortcutListDisplay(eagle)){
+            // skip if shortcut has no keys
+            if (object.keys.length === 0){
                 continue;
             }
 
