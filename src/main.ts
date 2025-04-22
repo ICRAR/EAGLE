@@ -359,7 +359,12 @@ function autoTutorial(): void {
 
 function initiateWelcome(firstTimeVisit:boolean): void {
     if(firstTimeVisit){
-        TutorialSystem.initiateTutorial('Quick Start');
+        const urlParams = new URLSearchParams(window.location.search);
+        const tutorialName = urlParams.get('tutorial');
+
+        if(tutorialName != 'none'){
+            TutorialSystem.initiateTutorial('Quick Start');
+        }
     }
 }
 
