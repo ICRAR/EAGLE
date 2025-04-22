@@ -52,10 +52,10 @@ test('Creating a Simple Graph', async ({ page }) => {
   await page.waitForTimeout(200);
 
   //drag an edge from helloWorldApp -> File
-  // await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
+  await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
 
   //click on the input port of the file to open the parameter table modal and highlight the port
-  await page.locator('.inputPort').click();
+  await page.locator('#hello .inputPort').click();
   //rename the port
   await page.locator('.highlighted .tableFieldDisplayName').fill('testInput');
 
