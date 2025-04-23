@@ -298,6 +298,14 @@ export class Node {
         }
     }, this);
 
+    usageOptions : ko.PureComputed<Daliuge.FieldUsage[]> = ko.pureComputed(() => {
+        // fields on construct nodes cannot be ports
+        if (this.categoryType() === Category.Type.Construct){
+            return [Daliuge.FieldUsage.NoPort];
+        }
+        return Object.values(Daliuge.FieldUsage)
+    }, this);
+
     getInputPorts = () : Field[] => {
         const result: Field[] = []
 
@@ -1335,12 +1343,11 @@ export class Node {
         }
 
         // translate categories if required
-        let category: Category = nodeData.category;
+        const category: Category = nodeData.category;
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
             errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
-            category = Category.Unknown;
         }
 
         const node : Node = new Node(name, "", category);
@@ -1935,6 +1942,12 @@ export class Node {
         for (let i = 0 ; i < node.getFields().length ; i++){
             const field:Field = node.getFields()[i]
             Field.isValid(node,field,selectedLocation,i)
+        }
+
+        if(!Utils.isKnownCategory(node.getCategory())){
+            const message: string = "Node (" + node.getName() + ") has unrecognised category " + node.getCategory();
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning});
         }
 
         if(node.isConstruct()){

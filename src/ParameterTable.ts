@@ -317,6 +317,9 @@ export class ParameterTable {
         if (edgesToRemove.length > 0){
             Utils.showNotification("Removed edges", "Removed " + edgesToRemove.length + " edge(s) made invalid by the change in port usage", "info");
         }
+
+        // trigger graph check, since changing the usage of a field may break some rules
+        eagle.checkGraph();
     }
 
     // when a field value is modified in the parameter table, we need to flag the containing palette or logical graph as modified
@@ -663,11 +666,11 @@ export class ParameterTable {
         }, 100);
     }
 
-    static duplicateParameter = (index:number) : void => {
+    static duplicateParameter = (index:number,fieldId:string) : void => {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
         const eagle = Eagle.getInstance()
 
-        const copiedField = eagle.selectedNode().getFields()[index].clone()
+        const copiedField = eagle.selectedNode().findFieldById(fieldId).clone()
         copiedField.setId(Utils.generateFieldId())
         copiedField.setDisplayText(copiedField.getDisplayText()+' copy')
         if(ParameterTable.hasSelection()){
@@ -682,7 +685,7 @@ export class ParameterTable {
 
         setTimeout(function() {
             //handling selecting and highlighting the newly created field on the node
-            const clickTarget = $(".paramsTableWrapper tr:nth-child(" + (fieldIndex+1) + ") .selectionTargets")[0]
+            const clickTarget = $(".paramsTableWrapper tr#tableRow_"+ copiedField.getId() +" .selectionTargets")[0]
             clickTarget.click() //simply clicking the element is best as it also lets knockout handle all of the selection and observable update process
             clickTarget.focus() //used to focus the field allowing the user to immediately start typing 
             $(clickTarget).trigger("select")
@@ -693,15 +696,15 @@ export class ParameterTable {
         }, 100);
     }
 
-    static duplicateTableRow = (index:number) : void => {
+    static duplicateTableRow = (index:number, fieldId:string) : void => {
         const eagle = Eagle.getInstance()
 
-        ParameterTable.duplicateParameter(index)
-        eagle.selectedObjects.valueHasMutated()
+        ParameterTable.duplicateParameter(index, fieldId)
+        // eagle.selectedObjects.valueHasMutated()
         eagle.flagActiveFileModified()
 
         //update the parameter table fields array
-        ParameterTable.copySelectedNodeFields()
+        ParameterTable.updateContent(eagle.selectedNode())
     }
 
     static deleteTableRow = (field:Field) : void => {
@@ -712,8 +715,7 @@ export class ParameterTable {
         eagle.flagActiveFileModified()
 
         //update the parameter table fields array
-        ParameterTable.copySelectedNodeFields()
-        
+        ParameterTable.updateContent(eagle.selectedNode())
     }
 
     static getCurrentParamReadonly = (field: Field) : boolean => {
@@ -790,7 +792,7 @@ export class ParameterTable {
         }
     }
 
-    static setNode = (node: Node) : void => {
+    static updateContent = (node: Node) : void => {
         ParameterTable.copyFields(node.getFields());
         ParameterTable.sortFields();
     }

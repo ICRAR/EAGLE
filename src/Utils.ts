@@ -505,12 +505,13 @@ export class Utils {
         });
     }
 
-    static requestUserText(title : string, message : string, defaultText: string) : Promise<string> {
+    static requestUserText(title : string, message : string, defaultText: string, readonly: boolean = false) : Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputTextModalTitle').text(title);
             $('#inputTextModalMessage').html(message);
 
             $('#inputTextModalInput').val(defaultText);
+            $('#inputTextModalInput').prop('readonly', readonly);
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
@@ -796,7 +797,6 @@ export class Utils {
     }
 
     static preparePalette(palette: Palette, paletteListItem: {name:string, filename:string, readonly:boolean, expanded: boolean}) : void {
-        palette.fileInfo().clear();
         palette.fileInfo().name = paletteListItem.name;
         palette.fileInfo().readonly = paletteListItem.readonly;
         palette.fileInfo().builtIn = true;
@@ -2695,6 +2695,11 @@ export class Utils {
         if (node.getDescription() === sourceTemplate.getDescription()){
             node.setDescription(destinationTemplate.getDescription());
         }
+
+        // set some other rendering attributes of the node, to ensure they match the destinationTemplate
+        node.setCategoryType(destinationTemplate.getCategoryType());
+        node.setRadius(destinationTemplate.getRadius());
+        node.setColor(destinationTemplate.getColor());
     }
 
     static findOldRepositoriesInLocalStorage(): Repository[] {
