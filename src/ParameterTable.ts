@@ -490,29 +490,40 @@ export class ParameterTable {
         field.setDescription(fieldDescription);
     }
 
-    static async requestEditValueCode(field:Field) : Promise<void> {
+    static async requestEditValueCode(field:Field, defaultValue: boolean) : Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
         const node: Node = eagle.selectedNode();
 
         let editingField // this will either be the normal field or the configured field if applicable
+        let editingValue // this will either be the value or default value or configured value
 
         //checking if the field is a configured field
-        if(field.getGraphConfigField()){
+        if(!defaultValue && field.getGraphConfigField()){
             editingField =  field.getGraphConfigField()
+            editingValue = editingField.getValue()
         }else{
             editingField = field
+            if(defaultValue){
+                editingValue = editingField.getDefaultValue()
+            }else{
+                editingValue = editingField.getValue()
+            }
         }
 
         let fieldValue: string;
         try {
-            fieldValue = await Utils.requestUserCode("python","Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingField.getValue());
+            fieldValue = await Utils.requestUserCode("python","Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue);
         } catch (error) {
             console.error(error);
             return;
         }
 
         // set the Value on the field
-        editingField.setValue(fieldValue);
+        if(defaultValue && editingField instanceof Field){
+            editingField.setDefaultValue(fieldValue);
+        }else{
+            editingField.setValue(fieldValue);
+        }
     }
 
     static async requestEditCommentInModal(currentField:Field): Promise<void> {

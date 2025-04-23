@@ -206,7 +206,7 @@
                                                                 <textarea  style="resize: none;" class="tableParameter inputNoArrows tableFieldStringValueInput" data-bind="css: {selectedTableParameter: ParameterTable.isSelected('value', $data) }, eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}"></textarea>
                                                             <!-- /ko -->
                                                             <!-- ko if: !ParameterTable.getNodeLockedState($data) && $data.getDisplayText() === 'func_code' -->
-                                                                <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueCode($data)}"></button>
+                                                                <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueCode($data,false)}"></button>
                                                             <!-- /ko -->
                                                         </td>
                                                     <!-- /ko -->
@@ -266,6 +266,9 @@
                                                     <!-- ko ifnot: $data.getType() === 'Integer' -->    
                                                         <td class='columnCell column_DefaultValue' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('defaultValue', $data) }">
                                                             <textarea  style="resize: none;" class="tableParameter inputNoArrows" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}"></textarea>
+                                                            <!-- ko if: !ParameterTable.getNodeLockedState($data) && $data.getDisplayText() === 'func_code' -->
+                                                                <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueCode($data, true)}"></button>
+                                                            <!-- /ko -->
                                                         </td>
                                                     <!-- /ko -->
                                                 <!-- /ko -->
