@@ -370,7 +370,7 @@ export class ParameterTable {
         ParameterTable.initiateResizableColumns(headerId)
         return true
     }
-    
+
     static showEditComment(comment: HTMLElement) : void {
         $(comment).find('.parameterTableCommentBtn').show()
     }
@@ -488,6 +488,31 @@ export class ParameterTable {
 
         // set the description on the field
         field.setDescription(fieldDescription);
+    }
+
+    static async requestEditValueCode(field:Field) : Promise<void> {
+        const eagle: Eagle = Eagle.getInstance();
+        const node: Node = eagle.selectedNode();
+
+        let editingField // this will either be the normal field or the configured field if applicable
+
+        //checking if the field is a configured field
+        if(field.getGraphConfigField()){
+            editingField =  field.getGraphConfigField()
+        }else{
+            editingField = field
+        }
+
+        let fieldValue: string;
+        try {
+            fieldValue = await Utils.requestUserCode("python","Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingField.getValue());
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        // set the Value on the field
+        editingField.setValue(fieldValue);
     }
 
     static async requestEditCommentInModal(currentField:Field): Promise<void> {
