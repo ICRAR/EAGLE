@@ -206,7 +206,7 @@
                                                                 <textarea  style="resize: none;" class="tableParameter inputNoArrows tableFieldStringValueInput" data-bind="css: {selectedTableParameter: ParameterTable.isSelected('value', $data) }, eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}"></textarea>
                                                             <!-- /ko -->
                                                             <!-- ko if: !ParameterTable.getNodeLockedState($data) && $data.getDisplayText() === 'func_code' -->
-                                                                <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueCode($data,false)}"></button>
+                                                                <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueCode($data, false)}"></button>
                                                             <!-- /ko -->
                                                         </td>
                                                     <!-- /ko -->
