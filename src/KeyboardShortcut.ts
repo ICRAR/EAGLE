@@ -645,7 +645,6 @@ export class KeyboardShortcut {
             id: "select_all_in_graph",
             text: "Select all in graph",
             keys: [new Key("a", Modifier.Ctrl)],
-            canRun: KeyboardShortcut.graphNotEmpty,
             run: (eagle): void => { eagle.selectAllInGraph();}
         }),
         new KeyboardShortcut({
@@ -653,7 +652,6 @@ export class KeyboardShortcut {
             text: "Select none in graph",
             keys: [new Key("Escape")],
             tags: ['deselect'],
-            canRun: KeyboardShortcut.somethingIsSelected,
             run: (eagle): void => { eagle.selectNoneInGraph();}
         }),
 
@@ -663,14 +661,12 @@ export class KeyboardShortcut {
             text: "Check Graph",
             keys: [new Key("!", Modifier.Shift)],
             tags: ['error','errors','fix'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.showGraphErrors();}
         }),
         new KeyboardShortcut({
             id: "fix_all",
             text: "Fix all errors in graph",
             keys: [new Key("f")],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => { Errors.fixAll(); }
         }),
         new KeyboardShortcut({

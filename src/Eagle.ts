@@ -3170,16 +3170,23 @@ export class Eagle {
 
     selectAllInGraph = () : void => {
         const newSelection : (Node | Edge)[] = [];
+        let numNodes = 0;
+        let numEdges = 0;
 
         // add nodes
         for (const node of this.logicalGraph().getNodes()){
             newSelection.push(node);
+            numNodes += 1;
         }
 
         // add edges
         for (const edge of this.logicalGraph().getEdges()){
             newSelection.push(edge);
+            numEdges += 1;
         }
+
+        // notify
+        Utils.showNotification("Select All in Graph", numNodes + " node(s) and " + numEdges + " edge(s) selected", "info");
 
         // set selection
         this.selectedObjects(newSelection);

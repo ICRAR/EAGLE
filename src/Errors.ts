@@ -1,7 +1,8 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
+import { Setting } from "./Setting";
+import { Utils } from './Utils';
 
 export class Errors {
     static Message(message: string): Errors.Issue {
@@ -24,6 +25,12 @@ export class Errors {
         let numErrors   = Infinity;
         let numWarnings = Infinity;
         let numIterations = 0;
+
+        // abort if graph editing is not supported
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Unable to Fix", "Graph Editing is not permitted in the current UI mode", "warning", false);
+            return;
+        }
 
         while (numWarnings !== eagle.graphWarnings().length || numErrors !== eagle.graphErrors().length){
             if (numIterations > 10){
