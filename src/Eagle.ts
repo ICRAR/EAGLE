@@ -1415,13 +1415,13 @@ export class Eagle {
                 return;
         }
 
-        Utils.requestUserText("Display " + fileType + " as JSON", "", jsonString);
+        Utils.requestUserText("Display " + fileType + " as JSON", "", jsonString, true);
     }
 
     displayNodeAsJson = (node: Node) : void => {
         const jsonString: string = JSON.stringify(Node.toOJSGraphJson(node), null, EagleConfig.JSON_INDENT);
 
-        Utils.requestUserText("Display Node as JSON", "", jsonString);
+        Utils.requestUserText("Display Node as JSON", "", jsonString, true);
     }
 
     /**

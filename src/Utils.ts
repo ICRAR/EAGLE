@@ -505,12 +505,13 @@ export class Utils {
         });
     }
 
-    static requestUserText(title : string, message : string, defaultText: string) : Promise<string> {
+    static requestUserText(title : string, message : string, defaultText: string, readonly: boolean = false) : Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputTextModalTitle').text(title);
             $('#inputTextModalMessage').html(message);
 
             $('#inputTextModalInput').val(defaultText);
+            $('#inputTextModalInput').prop('readonly', readonly);
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
