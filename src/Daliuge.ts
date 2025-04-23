@@ -254,7 +254,6 @@ export namespace Daliuge {
                 Category.PyFuncApp
             ],
             fields: [
-                Daliuge.funcCodeField,
                 Daliuge.funcNameField
             ]
         },
