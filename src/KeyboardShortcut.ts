@@ -212,6 +212,7 @@ export class KeyboardShortcut {
     // TODO: check all tags, remove words that appear in the name, since I think they are already part of the search?
     // TODO: could this be a [id: string]: KeyboardShortcut (dictionary)?
     static shortcuts: KeyboardShortcut[] = [
+        /*
         // new
         new KeyboardShortcut({
             id: "new_graph",
@@ -499,6 +500,7 @@ export class KeyboardShortcut {
             canRun: KeyboardShortcut.graphNotEmpty,
             run: (eagle): void => {eagle.saveGraphScreenshot();}
         }),
+        */
         new KeyboardShortcut({
             id: "show_graph_info",
             text: "Show Graph Info",
@@ -524,7 +526,6 @@ export class KeyboardShortcut {
             text: "Toggle left window",
             keys: [new Key("ArrowLeft")],
             tags: ['close','open'],
-            canRun: function(){return Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING)},
             run:  (eagle): void => {SideWindow.toggleShown('left');}
         }),
         new KeyboardShortcut({
@@ -546,7 +547,6 @@ export class KeyboardShortcut {
             text: "Toggle all windows",
             keys: [new Key("ArrowUp")],
             tags: ['close','open'],
-            canRun: function(){return Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING)},
             run: (eagle): void => {eagle.toggleWindows();}
         }),
         new KeyboardShortcut({
@@ -561,7 +561,6 @@ export class KeyboardShortcut {
             text: "Open Parameter Table",
             keys: [new Key("t")],
             tags: ['fields','field','node'],
-            canRun: KeyboardShortcut.notInStudentMode,
             run: (eagle): void => {ParameterTable.toggleTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}
         }),
         new KeyboardShortcut({
@@ -583,22 +582,21 @@ export class KeyboardShortcut {
             text: "Open Repository",
             keys: [new Key("1")],
             tags: ['tab','tabs','window','menu','right'],
-            run: (eagle): void => { eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository)}
+            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository)}
         }),
         new KeyboardShortcut({
             id: "open_translation_tab",
             text: "Open Translation",
             keys: [new Key("3")],
             tags: ['tab','tabs','window','menu','right'],
-            canRun: function(){return Setting.findValue(Setting.USER_TRANSLATOR_MODE) != Setting.TranslatorMode.Minimal},
-            run: (eagle): void => { eagle.changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}
+            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}
         }),
         new KeyboardShortcut({
             id: "open_hierarchy_tab",
             text: "Open Hierarchy",
             keys: [new Key("2")],
             tags: ['tab','tabs','window','menu','right'],
-            run: (eagle): void => { eagle.changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}
+            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}
         }),
 
         // undo/redo
@@ -622,21 +620,18 @@ export class KeyboardShortcut {
             id: "copy_from_graph_without_children",
             text: "Copy from graph without children",
             keys: [new Key("c", Modifier.Shift)],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.copySelectionToClipboard(false);}
         }),
         new KeyboardShortcut({
             id: "copy_from_graph",
             text: "Copy from graph",
             keys: [new Key("c", Modifier.Ctrl)],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.copySelectionToClipboard(true);}
         }),
         new KeyboardShortcut({
             id: "paste_to_graph",
             text: "Paste to graph",
             keys: [new Key("v", Modifier.Ctrl)],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.pasteFromClipboard();}
         }),
 

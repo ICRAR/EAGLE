@@ -398,8 +398,16 @@ export class Eagle {
         return  "<strong>Config:</strong> " +this.logicalGraph().getActiveGraphConfig().getName()
     }, this);
 
+    // TODO: move to SideWindow.ts?
     toggleWindows = () : void  => {
         const setOpen = !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) || !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)
+
+        // don't allow open if palette and graph editing are disabled
+        const editingAllowed: boolean = Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+        if (setOpen && !editingAllowed){
+            Utils.showNotification("Toggle Windows", "Windows may not be opened due to the current UI mode", "info", false);
+            return;
+        }
 
         SideWindow.setShown('left', setOpen);
         SideWindow.setShown('right', setOpen);
@@ -707,9 +715,9 @@ export class Eagle {
     }
 
     changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {
-        Setting.setValue(Setting.RIGHT_WINDOW_MODE,requestedMode)
+        Setting.setValue(Setting.RIGHT_WINDOW_MODE, requestedMode)
         
-        SideWindow.setShown('right',true)
+        SideWindow.setShown('right', true)
 
         //trigger a re-render of the hierarchy
         if (Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy){

@@ -18,10 +18,17 @@ export class SideWindow {
         this.adjusting = ko.observable(false);
     }
 
-    static toggleShown = (window:string): void => {
+    static toggleShown = (window: "left"|"right"|"bottom"): void => {
         if(TutorialSystem.activeTut){
             //if a tutorial is active, the arrow keys are used for navigating through steps
             return
+        }
+
+        // don't allow toggle if palette and graph editing are disabled
+        const editingAllowed: boolean = Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+        if (window === "left" && !editingAllowed){
+            Utils.showNotification("Toggle Window", "Palette Window may not be opened due to the current UI mode", "info", false);
+            return;
         }
         
         SideWindow.toggleTransition()
@@ -30,21 +37,27 @@ export class SideWindow {
             Setting.find(Setting.LEFT_WINDOW_VISIBLE).toggle()
         }else if (window === 'right'){
             Setting.find(Setting.RIGHT_WINDOW_VISIBLE).toggle()
-        }else{
+        }else if (window === 'bottom'){
             Setting.find(Setting.BOTTOM_WINDOW_VISIBLE).toggle()
+        }else{
+            console.warn("toggleShown(): Unknown window:", window);
+            return;
         }
         UiModeSystem.saveToLocalStorage()
     }
 
-    static setShown = (window:string,value:boolean): void => {
+    static setShown = (window:"left"|"right"|"bottom", value:boolean): void => {
         SideWindow.toggleTransition()
 
         if(window === 'left'){
-            Setting.setValue(Setting.LEFT_WINDOW_VISIBLE,value)
-        }else if (window === 'right'){
-            Setting.setValue(Setting.RIGHT_WINDOW_VISIBLE,value)
+            Setting.setValue(Setting.LEFT_WINDOW_VISIBLE, value);
+        }else if(window === 'right'){
+            Setting.setValue(Setting.RIGHT_WINDOW_VISIBLE, value);
+        }else if (window === 'bottom'){
+            Setting.setValue(Setting.BOTTOM_WINDOW_VISIBLE, value);
         }else{
-            Setting.setValue(Setting.BOTTOM_WINDOW_VISIBLE,value)
+            console.warn("setShown(): Unknown window:", window);
+            return;
         }
         UiModeSystem.saveToLocalStorage()
     }
@@ -69,6 +82,8 @@ export class SideWindow {
 
     // drag drop
     static nodeDragStart = (node: Node, e : any) : boolean => {
+        console.log("nodeDragStart", e);
+
         const eagle: Eagle = Eagle.getInstance();
 
         //for hiding any tooltips while dragging and preventing them from showing

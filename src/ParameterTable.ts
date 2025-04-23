@@ -579,6 +579,14 @@ export class ParameterTable {
     }
 
     static toggleTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
+        // if user in student mode, abort
+        const inStudentMode: boolean = Setting.findValue(Setting.STUDENT_SETTINGS_MODE);
+        if (inStudentMode && mode === Eagle.BottomWindowMode.NodeParameterTable){
+            Utils.showNotification("Student Mode", "Unable to open Parameter Table in student mode", "danger", false);
+            return;
+        }
+        
+
         //if we are already in the requested mode, we can toggle the bottom window
         if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === mode){
             SideWindow.toggleShown('bottom')
