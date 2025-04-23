@@ -13,6 +13,7 @@ import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
 import { GraphConfig, GraphConfigField } from "./GraphConfig";
 import { SideWindow } from "./SideWindow";
+import { param } from "jquery";
 
 export class ParameterTable {
     static selectionParent : ko.Observable<Field | null>; // row in the parameter table that is currently selected
@@ -599,6 +600,13 @@ export class ParameterTable {
 
         //open the bottom window
         SideWindow.setShown('bottom',true)
+
+        if(mode = Eagle.BottomWindowMode.NodeParameterTable){
+            setTimeout(() => {
+                //update the contents of the parameter table and its sorting arrow display
+                ParameterTable.updateContent(eagle.selectedNode())
+            }, 50);
+        }
 
         //make sure the right click menu is closed
         if(selectType === ParameterTable.SelectType.RightClick){
