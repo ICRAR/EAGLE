@@ -6,6 +6,7 @@ import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { LogicalGraph } from "./LogicalGraph";
 import { Utils } from "./Utils";
+import { EagleConfig } from "./EagleConfig";
 
 export class GraphConfig {
     private id: ko.Observable<GraphConfig.Id>;
@@ -235,7 +236,7 @@ export class GraphConfig {
         const json: any = GraphConfig.toJson(graphConfig);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
-        result += JSON.stringify(json, null, 4);
+        result += JSON.stringify(json, null, EagleConfig.JSON_INDENT);
 
         return result;
     }

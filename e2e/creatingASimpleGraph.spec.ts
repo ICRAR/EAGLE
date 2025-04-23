@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Creating a Simple Graph', async ({ page }) => {
   
-  await page.goto('http://localhost:8888/');
+  await page.goto('http://localhost:8888/?tutorial=none');
 
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/EAGLE/);
@@ -55,7 +55,7 @@ test('Creating a Simple Graph', async ({ page }) => {
   await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
 
   //click on the input port of the file to open the parameter table modal and highlight the port
-  await page.locator('.inputPort').click();
+  await page.locator('#hello .inputPort').click();
   //rename the port
   await page.locator('.highlighted .tableFieldDisplayName').fill('testInput');
 

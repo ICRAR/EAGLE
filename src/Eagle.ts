@@ -28,6 +28,7 @@ import * as ko from "knockout";
 import * as bootstrap from 'bootstrap';
 
 import { Category } from './Category';
+import { CategoryData } from "./CategoryData";
 import { ComponentUpdater } from './ComponentUpdater';
 import { Daliuge } from './Daliuge';
 import { DockerHubBrowser } from "./DockerHubBrowser";
@@ -1403,35 +1404,24 @@ export class Eagle {
     }
 
     displayObjectAsJson = (fileType: Eagle.FileType) : void => {
-        let clone: LogicalGraph | Palette;
+        let jsonString: string;
         
         switch(fileType){
             case Eagle.FileType.Graph:
-                clone = this.logicalGraph().clone();
+                jsonString = LogicalGraph.toOJSJsonString(this.logicalGraph(), false);
                 break;
             default:
                 console.error("displayObjectAsJson(): Un-handled fileType", fileType);
                 return;
         }
-        
-        // zero-out some info that isn't useful for comparison
-        clone.fileInfo().repositoryUrl = "";
-        clone.fileInfo().commitHash = "";
-        clone.fileInfo().downloadUrl = "";
-        clone.fileInfo().signature = "";
-        clone.fileInfo().lastModifiedName = "";
-        clone.fileInfo().lastModifiedEmail = "";
-        clone.fileInfo().lastModifiedDatetime = 0;
 
-        let jsonString: string;
-        
-        switch(fileType){
-            case Eagle.FileType.Graph:
-                jsonString = LogicalGraph.toOJSJsonString(clone as LogicalGraph, false);
-                break;
-        }
+        Utils.requestUserText("Display " + fileType + " as JSON", "", jsonString);
+    }
 
-        Utils.requestUserText("Export " + fileType + " to JSON", "", jsonString);
+    displayNodeAsJson = (node: Node) : void => {
+        const jsonString: string = JSON.stringify(Node.toOJSGraphJson(node), null, EagleConfig.JSON_INDENT);
+
+        Utils.requestUserText("Display Node as JSON", "", jsonString);
     }
 
     /**
@@ -3255,7 +3245,6 @@ export class Eagle {
 
             // mark the palette as modified
             destinationPalette.fileInfo().modified = true;
-            destinationPalette.sort();
         }
     }
 
@@ -3518,33 +3507,19 @@ export class Eagle {
         }
 
         // create edge (in correct direction)
+        let edge: Edge;
         if (!RightClick.edgeDropSrcIsInput){
-            const edge: Edge = await this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false);
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Add edge " + edge.getId());
-            this.logicalGraph().fileInfo().modified = true;
-            this.logicalGraph.valueHasMutated();
-
-            // if the new node is a Data node, name the new node according to source port
-            const newName = realSourcePort.getDisplayText();
-            if (node.isData()){
-                node.setName(newName);
-            }
-            realDestPort.setDisplayText(newName);
+            edge = await this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false);
         } else {
-            const edge: Edge = await this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false);
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Add edge " + edge.getId());
-            this.logicalGraph().fileInfo().modified = true;
-            this.logicalGraph.valueHasMutated();
+            edge = await this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false);
 
-            // if the new node is a Data node, name the new node according to destination port
-            const newName = realDestPort.getDisplayText();
-            if (node.isData()){
-                node.setName(newName);
-            }
-            realSourcePort.setDisplayText(newName);
         }
+
+        // check, undo, modified etc
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Add edge " + edge.getId());
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph.valueHasMutated();
     }
 
     addNodeToLogicalGraph = (node: Node, nodeId: NodeId, mode: Eagle.AddNodeMode): Promise<Node> => {
@@ -4287,6 +4262,18 @@ export class Eagle {
             if (!edgeConnectsTwoApplications || twoEventPorts || (edgeConnectsTwoApplications && intermediaryComponent === null)){
                 const edge : Edge = new Edge(srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
                 this.logicalGraph().addEdgeComplete(edge);
+
+                // re-name node and port according to the port name of the Application node
+                if (srcNode.isApplication()){
+                    const newName = srcPort.getDisplayText();
+                    destNode.setName(newName);
+                    destPort.setDisplayText(newName);
+                } else {
+                    const newName = destPort.getDisplayText();
+                    srcNode.setName(newName);
+                    srcPort.setDisplayText(newName);
+                }
+
                 setTimeout(() => {
                     this.setSelection(edge,Eagle.FileType.Graph)
                 }, 30);
@@ -4377,7 +4364,11 @@ export class Eagle {
             categoryType = this.selectedNode().getCategoryType();
         }
 
-        // if selectedNode is not set, return the list of all categories, even though it won't be rendered (I guess)
+        // if selectedNode categoryType is Unknown, return list of all categories
+        if (categoryType === Category.Type.Unknown){
+            return Utils.buildComponentList((cData: CategoryData) => {return true});
+        }
+
         // if selectedNode is set, return a list of categories within the same category type
         return Utils.getCategoriesWithInputsAndOutputs(categoryType);
     }, this)
@@ -4412,16 +4403,22 @@ export class Eagle {
             Utils.showNotification(Palette.BUILTIN_PALETTE_NAME + " palette not found", "Unable to transform node according to a template. Instead just changing category.", "warning");
         } else {
             // find node with new type in builtinPalette
-            const oldCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
+            let oldCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
             const newCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(newNodeCategory);
 
-            // check that prototypes were found for old category and new category
-            if (oldCategoryTemplate === null || newCategoryTemplate === null){
-                console.warn("Prototypes for old and/or new categories could not be found in palettes", oldNode.getCategory(), newNodeCategory);
+            // check that new category prototype was found, if not, skip transform node
+            if (newCategoryTemplate === null){
+                console.warn("Prototype for new category (" + newNodeCategory + ") could not be found in palettes. Can't intelligently transform old node into new node, will just set new category.");
                 return;
-            }
+            } else {
+                // check that old category prototype was found, if not, use 'Unknown' as a placeholder for transform node
+                if (oldCategoryTemplate === null){
+                    console.warn("Prototype for old category (" + oldNode.getCategory() + ") could not be found in palettes. Using existing node as template to transform into new node.");
+                    oldCategoryTemplate = oldNode;
+                }
 
-            Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate);
+                Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate);
+            }
         }
 
         oldNode.setCategory(newNodeCategory);

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('Adding and Removing Repositories', async ({ page }) => {
   page.setViewportSize({width:1920,height:1080})
   
-  await page.goto('http://localhost:8888/');
+  await page.goto('http://localhost:8888/?tutorial=none');
 
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/EAGLE/);

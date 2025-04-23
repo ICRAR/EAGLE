@@ -78,9 +78,9 @@ export class KeyboardShortcut {
 
         // surround with brackets if required
         if (addBrackets){
-            return "[ " + texts.join(', ') + " ]";       
+            return "[ " + texts.join(' or ') + " ]";       
         } else {
-            return texts.join(', ');
+            return texts.join(' or ');
         }
     }
 

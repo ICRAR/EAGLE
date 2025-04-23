@@ -18,6 +18,11 @@
 
         <ul id="navBarToolBar" class="nav navbar-nav navbar-center">
 
+            <!-- quick run  -->
+            <button id="quickAction" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: QuickActions.initiateQuickAction, eagleTooltip: 'Search and run functions or look for documentation ' + KeyboardShortcut.idToText('quick_action', true)" >
+                <i class="md-18 material-icons">smart_button</i>
+            </button>
+
             <!-- navbar category -->
             <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example">
                 <span class="navBarToolBarTitle">Graph</span>
@@ -209,14 +214,16 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownHelp">
                     <a class="dropdown-item" id="about" href="#" data-bind="click: showAbout">About</a>
-                    <span class="dropdown-item dropDropDownParent" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownTutorials">Tutorials
+                    <span class="dropdown-item dropDropDownParent" id="navTutorials" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownTutorials">Tutorials
                         <div class="dropDropDown">
                             <a class="dropdown-item" id="quickIntroTutBtn" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Quick Start')}">Quick Introduction</a>
                             <a class="dropdown-item" id="graphBuildingTutBtn" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Graph Building')}">Graph Building</a>
                             <a class="dropdown-item" id="graphConfigurationTutBtn" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Graph Configurations')}">Graph Configurations</a>
                         </div>
                     </span>
-                    <a class="dropdown-item" id="onlineDocs" href="#" data-bind="click: onlineDocs">Online Docs</a>
+                    <a class="dropdown-item" id="onlineDocs" href="#" data-bind="click: onlineDocs">Online Docs
+                        <span data-bind="text: KeyboardShortcut.idToText('open_help', true)"></span>
+                    </a>
                     <a class="dropdown-item" id="readme" href="#" data-bind="click: readme">GitHub README</a>
                     <a class="dropdown-item" id="submitIssue" href="#" data-bind="click: submitIssue">Submit Issue</a>
                     <a class="dropdown-item" id="keyboardShortcuts" href="#" data-bind="click: Utils.showShortcutsModal">Keyboard Shortcuts
