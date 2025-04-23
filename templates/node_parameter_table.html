@@ -158,7 +158,7 @@
                                                 <!-- kept for now as we will need the space for the row drag handle -->
                                             </td>
                                             <!-- /ko -->
-                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
+                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->    
                                                 <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('displayText', $data) }, eagleTooltip:description">
                                                     <input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}}">
                                                     <!-- ko if: Eagle.selectedLocation() === Eagle.FileType.Graph -->
@@ -204,6 +204,9 @@
                                                             <!-- /ko -->
                                                             <!-- ko ifnot: $data.getGraphConfigField() -->
                                                                 <textarea  style="resize: none;" class="tableParameter inputNoArrows tableFieldStringValueInput" data-bind="css: {selectedTableParameter: ParameterTable.isSelected('value', $data) }, eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}"></textarea>
+                                                            <!-- /ko -->
+                                                            <!-- ko if: !ParameterTable.getNodeLockedState($data) && $data.getDisplayText() === 'func_code' -->
+                                                                <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditDescriptionInModal($data)}"></button>
                                                             <!-- /ko -->
                                                         </td>
                                                     <!-- /ko -->
@@ -301,10 +304,10 @@
                                             <!-- /ko -->
                                                 
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
-                                                <td class='columnCell column_Description' onmouseenter="ParameterTable.showEditDescription(this)" onmouseleave="ParameterTable.hideEditDescription(this)" data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('description', $data) }, eagleTooltip:description">
+                                                <td class='columnCell column_Description' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('description', $data) }, eagleTooltip:description">
                                                     <textarea  style="resize: none;" class="tableParameter" type="string" data-bind="value: description, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $data, $index())}}"></textarea>
                                                     <!-- ko ifnot: ParameterTable.getNodeLockedState($data) -->
-                                                        <button class="parameterTableDescriptionBtn icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditDescriptionInModal($data)}"></button>
+                                                        <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditDescriptionInModal($data)}"></button>
                                                     <!-- /ko -->
                                                 </td>
                                             <!-- /ko -->

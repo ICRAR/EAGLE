@@ -370,15 +370,7 @@ export class ParameterTable {
         ParameterTable.initiateResizableColumns(headerId)
         return true
     }
-
-    static showEditDescription(description: HTMLElement) : void {
-        $(description).find('.parameterTableDescriptionBtn').show()
-    }
-
-    static hideEditDescription(description: HTMLElement) : void {
-        $(description).find('.parameterTableDescriptionBtn').hide()
-    }
-
+    
     static showEditComment(comment: HTMLElement) : void {
         $(comment).find('.parameterTableCommentBtn').show()
     }
