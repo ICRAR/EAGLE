@@ -821,8 +821,12 @@ export class ParameterTable {
     }
 
     static updateContent = (node: Node) : void => {
-        ParameterTable.copyFields(node.getFields());
-        ParameterTable.sortFields();
+        if (node === null){
+            ParameterTable.copyFields([]);
+        } else {
+            ParameterTable.copyFields(node.getFields());
+            ParameterTable.sortFields();
+        }
     }
 }
 
