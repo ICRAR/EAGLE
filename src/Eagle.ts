@@ -4081,9 +4081,6 @@ export class Eagle {
             return;
         }
 
-        // set modal header text
-        $("#editFieldModalTitle").html(this.selectedNode().getName() + " - " + field.getDisplayText() + " : " + Field.getHtmlTitleText(field.getParameterType(), field.getUsage()));
-
         // get field names list from the logical graph
         const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), field.getParameterType());
         const allFieldNames: string[] = [];
@@ -4094,9 +4091,11 @@ export class Eagle {
             allFieldNames.push(field.getDisplayText() + " (" + field.getType() + ")");
         }
 
-        // open editing modal
+        // build modal header text
+        const title = this.selectedNode().getName() + " - " + field.getDisplayText() + " : " + Field.getHtmlTitleText(field.getParameterType(), field.getUsage());
+
         try {
-            await Utils.requestUserEditField(this, field, allFieldNames);
+            await Utils.requestUserEditField(this, field, title, allFieldNames);
         } catch (error){
             console.error(error);
             return;

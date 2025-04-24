@@ -135,6 +135,7 @@ export class KeyboardShortcut {
 
         // is a input or textarea in focus
         const inputElementInFocus = $("input,textarea").is(":focus");
+        const editorModalOpen = $("#inputCodeModal").hasClass("show");
 
         // loop through all the keyboard shortcuts here
         for (const shortcut of KeyboardShortcut.shortcuts){
@@ -143,8 +144,8 @@ export class KeyboardShortcut {
                 continue;
             }
 
-            // if an input element is focussed, abort
-            if (inputElementInFocus){
+            // if an input element is focussed, check that it's OK to run this shortcut
+            if (inputElementInFocus || editorModalOpen){
                 continue;
             }
 

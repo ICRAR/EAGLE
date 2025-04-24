@@ -215,8 +215,7 @@
     background-color: aliceblue;
     width: 100%;
     position: absolute;
-    top: 53px;
-    height: calc(100% - 46px);
+    inset: 52px 0px 0px 0px
 }
 
 .issuesDisplay .issuesBody{
@@ -229,9 +228,9 @@
 }
 
 .eagleTableDisplay .scrollWrapper {
-    height: calc(100% - 24px);
     overflow: auto;
-    position: relative;
+    position: absolute;
+    inset: 25px 0px 0px 0px;
 }
 
 .eagleTableWrapper tr:nth-child(even) {
@@ -369,6 +368,10 @@
     overflow-wrap: normal;
 }
 
+.eagleTableDisplay .parameterTableTypeCustomSelect input{
+    position: unset;
+}
+
 .eagleTableDisplay  input:read-only, .eagleTableDisplay  textarea:read-only{
     color: rgb(91 91 91);
 }
@@ -387,25 +390,8 @@
     height: 100%;
 }
 
-.eagleTableDisplay .eagleTableWrapper .doubleInputDisplay{
-    width: 42%;
-    border: 1px dotted #002e5f;
-    left: unset;
-    top: 3px;
-    bottom: 3px;
-    right: 3px;
-    padding: 0px;
-}
-
 .eagleTableDisplay .eagleTableWrapper .configValueInput.checkboxWrapper {
     margin: unset;
-}
-
-.eagleTableDisplay .eagleTableWrapper .doubleInputDisplay.configValueInput{
-    right: unset;
-    margin: unset;
-    left: 3px;
-    border: 2px solid #002e5f;
 }
 
 .eagleTableDisplay  input[type="checkbox"]{
@@ -503,7 +489,7 @@
     color: rgb(113 113 113);
 }
 
-.eagleTableDisplay td button.parameterTableDescriptionBtn, .eagleTableDisplay td button.parameterTableCommentBtn {
+.eagleTableDisplay td button.parameterTableEditParam, .eagleTableDisplay td button.parameterTableCommentBtn {
     position: absolute;
     right: 4px;
     top: 4px;
@@ -514,7 +500,11 @@
     font-size: 12px;
 }
 
-.eagleTableDisplay td button.parameterTableDescriptionBtn::before, .eagleTableDisplay td button.parameterTableCommentBtn::before {
+.eagleTableDisplay  td:hover button.parameterTableEditParam{
+    display:inline-block;
+}
+
+.eagleTableDisplay td button.parameterTableEditParam::before, .eagleTableDisplay td button.parameterTableCommentBtn::before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);

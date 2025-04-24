@@ -528,6 +528,62 @@ export class Utils {
         });
     }
 
+    // uses: https://github.com/paul-norman/codemirror6-prebuilt
+    static requestUserCode(language: "json"|"markdown"|"python"|"text", title: string, defaultText: string): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            // set title
+            $('#inputCodeModalTitle').text(title);
+
+            // get the codemirror view (stored on modal html element)
+            const view = $('#inputTextModal').data('view');
+            //console.log("view", view);
+            //console.log("state", view.state);
+            //console.log("view.setState", view.setState);
+
+            // get language configuration
+            let config;
+            switch(language){
+                case "json":
+                    //config = json()
+                    break;
+                case "markdown":
+                    //config = markdown()
+                    break;
+                case "python":
+                    //config = python()
+                    break;
+                case "text":
+                    //config = text()
+                    break;
+                default:
+                    console.warn("requestUserCode(): Unsupported language:", language);
+                    //config = text()
+                    break;
+            }
+
+            let languageConf: any;
+
+            // set defaultText (replace all current text)
+            view.dispatch({
+                changes: {from: 0, to: view.state.doc.length, insert: defaultText},
+                //effects: languageConf.reconfigure(config)
+            });
+
+            // store the callback, result on the modal HTML element
+            // so that the info is available to event handlers
+            $('#inputCodeModal').data('completed', false);
+            $('#inputCodeModal').data('callback', (completed : boolean, userText : string) => {
+                if (!completed){
+                    reject("Utils.requestUserCode() aborted by user");
+                } else {
+                    resolve(userText);
+                }
+            });
+
+            $('#inputCodeModal').modal("toggle");
+        })
+    }
+
     static requestUserNumber(title : string, message : string, defaultNumber: number) : Promise<number> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
@@ -683,7 +739,7 @@ export class Utils {
         });
     }
 
-    static requestUserEditField(eagle: Eagle, field: Field, choices: string[]): Promise<Field> {
+    static requestUserEditField(eagle: Eagle, field: Field, title: string, choices: string[]): Promise<Field> {
         return new Promise(async(resolve, reject) => {
             // set the currently edited field
             eagle.currentField(field);
@@ -692,6 +748,7 @@ export class Utils {
             $('#editFieldModal').data('callback', (completed: boolean, field: Field): void => {
                 resolve(field);
             });
+            $("#editFieldModalTitle").html(title);
             $('#editFieldModal').data('choices', choices);
             $('#editFieldModal').modal("toggle");
         });

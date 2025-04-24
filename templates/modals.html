@@ -77,6 +77,35 @@
     </div>
 </div>
 
+<!-- Request User Code Input Modal -->
+<div class="modal fade" id="inputCodeModal" tabindex="-1" role="dialog" aria-labelledby="inputCodeModalTitle">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inputCodeModalTitle">Title</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container h-100">
+                    <div class="row inputModalTextAreaWrapper h-100">
+                        <div class="col">
+                            <div class="input-group mb-3 h-100">
+                                <div id="inputCodeModalEditor" class="h-100 w-100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="copyInputTextModalInput" class="btn btn-secondary" type="button" data-bs-placement="bottom" data-bind="click: Utils.copyInputTextModalInput, eagleTooltip: 'Copy Text'">
+                    <i class="material-icons md-18">content_copy</i>
+                </button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Request User Choice Modal -->
 <div class="modal fade" id="choiceModal" tabindex="-1" role="dialog" aria-labelledby="choiceModalTitle">
     <div class="modal-dialog modal-dialog-centered" role="document">

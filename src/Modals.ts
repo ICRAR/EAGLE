@@ -13,6 +13,8 @@ import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 
+declare const cm6: any;
+
 export class Modals {
 
     static init(eagle : Eagle) : void {
@@ -66,6 +68,36 @@ export class Modals {
         });
         $('#inputTextModal').on('shown.bs.modal', function(){
             $('#inputTextModalInput').trigger("focus");
+        });
+
+        // #inputCodeModal - requestUserCode()
+        {
+            // initialise the editor, and save as data-attribute on the modal html element
+            const parent = document.querySelector('#inputCodeModalEditor');
+		    const view = cm6.load().textarea(parent, {dark: true});
+            $('#inputTextModal').data('view', view);
+        }
+
+        $('#inputCodeModal .modal-footer button').on('click', function(){
+            $('#inputCodeModal').data('completed', true);
+        });
+        $('#inputCodeModal').on('hidden.bs.modal', function(){
+            const callback : (completed : boolean, userString : string) => void = $('#inputCodeModal').data('callback');
+
+            if (callback === null){
+                console.log("No callback called when #inputCodeModal hidden");
+                return;
+            }
+
+            // get content of code editor - and return via callback
+            const view = $('#inputTextModal').data('view');
+            const content = view.state.doc.toString();
+            callback($('#inputCodeModal').data('completed'), content);
+        });
+        $('#inputCodeModal').on('shown.bs.modal', function(){
+            // focus
+            const view = $('#inputTextModal').data('view');
+            view.focus();
         });
 
         // #choiceModal - requestUserChoice()
