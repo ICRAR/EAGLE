@@ -297,11 +297,11 @@
                                                                     <!-- ko foreach:$data.options()-->
                                                                         <div class="dropdown-item" data-bind="click:function(data, event){$parent.setDefaultValue($data);}">
                                                                             <input data-bind="value:$data, event: {change:function(data,event){$parent.editOption($index(),$(event.target).val())}}" type="text">
-                                                                            <button class="typeSelectDelete" data-bind="clickBubble:false, click: function(){$parent.removeOption($index())}"><i class="material-icons md-24">delete</i></button>
+                                                                            <button class="typeSelectDelete" data-bind="clickBubble:false, click: function(){$parent.removeOption($index())}"><i class="material-icons md-24 iconHoverEffect">delete</i></button>
                                                                         </div>
                                                                     <!-- /ko --> 
                                                                     <div class="dropdown-item add" data-bind="click:function(data,event){event.stopPropagation();addOption('')}">
-                                                                        <i class="material-icons">add</i>
+                                                                        <i class="material-icons iconHoverEffect">add</i>
                                                                     </div>
                                                                 </div>
                                                             </div>
