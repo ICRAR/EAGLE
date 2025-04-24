@@ -215,8 +215,7 @@
     background-color: aliceblue;
     width: 100%;
     position: absolute;
-    top: 53px;
-    height: calc(100% - 46px);
+    inset: 52px 0px 0px 0px
 }
 
 .issuesDisplay .issuesBody{
@@ -229,9 +228,9 @@
 }
 
 .eagleTableDisplay .scrollWrapper {
-    height: calc(100% - 24px);
     overflow: auto;
-    position: relative;
+    position: absolute;
+    inset: 25px 0px 0px 0px;
 }
 
 .eagleTableWrapper tr:nth-child(even) {
