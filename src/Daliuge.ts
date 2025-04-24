@@ -38,22 +38,6 @@ export class Daliuge {
     static isPythonInitialiser(node: Node): boolean {
         return node.getCategory() === Category.PythonMemberFunction && (node.getName().includes("__init__") || node.getName().includes("__class__"));
     }
-
-    static DLGFieldTypeToFieldType(dft: Daliuge.DLGFieldType): Daliuge.FieldType {
-        if (dft === Daliuge.DLGFieldType.ApplicationArgument) return Daliuge.FieldType.Application;
-        if (dft === Daliuge.DLGFieldType.ComponentParameter) return Daliuge.FieldType.Component;
-        if (dft === Daliuge.DLGFieldType.ConstraintParameter) return Daliuge.FieldType.Constraint;
-        if (dft === Daliuge.DLGFieldType.ConstructParameter) return Daliuge.FieldType.Construct;
-        return Daliuge.FieldType.Unknown;
-    }
-
-    static FieldTypeToDLGFieldType(df: Daliuge.FieldType): Daliuge.DLGFieldType {
-        if (df === Daliuge.FieldType.Application) return Daliuge.DLGFieldType.ApplicationArgument;
-        if (df === Daliuge.FieldType.Component) return Daliuge.DLGFieldType.ComponentParameter;
-        if (df === Daliuge.FieldType.Constraint) return Daliuge.DLGFieldType.ConstraintParameter;
-        if (df === Daliuge.FieldType.Construct) return Daliuge.DLGFieldType.ConstructParameter;
-        return Daliuge.DLGFieldType.Unknown;
-    }
 }
 
 export namespace Daliuge {
@@ -135,12 +119,33 @@ export namespace Daliuge {
         Unknown = "Unknown"
     }
 
+    // NOTE: this second 'field type' enum is required because DALiuGE will (in the short term)
+    //       continue to use longer names for the field types. Eventually, DALiuGE will move to
+    //       the shorter names. At that point we can remove this.
     export enum DLGFieldType {
         ApplicationArgument = "ApplicationArgument",
         ComponentParameter = "ComponentParameter",
         ConstraintParameter = "ConstraintParameter",
         ConstructParameter = "ConstructParameter",
         Unknown = "Unknown"
+    }
+
+    // NOTE: these two maps translate between the EAGLE field types and the Daliuge field types
+    //       once DALiuGE is updated, we can also remove these
+    export const dlgToFieldTypeMap: { [key in Daliuge.DLGFieldType]: Daliuge.FieldType } = {
+        [Daliuge.DLGFieldType.ApplicationArgument]: Daliuge.FieldType.Application,
+        [Daliuge.DLGFieldType.ComponentParameter]: Daliuge.FieldType.Component,
+        [Daliuge.DLGFieldType.ConstraintParameter]: Daliuge.FieldType.Constraint,
+        [Daliuge.DLGFieldType.ConstructParameter]: Daliuge.FieldType.Construct,
+        [Daliuge.DLGFieldType.Unknown]: Daliuge.FieldType.Unknown,
+    }
+    
+    export const fieldTypeToDlgMap: { [key in Daliuge.FieldType]: Daliuge.DLGFieldType } = {
+        [Daliuge.FieldType.Application]: Daliuge.DLGFieldType.ApplicationArgument,
+        [Daliuge.FieldType.Component]: Daliuge.DLGFieldType.ComponentParameter,
+        [Daliuge.FieldType.Constraint]: Daliuge.DLGFieldType.ConstraintParameter,
+        [Daliuge.FieldType.Construct]: Daliuge.DLGFieldType.ConstructParameter,
+        [Daliuge.FieldType.Unknown]: Daliuge.DLGFieldType.Unknown,
     }
 
     export enum FieldUsage {

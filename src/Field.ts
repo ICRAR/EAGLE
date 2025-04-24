@@ -665,7 +665,7 @@ export class Field {
             positional:field.positional(),
             encoding:field.encoding(),
             id: field.id(),
-            parameterType: Daliuge.FieldTypeToDLGFieldType(field.parameterType()),
+            parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()] || Daliuge.DLGFieldType.Unknown,
             usage: field.usage(),
         }
 
@@ -761,7 +761,7 @@ export class Field {
         }
 
         if (typeof data.parameterType !== 'undefined')
-            parameterType = Daliuge.DLGFieldTypeToFieldType(data.parameterType);
+            parameterType = Daliuge.dlgToFieldTypeMap[<Daliuge.DLGFieldType>data.parameterType] || Daliuge.FieldType.Unknown;
         if (typeof data.usage !== 'undefined')
             usage = data.usage;
         if (typeof data.event !== 'undefined')
