@@ -91,9 +91,21 @@
         </ul>
 
         <ul class="nav navbar-nav ms-auto">
-            <div id="navDeployBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + KeyboardShortcut.idToText('deploy_translator', true)">
-                <a href='javascript:void(0)' data-bind="click: function(){$root.deployDefaultTranslationAlgorithm()}">Translate</a>
+            <div id="navTranslateWrapper">
+                <div id="navTranslateStatus"></div>
+                <div id="navTranslateBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + KeyboardShortcut.idToText('deploy_translator', true),click: function(){$root.deployDefaultTranslationAlgorithm()}">
+                    <span>Translate</span>
+                </div>
+                <button class="btn btn-outline-secondary show" data-bs-toggle="dropdown" aria-expanded="true" data-bind="" type="button">
+                    <span class="material-icons-outlined iconHoverEffect">
+                        arrow_drop_down
+                    </span>
+                </button>
+
             </div>
+            <!-- <div id="navDeployBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + KeyboardShortcut.idToText('deploy_translator', true)">
+                <a href='javascript:void(0)' data-bind="click: function(){$root.deployDefaultTranslationAlgorithm()}">Translate</a>
+            </div> -->
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle ms-auto iconHoverEffect" href="#" id="navbarDropdownGraph" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Graph

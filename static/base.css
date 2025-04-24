@@ -1655,6 +1655,58 @@ select.form-control{
     background: rgb(211, 211, 211);
 }
 
+.navbar #navTranslateWrapper{
+    position: relative;
+    width: 110px;
+    border: white 1px solid;
+    border-radius: 5px;
+    margin: 4px 0px;
+    overflow: hidden;
+}
+
+.navbar #navTranslateBtn{
+    position: absolute;
+    color: white;
+    padding: unset;
+    inset: 0px 20px 0px 7px;
+}
+
+.navbar #navTranslateBtn:hover{
+    background-color: white;
+    color: #002349;
+    cursor:pointer;
+}
+
+.navbar #navTranslateBtn span{
+    position: absolute;
+    inset: 50% auto auto 4px;
+    transform: translateY(-50%);
+}
+
+.navbar #navTranslateWrapper button{
+    border: none;
+    position: absolute;
+    inset: 0px 0px 0px auto;
+    padding: unset;
+    width: 20px;
+    background: white;
+    border-radius: unset;
+}
+
+.navbar #navTranslateWrapper button span{
+    inset: 50% -2px auto auto;
+    position: absolute;
+    transform: translateY(-50%);
+    color:#002349;
+}
+
+.navbar #navTranslateWrapper #navTranslateStatus{
+    position: absolute;
+    inset: 0px auto 0px 0px;
+    width: 7px;
+    background-color: orange;
+}
+
 #repositoryList ul.repositories {
     list-style-type: none;
     padding: 0px;
