@@ -2700,6 +2700,11 @@ export class Eagle {
     saveGraphScreenshot = async () : Promise<void> =>  {
         const eagle = Eagle.getInstance()
 
+        if (eagle.logicalGraph().getNumNodes() === 0){
+            Utils.showNotification("Screenshot", "Can't take a screenshot of an empty graph", "warning");
+            return;
+        }
+
         const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia function an option
         const stream:MediaStream = await mediaDevices.getDisplayMedia({preferCurrentTab: true,selfBrowserSurface: 'include'});
 
@@ -4470,9 +4475,13 @@ export class Eagle {
     checkForComponentUpdates = () => {
         // check if any nodes to update
         if (this.logicalGraph().getNodes().length === 0){
-            const message: string = "Graph contains no components to update";
-            Utils.showNotification("Error", message, "danger");
-            console.warn(message);
+            Utils.showNotification("Error", "Graph contains no components to update", "danger");
+            return;
+        }
+
+        // check if graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.showNotification("Error", "Graph editing is not permitted in the current UI mode", "danger");
             return;
         }
 

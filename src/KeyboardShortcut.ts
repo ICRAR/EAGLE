@@ -469,6 +469,7 @@ export class KeyboardShortcut {
             canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.editSelectedEdge();}
         }),
+        */
         new KeyboardShortcut({
             id: "center_graph",
             text: "Center Graph",
@@ -489,7 +490,6 @@ export class KeyboardShortcut {
             text: "Check for Component Updates",
             keys: [new Key("q")],
             tags: ['nodes'],
-            canRun: function(){return KeyboardShortcut.graphNotEmpty && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, // TODO: move 'graph not empty' to the function
             run: (eagle): void => { eagle.checkForComponentUpdates();}
         }),
         new KeyboardShortcut({
@@ -497,10 +497,8 @@ export class KeyboardShortcut {
             text: "Save Graph as PNG (Screenshot)",
             tags: ['print','printScreen','screen'],
             icon: "photo_camera",
-            canRun: KeyboardShortcut.graphNotEmpty,
             run: (eagle): void => {eagle.saveGraphScreenshot();}
         }),
-        */
         new KeyboardShortcut({
             id: "show_graph_info",
             text: "Show Graph Info",

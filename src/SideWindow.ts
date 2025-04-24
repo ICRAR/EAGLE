@@ -81,9 +81,7 @@ export class SideWindow {
     }
 
     // drag drop
-    static nodeDragStart = (node: Node, e : any) : boolean => {
-        console.log("nodeDragStart", e);
-
+    static nodeDragStart = (node: Node, e: JQuery.TriggeredEvent) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
 
         //for hiding any tooltips while dragging and preventing them from showing
@@ -93,21 +91,17 @@ export class SideWindow {
         // retrieve data about the node being dragged
         // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
         //       Using the native javascript works better, it always fetches the current value of the attribute
+        Eagle.nodeDragPaletteIndex = parseInt(e.target.getAttribute('data-palette-index'), 10);
+        Eagle.nodeDragComponentIndex = parseInt(e.target.getAttribute('data-component-index'), 10);
 
-        //this is for dealing with drag and drop actions while there is already one ore more palette components selected
+        //this is for dealing with drag and drop actions while there is already one or more palette components selected
         if (Eagle.selectedLocation() === Eagle.FileType.Palette){
-
-            const paletteIndex = $(e.target).data("palette-index")
-            const componentIndex = $(e.target).data("component-index")
-            const draggedNode = eagle.palettes()[paletteIndex].getNodes()[componentIndex]
+            const draggedNode = eagle.palettes()[Eagle.nodeDragPaletteIndex].getNodes()[Eagle.nodeDragComponentIndex];
 
             if(!eagle.objectIsSelected(draggedNode)){
                 $(e.target).find("div").trigger("click")
             }
         }
-
-        Eagle.nodeDragPaletteIndex = parseInt(e.target.getAttribute('data-palette-index'), 10);
-        Eagle.nodeDragComponentIndex = parseInt(e.target.getAttribute('data-component-index'), 10);
 
         // discourage the rightWindow and navbar as drop targets
         $(".rightWindow").addClass("noDropTarget");
@@ -115,7 +109,7 @@ export class SideWindow {
 
         // grab and set the node's icon and sets it as drag image.
         const drag = e.target.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
-        (<DragEvent> e.originalEvent).dataTransfer.setDragImage(drag, 0, 0);
+        (e.originalEvent as DragEvent).dataTransfer.setDragImage(drag, 0, 0);
 
         return true;
     }
