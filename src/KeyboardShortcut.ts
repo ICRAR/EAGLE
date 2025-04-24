@@ -398,12 +398,12 @@ export class KeyboardShortcut {
             tags: ['deploy','translate','translator'],
             run: (eagle): void => {eagle.deployDefaultTranslationAlgorithm();}
         }),
+        */
         new KeyboardShortcut({
             id: "delete_selection",
             text: "Delete Selection",
             keys: [new Key("Delete"), new Key("Backspace")],
             tags: ['remove'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.deleteSelection(false, false, true);}
         }),
         new KeyboardShortcut({
@@ -411,9 +411,9 @@ export class KeyboardShortcut {
             text: "Delete Without Children",
             keys: [new Key("Backspace", Modifier.Shift), new Key("Delete", Modifier.Shift)],
             tags: ['remove'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.deleteSelection(false, false, false);}
         }),
+        /*
         new KeyboardShortcut({
             id: "duplicate_selection",
             text: "Duplicate Selection",
