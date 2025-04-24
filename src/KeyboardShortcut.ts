@@ -163,6 +163,8 @@ export class KeyboardShortcut {
         // is a input or textarea in focus
         const inputElementInFocus = $("input,textarea").is(":focus");
 
+        const editorModalOpen = $("#inputCodeModal").hasClass("show");
+
         // loop through all the keyboard shortcuts here
         for (const shortcut of Eagle.shortcuts){
             // check that the event is of the correct type
@@ -171,7 +173,7 @@ export class KeyboardShortcut {
             }
 
             // if an input element is focussed, check that it's OK to run this shortcut
-            if (inputElementInFocus && !shortcut.inputOK){
+            if ((inputElementInFocus || editorModalOpen) && !shortcut.inputOK){
                 continue;
             }
 

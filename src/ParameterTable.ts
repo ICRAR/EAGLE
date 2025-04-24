@@ -13,6 +13,7 @@ import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
 import { GraphConfig, GraphConfigField } from "./GraphConfig";
 import { SideWindow } from "./SideWindow";
+import { param } from "jquery";
 
 export class ParameterTable {
     static selectionParent : ko.Observable<Field | null>; // row in the parameter table that is currently selected
@@ -373,14 +374,6 @@ export class ParameterTable {
         return true
     }
 
-    static showEditDescription(description: HTMLElement) : void {
-        $(description).find('.parameterTableDescriptionBtn').show()
-    }
-
-    static hideEditDescription(description: HTMLElement) : void {
-        $(description).find('.parameterTableDescriptionBtn').hide()
-    }
-
     static showEditComment(comment: HTMLElement) : void {
         $(comment).find('.parameterTableCommentBtn').show()
     }
@@ -500,6 +493,42 @@ export class ParameterTable {
         field.setDescription(fieldDescription);
     }
 
+    static async requestEditValueCode(field:Field, defaultValue: boolean) : Promise<void> {
+        const eagle: Eagle = Eagle.getInstance();
+        const node: Node = eagle.selectedNode();
+
+        let editingField // this will either be the normal field or the configured field if applicable
+        let editingValue // this will either be the value or default value or configured value
+
+        //checking if the field is a configured field
+        if(!defaultValue && field.getGraphConfigField()){
+            editingField =  field.getGraphConfigField()
+            editingValue = editingField.getValue()
+        }else{
+            editingField = field
+            if(defaultValue){
+                editingValue = editingField.getDefaultValue()
+            }else{
+                editingValue = editingField.getValue()
+            }
+        }
+
+        let fieldValue: string;
+        try {
+            fieldValue = await Utils.requestUserCode("python","Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        // set the Value on the field
+        if(defaultValue && editingField instanceof Field){
+            editingField.setDefaultValue(fieldValue);
+        }else{
+            editingField.setValue(fieldValue);
+        }
+    }
+
     static async requestEditCommentInModal(currentField:Field): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
         const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
@@ -602,6 +631,13 @@ export class ParameterTable {
 
         //open the bottom window
         SideWindow.setShown('bottom',true)
+
+        if(mode = Eagle.BottomWindowMode.NodeParameterTable){
+            setTimeout(() => {
+                //update the contents of the parameter table and its sorting arrow display
+                ParameterTable.updateContent(eagle.selectedNode())
+            }, 50);
+        }
 
         //make sure the right click menu is closed
         if(selectType === ParameterTable.SelectType.RightClick){
