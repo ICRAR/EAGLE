@@ -369,6 +369,10 @@
     overflow-wrap: normal;
 }
 
+.eagleTableDisplay .parameterTableTypeCustomSelect input{
+    position: unset;
+}
+
 .eagleTableDisplay  input:read-only, .eagleTableDisplay  textarea:read-only{
     color: rgb(91 91 91);
 }
