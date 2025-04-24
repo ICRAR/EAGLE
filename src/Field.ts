@@ -581,9 +581,9 @@ export class Field {
     static getHtmlTitleText(parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage) : string {
         if (usage === Daliuge.FieldUsage.NoPort){
             switch(parameterType){
-                case Daliuge.FieldType.ApplicationArgument:
+                case Daliuge.FieldType.Application:
                 return "Application Argument";
-                case Daliuge.FieldType.ComponentParameter:
+                case Daliuge.FieldType.Component:
                 return "Component Parameter";
             }
         } else {
@@ -665,7 +665,7 @@ export class Field {
             positional:field.positional(),
             encoding:field.encoding(),
             id: field.id(),
-            parameterType: field.parameterType(),
+            parameterType: Daliuge.FieldTypeToDLGFieldType(field.parameterType()),
             usage: field.usage(),
         }
 
@@ -731,28 +731,28 @@ export class Field {
         // handle legacy fieldType
         if (typeof data.fieldType !== 'undefined'){
             switch (data.fieldType){
-                case "ApplicationArgument":
-                    parameterType = Daliuge.FieldType.ApplicationArgument;
+                case Daliuge.DLGFieldType.ApplicationArgument:
+                    parameterType = Daliuge.FieldType.Application;
                     usage = Daliuge.FieldUsage.NoPort;
                     break;
-                case "ComponentParameter":
-                    parameterType = Daliuge.FieldType.ComponentParameter;
+                case Daliuge.DLGFieldType.ComponentParameter:
+                    parameterType = Daliuge.FieldType.Component;
                     usage = Daliuge.FieldUsage.NoPort;
                     break;
-                case "ConstraintParameter":
-                    parameterType = Daliuge.FieldType.ConstraintParameter;
+                case Daliuge.DLGFieldType.ConstraintParameter:
+                    parameterType = Daliuge.FieldType.Constraint;
                     usage = Daliuge.FieldUsage.NoPort;
                     break;
-                case "ConstructParameter":
-                    parameterType = Daliuge.FieldType.ConstructParameter;
+                case Daliuge.DLGFieldType.ConstructParameter:
+                    parameterType = Daliuge.FieldType.Construct;
                     usage = Daliuge.FieldUsage.NoPort;
                     break;
-                case "InputPort":
-                    parameterType = Daliuge.FieldType.ApplicationArgument;
+                case Daliuge.FieldUsage.InputPort:
+                    parameterType = Daliuge.FieldType.Application;
                     usage = Daliuge.FieldUsage.InputPort;
                     break;
-                case "OutputPort":
-                    parameterType = Daliuge.FieldType.ApplicationArgument;
+                case Daliuge.FieldUsage.OutputPort:
+                    parameterType = Daliuge.FieldType.Application;
                     usage = Daliuge.FieldUsage.OutputPort;
                     break;
                 default:
@@ -761,7 +761,7 @@ export class Field {
         }
 
         if (typeof data.parameterType !== 'undefined')
-            parameterType = data.parameterType;
+            parameterType = Daliuge.DLGFieldTypeToFieldType(data.parameterType);
         if (typeof data.usage !== 'undefined')
             usage = data.usage;
         if (typeof data.event !== 'undefined')
@@ -918,24 +918,24 @@ export class Field {
 
         // check that fields have parameter types that are suitable for this node
         // skip the 'drop class' component parameter, those are always suitable for every node
-        if (field.getDisplayText() != Daliuge.FieldName.DROP_CLASS && field.getParameterType() != Daliuge.FieldType.ComponentParameter){
+        if (field.getDisplayText() != Daliuge.FieldName.DROP_CLASS && field.getParameterType() != Daliuge.FieldType.Component){
             if (
-                (field.getParameterType() === Daliuge.FieldType.ComponentParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
-                (field.getParameterType() === Daliuge.FieldType.ApplicationArgument) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments ||
-                (field.getParameterType() === Daliuge.FieldType.ConstructParameter) && !CategoryData.getCategoryData(node.getCategory()).canHaveConstructParameters
+                (field.getParameterType() === Daliuge.FieldType.Component) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
+                (field.getParameterType() === Daliuge.FieldType.Application) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments ||
+                (field.getParameterType() === Daliuge.FieldType.Construct) && !CategoryData.getCategoryData(node.getCategory()).canHaveConstructParameters
             ){
                 // determine a suitable type
                 let suitableType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
                 const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
 
                 if (categoryData.canHaveComponentParameters){
-                    suitableType = Daliuge.FieldType.ComponentParameter;
+                    suitableType = Daliuge.FieldType.Component;
                 } else {
                     if (categoryData.canHaveApplicationArguments){
-                        suitableType = Daliuge.FieldType.ApplicationArgument;
+                        suitableType = Daliuge.FieldType.Application;
                     } else {
                         if (categoryData.canHaveConstructParameters){
-                            suitableType = Daliuge.FieldType.ConstructParameter;
+                            suitableType = Daliuge.FieldType.Construct;
                         }
                     }
                 }

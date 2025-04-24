@@ -257,7 +257,7 @@ export class Node {
     }
 
     isStreaming = () : boolean => {
-        const streamingField = this.findFieldByDisplayText(Daliuge.FieldName.STREAMING, Daliuge.FieldType.ComponentParameter);
+        const streamingField = this.findFieldByDisplayText(Daliuge.FieldName.STREAMING, Daliuge.FieldType.Component);
 
         if (streamingField !== null){
             return streamingField.valIsTrue(streamingField.getValue());
@@ -267,7 +267,7 @@ export class Node {
     }
 
     isPersist = () : boolean => {
-        const persistField = this.findFieldByDisplayText(Daliuge.FieldName.PERSIST, Daliuge.FieldType.ComponentParameter);
+        const persistField = this.findFieldByDisplayText(Daliuge.FieldName.PERSIST, Daliuge.FieldType.Component);
 
         if (persistField !== null){
             return persistField.valIsTrue(persistField.getValue());
@@ -442,7 +442,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.ComponentParameter){
+            if (field.getParameterType() === Daliuge.FieldType.Component){
                 result.push(field);
             }
         }
@@ -454,7 +454,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.ComponentParameter && field.getUsage() === Daliuge.FieldUsage.NoPort){
+            if (field.getParameterType() === Daliuge.FieldType.Component && field.getUsage() === Daliuge.FieldUsage.NoPort){
                 result.push(field);
             }
         }
@@ -466,7 +466,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.ApplicationArgument){
+            if (field.getParameterType() === Daliuge.FieldType.Application){
                 result.push(field);
             }
         }
@@ -478,7 +478,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.ApplicationArgument && field.getUsage() === Daliuge.FieldUsage.NoPort){
+            if (field.getParameterType() === Daliuge.FieldType.Application && field.getUsage() === Daliuge.FieldUsage.NoPort){
                 result.push(field);
             }
         }
@@ -490,7 +490,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.ConstructParameter){
+            if (field.getParameterType() === Daliuge.FieldType.Construct){
                 result.push(field);
             }
         }
@@ -502,7 +502,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.ConstructParameter && field.getUsage() === Daliuge.FieldUsage.NoPort){
+            if (field.getParameterType() === Daliuge.FieldType.Construct && field.getUsage() === Daliuge.FieldUsage.NoPort){
                 result.push(field);
             }
         }
@@ -646,10 +646,10 @@ export class Node {
     }
 
     canHaveType = (parameterType: Daliuge.FieldType) : boolean => {
-        if (parameterType === Daliuge.FieldType.ComponentParameter){
+        if (parameterType === Daliuge.FieldType.Component){
             return this.canHaveComponentParameters()
         }
-        if (parameterType === Daliuge.FieldType.ApplicationArgument){
+        if (parameterType === Daliuge.FieldType.Application){
             return this.canHaveApplicationArguments();
         }
 
@@ -976,7 +976,7 @@ export class Node {
                 false,
                 [],
                 false,
-                Daliuge.FieldType.ComponentParameter,
+                Daliuge.FieldType.Component,
                 Daliuge.FieldUsage.NoPort));
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).setValue(value.toString());
@@ -996,7 +996,7 @@ export class Node {
                 false,
                 [],
                 false,
-                Daliuge.FieldType.ComponentParameter,
+                Daliuge.FieldType.Component,
                 Daliuge.FieldUsage.NoPort));
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).setValue(value.toString());
@@ -1024,7 +1024,7 @@ export class Node {
 
     removeAllComponentParameters = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getParameterType() === Daliuge.FieldType.ComponentParameter){
+            if (this.fields()[i].getParameterType() === Daliuge.FieldType.Component){
                 this.fields.splice(i, 1);
             }
         }
@@ -1032,7 +1032,7 @@ export class Node {
 
     removeAllApplicationArguments = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getParameterType() === Daliuge.FieldType.ApplicationArgument){
+            if (this.fields()[i].getParameterType() === Daliuge.FieldType.Application){
                 this.fields.splice(i, 1);
             }
         }
@@ -1253,7 +1253,7 @@ export class Node {
     }
 
     addEmptyField = (index:number) :void => {
-        const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort);
+        const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.NoPort);
 
         if(index === -1){
             this.addField(newField);
@@ -1547,7 +1547,7 @@ export class Node {
                 false,
                 [],
                 false,
-                Daliuge.FieldType.ComponentParameter,
+                Daliuge.FieldType.Component,
                 Daliuge.FieldUsage.NoPort);
             node.addField(preciousField);
         }
@@ -1565,7 +1565,7 @@ export class Node {
                 false,
                 [],
                 false,
-                Daliuge.FieldType.ComponentParameter,
+                Daliuge.FieldType.Component,
                 Daliuge.FieldUsage.NoPort);
             node.addField(streamingField);
         }
@@ -1584,7 +1584,7 @@ export class Node {
 
                 // if the parameter type is not specified, assume it is a ComponentParameter
                 if (field.getParameterType() === Daliuge.FieldType.Unknown){
-                    field.setParameterType(Daliuge.FieldType.ComponentParameter);
+                    field.setParameterType(Daliuge.FieldType.Component);
                 }
 
                 node.addField(field);
@@ -1595,7 +1595,7 @@ export class Node {
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
                 const field = Field.fromOJSJson(paramData);
-                field.setParameterType(Daliuge.FieldType.ApplicationArgument);
+                field.setParameterType(Daliuge.FieldType.Application);
                 node.addField(field);
             }
         }
@@ -1628,7 +1628,7 @@ export class Node {
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
                 const port = Field.fromOJSJsonPort(inputPort);
-                port.setParameterType(Daliuge.FieldType.ApplicationArgument);
+                port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
                 if (node.canHaveInputs()){
@@ -1647,7 +1647,7 @@ export class Node {
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
                 const port = Field.fromOJSJsonPort(outputPort);
-                port.setParameterType(Daliuge.FieldType.ApplicationArgument);
+                port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.OutputPort);
 
                 if (node.canHaveOutputs()){
@@ -1667,7 +1667,7 @@ export class Node {
             for (const inputLocalPort of nodeData.inputLocalPorts){
                 if (node.hasInputApplication()){
                     const port = Field.fromOJSJsonPort(inputLocalPort);
-                    port.setParameterType(Daliuge.FieldType.ApplicationArgument);
+                    port.setParameterType(Daliuge.FieldType.Application);
                     port.setUsage(Daliuge.FieldUsage.OutputPort);
 
                     node.inputApplication().addField(port);
@@ -1681,7 +1681,7 @@ export class Node {
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
                 const port = Field.fromOJSJsonPort(outputLocalPort);
-                port.setParameterType(Daliuge.FieldType.ApplicationArgument);
+                port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
                 if (node.hasOutputApplication()){

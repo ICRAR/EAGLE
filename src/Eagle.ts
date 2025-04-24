@@ -3633,7 +3633,7 @@ export class Eagle {
                 }
 
                 // create a new input/output "object" port on the PythonObject
-                const inputOutputPort = new Field(Utils.generateFieldId(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput);
+                const inputOutputPort = new Field(Utils.generateFieldId(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.Component, Daliuge.FieldUsage.InputOutput);
                 pythonObjectNode.addField(inputOutputPort);
 
                 // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
@@ -4314,7 +4314,7 @@ export class Eagle {
             newNode.removeAllOutputPorts();
 
             // add InputOutput port for dataType
-            const newInputOutputPort = new Field(Utils.generateFieldId(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputOutput);
+            const newInputOutputPort = new Field(Utils.generateFieldId(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.InputOutput);
             newNode.addField(newInputOutputPort);
 
             // set the parent of the new node
