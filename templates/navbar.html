@@ -92,7 +92,7 @@
 
         <ul class="nav navbar-nav ms-auto">
             <div id="navTranslateWrapper">
-                <div id="navTranslateStatus"></div>
+                <div id="navTranslateStatus" data-bind="style: {'background-color':$root.getTranslatorColor()}"></div>
                 <div id="navTranslateBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + KeyboardShortcut.idToText('deploy_translator', true),click: function(){$root.deployDefaultTranslationAlgorithm()}">
                     <span>Translate</span>
                 </div>

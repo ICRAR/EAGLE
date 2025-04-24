@@ -624,13 +624,21 @@ export class Eagle {
         if (this.selectedObjects().length !== 1){
             return null;
         }
-
         const object = this.selectedObjects()[0];
 
         if (object instanceof Edge){
             return object;
         } else {
             return null;
+        }
+    }, this);
+
+    
+    getTranslatorColor : ko.PureComputed<string> = ko.pureComputed(() : string => {
+        if (this.logicalGraph().fileInfo().modified){
+            return 'red'
+        }else{
+            return 'green'
         }
     }, this);
 
