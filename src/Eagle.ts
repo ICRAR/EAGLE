@@ -406,7 +406,7 @@ export class Eagle {
         // don't allow open if palette and graph editing are disabled
         const editingAllowed: boolean = Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
         if (setOpen && !editingAllowed){
-            Utils.showNotification("Toggle Windows", "Windows may not be opened due to the current UI mode", "info", false);
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Unknown, "Toggle Windows");
             return;
         }
 
@@ -966,6 +966,11 @@ export class Eagle {
             return
         }
 
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Create Subgraph From Selection");
+            return;
+        }
+
         // create new subgraph
         const parentNode: Node = new Node("Subgraph", "", Category.SubGraph);
 
@@ -1010,6 +1015,11 @@ export class Eagle {
         if(eagle.selectedObjects().length === 0){
             Utils.showNotification('Error','At least one node must be selected', 'warning')
             return
+        }
+
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Create Construct From Selection");
+            return;
         }
 
         const constructs : string[] = Utils.buildComponentList((cData: Category.CategoryData) => {
@@ -2956,7 +2966,7 @@ export class Eagle {
         }
         
         let location: string;
-        let incomingNodes = []; // TODO: declare type
+        let incomingNodes: (Node | Edge)[] = []; // TODO: declare type
 
         if(mode === 'normal'){
             location = Eagle.selectedLocation()
@@ -3854,7 +3864,7 @@ export class Eagle {
 
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.showNotification("Unable to Change Node Parent", "Graph Editing is disabled", "danger");
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Change Node Parent")
             return;
         }
 
@@ -3923,6 +3933,18 @@ export class Eagle {
 
         if (selectedNode === null){
             Utils.showNotification('Unable to change node subject','No node selected!','warning')
+            return;
+        }
+
+        // check selectedNode is a comment node
+        if (selectedNode.getCategory() !== Category.Comment){
+            Utils.showNotification('Unable to change node subject','Selected node is not a "Comment" node!','warning')
+            return;
+        }
+
+        // check that graph editing is permitted
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Change Node Subject");
             return;
         }
 
@@ -4480,7 +4502,7 @@ export class Eagle {
 
         // check if graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.showNotification("Error", "Graph editing is not permitted in the current UI mode", "danger");
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Check for Component Updates");
             return;
         }
 

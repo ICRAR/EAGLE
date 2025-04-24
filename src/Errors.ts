@@ -29,11 +29,11 @@ export class Errors {
         // abort if graph editing is not supported
         /*
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.showNotification("Unable to Fix", "Graph Editing is not permitted in the current UI mode", "warning", false);
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Fix All Errors");
             return;
         }
         */
-
+       
         while (numWarnings !== eagle.graphWarnings().length || numErrors !== eagle.graphErrors().length){
             if (numIterations > 10){
                 console.warn("Too many iterations in fixAll()");

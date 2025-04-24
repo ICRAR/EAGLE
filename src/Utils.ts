@@ -481,6 +481,18 @@ export class Utils {
         });
     }
 
+    static notifyUserOfEditingIssue(fileType: Eagle.FileType, action: string){
+        const uiMode = UiModeSystem.getActiveUiMode().getName();
+        let message: string;
+
+        if (fileType === Eagle.FileType.Unknown){
+            message = "Action is not permitted in the current UI mode (" + uiMode + ")";
+        } else {
+            message = fileType + " editing is not permitted in the current UI mode (" + uiMode + ")";
+        }
+        Utils.showNotification(action, message, "danger");
+    }
+
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);

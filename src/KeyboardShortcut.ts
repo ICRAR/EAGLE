@@ -414,13 +414,11 @@ export class KeyboardShortcut {
             tags: ['remove'],
             run: (eagle): void => {eagle.deleteSelection(false, false, false);}
         }),
-        /*
         new KeyboardShortcut({
             id: "duplicate_selection",
             text: "Duplicate Selection",
             keys: [new Key("d")],
             tags: ['copy'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.duplicateSelection('normal');}
         }),
         new KeyboardShortcut({
@@ -428,7 +426,6 @@ export class KeyboardShortcut {
             text: "Create subgraph from selection",
             keys: [new Key("[")],
             tags: ['group'],
-            canRun: function(){return KeyboardShortcut.somethingIsSelected && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, // TODO: move 'something is selected' to the function
             run: (eagle): void => {eagle.createSubgraphFromSelection();}
         }),
         new KeyboardShortcut({
@@ -436,14 +433,12 @@ export class KeyboardShortcut {
             text: "Create construct from selection",
             keys: [new Key("]")],
             tags: ['group'],
-            canRun: function(){return KeyboardShortcut.somethingIsSelected && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, // TODO: move 'something is selected' to the function
             run: (eagle): void => {eagle.createConstructFromSelection();}
         }),
         new KeyboardShortcut({
             id: "change_selected_node_parent",
             text: "Change Selected Node Parent",
             keys: [new Key("u")],
-            canRun: function(){return KeyboardShortcut.nodeIsSelected && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)},
             run: (eagle): void => {eagle.changeNodeParent();}
         }),
         new KeyboardShortcut({
@@ -451,7 +446,6 @@ export class KeyboardShortcut {
             text: "Change Selected Node Subject",
             keys: [new Key("u", Modifier.Shift)],
             tags: ['comment'],
-            canRun: function(){return KeyboardShortcut.commentNodeIsSelected && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)}, // TODO: move 'comment node is selected' to the function
             run: (eagle): void => {eagle.changeNodeSubject();}
         }),
         new KeyboardShortcut({
@@ -459,7 +453,6 @@ export class KeyboardShortcut {
             text: "Add Edge",
             keys: [new Key("e")],
             tags: ['create'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.addEdgeToLogicalGraph();}
         }),
         new KeyboardShortcut({
@@ -467,10 +460,8 @@ export class KeyboardShortcut {
             text: "Modify Selected Edge",
             keys: [new Key("m")],
             tags: ['edit'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.editSelectedEdge();}
         }),
-        */
         new KeyboardShortcut({
             id: "center_graph",
             text: "Center Graph",

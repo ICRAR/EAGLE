@@ -27,7 +27,7 @@ export class SideWindow {
         // don't allow toggle if palette and graph editing are disabled
         const editingAllowed: boolean = Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
         if (window === "left" && !editingAllowed){
-            Utils.showNotification("Toggle Window", "Palette Window may not be opened due to the current UI mode", "info", false);
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Unknown, "Toggle Window");
             return;
         }
         
