@@ -95,6 +95,7 @@ export class GitHub {
             if (token === null || token === "") {
                 Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
                 reject("The GitHub access token is not set! To access GitHub repository, set the token via settings.");
+                return;
             }
 
             // get location

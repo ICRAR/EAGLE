@@ -67,6 +67,7 @@ export class GitLab {
             if (token === null || token === "") {
                 Utils.showUserMessage("Access Token", "The GitLab access token is not set! To access GitLab repository, set the token via settings.");
                 reject("The GitLab access token is not set! To access GitLab repository, set the token via settings.");
+                return;
             }
 
             // get location
