@@ -1,9 +1,7 @@
-import { Category } from './Category';
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { ParameterTable } from './ParameterTable';
 import { QuickActions } from './QuickActions';
-import { Setting } from './Setting';
 import { TutorialSystem } from './Tutorial';
 import { Utils } from './Utils';
 import { GraphRenderer } from './GraphRenderer';
@@ -95,13 +93,6 @@ export class KeyboardShortcut {
         } else {
             return texts.join(' or ');
         }
-    }
-
-    static true(eagle: Eagle) : boolean {
-        return true;
-    }
-    static false(eagle: Eagle) : boolean {
-        return false;
     }
 
     static QUICK_ACTION_DOCS(id: string, text: string, tags: string[], url: string): KeyboardShortcut {
@@ -213,14 +204,12 @@ export class KeyboardShortcut {
     // TODO: check all tags, remove words that appear in the name, since I think they are already part of the search?
     // TODO: could this be a [id: string]: KeyboardShortcut (dictionary)?
     static shortcuts: KeyboardShortcut[] = [
-        /*
         // new
         new KeyboardShortcut({
             id: "new_graph",
             text: "New Graph",
             keys: [new Key("n")],
             tags: ['create','canvas'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.newLogicalGraph();}
         }),
         new KeyboardShortcut({
@@ -228,7 +217,6 @@ export class KeyboardShortcut {
             text: "New palette",
             keys: [new Key("n", Modifier.Shift)],
             tags: ['create'],
-            canRun: KeyboardShortcut.allowPaletteEditing,
             run: (eagle): void => {eagle.newPalette();}
         }),
         new KeyboardShortcut({
@@ -236,27 +224,22 @@ export class KeyboardShortcut {
             text: "New config",
             keys: [new Key("n", Modifier.Alt), new Key("n", Modifier.Ctrl)],
             tags: ['create'],
-            canRun: KeyboardShortcut.allowPaletteEditing, // TODO: this and the line above seem wrong?
             run: (eagle): void => {eagle.newConfig();}
         }),
-
         // json
         new KeyboardShortcut({
             id: "add_to_graph_from_json",
             text: "Add To Graph From Json",
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.addToGraphFromJson();}
         }),
         new KeyboardShortcut({
             id: "create_new_graph_from_json",
             text: "Create New Graph From Json",
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.newLogicalGraphFromJson();}
         }),
         new KeyboardShortcut({
             id: "create_new_palette_from_json",
             text: "Create New Palette From Json",
-            canRun: KeyboardShortcut.allowPaletteEditing,
             run: (eagle): void => {eagle.newPaletteFromJson();}
         }),
         new KeyboardShortcut({
@@ -264,7 +247,6 @@ export class KeyboardShortcut {
             text: "Display Graph As Json",
             run: (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph);}
         }),
-
         // load/save
         // TODO: this one (open_graph_from_repo) does almost nothing! we should have a real modal
         new KeyboardShortcut({
@@ -286,7 +268,6 @@ export class KeyboardShortcut {
             text: "Open Palette From Repo",
             keys: [new Key("p")],
             tags: ['git','repository','github','gitlab','load','template'],
-            canRun: KeyboardShortcut.allowPaletteEditing,
             run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository);SideWindow.setShown('right',true);}
         }),
         new KeyboardShortcut({
@@ -294,62 +275,53 @@ export class KeyboardShortcut {
             text: "Open Palette From Local Disk",
             keys: [new Key("p", Modifier.Shift)],
             tags: ['template', 'upload'],
-            canRun: KeyboardShortcut.allowPaletteEditing,
             run: (eagle): void => {eagle.getPaletteFileToLoad();}
         }),
+
         new KeyboardShortcut({
             id: "save_graph_to_repo",
             text: "Save Graph To Repo",
             tags: ['git'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.commitToGit(Eagle.FileType.Graph);}
         }),
         new KeyboardShortcut({
             id: "save_graph_to_repo_as",
             text: "Save Graph To Repo As",
             tags: ['git'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Graph);}
         }),
         new KeyboardShortcut({
             id: "save_palette_to_repo",
             text: "Save Palette To Repo",
             tags: ['git'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.commitToGit(Eagle.FileType.Palette);}
         }),
         new KeyboardShortcut({
             id: "save_palette_to_repo_as",
             text: "Save Palette To Repo As",
             tags: ['git'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Palette);}
         }),
         new KeyboardShortcut({
             id: "save_graph_to_local_disk",
             text: "Save Graph To Local Disk",
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.saveFileToLocal(Eagle.FileType.Graph);}
         }),
         new KeyboardShortcut({
             id: "save_graph_to_local_disk_as",
             text: "Save Graph To Local Disk As",
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.saveAsFileToLocal(Eagle.FileType.Graph);}
         }),
         new KeyboardShortcut({
             id: "save_palette_to_local_disk",
             text: "Save Palette To Local Disk",
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.saveFileToLocal(Eagle.FileType.Palette);}
         }),
         new KeyboardShortcut({
             id: "save_palette_to_local_disk_as",
             text: "Save Palette To Local Disk As",
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.saveAsFileToLocal(Eagle.FileType.Palette);}
         }),
-        */
 
         // these are "smart saves", that use the current graph location (local or git), to save again in the same place
         new KeyboardShortcut({

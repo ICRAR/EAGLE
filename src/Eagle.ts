@@ -1316,6 +1316,11 @@ export class Eagle {
      * The following two functions allows the file selectors to be hidden and let tags 'click' them
      */
     getGraphFileToLoad = () : void => {
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Load Graph");
+            return;
+        }
+
         document.getElementById("graphFileToLoad").click();
         this.resetEditor()
     }
@@ -1330,17 +1335,24 @@ export class Eagle {
     }
 
     getPaletteFileToLoad = () : void => {
-        document.getElementById("paletteFileToLoad").click();
-    }
+        if (!Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "Load Palette");
+            return;
+        }
 
-    getConfigFileToLoad = () : void => {
-        document.getElementById("configFileToLoad").click();
+        document.getElementById("paletteFileToLoad").click();
     }
 
     /**
      * Creates a new logical graph for editing.
      */
     newLogicalGraph = async(): Promise<void> => {
+        // check that graph editing is permitted
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "New Logical Graph");
+            return;
+        }
+
         let filename: string;
         try {
             filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
@@ -1364,6 +1376,12 @@ export class Eagle {
      * Presents the user with a textarea in which to paste JSON. Reads the JSON and parses it into a logical graph for editing.
      */
     newLogicalGraphFromJson = async (): Promise<void> => {
+        // check that graph editing is permitted
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "New Logical Graph From JSON")
+            return;
+        }
+
         let userText: string;
         try{
             userText = await Utils.requestUserText("New Logical Graph from JSON", "Enter the JSON below", "");
@@ -1380,6 +1398,12 @@ export class Eagle {
     }
 
     addToGraphFromJson = async (): Promise<void> => {
+        // check that graph editing is permitted
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Add to Graph from JSON");
+            return;
+        }
+
         let userText: string;
         try {
             userText = await Utils.requestUserText("Add to Graph from JSON", "Enter the JSON below", "");
@@ -1449,6 +1473,12 @@ export class Eagle {
      * Creates a new palette for editing.
      */
     newPalette = async () : Promise<void> => {
+        // check that palette editing is permitted
+        if (!Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "New Palette");
+            return;
+        }
+
         let filename: string;
         try {
             filename = await Utils.requestDiagramFilename(Eagle.FileType.Palette);
@@ -1473,6 +1503,12 @@ export class Eagle {
      * Presents the user with a textarea in which to paste JSON. Reads the JSON and parses it into a palette.
      */
     newPaletteFromJson = async (): Promise<void> => {
+        // check that palette editing is permitted
+        if (!Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "New Palette from JSON");
+            return;
+        }
+
         let userText: string;
         try {
             userText = await Utils.requestUserText("New Palette from JSON", "Enter the JSON below", "");
@@ -1523,6 +1559,12 @@ export class Eagle {
      */
 
     newConfig = () : void => {
+        // check that editing graphs is permitted
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "New Config");
+            return;
+        }
+
         const c: GraphConfig = new GraphConfig();
         c.setName('newConfig');
 
@@ -1590,7 +1632,6 @@ export class Eagle {
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Save Graph As");
             return;
         }
-
         return new Promise(async(resolve, reject) => {
             const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
 
@@ -1626,6 +1667,12 @@ export class Eagle {
      * Saves the file to a local download folder.
      */
     saveFileToLocal = async (fileType : Eagle.FileType) : Promise<void> => {
+        // check that graph editing is permitted
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(fileType, "Save " + fileType);
+            return;
+        }
+
         return new Promise(async(resolve, reject) => {
             switch (fileType){
                 case Eagle.FileType.Graph:
@@ -1668,6 +1715,12 @@ export class Eagle {
     }
 
     saveAsFileToLocal = async (fileType: Eagle.FileType): Promise<void> => {
+        // check that graph editing is permitted
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(fileType, "Save " + fileType + " As");
+            return;
+        }
+
         return new Promise(async(resolve, reject) => {
             switch (fileType){
                 case Eagle.FileType.Graph:
@@ -1789,7 +1842,12 @@ export class Eagle {
     /**
      * Performs a Git commit of a graph/palette. Asks user for a file name before saving.
      */
-    commitToGitAs = (fileType : Eagle.FileType) : Promise<void> => {
+    commitToGitAs = async (fileType : Eagle.FileType) : Promise<void> => {
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(fileType, "Commit to Git As");
+            return;
+        }
+
         return new Promise(async(resolve, reject) => {
             let fileInfo : ko.Observable<FileInfo>;
             let obj : LogicalGraph | Palette;
@@ -1868,6 +1926,11 @@ export class Eagle {
      * Performs a Git commit of a graph/palette.
      */
     commitToGit = async (fileType : Eagle.FileType) : Promise<void> => {
+        if (Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(fileType, "Commit to Git");
+            return;
+        }
+
         return new Promise(async(resolve, reject) => {
             let fileInfo : ko.Observable<FileInfo>;
             let obj : LogicalGraph | Palette;
