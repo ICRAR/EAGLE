@@ -635,7 +635,9 @@ export class Eagle {
 
     
     getTranslatorColor : ko.PureComputed<string> = ko.pureComputed(() : string => {
-        if(Setting.findValue(Setting.TEST_TRANSLATE_MODE)){
+        const isLocalFile: boolean = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
+
+        if(Setting.findValue(Setting.TEST_TRANSLATE_MODE) || isLocalFile){
             return 'orange'
         }else if (this.logicalGraph().fileInfo().modified){
             return 'red'
