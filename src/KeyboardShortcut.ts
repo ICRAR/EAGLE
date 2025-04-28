@@ -349,6 +349,7 @@ export class KeyboardShortcut {
             canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.saveAsFileToLocal(Eagle.FileType.Palette);}
         }),
+        */
 
         // these are "smart saves", that use the current graph location (local or git), to save again in the same place
         new KeyboardShortcut({
@@ -356,7 +357,6 @@ export class KeyboardShortcut {
             text: "Save Graph",
             keys: [new Key("s")],
             tags: ['canvas','commit','github','repository','gitlab'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.saveGraph();}
         }),
         new KeyboardShortcut({
@@ -364,7 +364,6 @@ export class KeyboardShortcut {
             text: "Save Graph As",
             keys: [new Key("s", Modifier.Shift)],
             tags: ['download','canvas'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.saveGraphAs()}
         }),
         // TODO: two for palettes
@@ -375,13 +374,11 @@ export class KeyboardShortcut {
             text: "Add Graph Nodes To Palette",
             keys: [new Key("a")],
             tags: ['template','canvas'],
-            canRun: KeyboardShortcut.allowPaletteEditing,
             run: (eagle): void => {eagle.addGraphNodesToPalette();}
         }),
         new KeyboardShortcut({
             id: "add_selected_nodes_to_palette",
             text: "Add Selected Nodes To Palette",
-            canRun: KeyboardShortcut.nodeIsSelected,
             run: (eagle): void => {eagle.addSelectedNodesToPalette('normal');}
         }),
         new KeyboardShortcut({
@@ -389,7 +386,6 @@ export class KeyboardShortcut {
             text: "Insert graph from local disk",
             keys: [new Key("i")],
             tags: ['canvas','subGraph','upload'],
-            canRun: KeyboardShortcut.allowGraphEditing,
             run: (eagle): void => {eagle.getGraphFileToInsert();}
         }),
         new KeyboardShortcut({
@@ -399,7 +395,6 @@ export class KeyboardShortcut {
             tags: ['deploy','translate','translator'],
             run: (eagle): void => {eagle.deployDefaultTranslationAlgorithm();}
         }),
-        */
         new KeyboardShortcut({
             id: "delete_selection",
             text: "Delete Selection",

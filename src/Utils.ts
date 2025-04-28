@@ -490,7 +490,7 @@ export class Utils {
         } else {
             message = fileType + " editing is not permitted in the current UI mode (" + uiMode + ")";
         }
-        Utils.showNotification(action, message, "danger");
+        Utils.showNotification(action, message, "warning");
     }
 
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean): Promise<string> {

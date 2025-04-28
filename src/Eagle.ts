@@ -1321,6 +1321,11 @@ export class Eagle {
     }
 
     getGraphFileToInsert = () : void => {
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Insert Graph");
+            return;
+        }
+
         document.getElementById("graphFileToInsert").click();
     }
 
@@ -1540,6 +1545,11 @@ export class Eagle {
     }
 
     saveGraph = async () : Promise<void> => {
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Save Graph");
+            return;
+        }
+
         return new Promise(async(resolve, reject) => {
             const eagle: Eagle = Eagle.getInstance();
 
@@ -1576,6 +1586,11 @@ export class Eagle {
     }
 
     saveGraphAs = async () : Promise<void> => {
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Save Graph As");
+            return;
+        }
+
         return new Promise(async(resolve, reject) => {
             const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
 
@@ -3676,6 +3691,12 @@ export class Eagle {
     }
 
     addGraphNodesToPalette = async () => {
+        // check that palette editing is permitted
+        if (!Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "Add Graph Nodes to Palette");
+            return;
+        }
+
         //check if there are any nodes in the graph
         if  (this.logicalGraph().getNodes().length === 0){
             Utils.showNotification("Unable to add nodes to palette", "No nodes found in graph", "danger");
