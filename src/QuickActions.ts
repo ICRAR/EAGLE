@@ -1,6 +1,5 @@
 import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
-import { Utils } from './Utils';
 
 // TODO: name and type are confusing here
 let wordMatch:     QuickActionsResult[] = []

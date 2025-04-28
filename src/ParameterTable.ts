@@ -282,11 +282,7 @@ export class ParameterTable {
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             return !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
         }else{
-            if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)||Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
-                return false
-            }else{
-                return true
-            }
+            return !Setting.findValue(Setting.ALLOW_GRAPH_EDITING) && !Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
         }
     }
 
@@ -617,7 +613,6 @@ export class ParameterTable {
             Utils.showNotification("Student Mode", "Unable to open Parameter Table in student mode", "danger", false);
             return;
         }
-        
 
         //if we are already in the requested mode, we can toggle the bottom window
         if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === mode){

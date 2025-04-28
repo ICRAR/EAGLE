@@ -2943,7 +2943,7 @@ export class Eagle {
     addEdgeToLogicalGraph = async () : Promise<void> => {
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Add Edge");
             return;
         }
 
@@ -2997,7 +2997,7 @@ export class Eagle {
 
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.showNotification("Unable to Edit Edge", "Graph Editing is disabled", "danger");
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Edit Edge");
             return;
         }
 
@@ -3059,7 +3059,7 @@ export class Eagle {
                 {
                     // check that graph editing is allowed
                     if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-                        Utils.showNotification("Unable to Duplicate Selection", "Graph Editing is disabled", "danger");
+                        Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Duplicate Selection");
                         return;
                     }
 
@@ -3211,7 +3211,7 @@ export class Eagle {
 
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.showNotification("Unable to Paste from Clipboard", "Graph Editing is disabled", "danger");
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Paste from Clipboard");
             return;
         }
 
@@ -3387,7 +3387,7 @@ export class Eagle {
 
         // check that graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.showNotification("Unable to Delete Selection", "Graph Editing is disabled", "danger");
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Delete Selection");
             return;
         }
 
@@ -3629,9 +3629,7 @@ export class Eagle {
 
             // check that graph editing is allowed
             if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-                const message: string = "Unable to Add Component. Graph Editing is disabled";
-                Utils.showNotification("Error", message, "danger");
-                reject(message);
+                reject("Unable to Add Component. Graph Editing is disabled");
                 return;
             }
 

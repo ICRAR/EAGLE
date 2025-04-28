@@ -1,7 +1,6 @@
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
-//import { Setting } from "./Setting";
 import { Utils } from './Utils';
 
 export class Errors {
@@ -26,14 +25,6 @@ export class Errors {
         let numWarnings = Infinity;
         let numIterations = 0;
 
-        // abort if graph editing is not supported
-        /*
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Fix All Errors");
-            return;
-        }
-        */
-       
         while (numWarnings !== eagle.graphWarnings().length || numErrors !== eagle.graphErrors().length){
             if (numIterations > 10){
                 console.warn("Too many iterations in fixAll()");
