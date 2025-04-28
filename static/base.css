@@ -1658,10 +1658,10 @@ select.form-control{
 .navbar #navTranslateWrapper{
     position: relative;
     width: 110px;
+    height: 32px;
     border: white 1px solid;
     border-radius: 5px;
     margin: 4px 0px;
-    overflow: hidden;
 }
 
 .navbar #navTranslateBtn{
@@ -1690,7 +1690,7 @@ select.form-control{
     padding: unset;
     width: 20px;
     background: white;
-    border-radius: unset;
+    border-radius: 0px 4px 4px 0px;
 }
 
 .navbar #navTranslateWrapper button span{
@@ -1705,6 +1705,7 @@ select.form-control{
     inset: 0px auto 0px 0px;
     width: 7px;
     background-color: orange;
+    border-radius: 4px 0px 0px 4px;
 }
 
 #repositoryList ul.repositories {

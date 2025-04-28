@@ -91,18 +91,23 @@
         </ul>
 
         <ul class="nav navbar-nav ms-auto">
-            <div id="navTranslateWrapper">
-                <div id="navTranslateStatus" data-bind="style: {'background-color':$root.getTranslatorColor()}"></div>
-                <div id="navTranslateBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + KeyboardShortcut.idToText('deploy_translator', true),click: function(){$root.deployDefaultTranslationAlgorithm()}">
-                    <span>Translate</span>
+            <li class="nav-item dropdown">
+                <div id="navTranslateWrapper">
+                    <div id="navTranslateStatus" data-bind="style: {'background-color':$root.getTranslatorColor()}"></div>
+                    <div id="navTranslateBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + KeyboardShortcut.idToText('deploy_translator', true),click: function(){$root.deployDefaultTranslationAlgorithm()}">
+                        <span>Translate</span>
+                    </div>
+                    <button class="btn btn-outline-secondary nav-link dropdown-toggle ms-auto" data-bs-toggle="dropdown" id="navbarDropdownTranslate" aria-expanded="true" data-bind="" type="button">
+                        <span class="material-icons-outlined iconHoverEffect">
+                            arrow_drop_down
+                        </span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownTranslate">
+                        <a href="#">option1</a>
+                        <a href="#">option2</a>
+                    </div>
                 </div>
-                <button class="btn btn-outline-secondary show" data-bs-toggle="dropdown" aria-expanded="true" data-bind="" type="button">
-                    <span class="material-icons-outlined iconHoverEffect">
-                        arrow_drop_down
-                    </span>
-                </button>
-
-            </div>
+            </li>
             <!-- <div id="navDeployBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + KeyboardShortcut.idToText('deploy_translator', true)">
                 <a href='javascript:void(0)' data-bind="click: function(){$root.deployDefaultTranslationAlgorithm()}">Translate</a>
             </div> -->
