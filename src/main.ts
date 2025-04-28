@@ -284,6 +284,8 @@ async function loadRepos() {
     autoLoad();
 }
 
+// NOTE: specify a URL like this:
+//     http://localhost:8888/?service=Url&url=https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/EAGLE-1302/simple-arrays.graph
 async function autoLoad() {
     const service    = (<any>window).auto_load_service;
     const repository = (<any>window).auto_load_repository;
