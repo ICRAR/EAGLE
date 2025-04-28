@@ -312,6 +312,7 @@ export class Setting {
     static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
     static readonly CONFIRM_DELETE_FILES : string = "ConfirmDeleteFiles";
     static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
+    static readonly TEST_TRANSLATE_MODE : string = "TestTranslateMode";
 
     static readonly SHOW_DEVELOPER_NOTIFICATIONS: string = "ShowDeveloperNotifications";
     static readonly SHOW_FILE_LOADING_ERRORS : string = "ShowFileLoadingErrors";
@@ -407,6 +408,7 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Open " + Palette.TEMPLATE_PALETTE_NAME + " Palette on Startup", Setting.OPEN_TEMPLATE_PALETTE, "Open the '" + Palette.TEMPLATE_PALETTE_NAME + "' palette on startup.", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Disable JSON Validation", Setting.DISABLE_JSON_VALIDATION, "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", false, Setting.Type.Boolean, false,false,false,false,false),
             new Setting(true, "Overwrite Existing Translator Tab", Setting.OVERWRITE_TRANSLATION_TAB, "When translating a graph, overwrite an existing translator tab", false, Setting.Type.Boolean, true,true,true,true,true),
+            new Setting(false, "Test Translate Mode", Setting.TEST_TRANSLATE_MODE, "Remove the necessity to save when translating.", false, Setting.Type.Boolean, false,false,false,false,false),
         ]
     ),
     new SettingsGroup(
