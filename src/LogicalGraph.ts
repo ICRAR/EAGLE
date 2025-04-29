@@ -123,7 +123,7 @@ export class LogicalGraph {
         // add graph configurations
         result.graphConfigurations = {};
         for (const gc of graph.graphConfigs()){
-            result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc);
+            result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc, graph);
         }
 
         // saving the id of the active graph configuration
@@ -148,7 +148,7 @@ export class LogicalGraph {
                 result += '"graphConfigurations": {},\n';
             } else {
                 const graphConfigurations: any = {};
-                graphConfigurations[graph.activeGraphConfigId().toString()] = GraphConfig.toJson(graph.getActiveGraphConfig());
+                graphConfigurations[graph.activeGraphConfigId().toString()] = GraphConfig.toJson(graph.getActiveGraphConfig(), graph);
 
                 result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, EagleConfig.JSON_INDENT) + ",\n";
             }

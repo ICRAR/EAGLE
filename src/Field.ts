@@ -639,7 +639,7 @@ export class Field {
 
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
-    static stringAsType(value: string, type: string) : any {
+    static stringAsType(value: string, type: Daliuge.DataType) : any {
         switch (type){
             case Daliuge.DataType.Boolean:
                 return Utils.asBool(value);
