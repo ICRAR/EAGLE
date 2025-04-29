@@ -1679,7 +1679,7 @@ select.form-control{
 
 .navbar #navTranslateBtn span{
     position: absolute;
-    inset: 50% auto auto 4px;
+    inset: 50% auto auto 6px;
     transform: translateY(-50%);
 }
 
@@ -1690,6 +1690,7 @@ select.form-control{
     padding: unset;
     width: 20px;
     background: white;
+    box-shadow: none;
     border-radius: 0px 4px 4px 0px;
 }
 
@@ -1703,7 +1704,7 @@ select.form-control{
 .navbar #navTranslateWrapper #navTranslateStatus{
     position: absolute;
     inset: 0px auto 0px 0px;
-    width: 7px;
+    width: 9px;
     background-color: orange;
     border-radius: 4px 0px 0px 4px;
 }

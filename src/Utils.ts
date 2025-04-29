@@ -2520,6 +2520,17 @@ export class Utils {
         return html
     }
 
+    static getTranslateBtnColorTooltip() : string {
+        let html = '**Reproducibility Status**<br><br>'
+        html = html+'**Green:** Graph is saved and ready for translation.<br>'
+        html = html+'**Red:** Graph is not saved, Save before translation.<br>'
+        html = html+'**Orange:** In test translation mode, do not use for workflow execution.<br>'
+        html = html+'**Blue:** Using a local graph, up to the user to keep a copy of the logical graph if you wish to keep full reproducibility of the workflow.'
+
+        return html
+    }
+
+
     static copyInputTextModalInput(): void {
         navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
     }
