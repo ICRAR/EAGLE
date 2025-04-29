@@ -133,7 +133,7 @@ export class Translator {
         const isLocalFile: boolean = eagle.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
 
         // check if the graph is committed before translation
-        if (!isLocalFile && this._checkGraphModified(eagle)){
+        if (!Setting.findValue(Setting.TEST_TRANSLATE_MODE) && !isLocalFile && this._checkGraphModified(eagle)){
             Utils.showNotification("Saving graph", "Automatically saving modified graph prior to translation", "info");
 
             // use the async function here, so that we can check isModified after saving
