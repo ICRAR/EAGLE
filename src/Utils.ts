@@ -2506,26 +2506,26 @@ export class Utils {
 
     static getRmodeTooltip() : string {
         let html = '**General**: Sets the standard for provenance tracking throughout graph translation and execution. Used to determine scientifically (high-level) changes to workflow behaviour. Signature files are stored alongside log files. Refer to the documentation for further explanation.<br>'
-        html = html+'**Documentation link** <a href="https://daliuge.readthedocs.io/en/latest/architecture/reproducibility/reproducibility.html" target="_blank">daliuge.readthedocs</a><br>'
-        html = html+'**NOTHING**: No provenance data is tracked at any stage.<br>'
-        html = html+'**ALL**: Data for all subsequent levels is generated and stored together.<br>'
-        html = html+'**RERUN**: Stores general about all logical graph components<br>'
-        html = html+'**REPEAT**: Stores specific information about logical and physical graph components<br>'
-        html = html+'**RECOMPUTE**: Stores maximum information about logical and physical graph components and at runtime.<br>'
-        html = html+'**REPRODUCE**: Stores information about terminal data drops at logical, physical and runtime layers.<br>'
-        html = html+'**REPLICATE SCI**: Essentially RERUN + REPRODUCE<br>'
-        html = html+'**REPLICATE COMP**: Essentially RECOMPUTE + REPRODUCE<br>'
-        html = html+'**REPLICATE TOTALLY**: Essentially REPEAT + REPRODUCE<br>'
+        html += '**Documentation link** <a href="https://daliuge.readthedocs.io/en/latest/architecture/reproducibility/reproducibility.html" target="_blank">daliuge.readthedocs</a><br>'
+        html += '**NOTHING**: No provenance data is tracked at any stage.<br>'
+        html += '**ALL**: Data for all subsequent levels is generated and stored together.<br>'
+        html += '**RERUN**: Stores general about all logical graph components<br>'
+        html += '**REPEAT**: Stores specific information about logical and physical graph components<br>'
+        html += '**RECOMPUTE**: Stores maximum information about logical and physical graph components and at runtime.<br>'
+        html += '**REPRODUCE**: Stores information about terminal data drops at logical, physical and runtime layers.<br>'
+        html += '**REPLICATE SCI**: Essentially RERUN + REPRODUCE<br>'
+        html += '**REPLICATE COMP**: Essentially RECOMPUTE + REPRODUCE<br>'
+        html += '**REPLICATE TOTALLY**: Essentially REPEAT + REPRODUCE<br>'
 
         return html
     }
 
     static getTranslateBtnColorTooltip() : string {
         let html = '**Reproducibility Status**<br><br>'
-        html = html+'**Green:** Graph is saved and ready for translation.<br>'
-        html = html+'**Red:** Graph is not saved, Save before translation.<br>'
-        html = html+'**Orange:** In test translation mode, do not use for workflow execution.<br>'
-        html = html+'**Blue:** Using a local graph, up to the user to keep a copy of the logical graph if you wish to keep full reproducibility of the workflow.'
+        html += '**Green:** Graph is saved and ready for translation.<br>'
+        html += '**Red:** Graph is not saved, Save before translation.<br>'
+        html += '**Orange:** In test translation mode, do not use for workflow execution.<br>'
+        html += '**Blue:** Using a local graph, up to the user to keep a copy of the logical graph if you wish to keep full reproducibility of the workflow.'
 
         return html
     }

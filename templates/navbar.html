@@ -95,12 +95,12 @@
                 <div id="navTranslateWrapper">
                     <div id="navTranslateStatus" data-bind="style: {'background-color':$root.getTranslatorColor()}, eagleTooltip:Utils.getTranslateBtnColorTooltip()"></div>
                     <!-- ko ifnot: Setting.findValue(Setting.TEST_TRANSLATE_MODE) -->
-                        <div id="navTranslateBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + KeyboardShortcut.idToText('deploy_translator', true),click: function(){$root.deployDefaultTranslationAlgorithm()}">
+                        <div class="navTranslateBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + KeyboardShortcut.idToText('deploy_translator', true),click: function(){$root.deployDefaultTranslationAlgorithm()}">
                             <span>Translate</span>
                         </div>
                     <!-- /ko -->
                     <!-- ko if: Setting.findValue(Setting.TEST_TRANSLATE_MODE) -->
-                        <div id="navTranslateBtn" data-bind="eagleTooltip:'Test Translation of the graph using the selected algorithm. This mode is for rapid graph development, reproducibility safeguards are switched off. Do not use for workflow execution. ' + KeyboardShortcut.idToText('deploy_translator', true),click: function(){$root.deployDefaultTranslationAlgorithm()}">
+                        <div class="navTranslateBtn" data-bind="eagleTooltip:'Test Translation of the graph using the selected algorithm. This mode is for rapid graph development, reproducibility safeguards are switched off. Do not use for workflow execution. ' + KeyboardShortcut.idToText('deploy_translator', true),click: function(){$root.deployDefaultTranslationAlgorithm()}">
                             <span>Test Translate</span>
                         </div>
                     <!-- /ko -->

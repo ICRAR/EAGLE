@@ -1664,20 +1664,20 @@ select.form-control{
     margin: 4px 0px;
 }
 
-.navbar #navTranslateBtn{
+.navbar .navTranslateBtn{
     position: absolute;
     color: white;
     padding: unset;
     inset: 0px 20px 0px 7px;
 }
 
-.navbar #navTranslateBtn:hover{
+.navbar .navTranslateBtn:hover{
     background-color: white;
     color: #002349;
     cursor:pointer;
 }
 
-.navbar #navTranslateBtn span{
+.navbar .navTranslateBtn span{
     position: absolute;
     inset: 50% auto auto 6px;
     transform: translateY(-50%);
