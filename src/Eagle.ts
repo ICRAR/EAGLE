@@ -2691,6 +2691,23 @@ export class Eagle {
         }
     }
     
+    validateGraph = (): void => {
+        // get logical graph
+        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
+
+        // get json for logical graph
+        const jsonString: string = LogicalGraph.toOJSJsonString(lg, true);
+
+        // validate json
+        const jsonObject = JSON.parse(jsonString);
+        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, Eagle.FileType.Graph);
+        if (validatorResult.valid){
+            Utils.showNotification("Success",  "JSON Output valid against internal JSON schema", "success");
+        } else {
+            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema", "danger");
+        }
+    }
+
     saveGraphScreenshot = async () : Promise<void> =>  {
         const eagle = Eagle.getInstance()
 
