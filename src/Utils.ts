@@ -2525,7 +2525,7 @@ export class Utils {
         html += '**Green:** Graph is saved and ready for translation.<br>'
         html += '**Red:** Graph is not saved, Save before translation.<br>'
         html += '**Orange:** In test translation mode, do not use for workflow execution.<br>'
-        html += '**Blue:** Using a local graph, up to the user to keep a copy of the logical graph if you wish to keep full reproducibility of the workflow.'
+        html += "**Blue:** Graph is a local file, it is the user's responsibility to keep a copy if full workflow reproducibility is required."
 
         return html
     }
