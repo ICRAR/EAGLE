@@ -59,6 +59,16 @@ export class Repositories {
         }
     }
     
+    static translateStringToService(service: string): Repository.Service {
+        for (const s in Repository.Service){
+            if (s.toLowerCase() === service.toLowerCase()){
+                return s as Repository.Service;
+            }
+        }
+
+        return Repository.Service.Unknown;
+    }
+
     // use a custom modal to ask user for repository service and url at the same time
     addCustomRepository = async () => {
         let customRepository: Repository;

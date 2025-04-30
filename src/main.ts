@@ -295,7 +295,7 @@ async function autoLoad() {
     const url        = (<any>window).auto_load_url;
 
     // cast the service string to an enum
-    const realService: Repository.Service = Repository.Service[service as keyof typeof Repository.Service];
+    const realService: Repository.Service = Repositories.translateStringToService(service);
 
     // skip unknown services
     if (typeof realService === "undefined" || realService === Repository.Service.Unknown){
@@ -303,8 +303,11 @@ async function autoLoad() {
         return;
     }
 
+    // check if service is a supported git service
+    const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(realService);
+
     // skip empty strings
-    if ([Repository.Service.GitHub, Repository.Service.GitLab].includes(realService) && (repository === "" || branch === "" || filename === "")){
+    if (serviceIsGit && (repository === "" || branch === "" || filename === "")){
         console.log("No auto load. Repository, branch or filename not specified");
         return;
     }
@@ -316,14 +319,14 @@ async function autoLoad() {
     }
 
     // load
-    if (service === Repository.Service.Url){
-        Repositories.selectFile(new RepositoryFile(new Repository(service, "", "", false), "", url));
+    if (realService === Repository.Service.Url){
+        Repositories.selectFile(new RepositoryFile(new Repository(realService, "", "", false), "", url));
     } else {
-        Repositories.selectFile(new RepositoryFile(new Repository(service, repository, branch, false), path, filename));
+        Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
     }
 
     // if developer setting enabled, fetch the repository that this graph belongs to (if the repository is in the list of known repositories)
-    if (Setting.findValue(Setting.FETCH_REPOSITORY_FOR_URLS)){
+    if (serviceIsGit && Setting.findValue(Setting.FETCH_REPOSITORY_FOR_URLS)){
         let repo: Repository = Repositories.get(service, repository, branch);
 
         // check whether the source repository is already known to EAGLE

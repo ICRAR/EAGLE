@@ -635,11 +635,11 @@ export class Eagle {
 
     
     getTranslatorColor : ko.PureComputed<string> = ko.pureComputed(() : string => {
-        const isLocalFile: boolean = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
+        // check if current graph comes from a supported git service
+        const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(this.logicalGraph().fileInfo().repositoryService);
 
-        if(isLocalFile){
+        if(!serviceIsGit){
             return 'dodgerblue'
-
         }else if(Setting.findValue(Setting.TEST_TRANSLATE_MODE)){
             return 'orange'
         }else if (this.logicalGraph().fileInfo().modified){
@@ -2173,7 +2173,7 @@ export class Eagle {
         try {
             data = await openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
         } catch (error){
-            Utils.showUserMessage("Error", error);
+            Utils.showUserMessage("Error", "Unable to open remote file: " + error);
             this.hideEagleIsLoading()
             return;
         } finally {
@@ -4209,13 +4209,18 @@ export class Eagle {
         }
 
         // build graph url
-        let graph_url = window.location.origin;
+        let graph_url: string = window.location.origin;
 
-        graph_url += "/?service=" + fileInfo.repositoryService;
-        graph_url += "&repository=" + fileInfo.repositoryName;
-        graph_url += "&branch=" + fileInfo.repositoryBranch;
-        graph_url += "&path=" + encodeURI(fileInfo.path);
-        graph_url += "&filename=" + encodeURI(fileInfo.name);
+        graph_url += "/?service=" + fileInfo.repositoryService.toLowerCase();
+
+        if (fileInfo.repositoryService === Repository.Service.Url){
+            graph_url += "&url=" + fileInfo.name;
+        } else {
+            graph_url += "&repository=" + fileInfo.repositoryName;
+            graph_url += "&branch=" + fileInfo.repositoryBranch;
+            graph_url += "&path=" + encodeURI(fileInfo.path);
+            graph_url += "&filename=" + encodeURI(fileInfo.name);
+        }
  
         // copy to clipboard
         navigator.clipboard.writeText(graph_url);
