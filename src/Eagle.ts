@@ -4591,7 +4591,7 @@ $( document ).ready(function() {
         $(".dropdown-menu").removeClass("show")
     })
 
-    //added to prevent console wanrings caused by focused elements in a modal being hidden 
+    //added to prevent console warnings caused by focused elements in a modal being hidden 
     $('.modal').on('hide.bs.modal',function(){
         if (document.activeElement) {
             $(document.activeElement).blur();
