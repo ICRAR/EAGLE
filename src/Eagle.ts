@@ -1418,6 +1418,25 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
+    newLogicalGraphFromUrl = async(): Promise<void> => {
+        // TODO: check for ALLOW_GRAPH_EDITING
+
+        let url: string;
+        try {
+            url = await Utils.requestUserString("Url", "Enter Url of Graph to load", "", false);
+        } catch(error){
+            console.error(error);
+            return;
+        }
+
+        try {
+            Repositories.selectFile(new RepositoryFile(new Repository(Repository.Service.Url, "", "", false), "", url));
+        } catch(error){
+            console.error(error);
+            return;
+        }
+    }
+
     displayObjectAsJson = (fileType: Eagle.FileType) : void => {
         let jsonString: string;
         
