@@ -4584,18 +4584,24 @@ export namespace Eagle
 // TODO: ready is deprecated here, use something else
 $( document ).ready(function() {
     // jquery event listeners start here
-
+    
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").on("mouseleave", function(){
         $(".dropdown-toggle").removeClass("show")
         $(".dropdown-menu").removeClass("show")
     })
 
+    //added to prevent console wanrings caused by focused elements in a modal being hidden 
+    $('.modal').on('hide.bs.modal',function(){
+        if (document.activeElement) {
+            $(document.activeElement).blur();
+        }
+    })
+
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
         $("#issuesDisplayAccordion").parent().parent().attr('style','')
-
         //reset parameter table selection
         ParameterTable.resetSelection()
     }); 

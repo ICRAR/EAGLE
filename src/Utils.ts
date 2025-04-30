@@ -1394,7 +1394,7 @@ export class Utils {
     }
 
     static getLeftWindowWidth() : number {
-        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValue(Setting.ALLOW_GRAPH_EDITING) && !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
             return 0
         }
         return Setting.findValue(Setting.LEFT_WINDOW_WIDTH)
