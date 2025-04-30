@@ -1394,7 +1394,9 @@ export class Utils {
     }
 
     static getLeftWindowWidth() : number {
-        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
+        const leftWindowDisabled = !Setting.findValue(Setting.ALLOW_GRAPH_EDITING) && !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
+
+        if(!Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || leftWindowDisabled){
             return 0
         }
         return Setting.findValue(Setting.LEFT_WINDOW_WIDTH)
