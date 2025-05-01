@@ -180,13 +180,15 @@ export namespace Daliuge {
     export const executionTimeField = new Field(null, FieldName.EXECUTION_TIME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
     export const numCpusField = new Field(null, FieldName.NUM_OF_CPUS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
     export const dataVolumeField = new Field(null, FieldName.DATA_VOLUME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
+    export const persistField = new Field(null, FieldName.PERSIST, "false", "false", "Specifies whether this data component contains data that should not be deleted after execution", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    export const streamingField = new Field(null, FieldName.STREAMING, "false", "false", "Specifies whether this data component streams input and output data", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
 
     export const kField = new Field(null, FieldName.K, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
     export const numCopiesField = new Field(null, FieldName.NUM_OF_COPIES, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
     export const numInputsField = new Field(null, FieldName.NUM_OF_INPUTS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
     export const numIterationsField = new Field(null, FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
 
-    export const baseNameField = new Field(null, FieldName.BASE_NAME, "", "", "The base name of the class of this Member function", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    export const baseNameField = new Field(null, FieldName.BASE_NAME, "", "", "Base name of application class", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
     export const selfField = new Field(null, FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.InputOutput);
 
     export const funcCodeField = new Field(null, FieldName.FUNC_CODE, "", "def func_name(args): return args", "Python function code", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.Component, FieldUsage.NoPort);
@@ -200,7 +202,8 @@ export namespace Daliuge {
                 Category.Type.Data
             ],
             fields: [
-                Daliuge.dropClassField
+                Daliuge.dropClassField,
+                Daliuge.baseNameField
             ]
         },
         {
@@ -217,7 +220,10 @@ export namespace Daliuge {
                 Category.Type.Data
             ],
             fields: [
-                Daliuge.dataVolumeField
+                Daliuge.dataVolumeField,
+                Daliuge.persistField,
+                Daliuge.streamingField,
+
             ]
         }
     ];
