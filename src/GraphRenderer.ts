@@ -1796,7 +1796,6 @@ export class GraphRenderer {
     }
 
     static showUserNodeSelectionContextMenu(){
-        console.log('showusernodes selection context menu')
         const eagle: Eagle = Eagle.getInstance();
 
         //hiding the suggested node edge while the right click menu shows up

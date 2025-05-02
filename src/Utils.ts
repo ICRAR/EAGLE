@@ -1273,8 +1273,6 @@ export class Utils {
     }
 
     static getComponentsWithMatchingPort(nodes:Node[], input: boolean, type: string) : Node[] {
-
-        console.log('check for matchess',GraphRenderer.portDragSourceNode())
         const result: Node[] = [];
 
         // no destination, ask user to choose a new node
