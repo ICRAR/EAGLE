@@ -447,13 +447,17 @@
     border:1px solid black;
     overflow: hidden;
     min-width: 9rem;
-    max-height:200px;
+    max-height:100px;
     overflow-y: auto;
 }
 
-/* overwriting bootstrap placement of the custom dropdown as it was in-accurate */
-.eagleTableDisplay .column_Type .dropdown-menu{
-    transform: translate(4px, 25px) !important;
+/* overwriting bad bootstrap dropdown placement */
+.eagleTableDisplay .column_Type .dropdown-menu[data-popper-placement~="top-end"],.eagleTableDisplay .column_Type .dropdown-menu[data-popper-placement~="top-start"]{
+    margin-bottom: 19px !important;
+}
+
+.eagleTableDisplay .column_Type .dropdown-menu[data-popper-placement~="bottom-end"],.eagleTableDisplay .column_Type .dropdown-menu[data-popper-placement~="bottom-start"]{
+    margin-top: -15px !important;
 }
 
 .eagleTableDisplay .typesInput{
