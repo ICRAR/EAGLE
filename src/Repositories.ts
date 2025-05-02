@@ -1,15 +1,12 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {GitHub} from './GitHub';
-import {GitLab} from './GitLab';
-import {Palette} from './Palette';
-import {Repository} from './Repository';
-import {RepositoryFolder} from './RepositoryFolder';
-import {RepositoryFile} from './RepositoryFile';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
 import { EagleStorage } from "./EagleStorage";
+import { Palette } from './Palette';
+import { Repository } from './Repository';
+import { RepositoryFile } from './RepositoryFile';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class Repositories {
 
@@ -50,6 +47,7 @@ export class Repositories {
                 await Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChanges);
             } catch (error) {
                 console.error(error);
+                eagle.hideEagleIsLoading();
                 return;
             }
 

@@ -129,7 +129,6 @@
                                 </a>
                                 <a class="dropdown-item" id="createNewGraphFromJson" href="#" data-bind="click: newLogicalGraphFromJson">Create New Graph from JSON</a>
                                 <a class="dropdown-item" id="addToGraphFromJson" href="#" data-bind="click: addToGraphFromJson">Add to Graph from JSON</a>
-                                <a class="dropdown-item" id="createNewGraphFromUrl" href="#" data-bind="click: newLogicalGraphFromUrl">Create New Graph from URL</a>
                                 <a class="dropdown-item" id="addEdgeToLogicalGraph" href="#" data-bind="click: addEdgeToLogicalGraph">Add Edge to Graph
                                     <span data-bind="text: KeyboardShortcut.idToText('add_edge', true)"></span>
                                 </a>
@@ -161,6 +160,7 @@
                                 </a>
                             </div>
                         </span>
+                        <a class="dropdown-item" id="createNewGraphFromUrl" href="#" data-bind="click: function(){loadFileFromUrl()}">Open Graph from URL</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: function(){displayObjectAsJson(Eagle.FileType.Graph);}">Display As Json</a>
                         <a class="dropdown-item" id="screenshotGraph" href="#" data-bind="click: saveGraphScreenshot">Screenshot</a>
@@ -205,6 +205,7 @@
                             </a>
                         </div>
                     </span>
+                    <a class="dropdown-item" id="createNewPaletteFromUrl" href="#" data-bind="click: function(){loadFileFromUrl(Eagle.FileType.Palette)}">Open Palette from URL</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" id="saveToPalette" href="#" data-bind="click: addGraphNodesToPalette">Add Graph Nodes</a>
                 <!-- /ko -->

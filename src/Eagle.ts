@@ -1418,12 +1418,10 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    newLogicalGraphFromUrl = async(): Promise<void> => {
-        // TODO: check for ALLOW_GRAPH_EDITING
-
+    loadFileFromUrl = async(fileType: Eagle.FileType): Promise<void> => {
         let url: string;
         try {
-            url = await Utils.requestUserString("Url", "Enter Url of Graph to load", "", false);
+            url = await Utils.requestUserString("Url", "Enter Url of " + fileType + " to load", "", false);
         } catch(error){
             console.error(error);
             return;
@@ -2427,6 +2425,12 @@ export class Eagle {
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
+        if (file.repository.service === Repository.Service.Url){
+            newPalette.fileInfo().repositoryService = Repository.Service.Url;
+            newPalette.fileInfo().downloadUrl = file.name;
+            newPalette.fileInfo.valueHasMutated();
+        }
+
         // all new (or reloaded) palettes should have 'expanded' flag set to true
         newPalette.expanded(true);
 
@@ -2446,6 +2450,11 @@ export class Eagle {
         this.logicalGraph().fileInfo().repositoryService = repositoryService;
         this.logicalGraph().fileInfo().path = path;
         this.logicalGraph().fileInfo().name = name;
+
+        // set url
+        if (repositoryService === Repository.Service.Url){
+            this.logicalGraph().fileInfo().downloadUrl = name;
+        }
 
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
         this.logicalGraph().fileInfo.valueHasMutated();
@@ -4209,18 +4218,7 @@ export class Eagle {
         }
 
         // build graph url
-        let graph_url: string = window.location.origin;
-
-        graph_url += "/?service=" + fileInfo.repositoryService.toLowerCase();
-
-        if (fileInfo.repositoryService === Repository.Service.Url){
-            graph_url += "&url=" + fileInfo.name;
-        } else {
-            graph_url += "&repository=" + fileInfo.repositoryName;
-            graph_url += "&branch=" + fileInfo.repositoryBranch;
-            graph_url += "&path=" + encodeURI(fileInfo.path);
-            graph_url += "&filename=" + encodeURI(fileInfo.name);
-        }
+        const graph_url: string = FileInfo.generateUrl(fileInfo);
  
         // copy to clipboard
         navigator.clipboard.writeText(graph_url);
