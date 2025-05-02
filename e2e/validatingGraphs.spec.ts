@@ -10,11 +10,21 @@ test('Validating Graphs', async ({ page }) => {
   for (const graphUrl of GRAPHS){
     await page.goto('http://localhost:8888/?service=Url&url='+graphUrl);
 
-    //wait for the repo to be removed
+    // wait for the page to load
     await page.waitForTimeout(1000);
 
-    // Expect a title "to contain" a substring.
+    // expect a title "to contain" a substring.
     await expect(page).toHaveTitle(/EAGLE/);
+
+    // navigate menus and click the "validate" item
+    await page.locator('#navbarDropdownGraph').click();
+    await page.locator('#validateGraph').click();
+
+    // wait for the validation
+    await page.waitForTimeout(1000);
+
+    // check result
+    await expect(page.locator('span[data-notify="message"')).toContainText(" valid ");
   }
 
   //closing the browser
