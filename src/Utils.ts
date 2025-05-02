@@ -316,73 +316,103 @@ export class Utils {
     }
     
     static async httpGet(url: string): Promise<string> {
-        return $.ajax({
-            url: url
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpGetJSON(url: string, json: object): Promise<object> {
-        return $.ajax({
-            url: url,
-            type: 'GET',
-            data: JSON.stringify(json),
-            contentType: 'application/json'
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: JSON.stringify(json),
+                contentType: 'application/json'
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpPost(url : string, data : string): Promise<string> {
-        return $.ajax({
-            url: url,
-            type: 'POST',
-            data: data,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false   // tell jQuery not to set contentType
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: data,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false   // tell jQuery not to set contentType
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpPostJSON(url : string, json : object): Promise<string> {
-        return $.ajax({
-            url: url,
-            type: 'POST',
-            data: JSON.stringify(json),
-            contentType: 'application/json'
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: JSON.stringify(json),
+                contentType: 'application/json'
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpPostJSONString(url : string, jsonString : string): Promise<string> {
-        return $.ajax({
-            url: url,
-            type: 'POST',
-            data: jsonString,
-            contentType: 'application/json'
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: jsonString,
+                contentType: 'application/json'
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpPostForm(url : string, formData : FormData): Promise<string> {
-        return $.ajax({
-            url: url,
-            type: 'POST',
-            data: formData,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false   // tell jQuery not to set contentType
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false   // tell jQuery not to set contentType
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
@@ -2527,7 +2557,7 @@ export class Utils {
         html += '**Green:** Graph is saved and ready for translation.<br>'
         html += '**Red:** Graph is not saved, Save before translation.<br>'
         html += '**Orange:** In test translation mode, do not use for workflow execution.<br>'
-        html += "**Blue:** Graph is a local file, it is the user's responsibility to keep a copy if full workflow reproducibility is required."
+        html += "**Blue:** Graph is not stored in a git repository, it is the user's responsibility to keep a copy if full workflow reproducibility is required."
 
         return html
     }
@@ -2619,7 +2649,8 @@ export class Utils {
             try {
                 data = await Utils.httpGet(fileName);
             } catch (error) {
-                reject(error)
+                reject(error);
+                return;
             }
 
             resolve(data);

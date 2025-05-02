@@ -635,11 +635,11 @@ export class Eagle {
 
     
     getTranslatorColor : ko.PureComputed<string> = ko.pureComputed(() : string => {
-        const isLocalFile: boolean = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
+        // check if current graph comes from a supported git service
+        const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(this.logicalGraph().fileInfo().repositoryService);
 
-        if(isLocalFile){
+        if(!serviceIsGit){
             return 'dodgerblue'
-
         }else if(Setting.findValue(Setting.TEST_TRANSLATE_MODE)){
             return 'orange'
         }else if (this.logicalGraph().fileInfo().modified){
@@ -1418,6 +1418,23 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
+    loadFileFromUrl = async(fileType: Eagle.FileType): Promise<void> => {
+        let url: string;
+        try {
+            url = await Utils.requestUserString("Url", "Enter Url of " + fileType + " to load", "", false);
+        } catch(error){
+            console.error(error);
+            return;
+        }
+
+        try {
+            Repositories.selectFile(new RepositoryFile(new Repository(Repository.Service.Url, "", "", false), "", url));
+        } catch(error){
+            console.error(error);
+            return;
+        }
+    }
+
     displayObjectAsJson = (fileType: Eagle.FileType) : void => {
         let jsonString: string;
         
@@ -2154,7 +2171,7 @@ export class Eagle {
         try {
             data = await openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
         } catch (error){
-            Utils.showUserMessage("Error", error);
+            Utils.showUserMessage("Error", "Unable to open remote file: " + error);
             this.hideEagleIsLoading()
             return;
         } finally {
@@ -2408,6 +2425,12 @@ export class Eagle {
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
+        if (file.repository.service === Repository.Service.Url){
+            newPalette.fileInfo().repositoryService = Repository.Service.Url;
+            newPalette.fileInfo().downloadUrl = file.name;
+            newPalette.fileInfo.valueHasMutated();
+        }
+
         // all new (or reloaded) palettes should have 'expanded' flag set to true
         newPalette.expanded(true);
 
@@ -2427,6 +2450,11 @@ export class Eagle {
         this.logicalGraph().fileInfo().repositoryService = repositoryService;
         this.logicalGraph().fileInfo().path = path;
         this.logicalGraph().fileInfo().name = name;
+
+        // set url
+        if (repositoryService === Repository.Service.Url){
+            this.logicalGraph().fileInfo().downloadUrl = name;
+        }
 
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
         this.logicalGraph().fileInfo.valueHasMutated();
@@ -4190,13 +4218,7 @@ export class Eagle {
         }
 
         // build graph url
-        let graph_url = window.location.origin;
-
-        graph_url += "/?service=" + fileInfo.repositoryService;
-        graph_url += "&repository=" + fileInfo.repositoryName;
-        graph_url += "&branch=" + fileInfo.repositoryBranch;
-        graph_url += "&path=" + encodeURI(fileInfo.path);
-        graph_url += "&filename=" + encodeURI(fileInfo.name);
+        const graph_url: string = FileInfo.generateUrl(fileInfo);
  
         // copy to clipboard
         navigator.clipboard.writeText(graph_url);
