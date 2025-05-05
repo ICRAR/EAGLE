@@ -13,8 +13,6 @@ import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 
-declare const cm6: any;
-
 export class Modals {
 
     static init(eagle : Eagle) : void {
@@ -74,8 +72,8 @@ export class Modals {
         {
             // initialise the editor, and save as data-attribute on the modal html element
             const parent = document.querySelector('#inputCodeModalEditor');
-		    const view = cm6.load().textarea(parent, {dark: true});
-            $('#inputTextModal').data('view', view);
+		    //const view = cm6.load().textarea(parent, {dark: true});
+            //$('#inputTextModal').data('view', view);
         }
 
         $('#inputCodeModal .modal-footer button').on('click', function(){
