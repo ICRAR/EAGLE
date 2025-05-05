@@ -45,6 +45,7 @@ import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
 import { ParameterTable } from "./ParameterTable";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { GraphRenderer } from "./GraphRenderer";
 
 export class Utils {
     // Allowed file extensions
@@ -1301,31 +1302,15 @@ export class Utils {
         return null;
     }
 
-    static getComponentsWithMatchingPort(mode: string, input: boolean, type: string, dataEligible: boolean) : Node[] {
-        let result: Node[] = [];
-        const eagle = Eagle.getInstance();
-
-        //using includes here so we can do both or either, just saves me from having to add another if with both pieces of code
-        if(mode.includes('palette')){
-            // add all data components (except ineligible)
-            for (const palette of eagle.palettes()){
-                result = result.concat(Utils.checkForMatches(palette.getNodes(), input, type, dataEligible))
-            }
-        }
-        
-        if(mode.includes('graph')){
-            result = result.concat(Utils.checkForMatches(eagle.logicalGraph().getNodes(), input, type, dataEligible))
-        }
-
-        return result;
-    }
-
-    static checkForMatches(nodes:Node[], input: boolean, type: string, dataEligible: boolean) : Node[] {
+    static getComponentsWithMatchingPort(nodes:Node[], input: boolean, type: string) : Node[] {
         const result: Node[] = [];
+
+        // no destination, ask user to choose a new node
+        const isData: boolean = GraphRenderer.portDragSourceNode().getCategoryType() === Category.Type.Data;
 
         for (const node of nodes){
             // skip data nodes if not eligible
-            if (!dataEligible && node.getCategoryType() === Category.Type.Data){
+            if (isData && node.getCategoryType() === Category.Type.Data){
                 continue;
             }
 
