@@ -548,6 +548,8 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("normal")>Duplicate</a>')
                 $('#customContextMenu').append('<a onclick=eagle.copySelectionToClipboard()>Copy</a>')
                 $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("normal")>Add To Palette</a>')
+                $('#customContextMenu').append('<a onclick=eagle.createConstructFromSelection()>Construct from Selection</a>')
+                $('#customContextMenu').append('<a onclick=eagle.createSubgraphFromSelection()>Sub Graph from Selection</a>')
             }
         }else{
             //defining the search bar as it is used in several right click menus
@@ -647,7 +649,7 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.RightClick)">Graph Attributes</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                 if (data.isConstruct()){
-                    $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete All</a>')
+                    $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete with children</a>')
                     $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
                 }
                 if(data.getCategory() === Category.Docker){
