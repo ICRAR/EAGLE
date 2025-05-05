@@ -998,9 +998,9 @@ export class Eagle {
             // update selection
             node.setParentId(parentNode.getId());
         }
-
-        // shrink/expand subgraph node to fit children
-        this.logicalGraph().shrinkNode(parentNode);
+        
+        // center parent around children
+        GraphRenderer.centerConstruct(parentNode,eagle.logicalGraph().getNodes())
 
         // flag graph as changed
         this.flagActiveFileModified();
@@ -1042,8 +1042,8 @@ export class Eagle {
             node.setParentId(parentNode.getId());
         }
 
-        // shrink/expand subgraph node to fit children
-        this.logicalGraph().shrinkNode(parentNode);
+        // center parent around children
+        GraphRenderer.centerConstruct(parentNode,eagle.logicalGraph().getNodes())
 
         // flag graph as changed
         this.flagActiveFileModified();
