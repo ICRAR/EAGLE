@@ -2015,7 +2015,13 @@ export class Node {
             const hasPydataValue: boolean = node.getFieldByDisplayText(Daliuge.FieldName.PYDATA)?.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
 
             if (!hasInputEdge && !hasPydataValue){
-                const message: string = node.category() + " node (" + node.getName() + ") has no connected input edges, and no data in its '" + Daliuge.FieldName.PYDATA + "' field.";
+                const message: string = node.category() + " node (" + node.getName() + ") has no connected input edges, and no data in its '" + Daliuge.FieldName.PYDATA + "' field. The node will not contain data.";
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+                node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+            }
+
+            if (hasInputEdge && hasPydataValue){
+                const message: string = node.category() + " node (" + node.getName() + ") has a connected input edge, and also contains data in its '" + Daliuge.FieldName.PYDATA + "' field. The two sources of data could cause a conflict.";
                 const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
                 node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
