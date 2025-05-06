@@ -631,13 +631,28 @@ export class Eagle {
         if (this.selectedObjects().length !== 1){
             return null;
         }
-
         const object = this.selectedObjects()[0];
 
         if (object instanceof Edge){
             return object;
         } else {
             return null;
+        }
+    }, this);
+
+    
+    getTranslatorColor : ko.PureComputed<string> = ko.pureComputed(() : string => {
+        // check if current graph comes from a supported git service
+        const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(this.logicalGraph().fileInfo().repositoryService);
+
+        if(!serviceIsGit){
+            return 'dodgerblue'
+        }else if(Setting.findValue(Setting.TEST_TRANSLATE_MODE)){
+            return 'orange'
+        }else if (this.logicalGraph().fileInfo().modified){
+            return 'red'
+        }else{
+            return 'green'
         }
     }, this);
 
@@ -995,9 +1010,9 @@ export class Eagle {
             // update selection
             node.setParentId(parentNode.getId());
         }
-
-        // shrink/expand subgraph node to fit children
-        this.logicalGraph().shrinkNode(parentNode);
+        
+        // center parent around children
+        GraphRenderer.centerConstruct(parentNode,eagle.logicalGraph().getNodes())
 
         // flag graph as changed
         this.flagActiveFileModified();
@@ -1044,8 +1059,8 @@ export class Eagle {
             node.setParentId(parentNode.getId());
         }
 
-        // shrink/expand subgraph node to fit children
-        this.logicalGraph().shrinkNode(parentNode);
+        // center parent around children
+        GraphRenderer.centerConstruct(parentNode,eagle.logicalGraph().getNodes())
 
         // flag graph as changed
         this.flagActiveFileModified();
@@ -1446,6 +1461,23 @@ export class Eagle {
         this.checkGraph();
         this.undo().pushSnapshot(this, "Added from JSON");
         this.logicalGraph.valueHasMutated();
+    }
+
+    loadFileFromUrl = async(fileType: Eagle.FileType): Promise<void> => {
+        let url: string;
+        try {
+            url = await Utils.requestUserString("Url", "Enter Url of " + fileType + " to load", "", false);
+        } catch(error){
+            console.error(error);
+            return;
+        }
+
+        try {
+            Repositories.selectFile(new RepositoryFile(new Repository(Repository.Service.Url, "", "", false), "", url));
+        } catch(error){
+            console.error(error);
+            return;
+        }
     }
 
     displayObjectAsJson = (fileType: Eagle.FileType) : void => {
@@ -2233,7 +2265,7 @@ export class Eagle {
         try {
             data = await openRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
         } catch (error){
-            Utils.showUserMessage("Error", error);
+            Utils.showUserMessage("Error", "Unable to open remote file: " + error);
             this.hideEagleIsLoading()
             return;
         } finally {
@@ -2487,6 +2519,12 @@ export class Eagle {
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
+        if (file.repository.service === Repository.Service.Url){
+            newPalette.fileInfo().repositoryService = Repository.Service.Url;
+            newPalette.fileInfo().downloadUrl = file.name;
+            newPalette.fileInfo.valueHasMutated();
+        }
+
         // all new (or reloaded) palettes should have 'expanded' flag set to true
         newPalette.expanded(true);
 
@@ -2506,6 +2544,11 @@ export class Eagle {
         this.logicalGraph().fileInfo().repositoryService = repositoryService;
         this.logicalGraph().fileInfo().path = path;
         this.logicalGraph().fileInfo().name = name;
+
+        // set url
+        if (repositoryService === Repository.Service.Url){
+            this.logicalGraph().fileInfo().downloadUrl = name;
+        }
 
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
         this.logicalGraph().fileInfo.valueHasMutated();
@@ -2938,53 +2981,6 @@ export class Eagle {
 
     hideEagleIsLoading = () : void => {
         $('#loadingContainer').hide()
-    }
-
-    addEdgeToLogicalGraph = async () : Promise<void> => {
-        // check that graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Add Edge");
-            return;
-        }
-
-        // check that there is at least one node in the graph, otherwise it is difficult to create an edge
-        if (this.logicalGraph().getNumNodes() === 0){
-            Utils.showNotification("Unable to Add Edge", "Can't add an edge to a graph with zero nodes.", "danger");
-            return;
-        }
-
-        // if input edge is null, then we are creating a new edge here, so initialise it with some default values
-        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getId(), null, this.logicalGraph().getNodes()[0].getId(), null, false, false, false);
-
-        // display edge editing modal UI
-        let edge: Edge;
-        try {
-            edge = await Utils.requestUserEditEdge(newEdge, this.logicalGraph());
-        } catch (error) {
-            console.error(error);
-            return;
-        }
-
-        // validate edge
-        const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-        if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
-            Utils.showUserMessage("Error", "Invalid edge");
-            return;
-        }
-
-        const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
-        const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-        const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
-        const destPort: Field = destNode.findFieldById(edge.getDestPortId());
-
-        // new edges might require creation of new nodes, don't use addEdgeComplete() here!
-        await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
-
-        this.checkGraph();
-        this.undo().pushSnapshot(this, "Add edge");
-        this.logicalGraph().fileInfo().modified = true;
-        // trigger the diagram to re-draw with the modified edge
-        this.logicalGraph.valueHasMutated();
     }
 
     editSelectedEdge = async (): Promise<void> => {
@@ -3730,7 +3726,7 @@ export class Eagle {
                 }
 
                 // create a new input/output "object" port on the PythonObject
-                const inputOutputPort = new Field(Utils.generateFieldId(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.InputOutput);
+                const inputOutputPort = new Field(Utils.generateFieldId(), Daliuge.FieldName.SELF, "", "", "", true, sourcePort.getType(), false, null, false, Daliuge.FieldType.Component, Daliuge.FieldUsage.InputOutput);
                 pythonObjectNode.addField(inputOutputPort);
 
                 // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
@@ -4290,13 +4286,7 @@ export class Eagle {
         }
 
         // build graph url
-        let graph_url = window.location.origin;
-
-        graph_url += "/?service=" + fileInfo.repositoryService;
-        graph_url += "&repository=" + fileInfo.repositoryName;
-        graph_url += "&branch=" + fileInfo.repositoryBranch;
-        graph_url += "&path=" + encodeURI(fileInfo.path);
-        graph_url += "&filename=" + encodeURI(fileInfo.name);
+        const graph_url: string = FileInfo.generateUrl(fileInfo);
  
         // copy to clipboard
         navigator.clipboard.writeText(graph_url);
@@ -4429,7 +4419,7 @@ export class Eagle {
             newNode.removeAllOutputPorts();
 
             // add InputOutput port for dataType
-            const newInputOutputPort = new Field(Utils.generateFieldId(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.InputOutput);
+            const newInputOutputPort = new Field(Utils.generateFieldId(), srcPort.getDisplayText(), "", "", "", false, srcPort.getType(), false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.InputOutput);
             newNode.addField(newInputOutputPort);
 
             // set the parent of the new node
@@ -4688,18 +4678,24 @@ export namespace Eagle
 // TODO: ready is deprecated here, use something else
 $( document ).ready(function() {
     // jquery event listeners start here
-
+    
     //hides the dropdown navbar elements when stopping hovering over the element
     $(".dropdown-menu").on("mouseleave", function(){
         $(".dropdown-toggle").removeClass("show")
         $(".dropdown-menu").removeClass("show")
     })
 
+    //added to prevent console warnings caused by focused elements in a modal being hidden 
+    $('.modal').on('hide.bs.modal',function(){
+        if (document.activeElement) {
+            $(document.activeElement).blur();
+        }
+    })
+
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
         $("#issuesDisplayAccordion").parent().parent().attr('style','')
-
         //reset parameter table selection
         ParameterTable.resetSelection()
     }); 

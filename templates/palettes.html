@@ -53,9 +53,7 @@
                     <!-- ko if: $data.searchExclude() -->
                     <a href="#" data-bind="click: function(){$data.setSearchExclude(false)}"><span>Include In Search</span></a>
                     <!-- /ko -->
-                    <!-- ko if: $data.fileInfo().repositoryService !== Repository.Service.Unknown && $data.fileInfo().repositoryService !== Repository.Service.File -->
                     <a href="#" data-bind="click: $data.copyUrl"><span>Copy URL</span></a>
-                    <!-- /ko -->
                     <a href="#" data-bind="click: function(){Utils.showModelDataModal('Palette Info', fileInfo());}"><span>Show ModelData</span></a>
                 </div>
                 <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: SideWindow.nodeDragOver, drop: $root.nodeDropPalette }">

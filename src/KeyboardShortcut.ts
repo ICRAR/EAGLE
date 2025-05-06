@@ -416,13 +416,6 @@ export class KeyboardShortcut {
             run: (eagle): void => {eagle.changeNodeSubject();}
         }),
         new KeyboardShortcut({
-            id: "add_edge",
-            text: "Add Edge",
-            keys: [new Key("e")],
-            tags: ['create'],
-            run: (eagle): void => {eagle.addEdgeToLogicalGraph();}
-        }),
-        new KeyboardShortcut({
             id: "modify_selected_edge",
             text: "Modify Selected Edge",
             keys: [new Key("m")],

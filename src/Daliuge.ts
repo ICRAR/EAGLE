@@ -112,11 +112,40 @@ export namespace Daliuge {
     }
 
     export enum FieldType {
+        Application = "Application",
+        Component = "Component",
+        Constraint = "Constraint",
+        Construct = "Construct",
+        Unknown = "Unknown"
+    }
+
+    // NOTE: this second 'field type' enum is required because DALiuGE will (in the short term)
+    //       continue to use longer names for the field types. Eventually, DALiuGE will move to
+    //       the shorter names. At that point we can remove this.
+    export enum DLGFieldType {
         ApplicationArgument = "ApplicationArgument",
         ComponentParameter = "ComponentParameter",
         ConstraintParameter = "ConstraintParameter",
         ConstructParameter = "ConstructParameter",
         Unknown = "Unknown"
+    }
+
+    // NOTE: these two maps translate between the EAGLE field types and the Daliuge field types
+    //       once DALiuGE is updated, we can also remove these
+    export const dlgToFieldTypeMap: { [key in Daliuge.DLGFieldType]: Daliuge.FieldType } = {
+        [Daliuge.DLGFieldType.ApplicationArgument]: Daliuge.FieldType.Application,
+        [Daliuge.DLGFieldType.ComponentParameter]: Daliuge.FieldType.Component,
+        [Daliuge.DLGFieldType.ConstraintParameter]: Daliuge.FieldType.Constraint,
+        [Daliuge.DLGFieldType.ConstructParameter]: Daliuge.FieldType.Construct,
+        [Daliuge.DLGFieldType.Unknown]: Daliuge.FieldType.Unknown,
+    }
+    
+    export const fieldTypeToDlgMap: { [key in Daliuge.FieldType]: Daliuge.DLGFieldType } = {
+        [Daliuge.FieldType.Application]: Daliuge.DLGFieldType.ApplicationArgument,
+        [Daliuge.FieldType.Component]: Daliuge.DLGFieldType.ComponentParameter,
+        [Daliuge.FieldType.Constraint]: Daliuge.DLGFieldType.ConstraintParameter,
+        [Daliuge.FieldType.Construct]: Daliuge.DLGFieldType.ConstructParameter,
+        [Daliuge.FieldType.Unknown]: Daliuge.DLGFieldType.Unknown,
     }
 
     export enum FieldUsage {
@@ -140,31 +169,30 @@ export namespace Daliuge {
     }
 
     // These are the canonical example definition of each field
-    export const groupStartField = new Field(null, FieldName.GROUP_START, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort);
-    export const groupEndField = new Field(null, FieldName.GROUP_END, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort);
+    export const groupStartField = new Field(null, FieldName.GROUP_START, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    export const groupEndField = new Field(null, FieldName.GROUP_END, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
 
-    export const branchYesField = new Field(null, FieldName.TRUE, "", "", "The affirmative output from a branch node", false, DataType.Object, false, [], false, FieldType.ComponentParameter, FieldUsage.OutputPort);
-    export const branchNoField  = new Field(null, FieldName.FALSE,  "", "", "he negative output from a branch node", false, DataType.Object, false, [], false, FieldType.ComponentParameter, FieldUsage.OutputPort);
+    export const branchYesField = new Field(null, FieldName.TRUE, "", "", "The affirmative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
+    export const branchNoField  = new Field(null, FieldName.FALSE,  "", "", "he negative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
 
-    export const dropClassField = new Field(null, FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort);
+    export const dropClassField = new Field(null, FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
 
-    export const executionTimeField = new Field(null, FieldName.EXECUTION_TIME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.ConstraintParameter, FieldUsage.NoPort);
-    export const numCpusField = new Field(null, FieldName.NUM_OF_CPUS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstraintParameter, FieldUsage.NoPort);
-    export const dataVolumeField = new Field(null, FieldName.DATA_VOLUME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.ConstraintParameter, FieldUsage.NoPort);
+    export const executionTimeField = new Field(null, FieldName.EXECUTION_TIME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
+    export const numCpusField = new Field(null, FieldName.NUM_OF_CPUS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
+    export const dataVolumeField = new Field(null, FieldName.DATA_VOLUME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
 
-    export const kField = new Field(null, FieldName.K, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort);
-    export const numCopiesField = new Field(null, FieldName.NUM_OF_COPIES, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort);
-    export const numInputsField = new Field(null, FieldName.NUM_OF_INPUTS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort);
-    export const numIterationsField = new Field(null, FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.ConstructParameter, FieldUsage.NoPort);
+    export const kField = new Field(null, FieldName.K, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
+    export const numCopiesField = new Field(null, FieldName.NUM_OF_COPIES, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
+    export const numInputsField = new Field(null, FieldName.NUM_OF_INPUTS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
+    export const numIterationsField = new Field(null, FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
 
-    export const baseNameField = new Field(null, FieldName.BASE_NAME, "", "", "The base name of the class of this Member function", false, DataType.String, false, [], false, FieldType.ComponentParameter, FieldUsage.NoPort);
-    export const selfField = new Field(null, FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.ComponentParameter, FieldUsage.InputOutput);
+    export const baseNameField = new Field(null, FieldName.BASE_NAME, "", "", "The base name of the class of this Member function", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    export const selfField = new Field(null, FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.InputOutput);
 
-    export const funcCodeField = new Field(null, FieldName.FUNC_CODE, "", "def func_name(args): return args", "Python function code", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.ComponentParameter, FieldUsage.NoPort);
-    export const funcNameField = new Field(null, FieldName.FUNC_NAME, "", "func_name", "Python function name", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.ComponentParameter, FieldUsage.NoPort);
+    export const funcCodeField = new Field(null, FieldName.FUNC_CODE, "", "def func_name(args): return args", "Python function code", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.Component, FieldUsage.NoPort);
+    export const funcNameField = new Field(null, FieldName.FUNC_NAME, "", "func_name", "Python function name", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.Component, FieldUsage.NoPort);
 
     // This list defines the fields required for ALL nodes belonging to a given Category.Type
-    // NOTE: ids are empty string here, we should generate a new id whenever we clone the fields
     export const categoryTypeFieldsRequired = [
         {
             categoryTypes: [
@@ -195,7 +223,6 @@ export namespace Daliuge {
     ];
 
     // This list defines the fields required for ALL nodes belonging to a given Category
-    // NOTE: ids are empty string here, remember to generate a new id whenever cloning the fields
     export const categoryFieldsRequired = [
         {
             categories: [
@@ -260,14 +287,6 @@ export namespace Daliuge {
         {
             categories: [
                 Category.PythonMemberFunction
-            ],
-            fields: [
-                Daliuge.funcNameField
-            ]
-        },
-        {
-            categories: [
-                Category.DALiuGEApp
             ],
             fields: [
                 Daliuge.funcNameField

@@ -45,6 +45,7 @@ import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
 import { ParameterTable } from "./ParameterTable";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { GraphRenderer } from "./GraphRenderer";
 
 export class Utils {
     // Allowed file extensions
@@ -316,73 +317,103 @@ export class Utils {
     }
     
     static async httpGet(url: string): Promise<string> {
-        return $.ajax({
-            url: url
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpGetJSON(url: string, json: object): Promise<object> {
-        return $.ajax({
-            url: url,
-            type: 'GET',
-            data: JSON.stringify(json),
-            contentType: 'application/json'
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: JSON.stringify(json),
+                contentType: 'application/json'
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpPost(url : string, data : string): Promise<string> {
-        return $.ajax({
-            url: url,
-            type: 'POST',
-            data: data,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false   // tell jQuery not to set contentType
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: data,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false   // tell jQuery not to set contentType
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpPostJSON(url : string, json : object): Promise<string> {
-        return $.ajax({
-            url: url,
-            type: 'POST',
-            data: JSON.stringify(json),
-            contentType: 'application/json'
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: JSON.stringify(json),
+                contentType: 'application/json'
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpPostJSONString(url : string, jsonString : string): Promise<string> {
-        return $.ajax({
-            url: url,
-            type: 'POST',
-            data: jsonString,
-            contentType: 'application/json'
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: jsonString,
+                contentType: 'application/json'
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpPostForm(url : string, formData : FormData): Promise<string> {
-        return $.ajax({
-            url: url,
-            type: 'POST',
-            data: formData,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false   // tell jQuery not to set contentType
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false   // tell jQuery not to set contentType
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
@@ -1283,31 +1314,15 @@ export class Utils {
         return null;
     }
 
-    static getComponentsWithMatchingPort(mode: string, input: boolean, type: string, dataEligible: boolean) : Node[] {
-        let result: Node[] = [];
-        const eagle = Eagle.getInstance();
-
-        //using includes here so we can do both or either, just saves me from having to add another if with both pieces of code
-        if(mode.includes('palette')){
-            // add all data components (except ineligible)
-            for (const palette of eagle.palettes()){
-                result = result.concat(Utils.checkForMatches(palette.getNodes(), input, type, dataEligible))
-            }
-        }
-        
-        if(mode.includes('graph')){
-            result = result.concat(Utils.checkForMatches(eagle.logicalGraph().getNodes(), input, type, dataEligible))
-        }
-
-        return result;
-    }
-
-    static checkForMatches(nodes:Node[], input: boolean, type: string, dataEligible: boolean) : Node[] {
+    static getComponentsWithMatchingPort(nodes:Node[], input: boolean, type: string) : Node[] {
         const result: Node[] = [];
+
+        // no destination, ask user to choose a new node
+        const isData: boolean = GraphRenderer.portDragSourceNode().getCategoryType() === Category.Type.Data;
 
         for (const node of nodes){
             // skip data nodes if not eligible
-            if (!dataEligible && node.getCategoryType() === Category.Type.Data){
+            if (isData && node.getCategoryType() === Category.Type.Data){
                 continue;
             }
 
@@ -1406,7 +1421,9 @@ export class Utils {
     }
 
     static getLeftWindowWidth() : number {
-        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
+        const leftWindowDisabled = !Setting.findValue(Setting.ALLOW_GRAPH_EDITING) && !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
+
+        if(!Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || leftWindowDisabled){
             return 0
         }
         return Setting.findValue(Setting.LEFT_WINDOW_WIDTH)
@@ -2103,7 +2120,7 @@ export class Utils {
         const srcPortType = destPort.getType() === undefined ? Daliuge.DataType.Object : destPort.getType();
 
         // create new source port
-        const srcPort = new Field(edge.getSrcPortId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort);
+        const srcPort = new Field(edge.getSrcPortId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
 
         // add port to source node
         srcNode.addField(srcPort);
@@ -2124,7 +2141,7 @@ export class Utils {
         const destPortType = srcPort.getType() === undefined ? Daliuge.DataType.Object : srcPort.getType();
 
         // create new destination port
-        const destPort = new Field(edge.getDestPortId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort);
+        const destPort = new Field(edge.getDestPortId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
 
         // add port to destination node
         destNode.addField(destPort);
@@ -2518,19 +2535,30 @@ export class Utils {
 
     static getRmodeTooltip() : string {
         let html = '**General**: Sets the standard for provenance tracking throughout graph translation and execution. Used to determine scientifically (high-level) changes to workflow behaviour. Signature files are stored alongside log files. Refer to the documentation for further explanation.<br>'
-        html = html+'**Documentation link** <a href="https://daliuge.readthedocs.io/en/latest/architecture/reproducibility/reproducibility.html" target="_blank">daliuge.readthedocs</a><br>'
-        html = html+'**NOTHING**: No provenance data is tracked at any stage.<br>'
-        html = html+'**ALL**: Data for all subsequent levels is generated and stored together.<br>'
-        html = html+'**RERUN**: Stores general about all logical graph components<br>'
-        html = html+'**REPEAT**: Stores specific information about logical and physical graph components<br>'
-        html = html+'**RECOMPUTE**: Stores maximum information about logical and physical graph components and at runtime.<br>'
-        html = html+'**REPRODUCE**: Stores information about terminal data drops at logical, physical and runtime layers.<br>'
-        html = html+'**REPLICATE SCI**: Essentially RERUN + REPRODUCE<br>'
-        html = html+'**REPLICATE COMP**: Essentially RECOMPUTE + REPRODUCE<br>'
-        html = html+'**REPLICATE TOTALLY**: Essentially REPEAT + REPRODUCE<br>'
+        html += '**Documentation link** <a href="https://daliuge.readthedocs.io/en/latest/architecture/reproducibility/reproducibility.html" target="_blank">daliuge.readthedocs</a><br>'
+        html += '**NOTHING**: No provenance data is tracked at any stage.<br>'
+        html += '**ALL**: Data for all subsequent levels is generated and stored together.<br>'
+        html += '**RERUN**: Stores general about all logical graph components<br>'
+        html += '**REPEAT**: Stores specific information about logical and physical graph components<br>'
+        html += '**RECOMPUTE**: Stores maximum information about logical and physical graph components and at runtime.<br>'
+        html += '**REPRODUCE**: Stores information about terminal data drops at logical, physical and runtime layers.<br>'
+        html += '**REPLICATE SCI**: Essentially RERUN + REPRODUCE<br>'
+        html += '**REPLICATE COMP**: Essentially RECOMPUTE + REPRODUCE<br>'
+        html += '**REPLICATE TOTALLY**: Essentially REPEAT + REPRODUCE<br>'
 
         return html
     }
+
+    static getTranslateBtnColorTooltip() : string {
+        let html = '**Reproducibility Status**<br><br>'
+        html += '**Green:** Graph is saved and ready for translation.<br>'
+        html += '**Red:** Graph is not saved, Save before translation.<br>'
+        html += '**Orange:** In test translation mode, do not use for workflow execution.<br>'
+        html += "**Blue:** Graph is not stored in a git repository, it is the user's responsibility to keep a copy if full workflow reproducibility is required."
+
+        return html
+    }
+
 
     static copyInputTextModalInput(): void {
         navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
@@ -2618,7 +2646,8 @@ export class Utils {
             try {
                 data = await Utils.httpGet(fileName);
             } catch (error) {
-                reject(error)
+                reject(error);
+                return;
             }
 
             resolve(data);

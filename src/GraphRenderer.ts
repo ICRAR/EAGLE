@@ -1802,47 +1802,48 @@ export class GraphRenderer {
         GraphRenderer.portDragSuggestedNode(null)
         GraphRenderer.portDragSuggestedField(null)
 
-        // no destination, ask user to choose a new node
-        const dataEligible: boolean = GraphRenderer.portDragSourceNode().getCategoryType() !== Category.Type.Data;
-
         // check if source port is a 'dummy' port
         // if so, consider all components as eligible, to ease the creation of new graphs
         const sourcePortIsDummy: boolean = GraphRenderer.portDragSourcePort().getDisplayText() === Daliuge.FieldName.DUMMY;
 
         let eligibleComponents: Node[];
 
-        if (!sourcePortIsDummy && Setting.findValue(Setting.FILTER_NODE_SUGGESTIONS)){
-            // getting matches from both the graph and the palettes list
-            eligibleComponents = Utils.getComponentsWithMatchingPort('palette graph', !GraphRenderer.portDragSourcePortIsInput, GraphRenderer.portDragSourcePort().getType(), dataEligible);
-        } else {
-            // get all nodes with at least one port with opposite "direction" (input/output) from the source node
-            eligibleComponents = [];
+        // get all nodes with at least one port with opposite "direction" (input/output) from the source node
+        eligibleComponents = [];
 
-            eagle.palettes().forEach(function(palette){
-                palette.getNodes().forEach(function(node){
-                    if (GraphRenderer.portDragSourcePortIsInput){
-                        if (node.getOutputPorts().length > 0){
-                            eligibleComponents.push(node);
-                        }
-                    } else {
-                        if (node.getInputPorts().length > 0){
-                            eligibleComponents.push(node);
-                        }
-                    }
-                })
-            });
-
-            eagle.logicalGraph().getNodes().forEach(function(graphNode){
+        //add all nodes from the palettes 
+        eagle.palettes().forEach(function(palette){
+            palette.getNodes().forEach(function(node){
                 if (GraphRenderer.portDragSourcePortIsInput){
-                    if (graphNode.getOutputPorts().length > 0){
-                        eligibleComponents.push(graphNode);
+                    if (node.getOutputPorts().length > 0){
+                        eligibleComponents.push(node);
                     }
                 } else {
-                    if (graphNode.getInputPorts().length > 0){
-                        eligibleComponents.push(graphNode);
+                    if (node.getInputPorts().length > 0){
+                        eligibleComponents.push(node);
                     }
                 }
             })
+        });
+
+        //add all the nodes from the graph
+        eagle.logicalGraph().getNodes().forEach(function(graphNode){
+            if (GraphRenderer.portDragSourcePortIsInput){
+                if (graphNode.getOutputPorts().length > 0){
+                    eligibleComponents.push(graphNode);
+                }
+            } else {
+                if (graphNode.getInputPorts().length > 0){
+                    eligibleComponents.push(graphNode);
+                }
+            }
+        })
+
+        //if enabled, filter the list 
+        if (Setting.findValue(Setting.FILTER_NODE_SUGGESTIONS)){
+            // getting matches from both the graph and the palettes list
+            const filteredComponents = Utils.getComponentsWithMatchingPort(eligibleComponents, !GraphRenderer.portDragSourcePortIsInput, GraphRenderer.portDragSourcePort().getType());
+            eligibleComponents = filteredComponents
         }
         
         // check we found at least one eligible component

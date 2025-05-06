@@ -123,7 +123,7 @@ export class LogicalGraph {
         // add graph configurations
         result.graphConfigurations = {};
         for (const gc of graph.graphConfigs()){
-            result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc);
+            result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc, graph);
         }
 
         // saving the id of the active graph configuration
@@ -148,7 +148,7 @@ export class LogicalGraph {
                 result += '"graphConfigurations": {},\n';
             } else {
                 const graphConfigurations: any = {};
-                graphConfigurations[graph.activeGraphConfigId().toString()] = GraphConfig.toJson(graph.getActiveGraphConfig());
+                graphConfigurations[graph.activeGraphConfigId().toString()] = GraphConfig.toJson(graph.getActiveGraphConfig(), graph);
 
                 result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, EagleConfig.JSON_INDENT) + ",\n";
             }
@@ -706,57 +706,6 @@ export class LogicalGraph {
         result= {'input':input,'output':output}
 
         return result ;
-    }
-
-    // TODO: shrinkNode and normaliseNodes seem to share some common code, maybe factor out or combine?
-    shrinkNode = (node : Node) : void => {
-        // abort shrink of non-group node
-        if (!node.isGroup()){
-            return;
-        }
-
-        let minX : number = Number.MAX_SAFE_INTEGER;
-        let minY : number = Number.MAX_SAFE_INTEGER;
-        let maxX : number = Number.MIN_SAFE_INTEGER;
-        let maxY : number = Number.MIN_SAFE_INTEGER;
-        let numChildren : number = 0;
-
-        // loop through all nodes, finding all children and determining minimum bounding box to contain all children
-        for (const n of this.nodes()){
-            if (n.getParentId() === node.getId()){
-                numChildren += 1;
-
-                if (n.getPosition().x < minX){
-                    minX = n.getPosition().x;
-                }
-                if (n.getPosition().y < minY){
-                    minY = n.getPosition().y;
-                }
-                if (n.getPosition().x + n.getRadius() > maxX){
-                    maxX = n.getPosition().x + n.getRadius();
-                }
-                if (n.getPosition().y + n.getRadius() > maxY){
-                    maxY = n.getPosition().y + n.getRadius();
-                }
-            }
-        }
-
-        // if no children were found, set to default size
-        if (numChildren === 0){
-            node.setRadius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
-            return;
-        }
-
-        // add some padding
-        minX -= EagleConfig.CONSTRUCT_MARGIN;
-        minY -= EagleConfig.CONSTRUCT_MARGIN;
-        maxX += EagleConfig.CONSTRUCT_MARGIN;
-        maxY += EagleConfig.CONSTRUCT_MARGIN;
-
-        // set the size of the node
-        node.setPosition(minX, minY);
-        const maxDimension = Math.max(maxX - minX, maxY - minY);
-        node.setRadius(maxDimension);
     }
 
     findMultiplicity = (node : Node) : number => {

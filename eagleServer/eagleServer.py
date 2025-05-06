@@ -110,27 +110,20 @@ def index():
     FLASK GET routing method for '/'
 
     Defines what is returned when the base URL is called.
-    The following URL GET parameters are defined here in addition:
-
-    service
-    repository
-    branch
-    path
-    filename
 
     IF the URL does not specify a graph to load, the default template with no additional information is rendered.
     """
-    service    = request.args.get("service")
-    repository = request.args.get("repository")
-    branch     = request.args.get("branch")
-    path       = request.args.get("path")
-    filename   = request.args.get("filename")
-    url        = request.args.get("url")
-    mode       = request.args.get("mode")
+    service    = request.args.get("service", "")
+    repository = request.args.get("repository", "")
+    branch     = request.args.get("branch", "")
+    path       = request.args.get("path", "")
+    filename   = request.args.get("filename", "")
+    url        = request.args.get("url", "")
+    mode       = request.args.get("mode", "")
 
     # if the url does not specify a graph to load, just send render the default template with no additional information
-    if service is None:
-        if mode is None:
+    if service == "":
+        if mode == "":
             return render_template("base.html", version=version, commit_hash=commit_hash)
         else:
             return render_template("base.html", version=version, commit_hash=commit_hash, mode=mode)

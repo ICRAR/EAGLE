@@ -506,4 +506,21 @@ export class FileInfo {
 
         return result;
     }
+
+    static generateUrl(fileInfo: FileInfo): string {
+        let url = window.location.origin;
+
+        url += "/?service=" + fileInfo.repositoryService;
+
+        if (fileInfo.repositoryService === Repository.Service.Url){
+            url += "&url=" + fileInfo.downloadUrl;
+        } else {
+            url += "&repository=" + fileInfo.repositoryName;
+            url += "&branch=" + fileInfo.repositoryBranch;
+            url += "&path=" + encodeURI(fileInfo.path);
+            url += "&filename=" + encodeURI(fileInfo.name);
+        }
+
+        return url;
+    }
 }
