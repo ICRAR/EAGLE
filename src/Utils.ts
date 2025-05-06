@@ -577,11 +577,11 @@ export class Utils {
                     mode = "python"
                     break;
                 case "text":
-                    mode = "text"
+                    mode = "null"
                     break;
                 default:
                     console.warn("requestUserCode(): Unsupported language:", language);
-                    mode = "text"
+                    mode = "null"
                     break;
             }
 

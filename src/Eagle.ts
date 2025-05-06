@@ -1447,7 +1447,7 @@ export class Eagle {
                 return;
         }
 
-        Utils.requestUserText("Display " + fileType + " as JSON", "", jsonString, true);
+        Utils.requestUserCode("json", "Display " + fileType + " as JSON", jsonString, true);
     }
 
     displayNodeAsJson = (node: Node) : void => {
