@@ -2890,53 +2890,6 @@ export class Eagle {
         $('#loadingContainer').hide()
     }
 
-    addEdgeToLogicalGraph = async () : Promise<void> => {
-        // check that graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.showNotification("Unable to Add Edge", "Graph Editing is disabled", "danger");
-            return;
-        }
-
-        // check that there is at least one node in the graph, otherwise it is difficult to create an edge
-        if (this.logicalGraph().getNumNodes() === 0){
-            Utils.showNotification("Unable to Add Edge", "Can't add an edge to a graph with zero nodes.", "danger");
-            return;
-        }
-
-        // if input edge is null, then we are creating a new edge here, so initialise it with some default values
-        const newEdge = new Edge(this.logicalGraph().getNodes()[0].getId(), null, this.logicalGraph().getNodes()[0].getId(), null, false, false, false);
-
-        // display edge editing modal UI
-        let edge: Edge;
-        try {
-            edge = await Utils.requestUserEditEdge(newEdge, this.logicalGraph());
-        } catch (error) {
-            console.error(error);
-            return;
-        }
-
-        // validate edge
-        const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-        if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
-            Utils.showUserMessage("Error", "Invalid edge");
-            return;
-        }
-
-        const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
-        const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-        const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
-        const destPort: Field = destNode.findFieldById(edge.getDestPortId());
-
-        // new edges might require creation of new nodes, don't use addEdgeComplete() here!
-        await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
-
-        this.checkGraph();
-        this.undo().pushSnapshot(this, "Add edge");
-        this.logicalGraph().fileInfo().modified = true;
-        // trigger the diagram to re-draw with the modified edge
-        this.logicalGraph.valueHasMutated();
-    }
-
     editSelectedEdge = async (): Promise<void> => {
         const selectedEdge: Edge = this.selectedEdge();
 
