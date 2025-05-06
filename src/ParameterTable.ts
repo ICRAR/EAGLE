@@ -514,7 +514,7 @@ export class ParameterTable {
 
         let fieldValue: string;
         try {
-            fieldValue = await Utils.requestUserCode("python","Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue);
+            fieldValue = await Utils.requestUserCode("python","Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue, false);
         } catch (error) {
             console.error(error);
             return;

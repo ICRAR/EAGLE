@@ -1453,7 +1453,7 @@ export class Eagle {
     displayNodeAsJson = (node: Node) : void => {
         const jsonString: string = JSON.stringify(Node.toOJSGraphJson(node), null, EagleConfig.JSON_INDENT);
 
-        Utils.requestUserText("Display Node as JSON", "", jsonString, true);
+        Utils.requestUserCode("json", "Display Node as JSON", jsonString, true);
     }
 
     /**

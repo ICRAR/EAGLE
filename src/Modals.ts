@@ -13,6 +13,8 @@ import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 
+declare const CodeMirror: any;
+
 export class Modals {
 
     static init(eagle : Eagle) : void {
@@ -70,10 +72,19 @@ export class Modals {
 
         // #inputCodeModal - requestUserCode()
         {
-            // initialise the editor, and save as data-attribute on the modal html element
-            const parent = document.querySelector('#inputCodeModalEditor');
-		    //const view = cm6.load().textarea(parent, {dark: true});
-            //$('#inputTextModal').data('view', view);
+            // get html element to use as the editor
+            const element = document.querySelector("#inputCodeModalEditor");
+
+            // create the editor
+            const myCodeMirror = CodeMirror(element, {
+                value: "",
+                mode:  "python",
+                lineNumbers: true,
+                tabSize: 4
+            });
+
+            // add reference to the editor to a data attribute on the modal
+            $('#inputCodeModal').data('editor', myCodeMirror);
         }
 
         $('#inputCodeModal .modal-footer button').on('click', function(){
@@ -88,14 +99,15 @@ export class Modals {
             }
 
             // get content of code editor - and return via callback
-            const view = $('#inputTextModal').data('view');
-            const content = view.state.doc.toString();
+            const editor = $('#inputCodeModal').data('editor');
+            const content = editor.getValue();
+
             callback($('#inputCodeModal').data('completed'), content);
         });
+
         $('#inputCodeModal').on('shown.bs.modal', function(){
-            // focus
-            const view = $('#inputTextModal').data('view');
-            view.focus();
+            const editor = $('#inputCodeModal').data('editor');
+            editor.refresh();
         });
 
         // #choiceModal - requestUserChoice()

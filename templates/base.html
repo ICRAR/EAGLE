@@ -9,7 +9,7 @@
         <title id="tabTitle" data-bind="text: getTabTitle">EAGLE</title>
 
         <link rel="stylesheet" href="static/bootstrap.min.css">
-        <link rel="stylesheet" href="static/externals/codemirror/codemirror.css">
+        <link rel="stylesheet" href="static/externals/codemirror-5.65.19/lib/codemirror.css">
         <link rel="stylesheet" href="static/base.css">
         <link rel="stylesheet" href="static/svg.css">
         <link rel="stylesheet" href="static/graph.css">
@@ -25,7 +25,7 @@
             require(["bootstrap-notify"]);
             require(["ajv"]);
             require(["showdown"]);
-            require(["codemirror"]);
+            require(["codemirror", "codemirror/mode/python/python", "codemirror/mode/javascript/javascript","codemirror/mode/markdown/markdown"], function(CodeMirror){window.CodeMirror = CodeMirror;}); // adds CodeMirror object to the global namespace
             require(["bindingHandlers/readonly"]);
             require(["bindingHandlers/disabled"]);
             require(["bindingHandlers/eagleTooltip"]);
