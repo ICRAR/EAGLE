@@ -975,7 +975,15 @@ export class Eagle {
         }
 
         // create new subgraph
-        const parentNode: Node = new Node("Subgraph", "", Category.SubGraph);
+        // look for similarly named node in palettes first, clone it
+        // if not found in palettes, create a basic node from just the category
+        let parentNode: Node;
+        const paletteComponent = Utils.getPaletteComponentByName(Category.SubGraph);
+        if (paletteComponent !== null){
+            parentNode = paletteComponent.clone();
+        } else {
+            parentNode = new Node(Category.SubGraph, "", Category.SubGraph);
+        }
 
         // add the parent node to the logical graph
         this.logicalGraph().addNodeComplete(parentNode);
@@ -1027,7 +1035,9 @@ export class Eagle {
         // ask the user what type of construct to use
         const userChoice: string = await Utils.requestUserChoice("Choose Construct", "Please choose a construct type to contain the selection", constructs, 0, false, "");
 
-        // create new subgraph - look for named node in palette first, if not found use category
+        // create instance of construct chosen by user
+        // look for similarly named node in palettes first, clone it
+        // if not found in palettes, create a basic node from just the category
         let parentNode: Node;
         const paletteComponent = Utils.getPaletteComponentByName(userChoice);
         if (paletteComponent !== null){
