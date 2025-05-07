@@ -2,11 +2,11 @@ import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
 
 // TODO: name and type are confusing here
-let wordMatch:     QuickActionsResult[] = []
-let tagMatch:      QuickActionsResult[] = []
-let startMatch:    QuickActionsResult[] = []
-let tagStartMatch: QuickActionsResult[] = []
-let anyMatch:      QuickActionsResult[] = []
+let wordResults:     QuickActionsResult[] = []
+let tagResults:      QuickActionsResult[] = []
+let startResults:    QuickActionsResult[] = []
+let tagStartResults: QuickActionsResult[] = []
+let anyResults:      QuickActionsResult[] = []
 
 enum Priority {
     Word = "wordMatch",
@@ -59,14 +59,13 @@ export class QuickActions {
         const searchTerm :string = eagle.quickActionSearchTerm().toLocaleLowerCase()
         const resultsList: QuickActionsResult[] = []
 
-        wordMatch = []
-        tagMatch = []
-        startMatch = []
-        tagStartMatch = []
-        anyMatch = []
+        wordResults = []
+        tagResults = []
+        startResults = []
+        tagStartResults = []
+        anyResults = []
 
         if(searchTerm != ''){
-
             //processing the keyboard shortcuts array
             KeyboardShortcut.getShortcuts().forEach(function(shortcut:KeyboardShortcut){
                 const result: QuickActionsMatch = QuickActions.matchAndSortFunction(shortcut,searchTerm)
@@ -87,7 +86,7 @@ export class QuickActions {
 
             //adding the contents of each of the priority arrays into the results array, in order of priority
             //the ... means we are appending only the array's entries not the array itself
-            resultsList.push(...wordMatch, ...tagMatch, ...startMatch,...tagStartMatch, ...anyMatch)
+            resultsList.push(...wordResults, ...tagResults, ...startResults,...tagStartResults, ...anyResults)
         }
 
         //when the search result list changes we reset the selected result
@@ -105,15 +104,15 @@ export class QuickActions {
 
     static pushResultUsingPriority(result: QuickActionsMatch) : void {
         if(result.priority === Priority.Word){
-            wordMatch.push(result.funcObject)
+            wordResults.push(result.funcObject)
         }else if(result.priority === Priority.Tag){
-            tagMatch.push(result.funcObject)
+            tagResults.push(result.funcObject)
         }else if(result.priority === Priority.Start){
-            startMatch.push(result.funcObject)
+            startResults.push(result.funcObject)
         }else if(result.priority === Priority.TagStart){
-            tagStartMatch.push(result.funcObject)
+            tagStartResults.push(result.funcObject)
         }else{
-            // anyMatch.push(result.funcObject)
+            // anyResults.push(result.funcObject)
         }
     }
 
