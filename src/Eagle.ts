@@ -1027,8 +1027,14 @@ export class Eagle {
         // ask the user what type of construct to use
         const userChoice: string = await Utils.requestUserChoice("Choose Construct", "Please choose a construct type to contain the selection", constructs, 0, false, "");
 
-        // create new subgraph
-        const parentNode: Node = new Node(userChoice, "", userChoice as Category);
+        // create new subgraph - look for named node in palette first, if not found use category
+        let parentNode: Node;
+        const paletteComponent = Utils.getPaletteComponentByName(userChoice);
+        if (paletteComponent !== null){
+            parentNode = paletteComponent.clone();
+        } else {
+            parentNode = new Node(userChoice, "", userChoice as Category);
+        }
 
         // add the parent node to the logical graph
         this.logicalGraph().addNodeComplete(parentNode);
