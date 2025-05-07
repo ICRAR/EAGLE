@@ -1101,6 +1101,10 @@ select.form-control{
     width: 100%;
 }
 
+#inputCodeModal .modal-body, #inputCodeModal .container{
+    padding:0px;
+}
+
 #explorePalettesModal .modal-body{
     height: calc(100% - 126px) !important ;
     top: 75px;
