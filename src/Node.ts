@@ -656,6 +656,16 @@ export class Node {
         return false;
     }
 
+    hasFunc_code = () : boolean => {
+        for(const field of this.getFields()){
+            if(field.getDisplayText() === 'func_code'){
+                return true
+            }
+        }
+
+        return false
+    }
+
     fitsSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if(Eagle.paletteComponentSearchString() === ""){
             return true
