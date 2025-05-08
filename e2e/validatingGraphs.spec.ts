@@ -8,7 +8,7 @@ test('Validating Graphs', async ({ page }) => {
   page.setViewportSize({width:1920,height:1080})
   
   for (const graphUrl of GRAPHS){
-    await page.goto('http://localhost:8888/?service=Url&url='+graphUrl);
+    await page.goto('http://localhost:8888/?tutorial=none&service=Url&url='+graphUrl);
 
     // wait for the page to load
     await page.waitForTimeout(1000);
