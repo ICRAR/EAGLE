@@ -3048,9 +3048,7 @@ export class Eagle {
     }
 
     duplicateSelection = (mode: "normal"|"contextMenuRequest") : void => {
-        // console.log("duplicateSelection()", this.selectedObjects().length, "objects");
-
-        if(this.selectedObjects().length === 0){
+        if(mode === 'normal' && this.selectedObjects().length === 0){
             Utils.showNotification('Unable to duplicate selection','No nodes are selected','warning')
             return
         }
