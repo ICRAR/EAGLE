@@ -480,7 +480,7 @@ export class RightClick {
     }
 
     static editNodeFuncCode = () : void => {
-        const funcCodeField = Eagle.selectedRightClickObject().findFieldByDisplayText('func_code', Daliuge.FieldType.Component)
+        const funcCodeField = Eagle.selectedRightClickObject().findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE, Daliuge.FieldType.Component)
         ParameterTable.requestEditValueCode(funcCodeField, false)
     }
 
