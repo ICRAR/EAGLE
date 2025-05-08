@@ -13,7 +13,6 @@ import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
 import { GraphConfig, GraphConfigField } from "./GraphConfig";
 import { SideWindow } from "./SideWindow";
-import { param } from "jquery";
 
 export class ParameterTable {
     static selectionParent : ko.Observable<Field | null>; // row in the parameter table that is currently selected
@@ -515,7 +514,7 @@ export class ParameterTable {
 
         let fieldValue: string;
         try {
-            fieldValue = await Utils.requestUserCode("python","Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue);
+            fieldValue = await Utils.requestUserCode("python","Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue, false);
         } catch (error) {
             console.error(error);
             return;

@@ -1101,6 +1101,10 @@ select.form-control{
     width: 100%;
 }
 
+#inputCodeModal .modal-body, #inputCodeModal .container{
+    padding:0px;
+}
+
 #explorePalettesModal .modal-body{
     height: calc(100% - 126px) !important ;
     top: 75px;
@@ -2853,8 +2857,6 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
     transition: ease-in-out 250ms !important; /*this requires an important tag to over ride existing transition effects for a few moments */
 }
 
-/* codemirror: Stretch editor to fit inside its containing div */
-.cm-editor {
+.CodeMirror {
     height: 100%;
-    width: 100%;
 }

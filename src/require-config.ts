@@ -11,7 +11,6 @@ require.config({
         "bootstrap-notify": "./static/externals/bootstrap-notify.min",
         "ajv": "./static/externals/ajv.min",
         "showdown": "./static/externals/showdown.min",
-        "codemirror": "./static/externals/codemirror/python.min",
         "bindingHandlers/readonly":"./static/built/bindingHandlers/readonly",
         "bindingHandlers/disabled":"./static/built/bindingHandlers/disabled",
         "bindingHandlers/eagleTooltip":"./static/built/bindingHandlers/eagleTooltip",
@@ -68,5 +67,10 @@ require.config({
             deps: ["jquery"],
             exports: "bootstrap"
         }
-    }
+    },
+    packages: [{
+        name: "codemirror",
+        location: "../static/externals/codemirror-5.65.19",
+        main: "lib/codemirror"
+      }]
 });
