@@ -24,7 +24,7 @@ test('Validating Graphs', async ({ page }) => {
     await page.waitForTimeout(1000);
 
     // check result
-    await expect(page.locator('span[data-notify="message"')).toContainText(" valid ");
+    await expect(page.locator("span[data-notify='message'")).toContainText(" valid ");
   }
 
   //closing the browser
