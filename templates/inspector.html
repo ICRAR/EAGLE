@@ -29,7 +29,7 @@
                                 </div>
                                 <div class="col-6 col text-right">
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                        <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + KeyboardShortcut.idToText('open_parameter_table', true)" data-bs-placement="left">
+                                        <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('open_parameter_table')" data-bs-placement="left">
                                             <i class="material-icons md-20 clickable iconHoverEffect">table_chart</i>
                                         </button>
                                     <!-- /ko -->
@@ -39,7 +39,7 @@
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                        <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + KeyboardShortcut.idToText('duplicate_selection', true)" data-bs-placement="left">
+                                        <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('duplicate_selection')" data-bs-placement="left">
                                             <i class="material-icons md-20 clickable iconHoverEffect">content_copy</i>
                                         </button>
                                         <button type="button" id="displaySelectedNodeAsJson" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.displayNodeAsJson($data)}, clickBubble: false, eagleTooltip: 'Display Node as JSON'" data-bs-placement="left">
@@ -52,7 +52,7 @@
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                        <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, clickBubble: false, eagleTooltip: 'Delete Selected Node ' + KeyboardShortcut.idToText('delete_selection', true)" data-bs-placement="left">
+                                        <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('delete_selection')" data-bs-placement="left">
                                             <i class="material-icons md-20 clickable iconHoverEffect">delete</i>
                                         </button>
                                     <!-- /ko -->
@@ -119,12 +119,12 @@
                                 </div>
                                 <div class="col-8 col text-right">
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_EDGE_EDITING) -->
-                                        <button type="button" class="btn btn-secondary btn-sm" data-bind="click: $root.editSelectedEdge, eagleTooltip: 'Edit Selected Edge ' + KeyboardShortcut.idToText('modify_selected_edge', true)">
+                                        <button type="button" class="btn btn-secondary btn-sm" data-bind="click: $root.editSelectedEdge, eagleTooltip: KeyboardShortcut.idToFullText('modify_selected_edge')">
                                             <i class="material-icons md-24 clickable iconHoverEffect">edit</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                                        <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: 'Delete Selected Edge ' + KeyboardShortcut.idToText('delete_selection', true)">
+                                        <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: KeyboardShortcut.idToFullText('delete_selection')">
                                             <i class="material-icons md-24 clickable iconHoverEffect">delete</i>
                                         </button>
                                     <!-- /ko -->
@@ -210,7 +210,7 @@
                             <div class="row">
                                 <div class="col-12 col text-right">
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                                        <button type="button" id="duplicateSelectedobjects" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: 'Duplicate Selection ' + KeyboardShortcut.idToText('duplicate_selection', true)" data-bs-placement="left">
+                                        <button type="button" id="duplicateSelectedobjects" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('duplicate_selection')" data-bs-placement="left">
                                             <i  class="material-icons md-20 clickable iconHoverEffect">content_copy</i>
                                         </button>
                                     <!-- /ko -->
@@ -220,7 +220,7 @@
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                                        <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: 'Delete Selected Edge ' + KeyboardShortcut.idToText('delete_selection', true)">
+                                        <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: KeyboardShortcut.idToFullText('delete_selection')">
                                             <i class="material-icons md-24 clickable iconHoverEffect">delete</i>
                                         </button>
                                     <!-- /ko -->

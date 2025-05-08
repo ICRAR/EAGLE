@@ -512,6 +512,18 @@ export class Utils {
         });
     }
 
+    static notifyUserOfEditingIssue(fileType: Eagle.FileType, action: string){
+        const uiMode = UiModeSystem.getActiveUiMode().getName();
+        let message: string;
+
+        if (fileType === Eagle.FileType.Unknown){
+            message = "Action is not permitted in the current UI mode (" + uiMode + ")";
+        } else {
+            message = fileType + " editing is not permitted in the current UI mode (" + uiMode + ")";
+        }
+        Utils.showNotification(action, message, "warning");
+    }
+
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
@@ -1831,19 +1843,19 @@ export class Utils {
         });
     }
 
+    // TODO: could we return a list of KeyboardShortcut here?
     static getShortcutDisplay() : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void}[] {
         const displayShortcuts : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void} []=[];
-        const eagle: Eagle = Eagle.getInstance();
 
-        for (const object of Eagle.shortcuts){
-            // skip if shortcut should not be displayed
-            if (!object.shortcutListDisplay(eagle)){
+        for (const object of KeyboardShortcut.shortcuts){
+            // skip if shortcut has no keys
+            if (object.keys.length === 0){
                 continue;
             }
 
-            const shortcut: string = KeyboardShortcut.idToText(object.id, false);
+            const shortcut: string = KeyboardShortcut.idToKeysText(object.id, false);
             displayShortcuts.push({
-                description: object.name,
+                description: object.text,
                 shortcut: shortcut,
                 function: object.run
             });

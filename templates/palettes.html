@@ -8,18 +8,18 @@
                 more_vert
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="paletteWindowdropdown">
-            <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                 <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                     <div class="dropDropDown">
                         <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette
-                            <span data-bind="text: KeyboardShortcut.idToText('new_palette', true)"></span>
+                            <span data-bind="text: KeyboardShortcut.idToKeysText('new_palette', true)"></span>
                         </a>
                         <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPaletteFromJson">Create New Palette From Json</a>
                     </div>
                 </span>
-            <!-- /ko -->
+                <!-- /ko -->
                 <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Local Palette
-                    <span data-bind="text: KeyboardShortcut.idToText('open_palette_from_local_disk', true)"></span>
+                    <span data-bind="text: KeyboardShortcut.idToKeysText('open_palette_from_local_disk', true)"></span>
                 </a>
                 <a class="dropdown-item" id="toggleAllPalettes" href="#" data-bind="click: toggleAllPalettes">Toggle All Palettes</a>
             </div>
