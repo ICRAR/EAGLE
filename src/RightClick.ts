@@ -7,6 +7,8 @@ import { Node } from './Node';
 import { Palette } from './Palette';
 import { Repository } from './Repository';
 import { Setting } from './Setting';
+import { ParameterTable } from './ParameterTable';
+import { Daliuge } from './Daliuge';
 
 
 export class RightClick {
@@ -469,14 +471,17 @@ export class RightClick {
         })
     }
 
-    
-
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
     static edgeDropCreateNode = (data: Node[]) : void => {
         RightClick.requestCustomContextMenu(data, 'edgeDropCreate')
 
         // prevent bubbling events
         event.stopPropagation();
+    }
+
+    static editNodeFuncCode = () : void => {
+        const funcCodeField = Eagle.selectedRightClickObject().findFieldByDisplayText('func_code', Daliuge.FieldType.Component)
+        ParameterTable.requestEditValueCode(funcCodeField, false)
     }
 
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
@@ -645,9 +650,12 @@ export class RightClick {
     
             }else if(passedObjectClass === 'rightClick_graphNode'){
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
+                if(data.hasFunc_code()){
+                    //check if the node has a field for func code. if so we can add an option to quickly access its contents via the code editor
+                    $('#customContextMenu').append('<a onclick=RightClick.editNodeFuncCode()>Edit Function Code</a>')
+                }
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.RightClick)">Graph Attributes</a>')
-                $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                 if (data.isConstruct()){
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete with children</a>')
                     $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
@@ -658,7 +666,8 @@ export class RightClick {
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
                 }
-                    $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
+                $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
 
             }else if(passedObjectClass === 'rightClick_graphEdge'){
                 $('#customContextMenu').append('<a onclick=Eagle.selectedRightClickObject().toggleLoopAware()>Toggle Loop Aware</a>')
