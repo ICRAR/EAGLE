@@ -4536,7 +4536,10 @@ export class Eagle {
                     oldCategoryTemplate = oldNode;
                 }
 
-                Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate);
+                // TODO: setting here? Or ask user whether they want to remove old fields?
+                const removeOldFields: boolean = true; //Setting.findValue(Setting.REMOVE_OLD_FIELDS_DURING_CATEGORY_CHANGE);
+
+                Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate, removeOldFields);
             }
         }
 
