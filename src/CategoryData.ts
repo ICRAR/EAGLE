@@ -75,3 +75,7 @@ export class CategoryData {
         return c;
     }
 }
+
+export namespace CategoryData {
+    export const ALL_DATA_CATEGORIES: Category[] = (Object.keys(Category) as Category[]).filter((category: Category) => {return CategoryData.getCategoryData(category).categoryType === Category.Type.Data});
+}
