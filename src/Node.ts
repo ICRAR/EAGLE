@@ -1189,19 +1189,11 @@ export class Node {
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
-        const eagle = Eagle.getInstance()
 
         if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
             return EagleConfig.getColor('errorBackground');
         }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
             return EagleConfig.getColor('warningBackground');
-        }else if(this.isBranch()){
-            //for some reason branch nodes don't want to behave like other nodes, i need to return their background or selected color manually
-            if(eagle.objectIsSelectedById(this.id())){
-                return EagleConfig.getColor('selectBackground')
-            }else{
-                return EagleConfig.getColor('nodeBackground');
-            }
         }else{
             return '' //returning nothing lets the means we are not over writing the default css behaviour
         }
