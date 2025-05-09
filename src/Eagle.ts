@@ -4364,16 +4364,8 @@ export class Eagle {
 
             const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
 
-            // Normally we can use a Memory component in-between two apps
-            // but if the destination app is a BashShellApp, then a Memory component will cause an error
-            // since the BashShellApp can't read from a memory location
-            // Instead, we use a File component as the intermediary
-            let intermediaryComponent;
-            if (destNode.getCategory() === Category.BashShellApp){
-                intermediaryComponent = Utils.getPaletteComponentByName(Category.File);
-            } else {
-                intermediaryComponent = Utils.getPaletteComponentByName(Category.Memory);
-            }
+            // consult the DEFAULT_DATA_NODE setting to determine which category of intermediate data node to use
+            const intermediaryComponent = Utils.getPaletteComponentByName(Setting.findValue(Setting.DEFAULT_DATA_NODE));
 
             // if edge DOES NOT connect two applications, process normally
             // if edge connects two event ports, process normally

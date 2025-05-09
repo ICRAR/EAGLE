@@ -339,15 +339,6 @@ export class Edge {
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, issue, showNotification, showConsole, errorsWarnings);
         }
 
-        // if source node is a memory, and destination is a BashShellApp, OR
-        // if source node is a memory, and destination is a Group with inputApplicationType BashShellApp
-        // this is not supported. How would a BashShellApp read data from another process?
-        if ((sourceNode.getCategory() === Category.Memory && destinationNode.getCategory() === Category.BashShellApp) ||
-            (sourceNode.getCategory() === Category.Memory && destinationNode.isGroup() && destinationNode.getInputApplication() !== undefined && destinationNode.hasInputApplication() && destinationNode.getInputApplication().getCategory() === Category.BashShellApp)){
-            const issue: Errors.Issue = Errors.ShowFix("Output from Memory Node cannot be input into a BashShellApp or input into a Group Node with a BashShellApp inputApplicationType", function(){Utils.showNode(eagle, sourceNode.getId())}, function(){Utils.fixNodeCategory(eagle, sourceNode, Category.File, Category.Type.Data)}, "Change data component type to File");
-            Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, issue, showNotification, showConsole, errorsWarnings);
-        }
-
         // if an edge ends with a PythonObject, it must have started from a PythonMemberFunction. Nothing else can create a PythonObject
         if (destinationNode.getCategory() === Category.PythonObject){
             if (sourceNode.getCategory() !== Category.PythonMemberFunction){
