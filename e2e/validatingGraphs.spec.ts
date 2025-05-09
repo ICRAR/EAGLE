@@ -11,7 +11,7 @@ test('Validating Graphs', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none&service=Url&url='+graphUrl);
 
     // wait for the page to load
-    await page.waitForTimeout(5000);
+    await page.waitForTimeout(1000);
 
     // expect a title "to contain" a substring.
     await expect(page).toHaveTitle(/EAGLE/);
@@ -24,7 +24,7 @@ test('Validating Graphs', async ({ page }) => {
     await page.waitForTimeout(1000);
 
     // check result
-    await expect(page.locator('span[data-notify="message"]')).toContainText(" valid ");
+    await expect(page.locator('span[data-notify="message"]:last-child')).toContainText(" valid ");
   }
 
   //closing the browser
