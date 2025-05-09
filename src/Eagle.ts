@@ -4547,6 +4547,9 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Edit Node Category");
         this.logicalGraph().fileInfo().modified = true;
         this.logicalGraph.valueHasMutated();
+
+        // refresh the ParameterTable, since fields may have been added/removed
+        ParameterTable.updateContent(this.selectedNode());
     }
     
     // NOTE: clones the node internally
