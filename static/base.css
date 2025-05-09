@@ -543,6 +543,10 @@ color: #00bb00;}
     font-size: 16px;
 }
 
+.parameterTable .tableAddNewConfigBtn, .eagleTableDisplay .tableAddNewConfigBtn{
+    background-color: #0059a5;
+}
+
 #editFieldModal .dropdown {
     width:100%;
 }

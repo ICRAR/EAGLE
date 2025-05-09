@@ -19,13 +19,25 @@
     </div>
     <div class="tableBody">
         <div class="wrapper">
-            <!-- ko if: ParameterTable.getTableFields().length === 0 -->
+            <!-- ko if: logicalGraph().graphConfigs().length != 0 && ParameterTable.getTableFields().length === 0 -->
                 <div class="container h-100">
                     <div class="row align-items-center h-100">
                         <div class="col-md-12 text-center">
                             <span class="fs-3">No fields in Graph Configuration</span>
                             <br/>
                             <span class="fs-6">Fields can be added from the Fields Table when a graph node is selected</span>
+                        </div>
+                    </div>
+                </div>
+            <!-- /ko -->
+            <!-- ko if: logicalGraph().graphConfigs().length === 0-->
+                <div class="container h-100">
+                    <div class="row align-items-center h-100">
+                        <div class="col-md-12 text-center">
+                            <span class="fs-3">No graph configurations</span>
+                            <br/>
+                            <br/>
+                            <button class="btn btn-primary btn-block tableAddNewConfigBtn" data-bind="click: newConfig">Add New Config</button>
                         </div>
                     </div>
                 </div>
