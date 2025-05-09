@@ -77,5 +77,8 @@ export class CategoryData {
 }
 
 export namespace CategoryData {
-    export const ALL_DATA_CATEGORIES: Category[] = (Object.keys(Category) as Category[]).filter((category: Category) => {return CategoryData.getCategoryData(category).categoryType === Category.Type.Data});
+    export const INTERMEDIATE_DATA_NODES: Category[] = (Object.keys(Category) as Category[]).filter((category: Category) => {
+        const cData = CategoryData.getCategoryData(category);
+        return cData.categoryType === Category.Type.Data && cData.maxInputs >= 1 && cData.maxOutputs >= 1;
+    });
 }
