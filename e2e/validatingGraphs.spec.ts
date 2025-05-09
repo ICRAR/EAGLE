@@ -1,7 +1,14 @@
 import { test, expect } from '@playwright/test';
 
 const GRAPHS = [
-  "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/SDP%20Pipelines/cont_img_mvp.graph"
+  // SDP Pipelines
+  "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/SDP%20Pipelines/cont_img_mvp.graph",
+
+  // examples
+  "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/examples/HelloWorld-simple.graph",
+
+  // graph_patterns
+  "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/graph_patterns/LoopWithBranch.graph"
 ]
 
 test('Validating Graphs', async ({ page }) => {
