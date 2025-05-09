@@ -409,7 +409,7 @@
     
 }
 
-
-.node .graphDataNode{
-    bottom: -26px;
+.node .graphDataNode{    
+    bottom: 0px;
+    transform: translate(-50%, 100%);
 }
