@@ -18,17 +18,20 @@ test('Validating Graphs', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none&service=Url&url='+graphUrl);
 
     // wait for the 'graph load success' notification to be shown
-    await page.waitForSelector('div[data-notify="container"]');
+    await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
 
     // dismiss notification
     await page.locator('button[data-notify="dismiss"]').click();
+
+    // wait for the 'graph load success' notification to be dismissed
+    await page.locator('div[data-notify="container"]').waitFor({state: 'detached'});
 
     // navigate menus and click the "validate" item
     await page.locator('#navbarDropdownGraph').click();
     await page.locator('#validateGraph').click();
 
     // wait for the validation
-    await page.waitForSelector('div[data-notify="container"]');
+    await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
 
     // check result in notification
     await expect(page.locator('span[data-notify="message"]')).toContainText(" valid ");
