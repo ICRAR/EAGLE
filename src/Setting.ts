@@ -1,13 +1,13 @@
 import * as ko from "knockout";
 
 import { Category } from "./Category";
+import { CategoryData } from "./CategoryData";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { Palette } from "./Palette";
 import { Repository } from "./Repository";
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
-import { CategoryData } from "./CategoryData";
 
 export class SettingsGroup {
     private name : string;
