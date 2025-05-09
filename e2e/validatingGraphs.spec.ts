@@ -17,21 +17,21 @@ test('Validating Graphs', async ({ page }) => {
   for (const graphUrl of GRAPHS){
     await page.goto('http://localhost:8888/?tutorial=none&service=Url&url='+graphUrl);
 
-    // wait for the page to load
-    await page.waitForTimeout(1000);
+    // wait for the 'graph load success' notification to be shown
+    await page.waitForSelector('div[data-notify="container"]');
 
-    // expect a title "to contain" a substring.
-    await expect(page).toHaveTitle(/EAGLE/);
+    // dismiss notification
+    await page.locator('button[data-notify="dismiss"]').click();
 
     // navigate menus and click the "validate" item
     await page.locator('#navbarDropdownGraph').click();
     await page.locator('#validateGraph').click();
 
     // wait for the validation
-    await page.waitForTimeout(1000);
+    await page.waitForSelector('div[data-notify="container"]');
 
-    // check result
-    await expect(page.locator('div[data-notify="container"]:last-child').locator('span[data-notify="message"]')).toContainText(" valid ");
+    // check result in notification
+    await expect(page.locator('span[data-notify="message"]')).toContainText(" valid ");
   }
 
   //closing the browser
