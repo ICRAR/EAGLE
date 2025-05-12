@@ -2844,6 +2844,32 @@ export class Eagle {
         }
     }
     
+    validateGraph = (): void => {
+        // get logical graph
+        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
+
+        // get json for logical graph
+        const jsonString: string = LogicalGraph.toOJSJsonString(lg, true);
+
+        // parse output JSON
+        let jsonObject;
+        try {
+            jsonObject = JSON.parse(jsonString);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            Utils.showNotification("Error", "Could not parse JSON Output before validation: " + errorMessage, "danger");
+            return;
+        }
+
+        // validate object
+        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, Eagle.FileType.Graph);
+        if (validatorResult.valid){
+            Utils.showNotification("Success",  "JSON Output valid against internal JSON schema", "success");
+        } else {
+            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema: " + validatorResult.errors, "danger");
+        }
+    }
+
     saveGraphScreenshot = async () : Promise<void> =>  {
         const eagle = Eagle.getInstance()
 
