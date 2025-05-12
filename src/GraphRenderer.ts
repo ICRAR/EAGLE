@@ -1081,7 +1081,7 @@ export class GraphRenderer {
             }
 
             //switch back to the node parameter table if a node is selected
-if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) === true && Setting.findValue(Setting.BOTTOM_WINDOW_MODE) !== Eagle.BottomWindowMode.NodeParameterTable){
+        if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) === true && Setting.findValue(Setting.BOTTOM_WINDOW_MODE) !== Eagle.BottomWindowMode.NodeParameterTable){
                 ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal)
             }
         }else{
