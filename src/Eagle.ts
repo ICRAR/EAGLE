@@ -4493,9 +4493,12 @@ export class Eagle {
     }, this)
 
     inspectorChangeNodeCategoryRequest = async (event: Event): Promise<void> => {
-        if (Setting.findValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES)){
+        const confirmNodeCategoryChanges = Setting.findValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES);
+        const keepOldFields = Setting.findValue(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE);
 
-            // request confirmation from user
+        // request confirmation from user
+        // old request if 'confirm' setting is true AND we're not going to keep the old fields
+        if (confirmNodeCategoryChanges && !keepOldFields){
             try {
                 await Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.find(Setting.CONFIRM_NODE_CATEGORY_CHANGES));
             } catch (error){
@@ -4536,10 +4539,10 @@ export class Eagle {
                     oldCategoryTemplate = oldNode;
                 }
 
-                // TODO: setting here? Or ask user whether they want to remove old fields?
-                const removeOldFields: boolean = true; //Setting.findValue(Setting.REMOVE_OLD_FIELDS_DURING_CATEGORY_CHANGE);
+                // consult user setting - whether they want to remove old fields
+                const keepOldFields: boolean = Setting.findValue(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE);
 
-                Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate, removeOldFields);
+                Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate, keepOldFields);
             }
         }
 
