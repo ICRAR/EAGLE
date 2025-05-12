@@ -1,5 +1,7 @@
 import * as ko from "knockout";
 
+import { Category } from "./Category";
+import { CategoryData } from "./CategoryData";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { Palette } from "./Palette";
@@ -330,6 +332,7 @@ export class Setting {
     static readonly STUDENT_SETTINGS_MODE : string = "StudentSettingsMode"
     static readonly VALUE_EDITING_PERMS : string = "ValueEditingPerms"
     static readonly AUTO_COMPLETE_EDGES_LEVEL : string = "AutoCompleteEdgesLevel"
+    static readonly DEFAULT_DATA_NODE : string = "DefaultDataNode";
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
     static readonly TRANSLATOR_ALGORITHM_DEFAULT : string = "TranslatorAlgorithmDefault";
@@ -449,6 +452,7 @@ const settings : SettingsGroup[] = [
             new Setting(false, "STUDENT_SETTINGS_MODE", Setting.STUDENT_SETTINGS_MODE, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
             new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, Setting.Type.Select, Setting.ValueEditingPermission.ConfigOnly,Setting.ValueEditingPermission.Normal,Setting.ValueEditingPermission.Normal,Setting.ValueEditingPermission.ReadOnly,Setting.ValueEditingPermission.ReadOnly, Object.values(Setting.ValueEditingPermission)),
             new Setting(true, "Auto-complete edges level", Setting.AUTO_COMPLETE_EDGES_LEVEL, "Specifies the minimum validity level of auto-complete edges displayed when dragging a new edge", false, Setting.Type.Select, Errors.Validity.Valid, Errors.Validity.Valid, Errors.Validity.Warning, Errors.Validity.Warning, Errors.Validity.Error, [Errors.Validity.Error, Errors.Validity.Warning, Errors.Validity.Valid]),
+            new Setting(true, "Default Data Node", Setting.DEFAULT_DATA_NODE, "Default category of Data node that is automatically created when the user creates a edge between two Application nodes", false, Setting.Type.Select, Category.Memory, Category.Memory, Category.Memory, Category.Memory, Category.Memory, CategoryData.INTERMEDIATE_DATA_NODES)
         ]
     ),
     new SettingsGroup(

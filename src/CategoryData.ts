@@ -75,3 +75,10 @@ export class CategoryData {
         return c;
     }
 }
+
+export namespace CategoryData {
+    export const INTERMEDIATE_DATA_NODES: Category[] = (Object.keys(Category) as Category[]).filter((category: Category) => {
+        const cData = CategoryData.getCategoryData(category);
+        return cData.categoryType === Category.Type.Data && cData.maxInputs >= 1 && cData.maxOutputs >= 1;
+    });
+}
