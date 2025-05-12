@@ -1079,6 +1079,11 @@ export class GraphRenderer {
             if(event.altKey&&node.isGroup()||GraphRenderer.dragSelectionDoubleClick&&node.isGroup()){
                 GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
             }
+
+            //switch back to the node parameter table if a node is selected
+            if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) === true && Setting.findValue(Setting.BOTTOM_WINDOW_MODE) != Eagle.BottomWindowMode.NodeParameterTable){
+                ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal)
+            }
         }else{
             if(event.shiftKey && event.button === 0){
                 //initiating drag selection region handler
