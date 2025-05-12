@@ -2745,16 +2745,18 @@ export class Utils {
         }
     }
 
-    static transformNodeFromTemplates(node: Node, sourceTemplate: Node, destinationTemplate: Node): void {
-        // delete non-ports from the node (loop backwards since we are deleting from the array as we loop)
-        for (let i = node.getFields().length - 1 ; i >= 0; i--){
-            const field: Field = node.getFields()[i];
+    static transformNodeFromTemplates(node: Node, sourceTemplate: Node, destinationTemplate: Node, keepOldFields: boolean = false): void {
+        if (!keepOldFields){
+            // delete non-ports from the node (loop backwards since we are deleting from the array as we loop)
+            for (let i = node.getFields().length - 1 ; i >= 0; i--){
+                const field: Field = node.getFields()[i];
 
-            if (field.isInputPort() || field.isOutputPort()){
-                continue;
+                if (field.isInputPort() || field.isOutputPort()){
+                    continue;
+                }
+
+                node.removeFieldById(field.getId());
             }
-
-            node.removeFieldById(field.getId());
         }
 
         // copy non-ports from new template to node
