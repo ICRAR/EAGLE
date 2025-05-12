@@ -543,10 +543,6 @@ color: #00bb00;}
     font-size: 16px;
 }
 
-.parameterTable .tableAddNewConfigBtn, .eagleTableDisplay .tableAddNewConfigBtn{
-    background-color: #0059a5;
-}
-
 #editFieldModal .dropdown {
     width:100%;
 }
@@ -626,12 +622,12 @@ color: #00bb00;}
     height: 100%;
 }
 
-.rightWindow .btn-primary, .leftWindow .btn-primary {
+.rightWindow .btn-primary, .leftWindow .btn-primary, #bottomWindow .tableAddNewConfigBtn{
     background-color: #0059a5;
     border-color: #0059a5;
 }
 
-.rightWindow .btn-primary:hover, .leftWindow .btn-primary:hover {
+.rightWindow .btn-primary:hover, .leftWindow .btn-primary:hover, #bottomWindow .tableAddNewConfigBtn:hover {
     background-color: #002f57;
     border-color: #002f57;
 }
