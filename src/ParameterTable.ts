@@ -830,6 +830,21 @@ export class ParameterTable {
             ParameterTable.sortFields();
         }
     }
+
+    static getParameterTypeOptions = (field:Field) : string[] => {
+        const parameterTypeList : string[] = []
+        const fieldParamType = field.getParameterType()
+
+        if(fieldParamType === Daliuge.FieldType.Construct){
+            parameterTypeList.push(Daliuge.FieldType.Construct)
+        }else if(fieldParamType === Daliuge.FieldType.Constraint){
+            parameterTypeList.push(Daliuge.FieldType.Constraint)
+        }else{
+            parameterTypeList.push(Daliuge.FieldType.Application,Daliuge.FieldType.Component)
+        }
+
+        return parameterTypeList
+    }
 }
 
 export namespace ParameterTable {
