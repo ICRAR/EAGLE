@@ -845,6 +845,14 @@ export class ParameterTable {
 
         return parameterTypeList
     }
+
+    static getParameterTypeLockedState = (field:Field) : boolean => {
+        if( this.getNodeLockedState(field) || this.getParameterTypeOptions(field).length <2){
+            return true
+        }
+        
+        return false
+    }
 }
 
 export namespace ParameterTable {
