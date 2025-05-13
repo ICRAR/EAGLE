@@ -278,7 +278,8 @@ export namespace Daliuge {
         },
         {
             categories: [
-                Category.PyFuncApp
+                Category.PyFuncApp,
+                Category.PythonMemberFunction
             ],
             fields: [
                 Daliuge.funcNameField
@@ -286,10 +287,10 @@ export namespace Daliuge {
         },
         {
             categories: [
-                Category.PythonMemberFunction
+                Category.Data
             ],
             fields: [
-                Daliuge.funcNameField
+                Daliuge.baseNameField
             ]
         }
     ];
