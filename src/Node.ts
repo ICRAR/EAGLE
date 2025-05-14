@@ -694,7 +694,7 @@ export class Node {
     }, this);
 
     getDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return Utils.markdown2html(this.getDescription());
+        return Utils.markdown2html(this.description());
     }, this);
 
     getSubjectId = () : NodeId => {

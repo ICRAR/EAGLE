@@ -1974,7 +1974,7 @@ export class Eagle {
      * Performs a Git commit of a graph/palette.
      */
     commitToGit = async (fileType : Eagle.FileType) : Promise<void> => {
-        if (Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
             Utils.notifyUserOfEditingIssue(fileType, "Commit to Git");
             return;
         }
@@ -4480,12 +4480,22 @@ export class Eagle {
         });
     }
 
-    editNodeDescription = async (): Promise<void> => {
-        console.log("editNodeDescription()");
+    editGraphDescription = async(): Promise<void> => {
+        let graphDescription: string;
+        try {
+            graphDescription = await Utils.requestUserMarkdown("Graph Description", "Please edit the description for the graph", this.logicalGraph().fileInfo().detailedDescription);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
 
+        this.logicalGraph().fileInfo().detailedDescription = graphDescription;
+    }
+
+    editNodeDescription = async (): Promise<void> => {
         let nodeDescription: string;
         try {
-            nodeDescription = await Utils.requestUserText("Node Description", "Please edit the description for the node", this.selectedNode().getDescription());
+            nodeDescription = await Utils.requestUserMarkdown("Node Description", "Please edit the description for the node", this.selectedNode().getDescription());
         } catch (error) {
             console.error(error);
             return;
