@@ -571,8 +571,7 @@ export class Utils {
         });
     }
 
-    // uses: https://github.com/paul-norman/codemirror6-prebuilt
-    static requestUserCode(language: "json"|"markdown"|"python"|"text", title: string, defaultText: string, readonly: boolean = false): Promise<string> {
+    static requestUserCode(language: "json"|"python"|"text", title: string, defaultText: string, readonly: boolean = false): Promise<string> {
         return new Promise(async(resolve, reject) => {
             // set title
             $('#inputCodeModalTitle').text(title);
@@ -582,9 +581,6 @@ export class Utils {
             switch(language){
                 case "json":
                     mode = "javascript";
-                    break;
-                case "markdown":
-                    mode = "markdown";
                     break;
                 case "python":
                     mode = "python"
@@ -616,6 +612,38 @@ export class Utils {
 
             $('#inputCodeModal').modal("toggle");
         })
+    }
+
+    static requestUserMarkdown(title: string, defaultText: string, editMode: boolean = false): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $('#inputMarkdownModalTitle').text(title);
+
+            // show or hide sections based on editMode
+            Modals.toggleMarkdownEditMode(editMode);
+
+            const editor = $('#inputMarkdownModal').data('editor');
+            editor.setOption('readOnly', false);
+            editor.setOption('mode', "markdown");
+            editor.setOption('value', defaultText);
+            Modals.setMarkdownContent(defaultText);
+            editor.on('change', (editorInstance: any, changeObj: any) => {
+                const value = editorInstance.getValue();
+                Modals.setMarkdownContent(value);
+            });
+
+            // store the callback, result on the modal HTML element
+            // so that the info is available to event handlers
+            $('#inputMarkdownModal').data('completed', false);
+            $('#inputMarkdownModal').data('callback', (completed : boolean, userText : string) => {
+                if (!completed){
+                    reject("Utils.requestUserMarkdown() aborted by user");
+                } else {
+                    resolve(userText);
+                }
+            });
+
+            $('#inputMarkdownModal').modal("toggle");
+        });
     }
 
     static requestUserNumber(title : string, message : string, defaultNumber: number) : Promise<number> {

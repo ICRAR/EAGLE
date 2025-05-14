@@ -100,14 +100,51 @@ export class Modals {
 
             // get content of code editor - and return via callback
             const editor = $('#inputCodeModal').data('editor');
+            const completed = $('#inputCodeModal').data('completed');
             const content = editor.getValue();
 
-            callback($('#inputCodeModal').data('completed'), content);
+            callback(completed, content);
         });
 
         $('#inputCodeModal').on('shown.bs.modal', function(){
             const editor = $('#inputCodeModal').data('editor');
             editor.refresh();
+        });
+
+        // #inputMarkdownModal - requestUserMarkdown()
+        {
+            // get html element to use as the editor
+            const element = document.querySelector("#inputMarkdownModalEditor");
+
+            // create the editor
+            const myCodeMirror = CodeMirror(element, {
+                value: "",
+                mode:  "markdown",
+                lineNumbers: true,
+                tabSize: 4
+            });
+
+            // add reference to the editor to a data attribute on the modal
+            $('#inputMarkdownModal').data('editor', myCodeMirror);
+        }
+
+        $('#inputMarkdownModal .modal-footer button').on('click', function(){
+            $('#inputMarkdownModal').data('completed', true);
+        });
+        $('#inputMarkdownModal').on('hidden.bs.modal', function(){
+            const callback : (completed : boolean, userString : string) => void = $('#inputMarkdownModal').data('callback');
+
+            if (callback === null){
+                console.log("No callback called when #inputMarkdownModal hidden");
+                return;
+            }
+
+            // get content of code editor - and return via callback
+            const editor = $('#inputMarkdownModal').data('editor');
+            const completed = $('#inputMarkdownModal').data('completed');
+            const content = editor.getValue();
+
+            callback(completed, content);
         });
 
         // #choiceModal - requestUserChoice()
@@ -531,5 +568,32 @@ export class Modals {
             $('#editFieldModalValueInputNumber').addClass('inputNoArrows')
             $('#editFieldModalDefaultValueInputNumber').addClass('inputNoArrows')
         }
+    }
+
+    static toggleMarkdownEditMode(enabled: boolean){
+        // if no param specified, toggle the current state
+        if (typeof enabled === 'undefined'){
+            const isVisible = $('#inputMarkdownModalEditorSection').is(":visible");
+            enabled = !isVisible;
+        }
+
+        $('#inputMarkdownModalEditorSection').toggle(enabled);
+        $('#editMarkdownSwitchCheck').prop('checked', enabled);
+        if (enabled){
+            $('#inputMarkdownModalDisplaySection').addClass('col-6');
+            $('#inputMarkdownModalDisplaySection').removeClass('col-12');
+        } else {
+            $('#inputMarkdownModalDisplaySection').removeClass('col-6');
+            $('#inputMarkdownModalDisplaySection').addClass('col-12');
+        }
+
+        // make sure the editor is refreshed
+        const editor = $('#inputMarkdownModal').data('editor');
+        editor.refresh();
+    }
+
+    static setMarkdownContent(value: string){
+        const html = Utils.markdown2html(value);
+        $('#inputMarkdownModalDisplay').html(html);
     }
 }

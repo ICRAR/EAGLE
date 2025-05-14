@@ -4483,7 +4483,7 @@ export class Eagle {
     editGraphDescription = async(): Promise<void> => {
         let graphDescription: string;
         try {
-            graphDescription = await Utils.requestUserMarkdown("Graph Description", "Please edit the description for the graph", this.logicalGraph().fileInfo().detailedDescription);
+            graphDescription = await Utils.requestUserMarkdown("Graph Description", this.logicalGraph().fileInfo().detailedDescription);
         } catch (error) {
             console.error(error);
             return;
@@ -4495,7 +4495,7 @@ export class Eagle {
     editNodeDescription = async (): Promise<void> => {
         let nodeDescription: string;
         try {
-            nodeDescription = await Utils.requestUserMarkdown("Node Description", "Please edit the description for the node", this.selectedNode().getDescription());
+            nodeDescription = await Utils.requestUserMarkdown("Node Description", this.selectedNode().getDescription());
         } catch (error) {
             console.error(error);
             return;
