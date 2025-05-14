@@ -280,9 +280,10 @@
                                     <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'This is a Graph File from GitHub or GitLab'" data-bs-toggle="tooltip" data-html="true">account_tree</i>
                                 <!-- /ko -->
                                 <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().fullPath()" data-bs-toggle="tooltip" data-html="true">link</i>
-                                <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().shortDescription, click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
-                                <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().detailedDescription, click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">menu_book</i>
-                                <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.editGraphDescription() data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().getDescriptionHTML()" data-bs-toggle="tooltip" data-html="true">library_books</i>
+
+                                <i class="material-icons interactive clickable iconHoverEffect" data-bind="eagleTooltip: 'View Graph Model Data', click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">info</i>
+                                <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.editGraphShortDescription() data-bind="eagleTooltip: $root.logicalGraph().fileInfo().shortDescription" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
+                                <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.editGraphDetailedDescription() data-bind="eagleTooltip: $root.logicalGraph().fileInfo().detailedDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
                             </div>
                             <div class="col-6 col text-right">
                                 <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: 'View graph configurations table', click: GraphConfigurationsTable.openTable" data-bs-toggle="tooltip" data-html="true">dns</i>

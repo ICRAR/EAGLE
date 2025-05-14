@@ -126,6 +126,12 @@ export class Modals {
 
             // add reference to the editor to a data attribute on the modal
             $('#inputMarkdownModal').data('editor', myCodeMirror);
+
+            // watch for changes in the editor and reflect them in the display
+            myCodeMirror.on('change', (editorInstance: any, changeObj: any) => {
+                const value = editorInstance.getValue();
+                Modals.setMarkdownContent(value);
+            });
         }
 
         $('#inputMarkdownModal .modal-footer button').on('click', function(){

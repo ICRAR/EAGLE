@@ -621,24 +621,21 @@ export class Utils {
             // show or hide sections based on editMode
             Modals.toggleMarkdownEditMode(editMode);
 
+            // initialise editor
             const editor = $('#inputMarkdownModal').data('editor');
             editor.setOption('readOnly', false);
             editor.setOption('mode', "markdown");
             editor.setOption('value', defaultText);
             Modals.setMarkdownContent(defaultText);
-            editor.on('change', (editorInstance: any, changeObj: any) => {
-                const value = editorInstance.getValue();
-                Modals.setMarkdownContent(value);
-            });
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputMarkdownModal').data('completed', false);
-            $('#inputMarkdownModal').data('callback', (completed : boolean, userText : string) => {
+            $('#inputMarkdownModal').data('callback', (completed : boolean, userMarkdown : string) => {
                 if (!completed){
                     reject("Utils.requestUserMarkdown() aborted by user");
                 } else {
-                    resolve(userText);
+                    resolve(userMarkdown);
                 }
             });
 

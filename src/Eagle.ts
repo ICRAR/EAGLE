@@ -4480,16 +4480,30 @@ export class Eagle {
         });
     }
 
-    editGraphDescription = async(): Promise<void> => {
+    editGraphShortDescription = async(): Promise<void> => {
         let graphDescription: string;
         try {
-            graphDescription = await Utils.requestUserMarkdown("Graph Description", this.logicalGraph().fileInfo().detailedDescription);
+            graphDescription = await Utils.requestUserMarkdown("Graph Short Description", this.logicalGraph().fileInfo().shortDescription);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        this.logicalGraph().fileInfo().shortDescription = graphDescription;
+        this.logicalGraph().fileInfo().modified = true;
+    }
+
+    editGraphDetailedDescription = async(): Promise<void> => {
+        let graphDescription: string;
+        try {
+            graphDescription = await Utils.requestUserMarkdown("Graph Detailed Description", this.logicalGraph().fileInfo().detailedDescription);
         } catch (error) {
             console.error(error);
             return;
         }
 
         this.logicalGraph().fileInfo().detailedDescription = graphDescription;
+        this.logicalGraph().fileInfo().modified = true;
     }
 
     editNodeDescription = async (): Promise<void> => {

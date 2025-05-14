@@ -368,10 +368,6 @@ export class FileInfo {
         return "<p><h5>" + title + "<h5><p><p>" + text + "</p>";
     }
 
-    getDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return Utils.markdown2html(this.detailedDescription);
-    }, this);
-
     getText = () : string => {
         if (this.repositoryName !== ""){
             if (this.path === ""){
