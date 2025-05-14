@@ -9,7 +9,7 @@ body {
     height:100%;
     /* zoom: 75%; */
 
-    font-family: Ubuntu Sans;
+    font-family: 'Ubuntu Sans', sans-serif;
     font-style: normal;
     font-weight:400;
 }
