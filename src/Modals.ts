@@ -121,6 +121,7 @@ export class Modals {
                 value: "",
                 mode:  "markdown",
                 lineNumbers: true,
+                lineWrapping: true,
                 tabSize: 4
             });
 
@@ -151,6 +152,11 @@ export class Modals {
             const content = editor.getValue();
 
             callback(completed, content);
+        });
+
+        $('#inputMarkdownModal').on('shown.bs.modal', function(){
+            const editor = $('#inputMarkdownModal').data('editor');
+            editor.refresh();
         });
 
         // #choiceModal - requestUserChoice()
@@ -596,6 +602,9 @@ export class Modals {
         // make sure the editor is refreshed
         const editor = $('#inputMarkdownModal').data('editor');
         editor.refresh();
+
+        // update setting
+        Setting.setValue(Setting.MARKDOWN_EDITING_ENABLED, enabled);
     }
 
     static setMarkdownContent(value: string){

@@ -12,7 +12,6 @@ body {
 
 * {
     font-family: Ubuntu Sans;
-    font-style: normal;
     font-weight:400;
 }
 
@@ -2289,10 +2288,6 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
     font-size: 1rem;
     font-weight: 300;
     margin-bottom: 10px;
-}
-
-.tooltip-inner em {
-    font-style:italic;
 }
 
 .tooltip-inner{

@@ -658,7 +658,7 @@ export class Node {
 
     hasFunc_code = () : boolean => {
         for(const field of this.getFields()){
-            if(field.getDisplayText() === 'func_code'){
+            if(field.getDisplayText() === Daliuge.FieldName.FUNC_CODE){
                 return true
             }
         }

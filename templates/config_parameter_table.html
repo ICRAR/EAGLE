@@ -97,7 +97,7 @@
                                                     <td class='columnCell column_Value'>
                                                         <!-- ko if: $data.getGraphConfigField() -->
                                                             <textarea  style="resize: none;" class="tableParameter inputNoArrows tableFieldStringValueInput" data-bind="css: {selectedTableParameter: ParameterTable.isSelected('value', $data) },disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'value', $data, $index())}}"></textarea>
-                                                            <!-- ko if: !ParameterTable.getNodeLockedState($data) && $data.getDisplayText() === 'func_code' -->
+                                                            <!-- ko if: !ParameterTable.getNodeLockedState($data) && $data.getDisplayText() === Daliuge.FieldName.FUNC_CODE -->
                                                                 <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueCode($data, false)}"></button>
                                                             <!-- /ko -->
                                                         <!-- /ko -->

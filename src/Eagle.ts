@@ -4481,9 +4481,11 @@ export class Eagle {
     }
 
     editGraphShortDescription = async(): Promise<void> => {
+        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+
         let graphDescription: string;
         try {
-            graphDescription = await Utils.requestUserMarkdown("Graph Short Description", this.logicalGraph().fileInfo().shortDescription);
+            graphDescription = await Utils.requestUserMarkdown("Graph Short Description", this.logicalGraph().fileInfo().shortDescription, markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
@@ -4494,9 +4496,11 @@ export class Eagle {
     }
 
     editGraphDetailedDescription = async(): Promise<void> => {
+        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+
         let graphDescription: string;
         try {
-            graphDescription = await Utils.requestUserMarkdown("Graph Detailed Description", this.logicalGraph().fileInfo().detailedDescription);
+            graphDescription = await Utils.requestUserMarkdown("Graph Detailed Description", this.logicalGraph().fileInfo().detailedDescription, markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
