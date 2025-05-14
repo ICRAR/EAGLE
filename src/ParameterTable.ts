@@ -847,11 +847,7 @@ export class ParameterTable {
     }
 
     static getParameterTypeLockedState = (field:Field) : boolean => {
-        if( this.getNodeLockedState(field) || this.getParameterTypeOptions(field).length <2){
-            return true
-        }
-        
-        return false
+        return this.getNodeLockedState(field) || this.getParameterTypeOptions(field).length < 2;
     }
 }
 
