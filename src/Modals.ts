@@ -3,12 +3,10 @@ import { Eagle } from './Eagle';
 import { Edge } from './Edge';
 import { Field } from './Field';
 import { LogicalGraph } from './LogicalGraph';
-import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
-import { SideWindow } from './SideWindow';
 import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
@@ -19,7 +17,7 @@ export class Modals {
 
     static init(eagle : Eagle) : void {
         // #inputModal - requestUserInput()
-        $('#inputModal .modal-footer button').on('click', function(){
+        $('#inputModal .modal-footer button.affirmativeBtn').on('click', function(){
             $('#inputModal').data('completed', true);
         });
         $('#inputModal').on('hidden.bs.modal', function(){
@@ -53,7 +51,7 @@ export class Modals {
         });
 
         // #inputTextModal - requestUserText()
-        $('#inputTextModal .modal-footer button').on('click', function(){
+        $('#inputTextModal .modal-footer button.affirmativeBtn').on('click', function(){
             $('#inputTextModal').data('completed', true);
         });
         $('#inputTextModal').on('hidden.bs.modal', function(){
@@ -87,7 +85,7 @@ export class Modals {
             $('#inputCodeModal').data('editor', myCodeMirror);
         }
 
-        $('#inputCodeModal .modal-footer button').on('click', function(){
+        $('#inputCodeModal .modal-footer button.affirmativeBtn').on('click', function(){
             $('#inputCodeModal').data('completed', true);
         });
         $('#inputCodeModal').on('hidden.bs.modal', function(){
@@ -135,7 +133,7 @@ export class Modals {
             });
         }
 
-        $('#inputMarkdownModal .modal-footer button').on('click', function(){
+        $('#inputMarkdownModal .modal-footer button.affirmativeBtn').on('click', function(){
             $('#inputMarkdownModal').data('completed', true);
         });
         $('#inputMarkdownModal').on('hidden.bs.modal', function(){
@@ -160,7 +158,7 @@ export class Modals {
         });
 
         // #choiceModal - requestUserChoice()
-        $('#choiceModal .modal-footer button').on('click', function(){
+        $('#choiceModal .modal-footer button.affirmativeBtn').on('click', function(){
             $('#choiceModal').data('completed', true);
         });
         $('#choiceModal').on('shown.bs.modal', function(){
