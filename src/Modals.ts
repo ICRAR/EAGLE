@@ -22,21 +22,26 @@ export class Modals {
         });
         $('#inputModal').on('hidden.bs.modal', function(){
             const returnType = $('#inputModal').data('returnType');
+            const completed: boolean = $('#inputModal').data('completed');
+            const input: string = $('#inputModalInput').val().toString();
 
             switch (returnType){
                 case "string": {
                     const stringCallback : (completed : boolean, userString : string) => void = $('#inputModal').data('callback');
-                    stringCallback($('#inputModal').data('completed'), $('#inputModalInput').val().toString());
+                    stringCallback(completed, input);
                     break;
                 }
                 case "number": {
                     const numberCallback : (completed : boolean, userNumber : number) => void = $('#inputModal').data('callback');
-                    numberCallback($('#inputModal').data('completed'), parseInt($('#inputModalInput').val().toString(), 10));
+                    numberCallback(completed, parseInt(input, 10));
                     break;
                 }
                 default:
                     console.error("Unknown return type for inputModal!");
             }
+
+            // remove data stored on modal
+            $('#inputModal').removeData(['callback', 'completed', 'returnType']);
         });
         $('#inputModal').on('shown.bs.modal', function(){
             $('#inputModalInput').trigger("focus");
@@ -62,7 +67,14 @@ export class Modals {
                 return;
             }
 
-            callback($('#inputTextModal').data('completed'), $('#inputTextModalInput').val().toString());
+            const completed: boolean = $('#inputTextModal').data('completed');
+
+            // remove data stored on the modal
+            $('#inputTextModal').removeData(['callback', 'completed']);
+
+            const input: string = $('#inputTextModalInput').val().toString();
+
+            callback(completed, input);
         });
         $('#inputTextModal').on('shown.bs.modal', function(){
             $('#inputTextModalInput').trigger("focus");
@@ -100,6 +112,9 @@ export class Modals {
             const editor = $('#inputCodeModal').data('editor');
             const completed = $('#inputCodeModal').data('completed');
             const content = editor.getValue();
+
+            // remove data stored on the modal
+            $('#inputCodeModal').removeData(['callback', 'completed']);
 
             callback(completed, content);
         });
@@ -149,6 +164,9 @@ export class Modals {
             const completed = $('#inputMarkdownModal').data('completed');
             const content = editor.getValue();
 
+            // remove data stored on the modal
+            $('#inputMarkdownModal').removeData(['callback', 'completed']);
+
             callback(completed, content);
         });
 
@@ -171,22 +189,23 @@ export class Modals {
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
                 callback(false, "");
-                return;
-            }
-
-            // check selected option in select tag
-            const choices : string[] = $('#choiceModal').data('choices');
-            const choiceIndex : number = parseInt($('#choiceModalSelect').val().toString(), 10);
-            const choice = $('#choiceModalSelect option:selected').text();
-            const customChoice = $('#choiceModalString').val().toString();
-
-            // if the last item in the select was selected, then return the custom value,
-            // otherwise return the selected choice
-            if (choiceIndex === choices.length){
-                callback(true, customChoice);
             } else {
-                callback(true, choice);
+                // check selected option in select tag
+                const choices : string[] = $('#choiceModal').data('choices');
+                const choiceIndex : number = parseInt($('#choiceModalSelect').val().toString(), 10);
+                const choice = $('#choiceModalSelect option:selected').text();
+                const customChoice = $('#choiceModalString').val().toString();
+
+                // if the last item in the select was selected, then return the custom value,
+                // otherwise return the selected choice
+                if (choiceIndex === choices.length){
+                    callback(true, customChoice);
+                } else {
+                    callback(true, choice);
+                }
             }
+
+            $('#choiceModal').removeData(['callback', 'completed', 'choices']);
         });
         $('#choiceModalString').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
@@ -217,10 +236,12 @@ export class Modals {
         $('#confirmModalAffirmativeButton').on('click', function(){
             const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
             callback(true);
+            $('#confirmModal').removeData('callback');
         });
         $('#confirmModalNegativeButton').on('click', function(){
             const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
             callback(false);
+            $('#confirmModal').removeData('callback');
         });
         $('#confirmModal').on('shown.bs.modal', function(){
             $('#confirmModalAffirmativeButton').trigger("focus");
