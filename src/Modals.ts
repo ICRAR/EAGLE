@@ -28,11 +28,13 @@ export class Modals {
             switch (returnType){
                 case "string": {
                     const stringCallback : (completed : boolean, userString : string) => void = $('#inputModal').data('callback');
+                    // TODO: check no callback
                     stringCallback(completed, input);
                     break;
                 }
                 case "number": {
                     const numberCallback : (completed : boolean, userNumber : number) => void = $('#inputModal').data('callback');
+                    // TODO: check no callback
                     numberCallback(completed, parseInt(input, 10));
                     break;
                 }
@@ -64,17 +66,14 @@ export class Modals {
 
             if (callback === null){
                 console.log("No callback called when #inputTextModal hidden");
-                return;
+            } else {
+                const completed: boolean = $('#inputTextModal').data('completed');
+                const input: string = $('#inputTextModalInput').val().toString();
+                callback(completed, input);
             }
-
-            const completed: boolean = $('#inputTextModal').data('completed');
 
             // remove data stored on the modal
             $('#inputTextModal').removeData(['callback', 'completed']);
-
-            const input: string = $('#inputTextModalInput').val().toString();
-
-            callback(completed, input);
         });
         $('#inputTextModal').on('shown.bs.modal', function(){
             $('#inputTextModalInput').trigger("focus");
@@ -105,18 +104,16 @@ export class Modals {
 
             if (callback === null){
                 console.log("No callback called when #inputCodeModal hidden");
-                return;
+            } else {
+                // get content of code editor - and return via callback
+                const editor = $('#inputCodeModal').data('editor');
+                const completed = $('#inputCodeModal').data('completed');
+                const content = editor.getValue();
+                callback(completed, content);
             }
-
-            // get content of code editor - and return via callback
-            const editor = $('#inputCodeModal').data('editor');
-            const completed = $('#inputCodeModal').data('completed');
-            const content = editor.getValue();
 
             // remove data stored on the modal
             $('#inputCodeModal').removeData(['callback', 'completed']);
-
-            callback(completed, content);
         });
 
         $('#inputCodeModal').on('shown.bs.modal', function(){
@@ -156,18 +153,17 @@ export class Modals {
 
             if (callback === null){
                 console.log("No callback called when #inputMarkdownModal hidden");
-                return;
-            }
+            } else {
+                // get content of code editor - and return via callback
+                const editor = $('#inputMarkdownModal').data('editor');
+                const completed = $('#inputMarkdownModal').data('completed');
+                const content = editor.getValue();
 
-            // get content of code editor - and return via callback
-            const editor = $('#inputMarkdownModal').data('editor');
-            const completed = $('#inputMarkdownModal').data('completed');
-            const content = editor.getValue();
+                callback(completed, content);
+            }
 
             // remove data stored on the modal
             $('#inputMarkdownModal').removeData(['callback', 'completed']);
-
-            callback(completed, content);
         });
 
         $('#inputMarkdownModal').on('shown.bs.modal', function(){
@@ -186,6 +182,8 @@ export class Modals {
             const callback : (completed : boolean, choice : string) => void = $('#choiceModal').data('callback');
             const completed : boolean = $('#choiceModal').data('completed');
             
+            // TODO: check no callback
+
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
                 callback(false, "");
@@ -235,11 +233,15 @@ export class Modals {
         // #confirmModal - requestUserConfirm()
         $('#confirmModalAffirmativeButton').on('click', function(){
             const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
+            // TODO: check no callback
+
             callback(true);
             $('#confirmModal').removeData('callback');
         });
         $('#confirmModalNegativeButton').on('click', function(){
             const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
+            // TODO: check no callback
+
             callback(false);
             $('#confirmModal').removeData('callback');
         });
@@ -262,32 +264,35 @@ export class Modals {
             const completed : boolean = $('#gitCommitModal').data('completed');
             const fileType : Eagle.FileType = $('#gitCommitModal').data('fileType');
 
+            // TODO: check no callback
+
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
                 callback(false, Repository.Service.Unknown, "", "", "", "", "");
-                return;
+            } else {
+                // check selected option in select tag
+                const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
+                const repositories : Repository[] = $('#gitCommitModal').data('repositories');
+                const repositoryNameChoice : number = parseInt($('#gitCommitModalRepositoryNameSelect').val().toString(), 10);
+
+                // split repository text (with form: "name (branch)") into name and branch strings
+                const repositoryName : string = repositories[repositoryNameChoice].name;
+                const repositoryBranch : string = repositories[repositoryNameChoice].branch;
+
+                const filePath : string = $('#gitCommitModalFilePathInput').val().toString();
+                let fileName : string = $('#gitCommitModalFileNameInput').val().toString();
+                const commitMessage : string = $('#gitCommitModalCommitMessageInput').val().toString();
+
+                // ensure that the graph filename ends with ".graph" or ".palette" as appropriate
+                if ((fileType === Eagle.FileType.Graph && !fileName.endsWith('.graph')) ||
+                    (fileType === Eagle.FileType.Palette && !fileName.endsWith('.palette'))) {
+                    fileName += fileType === Eagle.FileType.Graph ? '.graph' : '.palette';
+                }
+
+                callback(true, repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage);
             }
 
-            // check selected option in select tag
-            const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
-            const repositories : Repository[] = $('#gitCommitModal').data('repositories');
-            const repositoryNameChoice : number = parseInt($('#gitCommitModalRepositoryNameSelect').val().toString(), 10);
-
-            // split repository text (with form: "name (branch)") into name and branch strings
-            const repositoryName : string = repositories[repositoryNameChoice].name;
-            const repositoryBranch : string = repositories[repositoryNameChoice].branch;
-
-            const filePath : string = $('#gitCommitModalFilePathInput').val().toString();
-            let fileName : string = $('#gitCommitModalFileNameInput').val().toString();
-            const commitMessage : string = $('#gitCommitModalCommitMessageInput').val().toString();
-
-            // ensure that the graph filename ends with ".graph" or ".palette" as appropriate
-            if ((fileType === Eagle.FileType.Graph && !fileName.endsWith('.graph')) ||
-                (fileType === Eagle.FileType.Palette && !fileName.endsWith('.palette'))) {
-                fileName += fileType === Eagle.FileType.Graph ? '.graph' : '.palette';
-            }
-
-            callback(true, repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage);
+            $('#gitCommitModal').removeData(['callback', 'completed', 'fileType', 'repositories']);
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
             const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
@@ -319,18 +324,22 @@ export class Modals {
             const callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
             const completed : boolean = $('#gitCustomRepositoryModal').data('completed');
 
+            // TODO: check no callback
+
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
                 callback(false, "", "", "");
-                return;
+            } else {
+
+                // check selected option in select tag
+                const repositoryService : string = $('#gitCustomRepositoryModalRepositoryServiceSelect').val().toString();
+                const repositoryName : string = $('#gitCustomRepositoryModalRepositoryNameInput').val().toString();
+                const repositoryBranch : string = $('#gitCustomRepositoryModalRepositoryBranchInput').val().toString();
+
+                callback(true, repositoryService, repositoryName, repositoryBranch);
             }
 
-            // check selected option in select tag
-            const repositoryService : string = $('#gitCustomRepositoryModalRepositoryServiceSelect').val().toString();
-            const repositoryName : string = $('#gitCustomRepositoryModalRepositoryNameInput').val().toString();
-            const repositoryBranch : string = $('#gitCustomRepositoryModalRepositoryBranchInput').val().toString();
-
-            callback(true, repositoryService, repositoryName, repositoryBranch);
+            // TODO: removeData
         });
 
         // #settingsModal - showSettingsModal()
@@ -378,13 +387,16 @@ export class Modals {
             const callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
             const completed : boolean = $('#editFieldModal').data('completed');
 
+            // TODO: check no callback
+
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
                 callback(false, null);
-                return;
+            } else {
+                callback(true, eagle.currentField());
             }
 
-            callback(true, eagle.currentField())
+            $('#editFieldModal').removeData(['callback', 'completed']);
         });
 
         // #editEdgeModal - requestUserEditEdge()
@@ -401,24 +413,27 @@ export class Modals {
             const callback : (completed : boolean, edge: Edge) => void = $('#editEdgeModal').data('callback');
             const completed : boolean = $('#editEdgeModal').data('completed');
 
+            // TODO: check no callback
+
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
                 callback(false, null);
-                return;
+            } else {
+                // extract field data from HTML elements
+                // TODO: validate ids
+                const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
+                const srcPortId: FieldId = $('#editEdgeModalSrcPortIdSelect').val().toString() as FieldId;
+                const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
+                const destPortId: FieldId = $('#editEdgeModalDestPortIdSelect').val().toString() as FieldId;
+                const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
+                const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
+
+                const newEdge = new Edge(srcNodeId, srcPortId, destNodeId, destPortId, loopAware, closesLoop, false);
+
+                callback(true, newEdge);
             }
 
-            // extract field data from HTML elements
-            // TODO: validate ids
-            const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
-            const srcPortId: FieldId = $('#editEdgeModalSrcPortIdSelect').val().toString() as FieldId;
-            const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
-            const destPortId: FieldId = $('#editEdgeModalDestPortIdSelect').val().toString() as FieldId;
-            const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
-            const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
-
-            const newEdge = new Edge(srcNodeId, srcPortId, destNodeId, destPortId, loopAware, closesLoop, false);
-
-            callback(true, newEdge);
+            $('#editEdgeModal').removeData(['callback', 'completed']);
         });
         $('#editEdgeModalSrcNodeIdSelect').on('change', function(){
             const edge: Edge = $('#editEdgeModal').data('edge');
@@ -494,6 +509,8 @@ export class Modals {
         $('#browseDockerHubModal').on('hidden.bs.modal', function(){
             const callback : (completed : boolean) => void = $('#browseDockerHubModal').data('callback');
             const completed : boolean = $('#browseDockerHubModal').data('completed');
+
+            // TODO: check no callback
 
             callback(completed);
         });
