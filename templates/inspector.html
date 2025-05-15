@@ -22,9 +22,9 @@
                                 <div class="col-6 col">
                                     <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">link</i>
                                     <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'Id: '+$data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
-                                    <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.editNodeDescription() data-bs-placement="right" data-bind="eagleTooltip: $data.getDescriptionHTML()" data-bs-toggle="tooltip" data-html="true">library_books</i>
+                                    <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getDescriptionHTML(), click: $root.editNodeDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
                                     <!-- ko if: $data.getAllErrorsWarnings().errors.length > 0 || $data.getAllErrorsWarnings().warnings.length > 0 -->
-                                        <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
+                                        <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showGraphErrors" data-bs-toggle="tooltip" data-html="true">error</i>
                                     <!-- /ko -->
                                 </div>
                                 <div class="col-6 col text-right">
@@ -114,7 +114,7 @@
                             <div class="row">
                                 <div class="col-4 col">
                                     <!-- ko if: $data.getErrorsWarnings().errors.length > 0 || $data.getErrorsWarnings().warnings.length > 0 -->
-                                        <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
+                                        <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showGraphErrors" data-bs-toggle="tooltip" data-html="true">error</i>
                                     <!-- /ko -->
                                 </div>
                                 <div class="col-8 col text-right">
@@ -282,8 +282,8 @@
                                 <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().fullPath()" data-bs-toggle="tooltip" data-html="true">link</i>
 
                                 <i class="material-icons interactive clickable iconHoverEffect" data-bind="eagleTooltip: 'View Graph Model Data', click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">info</i>
-                                <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.editGraphShortDescription() data-bind="eagleTooltip: $root.logicalGraph().fileInfo().shortDescription" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
-                                <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.editGraphDetailedDescription() data-bind="eagleTooltip: $root.logicalGraph().fileInfo().detailedDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
+                                <i class="material-icons interactive clickable iconHoverEffect" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().shortDescription, click: $root.editGraphShortDescription" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
+                                <i class="material-icons interactive clickable iconHoverEffect" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().detailedDescription, click: $root.editGraphDetailedDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
                             </div>
                             <div class="col-6 col text-right">
                                 <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: 'View graph configurations table', click: GraphConfigurationsTable.openTable" data-bs-toggle="tooltip" data-html="true">dns</i>
