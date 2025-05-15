@@ -1974,7 +1974,7 @@ export class Eagle {
      * Performs a Git commit of a graph/palette.
      */
     commitToGit = async (fileType : Eagle.FileType) : Promise<void> => {
-        if (Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
             Utils.notifyUserOfEditingIssue(fileType, "Commit to Git");
             return;
         }
