@@ -1204,6 +1204,39 @@ export class Node {
         return 'This Node has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. \ Click to view the graph issues table.'
     }, this);
 
+    getInspectorFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
+        const activeConfig = Eagle.getInstance().logicalGraph().getActiveGraphConfig()
+
+        const importantFields : Field[] = [] //fields for a node we deem important eg. num copies for scatter nodes
+        const configFields : Field[] = [] 
+
+        this.getFields().forEach(function(field:Field){
+            // get important fields 
+            if(this.isGather()){
+                if(field.getDisplayText() === 'num_of_inputs' || field.getDisplayText() === 'gather_axis'){
+                    importantFields.push(field)
+                }
+            }else if (this.isScatter()){
+                if(field.getDisplayText() === 'num_of_copies'){
+                    importantFields.push(field)
+                }
+            }else if (this.isLoop()){
+                if(field.getDisplayText() === 'num_of_iter'){
+                    importantFields.push(field)
+                }
+            //check if the field is the func code field
+            }else if(field.getDisplayText() === 'func_code'){
+                importantFields.push(field)
+            }
+            //check if field is a graph config field
+            else if(activeConfig?.hasField(field)){
+                configFields.push(field)
+            }
+        })
+
+        return importantFields.concat(configFields)
+    }, this);
+
     // find the right icon for this node
     getIcon = () : string => {
         return CategoryData.getCategoryData(this.category()).icon;
