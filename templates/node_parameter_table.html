@@ -410,7 +410,7 @@
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().parameterType() -->
                                                 <td class='columnCell column_ParamType'>
                                                     <div class="checkboxWrapper">
-                                                        <select class="tableFieldParamTypeSelect" data-bind="options: Object.values(Daliuge.FieldType), value: parameterType, disabled: ParameterTable.getNodeLockedState($data)">
+                                                        <select class="tableFieldParamTypeSelect" data-bind="options: ParameterTable.getParameterTypeOptions($data), value: parameterType, disabled: ParameterTable.getParameterTypeLockedState($data)">
                                                             <!-- options are added dynamically -->
                                                         </select>
                                                     </div>
