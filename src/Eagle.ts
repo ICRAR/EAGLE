@@ -4480,9 +4480,11 @@ export class Eagle {
     }
 
     editNodeDescription = async (): Promise<void> => {
+        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+
         let nodeDescription: string;
         try {
-            nodeDescription = await Utils.requestUserMarkdown("Node Description", this.selectedNode().getDescription());
+            nodeDescription = await Utils.requestUserMarkdown("Node Description", this.selectedNode().getDescription(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
