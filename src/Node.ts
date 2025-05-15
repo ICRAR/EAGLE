@@ -2024,7 +2024,7 @@ export class Node {
             }
 
             if (hasInputEdge && hasPydataValue){
-                const message: string = node.category() + " node (" + node.getName() + ") has a connected input edge, and also contains data in its '" + Daliuge.FieldName.PYDATA + "' field. The two sources of data could cause a conflict. Note that a " + Daliuge.FieldName.PYDATA + " field is considered a source of data if its value is NOT 'None'.";
+                const message: string = node.category() + " node (" + node.getName() + ") has a connected input edge, and also contains data in its '" + Daliuge.FieldName.PYDATA + "' field. The two sources of data could cause a conflict. Note that a " + Daliuge.FieldName.PYDATA + " field is considered a source of data if its value is NOT '" + Daliuge.DEFAULT_PYDATA_VALUE + "'.";
                 const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
                 node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
