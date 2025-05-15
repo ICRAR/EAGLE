@@ -203,6 +203,7 @@ export class Modals {
                 }
             }
 
+            // remove data stored on the modal
             $('#choiceModal').removeData(['callback', 'completed', 'choices']);
         });
         $('#choiceModalString').on('keypress', function(e){
@@ -236,6 +237,8 @@ export class Modals {
             // TODO: check no callback
 
             callback(true);
+
+            // remove data stored on the modal
             $('#confirmModal').removeData('callback');
         });
         $('#confirmModalNegativeButton').on('click', function(){
@@ -243,6 +246,8 @@ export class Modals {
             // TODO: check no callback
 
             callback(false);
+
+            // remove data stored on the modal
             $('#confirmModal').removeData('callback');
         });
         $('#confirmModal').on('shown.bs.modal', function(){
@@ -339,7 +344,8 @@ export class Modals {
                 callback(true, repositoryService, repositoryName, repositoryBranch);
             }
 
-            // TODO: removeData
+            $('#gitCustomRepositoryModal').removeData(['callback', 'completed']);
+
         });
 
         // #settingsModal - showSettingsModal()
@@ -467,6 +473,7 @@ export class Modals {
         });
         $('#explorePalettesModal').on('hidden.bs.modal', function(){
             const completed : boolean = $('#explorePalettesModal').data('completed');
+            $('#explorePalettesModal').removeData(['completed']);
 
             // check if the modal was completed (user clicked OK), if not, return false
             if (!completed){
@@ -513,6 +520,9 @@ export class Modals {
             // TODO: check no callback
 
             callback(completed);
+
+            // remove data stored on the modal
+            $('#browseDockerHubModal').removeData(['callback', 'completed']);
         });
         $('#browseDockerHubModalString').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
