@@ -1055,7 +1055,7 @@ select.form-control{
     color: #ffc107;
 }
 
-#resetSettingsDefaults{
+#resetSettingsDefaults, #editInputMarkdownModalInput{
     left: 10px;
     position: absolute;
 }
