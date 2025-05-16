@@ -2597,6 +2597,18 @@ export class Eagle {
         }
     }
 
+    selectAllInPalette = (palette: Palette): void => {
+        // close the palette menu
+        this.closePaletteMenus();
+
+        this.selectedObjects([]);
+        for (const node of palette.getNodes()){
+            this.editSelection(node, Eagle.FileType.Palette);
+        }
+
+        Utils.showNotification("Select All", "All components in '" + palette.fileInfo().name + "' palette selected", "info", false);
+    }
+
     getParentNameAndId = (parentId: NodeId) : string => {
         if(parentId === null){
             return ""
