@@ -2580,6 +2580,26 @@ export class Utils {
         navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
     }
 
+    static copyInputCodeModalInput(): void {
+        const editor = $('#inputCodeModal').data('editor');
+        if (editor){
+            const content: string = editor.getValue();
+            navigator.clipboard.writeText(content);
+        } else {
+            console.error("No 'editor' data attribute found on modal");
+        }
+    }
+
+    static copyInputMarkdownModalInput(): void {
+        const editor = $('#inputMarkdownModal').data('editor');
+        if (editor){
+            const content: string = editor.getValue();
+            navigator.clipboard.writeText(content);
+        } else {
+            console.error("No 'editor' data attribute found on modal");
+        }
+    }
+
     static getReadOnlyText() : string {
         if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
             return "Read Only - Turn on 'Expert Mode' and 'Allow Component Editing' in the settings to unlock"
