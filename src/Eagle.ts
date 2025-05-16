@@ -4372,12 +4372,16 @@ export class Eagle {
                 // re-name node and port according to the port name of the Application node
                 if (srcNode.isApplication()){
                     const newName = srcPort.getDisplayText();
+                    const newDescription = srcPort.getDescription();
                     destNode.setName(newName);
                     destPort.setDisplayText(newName);
+                    destPort.setDescription(newDescription);
                 } else {
                     const newName = destPort.getDisplayText();
+                    const newDescription = destPort.getDescription();
                     srcNode.setName(newName);
                     srcPort.setDisplayText(newName);
+                    srcPort.setDescription(newDescription);
                 }
 
                 setTimeout(() => {
