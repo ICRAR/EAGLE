@@ -173,7 +173,11 @@ export class Modals {
 
         $('#inputMarkdownModal').on('shown.bs.modal', function(){
             const editor = $('#inputMarkdownModal').data('editor');
-            editor.refresh();
+            if (editor){
+                editor.refresh();
+            } else {
+                console.error("No 'editor' data attribute found on modal");
+            }
         });
 
         // #choiceModal - requestUserChoice()
