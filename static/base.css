@@ -445,6 +445,23 @@ color: #00bb00;}
     min-height: auto;
 }
 
+#inspector .inspectorContents .inspectorField .inspectorEditBtn{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #002e5f;
+    color: white;
+    display: none;
+    padding: 4px;
+    font-size: 12px;
+    border-radius: 50%;
+}
+
+#inspector .inspectorContents .inspectorField:hover .inspectorEditBtn{
+    display:inline-block
+}
+
 #inspector .inspectorContents h5{
     font-size: 16px;
     margin: 2px 0px 0px 0px;
