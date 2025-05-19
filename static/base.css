@@ -429,6 +429,22 @@ color: #00bb00;}
     font-size: 17px;
 }
 
+#inspector .inspectorContents .inspectorField {
+    padding:0px;
+}
+
+#inspector .inspectorContents .inspectorField span {
+    padding:1px 3px;
+    background: #e9ecef;
+    color: #2e3236;
+}
+
+#inspector .inspectorContents .inspectorField textarea {
+    resize: none;
+    padding:1px 3px;
+    min-height: auto;
+}
+
 #inspector .inspectorContents h5{
     font-size: 16px;
     margin: 2px 0px 0px 0px;

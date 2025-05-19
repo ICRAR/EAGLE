@@ -162,7 +162,7 @@
                                                 <!-- kept for now as we will need the space for the row drag handle -->
                                             </td>
                                             <!-- /ko -->
-                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->    
+                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
                                                 <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('displayText', $data) }, eagleTooltip:description">
                                                     <input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}}">
                                                     <!-- ko if: Eagle.selectedLocation() === Eagle.FileType.Graph -->
@@ -189,7 +189,7 @@
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().value()  -->
                                                 <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
 
-                                                    <!-- ko if: $data.getType() === 'Integer' -->    
+                                                    <!-- ko if: $data.getType() === 'Integer' -->
                                                         <td class='columnCell column_Value'>
                                                             <!-- ko if: $data.getGraphConfigField() -->
                                                                 <input class="tableParameter configValueInput" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="css: {selectedTableParameter: ParameterTable.isSelected('configValue', $data) }, eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}}">    
@@ -262,12 +262,12 @@
                                             <!-- default value fields -->
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().defaultValue() -->
                                                 <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
-                                                    <!-- ko if: $data.getType() === 'Integer' -->    
+                                                    <!-- ko if: $data.getType() === 'Integer' -->
                                                         <td class='columnCell column_DefaultValue' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('defaultValue', $data) }">
                                                             <input class="tableParameter" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}">
                                                         </td>
                                                     <!-- /ko -->
-                                                    <!-- ko ifnot: $data.getType() === 'Integer' -->    
+                                                    <!-- ko ifnot: $data.getType() === 'Integer' -->
                                                         <td class='columnCell column_DefaultValue' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('defaultValue', $data) }">
                                                             <textarea  style="resize: none;" class="tableParameter inputNoArrows" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}"></textarea>
                                                             <!-- ko if: !ParameterTable.getNodeLockedState($data) && $data.getDisplayText() === 'func_code' -->
@@ -288,7 +288,7 @@
                                                         <!-- ko ifnot: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
                                                             <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="disabled: ParameterTable.getNodeLockedState($data), event: {change: ParameterTable.fieldValueChanged}, options: $data.options, value: $data.defaultValue">
                                                                 <!-- options are added dynamically -->
-                                                            </select> 
+                                                            </select>
                                                         <!-- /ko -->
                                                         <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
                                                             <div class="dropdown parameterTableTypeCustomSelect">
@@ -299,7 +299,7 @@
                                                                             <input data-bind="value:$data, event: {change:function(data,event){$parent.editOption($index(),$(event.target).val())}}" type="text">
                                                                             <button class="typeSelectDelete" data-bind="clickBubble:false, click: function(){$parent.removeOption($index())}"><i class="material-icons md-24 iconHoverEffect">delete</i></button>
                                                                         </div>
-                                                                    <!-- /ko --> 
+                                                                    <!-- /ko -->
                                                                     <div class="dropdown-item add" data-bind="click:function(data,event){event.stopPropagation();addOption('')}">
                                                                         <i class="material-icons iconHoverEffect">add</i>
                                                                     </div>
@@ -325,7 +325,7 @@
                                                         <select data-bind="options: $root.types(), value: type, disabled: ParameterTable.getNodeLockedState($data)">
                                                             <!-- options are added dynamically -->
                                                         </select>
-                                                    <!-- /ko --> 
+                                                    <!-- /ko -->
                                                     <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
                                                         <div class="input-group">
                                                             <input  class="typesInput form-control" type="text" autocomplete="off" data-bind="value:type, attr:{id:'typeInputFor_'+$data.getId()}">

@@ -91,6 +91,12 @@
                                     <!-- /ko -->
                                 </div>  
                             </div>
+                            <div class="inspectorFields m-2 mb-1" data-bind="foreach: ParameterTable.getTableFields()">
+                                <div class="inspectorField input-group mb-1">
+                                    <span class="input-group-text" data-bind="text:$data.getDisplayText()"></span>
+                                    <textarea class="form-control" rows="1" data-bind="value:$data.value"></textarea>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 <!-- /ko -->
