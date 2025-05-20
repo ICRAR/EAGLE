@@ -439,16 +439,23 @@ color: #00bb00;}
     color: #2e3236;
 }
 
-#inspector .inspectorContents .inspectorField textarea{
+#inspector .inspectorContents .inspectorField textarea,#inspector .inspectorContents .inspectorField input{
     resize: none;
     padding:1px 3px;
     min-height: auto;
 }
 
-#inspector .inspectorContents .inspectorField input{
+#inspector .inspectorContents .inspectorField .checkboxWrapper {
     resize: none;
     padding:1px 3px;
     min-height: auto;
+}
+
+#inspector .inspectorContents .inspectorField .checkboxWrapper input {
+    position: absolute;
+    top: 50%;
+    left:50%;
+    transform: translate(-50%, -50%);
 }
 
 #inspector .inspectorContents .inspectorField .inspectorEditBtn{

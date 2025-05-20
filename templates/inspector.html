@@ -121,16 +121,12 @@
                                     <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
                                         <!-- ko if: $data.getGraphConfigField() -->
                                             <div class="checkboxWrapper configValueInput form-control" data-bind="eagleTooltip: 'Configured Value'">
-                                                <div>
                                                     <input tabindex='-1' data-bind="checked: valIsTrue($data.getGraphConfigField().value()), disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$data.getGraphConfigField().toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
-                                                </div>
                                             </div>
                                         <!-- /ko -->
                                         <!-- ko ifnot: $data.getGraphConfigField() -->
                                             <div class="checkboxWrapper form-control" data-bind="eagleTooltip: 'Graph Value'">
-                                                <div>
                                                     <input tabindex='-1' data-bind="checked: valIsTrue($data.value()), disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$data.toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
-                                                </div>
                                             </div>
                                         <!-- /ko -->
                                     <!-- /ko -->
