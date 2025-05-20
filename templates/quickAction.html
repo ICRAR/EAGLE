@@ -3,8 +3,8 @@
         <div id="quickActionInput">
             <input type="text" autocomplete="off" id="quickActionSearchbar" placeholder="Command Search... (e.g. 'save', or 'edge')" data-bind="value: QuickActions.searchTerm, valueUpdate: 'keyup'">
         </div>
-        <div id="quickActionResults">
-            <div data-bind="foreach: QuickActions.findQuickActionResults">
+        <div id="quickActionResults" data-bind="visible: QuickActions.results().length > 0">
+            <div data-bind="foreach: QuickActions.results">
                 <a data-bind="click:function(){QuickActions.executeQuickAction($data)}">
                     <i data-bind="class:$data.icon"></i>
                     <span class="quickActionName" data-bind="text: $data.text"></span>

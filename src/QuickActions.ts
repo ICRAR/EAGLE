@@ -42,7 +42,7 @@ export class QuickActions {
         },50)
     }
 
-    static findQuickActionResults : ko.PureComputed<KeyboardShortcut[]> = ko.pureComputed(() => {
+    static results : ko.PureComputed<KeyboardShortcut[]> = ko.pureComputed(() => {
         const searchTerm: string = QuickActions.searchTerm().toLocaleLowerCase();
         const resultsList: KeyboardShortcut[] = [];
 
@@ -77,15 +77,8 @@ export class QuickActions {
             resultsList.push(...wordResults, ...tagResults, ...startResults,...tagStartResults)
         }
 
-        //when the search result list changes we reset the selected result
+        // when the search result list changes we reset the selected result
         $('#quickActionsFocus').removeClass('quickActionsFocus')
-
-        //hide the result div if there is nothing to show
-        if(resultsList.length === 0){
-            $('#quickActionResults').hide()
-        }else{
-            $('#quickActionResults').show()
-        }
 
         return resultsList
     }, this);
