@@ -512,6 +512,18 @@ export class Utils {
         });
     }
 
+    static notifyUserOfEditingIssue(fileType: Eagle.FileType, action: string){
+        const uiMode = UiModeSystem.getActiveUiMode().getName();
+        let message: string;
+
+        if (fileType === Eagle.FileType.Unknown){
+            message = "Action is not permitted in the current UI mode (" + uiMode + ")";
+        } else {
+            message = fileType + " editing is not permitted in the current UI mode (" + uiMode + ")";
+        }
+        Utils.showNotification(action, message, "warning");
+    }
+
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
@@ -560,45 +572,36 @@ export class Utils {
     }
 
     // uses: https://github.com/paul-norman/codemirror6-prebuilt
-    static requestUserCode(language: "json"|"markdown"|"python"|"text", title: string, defaultText: string): Promise<string> {
+    static requestUserCode(language: "json"|"markdown"|"python"|"text", title: string, defaultText: string, readonly: boolean = false): Promise<string> {
         return new Promise(async(resolve, reject) => {
             // set title
             $('#inputCodeModalTitle').text(title);
 
-            // get the codemirror view (stored on modal html element)
-            const view = $('#inputTextModal').data('view');
-            //console.log("view", view);
-            //console.log("state", view.state);
-            //console.log("view.setState", view.setState);
-
             // get language configuration
-            let config;
+            let mode;
             switch(language){
                 case "json":
-                    //config = json()
+                    mode = "javascript";
                     break;
                 case "markdown":
-                    //config = markdown()
+                    mode = "markdown";
                     break;
                 case "python":
-                    //config = python()
+                    mode = "python"
                     break;
                 case "text":
-                    //config = text()
+                    mode = "null"
                     break;
                 default:
                     console.warn("requestUserCode(): Unsupported language:", language);
-                    //config = text()
+                    mode = "null"
                     break;
             }
 
-            let languageConf: any;
-
-            // set defaultText (replace all current text)
-            view.dispatch({
-                changes: {from: 0, to: view.state.doc.length, insert: defaultText},
-                //effects: languageConf.reconfigure(config)
-            });
+            const editor = $('#inputCodeModal').data('editor');
+            editor.setOption('readOnly', readonly);
+            editor.setOption('mode', mode);
+            editor.setOption('value', defaultText);
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
@@ -1840,19 +1843,19 @@ export class Utils {
         });
     }
 
+    // TODO: could we return a list of KeyboardShortcut here?
     static getShortcutDisplay() : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void}[] {
         const displayShortcuts : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void} []=[];
-        const eagle: Eagle = Eagle.getInstance();
 
-        for (const object of Eagle.shortcuts){
-            // skip if shortcut should not be displayed
-            if (!object.shortcutListDisplay(eagle)){
+        for (const object of KeyboardShortcut.shortcuts){
+            // skip if shortcut has no keys
+            if (object.keys.length === 0){
                 continue;
             }
 
-            const shortcut: string = KeyboardShortcut.idToText(object.id, false);
+            const shortcut: string = KeyboardShortcut.idToKeysText(object.id, false);
             displayShortcuts.push({
-                description: object.name,
+                description: object.text,
                 shortcut: shortcut,
                 function: object.run
             });
@@ -2742,16 +2745,18 @@ export class Utils {
         }
     }
 
-    static transformNodeFromTemplates(node: Node, sourceTemplate: Node, destinationTemplate: Node): void {
-        // delete non-ports from the node (loop backwards since we are deleting from the array as we loop)
-        for (let i = node.getFields().length - 1 ; i >= 0; i--){
-            const field: Field = node.getFields()[i];
+    static transformNodeFromTemplates(node: Node, sourceTemplate: Node, destinationTemplate: Node, keepOldFields: boolean = false): void {
+        if (!keepOldFields){
+            // delete non-ports from the node (loop backwards since we are deleting from the array as we loop)
+            for (let i = node.getFields().length - 1 ; i >= 0; i--){
+                const field: Field = node.getFields()[i];
 
-            if (field.isInputPort() || field.isOutputPort()){
-                continue;
+                if (field.isInputPort() || field.isOutputPort()){
+                    continue;
+                }
+
+                node.removeFieldById(field.getId());
             }
-
-            node.removeFieldById(field.getId());
         }
 
         // copy non-ports from new template to node

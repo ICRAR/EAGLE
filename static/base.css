@@ -6,12 +6,10 @@ html {
 body {
     /* prevent window from ever scrolling the whole page */
     overflow: hidden; 
-    height:100%
+    height:100%;
     /* zoom: 75%; */
-}
 
-* {
-    font-family: Ubuntu Sans;
+    font-family: 'Ubuntu Sans', sans-serif;
     font-style: normal;
     font-weight:400;
 }
@@ -582,6 +580,7 @@ color: #00bb00;}
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(1.5);
+    pointer-events: all;
 }
 
 #eagleIconAnimation .path{
@@ -622,12 +621,12 @@ color: #00bb00;}
     height: 100%;
 }
 
-.rightWindow .btn-primary, .leftWindow .btn-primary {
+.rightWindow .btn-primary, .leftWindow .btn-primary, #bottomWindow .tableAddNewConfigBtn{
     background-color: #0059a5;
     border-color: #0059a5;
 }
 
-.rightWindow .btn-primary:hover, .leftWindow .btn-primary:hover {
+.rightWindow .btn-primary:hover, .leftWindow .btn-primary:hover, #bottomWindow .tableAddNewConfigBtn:hover {
     background-color: #002f57;
     border-color: #002f57;
 }
@@ -1099,6 +1098,10 @@ select.form-control{
     position: absolute;
     overflow: auto;
     width: 100%;
+}
+
+#inputCodeModal .modal-body, #inputCodeModal .container{
+    padding:0px;
 }
 
 #explorePalettesModal .modal-body{
@@ -2287,10 +2290,6 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
     margin-bottom: 10px;
 }
 
-.tooltip-inner em {
-    font-style:italic;
-}
-
 .tooltip-inner{
     transition: 0s visibility;
     visibility: visible;
@@ -2853,8 +2852,6 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
     transition: ease-in-out 250ms !important; /*this requires an important tag to over ride existing transition effects for a few moments */
 }
 
-/* codemirror: Stretch editor to fit inside its containing div */
-.cm-editor {
+.CodeMirror {
     height: 100%;
-    width: 100%;
 }

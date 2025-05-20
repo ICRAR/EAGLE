@@ -39,7 +39,7 @@ export class CategoryData {
         Data                 : {categoryType: Category.Type.Data, isGroup: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-hard_drive", color: Category.Color.Data, sortOrder: Category.SortOrder.Data},
 
         Plasma               : {categoryType: Category.Type.Service, isGroup: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-plasma", color: Category.Color.Service, sortOrder: Category.SortOrder.Service},
-        PlasmaFlight         : {categoryType: Category.Type.Service, isGroup: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-plasmaflight", color: Category.Color.Service, sortOrder: Category.SortOrder.Service},
+        PlasmaFlight         : {categoryType: Category.Type.Service, isGroup: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-plasma_flight", color: Category.Color.Service, sortOrder: Category.SortOrder.Service},
         RDBMS                : {categoryType: Category.Type.Service, isGroup: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-database", color: Category.Color.Service, sortOrder: Category.SortOrder.Service},
         Service              : {categoryType: Category.Type.Service, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-database", color: Category.Color.Service, sortOrder: Category.SortOrder.Service},
 
@@ -74,4 +74,11 @@ export class CategoryData {
 
         return c;
     }
+}
+
+export namespace CategoryData {
+    export const INTERMEDIATE_DATA_NODES: Category[] = (Object.keys(Category) as Category[]).filter((category: Category) => {
+        const cData = CategoryData.getCategoryData(category);
+        return cData.categoryType === Category.Type.Data && cData.maxInputs >= 1 && cData.maxOutputs >= 1;
+    });
 }

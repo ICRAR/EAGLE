@@ -13,7 +13,6 @@ import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
 import { GraphConfig, GraphConfigField } from "./GraphConfig";
 import { SideWindow } from "./SideWindow";
-import { param } from "jquery";
 
 export class ParameterTable {
     static selectionParent : ko.Observable<Field | null>; // row in the parameter table that is currently selected
@@ -282,11 +281,7 @@ export class ParameterTable {
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             return !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
         }else{
-            if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)||Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
-                return false
-            }else{
-                return true
-            }
+            return !Setting.findValue(Setting.ALLOW_GRAPH_EDITING) && !Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
         }
     }
 
@@ -515,7 +510,7 @@ export class ParameterTable {
 
         let fieldValue: string;
         try {
-            fieldValue = await Utils.requestUserCode("python","Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue);
+            fieldValue = await Utils.requestUserCode("python","Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue, false);
         } catch (error) {
             console.error(error);
             return;
@@ -611,6 +606,13 @@ export class ParameterTable {
     }
 
     static toggleTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
+        // if user in student mode, abort
+        const inStudentMode: boolean = Setting.findValue(Setting.STUDENT_SETTINGS_MODE);
+        if (inStudentMode && mode === Eagle.BottomWindowMode.NodeParameterTable){
+            Utils.showNotification("Student Mode", "Unable to open Parameter Table in student mode", "danger", false);
+            return;
+        }
+
         //if we are already in the requested mode, we can toggle the bottom window
         if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === mode){
             SideWindow.toggleShown('bottom')
@@ -827,6 +829,25 @@ export class ParameterTable {
             ParameterTable.copyFields(node.getFields());
             ParameterTable.sortFields();
         }
+    }
+
+    static getParameterTypeOptions = (field:Field) : string[] => {
+        const parameterTypeList : string[] = []
+        const fieldParamType = field.getParameterType()
+
+        if(fieldParamType === Daliuge.FieldType.Construct){
+            parameterTypeList.push(Daliuge.FieldType.Construct)
+        }else if(fieldParamType === Daliuge.FieldType.Constraint){
+            parameterTypeList.push(Daliuge.FieldType.Constraint)
+        }else{
+            parameterTypeList.push(Daliuge.FieldType.Application,Daliuge.FieldType.Component)
+        }
+
+        return parameterTypeList
+    }
+
+    static getParameterTypeLockedState = (field:Field) : boolean => {
+        return this.getNodeLockedState(field) || this.getParameterTypeOptions(field).length < 2;
     }
 }
 

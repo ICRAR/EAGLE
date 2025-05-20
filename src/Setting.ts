@@ -1,5 +1,7 @@
 import * as ko from "knockout";
 
+import { Category } from "./Category";
+import { CategoryData } from "./CategoryData";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { Palette } from "./Palette";
@@ -330,6 +332,7 @@ export class Setting {
     static readonly STUDENT_SETTINGS_MODE : string = "StudentSettingsMode"
     static readonly VALUE_EDITING_PERMS : string = "ValueEditingPerms"
     static readonly AUTO_COMPLETE_EDGES_LEVEL : string = "AutoCompleteEdgesLevel"
+    static readonly DEFAULT_DATA_NODE : string = "DefaultDataNode";
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
     static readonly TRANSLATOR_ALGORITHM_DEFAULT : string = "TranslatorAlgorithmDefault";
@@ -360,6 +363,7 @@ export class Setting {
     static readonly ALLOW_MODIFIED_GRAPH_TRANSLATION: string = "AllowModifiedGraphTranslation";
     static readonly APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION: string = "ApplyActiveGraphConfigBeforeTranslation";
     static readonly FETCH_REPOSITORY_FOR_URLS: string = "FetchRepositoryForUrls";
+    static readonly KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE: string = "KeepOldFieldsDuringCategoryChange";
 }
 
 export namespace Setting {
@@ -449,6 +453,7 @@ const settings : SettingsGroup[] = [
             new Setting(false, "STUDENT_SETTINGS_MODE", Setting.STUDENT_SETTINGS_MODE, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
             new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, Setting.Type.Select, Setting.ValueEditingPermission.ConfigOnly,Setting.ValueEditingPermission.Normal,Setting.ValueEditingPermission.Normal,Setting.ValueEditingPermission.ReadOnly,Setting.ValueEditingPermission.ReadOnly, Object.values(Setting.ValueEditingPermission)),
             new Setting(true, "Auto-complete edges level", Setting.AUTO_COMPLETE_EDGES_LEVEL, "Specifies the minimum validity level of auto-complete edges displayed when dragging a new edge", false, Setting.Type.Select, Errors.Validity.Valid, Errors.Validity.Valid, Errors.Validity.Warning, Errors.Validity.Warning, Errors.Validity.Error, [Errors.Validity.Error, Errors.Validity.Warning, Errors.Validity.Valid]),
+            new Setting(true, "Default Data Node", Setting.DEFAULT_DATA_NODE, "Default category of Data node that is automatically created when the user creates a edge between two Application nodes", false, Setting.Type.Select, Category.Memory, Category.Memory, Category.Memory, Category.Memory, Category.Memory, CategoryData.INTERMEDIATE_DATA_NODES)
         ]
     ),
     new SettingsGroup(
@@ -480,6 +485,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Allow modified graph translation", Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, "Allow users to submit graphs for translation even when not saved or committed", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Apply active graph config before translation", Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION, "Apply the active graph config to the graph before sending the graph for translation", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Fetch repository for URLs", Setting.FETCH_REPOSITORY_FOR_URLS, "Automatically fetch the contents of the object's repository when a graph/palette is specified in the URL", true, Setting.Type.Boolean, false, false ,false, false, false),
+            new Setting(true, "Keep Old Fields during Category Change", Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, "When changing the category of an existing node, several fields may become useless and would normally be deleted. Enabling this setting will keep those fields.", false, Setting.Type.Boolean, false, false, false, false, false)
         ]
     )
 ];

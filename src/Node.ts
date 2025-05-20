@@ -656,6 +656,16 @@ export class Node {
         return false;
     }
 
+    hasFunc_code = () : boolean => {
+        for(const field of this.getFields()){
+            if(field.getDisplayText() === 'func_code'){
+                return true
+            }
+        }
+
+        return false
+    }
+
     fitsSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if(Eagle.paletteComponentSearchString() === ""){
             return true
@@ -1179,19 +1189,11 @@ export class Node {
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
-        const eagle = Eagle.getInstance()
 
         if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
             return EagleConfig.getColor('errorBackground');
         }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
             return EagleConfig.getColor('warningBackground');
-        }else if(this.isBranch()){
-            //for some reason branch nodes don't want to behave like other nodes, i need to return their background or selected color manually
-            if(eagle.objectIsSelectedById(this.id())){
-                return EagleConfig.getColor('selectBackground')
-            }else{
-                return EagleConfig.getColor('nodeBackground');
-            }
         }else{
             return '' //returning nothing lets the means we are not over writing the default css behaviour
         }
@@ -2012,7 +2014,8 @@ export class Node {
 
         // check that Memory and SharedMemory nodes have at least one input OR have a pydata field with a non-"None" value
         if (node.category() === Category.Memory || node.category() === Category.SharedMemory){
-            const hasPydataValue: boolean = node.getFieldByDisplayText(Daliuge.FieldName.PYDATA)?.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
+            const pydataField: Field = node.getFieldByDisplayText(Daliuge.FieldName.PYDATA);
+            const hasPydataValue: boolean = pydataField !== null && pydataField.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
 
             if (!hasInputEdge && !hasPydataValue){
                 const message: string = node.category() + " node (" + node.getName() + ") has no connected input edges, and no data in its '" + Daliuge.FieldName.PYDATA + "' field. The node will not contain data.";
@@ -2021,7 +2024,7 @@ export class Node {
             }
 
             if (hasInputEdge && hasPydataValue){
-                const message: string = node.category() + " node (" + node.getName() + ") has a connected input edge, and also contains data in its '" + Daliuge.FieldName.PYDATA + "' field. The two sources of data could cause a conflict.";
+                const message: string = node.category() + " node (" + node.getName() + ") has a connected input edge, and also contains data in its '" + Daliuge.FieldName.PYDATA + "' field. The two sources of data could cause a conflict. Note that a " + Daliuge.FieldName.PYDATA + " field is considered a source of data if its value is NOT '" + Daliuge.DEFAULT_PYDATA_VALUE + "'.";
                 const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
                 node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
