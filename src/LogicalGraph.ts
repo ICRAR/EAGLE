@@ -163,15 +163,6 @@ export class LogicalGraph {
         return result;
     }
 
-    static _determineNodeParentId(nodeData: any){
-        if (typeof nodeData.parentId !== 'undefined'){
-            return nodeData.parentId;
-        }
-        if (typeof nodeData.group !== 'undefined'){
-            return nodeData.group;
-        }
-    }
-
     static fromOJSJson(dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
@@ -196,7 +187,7 @@ export class LogicalGraph {
         // make sure to set parent for all nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             const nodeData = dataObject.nodeDataArray[i];
-            const parentId = this._determineNodeParentId(nodeData);
+            const parentId = Node.determineNodeParentId(nodeData);
 
             // if parentId cannot be found, skip this node
             if (typeof parentId === 'undefined'){

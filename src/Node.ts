@@ -1500,8 +1500,9 @@ export class Node {
         }
 
         // set parentId if a parentId is defined
-        if (typeof nodeData.parentId !== 'undefined'){
-            node.parentId(nodeData.parentId);
+        const parentId = Node.determineNodeParentId(nodeData);
+        if (typeof parentId !== 'undefined'){
+            node.parentId(parentId);
         }
 
         // set embedId if defined
@@ -2099,6 +2100,16 @@ export class Node {
                     }
                 }
             }
+        }
+    }
+
+    // helper function used when loading graphs from JSON
+    static determineNodeParentId(nodeData: any){
+        if (typeof nodeData.parentId !== 'undefined'){
+            return nodeData.parentId;
+        }
+        if (typeof nodeData.group !== 'undefined'){
+            return nodeData.group;
         }
     }
 
