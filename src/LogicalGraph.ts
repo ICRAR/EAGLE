@@ -194,11 +194,19 @@ export class LogicalGraph {
                 continue;
             }
 
+            // find index of parent node, based on the id we found
             const parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithId(dataObject.nodeDataArray, parentId);
-            if (parentIndex !== -1){
-                const parentNode: Node = result.nodes()[parentIndex];
-                result.nodes()[i].setParentId(parentNode.getId());
+
+            // if parentIndex === -1 (we couldn't find the parent, then warn)
+            if (parentIndex === -1){
+                const error : string = "Node " + i + " has a parent id (" + parentId + ") but that node is not found elsewhere in the graph.";
+                errorsWarnings.warnings.push(Errors.Message(error));
+                continue;
             }
+
+            // use parentIndex to find parentNode, and update parent
+            const parentNode: Node = result.nodes()[parentIndex];
+            result.nodes()[i].setParentId(parentNode.getId());
         }
 
         // add edges
