@@ -1314,7 +1314,9 @@ export class Node {
     static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
         let id: NodeId = null;
 
-        if (typeof nodeData.id !== 'undefined'){
+        if (typeof nodeData.oid !== 'undefined'){
+            id = nodeData.oid;
+        } else if (typeof nodeData.id !== 'undefined'){
             id = nodeData.id;
         } else {
             id = Utils.generateNodeId();
