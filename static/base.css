@@ -439,7 +439,13 @@ color: #00bb00;}
     color: #2e3236;
 }
 
-#inspector .inspectorContents .inspectorField textarea {
+#inspector .inspectorContents .inspectorField textarea{
+    resize: none;
+    padding:1px 3px;
+    min-height: auto;
+}
+
+#inspector .inspectorContents .inspectorField input{
     resize: none;
     padding:1px 3px;
     min-height: auto;

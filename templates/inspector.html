@@ -108,10 +108,10 @@
                                         <!-- string value -->
                                         <!-- ko ifnot: $data.getType() === 'Integer' -->
                                             <!-- ko if: $data.getGraphConfigField() -->
-                                                <textarea class="form-control configValueInput" data-bind="eagleTooltip: 'Configured Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged}"></textarea>
+                                                <textarea class="form-control configValueInput" rows="1" data-bind="eagleTooltip: 'Configured Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged}"></textarea>
                                             <!-- /ko -->
                                             <!-- ko ifnot: $data.getGraphConfigField() -->
-                                                <textarea class="form-control" data-bind="eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged}"></textarea>
+                                                <textarea class="form-control" rows="1" data-bind="eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged}"></textarea>
                                             <!-- /ko -->
                                             
                                             <button class="inspectorEditBtn icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueCode($data, false)}"></button>
