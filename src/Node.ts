@@ -1209,23 +1209,23 @@ export class Node {
 
         const importantFields : Field[] = [] //fields for a node we deem important eg. num copies for scatter nodes
         const configFields : Field[] = [] 
+        const selectedNode = this
 
-        this.getFields().forEach(function(field:Field){
+        selectedNode.getFields().forEach(function(field:Field){
             // get important fields 
-            if(this.isGather()){
-                if(field.getDisplayText() === 'num_of_inputs' || field.getDisplayText() === 'gather_axis'){
+            if(selectedNode.isGather()){
+                if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_INPUTS || field.getDisplayText() === Daliuge.FieldName.GATHER_AXIS){
                     importantFields.push(field)
                 }
-            }else if (this.isScatter()){
-                if(field.getDisplayText() === 'num_of_copies'){
+            }else if (selectedNode.isScatter()){
+                if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_COPIES){
                     importantFields.push(field)
                 }
-            }else if (this.isLoop()){
-                if(field.getDisplayText() === 'num_of_iter'){
+            }else if (selectedNode.isLoop()){
+                if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_ITERATIONS){
                     importantFields.push(field)
                 }
-            //check if the field is the func code field
-            }else if(field.getDisplayText() === 'func_code'){
+            }else if(field.getDisplayText() === Daliuge.FieldName.FUNC_CODE){
                 importantFields.push(field)
             }
             //check if field is a graph config field

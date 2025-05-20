@@ -55,6 +55,7 @@ export namespace Daliuge {
         NUM_OF_COPIES = "num_of_copies",
         NUM_OF_CPUS = "num_cpus",
         NUM_OF_INPUTS = "num_of_inputs",
+        GATHER_AXIS = "gather_axis",
         NUM_OF_ITERATIONS = "num_of_iter",
         NUM_OF_TRIES = "n_tries",
     
