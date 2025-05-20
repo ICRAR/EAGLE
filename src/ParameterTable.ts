@@ -334,6 +334,8 @@ export class ParameterTable {
             }
             case Eagle.FileType.Graph:
                 eagle.logicalGraph().fileInfo().modified = true;
+
+                eagle.checkGraph();
                 break;
         }
     }
