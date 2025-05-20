@@ -1635,11 +1635,6 @@ export class Eagle {
     }
 
     saveGraph = async () : Promise<void> => {
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Save Graph");
-            return;
-        }
-
         return new Promise(async(resolve, reject) => {
             const eagle: Eagle = Eagle.getInstance();
 
@@ -1676,10 +1671,6 @@ export class Eagle {
     }
 
     saveGraphAs = async () : Promise<void> => {
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Save Graph As");
-            return;
-        }
         return new Promise(async(resolve, reject) => {
             const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
 
@@ -1715,12 +1706,6 @@ export class Eagle {
      * Saves the file to a local download folder.
      */
     saveFileToLocal = async (fileType : Eagle.FileType) : Promise<void> => {
-        // check that graph editing is permitted
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(fileType, "Save " + fileType);
-            return;
-        }
-
         return new Promise(async(resolve, reject) => {
             switch (fileType){
                 case Eagle.FileType.Graph:
@@ -1763,12 +1748,6 @@ export class Eagle {
     }
 
     saveAsFileToLocal = async (fileType: Eagle.FileType): Promise<void> => {
-        // check that graph editing is permitted
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(fileType, "Save " + fileType + " As");
-            return;
-        }
-
         return new Promise(async(resolve, reject) => {
             switch (fileType){
                 case Eagle.FileType.Graph:
@@ -1891,11 +1870,6 @@ export class Eagle {
      * Performs a Git commit of a graph/palette. Asks user for a file name before saving.
      */
     commitToGitAs = async (fileType : Eagle.FileType) : Promise<void> => {
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(fileType, "Commit to Git As");
-            return;
-        }
-
         return new Promise(async(resolve, reject) => {
             let fileInfo : ko.Observable<FileInfo>;
             let obj : LogicalGraph | Palette;
@@ -1974,11 +1948,6 @@ export class Eagle {
      * Performs a Git commit of a graph/palette.
      */
     commitToGit = async (fileType : Eagle.FileType) : Promise<void> => {
-        if (Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(fileType, "Commit to Git");
-            return;
-        }
-
         return new Promise(async(resolve, reject) => {
             let fileInfo : ko.Observable<FileInfo>;
             let obj : LogicalGraph | Palette;
