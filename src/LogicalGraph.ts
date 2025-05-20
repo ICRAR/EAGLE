@@ -190,7 +190,7 @@ export class LogicalGraph {
             const parentId = Node.determineNodeParentId(nodeData);
 
             // if parentId cannot be found, skip this node
-            if (typeof parentId === 'undefined'){
+            if (parentId === null){
                 continue;
             }
 
