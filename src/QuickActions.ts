@@ -1,12 +1,12 @@
+import * as ko from "knockout";
+
 import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
 
-// TODO: name and type are confusing here
-let wordResults:     QuickActionsResult[] = []
-let tagResults:      QuickActionsResult[] = []
-let startResults:    QuickActionsResult[] = []
-let tagStartResults: QuickActionsResult[] = []
-let anyResults:      QuickActionsResult[] = []
+let wordResults:     KeyboardShortcut[] = []
+let tagResults:      KeyboardShortcut[] = []
+let startResults:    KeyboardShortcut[] = []
+let tagStartResults: KeyboardShortcut[] = []
 
 enum Priority {
     Word = "wordMatch",
@@ -18,26 +18,17 @@ enum Priority {
     Unknown = "unknown"
 }
 
-type QuickActionsMatch = {
-    result: QuickActionsResult,
-    priority: Priority
-}
-
-type QuickActionsResult = {
-    shortcut: KeyboardShortcut,
-    keysText: string
-}
-
 export class QuickActions {
 
+    static searchTerm: ko.Observable<string> = ko.observable('');
+    static open: ko.Observable<boolean> = ko.observable(false);
+
     static initiateQuickAction() : void {
-        //function to both start and close the quick action menu
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.quickActionOpen(!eagle.quickActionOpen())
-        $('#quickActionSearchbar').val('')
+        QuickActions.open(true);
+        QuickActions.searchTerm('');
 
         setTimeout(function(){
-            if(eagle.quickActionOpen()){
+            if(QuickActions.open()){
                 $('#quickActionContainer').show()
                 $('#quickActionBackground').show()
                 $('#quickActionSearchbar').trigger("focus")
@@ -51,40 +42,39 @@ export class QuickActions {
         },50)
     }
 
-    static findQuickActionResults() : QuickActionsResult[] {
-        const eagle: Eagle = Eagle.getInstance();
-        const searchTerm :string = eagle.quickActionSearchTerm().toLocaleLowerCase()
-        const resultsList: QuickActionsResult[] = []
+    static findQuickActionResults : ko.PureComputed<KeyboardShortcut[]> = ko.pureComputed(() => {
+        const searchTerm: string = QuickActions.searchTerm().toLocaleLowerCase();
+        const resultsList: KeyboardShortcut[] = [];
 
         wordResults = []
         tagResults = []
         startResults = []
         tagStartResults = []
-        anyResults = []
 
         if(searchTerm != ''){
+            const searchTerms = searchTerm.split(' ');
 
             // processing the keyboard shortcuts array
             KeyboardShortcut.shortcuts.forEach(function(shortcut:KeyboardShortcut){
-                const match: QuickActionsMatch = QuickActions.matchAndSortFunction(shortcut, searchTerm);
-                if(match !== null){
+                const priority: Priority = QuickActions.checkMatch(shortcut, searchTerms);
+                if(priority !== null){
                     //pushing the results in order of priority
-                    QuickActions.pushResultUsingPriority(match)
+                    QuickActions.pushResultUsingPriority(priority, shortcut);
                 }
             })
 
             // processing the quick start array
             KeyboardShortcut.quickActions.forEach(function(shortcut:KeyboardShortcut){
-                const match: QuickActionsMatch = QuickActions.matchAndSortFunction(shortcut, searchTerm);
-                if(match !== null){
+                const priority: Priority = QuickActions.checkMatch(shortcut, searchTerms);
+                if(priority !== null){
                     //pushing the results in order of priority
-                    QuickActions.pushResultUsingPriority(match)
+                    QuickActions.pushResultUsingPriority(priority, shortcut);
                 }
             })
 
             //adding the contents of each of the priority arrays into the results array, in order of priority
             //the ... means we are appending only the array's entries not the array itself
-            resultsList.push(...wordResults, ...tagResults, ...startResults,...tagStartResults, ...anyResults)
+            resultsList.push(...wordResults, ...tagResults, ...startResults,...tagStartResults)
         }
 
         //when the search result list changes we reset the selected result
@@ -98,119 +88,55 @@ export class QuickActions {
         }
 
         return resultsList
-    }
+    }, this);
 
-    static pushResultUsingPriority(match: QuickActionsMatch) : void {
-        if(match.priority === Priority.Word){
-            wordResults.push(match.result)
-        }else if(match.priority === Priority.Tag){
-            tagResults.push(match.result)
-        }else if(match.priority === Priority.Start){
-            startResults.push(match.result)
-        }else if(match.priority === Priority.TagStart){
-            tagStartResults.push(match.result)
-        }else{
-            // anyResults.push(result.funcObject)
+    static pushResultUsingPriority(priority: Priority, shortcut: KeyboardShortcut) : void {
+        if(priority === Priority.Word){
+            wordResults.push(shortcut)
+        }else if(priority === Priority.Tag){
+            tagResults.push(shortcut)
+        }else if(priority === Priority.Start){
+            startResults.push(shortcut)
+        }else if(priority === Priority.TagStart){
+            tagStartResults.push(shortcut)
         }
     }
 
-    // TODO: this function prioritises matches post-search. Better to just search in priority order and return immediately if found?
-    static matchAndSortFunction(shortcut: KeyboardShortcut, searchTerm: string): QuickActionsMatch | null {
-        let result: QuickActionsResult;
-        let priority: Priority = Priority.Unknown;
+    static checkMatch(shortcut: KeyboardShortcut, searchTerms: string[]): Priority | null {
+        const shortcutWords: string[] = shortcut.text.split(' ');
 
-        //checks if there is a match
-        let match = false
-
-        if(shortcut.text.toLocaleLowerCase().includes(searchTerm)){
-            match = true
-        }
-        
-        shortcut.tags.forEach(function(tag){
-            if(tag.toLocaleLowerCase().includes(searchTerm)){
-                match = true
-            }
-        })
-
-        //booleans used for prioritising search results
-        let wordMatched: boolean = false
-        let tagMatched: boolean = false
-        let startMatched: boolean = false
-        let tagStartMatched: boolean = false
-
-        //generating the result
-        if(match){
-            result = {
-                shortcut: shortcut,
-                keysText: shortcut.getKeysText(true)
-            };
-     
-            // adding priority to each search result, this affects the order in which the result appear
-            const searchableArr = shortcut.text.split(' ');
-            const searchTermArr = searchTerm.split(' ')
-
-            for(const searchWord of searchTermArr){
-                if(wordMatched){
-                    break
-                }
-
-                //checking priority for function name matches                            
-                for(const searchableWord of searchableArr){
-                    if(searchableWord.toLocaleLowerCase() === searchWord.toLocaleLowerCase()){
-                        wordMatched = true
-                        break
-                    }else if(searchableWord.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
-                        startMatched = true
-                        break
-                    }
-                }
-
-                //checking priority for function tags
-                if(!wordMatched){
-                    for(const tag of shortcut.tags){
-                        if(searchWord.toLocaleLowerCase() === tag.toLocaleLowerCase()){
-                            tagMatched = true
-                            break
-                        }else if(tag.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
-                            tagStartMatched = true
-                            break
-                        }
-                    }
+        for (const searchTerm of searchTerms){
+            
+            // check for match against words in shortcut
+            for(const shortcutWord of shortcutWords){
+                if(shortcutWord.toLocaleLowerCase() === searchTerm.toLocaleLowerCase()){
+                    return Priority.Word;
+                }else if(shortcutWord.toLocaleLowerCase().startsWith(searchTerm.toLocaleLowerCase())){
+                    return Priority.Start;
                 }
             }
-            if(wordMatched){
-                priority = Priority.Word
-            }else if(tagMatched){
-                priority = Priority.Tag
-            }else if(startMatched){
-                priority = Priority.Start
-            }else if(tagStartMatched){
-                priority = Priority.TagStart
-            }else{
-                priority = Priority.Any
+
+            // check for match against shortcut tags
+            for(const tag of shortcut.tags){
+                if(searchTerm.toLocaleLowerCase() === tag.toLocaleLowerCase()){
+                    return Priority.Tag;
+                }else if(tag.toLocaleLowerCase().startsWith(searchTerm.toLocaleLowerCase())){
+                    return Priority.TagStart;
+                }
             }
-            return {result: result, priority: priority}
         }
 
         return null;
     }
 
-    static executeQuickAction(result: QuickActionsResult) : void {
-        const eagle: Eagle = Eagle.getInstance();
-        QuickActions.initiateQuickAction()
-
-        result.shortcut.run(eagle, null);
-    }
-
-    static updateQuickActionSearchTerm(eagle: Eagle, event: KeyboardEvent ): void {
-        const searchTerm: string = $(event.target).val().toString();
-        eagle.quickActionSearchTerm(searchTerm);
+    // close QuickActions and run the shortcut
+    static executeQuickAction(shortcut: KeyboardShortcut): void {
+        QuickActions.open(false);
+        shortcut.run(Eagle.getInstance(), null);
     }
     
-    // TODO: event not passed as an argument here! (used as both 'e' and 'event'?)
     static initiateQuickActionQuickSelect() : void {
         //unbinding then rebinding the event in case there was already one attached
-        const that = this
         $('body').off('keydown.quickActions')
         $('body').on('keydown.quickActions',function(event: JQuery.TriggeredEvent){
             const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
@@ -253,7 +179,7 @@ export class QuickActions {
                 break;
 
                 case "Escape":
-                that.initiateQuickAction()
+                QuickActions.open(false);
                 break;
 
                 default: //all other key presses should be typing in this mode, so we should be focused on the input
@@ -263,7 +189,7 @@ export class QuickActions {
         })
         
         $('#quickActionBackground').on('click.quickActionDismiss', function(){
-            QuickActions.initiateQuickAction();
+            QuickActions.open(false);
         })
     }
 
