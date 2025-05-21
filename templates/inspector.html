@@ -19,7 +19,7 @@
                         
                         <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
                             <div class="row">
-                                <div class="col-6 col">
+                                <div class="col-5 col">
                                     <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">link</i>
                                     <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'Id: '+$data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
                                     <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.editNodeDescription() data-bs-placement="right" data-bind="eagleTooltip: $data.getDescriptionHTML()" data-bs-toggle="tooltip" data-html="true">library_books</i>
@@ -27,7 +27,7 @@
                                         <i class="material-icons interactive clickable iconHoverEffect" onclick=eagle.showGraphErrors() data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}" data-bs-toggle="tooltip" data-html="true">error</i>
                                     <!-- /ko -->
                                 </div>
-                                <div class="col-6 col text-right">
+                                <div class="col-7 col text-right">
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('open_parameter_table')" data-bs-placement="left">
                                             <i class="material-icons md-20 clickable iconHoverEffect">table_chart</i>
@@ -90,6 +90,61 @@
                                         <span data-bind="text:$data.getCategory()"></span>
                                     <!-- /ko -->
                                 </div>  
+                            </div>
+                            <div class="inspectorFields m-2 mb-1" data-bind="foreach: $root.selectedNode().getInspectorFields()">
+                                <div class="inspectorField input-group mb-1">
+            
+                                    <span class="input-group-text" data-bind="text:$data.getDisplayText(), eagleTooltip:$data.getDescription(), click:function(){ParameterTable.openTableAndSelectField($root.selectedNode(), $data)}"></span>
+                                    <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
+
+                                        <!-- ko if: $data.getType() === 'Integer' -->
+                                            <!-- ko if: $data.getGraphConfigField() -->
+                                                <input class="form-control configValueInput" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)"  data-bind="eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged}">    
+                                            <!-- /ko -->
+                                            <!-- ko ifnot: $data.getGraphConfigField() -->
+                                                <input class="form-control" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind=" eagleTooltip: 'Graph Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged}">
+                                            <!-- /ko -->
+                                        <!-- /ko -->
+
+                                        <!-- string value -->
+                                        <!-- ko ifnot: $data.getType() === 'Integer' -->
+                                            <!-- ko if: $data.getGraphConfigField() -->
+                                                <textarea class="form-control configValueInput" rows="1" data-bind="eagleTooltip: 'Configured Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged}"></textarea>
+                                            <!-- /ko -->
+                                            <!-- ko ifnot: $data.getGraphConfigField() -->
+                                                <textarea class="form-control" rows="1" data-bind="eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged}"></textarea>
+                                            <!-- /ko -->
+                                            
+                                            <button class="inspectorEditBtn icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueCode($data, false)}"></button>
+                                        <!-- /ko -->
+                                    <!-- /ko -->
+
+                                    <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
+                                        <!-- ko if: $data.getGraphConfigField() -->
+                                            <div class="checkboxWrapper configValueInput form-control" data-bind="eagleTooltip: 'Configured Value'">
+                                                    <input tabindex='-1' data-bind="checked: valIsTrue($data.getGraphConfigField().value()), disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$data.getGraphConfigField().toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
+                                            </div>
+                                        <!-- /ko -->
+                                        <!-- ko ifnot: $data.getGraphConfigField() -->
+                                            <div class="checkboxWrapper form-control" data-bind="eagleTooltip: 'Graph Value'">
+                                                    <input tabindex='-1' data-bind="checked: valIsTrue($data.value()), disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$data.toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
+                                            </div>
+                                        <!-- /ko -->
+                                    <!-- /ko -->
+
+                                    <!-- ko if: $data.getHtmlInputType() === 'select' -->
+                                        <!-- ko if: $data.getGraphConfigField() -->
+                                            <select class="configValueInput form-control" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="eagleTooltip: 'Configured Value', disabled: ParameterTable.getCurrentParamValueReadonly($data.getGraphConfigField()), event: {change: ParameterTable.fieldValueChanged}, options: $data.options, value: $data.getGraphConfigField().value">
+                                                <!-- options are added dynamically -->
+                                            </select>
+                                        <!-- /ko -->
+                                        <!-- ko ifnot: $data.getGraphConfigField() -->
+                                            <select class="form-control" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), options: $data.options, value: $data.value">
+                                                <!-- options are added dynamically -->
+                                            </select>
+                                        <!-- /ko -->
+                                    <!-- /ko -->
+                                </div>
                             </div>
                         </div>
                     </div>

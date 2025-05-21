@@ -371,6 +371,8 @@ color: #00bb00;}
 
 #inspector .inspectorContents{
     padding-top: 7px;
+    max-height: 40vh;
+    overflow-y: auto;
 }
 
 #inspector .inspectorHeader input{
@@ -427,6 +429,52 @@ color: #00bb00;}
 
 #inspector .contentObject .contentObjectValue .radioBtn i{
     font-size: 17px;
+}
+
+#inspector .inspectorContents .inspectorField {
+    padding:0px;
+}
+
+#inspector .inspectorContents .inspectorField span {
+    padding:1px 3px;
+    background: #e9ecef;
+    color: #2e3236;
+    max-width: 45%;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    cursor:pointer;
+}
+
+#inspector .inspectorContents .inspectorField textarea, #inspector .inspectorContents .inspectorField input, #inspector .inspectorContents .inspectorField select, #inspector .inspectorContents .inspectorField .checkboxWrapper{
+    resize: none;
+    padding:1px 3px;
+    min-height: auto;
+}
+
+#inspector .inspectorContents .inspectorField .checkboxWrapper input {
+    position: absolute;
+    top: 50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+}
+
+#inspector .inspectorContents .inspectorField .inspectorEditBtn{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #002e5f;
+    color: white;
+    display: none;
+    padding: 4px;
+    font-size: 12px;
+    border-radius: 50%;
+}
+
+#inspector .inspectorContents .inspectorField:hover .inspectorEditBtn{
+    display:inline-block
 }
 
 #inspector .inspectorContents h5{
@@ -739,6 +787,7 @@ color: #00bb00;}
 ::-webkit-scrollbar {
     width: 5px;
     height: 5px;
+    background: #002349;
 }
 
 /* Track */
