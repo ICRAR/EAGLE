@@ -29,13 +29,9 @@ export class QuickActions {
 
         setTimeout(function(){
             if(QuickActions.open()){
-                $('#quickActionContainer').show() // TODO: use a data-bind
-                $('#quickActionBackground').show()
                 $('#quickActionSearchbar').trigger("focus")
                 QuickActions.initiateQuickActionQuickSelect()
             }else{
-                $('#quickActionContainer').hide()
-                $('#quickActionBackground').hide()
                 $('body').off('keydown.quickActions')
                 $('#quickActionBackground').off('click.quickActionDismiss')
             }
