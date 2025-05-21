@@ -1,4 +1,4 @@
-<div id="quickActionContainer" style="display: none;" data-bind="visible: QuickActions.open">
+<div id="quickActionContainer" class="quickActionHidden" data-bind="css: {quickActionHidden: !QuickActions.open()}">
     <div id="quickActionInput">
         <input type="text" autocomplete="off" id="quickActionSearchbar" placeholder="Command Search... (e.g. 'save', or 'edge')" data-bind="value: QuickActions.searchTerm, valueUpdate: 'keyup'">
     </div>
@@ -12,4 +12,4 @@
         </div>
     </div>
 </div>
-<div id="quickActionBackground" style="display: none;" data-bind="visible: QuickActions.open"></div>
+<div id="quickActionBackground" class="quickActionHidden" data-bind="css: {quickActionHidden: !QuickActions.open()}"></div>
