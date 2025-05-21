@@ -444,6 +444,7 @@ color: #00bb00;}
     text-overflow: ellipsis;
     white-space: nowrap;
     display: inline-block;
+    cursor:pointer;
 }
 
 #inspector .inspectorContents .inspectorField textarea, #inspector .inspectorContents .inspectorField input, #inspector .inspectorContents .inspectorField select, #inspector .inspectorContents .inspectorField .checkboxWrapper{

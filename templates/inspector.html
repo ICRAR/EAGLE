@@ -93,7 +93,8 @@
                             </div>
                             <div class="inspectorFields m-2 mb-1" data-bind="foreach: $root.selectedNode().getInspectorFields()">
                                 <div class="inspectorField input-group mb-1">
-                                    <span class="input-group-text" data-bind="text:$data.getDisplayText(), eagleTooltip:$data.getDescription()"></span>
+            
+                                    <span class="input-group-text" data-bind="text:$data.getDisplayText(), eagleTooltip:$data.getDescription(), click:function(){ParameterTable.openTableAndSelectField($root.selectedNode(), $data)}"></span>
                                     <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
 
                                         <!-- ko if: $data.getType() === 'Integer' -->
