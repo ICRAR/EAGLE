@@ -29,7 +29,7 @@ export class QuickActions {
 
         setTimeout(function(){
             if(QuickActions.open()){
-                $('#quickActionContainer').show()
+                $('#quickActionContainer').show() // TODO: use a data-bind
                 $('#quickActionBackground').show()
                 $('#quickActionSearchbar').trigger("focus")
                 QuickActions.initiateQuickActionQuickSelect()
