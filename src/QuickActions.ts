@@ -3,11 +3,6 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
 
-let wordResults:     KeyboardShortcut[] = []
-let tagResults:      KeyboardShortcut[] = []
-let startResults:    KeyboardShortcut[] = []
-let tagStartResults: KeyboardShortcut[] = []
-
 enum Priority {
     Word = "wordMatch",
     Tag = "tagMatch",
@@ -16,6 +11,13 @@ enum Priority {
     Any = "anyMatch",
 
     Unknown = "unknown"
+}
+
+type Results = {
+    word: KeyboardShortcut[],
+    tag: KeyboardShortcut[],
+    start: KeyboardShortcut[],
+    tagStart: KeyboardShortcut[]
 }
 
 export class QuickActions {
@@ -42,10 +44,7 @@ export class QuickActions {
         const searchTerm: string = QuickActions.searchTerm().toLocaleLowerCase();
         const resultsList: KeyboardShortcut[] = [];
 
-        wordResults = []
-        tagResults = []
-        startResults = []
-        tagStartResults = []
+        const results: Results = {word:[], tag:[], start:[], tagStart:[]};
 
         if(searchTerm != ''){
             const searchTerms = searchTerm.split(' ');
@@ -55,7 +54,7 @@ export class QuickActions {
                 const priority: Priority = QuickActions.checkMatch(shortcut, searchTerms);
                 if(priority !== null){
                     //pushing the results in order of priority
-                    QuickActions.pushResultUsingPriority(priority, shortcut);
+                    QuickActions.pushResultUsingPriority(priority, shortcut, results);
                 }
             })
 
@@ -64,13 +63,13 @@ export class QuickActions {
                 const priority: Priority = QuickActions.checkMatch(shortcut, searchTerms);
                 if(priority !== null){
                     //pushing the results in order of priority
-                    QuickActions.pushResultUsingPriority(priority, shortcut);
+                    QuickActions.pushResultUsingPriority(priority, shortcut, results);
                 }
             })
 
             //adding the contents of each of the priority arrays into the results array, in order of priority
             //the ... means we are appending only the array's entries not the array itself
-            resultsList.push(...wordResults, ...tagResults, ...startResults,...tagStartResults)
+            resultsList.push(...results.word, ...results.tag, ...results.start,...results.tagStart)
         }
 
         // when the search result list changes we reset the selected result
@@ -79,15 +78,15 @@ export class QuickActions {
         return resultsList
     }, this);
 
-    static pushResultUsingPriority(priority: Priority, shortcut: KeyboardShortcut) : void {
+    static pushResultUsingPriority(priority: Priority, shortcut: KeyboardShortcut, results: Results) : void {
         if(priority === Priority.Word){
-            wordResults.push(shortcut)
+            results.word.push(shortcut)
         }else if(priority === Priority.Tag){
-            tagResults.push(shortcut)
+            results.tag.push(shortcut)
         }else if(priority === Priority.Start){
-            startResults.push(shortcut)
+            results.start.push(shortcut)
         }else if(priority === Priority.TagStart){
-            tagStartResults.push(shortcut)
+            results.tagStart.push(shortcut)
         }
     }
 
