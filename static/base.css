@@ -443,13 +443,7 @@ color: #00bb00;}
     overflow-x: auto;
 }
 
-#inspector .inspectorContents .inspectorField textarea,#inspector .inspectorContents .inspectorField input,#inspector .inspectorContents .inspectorField select{
-    resize: none;
-    padding:1px 3px;
-    min-height: auto;
-}
-
-#inspector .inspectorContents .inspectorField .checkboxWrapper {
+#inspector .inspectorContents .inspectorField textarea,#inspector .inspectorContents .inspectorField input,#inspector .inspectorContents .inspectorField select,#inspector .inspectorContents .inspectorField .checkboxWrapper {
     resize: none;
     padding:1px 3px;
     min-height: auto;
