@@ -439,8 +439,11 @@ color: #00bb00;}
     padding:1px 3px;
     background: #e9ecef;
     color: #2e3236;
-    max-width: 40%;
-    overflow-x: auto;
+    max-width: 45%;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
 }
 
 #inspector .inspectorContents .inspectorField textarea, #inspector .inspectorContents .inspectorField input, #inspector .inspectorContents .inspectorField select, #inspector .inspectorContents .inspectorField .checkboxWrapper{
