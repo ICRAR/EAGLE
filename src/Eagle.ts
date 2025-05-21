@@ -3938,6 +3938,9 @@ export class Eagle {
 
         // update the type of the field
         field.setType(newType);
+
+        // re-check the graph
+        this.checkGraph();
     }
 
     changeNodeParent = async () => {
