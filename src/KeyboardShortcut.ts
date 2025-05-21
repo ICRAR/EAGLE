@@ -335,7 +335,7 @@ export class KeyboardShortcut {
             id: "save_as_graph",
             text: "Save Graph As",
             keys: [new Key("s", Modifier.Shift)],
-            tags: ['download','canvas', 'save as '],
+            tags: ['download','canvas', 'save as'],
             run: (eagle): void => {eagle.saveGraphAs()}
         }),
         // TODO: two for palettes
