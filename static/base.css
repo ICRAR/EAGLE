@@ -437,6 +437,8 @@ color: #00bb00;}
     padding:1px 3px;
     background: #e9ecef;
     color: #2e3236;
+    max-width: 40%;
+    overflow-x: auto;
 }
 
 #inspector .inspectorContents .inspectorField textarea,#inspector .inspectorContents .inspectorField input{
@@ -785,6 +787,7 @@ color: #00bb00;}
 ::-webkit-scrollbar {
     width: 5px;
     height: 5px;
+    background: #002349;
 }
 
 /* Track */
