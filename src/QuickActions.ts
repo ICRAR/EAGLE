@@ -47,7 +47,7 @@ export class QuickActions {
         const results: Results = {word:[], tag:[], start:[], tagStart:[]};
 
         if(searchTerm != ''){
-            const searchTerms = searchTerm.split(' ');
+            const searchTerms = searchTerm.split(' ').filter(Boolean);
 
             // processing the keyboard shortcuts array
             KeyboardShortcut.shortcuts.forEach(function(shortcut:KeyboardShortcut){
