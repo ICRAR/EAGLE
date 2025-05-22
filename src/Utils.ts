@@ -625,7 +625,7 @@ export class Utils {
             const editor = $('#inputMarkdownModal').data('editor');
             editor.setOption('readOnly', false);
             editor.setOption('mode', "markdown");
-            editor.setOption('value', defaultText);
+            editor.setValue(defaultText);
             Modals.setMarkdownContent(defaultText);
 
             // store the callback, result on the modal HTML element
