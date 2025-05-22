@@ -1350,11 +1350,10 @@ export class Node {
     }
 
     static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
-        let id: NodeId = null;
+        let id: NodeId = Node.determineNodeId(nodeData);
 
-        if (typeof nodeData.id !== 'undefined'){
-            id = nodeData.id;
-        } else {
+        if (id === null){
+            errorsWarnings.warnings.push(Errors.Message("Node has undefined id, generating new id"));
             id = Utils.generateNodeId();
         }
 
@@ -1409,39 +1408,6 @@ export class Node {
         if(!isPaletteNode && nodeData.radius === undefined){
             GraphRenderer.legacyGraph = true
         }
-        
-        // get size (if exists)
-        // let width = EagleConfig.NORMAL_NODE_RADIUS;
-        // let height = EagleConfig.NORMAL_NODE_RADIUS;
-        // if (typeof nodeData.desiredSize !== 'undefined'){
-        //     width = nodeData.desiredSize.width;
-        //     height = nodeData.desiredSize.height;
-        // }
-        // if (typeof nodeData.width !== 'undefined'){
-        //     width = nodeData.width;
-        // }
-        // if (typeof nodeData.height !== 'undefined'){
-        //     height = nodeData.height;
-        // }
-
-        // if (node.isGroup()){
-        //     node.radius(Math.max(width, height));
-        // } else {
-        //     if (node.isBranch()){
-        //         node.radius(EagleConfig.BRANCH_NODE_RADIUS);
-        //     } else {
-        //         node.radius(EagleConfig.NORMAL_NODE_RADIUS);
-        //     }
-        // }
-
-        // expanded
-        // if (typeof nodeData.expanded !== 'undefined'){
-        //     node.expanded(nodeData.expanded)
-        // }else{
-        //     node.expanded(true);
-        // }
-
-        // NOTE: use color from Eagle CategoryData instead of from the input file
 
         // drawOrderHint
         if (typeof nodeData.drawOrderHint !== 'undefined'){
@@ -1536,8 +1502,9 @@ export class Node {
         }
 
         // set parentId if a parentId is defined
-        if (typeof nodeData.parentId !== 'undefined'){
-            node.parentId(nodeData.parentId);
+        const parentId = Node.determineNodeParentId(nodeData);
+        if (parentId !== null){
+            node.parentId(parentId);
         }
 
         // set embedId if defined
@@ -2026,6 +1993,13 @@ export class Node {
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
+        // check if this category of node is a legacy node
+        if (cData.sortOrder === Category.SortOrder.Legacy){
+            const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + ").  Consider updating to a more modern node category.";
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+        }
+
         // check that node has at least one connected edge, otherwise what purpose does it serve?
         let hasInputEdge: boolean = false;
         let hasOutputEdge: boolean = false;
@@ -2084,7 +2058,7 @@ export class Node {
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
         }
 
-        // check if this category of node is a legacy node
+        // check if this category of node is an old PythonApp node
         if (node.getCategory() === Category.PythonApp){
             let newCategory: Category = Category.DALiuGEApp;
             const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
@@ -2136,6 +2110,27 @@ export class Node {
                 }
             }
         }
+    }
+
+    // helper functions used when loading graphs from JSON
+    static determineNodeId(nodeData: any): NodeId | null {
+        if (typeof nodeData.oid !== 'undefined'){
+            return nodeData.oid;
+        }
+        if (typeof nodeData.id !== 'undefined'){
+            return nodeData.id;
+        }
+        return null;
+    }
+
+    static determineNodeParentId(nodeData: any): NodeId | null {
+        if (typeof nodeData.group !== 'undefined'){
+            return nodeData.group;
+        }
+        if (typeof nodeData.parentId !== 'undefined'){
+            return nodeData.parentId;
+        }
+        return null;
     }
 
     private static _checkForField(eagle: Eagle, node: Node, field: Field) : void {

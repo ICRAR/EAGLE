@@ -184,14 +184,29 @@ export class LogicalGraph {
         // set ids for all embedded nodes
         Utils.setEmbeddedApplicationNodeIds(result);
 
-        // make sure to set parentId for all nodes
+        // make sure to set parent for all nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             const nodeData = dataObject.nodeDataArray[i];
-            const parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithId(dataObject.nodeDataArray, nodeData.parentId);
+            const parentId = Node.determineNodeParentId(nodeData);
 
-            if (parentIndex !== -1){
-                result.nodes()[i].setParentId(result.nodes()[parentIndex].getId());
+            // if parentId cannot be found, skip this node
+            if (parentId === null){
+                continue;
             }
+
+            // find index of parent node, based on the id we found
+            const parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithId(dataObject.nodeDataArray, parentId);
+
+            // if parentIndex === -1 (we couldn't find the parent, then warn)
+            if (parentIndex === -1){
+                const error : string = "Node " + i + " has a parent id (" + parentId + ") but that node is not found elsewhere in the graph.";
+                errorsWarnings.warnings.push(Errors.Message(error));
+                continue;
+            }
+
+            // use parentIndex to find parentNode, and update parent
+            const parentNode: Node = result.nodes()[parentIndex];
+            result.nodes()[i].setParentId(parentNode.getId());
         }
 
         // add edges
