@@ -44,11 +44,9 @@ export class QuickActions {
         const results: Results = {word:[], tag:[], start:[], tagStart:[]};
 
         if(searchTerm != ''){
-            const searchTerms = searchTerm.split(' ').filter(Boolean);
-
             // processing the keyboard shortcuts array
             KeyboardShortcut.shortcuts.forEach(function(shortcut:KeyboardShortcut){
-                const priority: Priority = QuickActions.checkMatch(shortcut, searchTerms);
+                const priority: Priority = QuickActions.checkMatch(shortcut, searchTerm);
                 if(priority !== null){
                     //pushing the results in order of priority
                     QuickActions.pushResultUsingPriority(priority, shortcut, results);
@@ -57,7 +55,7 @@ export class QuickActions {
 
             // processing the quick start array
             KeyboardShortcut.quickActions.forEach(function(shortcut:KeyboardShortcut){
-                const priority: Priority = QuickActions.checkMatch(shortcut, searchTerms);
+                const priority: Priority = QuickActions.checkMatch(shortcut, searchTerm);
                 if(priority !== null){
                     //pushing the results in order of priority
                     QuickActions.pushResultUsingPriority(priority, shortcut, results);
@@ -87,16 +85,37 @@ export class QuickActions {
         }
     }
 
-    static checkMatch(shortcut: KeyboardShortcut, searchTerms: string[]): Priority | null {
-        const shortcutWords: string[] = shortcut.text.split(' ');
+    static checkMatch(shortcut: KeyboardShortcut, searchTerm: string): Priority | null {
+        let match = false
 
-        for (const searchTerm of searchTerms){
+        // check for match against shortcut text
+        if(shortcut.text.toLocaleLowerCase().includes(searchTerm)){
+            match = true
+        }
+
+        // check for match against shortcut tags
+        shortcut.tags.forEach(function(tag){
+            if(tag.toLocaleLowerCase().includes(searchTerm)){
+                match = true
+            }
+        })
+
+        // abort if no match found
+        if (!match){
+            return null;
+        }
+
+        // split both the shortcut text and search term into individual words
+        const shortcutWords: string[] = shortcut.text.split(' ');
+        const searchWords: string[] = searchTerm.split(' ').filter(Boolean);
+
+        for (const searchWord of searchWords){
             
             // check for match against words in shortcut
             for(const shortcutWord of shortcutWords){
-                if(shortcutWord.toLocaleLowerCase() === searchTerm.toLocaleLowerCase()){
+                if(shortcutWord.toLocaleLowerCase() === searchWord.toLocaleLowerCase()){
                     return Priority.Word;
-                }else if(shortcutWord.toLocaleLowerCase().startsWith(searchTerm.toLocaleLowerCase())){
+                }else if(shortcutWord.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
                     return Priority.Start;
                 }
             }
@@ -105,7 +124,7 @@ export class QuickActions {
             for(const tag of shortcut.tags){
                 if(searchTerm.toLocaleLowerCase() === tag.toLocaleLowerCase()){
                     return Priority.Tag;
-                }else if(tag.toLocaleLowerCase().startsWith(searchTerm.toLocaleLowerCase())){
+                }else if(tag.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
                     return Priority.TagStart;
                 }
             }
