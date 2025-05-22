@@ -4,13 +4,10 @@ import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
 
 enum Priority {
-    Word = "wordMatch",
-    Tag = "tagMatch",
-    Start = "startMatch",
-    TagStart = "tagStartMatch",
-    Any = "anyMatch",
-
-    Unknown = "unknown"
+    Word,
+    Tag,
+    Start,
+    TagStart
 }
 
 type Results = {
@@ -31,7 +28,7 @@ export class QuickActions {
 
         setTimeout(function(){
             if(QuickActions.open()){
-                $('#quickActionSearchbar').trigger("focus")
+                document.getElementById("quickActionSearchbar").focus();
                 QuickActions.initiateQuickActionQuickSelect()
             }else{
                 $('body').off('keydown.quickActions')
