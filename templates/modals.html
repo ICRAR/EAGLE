@@ -112,6 +112,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="inputMarkdownModalTitle">Title</h5>
+                <i class="material-icons ms-2" data-bind="eagleTooltip: `<a href='https://www.markdownguide.org/basic-syntax/' target='_blank'> Markdown Basic Syntax </a>`">info</i>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -134,7 +135,7 @@
                 <div id="editInputMarkdownModalInput" class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="editMarkdownSwitchCheck" onchange="Modals.toggleMarkdownEditMode()">
                     <label class="form-check-label" for="editMarkdownSwitchCheck">Edit</label>
-                  </div>
+                </div>
                 <button id="copyInputMarkdownModalInput" class="btn btn-secondary" type="button" data-bs-placement="bottom" data-bind="click: Utils.copyInputMarkdownModalInput, eagleTooltip: 'Copy Markdown'">
                     <i class="material-icons md-18">content_copy</i>
                 </button>
