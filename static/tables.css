@@ -498,7 +498,7 @@
     color: rgb(113 113 113);
 }
 
-.eagleTableDisplay td button.parameterTableEditParam, .eagleTableDisplay td button.parameterTableCommentBtn {
+.eagleTableDisplay td button.parameterTableEditParam, .eagleTableDisplay td button.parameterTableCommentBtn, #modelDataModalTable td button.modelDataTableEditParam {
     position: absolute;
     right: 4px;
     top: 4px;
@@ -513,11 +513,19 @@
     display:inline-block;
 }
 
+#modelDataModalTable td:hover button.modelDataTableEditParam{
+    display: inline-block;
+}
+
 .eagleTableDisplay td button.parameterTableEditParam::before, .eagleTableDisplay td button.parameterTableCommentBtn::before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     position: absolute;
+}
+
+#modelDataModalTable td {
+    position: relative;
 }
 
 .eagleTableDisplay .searchBarContainer{

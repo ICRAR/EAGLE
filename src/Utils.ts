@@ -975,6 +975,10 @@ export class Utils {
         $('#modelDataModal').modal("toggle");
     }
 
+    static hideModelDataModal(){
+        $('#modelDataModal').modal("hide");
+    }
+
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph): Promise<Edge> {
         return new Promise(async(resolve, reject) => {
             Utils.updateEditEdgeModal(edge, logicalGraph);
