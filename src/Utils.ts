@@ -597,7 +597,7 @@ export class Utils {
             const editor = $('#inputCodeModal').data('editor');
             editor.setOption('readOnly', readonly);
             editor.setOption('mode', mode);
-            editor.setOption('value', defaultText);
+            editor.setValue(defaultText);
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers

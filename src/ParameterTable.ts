@@ -492,12 +492,12 @@ export class ParameterTable {
         const eagle: Eagle = Eagle.getInstance();
         const node: Node = eagle.selectedNode();
 
-        let editingField // this will either be the normal field or the configured field if applicable
-        let editingValue // this will either be the value or default value or configured value
+        let editingField: Field | GraphConfigField // this will either be the normal field or the configured field if applicable
+        let editingValue: string // this will either be the value or default value or configured value
 
         //checking if the field is a configured field
         if(!defaultValue && field.getGraphConfigField()){
-            editingField =  field.getGraphConfigField()
+            editingField = field.getGraphConfigField()
             editingValue = editingField.getValue()
         }else{
             editingField = field
@@ -510,7 +510,7 @@ export class ParameterTable {
 
         let fieldValue: string;
         try {
-            fieldValue = await Utils.requestUserCode("python","Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue, false);
+            fieldValue = await Utils.requestUserCode("python", "Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue, false);
         } catch (error) {
             console.error(error);
             return;
