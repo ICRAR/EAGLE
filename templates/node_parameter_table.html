@@ -321,26 +321,31 @@
                                             
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
                                                 <td class='columnCell column_Type'>
-                                                    <!-- ko ifnot: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
-                                                        <select data-bind="options: $root.types(), value: type, disabled: ParameterTable.getNodeLockedState($data)">
-                                                            <!-- options are added dynamically -->
-                                                        </select>
+                                                    <!-- ko if: $data.isEvent -->
+                                                    <span class="typeEvent">&lt;Event&gt;</span>
                                                     <!-- /ko -->
-                                                    <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
-                                                        <div class="input-group">
-                                                            <input  class="typesInput form-control" type="text" autocomplete="off" data-bind="value:type, attr:{id:'typeInputFor_'+$data.getId()}">
-                                                            <button class="btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false" data-bind="attr:{id:'typeButtonFor_'+$data.getId()}" type="button">
-                                                                <span class="material-icons-outlined iconHoverEffect">
-                                                                    arrow_drop_down
-                                                                </span>
-                                                            </button>
-                                                            <ul class="dropdown-menu dropdown-menu-end" data-bind="attr:{id:'typeFor_'+$data.getId()}">
-                                                                <!-- ko foreach:$root.types()-->
-                                                                    <a class="dropdown-item" data-bind="text:$data, click:function(){$root.tableDropdownClick($data, $parent);}"></a>
-                                                                <!-- /ko --> 
-                                                            </ul>
-                                                        </div>
-                                                    <!-- /ko --> 
+                                                    <!-- ko ifnot: $data.isEvent -->
+                                                        <!-- ko ifnot: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
+                                                            <select data-bind="options: $root.types(), value: type, disabled: ParameterTable.getNodeLockedState($data)">
+                                                                <!-- options are added dynamically -->
+                                                            </select>
+                                                        <!-- /ko -->
+                                                        <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
+                                                            <div class="input-group">
+                                                                <input  class="typesInput form-control" type="text" autocomplete="off" data-bind="value:type, attr:{id:'typeInputFor_'+$data.getId()}">
+                                                                <button class="btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false" data-bind="attr:{id:'typeButtonFor_'+$data.getId()}" type="button">
+                                                                    <span class="material-icons-outlined iconHoverEffect">
+                                                                        arrow_drop_down
+                                                                    </span>
+                                                                </button>
+                                                                <ul class="dropdown-menu dropdown-menu-end" data-bind="attr:{id:'typeFor_'+$data.getId()}">
+                                                                    <!-- ko foreach:$root.types() -->
+                                                                        <a class="dropdown-item" data-bind="text:$data, click:function(){$root.tableDropdownClick($data, $parent);}"></a>
+                                                                    <!-- /ko -->
+                                                                </ul>
+                                                            </div>
+                                                        <!-- /ko -->
+                                                    <!-- /ko -->
                                                 </td>
                                             <!-- /ko --> 
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().flags() -->
