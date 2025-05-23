@@ -618,7 +618,7 @@ export class KeyboardShortcut {
             id: "quick_action",
             text: "Quick Action",
             keys: [new Key("`"), new Key("\\")],
-            run: (eagle): void => { QuickActions.initiateQuickAction();}
+            run: (eagle): void => {QuickActions.initiateQuickAction();}
         }),
 
         // help menu

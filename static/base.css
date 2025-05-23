@@ -85,6 +85,10 @@ body {
     top: -3px;
 }
 
+.quickActionHidden {
+    display: none !important;
+}
+
 #quickActionContainer {
     z-index: 101;
     display: block;
