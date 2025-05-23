@@ -470,6 +470,11 @@
     border-right: solid 1px #bbbbbb;
 }
 
+.eagleTableDisplay .typeEvent {
+    color: black;
+    padding-left: 2px;
+}
+
 .eagleTableDisplay .input-group{
     border:black solid 1px;
     border-radius: 2px;
