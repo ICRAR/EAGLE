@@ -571,8 +571,7 @@ export class Utils {
         });
     }
 
-    // uses: https://github.com/paul-norman/codemirror6-prebuilt
-    static requestUserCode(language: "json"|"markdown"|"python"|"text", title: string, defaultText: string, readonly: boolean = false): Promise<string> {
+    static requestUserCode(language: "json"|"python"|"text", title: string, defaultText: string, readonly: boolean = false): Promise<string> {
         return new Promise(async(resolve, reject) => {
             // set title
             $('#inputCodeModalTitle').text(title);
@@ -582,9 +581,6 @@ export class Utils {
             switch(language){
                 case "json":
                     mode = "javascript";
-                    break;
-                case "markdown":
-                    mode = "markdown";
                     break;
                 case "python":
                     mode = "python"
@@ -601,7 +597,7 @@ export class Utils {
             const editor = $('#inputCodeModal').data('editor');
             editor.setOption('readOnly', readonly);
             editor.setOption('mode', mode);
-            editor.setOption('value', defaultText);
+            editor.setValue(defaultText);
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
@@ -616,6 +612,35 @@ export class Utils {
 
             $('#inputCodeModal').modal("toggle");
         })
+    }
+
+    static requestUserMarkdown(title: string, defaultText: string, editMode: boolean = false): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $('#inputMarkdownModalTitle').text(title);
+
+            // show or hide sections based on editMode
+            Modals.toggleMarkdownEditMode(editMode);
+
+            // initialise editor
+            const editor = $('#inputMarkdownModal').data('editor');
+            editor.setOption('readOnly', false);
+            editor.setOption('mode', "markdown");
+            editor.setValue(defaultText);
+            Modals.setMarkdownContent(defaultText);
+
+            // store the callback, result on the modal HTML element
+            // so that the info is available to event handlers
+            $('#inputMarkdownModal').data('completed', false);
+            $('#inputMarkdownModal').data('callback', (completed : boolean, userMarkdown : string) => {
+                if (!completed){
+                    reject("Utils.requestUserMarkdown() aborted by user");
+                } else {
+                    resolve(userMarkdown);
+                }
+            });
+
+            $('#inputMarkdownModal').modal("toggle");
+        });
     }
 
     static requestUserNumber(title : string, message : string, defaultNumber: number) : Promise<number> {
@@ -948,6 +973,10 @@ export class Utils {
         eagle.currentFileInfo(fileInfo);
 
         $('#modelDataModal').modal("toggle");
+    }
+
+    static hideModelDataModal(){
+        $('#modelDataModal').modal("hide");
     }
 
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph): Promise<Edge> {
@@ -2553,6 +2582,26 @@ export class Utils {
 
     static copyInputTextModalInput(): void {
         navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
+    }
+
+    static copyInputCodeModalInput(): void {
+        const editor = $('#inputCodeModal').data('editor');
+        if (editor){
+            const content: string = editor.getValue();
+            navigator.clipboard.writeText(content);
+        } else {
+            console.error("No 'editor' data attribute found on modal");
+        }
+    }
+
+    static copyInputMarkdownModalInput(): void {
+        const editor = $('#inputMarkdownModal').data('editor');
+        if (editor){
+            const content: string = editor.getValue();
+            navigator.clipboard.writeText(content);
+        } else {
+            console.error("No 'editor' data attribute found on modal");
+        }
     }
 
     static getReadOnlyText() : string {

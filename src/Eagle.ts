@@ -4468,12 +4468,42 @@ export class Eagle {
         });
     }
 
+    editGraphShortDescription = async(): Promise<void> => {
+        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+
+        let graphDescription: string;
+        try {
+            graphDescription = await Utils.requestUserMarkdown("Graph Short Description", this.logicalGraph().fileInfo().shortDescription, markdownEditingEnabled);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        this.logicalGraph().fileInfo().shortDescription = graphDescription;
+        this.logicalGraph().fileInfo().modified = true;
+    }
+
+    editGraphDetailedDescription = async(): Promise<void> => {
+        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+
+        let graphDescription: string;
+        try {
+            graphDescription = await Utils.requestUserMarkdown("Graph Detailed Description", this.logicalGraph().fileInfo().detailedDescription, markdownEditingEnabled);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        this.logicalGraph().fileInfo().detailedDescription = graphDescription;
+        this.logicalGraph().fileInfo().modified = true;
+    }
+
     editNodeDescription = async (): Promise<void> => {
-        console.log("editNodeDescription()");
+        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
 
         let nodeDescription: string;
         try {
-            nodeDescription = await Utils.requestUserText("Node Description", "Please edit the description for the node", this.selectedNode().getDescription());
+            nodeDescription = await Utils.requestUserMarkdown("Node Description", this.selectedNode().getDescription(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;

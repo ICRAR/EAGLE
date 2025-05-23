@@ -658,7 +658,7 @@ export class Node {
 
     hasFunc_code = () : boolean => {
         for(const field of this.getFields()){
-            if(field.getDisplayText() === 'func_code'){
+            if(field.getDisplayText() === Daliuge.FieldName.FUNC_CODE){
                 return true
             }
         }
@@ -694,7 +694,7 @@ export class Node {
     }, this);
 
     getDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return Utils.markdown2html(this.getDescription());
+        return Utils.markdown2html(this.description());
     }, this);
 
     getSubjectId = () : NodeId => {

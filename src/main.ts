@@ -35,6 +35,7 @@ import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { EagleStorage } from "./EagleStorage";
 import { Errors } from './Errors';
+import { FileInfo } from "./FileInfo";
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
 import { GraphConfig } from "./GraphConfig";
@@ -84,6 +85,7 @@ $(function(){
     (<any>window).EagleConfig = EagleConfig;
     (<any>window).EagleStorage = EagleStorage;
     (<any>window).Errors = Errors;
+    (<any>window).FileInfo = FileInfo;
     (<any>window).GraphConfig = GraphConfig;
     (<any>window).GraphConfigurationsTable = GraphConfigurationsTable;
     (<any>window).Hierarchy = Hierarchy;

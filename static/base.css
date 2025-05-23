@@ -1021,16 +1021,6 @@ select.form-control{
     overflow-y: auto;
 }
 
-.modal-body li{
-    background-color: #e4ebf2;
-    border:none;
-}
-
-.modal-body li:nth-child(odd){
-    background-color: aliceblue;
-    border:none;
-}
-
 .modal-footer{
     background-color: aliceblue;
 }
@@ -1104,7 +1094,7 @@ select.form-control{
     color: #ffc107;
 }
 
-#resetSettingsDefaults{
+#resetSettingsDefaults, #editInputMarkdownModalInput{
     left: 10px;
     position: absolute;
 }
