@@ -236,7 +236,7 @@
                                     <h5>Closes Loop</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <button class="btn btn-secondary btn-sm radioBtn iconHoverEffect" id="objectInspectorToggleClosesLoop" type="button" data-bind="click: function(){$root.selectedEdge().toggleClosesLoop();},disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
+                                    <button class="btn btn-secondary btn-sm radioBtn iconHoverEffect" id="objectInspectorToggleClosesLoop" type="button" data-bind="click: $root.toggleEdgeClosesLoop, disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
                                         <i class="material-icons md-18" data-bind="visible: $root.selectedEdge().isClosesLoop()">radio_button_checked</i>
                                         <i class="material-icons md-18" data-bind="hidden: $root.selectedEdge().isClosesLoop()">radio_button_unchecked</i>
                                     </button>

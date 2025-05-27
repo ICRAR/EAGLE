@@ -170,8 +170,8 @@ export namespace Daliuge {
     }
 
     // These are the canonical example definition of each field
-    export const groupStartField = new Field(null, FieldName.GROUP_START, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
-    export const groupEndField = new Field(null, FieldName.GROUP_END, "true", "true", "", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    export const groupStartField = new Field(null, FieldName.GROUP_START, "true", "true", "Is this node the start of a group?", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    export const groupEndField = new Field(null, FieldName.GROUP_END, "true", "true", "Is this node the end of a group?", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
 
     export const branchYesField = new Field(null, FieldName.TRUE, "", "", "The affirmative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
     export const branchNoField  = new Field(null, FieldName.FALSE,  "", "", "he negative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
