@@ -810,8 +810,8 @@ export class Field {
         //checks for input ports
         if(field.isInputPort()){
 
-            //check the data type is known
-            if (field.isType(Daliuge.DataType.Unknown)){
+            //check the data type is known (except in the case of event ports, they can be unknown)
+            if (!field.isEvent() && field.isType(Daliuge.DataType.Unknown)){
                 let issue: Errors.Issue
 
                 // for normal nodes
@@ -838,8 +838,8 @@ export class Field {
         // checks for output ports
         if(field.isOutputPort()){
 
-            //check the data type is known
-            if (field.isType(Daliuge.DataType.Unknown)){
+            //check the data type is known (except in the case of event ports, they can be unknown)
+            if (!field.isEvent() && field.isType(Daliuge.DataType.Unknown)){
                 let issue: Errors.Issue
 
                 //for normal nodes
