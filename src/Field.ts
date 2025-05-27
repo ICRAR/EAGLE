@@ -81,32 +81,36 @@ export class Field {
         return this.id();
     }
 
-    setId = (id: FieldId): void => {
+    setId = (id: FieldId): Field => {
         this.id(id);
+        return this;
     }
 
     getDisplayText = () : string => {
         return this.displayText();
     }
 
-    setDisplayText = (displayText: string): void => {
+    setDisplayText = (displayText: string): Field => {
         this.displayText(displayText);
+        return this;
     }
 
     getValue = () : string => {
         return this.value();
     }
 
-    setValue = (value: string): void => {
+    setValue = (value: string): Field => {
         this.value(value);
+        return this;
     }
 
     getDefaultValue = () : string => {
         return this.defaultValue();
     }
 
-    setDefaultValue = (value: string): void => {
+    setDefaultValue = (value: string): Field => {
         this.defaultValue(value);
+        return this;
     }
 
     hasDefaultValue = () : boolean => {
@@ -117,8 +121,9 @@ export class Field {
         return this.description();
     }
 
-    setDescription = (description: string): void => {
+    setDescription = (description: string): Field => {
         this.description(description);
+        return this;
     }
 
     getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -133,18 +138,21 @@ export class Field {
         return {x: this.outputX(), y: this.outputY()};
     }
 
-    setInputPosition = (x: number, y: number) : void => {
+    setInputPosition = (x: number, y: number) : Field => {
         this.inputX(x);
         this.inputY(y);
+        return this;
     }
 
-    setOutputPosition = (x: number, y: number) : void => {
+    setOutputPosition = (x: number, y: number) : Field => {
         this.outputX(x);
         this.outputY(y);
+        return this;
     }
 
-    setInputAngle = (angle:number) : void => {
-        this.inputAngle = angle
+    setInputAngle = (angle:number) : Field => {
+        this.inputAngle = angle;
+        return this;
     }
 
     getInputAngle = () : number => {
@@ -155,8 +163,9 @@ export class Field {
         this.displayText.valueHasMutated()
     }
 
-    setOutputAngle = (angle:number) :void => {
-        this.outputAngle = angle
+    setOutputAngle = (angle:number): Field => {
+        this.outputAngle = angle;
+        return this;
     }
 
     getOutputAngle = () : number => {
@@ -167,8 +176,9 @@ export class Field {
         return this.readonly();
     }
 
-    setReadonly = (readonly: boolean): void => {
+    setReadonly = (readonly: boolean): Field => {
         this.readonly(readonly);
+        return this;
     }
 
     toggleReadOnly = () => {
@@ -183,8 +193,9 @@ export class Field {
         return Utils.dataTypePrefix(this.type()) === type;
     }
     
-    setEncoding = (encoding: Daliuge.Encoding) => {
+    setEncoding = (encoding: Daliuge.Encoding): Field => {
         this.encoding(encoding);
+        return this;
     }
 
     getEncoding = () : Daliuge.Encoding => {
@@ -203,12 +214,14 @@ export class Field {
         this.defaultValue((!Utils.asBool(this.defaultValue())).toString());
     }
 
-    setType = (type: Daliuge.DataType) : void => {
+    setType = (type: Daliuge.DataType) : Field => {
         this.type(type);
+        return this;
     }
 
-    setPrecious = (precious: boolean) : void => {
+    setPrecious = (precious: boolean) : Field => {
         this.precious(precious);
+        return this;
     }
 
     togglePrecious = () : void => {
@@ -223,7 +236,7 @@ export class Field {
         return this.options();
     }
 
-    editOption = (optionIndex:any,newVal:string) : void => {
+    editOption = (optionIndex: number, newVal: string) : Field => {
         //if the option we are editing is selected well update the value or default value
         if(this.options()[optionIndex] === this.value()){
             this.value(newVal)
@@ -234,9 +247,10 @@ export class Field {
 
         this.options()[optionIndex] = newVal
         this.options.valueHasMutated()
+        return this;
     }
 
-    addOption = (newOption:string) : void => {
+    addOption = (newOption: string) : Field => {
         let duplicate = false;
         
         for(const option of this.options()){
@@ -249,12 +263,14 @@ export class Field {
             this.options().push(newOption)
             this.options.valueHasMutated()
         }
+
+        return this;
     }
 
-    removeOption = (index:number) : void => {
+    removeOption = (index:number) : Field => {
         if(this.options().length <= 1){
             Utils.showNotification("Cannot Remove","There must be at least one option in the select!",'danger');
-            return
+            return this;
         }
 
         //checking if a selected option is being deleted
@@ -278,46 +294,54 @@ export class Field {
             this.defaultValue(this.options()[0])
         }
         this.options.valueHasMutated()
+
+        return this;
     }
 
     isPositionalArgument = () : boolean => {
         return this.positional();
     }
 
-    togglePositionalArgument = () : void => {
+    togglePositionalArgument = () : Field => {
         this.positional(!this.positional());
+        return this;
     }
 
-    setPositionalArgument = (positional: boolean): void => {
+    setPositionalArgument = (positional: boolean): Field => {
         this.positional(positional);
+        return this;
     }
 
     getParameterType = (): Daliuge.FieldType => {
         return this.parameterType();
     }
 
-    setParameterType = (parameterType: Daliuge.FieldType) : void => {
+    setParameterType = (parameterType: Daliuge.FieldType) : Field => {
         this.parameterType(parameterType);
+        return this;
     }
 
     getUsage = (): Daliuge.FieldUsage => {
         return this.usage();
     }
 
-    setUsage = (usage: Daliuge.FieldUsage) : void => {
+    setUsage = (usage: Daliuge.FieldUsage) : Field => {
         this.usage(usage);
+        return this;
     }
 
     getIsEvent = (): boolean => {
         return this.isEvent();
     }
 
-    setIsEvent = (isEvent: boolean) : void => {
+    setIsEvent = (isEvent: boolean) : Field => {
         this.isEvent(isEvent);
+        return this;
     }
 
-    toggleEvent = (): void => {
+    toggleEvent = (): Field => {
         this.isEvent(!this.isEvent());
+        return this;
     }
 
     getNodeId = () : NodeId => {
@@ -342,8 +366,9 @@ export class Field {
         return this.issues();
     }
 
-    addError(issue:Errors.Issue, validity:Errors.Validity){
+    addError = (issue:Errors.Issue, validity:Errors.Validity): Field => {
         this.issues().push({issue:issue,validity:validity})
+        return this;
     }
 
     // TODO: these colors could be added to EagleConfig.ts
@@ -369,15 +394,16 @@ export class Field {
         return errorsWarnings.warnings.length>0 && errorsWarnings.errors.length === 0;
     }
 
-    setNodeId = (id: NodeId) : void => {
+    setNodeId = (id: NodeId) : Field => {
         this.nodeId(id);
+        return this;
     }
 
     getGraphConfigField : ko.PureComputed<GraphConfigField> = ko.pureComputed(() => {
         return Eagle.getInstance().logicalGraph().getActiveGraphConfig()?.findNodeById(this.nodeId())?.findFieldById(this.id());
     }, this);
 
-    clear = () : void => {
+    clear = () : Field => {
         this.displayText("");
         this.value("");
         this.defaultValue("");
@@ -394,6 +420,7 @@ export class Field {
         this.id(null);
         this.isEvent(false);
         this.nodeId(null);
+        return this;
     }
 
     clone = () : Field => {
@@ -432,8 +459,9 @@ export class Field {
         return f;
     }
 
-    resetToDefault = () : void => {
+    resetToDefault = () : Field => {
         this.value(this.defaultValue());
+        return this;
     }
 
     // TODO: rename this slightly so that it is more obvious that it is a user-facing version of the value
@@ -446,7 +474,7 @@ export class Field {
         return tooltipText;
     }
 
-    copyWithIds = (src: Field, nodeId: NodeId, id: FieldId) : void => {
+    copyWithIds = (src: Field, nodeId: NodeId, id: FieldId) : Field => {
         this.displayText(src.displayText());
         this.value(src.value());
         this.defaultValue(src.defaultValue());
@@ -464,6 +492,8 @@ export class Field {
         // NOTE: these two are not copied from the src, but come from the function's parameters
         this.id(id);
         this.nodeId(nodeId);
+
+        return this;
     }
 
     isInputPort = () : boolean => {
@@ -609,37 +639,41 @@ export class Field {
         return this.inputPeek()
     }
 
-    setInputPeek = (value:boolean) : void => {
+    setInputPeek = (value:boolean) : Field => {
         this.inputPeek(value);
+        return this;
     }
 
     isOutputPeek = () : boolean => {
         return this.outputPeek()
     }
 
-    setOutputPeek = (value:boolean) : void => {
+    setOutputPeek = (value:boolean) : Field => {
         this.outputPeek(value);
+        return this;
     }
 
-    getInputConnected = () :boolean => {
+    getInputConnected = (): boolean => {
         return this.inputConnected()
     }
 
-    setInputConnected = (value:boolean) : void => {
-        this.inputConnected(value)
+    setInputConnected = (value:boolean) : Field => {
+        this.inputConnected(value);
+        return this;
     }
 
-    getOutputConnected = () :boolean => {
+    getOutputConnected = (): boolean => {
         return this.outputConnected()
     }
 
-    setOutputConnected = (value:boolean) : void => {
-        this.outputConnected(value)
+    setOutputConnected = (value:boolean) : Field => {
+        this.outputConnected(value);
+        return this;
     }
 
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
-    static stringAsType(value: string, type: Daliuge.DataType) : any {
+    static stringAsType(value: string, type: Daliuge.DataType) : boolean | number | string {
         switch (type){
             case Daliuge.DataType.Boolean:
                 return Utils.asBool(value);
@@ -653,7 +687,7 @@ export class Field {
     }
 
     static toOJSJson(field : Field) : object {
-        const result : any = {
+        return {
             name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
@@ -667,9 +701,7 @@ export class Field {
             id: field.id(),
             parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()] || Daliuge.DLGFieldType.Unknown,
             usage: field.usage(),
-        }
-
-        return result;
+        };
     }
 
     static toOJSJsonPort(field : Field) : object {

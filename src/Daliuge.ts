@@ -193,6 +193,9 @@ export namespace Daliuge {
     export const funcCodeField = new Field(null, FieldName.FUNC_CODE, "", "def func_name(args): return args", "Python function code", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.Component, FieldUsage.NoPort);
     export const funcNameField = new Field(null, FieldName.FUNC_NAME, "", "func_name", "Python function name", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.Component, FieldUsage.NoPort);
 
+    export const persistField = new Field(null, FieldName.PERSIST, "false", "false", "Specifies whether this data component contains data that should not be deleted after execution", false, Daliuge.DataType.Boolean, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+    export const streamingField = new Field(null, FieldName.STREAMING, "false", "false", "Specifies whether this data component streams input and output data", false, Daliuge.DataType.Boolean, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+
     // This list defines the fields required for ALL nodes belonging to a given Category.Type
     export const categoryTypeFieldsRequired = [
         {
