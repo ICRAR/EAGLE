@@ -23,19 +23,6 @@ export class RightClick {
         RightClick.edgeDropSrcIsInput = null;
     }
 
-    static rightClickReloadPalette() : void {
-        const eagle: Eagle = Eagle.getInstance();
-        let index = 0
-        const palettes = eagle.palettes()
-
-        palettes.forEach(function(palette){
-            if (palette === Eagle.selectedRightClickObject()){
-                eagle.reloadPalette(palette,index)
-            }
-            index++
-        })
-    }
-
     static openSubMenu(menuElement: HTMLElement) : void {
         $(menuElement).find('.contextMenuDropdown').show()
     }
@@ -91,29 +78,6 @@ export class RightClick {
     static clearSearchField() : void {
         $('#rightClickSearchBar').val('')
         RightClick.checkSearchField()
-    }
-
-    static rightClickDeletePalette() : void {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.closePalette(Eagle.selectedRightClickObject())
-    }
-
-    static rightClickSavePaletteToDisk() : void {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.savePaletteToDisk(Eagle.selectedRightClickObject())
-    }
-
-    static rightClickSavePaletteToGit() : void {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.savePaletteToGit(Eagle.selectedRightClickObject())
-    }
-
-    static rightClickToggleSearchExclude(bool:boolean) : void {
-        Eagle.selectedRightClickObject().setSearchExclude(bool)
-    }
-
-    static rightClickCopyPaletteUrl = () : void => {
-        Eagle.selectedRightClickObject().copyUrl()
     }
 
     static closeCustomContextMenu(force:boolean) : void {
@@ -673,28 +637,6 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick=Eagle.selectedRightClickObject().toggleLoopAware()>Toggle Loop Aware</a>')
                 $('#customContextMenu').append('<a onclick=eagle.toggleEdgeClosesLoop()>Toggle Closes Loop</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
-    
-            }else if(passedObjectClass === 'rightClick_paletteHeader'){
-                
-                if(!data.fileInfo().builtIn){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickDeletePalette()"><span>Remove Palette</span></a>')
-                }
-                if(data.fileInfo().repositoryService !== Repository.Service.Unknown){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickReloadPalette()"><span>Reload Palette</span></a>')
-                }
-                if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToDisk()"><span>Save Locally</span></a>')
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToGit()"><span>Save To Git</span></a>')
-                }
-                if(data.searchExclude()){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickToggleSearchExclude(false)"><span>Include In Search</span></a>')
-                }
-                if(!data.searchExclude()){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickToggleSearchExclude(true)"><span>Exclude From Search</span></a>')
-                }
-                if(data.fileInfo().repositoryService !== Repository.Service.Unknown && data.fileInfo().repositoryService !== Repository.Service.File){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickCopyPaletteUrl()"><span>Copy Palette URL</span></a>')
-                }
             }
         }
         // adding a listener to function options that closes the menu if an option is clicked
