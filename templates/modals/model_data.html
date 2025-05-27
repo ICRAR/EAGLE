@@ -27,26 +27,26 @@
                                 <td data-bind="text: $root.currentFileInfo().getText()"></td>
                             <!-- /ko -->
                         </tr>
-                        <tr id="modelDataDescription">
+                        <tr id="modelDataShortDescription">
                             <td data-bind="eagleTooltip: 'A one-line description of the purpose of this file'">Short Description</td>
                             <!-- ko if: $root.currentFileInfo -->
-                            <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                                <td><input type="text" data-bind="value: $root.currentFileInfo()._shortDescription, event: {keyup: function(){$root.flagActiveFileModified();}}"></input></td>
-                            <!-- /ko -->
-                            <!-- ko ifnot: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                                <td data-bind="text: $root.currentFileInfo()._shortDescription"></td>
-                            <!-- /ko -->
+                                <td>
+                                    <div data-bind="html: $root.currentFileInfo().renderedShortDescription"></div>
+                                    <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
+                                    <button class="modelDataTableEditParam icon-pencil iconHoverEffect" data-bind="click:FileInfo.editShortDescription"></button>
+                                    <!-- /ko -->
+                                </td>
                             <!-- /ko -->
                         </tr>
-                        <tr>
+                        <tr id="modelDataDetailedDescription">
                             <td data-bind="eagleTooltip: 'A complete description of the purpose of this file'">Detailed Description</td>
                             <!-- ko if: $root.currentFileInfo -->
-                            <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                                <td><textarea data-bind="value: $root.currentFileInfo()._detailedDescription, event: {keyup: function(){$root.flagActiveFileModified();}}"></textarea></td>
-                            <!-- /ko -->
-                            <!-- ko ifnot: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                                <td data-bind="text: $root.currentFileInfo()._detailedDescription"></td>
-                            <!-- /ko -->
+                                <td>
+                                    <div data-bind="html: $root.currentFileInfo().renderedDetailedDescription"></div>
+                                    <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
+                                    <button class="modelDataTableEditParam icon-pencil iconHoverEffect" data-bind="click:FileInfo.editDetailedDescription"></button>
+                                    <!-- /ko -->
+                                </td>
                             <!-- /ko -->
                         </tr>
                         <tr id="modelDataGeneratorName">

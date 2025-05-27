@@ -364,6 +364,7 @@ export class Setting {
     static readonly APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION: string = "ApplyActiveGraphConfigBeforeTranslation";
     static readonly FETCH_REPOSITORY_FOR_URLS: string = "FetchRepositoryForUrls";
     static readonly KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE: string = "KeepOldFieldsDuringCategoryChange";
+    static readonly MARKDOWN_EDITING_ENABLED: string = "MarkdownEditingEnabled";
 }
 
 export namespace Setting {
@@ -413,6 +414,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Disable JSON Validation", Setting.DISABLE_JSON_VALIDATION, "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", false, Setting.Type.Boolean, false,false,false,false,false),
             new Setting(true, "Overwrite Existing Translator Tab", Setting.OVERWRITE_TRANSLATION_TAB, "When translating a graph, overwrite an existing translator tab", false, Setting.Type.Boolean, true,true,true,true,true),
             new Setting(false, "Test Translate Mode", Setting.TEST_TRANSLATE_MODE, "Remove the necessity to save when translating.", false, Setting.Type.Boolean, false,false,false,false,false),
+            new Setting(false, "Markdown Editing Enabled", Setting.MARKDOWN_EDITING_ENABLED, "Enable editing mode in the markdown editing modal.", false, Setting.Type.Boolean, false, false, false, false, false),
         ]
     ),
     new SettingsGroup(
