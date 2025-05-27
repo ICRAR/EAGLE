@@ -30,6 +30,7 @@ import { GraphConfig } from "./GraphConfig";
 import { LogicalGraph } from './LogicalGraph';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
+import { Repository } from "./Repository";
 
 export class Translator {
     numberOfIslands : ko.Observable<number>;
@@ -128,8 +129,11 @@ export class Translator {
             throw new Error("Unable to translate. Logical graph does not have a name! Please save the graph first.");
         }
 
+        // is the graph a local file?
+        const isLocalFile: boolean = eagle.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
+
         // check if the graph is committed before translation
-        if (this._checkGraphModified(eagle)){
+        if (!Setting.findValue(Setting.TEST_TRANSLATE_MODE) && !isLocalFile && this._checkGraphModified(eagle)){
             Utils.showNotification("Saving graph", "Automatically saving modified graph prior to translation", "info");
 
             // use the async function here, so that we can check isModified after saving

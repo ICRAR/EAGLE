@@ -1,6 +1,6 @@
 <div class="container px-0">
     <!-- ko foreach: nodes -->
-        <!-- ko if: $data.fitsSearchQuery() -->
+        <!-- ko if: $parent.searchExclude() || $data.fitsSearchQuery() -->
             {% include 'palette-component.html' %}
         <!-- /ko -->
     <!-- /ko -->

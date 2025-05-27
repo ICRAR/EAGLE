@@ -5,7 +5,10 @@ import { Eagle } from "./Eagle";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { LogicalGraph } from "./LogicalGraph";
+import { Node } from "./Node";
 import { Utils } from "./Utils";
+import { EagleConfig } from "./EagleConfig";
+import { Daliuge } from "./Daliuge";
 
 export class GraphConfig {
     private id: ko.Observable<GraphConfig.Id>;
@@ -208,7 +211,7 @@ export class GraphConfig {
         return result;
     }
 
-    static toJson(graphConfig: GraphConfig) : object {
+    static toJson(graphConfig: GraphConfig, logicalGraph: LogicalGraph) : object {
         const result : any = {};
 
         // NOTE: we don't write isModified to JSON, it is run-time only
@@ -218,8 +221,8 @@ export class GraphConfig {
         // add nodes
         result.nodes = {};
         for (const node of graphConfig.nodes()){
-
-            result.nodes[node.getId()] = GraphConfigNode.toJSON(node);
+            const graphNode: Node = logicalGraph.findNodeByIdQuiet(node.getId());
+            result.nodes[node.getId()] = GraphConfigNode.toJSON(node, graphNode);
         }
 
         result.lastModifiedName = graphConfig.lastModifiedName();
@@ -229,13 +232,13 @@ export class GraphConfig {
         return result;
     }
 
-    static toJsonString(graphConfig: GraphConfig) : string {
+    static toJsonString(graphConfig: GraphConfig, logicalGraph: LogicalGraph) : string {
         let result: string = "";
 
-        const json: any = GraphConfig.toJson(graphConfig);
+        const json: any = GraphConfig.toJson(graphConfig, logicalGraph);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
-        result += JSON.stringify(json, null, 4);
+        result += JSON.stringify(json, null, EagleConfig.JSON_INDENT);
 
         return result;
     }
@@ -350,7 +353,7 @@ export class GraphConfigNode {
         return result;
     }
 
-    static toJSON(node: GraphConfigNode) : object {
+    static toJSON(node: GraphConfigNode, graphNode: Node) : object {
         const result : any = {};
 
         // NOTE: do not add 'id' attribute, since nodes are stored in a dict keyed by id
@@ -358,7 +361,8 @@ export class GraphConfigNode {
         // add fields
         result.fields = {};
         for (const field of node.fields()){
-            result.fields[field.getId()] = GraphConfigField.toJson(field);
+            const type = graphNode.findFieldById(field.getId())?.getType();
+            result.fields[field.getId()] = GraphConfigField.toJson(field, type);
         }
 
         return result;
@@ -422,7 +426,7 @@ export class GraphConfigField {
         const result = new GraphConfigField();
 
         if (typeof data.value !== 'undefined'){
-            result.value(data.value);
+            result.value(data.value.toString());
         }
 
         if (typeof data.comment !== 'undefined'){
@@ -432,11 +436,11 @@ export class GraphConfigField {
         return result;
     }
 
-    static toJson(field: GraphConfigField): object {
+    static toJson(field: GraphConfigField, type: Daliuge.DataType): object {
         const result : any = {};
 
         // NOTE: do not add 'id' attribute, since fields are stored in a dict keyed by id
-        result.value = field.value();
+        result.value = Field.stringAsType(field.value(), type);
         result.comment = field.comment();
 
         return result;

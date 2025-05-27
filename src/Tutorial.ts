@@ -12,8 +12,7 @@ export class TutorialSystem {
     static conditionCheck:number = null //this stores the condition interval function
 
     static initiateTutorial(tutorialName: string): void {
-        Eagle.tutorials.forEach(function (tut) {
-
+        for (const tut of Eagle.tutorials){
             if (tutorialName === tut.getName()) {
                 //this is the requested tutorial
                 TutorialSystem.activeTut = tut
@@ -21,8 +20,12 @@ export class TutorialSystem {
                 TutorialSystem.activeTutCurrentStepIndex = 0
                 TutorialSystem.activeTut.initiateTutStep(TutorialStep.Direction.Next)
                 TutorialSystem.addTutKeyboardShortcuts()
+                return;
             }
-        })
+        }
+
+        // couldn't find a tutorial with the given name
+        console.warn("Could not find a tutorial with the name:", tutorialName);
     }
 
     static addTutKeyboardShortcuts(): void {
@@ -160,25 +163,10 @@ export class Tutorial {
         return x
     }
 
-    lockEagleUi = () :void => {
-        $('div, button').css('pointer-events', 'none');
-        $("body").on('keydown.lockUi', function (event: JQuery.TriggeredEvent) {
-            event.preventDefault()
-            event.stopImmediatePropagation()
-            event.stopPropagation()
-        })
-    }
-
-    unlockEagleUi = () :void => {
-        $('div, button').css('pointer-events', '');
-        $('body').off('keydown.lockUi');
-    }
-
     initiateTutStep = (direction: TutorialStep.Direction): void => {
         //the lock function locks down the entire ui, preventing all clicks and key presses while the tutorial system is getting a step ready.
         //this is because there were many bugs, because eagles' actual ui is faster than the tutorial system. thats because the tutorial system reacts to and waits for the eagle ui.
         //the unlock happens after the waits for target elements in the ui, transitions of the tutorial visuals and changes of content and positioning has all been finished, this is when the tut system is ready to proceed.
-        this.lockEagleUi()
 
         const eagle = Eagle.getInstance()
         TutorialSystem.activeTutCurrentStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
@@ -489,7 +477,6 @@ export class Tutorial {
         tooltipPopUp = tooltipPopUp + "</div>"
 
         $('body').append(tooltipPopUp)
-        this.unlockEagleUi()
     }
 
     closeInfoPopUp = (): void => {
@@ -535,7 +522,6 @@ export class Tutorial {
         TutorialSystem.conditionCheck = null;
         clearTimeout(TutorialSystem.waitForElementTimer);
         TutorialSystem.waitForElementTimer = null;
-        this.unlockEagleUi()
     }
 
     tutPressStepListener = (): void => {

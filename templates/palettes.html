@@ -8,18 +8,18 @@
                 more_vert
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="paletteWindowdropdown">
-            <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
+                <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                 <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                     <div class="dropDropDown">
                         <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette
-                            <span data-bind="text: KeyboardShortcut.idToText('new_palette', true)"></span>
+                            <span data-bind="text: KeyboardShortcut.idToKeysText('new_palette', true)"></span>
                         </a>
                         <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPaletteFromJson">Create New Palette From Json</a>
                     </div>
                 </span>
-            <!-- /ko -->
+                <!-- /ko -->
                 <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Local Palette
-                    <span data-bind="text: KeyboardShortcut.idToText('open_palette_from_local_disk', true)"></span>
+                    <span data-bind="text: KeyboardShortcut.idToKeysText('open_palette_from_local_disk', true)"></span>
                 </a>
                 <a class="dropdown-item" id="toggleAllPalettes" href="#" data-bind="click: toggleAllPalettes">Toggle All Palettes</a>
             </div>
@@ -40,6 +40,7 @@
                 <button type="button" class="material-icons md-18 dropdown-toggle paletteTripleDot iconHoverEffect" data-bs-toggle="dropdown" >more_vert</button>
                 <div class="dropdown-menu" data-bind="event:{mouseleave: $root.closePaletteMenus}">
                     <a href="#" data-bind="click: $root.sortPalette, clickBubble: false" data-html="true"><span>Sort</span></a>
+                    <a href="#" data-bind="click: $root.selectAllInPalette, clickBubble: false" data-html="true"><span>Select All</span></a>
                     <!-- ko ifnot: $data.fileInfo().builtIn -->
                     <a href="#" data-bind="click: $root.closePalette, clickBubble: false" data-html="true"><span>Remove</span></a>
                     <!-- /ko -->
@@ -51,11 +52,12 @@
                         <a href="#" data-bind="click: $root.savePaletteToGit" data-html="true"><span>Save To Git</span></a>
                     <!-- /ko -->
                     <!-- ko if: $data.searchExclude() -->
-                    <a href="#" data-bind="click: function(){$data.setSearchExclude(false)}"><span>Include In Search</span></a>
+                    <a href="#" data-bind="click: function(){$data.setSearchExclude(false)}"><span>Include In Search Filter</span></a>
                     <!-- /ko -->
-                    <!-- ko if: $data.fileInfo().repositoryService !== Repository.Service.Unknown && $data.fileInfo().repositoryService !== Repository.Service.File -->
+                    <!-- ko ifnot: $data.searchExclude() -->
+                    <a href="#" data-bind="click: function(){$data.setSearchExclude(true)}"><span>Exclude From Search Filter</span></a>
+                    <!-- /ko -->
                     <a href="#" data-bind="click: $data.copyUrl"><span>Copy URL</span></a>
-                    <!-- /ko -->
                     <a href="#" data-bind="click: function(){Utils.showModelDataModal('Palette Info', fileInfo());}"><span>Show ModelData</span></a>
                 </div>
                 <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: SideWindow.nodeDragOver, drop: $root.nodeDropPalette }">
@@ -70,7 +72,7 @@
                                 <!-- /ko -->
                             </div>
                         </div>
-                        <div class="accordion-button rightClick_paletteHeader" type="button" data-bs-toggle="collapse" data-bind="click: toggle, eagleRightClick: {data:$data,type:'rightClick_paletteHeader'}, attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index(), 'aria-expanded':expanded}, css: {collapsed: !expanded}">
+                        <div class="accordion-button" type="button" data-bs-toggle="collapse" data-bind="click: toggle, attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index(), 'aria-expanded':expanded}, css: {collapsed: !expanded}">
                             <span>&nbsp;</span>
                             <h5 class="template-title" data-bs-placement="right" data-bind="text: fileInfo().nameAndModifiedIndicator(), eagleTooltip: fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())"></h5>
                         </div>

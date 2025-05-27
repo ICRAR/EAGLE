@@ -273,18 +273,12 @@ export class Palette {
         // if we don't know where this file came from then we can't build a URL
         // for example, if the palette was loaded from local disk, then we can't build a URL for others to reach it
         if (fileInfo.repositoryService === Repository.Service.Unknown || fileInfo.repositoryService === Repository.Service.File){
-            Utils.showNotification("Palette URL", "Source of palette is a local file or unknown, unable to create URL for graph.", "danger");
+            Utils.showNotification("Palette URL", "Source of palette is a local file or unknown, unable to create URL for palette.", "danger");
             return;
         }
 
-        // build palette url
-        let palette_url = window.location.origin;
-
-        palette_url += "/?service=" + fileInfo.repositoryService;
-        palette_url += "&repository=" + fileInfo.repositoryName;
-        palette_url += "&branch=" + fileInfo.repositoryBranch;
-        palette_url += "&path=" + encodeURI(fileInfo.path);
-        palette_url += "&filename=" + encodeURI(fileInfo.name);
+        // generate URL
+        const palette_url = FileInfo.generateUrl(fileInfo);
 
         // copy to clipboard
         navigator.clipboard.writeText(palette_url);

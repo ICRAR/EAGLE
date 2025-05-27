@@ -252,7 +252,7 @@
 }
 
 .node .branch_node .body span{
-    font-size: 100px; /*this is the same as the circle size of the node givign that information to the icon in ::before */
+    font-size: 90px;
 }
 
 .node .body span::before{
@@ -407,4 +407,9 @@
 .node.transition{
     transition: width .2s cubic-bezier(0.68, 2.15, 0.5, 0.75), height .2s cubic-bezier(0.68, 2.15, 0.5, 0.75);
     
+}
+
+.node .graphDataNode{    
+    bottom: 0px;
+    transform: translate(-50%, 100%);
 }

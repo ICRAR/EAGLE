@@ -8,7 +8,7 @@
          </div>
     
         <div class="body" data-bind="eagleRightClick: {data:$data,type:'rightClick_graphNode'}, event: {mouseenter: function(){$data.setPeek(true)},mouseleave:function(){$data.setPeek(false)},mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(object,event){GraphRenderer.endDrag(object,event);}}, mousedownBubble: false, mouseupBubble: false">
-            <div class="innerRing" data-bind="style:{'border-color':$data.getBorderColor(),'background-color':$data.getBackgroundColor()+' !important'}"></div>
+            <div class="innerRing" data-bind="style:{'border-color':$data.getBorderColor(),'background-color':$data.getBackgroundColor()}"></div>
             <div class="outerRing"></div>
             <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
         </div> 

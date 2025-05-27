@@ -110,27 +110,20 @@ def index():
     FLASK GET routing method for '/'
 
     Defines what is returned when the base URL is called.
-    The following URL GET parameters are defined here in addition:
-
-    service
-    repository
-    branch
-    path
-    filename
 
     IF the URL does not specify a graph to load, the default template with no additional information is rendered.
     """
-    service    = request.args.get("service")
-    repository = request.args.get("repository")
-    branch     = request.args.get("branch")
-    path       = request.args.get("path")
-    filename   = request.args.get("filename")
-    url        = request.args.get("url")
-    mode       = request.args.get("mode")
+    service    = request.args.get("service", "")
+    repository = request.args.get("repository", "")
+    branch     = request.args.get("branch", "")
+    path       = request.args.get("path", "")
+    filename   = request.args.get("filename", "")
+    url        = request.args.get("url", "")
+    mode       = request.args.get("mode", "")
 
     # if the url does not specify a graph to load, just send render the default template with no additional information
-    if service is None:
-        if mode is None:
+    if service == "":
+        if mode == "":
             return render_template("base.html", version=version, commit_hash=commit_hash)
         else:
             return render_template("base.html", version=version, commit_hash=commit_hash, mode=mode)
@@ -944,18 +937,9 @@ def open_url_file():
     if not "modelData" in graph:
         graph["modelData"] = {}
 
-    # add the repository information
-    graph["modelData"]["repo"] = ""
-    graph["modelData"]["repoBranch"] = ""
+    # overwrite some modelData information
     graph["modelData"]["repoService"] = "Url"
-    graph["modelData"]["filePath"] = ""
-
-    # add the GitLab file information
-    graph["modelData"]["commitHash"] = ""
     graph["modelData"]["downloadUrl"] = url
-    graph["modelData"]["lastModifiedName"] = ""
-    graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = 0
 
     # for palettes, put downloadUrl in every component
     if extension == ".palette":

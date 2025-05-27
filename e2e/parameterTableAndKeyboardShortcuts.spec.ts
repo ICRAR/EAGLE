@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   
-  await page.goto('http://localhost:8888/');
+  await page.goto('http://localhost:8888/?tutorial=none');
 
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/EAGLE/);
@@ -50,8 +50,8 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await expect(page.getByRole('row').last().locator('.typesInput')).toHaveValue('Integer')
 
   //change parameter type then check that the value has been changed accordingly
-  await page.getByRole('row').last().locator('.column_ParamType').getByRole('combobox').selectOption('ApplicationArgument');
-  await expect(page.getByRole('row').last().locator('.column_ParamType').getByRole('combobox')).toHaveValue('ApplicationArgument')
+  await page.getByRole('row').last().locator('.column_ParamType').getByRole('combobox').selectOption('Application');
+  await expect(page.getByRole('row').last().locator('.column_ParamType').getByRole('combobox')).toHaveValue('Application')
   
   //change use as and then make sure that the value has been changed accordingly
   await page.getByRole('row').last().locator('.column_Usage').getByRole('combobox').selectOption('OutputPort');

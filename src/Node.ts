@@ -257,7 +257,7 @@ export class Node {
     }
 
     isStreaming = () : boolean => {
-        const streamingField = this.findFieldByDisplayText(Daliuge.FieldName.STREAMING, Daliuge.FieldType.ComponentParameter);
+        const streamingField = this.findFieldByDisplayText(Daliuge.FieldName.STREAMING, Daliuge.FieldType.Component);
 
         if (streamingField !== null){
             return streamingField.valIsTrue(streamingField.getValue());
@@ -267,7 +267,7 @@ export class Node {
     }
 
     isPersist = () : boolean => {
-        const persistField = this.findFieldByDisplayText(Daliuge.FieldName.PERSIST, Daliuge.FieldType.ComponentParameter);
+        const persistField = this.findFieldByDisplayText(Daliuge.FieldName.PERSIST, Daliuge.FieldType.Component);
 
         if (persistField !== null){
             return persistField.valIsTrue(persistField.getValue());
@@ -296,6 +296,14 @@ export class Node {
             const allowPaletteEditing : boolean = Setting.findValue(Setting.ALLOW_PALETTE_EDITING);
             return !allowPaletteEditing;
         }
+    }, this);
+
+    usageOptions : ko.PureComputed<Daliuge.FieldUsage[]> = ko.pureComputed(() => {
+        // fields on construct nodes cannot be ports
+        if (this.categoryType() === Category.Type.Construct){
+            return [Daliuge.FieldUsage.NoPort];
+        }
+        return Object.values(Daliuge.FieldUsage)
     }, this);
 
     getInputPorts = () : Field[] => {
@@ -434,7 +442,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.ComponentParameter){
+            if (field.getParameterType() === Daliuge.FieldType.Component){
                 result.push(field);
             }
         }
@@ -446,7 +454,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.ComponentParameter && field.getUsage() === Daliuge.FieldUsage.NoPort){
+            if (field.getParameterType() === Daliuge.FieldType.Component && field.getUsage() === Daliuge.FieldUsage.NoPort){
                 result.push(field);
             }
         }
@@ -458,7 +466,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.ApplicationArgument){
+            if (field.getParameterType() === Daliuge.FieldType.Application){
                 result.push(field);
             }
         }
@@ -470,7 +478,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.ApplicationArgument && field.getUsage() === Daliuge.FieldUsage.NoPort){
+            if (field.getParameterType() === Daliuge.FieldType.Application && field.getUsage() === Daliuge.FieldUsage.NoPort){
                 result.push(field);
             }
         }
@@ -482,7 +490,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.ConstructParameter){
+            if (field.getParameterType() === Daliuge.FieldType.Construct){
                 result.push(field);
             }
         }
@@ -494,7 +502,7 @@ export class Node {
         const result: Field[] = [];
 
         for (const field of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.ConstructParameter && field.getUsage() === Daliuge.FieldUsage.NoPort){
+            if (field.getParameterType() === Daliuge.FieldType.Construct && field.getUsage() === Daliuge.FieldUsage.NoPort){
                 result.push(field);
             }
         }
@@ -638,14 +646,24 @@ export class Node {
     }
 
     canHaveType = (parameterType: Daliuge.FieldType) : boolean => {
-        if (parameterType === Daliuge.FieldType.ComponentParameter){
+        if (parameterType === Daliuge.FieldType.Component){
             return this.canHaveComponentParameters()
         }
-        if (parameterType === Daliuge.FieldType.ApplicationArgument){
+        if (parameterType === Daliuge.FieldType.Application){
             return this.canHaveApplicationArguments();
         }
 
         return false;
+    }
+
+    hasFunc_code = () : boolean => {
+        for(const field of this.getFields()){
+            if(field.getDisplayText() === Daliuge.FieldName.FUNC_CODE){
+                return true
+            }
+        }
+
+        return false
     }
 
     fitsSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
@@ -676,7 +694,7 @@ export class Node {
     }, this);
 
     getDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return Utils.markdown2html(this.getDescription());
+        return Utils.markdown2html(this.description());
     }, this);
 
     getSubjectId = () : NodeId => {
@@ -968,7 +986,7 @@ export class Node {
                 false,
                 [],
                 false,
-                Daliuge.FieldType.ComponentParameter,
+                Daliuge.FieldType.Component,
                 Daliuge.FieldUsage.NoPort));
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).setValue(value.toString());
@@ -988,7 +1006,7 @@ export class Node {
                 false,
                 [],
                 false,
-                Daliuge.FieldType.ComponentParameter,
+                Daliuge.FieldType.Component,
                 Daliuge.FieldUsage.NoPort));
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).setValue(value.toString());
@@ -1016,7 +1034,7 @@ export class Node {
 
     removeAllComponentParameters = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getParameterType() === Daliuge.FieldType.ComponentParameter){
+            if (this.fields()[i].getParameterType() === Daliuge.FieldType.Component){
                 this.fields.splice(i, 1);
             }
         }
@@ -1024,7 +1042,7 @@ export class Node {
 
     removeAllApplicationArguments = () : void => {
         for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getParameterType() === Daliuge.FieldType.ApplicationArgument){
+            if (this.fields()[i].getParameterType() === Daliuge.FieldType.Application){
                 this.fields.splice(i, 1);
             }
         }
@@ -1171,19 +1189,11 @@ export class Node {
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
-        const eagle = Eagle.getInstance()
 
         if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
             return EagleConfig.getColor('errorBackground');
         }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
             return EagleConfig.getColor('warningBackground');
-        }else if(this.isBranch()){
-            //for some reason branch nodes don't want to behave like other nodes, i need to return their background or selected color manually
-            if(eagle.objectIsSelectedById(this.id())){
-                return EagleConfig.getColor('selectBackground')
-            }else{
-                return EagleConfig.getColor('nodeBackground');
-            }
         }else{
             return '' //returning nothing lets the means we are not over writing the default css behaviour
         }
@@ -1192,6 +1202,44 @@ export class Node {
     getNodeIssuesHtml : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
         return 'This Node has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. \ Click to view the graph issues table.'
+    }, this);
+
+    getInspectorFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
+        const activeConfig = Eagle.getInstance().logicalGraph().getActiveGraphConfig()
+
+        const importantFields : Field[] = [] //fields for a node we deem important eg. num copies for scatter nodes
+        const configFields : Field[] = [] 
+        const selectedNode = this
+
+        selectedNode.getFields().forEach(function(field:Field){
+            // get important fields 
+            if(selectedNode.isGather()){
+                if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_INPUTS || field.getDisplayText() === Daliuge.FieldName.GATHER_AXIS){
+                    importantFields.push(field)
+                    return
+                }
+            }else if (selectedNode.isScatter()){
+                if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_COPIES){
+                    importantFields.push(field)
+                    return
+                }
+            }else if (selectedNode.isLoop()){
+                if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_ITERATIONS){
+                    importantFields.push(field)
+                    return
+                }
+            }else if(field.getDisplayText() === Daliuge.FieldName.FUNC_CODE){
+                importantFields.push(field)
+                return
+            }
+            
+            //check if field is a graph config field
+            if(activeConfig?.hasField(field)){
+                configFields.push(field)
+            }
+        })
+
+        return importantFields.concat(configFields)
     }, this);
 
     // find the right icon for this node
@@ -1245,7 +1293,7 @@ export class Node {
     }
 
     addEmptyField = (index:number) :void => {
-        const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.ComponentParameter, Daliuge.FieldUsage.NoPort);
+        const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.NoPort);
 
         if(index === -1){
             this.addField(newField);
@@ -1302,11 +1350,10 @@ export class Node {
     }
 
     static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
-        let id: NodeId = null;
+        let id: NodeId = Node.determineNodeId(nodeData);
 
-        if (typeof nodeData.id !== 'undefined'){
-            id = nodeData.id;
-        } else {
+        if (id === null){
+            errorsWarnings.warnings.push(Errors.Message("Node has undefined id, generating new id"));
             id = Utils.generateNodeId();
         }
 
@@ -1335,12 +1382,11 @@ export class Node {
         }
 
         // translate categories if required
-        let category: Category = nodeData.category;
+        const category: Category = nodeData.category;
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
             errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
-            category = Category.Unknown;
         }
 
         const node : Node = new Node(name, "", category);
@@ -1362,39 +1408,6 @@ export class Node {
         if(!isPaletteNode && nodeData.radius === undefined){
             GraphRenderer.legacyGraph = true
         }
-        
-        // get size (if exists)
-        // let width = EagleConfig.NORMAL_NODE_RADIUS;
-        // let height = EagleConfig.NORMAL_NODE_RADIUS;
-        // if (typeof nodeData.desiredSize !== 'undefined'){
-        //     width = nodeData.desiredSize.width;
-        //     height = nodeData.desiredSize.height;
-        // }
-        // if (typeof nodeData.width !== 'undefined'){
-        //     width = nodeData.width;
-        // }
-        // if (typeof nodeData.height !== 'undefined'){
-        //     height = nodeData.height;
-        // }
-
-        // if (node.isGroup()){
-        //     node.radius(Math.max(width, height));
-        // } else {
-        //     if (node.isBranch()){
-        //         node.radius(EagleConfig.BRANCH_NODE_RADIUS);
-        //     } else {
-        //         node.radius(EagleConfig.NORMAL_NODE_RADIUS);
-        //     }
-        // }
-
-        // expanded
-        // if (typeof nodeData.expanded !== 'undefined'){
-        //     node.expanded(nodeData.expanded)
-        // }else{
-        //     node.expanded(true);
-        // }
-
-        // NOTE: use color from Eagle CategoryData instead of from the input file
 
         // drawOrderHint
         if (typeof nodeData.drawOrderHint !== 'undefined'){
@@ -1489,8 +1502,9 @@ export class Node {
         }
 
         // set parentId if a parentId is defined
-        if (typeof nodeData.parentId !== 'undefined'){
-            node.parentId(nodeData.parentId);
+        const parentId = Node.determineNodeParentId(nodeData);
+        if (parentId !== null){
+            node.parentId(parentId);
         }
 
         // set embedId if defined
@@ -1540,7 +1554,7 @@ export class Node {
                 false,
                 [],
                 false,
-                Daliuge.FieldType.ComponentParameter,
+                Daliuge.FieldType.Component,
                 Daliuge.FieldUsage.NoPort);
             node.addField(preciousField);
         }
@@ -1558,7 +1572,7 @@ export class Node {
                 false,
                 [],
                 false,
-                Daliuge.FieldType.ComponentParameter,
+                Daliuge.FieldType.Component,
                 Daliuge.FieldUsage.NoPort);
             node.addField(streamingField);
         }
@@ -1577,7 +1591,7 @@ export class Node {
 
                 // if the parameter type is not specified, assume it is a ComponentParameter
                 if (field.getParameterType() === Daliuge.FieldType.Unknown){
-                    field.setParameterType(Daliuge.FieldType.ComponentParameter);
+                    field.setParameterType(Daliuge.FieldType.Component);
                 }
 
                 node.addField(field);
@@ -1588,7 +1602,7 @@ export class Node {
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
                 const field = Field.fromOJSJson(paramData);
-                field.setParameterType(Daliuge.FieldType.ApplicationArgument);
+                field.setParameterType(Daliuge.FieldType.Application);
                 node.addField(field);
             }
         }
@@ -1621,7 +1635,7 @@ export class Node {
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
                 const port = Field.fromOJSJsonPort(inputPort);
-                port.setParameterType(Daliuge.FieldType.ApplicationArgument);
+                port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
                 if (node.canHaveInputs()){
@@ -1640,7 +1654,7 @@ export class Node {
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
                 const port = Field.fromOJSJsonPort(outputPort);
-                port.setParameterType(Daliuge.FieldType.ApplicationArgument);
+                port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.OutputPort);
 
                 if (node.canHaveOutputs()){
@@ -1660,7 +1674,7 @@ export class Node {
             for (const inputLocalPort of nodeData.inputLocalPorts){
                 if (node.hasInputApplication()){
                     const port = Field.fromOJSJsonPort(inputLocalPort);
-                    port.setParameterType(Daliuge.FieldType.ApplicationArgument);
+                    port.setParameterType(Daliuge.FieldType.Application);
                     port.setUsage(Daliuge.FieldUsage.OutputPort);
 
                     node.inputApplication().addField(port);
@@ -1674,7 +1688,7 @@ export class Node {
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
                 const port = Field.fromOJSJsonPort(outputLocalPort);
-                port.setParameterType(Daliuge.FieldType.ApplicationArgument);
+                port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
                 if (node.hasOutputApplication()){
@@ -1937,6 +1951,12 @@ export class Node {
             Field.isValid(node,field,selectedLocation,i)
         }
 
+        if(!Utils.isKnownCategory(node.getCategory())){
+            const message: string = "Node (" + node.getName() + ") has unrecognised category " + node.getCategory();
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning});
+        }
+
         if(node.isConstruct()){
             //checking the input application if one is present
             if(node.hasInputApplication()){
@@ -1973,6 +1993,13 @@ export class Node {
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
+        // check if this category of node is a legacy node
+        if (cData.sortOrder === Category.SortOrder.Legacy){
+            const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + ").  Consider updating to a more modern node category.";
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+        }
+
         // check that node has at least one connected edge, otherwise what purpose does it serve?
         let hasInputEdge: boolean = false;
         let hasOutputEdge: boolean = false;
@@ -1999,11 +2026,18 @@ export class Node {
 
         // check that Memory and SharedMemory nodes have at least one input OR have a pydata field with a non-"None" value
         if (node.category() === Category.Memory || node.category() === Category.SharedMemory){
-            const hasPydataValue: boolean = node.getFieldByDisplayText(Daliuge.FieldName.PYDATA)?.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
+            const pydataField: Field = node.getFieldByDisplayText(Daliuge.FieldName.PYDATA);
+            const hasPydataValue: boolean = pydataField !== null && pydataField.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
 
             if (!hasInputEdge && !hasPydataValue){
-                const message: string = node.category() + " node (" + node.getName() + ") has no connected input edges, and no data in its '" + Daliuge.FieldName.PYDATA + "' field.";
+                const message: string = node.category() + " node (" + node.getName() + ") has no connected input edges, and no data in its '" + Daliuge.FieldName.PYDATA + "' field. The node will not contain data.";
                 const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+                node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+            }
+
+            if (hasInputEdge && hasPydataValue){
+                const message: string = node.category() + " node (" + node.getName() + ") has a connected input edge, and also contains data in its '" + Daliuge.FieldName.PYDATA + "' field. The two sources of data could cause a conflict. Note that a " + Daliuge.FieldName.PYDATA + " field is considered a source of data if its value is NOT '" + Daliuge.DEFAULT_PYDATA_VALUE + "'.";
+                const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, function(){if (pydataField.getValue() === ""){pydataField.setValue(Daliuge.DEFAULT_PYDATA_VALUE);}}, "Replace empty pydata with default value (" + Daliuge.DEFAULT_PYDATA_VALUE + ")");
                 node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
         }
@@ -2024,7 +2058,7 @@ export class Node {
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
         }
 
-        // check if this category of node is a legacy node
+        // check if this category of node is an old PythonApp node
         if (node.getCategory() === Category.PythonApp){
             let newCategory: Category = Category.DALiuGEApp;
             const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
@@ -2076,6 +2110,27 @@ export class Node {
                 }
             }
         }
+    }
+
+    // helper functions used when loading graphs from JSON
+    static determineNodeId(nodeData: any): NodeId | null {
+        if (typeof nodeData.oid !== 'undefined'){
+            return nodeData.oid;
+        }
+        if (typeof nodeData.id !== 'undefined'){
+            return nodeData.id;
+        }
+        return null;
+    }
+
+    static determineNodeParentId(nodeData: any): NodeId | null {
+        if (typeof nodeData.group !== 'undefined'){
+            return nodeData.group;
+        }
+        if (typeof nodeData.parentId !== 'undefined'){
+            return nodeData.parentId;
+        }
+        return null;
     }
 
     private static _checkForField(eagle: Eagle, node: Node, field: Field) : void {

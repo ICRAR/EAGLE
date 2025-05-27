@@ -7,6 +7,8 @@ import { Node } from './Node';
 import { Palette } from './Palette';
 import { Repository } from './Repository';
 import { Setting } from './Setting';
+import { ParameterTable } from './ParameterTable';
+import { Daliuge } from './Daliuge';
 
 
 export class RightClick {
@@ -19,19 +21,6 @@ export class RightClick {
         RightClick.edgeDropSrcNode = null;
         RightClick.edgeDropSrcPort = null;
         RightClick.edgeDropSrcIsInput = null;
-    }
-
-    static rightClickReloadPalette() : void {
-        const eagle: Eagle = Eagle.getInstance();
-        let index = 0
-        const palettes = eagle.palettes()
-
-        palettes.forEach(function(palette){
-            if (palette === Eagle.selectedRightClickObject()){
-                eagle.reloadPalette(palette,index)
-            }
-            index++
-        })
     }
 
     static openSubMenu(menuElement: HTMLElement) : void {
@@ -89,29 +78,6 @@ export class RightClick {
     static clearSearchField() : void {
         $('#rightClickSearchBar').val('')
         RightClick.checkSearchField()
-    }
-
-    static rightClickDeletePalette() : void {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.closePalette(Eagle.selectedRightClickObject())
-    }
-
-    static rightClickSavePaletteToDisk() : void {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.savePaletteToDisk(Eagle.selectedRightClickObject())
-    }
-
-    static rightClickSavePaletteToGit() : void {
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.savePaletteToGit(Eagle.selectedRightClickObject())
-    }
-
-    static rightClickToggleSearchExclude(bool:boolean) : void {
-        Eagle.selectedRightClickObject().setSearchExclude(bool)
-    }
-
-    static rightClickCopyPaletteUrl = () : void => {
-        Eagle.selectedRightClickObject().copyUrl()
     }
 
     static closeCustomContextMenu(force:boolean) : void {
@@ -469,14 +435,17 @@ export class RightClick {
         })
     }
 
-    
-
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
     static edgeDropCreateNode = (data: Node[]) : void => {
         RightClick.requestCustomContextMenu(data, 'edgeDropCreate')
 
         // prevent bubbling events
         event.stopPropagation();
+    }
+
+    static editNodeFuncCode = () : void => {
+        const funcCodeField = Eagle.selectedRightClickObject().findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE, Daliuge.FieldType.Component)
+        ParameterTable.requestEditValueCode(funcCodeField, false)
     }
 
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
@@ -548,6 +517,8 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("normal")>Duplicate</a>')
                 $('#customContextMenu').append('<a onclick=eagle.copySelectionToClipboard()>Copy</a>')
                 $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("normal")>Add To Palette</a>')
+                $('#customContextMenu').append('<a onclick=eagle.createConstructFromSelection()>Construct from Selection</a>')
+                $('#customContextMenu').append('<a onclick=eagle.createSubgraphFromSelection()>Sub Graph from Selection</a>')
             }
         }else{
             //defining the search bar as it is used in several right click menus
@@ -643,11 +614,14 @@ export class RightClick {
     
             }else if(passedObjectClass === 'rightClick_graphNode'){
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
+                if(data.hasFunc_code()){
+                    //check if the node has a field for func code. if so we can add an option to quickly access its contents via the code editor
+                    $('#customContextMenu').append('<a onclick=RightClick.editNodeFuncCode()>Edit Function Code</a>')
+                }
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.RightClick)">Graph Attributes</a>')
-                $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                 if (data.isConstruct()){
-                    $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete All</a>')
+                    $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete with children</a>')
                     $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
                 }
                 if(data.getCategory() === Category.Docker){
@@ -656,34 +630,13 @@ export class RightClick {
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
                 }
-                    $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
+                $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
 
             }else if(passedObjectClass === 'rightClick_graphEdge'){
                 $('#customContextMenu').append('<a onclick=Eagle.selectedRightClickObject().toggleLoopAware()>Toggle Loop Aware</a>')
                 $('#customContextMenu').append('<a onclick=eagle.toggleEdgeClosesLoop()>Toggle Closes Loop</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
-    
-            }else if(passedObjectClass === 'rightClick_paletteHeader'){
-                
-                if(!data.fileInfo().builtIn){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickDeletePalette()"><span>Remove Palette</span></a>')
-                }
-                if(data.fileInfo().repositoryService !== Repository.Service.Unknown){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickReloadPalette()"><span>Reload Palette</span></a>')
-                }
-                if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToDisk()"><span>Save Locally</span></a>')
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickSavePaletteToGit()"><span>Save To Git</span></a>')
-                }
-                if(data.searchExclude()){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickToggleSearchExclude(false)"><span>Include In Search</span></a>')
-                }
-                if(!data.searchExclude()){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickToggleSearchExclude(true)"><span>Exclude From Search</span></a>')
-                }
-                if(data.fileInfo().repositoryService !== Repository.Service.Unknown && data.fileInfo().repositoryService !== Repository.Service.File){
-                    $('#customContextMenu').append('<a onclick="RightClick.rightClickCopyPaletteUrl()"><span>Copy Palette URL</span></a>')
-                }
             }
         }
         // adding a listener to function options that closes the menu if an option is clicked

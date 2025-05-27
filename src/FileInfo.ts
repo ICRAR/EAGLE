@@ -426,6 +426,14 @@ export class FileInfo {
         return s;
     }
 
+    renderedShortDescription: ko.PureComputed<string> = ko.pureComputed(() => {
+        return Utils.markdown2html(this._shortDescription());
+    }, this);
+
+    renderedDetailedDescription: ko.PureComputed<string> = ko.pureComputed(() => {
+        return Utils.markdown2html(this._detailedDescription());
+    }, this);
+
     static toOJSJson(fileInfo : FileInfo) : object {
         return {
             // name and path variables are written together into fullPath
@@ -505,5 +513,38 @@ export class FileInfo {
         result.numLGNodes = modelData.numLGNodes ?? 0;
 
         return result;
+    }
+
+    static generateUrl(fileInfo: FileInfo): string {
+        let url = window.location.origin;
+
+        url += "/?service=" + fileInfo.repositoryService;
+
+        if (fileInfo.repositoryService === Repository.Service.Url){
+            url += "&url=" + fileInfo.downloadUrl;
+        } else {
+            url += "&repository=" + fileInfo.repositoryName;
+            url += "&branch=" + fileInfo.repositoryBranch;
+            url += "&path=" + encodeURI(fileInfo.path);
+            url += "&filename=" + encodeURI(fileInfo.name);
+        }
+
+        return url;
+    }
+
+    static async editShortDescription(){
+        const eagle = Eagle.getInstance();
+
+        Utils.hideModelDataModal();
+        await eagle.editGraphShortDescription();
+        Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo()); // TODO: standardise 'Graph Info'
+    }
+
+    static async editDetailedDescription(){
+        const eagle = Eagle.getInstance();
+
+        Utils.hideModelDataModal();
+        await eagle.editGraphDetailedDescription();
+        Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo()); // TODO: standardise 'Graph Info'
     }
 }

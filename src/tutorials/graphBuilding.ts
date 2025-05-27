@@ -40,10 +40,10 @@ newTut.newTutStep("Graph Model Data", "This button brings up the 'Graph Modal Da
 .setType(TutorialStep.Type.Press)
 .setBackPreFunction(function(){$('.modal').modal("hide");}) //hiding open modals
 
-newTut.newTutStep("Editing Graph Descriptions", "You are able to enter a simple first glance and a more detailed description in addition to description nodes in the graph, should you need it.", function(){return $("#modelDataDescription")})
+newTut.newTutStep("Editing Graph Descriptions", "You are able to enter a simple first glance and a more detailed description in addition to description nodes in the graph, should you need it.", function(){return $("#modelDataShortDescription")})
 .setWaitType(TutorialStep.Wait.Modal)
 
-newTut.newTutStep("Other Graph Information", "Most of the other information is automatically filled out when saving a graph, such as the version of EAGLE used for creating it.", function(){return $("#modelDataEagleVersion")})
+newTut.newTutStep("Other Graph Information", "Most of the other information is automatically filled out when saving a graph, such as the version of EAGLE used for creating it.", function(){return $("#modelDataGeneratorVersion")})
 .setWaitType(TutorialStep.Wait.Modal)
 
 newTut.newTutStep("Close the Modal", "<em>Press OK to close the modal and continue the Tutorial.</em>", function(){return $("#modelDataModalOKButton")})

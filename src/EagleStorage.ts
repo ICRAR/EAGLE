@@ -55,6 +55,11 @@ export class EagleStorage {
         return new Promise(async(resolve, reject) => {
             const customRepositories: Repository[] = [];
 
+            if (typeof EagleStorage.db === "undefined"){
+                reject("EagleStorage DB is undefined!")
+                return;
+            }
+
             // query IndexedDB
             const repositoriesObjectStore = EagleStorage.db.transaction(EagleStorage.TRANSACTION_NAME).objectStore(EagleStorage.OBJECT_STORE_NAME);
 

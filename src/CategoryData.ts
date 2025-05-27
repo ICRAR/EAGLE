@@ -2,20 +2,20 @@ import { Category } from './Category';
 
 export class CategoryData {
     static readonly cData : {[category:string] : Category.CategoryData} = {
-        Branch               : {categoryType: Category.Type.Control, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 2, maxOutputs: 2, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-branch", color: Category.Color.Control, sortOrder: Category.SortOrder.Control},
-        ExclusiveForceNode   : {categoryType: Category.Type.Control, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-force_node", color: Category.Color.Control, sortOrder: Category.SortOrder.Control},
+        Branch               : {categoryType: Category.Type.Application, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 2, maxOutputs: 2, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-branch", color: Category.Color.Application, sortOrder: Category.SortOrder.Application},
+        ExclusiveForceNode   : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-force_node", color: Category.Color.Construct, sortOrder: Category.SortOrder.Construct},
 
         Comment              : {categoryType: Category.Type.Other, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-comment", color: Category.Color.Description, sortOrder: Category.SortOrder.Documentation},
         
-        Scatter              : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-scatter", color: Category.Color.Group, sortOrder: Category.SortOrder.Construct},
-        Gather               : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-gather", color: Category.Color.Group, sortOrder: Category.SortOrder.Construct},
-        MKN                  : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-many_to_many", color: Category.Color.Group, sortOrder: Category.SortOrder.Construct},
-        GroupBy              : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-group", color: Category.Color.Group, sortOrder: Category.SortOrder.Construct},
-        Loop                 : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-loop", color: Category.Color.Group, sortOrder: Category.SortOrder.Construct},
-        SubGraph             : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-sub_graph", color: Category.Color.Group, sortOrder: Category.SortOrder.Construct},
+        Scatter              : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-scatter", color: Category.Color.Construct, sortOrder: Category.SortOrder.Construct},
+        Gather               : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-gather", color: Category.Color.Construct, sortOrder: Category.SortOrder.Construct},
+        MKN                  : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-many_to_many", color: Category.Color.Construct, sortOrder: Category.SortOrder.Construct},
+        GroupBy              : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-group", color: Category.Color.Construct, sortOrder: Category.SortOrder.Construct},
+        Loop                 : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-loop", color: Category.Color.Construct, sortOrder: Category.SortOrder.Construct},
+        SubGraph             : {categoryType: Category.Type.Construct, isGroup: true, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-sub_graph", color: Category.Color.Construct, sortOrder: Category.SortOrder.Construct},
 
-        DALiuGEApp           : {categoryType: Category.Type.Application, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-python", color: Category.Color.Application, sortOrder: Category.SortOrder.Application},
-        PyFuncApp            : {categoryType: Category.Type.Application, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-python", color: Category.Color.Application, sortOrder: Category.SortOrder.Application},
+        DALiuGEApp           : {categoryType: Category.Type.Application, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-daliugeApp", color: Category.Color.Application, sortOrder: Category.SortOrder.Application},
+        PyFuncApp            : {categoryType: Category.Type.Application, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-python_function", color: Category.Color.Application, sortOrder: Category.SortOrder.Application},
         BashShellApp         : {categoryType: Category.Type.Application, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-bash", color: Category.Color.Application, sortOrder: Category.SortOrder.Application},
         DynlibApp            : {categoryType: Category.Type.Application, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-dynamic_library", color: Category.Color.Application, sortOrder: Category.SortOrder.Application},
         DynlibProcApp        : {categoryType: Category.Type.Application, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-dynamic_library", color: Category.Color.Application, sortOrder: Category.SortOrder.Application},
@@ -39,7 +39,7 @@ export class CategoryData {
         Data                 : {categoryType: Category.Type.Data, isGroup: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-hard_drive", color: Category.Color.Data, sortOrder: Category.SortOrder.Data},
 
         Plasma               : {categoryType: Category.Type.Service, isGroup: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-plasma", color: Category.Color.Service, sortOrder: Category.SortOrder.Service},
-        PlasmaFlight         : {categoryType: Category.Type.Service, isGroup: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-plasmaflight", color: Category.Color.Service, sortOrder: Category.SortOrder.Service},
+        PlasmaFlight         : {categoryType: Category.Type.Service, isGroup: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-plasma_flight", color: Category.Color.Service, sortOrder: Category.SortOrder.Service},
         RDBMS                : {categoryType: Category.Type.Service, isGroup: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-database", color: Category.Color.Service, sortOrder: Category.SortOrder.Service},
         Service              : {categoryType: Category.Type.Service, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-database", color: Category.Color.Service, sortOrder: Category.SortOrder.Service},
 
@@ -56,10 +56,8 @@ export class CategoryData {
         const c = CategoryData.cData[category];
 
         if (typeof c === 'undefined'){
-            console.error("Could not fetch category data for category", category);
             return {
                 categoryType: Category.Type.Unknown,
-               
                 isGroup: false,
                 minInputs: 0,
                 maxInputs: 0,
@@ -68,7 +66,7 @@ export class CategoryData {
                 canHaveComponentParameters: false,
                 canHaveApplicationArguments: false,
                 canHaveConstructParameters: false,
-                icon: "error",
+                icon: "icon-none",
                 color: "pink",
                 sortOrder: Number.MAX_SAFE_INTEGER,
             };
@@ -76,4 +74,11 @@ export class CategoryData {
 
         return c;
     }
+}
+
+export namespace CategoryData {
+    export const INTERMEDIATE_DATA_NODES: Category[] = (Object.keys(Category) as Category[]).filter((category: Category) => {
+        const cData = CategoryData.getCategoryData(category);
+        return cData.categoryType === Category.Type.Data && cData.maxInputs >= 1 && cData.maxOutputs >= 1;
+    });
 }

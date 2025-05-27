@@ -68,5 +68,10 @@ require.config({
             deps: ["jquery"],
             exports: "bootstrap"
         }
-    }
+    },
+    packages: [{
+        name: "codemirror",
+        location: "../static/externals/codemirror-5.65.19",
+        main: "lib/codemirror"
+      }]
 });
