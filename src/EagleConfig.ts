@@ -2,6 +2,7 @@ type ColorMap = {[name: string]: string};
 
 const colors: ColorMap = {
     // node colors
+    nodeDefault:                 '#ffffff',
     bodyBorder:                  '#2e3192',
     branchBackground:            '#dcdee2',
     constructBackground:         '#05142912',

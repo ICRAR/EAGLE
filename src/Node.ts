@@ -63,11 +63,6 @@ export class Node {
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}>//keeps track of node level errors
 
-    public static readonly DEFAULT_COLOR : string = "ffffff"; // TODO: remove (or move to EagleConfig.ts)
-
-    public static readonly NO_APP_STRING : string = "-no app-";
-    public static readonly NO_APP_NAME_STRING : string = "-no name-";
-
     //graph related things
     private expanded : ko.Observable<boolean>;     // true, if the node has been expanded in the hierarchy tab in EAGLE
     private keepExpanded : ko.Observable<boolean>;    //states if a node in the hierarchy is forced Open. groups that contain nodes that a drawn edge is connecting to are kept open
@@ -766,7 +761,7 @@ export class Node {
         this.x(0);
         this.y(0);
         this.radius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
-        this.color(Node.DEFAULT_COLOR);
+        this.color(EagleConfig.getColor('nodeDefault'));
         this.drawOrderHint(0);
 
         this.parent(null);
@@ -1928,24 +1923,6 @@ export class Node {
         node.setEmbed(embed);
         node.setRadius(EagleConfig.NORMAL_NODE_RADIUS);
         return node;
-    }
-
-    getDataIcon = () : string => {
-        switch (this.getCategory()){
-            case Category.File:
-                return "/static/assets/svg/hard-drive.svg";
-            case Category.Memory:
-                return "/static/assets/svg/memory.svg";
-            case Category.S3:
-                return "/static/assets/svg/s3_bucket.svg";
-            case Category.NGAS:
-                return "/static/assets/svg/ngas.svg";
-            case Category.Plasma:
-                return "/static/assets/svg/plasma.svg";
-            default:
-                console.warn("No icon available for node category", this.getCategory());
-                return "";
-        }
     }
 
     getFieldIndex = (targetField:Field) : number => {
