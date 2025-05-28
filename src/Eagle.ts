@@ -3526,11 +3526,12 @@ export class Eagle {
         }
     }
 
-    private _findChildren = (parent : Node) : Node[] => {
+    private _findChildren = (parent: Node): Node[] => {
         const children: Node[] = [];
 
         for(const node of this.logicalGraph().getNodes()){
-            if (node.getParent().getId() === parent.getId()){
+            const p = node.getParent();
+            if (p !== null && p.getId() === parent.getId()){
                 children.push(node);
                 children.push(...this._findChildren(node));
             }

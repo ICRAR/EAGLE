@@ -297,6 +297,7 @@ export class LogicalGraph {
 
     addNodeComplete = (node : Node) => {
         this.nodes().add(node);
+        this.nodes.valueHasMutated();
     }
 
     getNodes = () : Node[] => {
@@ -325,6 +326,7 @@ export class LogicalGraph {
 
     addEdgeComplete = (edge : Edge) => {
         this.edges().add(edge);
+        this.edges.valueHasMutated();
     }
 
     getEdges = () : Edge[] => {
@@ -525,6 +527,7 @@ export class LogicalGraph {
         const newNode: Node = node.clone();
         newNode.setPosition(location.x, location.y);
         this.nodes().add(newNode);
+        this.nodes.valueHasMutated();
 
         return newNode;
     }
@@ -621,17 +624,28 @@ export class LogicalGraph {
 
         // search through nodes in graph, looking for one with the correct key
         for (let i = this.nodes().all().length - 1; i >= 0 ; i--){
-            // delete the node
-            this.nodes().remove(id);
+            const node: Node = this.nodes().all()[i];
+
+            if (typeof node === 'undefined'){
+                continue;
+            }
+
+            if (node.getId() === id){
+                this.nodes().remove(id);
+                this.nodes.valueHasMutated();
+                break;
+            }
 
             // delete the input application
-            if (this.nodes().all()[i].hasInputApplication() && this.nodes().all()[i].getInputApplication().getId() === id){
-                this.nodes().all()[i].setInputApplication(null);
+            if (node.hasInputApplication() && node.getInputApplication().getId() === id){
+                node.setInputApplication(null);
+                break;
             }
 
             // delete the output application
-            if (this.nodes().all()[i].hasOutputApplication() && this.nodes().all()[i].getOutputApplication().getId() === id){
-                this.nodes().all()[i].setOutputApplication(null);
+            if (node.hasOutputApplication() && node.getOutputApplication().getId() === id){
+                node.setOutputApplication(null);
+                break;
             }
         }
 
@@ -643,8 +657,11 @@ export class LogicalGraph {
                 continue;
             }
 
-            if (this.nodes().all()[i].getParent().getId() === id){
-                this.removeNode(this.nodes().all()[i]);
+            const node: Node = this.nodes().all()[i];
+            const parent: Node = node.getParent();
+
+            if (parent !== null && parent.getId() === id){
+                this.removeNode(node);
             }
         }
     }
@@ -681,6 +698,7 @@ export class LogicalGraph {
     */
     removeEdgeById = (id: EdgeId) : void => {
         this.edges().remove(id);
+        this.edges.valueHasMutated();
     }
 
     // delete edges that start from or end at the node with the given id
@@ -691,6 +709,7 @@ export class LogicalGraph {
             const edge : Edge = edges[i];
             if (edge.getSrcNode().getId() === id || edge.getDestNode().getId() === id){
                 this.edges().remove(edge.getId());
+                this.edges.valueHasMutated();
             }
         }
     }
@@ -712,6 +731,7 @@ export class LogicalGraph {
 
             if (edge.getSrcPort().getId() === id || edge.getDestPort().getId() === id){
                 this.edges().remove(edge.getId());
+                this.edges.valueHasMutated();
             }
         }
 
