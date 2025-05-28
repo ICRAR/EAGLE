@@ -72,11 +72,11 @@ export class Palette {
             const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, true);
 
             // check that node has no group
-            if (newNode.getParentId() !== null){
-                const error : string = file.name + " Node " + i + " has parentKey: " + newNode.getParentId() + ". Setting parentKey to null.";
+            if (newNode.getParent() !== null){
+                const error : string = file.name + " Node " + i + " has parent: " + newNode.getParent().getName() + ". Setting parentKey to null.";
                 errorsWarnings.warnings.push(Errors.Message(error));
 
-                newNode.setParentId(null);
+                newNode.setParent(null);
             }
 
             // check that x, y, position is the default

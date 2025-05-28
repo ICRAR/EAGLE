@@ -788,11 +788,11 @@ export class Eagle {
                 return
             }
 
-            if(object.getParentId() !== null){
+            if(object.getParent() !== null){
                 let thisParentIsSelected = true
                 let thisObject = object
                 while (thisParentIsSelected){
-                    const thisParent: Node = eagle.logicalGraph().findNodeByIdQuiet(thisObject.getParentId());
+                    const thisParent: Node = thisObject.getParent();
                     if(thisParent != null){
                         thisParentIsSelected = eagle.objectIsSelectedById(thisParent.getId())
                         if(thisParentIsSelected){
@@ -1001,16 +1001,12 @@ export class Eagle {
             }
 
             // if already parented to a node in this selection, skip
-            const parentKey = node.getParentId();
-            if (parentKey !== null){
-                const parent = this.logicalGraph().findNodeById(parentKey);
-                if (this.objectIsSelected(parent)){
-                    continue;
-                }
+            if (this.objectIsSelected(node.getParent())){
+                continue;
             }
 
             // update selection
-            node.setParentId(parentNode.getId());
+            node.setParent(parentNode);
         }
         
         // center parent around children
@@ -1066,7 +1062,7 @@ export class Eagle {
                 continue;
             }
 
-            node.setParentId(parentNode.getId());
+            node.setParent(parentNode);
         }
 
         // center parent around children
@@ -1111,8 +1107,8 @@ export class Eagle {
             nodeMap.set(node.getId(), insertedNode);
 
             // if insertedNode has no parent, make it a parent of the parent node
-            if (insertedNode.getParentId() === null && parentNode !== null){
-                insertedNode.setParentId(parentNode.getId());
+            if (insertedNode.getParent() === null && parentNode !== null){
+                insertedNode.setParent(parentNode);
             }
             
             // copy embedded input application
@@ -1168,36 +1164,36 @@ export class Eagle {
             const insertedNode: Node = nodeMap.get(node.getId());
 
             // if original node has a parent, set the parent of the inserted node to the inserted parent
-            if (node.getParentId() !== null){
+            if (node.getParent() !== null){
                 // check if parent of original node was also mapped to a new node
-                const insertedParent: Node = nodeMap.get(node.getParentId());
+                const insertedParent: Node = nodeMap.get(node.getParent().getId());
 
                 // make sure parent is set correctly
                 // if no mapping is available for the parent, then set parent to the new parentNode, or if no parentNode exists, just set parent to null
                 // if a mapping is available, then use the mapped node as the parent for the new node
                 if (typeof insertedParent === 'undefined'){
                     if (parentNode === null){
-                        insertedNode.setParentId(null);
+                        insertedNode.setParent(null);
                     } else {
-                        insertedNode.setParentId(parentNode.getId());
+                        insertedNode.setParent(parentNode);
                     }
                 } else {
-                    insertedNode.setParentId(insertedParent.getId());
+                    insertedNode.setParent(insertedParent);
                 }
             }
 
-            if (node.getSubjectId() !== null){
-                const subjectNode = this.logicalGraph().findNodeById(node.getSubjectId());
-                const insertedSubject: Node = nodeMap.get(node.getSubjectId());
+            if (node.getSubject() !== null){
+                const subjectNode = node.getSubject();
+                const insertedSubject: Node = nodeMap.get(subjectNode.getId());
 
                 if (typeof insertedSubject === 'undefined'){
                     if (subjectNode === null){
-                        insertedNode.setSubjectId(null);
+                        insertedNode.setSubject(null);
                     } else {
-                        insertedNode.setSubjectId(subjectNode.getId());
+                        insertedNode.setSubject(subjectNode);
                     }
                 } else {
-                    insertedNode.setSubjectId(insertedSubject.getId());
+                    insertedNode.setSubject(insertedSubject);
                 }
             }
         }
@@ -3187,7 +3183,7 @@ export class Eagle {
         this._addUniqueNode(output, node);
 
         for (const n of nodes){
-            if (n.getParentId() === node.getId()){
+            if (n.getParent().getId() === node.getId()){
                 this._addNodeAndChildren(nodes, n, output);
             }
         }
@@ -3342,16 +3338,17 @@ export class Eagle {
             destinationPalette.addNode(node, true);
 
             // get key of just-added node
-            const id: NodeId = destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].getId();
+            // TODO: do we need to lookup embedNode here? Is it just node?
+            const embedNode: Node = destinationPalette.getNodes()[destinationPalette.getNodes().length - 1];
 
             // check if clone has embedded applications, if so, add them to destination palette and remove
             if (node.hasInputApplication()){
                 destinationPalette.addNode(node.getInputApplication(), true);
-                destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedId(id);
+                destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbed(embedNode);
             }
             if (node.hasOutputApplication()){
                 destinationPalette.addNode(node.getOutputApplication(), true);
-                destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbedId(id);
+                destinationPalette.getNodes()[destinationPalette.getNodes().length - 1].setEmbed(embedNode);
             }
 
             // mark the palette as modified
@@ -3533,7 +3530,7 @@ export class Eagle {
         const children: Node[] = [];
 
         for(const node of this.logicalGraph().getNodes()){
-            if (node.getParentId() === parent.getId()){
+            if (node.getParent().getId() === parent.getId()){
                 children.push(node);
                 children.push(...this._findChildren(node));
             }
@@ -3595,8 +3592,8 @@ export class Eagle {
         for (const object of this.selectedObjects()){
             if (object instanceof Node){
                 for (const node of this.logicalGraph().getNodes()){
-                    if (node.getParentId() === object.getId()){
-                        node.setParentId(object.getParentId());
+                    if (node.getParent().getId() === object.getId()){
+                        node.setParent(object.getParent());
                     }
                 }
             }
@@ -3687,13 +3684,13 @@ export class Eagle {
             const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), true);
 
             // if a parent was found, update
-            if (parent !== null && newNode.getParentId() !== parent.getId() && newNode.getId() !== parent.getId()){
-                newNode.setParentId(parent.getId());
+            if (parent !== null && newNode.getParent().getId() !== parent.getId() && newNode.getId() !== parent.getId()){
+                newNode.setParent(parent);
             }
 
             // if no parent found, update
-            if (parent === null && newNode.getParentId() !== null){
-                newNode.setParentId(null);
+            if (parent === null && newNode.getParent() !== null){
+                newNode.setParent(null);
             }
 
             // determine whether we should also generate an object data drop along with this node
@@ -3724,7 +3721,7 @@ export class Eagle {
                 const OBJECT_OFFSET_Y = 100;
                 const pythonObjectNode: Node = await this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y);
                 // set parent to same as PythonMemberFunction
-                pythonObjectNode.setParentId(newNode.getParentId());
+                pythonObjectNode.setParent(newNode);
 
                 // copy all fields from a "PythonObject" node in the palette
                 Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
@@ -3986,7 +3983,7 @@ export class Eagle {
             validChoiceIndex++
 
             // if this node is already the parent, note its index, so that we can preselect this parent node in the modal dialog
-            if (node.getId() === selectedNode.getParentId()){
+            if (node.getId() === selectedNode.getParent().getId()){
                 selectedChoiceIndex = validChoiceIndex;
             }
 
@@ -4006,14 +4003,12 @@ export class Eagle {
         const choice: string = userChoice;
 
         // change the parent
-        const newParentId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1).toString() as NodeId
-
         // key '0' is a special case
-        if (newParentId === null){
-            selectedNode.setParentId(null);
-        } else {
-            selectedNode.setParentId(newParentId);
-        }
+        const newParentId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1).toString() as NodeId
+        const newParent: Node = this.logicalGraph().findNodeById(newParentId);
+
+        // set the parent
+        selectedNode.setParent(newParent);
 
         // refresh the display
         this.checkGraph();
@@ -4052,7 +4047,7 @@ export class Eagle {
             const node : Node = this.logicalGraph().getNodes()[i];
 
             // if this node is already the subject, note its index, so that we can preselect this subject node in the modal dialog
-            if (node.getId() === selectedNode.getSubjectId()){
+            if (node.getId() === selectedNode.getSubject().getId()){
                 selectedChoiceIndex = i;
             }
 
@@ -4074,7 +4069,7 @@ export class Eagle {
 
         // change the subject
         const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId;
-        selectedNode.setSubjectId(newSubjectId);
+        selectedNode.setSubject(this.logicalGraph().findNodeByIdQuiet(newSubjectId));
 
         // refresh the display
         this.checkGraph();
@@ -4406,10 +4401,10 @@ export class Eagle {
 
             // if source or destination node is an embedded application, use position of parent construct node
             if (srcNode.isEmbedded()){
-                srcNodePosition = this.logicalGraph().findNodeById(srcNode.getEmbedId()).getPosition();
+                srcNodePosition = srcNode.getEmbed().getPosition();
             }
             if (destNode.isEmbedded()){
-                destNodePosition = this.logicalGraph().findNodeById(destNode.getEmbedId()).getPosition();
+                destNodePosition = destNode.getEmbed().getPosition();
             }
 
             // count number of edges between source and destination
@@ -4438,16 +4433,16 @@ export class Eagle {
 
             // set the parent of the new node
             // by default, set parent to parent of dest node,
-            newNode.setParentId(destNode.getParentId());
+            newNode.setParent(destNode.getParent());
 
             // if source node is a child of dest node, make the new node a child too
-            if (srcNode.getParentId() === destNode.getId()){
-                newNode.setParentId(destNode.getId());
+            if (srcNode.getParent().getId() === destNode.getId()){
+                newNode.setParent(destNode);
             }
 
             // if dest node is a child of source node, make the new node a child too
-            if (destNode.getParentId() === srcNode.getId()){
-                newNode.setParentId(srcNode.getId());
+            if (destNode.getParent().getId() === srcNode.getId()){
+                newNode.setParent(srcNode);
             }
 
             // create TWO edges, one from src to data component, one from data component to dest

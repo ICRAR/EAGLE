@@ -820,7 +820,7 @@ export class Field {
                 }else{
 
                     // for embedded nodes
-                    const constructNode = eagle.logicalGraph().findNodeById(node.getEmbedId())
+                    const constructNode = node.getEmbed();
 
                     if(constructNode.getInputApplication() === node){
                         //if node is input application
@@ -848,7 +848,7 @@ export class Field {
                 }else{
 
                     // for embedded nodes
-                    const constructNode = eagle.logicalGraph().findNodeById(node.getEmbedId())
+                    const constructNode = node.getEmbed();
                     
                     if(constructNode.getInputApplication() === node){
                         //if node is input application

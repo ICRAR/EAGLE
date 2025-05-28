@@ -2423,7 +2423,8 @@ export class Utils {
             tableData.push({
                 "name":node.getName(),
                 "id":node.getId(),
-                "parentId":node.getParentId(),
+                "parent":node.getParent() === null ? null : node.getParent().getId(),
+                "embed":node.getEmbed() === null ? null : node.getEmbed().getId(),
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
                 "expanded":node.getExpanded(),
@@ -2433,10 +2434,10 @@ export class Utils {
                 "radius":node.getRadius(),
                 "inputAppId":node.getInputApplication() === null ? null : node.getInputApplication().getId(),
                 "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
-                "inputAppEmbedId":node.getInputApplication() === null ? null : node.getInputApplication().getEmbedId(),
+                "inputAppEmbedId":node.getInputApplication() === null ? null : node.getInputApplication().getEmbed().getId(),
                 "outputAppId":node.getOutputApplication() === null ? null : node.getOutputApplication().getId(),
                 "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
-                "outputAppEmbedId":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedId()
+                "outputAppEmbedId":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbed().getId()
             });
         }
 
@@ -2483,7 +2484,7 @@ export class Utils {
                     "palette":palette.fileInfo().name,
                     "name":node.getName(),
                     "id":node.getId(),
-                    "embedId":node.getEmbedId(),
+                    "embedId":node.getEmbed().getId(),
                     "category":node.getCategory(),
                     "categoryType":node.getCategoryType(),
                     "numFields":node.getNumFields(),
@@ -2739,7 +2740,7 @@ export class Utils {
 
         // set appropriate key for node (one that is not already in use)
         newNode.setId(newNodeId);
-        newNode.setEmbedId(null);
+        newNode.setEmbed(null);
 
         // set new ids for any fields in this node
         for (const field of newNode.getFields()){
@@ -2762,7 +2763,7 @@ export class Utils {
 
             // use new ids for input application
             newNode.getInputApplication().setId(newInputAppId);
-            newNode.getInputApplication().setEmbedId(newNodeId);
+            newNode.getInputApplication().setEmbed(newNode);
         }
         if (node.hasOutputApplication()){
             const clone : Node = node.getOutputApplication().clone();
@@ -2778,7 +2779,7 @@ export class Utils {
 
             // use new ids for output application
             newNode.getOutputApplication().setId(newOutputAppId);
-            newNode.getOutputApplication().setEmbedId(newNodeId);
+            newNode.getOutputApplication().setEmbed(newNode);
         }
 
         return newNode;

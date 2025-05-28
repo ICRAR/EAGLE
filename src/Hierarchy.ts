@@ -97,7 +97,7 @@ export class Hierarchy {
                     }
     
                     if(element.isEmbedded()){
-                        const localPortGroup = eagle.logicalGraph().findNodeById(element.getEmbedId())
+                        const localPortGroup: Node = element.getEmbed();
                         localPortGroup.setExpanded(true)
                         localPortGroup.setKeepExpanded(true)
                     }else{  
@@ -106,16 +106,14 @@ export class Hierarchy {
                     }
     
                     iterations += 1;
+
+                    // recurse to parent
+                    element = element.getParent();
     
-                    // otherwise keep traversing upwards
-                    const parentKey = element.getParentId();
-    
-                    // if we reach a null parent, we are done looking
-                    if (parentKey === null){
+                    // if we reach a null node, we are done looking
+                    if (element === null){
                         return 
                     }
-    
-                    element = eagle.logicalGraph().findNodeById(parentKey);
                 }
             })
         }

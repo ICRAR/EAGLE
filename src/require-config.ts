@@ -34,6 +34,7 @@ require.config({
         "LogicalGraph": "./static/built/LogicalGraph",
         "Palette": "./static/built/Palette",
         "Node": "./static/built/Node",
+        "Nodes": "./static/built/Nodes",
         "Field": "./static/built/Field",
         "Edges": "./static/built/Edges",
         "Edge": "./static/built/Edge",

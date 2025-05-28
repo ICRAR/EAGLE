@@ -36,13 +36,14 @@ import { FileInfo } from './FileInfo';
 import { GraphConfig } from './GraphConfig';
 import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
+import { Nodes } from './Nodes';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
-    private nodes : ko.ObservableArray<Node>;
+    private nodes : ko.Observable<Nodes>;
     private edges : ko.Observable<Edges>;
     private graphConfigs : ko.ObservableArray<GraphConfig>;
     private activeGraphConfigId : ko.Observable<GraphConfig.Id>
@@ -55,7 +56,7 @@ export class LogicalGraph {
         this.fileInfo().type = Eagle.FileType.Graph;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
-        this.nodes = ko.observableArray([]);
+        this.nodes = ko.observable(new Nodes());
         this.edges = ko.observable(new Edges());
         this.graphConfigs = ko.observableArray([]);
         this.activeGraphConfigId = ko.observable(null); // can be null, or an id (can't be undefined)
@@ -67,11 +68,11 @@ export class LogicalGraph {
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
         result.modelData.schemaVersion = Daliuge.SchemaVersion.OJS;
-        result.modelData.numLGNodes = graph.nodes().length;
+        result.modelData.numLGNodes = graph.getNumNodes();
 
         // add nodes
         result.nodeDataArray = [];
-        for (const node of graph.nodes()){
+        for (const node of graph.nodes().all()){
             const nodeData : any = Node.toOJSGraphJson(node);
             result.nodeDataArray.push(nodeData);
         }
@@ -107,10 +108,10 @@ export class LogicalGraph {
 
             // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
             if (srcNode.isEmbedded()){
-                srcId = srcNode.getEmbedId();
+                srcId = srcNode.getEmbed().getId();
             }
             if (destNode.isEmbedded()){
-                destId = destNode.getEmbedId();
+                destId = destNode.getEmbed().getId();
             }
 
             linkData.from = srcId;
@@ -177,7 +178,7 @@ export class LogicalGraph {
                 continue;
             }
 
-            result.nodes.push(newNode);
+            result.nodes().add(newNode);
         }
 
         // set ids for all embedded nodes
@@ -204,13 +205,13 @@ export class LogicalGraph {
             }
 
             // use parentIndex to find parentNode, and update parent
-            const parentNode: Node = result.nodes()[parentIndex];
-            result.nodes()[i].setParentId(parentNode.getId());
+            const parentNode: Node = result.nodes().all()[parentIndex];
+            result.nodes().all()[i].setParent(parentNode);
         }
 
         // add edges
         for (const linkData of dataObject.linkDataArray){       
-            const newEdge = Edge.fromOJSJson(linkData, result.nodes(), errorsWarnings);
+            const newEdge = Edge.fromOJSJson(linkData, result.nodes().all(), errorsWarnings);
 
             if (newEdge === null){
                 continue;
@@ -295,16 +296,16 @@ export class LogicalGraph {
     }
 
     addNodeComplete = (node : Node) => {
-        this.nodes.push(node);
+        this.nodes().add(node);
     }
 
     getNodes = () : Node[] => {
-        return this.nodes();
+        return this.nodes().all();
     }
 
     getAllNodes = () : Node[] => {
         const nodes : Node[] =[]
-        this.nodes().forEach(function(node){
+        this.nodes().all().forEach(function(node){
             nodes.push(node)
             if(node.isConstruct()){
                 if(node.getInputApplication()!= null){
@@ -319,7 +320,7 @@ export class LogicalGraph {
     }
 
     getNumNodes = () : number => {
-        return this.nodes().length;
+        return this.nodes().all().length;
     }
 
     addEdgeComplete = (edge : Edge) => {
@@ -337,7 +338,7 @@ export class LogicalGraph {
     getCommentNodes = () : Node[] => {
         const commentNodes: Node[] = [];
 
-        for (const node of this.nodes()){
+        for (const node of this.nodes().all()){
             if (node.isComment()){
                 commentNodes.push(node);
             }
@@ -447,7 +448,7 @@ export class LogicalGraph {
     clear = () : void => {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Graph;
-        this.nodes([]);
+        this.nodes().clear();
         this.edges().clear();
         this.graphConfigs([]);
         this.activeGraphConfigId(null)
@@ -459,8 +460,8 @@ export class LogicalGraph {
         result.fileInfo(this.fileInfo().clone());
 
         // copy nodes
-        for (const node of this.nodes()){
-            result.nodes.push(node.clone());
+        for (const node of this.nodes().all()){
+            result.nodes().add(node.clone());
         }
 
         // copy edges
@@ -523,11 +524,12 @@ export class LogicalGraph {
         // clone the template node, set position and add to logicalGraph
         const newNode: Node = node.clone();
         newNode.setPosition(location.x, location.y);
-        this.nodes.push(newNode);
+        this.nodes().add(newNode);
 
         return newNode;
     }
 
+    /*
     findNodeByIdQuiet = (id: NodeId) : Node => {
         //used temporarily for the table modals to prevent console spam relating to too many calls when changing selected objects
         for (let i = this.nodes().length - 1; i >= 0 ; i--){
@@ -553,6 +555,11 @@ export class LogicalGraph {
         }
         return null;
     }
+    */
+    findNodeByIdQuiet = (id: NodeId) : Node => {
+        return this.nodes().get(id);
+    }
+
 
     findNodeById = (id: NodeId) : Node => {
         const node = this.findNodeByIdQuiet(id);
@@ -565,7 +572,7 @@ export class LogicalGraph {
     }
 
     findNodeGraphIdByNodeName = (name:string) :string =>{
-        for (const node of this.nodes()){
+        for (const node of this.nodes().all()){
             if (node.getName() === name){
                 return node.getId();
             }
@@ -574,6 +581,7 @@ export class LogicalGraph {
         return null;
     }
 
+    // TODO: check this!
     removeNode = (node: Node) : void => {
         const id = node.getId();
 
@@ -612,34 +620,31 @@ export class LogicalGraph {
         }
 
         // search through nodes in graph, looking for one with the correct key
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+        for (let i = this.nodes().all().length - 1; i >= 0 ; i--){
             // delete the node
-            if (this.nodes()[i].getId() === id){
-                this.nodes.splice(i, 1);
-                continue;
-            }
+            this.nodes().remove(id);
 
             // delete the input application
-            if (this.nodes()[i].hasInputApplication() && this.nodes()[i].getInputApplication().getId() === id){
-                this.nodes()[i].setInputApplication(null);
+            if (this.nodes().all()[i].hasInputApplication() && this.nodes().all()[i].getInputApplication().getId() === id){
+                this.nodes().all()[i].setInputApplication(null);
             }
 
             // delete the output application
-            if (this.nodes()[i].hasOutputApplication() && this.nodes()[i].getOutputApplication().getId() === id){
-                this.nodes()[i].setOutputApplication(null);
+            if (this.nodes().all()[i].hasOutputApplication() && this.nodes().all()[i].getOutputApplication().getId() === id){
+                this.nodes().all()[i].setOutputApplication(null);
             }
         }
 
         // delete children
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
+        for (let i = this.nodes().all().length - 1; i >= 0 ; i--){
             // check that iterator still points to a valid element in the nodes array
             // a check like this wouldn't normally be necessary, but we are deleting elements from the array within the loop, so it might be shorter than we expect
-            if (i >= this.nodes().length){
+            if (i >= this.nodes().all().length){
                 continue;
             }
 
-            if (this.nodes()[i].getParentId() === id){
-                this.removeNode(this.nodes()[i]);
+            if (this.nodes().all()[i].getParent().getId() === id){
+                this.removeNode(this.nodes().all()[i]);
             }
         }
     }
@@ -749,11 +754,11 @@ export class LogicalGraph {
 
             iterations += 1;
 
-            if (n.getParentId() === null){
+            if (n.getParent() === null){
                 break;
             }
 
-            n = this.findNodeById(n.getParentId());
+            n = n.getParent();
 
             if (n === null){
                 break;
@@ -770,7 +775,7 @@ export class LogicalGraph {
         const eagle = Eagle.getInstance();
 
         // find all the overlapping nodes
-        for (const node of this.nodes()){
+        for (const node of this.nodes().all()){
 
             if(findEligibleGroups){
 
@@ -824,13 +829,14 @@ export class LogicalGraph {
         return maxDepthOverlap;
     }
 
+    // TODO: we might be able to just make this findDepth(node: Node)
     findDepthById = (id: NodeId) : number => {
-        const node = this.findNodeById(id);
-        let parentId: NodeId = node.getParentId();
+        const node = this.nodes().get(id);
+        let parent: Node = node.getParent();
         let depth = 0;
         let iterations = 0;
 
-        while (parentId !== null){
+        while (parent !== null){
             if (iterations > 10){
                 console.error("too many iterations in findDepthByKey()");
                 break;
@@ -838,7 +844,7 @@ export class LogicalGraph {
 
             iterations += 1;
             depth += 1;
-            parentId = this.findNodeById(parentId).getParentId();
+            parent = parent.getParent();
         }
 
         return depth;
@@ -852,8 +858,9 @@ export class LogicalGraph {
     getChildrenOfNodeById = (id: NodeId) : Node[] => {
         const result: Node[] = [];
 
-        for (const node of this.nodes()){
-            if (node.getParentId() === id){
+        for (const node of this.nodes().all()){
+            const parent = node.getParent();
+            if (parent !== null && parent.getId() === id){
                 result.push(node);
             }
         }
@@ -866,8 +873,8 @@ export class LogicalGraph {
         const result : Node[] = [];
 
         // populate index plus depths
-        for (let i = 0 ; i < this.nodes().length ; i++){
-            const node = this.nodes()[i];
+        for (let i = 0 ; i < this.nodes().all().length ; i++){
+            const node = this.nodes().all()[i];
 
             const depth = this.findDepthById(node.getId());
 
@@ -881,7 +888,7 @@ export class LogicalGraph {
 
         // write nodes to result in sorted order
         for (const indexPlusDepth of indexPlusDepths){
-            result.push(this.nodes()[indexPlusDepth.index]);
+            result.push(this.nodes().all()[indexPlusDepth.index]);
         }
 
         return result;

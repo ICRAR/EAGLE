@@ -67,10 +67,9 @@ ko.bindingHandlers.nodeRenderHandler = {
         }
 
         const pos = node.getPosition() // this line is needed because referencing position here causes this update function to run when the node position gets updated aka. when we are dragging a node on the graph
-        if(node.isConstruct() || node.getParentId() != null ){
+        if(node.isConstruct() || node.getParent() !== null ){
             if(!node.isConstruct()){
-                const eagle : Eagle = Eagle.getInstance();
-                node = eagle.logicalGraph().findNodeById(node.getParentId())
+                node = node.getParent();
             }
             GraphRenderer.resizeConstruct(node)
         }
@@ -84,7 +83,7 @@ ko.bindingHandlers.embeddedAppPosition = {
         const input: boolean = ko.utils.unwrapObservable(valueAccessor()).input;
 
         // find the node in which the applicationNode has been embedded
-        const parentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(applicationNode.getEmbedId());
+        const parentNode: Node = applicationNode.getEmbed();
 
         // determine all the adjacent nodes
         // TODO: earlier abort if field is null
@@ -169,10 +168,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         switch(dataType){
             case 'comment': {
-                const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(n.getSubjectId());
+                const adjacentNode: Node = n.getSubject();
 
                 if (adjacentNode === null){
-                    console.warn("Could not find adjacentNode for comment with subjectId", n.getSubjectId());
+                    console.warn("Could not find adjacentNode for comment", n.getSubject().getId());
                     return;
                 }
 
@@ -896,7 +895,7 @@ export class GraphRenderer {
         const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
 
         const srcNode: Node = commentNode;
-        const destNode: Node = lg.findNodeByIdQuiet(commentNode.getSubjectId());
+        const destNode: Node = commentNode.getSubject();
 
         return GraphRenderer._getPath(null,srcNode, destNode, null, null);
     }
@@ -1053,8 +1052,8 @@ export class GraphRenderer {
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
             //checking if the node is inside of a construct, if so, fetching it's parent
-            if(node.getParentId() != null){
-                const parentNode = eagle.logicalGraph().findNodeByIdQuiet(node.getParentId())
+            if(node.getParent() !== null){
+                const parentNode = node.getParent();
                 $('#'+parentNode.getId()).removeClass('transition')
                 GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
             }
@@ -1275,11 +1274,11 @@ export class GraphRenderer {
         const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
         
         for (const outermostNode of outermostNodes){
-            const oldParent: Node = eagle.logicalGraph().findNodeByIdQuiet(outermostNode.getParentId());
+            const oldParent: Node = outermostNode.getParent();
             let parentingSuccessful = false; //if the detected parent of one node in the selection changes, we assign the new parent to the whole selection and exit this loop
 
             // the parent construct is only allowed to grow by the amount specified(eagleConfig.construct_drag_out_distance) before allowing its children to escape
-            if(outermostNode.getParentId() != null && oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
+            if(outermostNode.getParent() !== null && oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
                 $('#'+oldParent.getId()).addClass('transition')
                 GraphRenderer.parentSelection(outermostNodes, null);
                 parentingSuccessful = true;
@@ -1319,7 +1318,7 @@ export class GraphRenderer {
                 if(!object.isEmbedded() && parent === null){
                     GraphRenderer.updateNodeParent(object, null,  allowGraphEditing);
                 }else if(object.getId() != parent?.getId() && !object.isEmbedded()){
-                    GraphRenderer.updateNodeParent(object, parent?.getId(), allowGraphEditing);
+                    GraphRenderer.updateNodeParent(object, parent, allowGraphEditing);
                 }
             }
         })
@@ -1376,7 +1375,7 @@ export class GraphRenderer {
         while(constructs.length > i){
             const construct = constructs[i]
             eagle.logicalGraph().getNodes().forEach(function(obj){
-                if(obj.getParentId()===construct.getId()){
+                if(obj.getParent().getId()===construct.getId()){
                     eagle.editSelection(obj, Eagle.FileType.Graph);
 
                     if(obj.isGroup()){
@@ -1432,7 +1431,7 @@ export class GraphRenderer {
         const orderedConstructList:Node[] = []
 
         constructsList.forEach(function(construct){
-            if(construct.getParentId()===null){
+            if(construct.getParent()===null){
                 let finished = false // while there are child construct found in this construct nest group
 
                 findConstructId = construct.getId()
@@ -1440,7 +1439,7 @@ export class GraphRenderer {
                 while(!finished){
                     let found = false
                     for(const entry of constructsList){
-                        if(entry.getParentId() === findConstructId){
+                        if(entry.getParent().getId() === findConstructId){
                             orderedConstructList.unshift(entry)
                             findConstructId = entry.getId()
                             found = true
@@ -1472,7 +1471,7 @@ export class GraphRenderer {
         let maxY : number = -Number.MAX_VALUE;
         for (const node of graphNodes){
             
-            if (!node.isEmbedded() && node.getParentId() === construct.getId()){
+            if (!node.isEmbedded() && node.getParent().getId() === construct.getId()){
                 childCount++
                 if (node.getPosition().x - node.getRadius() < minX){
                     minX = node.getPosition().x - node.getRadius();
@@ -1555,7 +1554,7 @@ export class GraphRenderer {
 
         // loop through all nodes, if they belong to the parent's group, move them too
         for (const node of eagle.logicalGraph().getNodes()){
-            if (node.getParentId() === parentId){
+            if (node.getParent().getId() === parentId){
                 node.changePosition(deltaX, deltaY);
                 GraphRenderer.moveChildNodes(node, deltaX, deltaY);
             }
@@ -1585,22 +1584,23 @@ export class GraphRenderer {
             }
 
             // otherwise keep traversing upwards
-            const newKey: NodeId = n.getParentId();
+            const newParent: Node = n.getParent();
 
             // if we reach a null parent, we are done looking
-            if (newKey === null){
+            if (newParent === null){
                 return false;
             }
 
-            n = eagle.logicalGraph().findNodeById(newKey);
+            n = newParent;
         }
     }
 
     // update the parent of the given node
     // however, if allowGraphEditing is false, then don't update
-    static updateNodeParent(node: Node, parentId: NodeId, allowGraphEditing: boolean): void {
-        if (node.getParentId() !== parentId && allowGraphEditing){
-            node.setParentId(parentId);
+    // TODO: check what to do if incoming parent is null (what happened if old parentId was null?)
+    static updateNodeParent(node: Node, parent: Node, allowGraphEditing: boolean): void {
+        if (node.getParent().getId() !== parent.getId() && allowGraphEditing){
+            node.setParent(parent);
             Eagle.getInstance().checkGraph()   
         }
     }
@@ -1617,10 +1617,10 @@ export class GraphRenderer {
 
         // loop through all nodes to fund children - then check to find distance from center of construct
         for (const node of eagle.logicalGraph().getNodes()){
-            if(GraphRenderer.ctrlDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelectedById(node.getParentId())){
+            if(GraphRenderer.ctrlDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelected(node.getParent())){
                 continue
             }
-            if (node.getParentId() === construct.getId()){
+            if (node.getParent().getId() === construct.getId()){
                 const dx = construct.getPosition().x - node.getPosition().x;
                 const dy = construct.getPosition().y - node.getPosition().y;
                 const distance = Math.sqrt(dx*dx + dy*dy);
@@ -1966,11 +1966,11 @@ export class GraphRenderer {
         let depth : number = 0;
         let node : Node = nodes[index];
         let nodeId: NodeId;
-        let nodeParentId: NodeId = node.getParentId();
+        let nodeParent: Node = node.getParent();
         let iterations = 0;
 
         // follow the chain of parents
-        while (nodeParentId != null){
+        while (nodeParent != null){
             if (iterations > 10){
                 console.error("too many iterations in findDepthOfNode()");
                 break;
@@ -1980,17 +1980,17 @@ export class GraphRenderer {
             depth += 1;
             depth += node.getDrawOrderHint() / 10;
             nodeId = node.getId();
-            nodeParentId = node.getParentId();
+            nodeParent = node.getParent();
 
-            if (nodeParentId === null){
+            if (nodeParent === null){
                 return depth;
             }
 
-            // TODO: could we use 
-            node = GraphRenderer.findNodeWithId(nodeParentId, nodes);
+            // TODO: could we use something else here?
+            node = GraphRenderer.findNodeWithId(nodeParent.getId(), nodes);
 
             if (node === null){
-                console.error("Node", nodeId, "has parentId", nodeParentId, "but call to findNodeWithId(", nodeParentId, ") returned null");
+                console.error("Node", nodeId, "has parent", nodeParent ? nodeParent.getName() : null, "but call to findNodeWithId(", nodeParent.getId(), ") returned null");
                 return depth;
             }
 

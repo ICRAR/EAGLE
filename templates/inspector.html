@@ -61,12 +61,12 @@
                         </div>
                         <div class="inspectorContents">
                             <div class="row inspectorParentId contentObject">
-                                <!-- ko ifnot: $data.getParentId() === null -->
+                                <!-- ko ifnot: $data.getParent() === null -->
                                     <div class="col-4 col contentObjectTitle">
                                         <h5>Parent:</h5>
                                     </div>         
                                     <div class="col-8 col contentObjectValue">
-                                        <span data-bind="text:eagle.logicalGraph().findNodeById($data.getParentId()).getName(), eagleTooltip:$data.getParentId()"></span>
+                                        <span data-bind="text:$data.getParent().getName(), eagleTooltip:$data.getParent().getId()"></span>
                                     </div>
                                 <!-- /ko -->
                             </div>
@@ -192,7 +192,7 @@
                                     <h5>Src Node:</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).getName(), eagleTooltip:$data.getSrcNodeId()"></span>
+                                    <span data-bind="text:$data.getSrcNode().getName(), eagleTooltip:$data.getSrcNode().getId()"></span>
                                 </div>
                             </div>
                             <div class="row inspectorEdgeSrcPortId contentObject">
@@ -200,7 +200,7 @@
                                     <h5>Src Port:</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).findFieldById($data.getSrcPortId())?.getDisplayText(),eagleTooltip:$data.getSrcPortId()"></span>
+                                    <span data-bind="text:$data.getSrcPort().getDisplayText(), eagleTooltip:$data.getSrcPort().getId()"></span>
                                 </div>
                             </div>
                             <div class="row inspectorEdgeDestNodeId contentObject">
@@ -208,7 +208,7 @@
                                     <h5>Dest Node:</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <span data-bind="text:$root.logicalGraph().findNodeById($data.getDestNodeId()).getName(),eagleTooltip:$data.getDestNodeId()"></span>
+                                    <span data-bind="text:$data.getDestNode().getName(), eagleTooltip:$data.getDestNode().getId()"></span>
                                 </div>
                             </div>
                             <div class="row inspectorEdgeDestPortId contentObject">
@@ -216,7 +216,7 @@
                                     <h5>Dest Port:</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <span data-bind="text: $root.logicalGraph().findNodeById($data.getDestNodeId()).findFieldById($data.getDestPortId()).getDisplayText(),eagleTooltip:$data.getDestPortId()"></span>
+                                    <span data-bind="text:$data.getDestPort().getDisplayText(), eagleTooltip:$data.getDestPort().getId()"></span>
                                 </div>
                             </div>
                             
