@@ -143,7 +143,7 @@ export class ParameterTable {
 
                         if (lgNode === null){
                             const dummyField: Field = new Field(field.getId(), "<Missing Node:" + node.getId() +">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
-                            dummyField.setNodeId(node.getId());
+                            dummyField.setNode(lgNode);
                             displayedFields.push(dummyField);
                             continue;
                         }
@@ -152,7 +152,7 @@ export class ParameterTable {
         
                         if (lgField === null){
                             const dummyField: Field = new Field(field.getId(), "<Missing Field: " + field.getId() + ">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
-                            dummyField.setNodeId(node.getId());
+                            dummyField.setNode(lgNode);
                             displayedFields.push(dummyField);
                             continue;
                         }
@@ -260,7 +260,7 @@ export class ParameterTable {
         // this handles a special case where EAGLE is displaying the "Graph Configuration Attributes Table"
         // all the field names shown in that table should be locked (readonly)
         if (Setting.find(Setting.BOTTOM_WINDOW_MODE).value() === Eagle.BottomWindowMode.ConfigParameterTable){
-            return eagle.logicalGraph().findNodeByIdQuiet(field?.getNodeId()).isLocked()
+            return field.getNode().isLocked()
         }
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
@@ -269,10 +269,10 @@ export class ParameterTable {
             }
             return eagle.selectedNode().isLocked()
         }else{
-            if(eagle.logicalGraph().findNodeByIdQuiet(field.getNodeId()) === null){
+            if(field.getNode() === null){
                 return false
             }
-            return eagle.logicalGraph().findNodeByIdQuiet(field.getNodeId()).isLocked()
+            return field.getNode().isLocked()
         }
     }
 
@@ -411,7 +411,7 @@ export class ParameterTable {
 
         if (graphConfig){
             if (add){
-                graphConfig.addValue(currentField.getNodeId(), currentField.getId(), currentField.getValue())
+                graphConfig.addValue(currentField.getNode().getId(), currentField.getId(), currentField.getValue())
             } else {
                 graphConfig.removeField(currentField);
             }
@@ -438,7 +438,7 @@ export class ParameterTable {
 
             // add/remove the field that was requested in the first place
             if (add){
-                graphConfig.addValue(currentField.getNodeId(), currentField.getId(), currentField.getValue())
+                graphConfig.addValue(currentField.getNode().getId(), currentField.getId(), currentField.getValue())
             } else {
                 graphConfig.removeField(currentField);
             }
@@ -528,7 +528,7 @@ export class ParameterTable {
 
     static async requestEditCommentInModal(currentField:Field): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
-        const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
+        const currentNode: Node = currentField.getNode();
         const configField: GraphConfigField = eagle.logicalGraph().getActiveGraphConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
 
         let fieldComment: string;

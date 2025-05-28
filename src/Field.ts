@@ -28,7 +28,7 @@ export class Field {
     private parameterType : ko.Observable<Daliuge.FieldType>;
     private usage : ko.Observable<Daliuge.FieldUsage>;
     private isEvent : ko.Observable<boolean>;
-    private nodeId : ko.Observable<NodeId>;
+    private node : ko.Observable<Node>;
 
     // graph related attributes
     private inputX : ko.Observable<number>;
@@ -60,7 +60,7 @@ export class Field {
         this.parameterType = ko.observable(parameterType);
         this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
-        this.nodeId = ko.observable(null);
+        this.node = ko.observable(null);
 
         //graph related things
         this.inputX = ko.observable(0);
@@ -320,8 +320,8 @@ export class Field {
         this.isEvent(!this.isEvent());
     }
 
-    getNodeId = () : NodeId => {
-        return this.nodeId();
+    getNode = () : Node => {
+        return this.node();
     }
 
     getErrorsWarnings : ko.PureComputed<Errors.ErrorsWarnings> = ko.pureComputed(() => {
@@ -369,12 +369,13 @@ export class Field {
         return errorsWarnings.warnings.length>0 && errorsWarnings.errors.length === 0;
     }
 
-    setNodeId = (id: NodeId) : void => {
-        this.nodeId(id);
+    setNode = (node: Node) : Field => {
+        this.node(node);
+        return this;
     }
 
     getGraphConfigField : ko.PureComputed<GraphConfigField> = ko.pureComputed(() => {
-        return Eagle.getInstance().logicalGraph().getActiveGraphConfig()?.findNodeById(this.nodeId())?.findFieldById(this.id());
+        return Eagle.getInstance().logicalGraph().getActiveGraphConfig()?.findNodeById(this.node().getId())?.findFieldById(this.id());
     }, this);
 
     clear = () : void => {
@@ -393,7 +394,7 @@ export class Field {
 
         this.id(null);
         this.isEvent(false);
-        this.nodeId(null);
+        this.node(null);
     }
 
     clone = () : Field => {
@@ -405,7 +406,7 @@ export class Field {
         const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage());
         f.encoding(this.encoding());
         f.isEvent(this.isEvent());
-        f.nodeId(this.nodeId());
+        f.node(this.node());
         return f;
     }
 
@@ -427,7 +428,7 @@ export class Field {
 
         f.encoding = this.encoding;
         f.isEvent = this.isEvent;
-        f.nodeId = this.nodeId;
+        f.node = this.node;
 
         return f;
     }
@@ -446,7 +447,7 @@ export class Field {
         return tooltipText;
     }
 
-    copyWithIds = (src: Field, nodeId: NodeId, id: FieldId) : void => {
+    copyWithIds = (src: Field, node: Node, id: FieldId) : void => {
         this.displayText(src.displayText());
         this.value(src.value());
         this.defaultValue(src.defaultValue());
@@ -463,7 +464,7 @@ export class Field {
 
         // NOTE: these two are not copied from the src, but come from the function's parameters
         this.id(id);
-        this.nodeId(nodeId);
+        this.node(node);
     }
 
     isInputPort = () : boolean => {
@@ -526,7 +527,7 @@ export class Field {
 
             //check if the node name matches, but only if using the key parameter table modal
             if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
-                if(Eagle.getInstance().logicalGraph().findNodeById(that.nodeId()).getName().toLowerCase().indexOf(term) >= 0){
+                if(Eagle.getInstance().logicalGraph().findNodeById(that.node().getId()).getName().toLowerCase().indexOf(term) >= 0){
                     result = true
                 }
             }
@@ -876,8 +877,8 @@ export class Field {
         }
 
         // check that the fields "key" is the same as the key of the node it belongs to
-        if (field.getNodeId() !== node.getId()) {
-            const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose node id (" + field.getNodeId() + ") doesn't match the node (" + node.getId() + ")", function(){Utils.showField(eagle, node.getId(),field)}, function(){Utils.fixFieldNodeId(eagle, node, field)}, "Set field node id correctly");
+        if (field.getNode().getId() !== node.getId()) {
+            const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose node id (" + field.getNode().getId() + ") doesn't match the node (" + node.getId() + ")", function(){Utils.showField(eagle, node.getId(),field)}, function(){Utils.fixFieldNodeId(eagle, node, field)}, "Set field node id correctly");
                 field.issues().push({issue:issue,validity:Errors.Validity.Error})
         }
 

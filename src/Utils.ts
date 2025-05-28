@@ -2104,7 +2104,7 @@ export class Utils {
     }
 
     static fixFieldNodeId(eagle: Eagle, node: Node, field: Field){
-        field.setNodeId(node.getId());
+        field.setNode(node);
     }
 
     static fixFieldUsage(eagle: Eagle, field: Field, usage: Daliuge.FieldUsage){
@@ -2234,7 +2234,7 @@ export class Utils {
             const dummyField = Utils.findDummyField(node, requiredField.isInputPort());
             if (dummyField){
                 field = dummyField;
-                field.copyWithIds(requiredField, field.getNodeId(), field.getId());
+                field.copyWithIds(requiredField, field.getNode(), field.getId());
             }
         }
 
@@ -2316,6 +2316,7 @@ export class Utils {
         eagle.setSelection(eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
     }
 
+    // TODO: can we change this and showEdge() above to take Node (and Edge) as params instead of ids
     static showNode(eagle: Eagle, nodeId: NodeId): void {
         let node: Node = null;
         let location : Eagle.FileType
@@ -2514,7 +2515,7 @@ export class Utils {
             tableData.push({
                 "id":field.getId(),
                 "displayText":field.getDisplayText(),
-                "nodeId":field.getNodeId(),
+                "nodeId":field.getNode().getId(),
                 "type":field.getType(),
                 "parameterType":field.getParameterType(),
                 "usage":field.getUsage(),
@@ -2728,7 +2729,7 @@ export class Utils {
             }
 
             // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
-            destField.copyWithIds(field, destField.getNodeId(), destField.getId());
+            destField.copyWithIds(field, destField.getNode(), destField.getId());
         }
     }
 
@@ -2745,7 +2746,7 @@ export class Utils {
         // set new ids for any fields in this node
         for (const field of newNode.getFields()){
             field.setId(Utils.generateFieldId());
-            field.setNodeId(newNodeId);
+            field.setNode(newNode);
         }
 
         // set new ids for embedded applications within node, and new ids for ports within those embedded nodes
@@ -2756,7 +2757,7 @@ export class Utils {
                 // set new ids for any fields in this node
                 for (const field of clone.getFields()){
                     field.setId(Utils.generateFieldId());
-                    field.setNodeId(newInputAppId);
+                    field.setNode(clone);
                 }
             }
             newNode.setInputApplication(clone)
@@ -2772,7 +2773,7 @@ export class Utils {
                 // set new ids for any fields in this node
                 for (const field of clone.getFields()){
                     field.setId(Utils.generateFieldId());
-                    field.setNodeId(newOutputAppId);
+                    field.setNode(clone);
                 }
             }
             newNode.setOutputApplication(clone)
@@ -2823,7 +2824,7 @@ export class Utils {
             }
 
             // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
-            destField.copyWithIds(field, destField.getNodeId(), destField.getId());
+            destField.copyWithIds(field, destField.getNode(), destField.getId());
         }
 
         // copy name and description from new template to node, if node values are defaults

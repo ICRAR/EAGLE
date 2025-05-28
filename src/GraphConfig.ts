@@ -105,7 +105,7 @@ export class GraphConfig {
     }
 
     addField = (field: Field): void => {
-        const node = Eagle.getInstance().logicalGraph().findNodeById(field.getNodeId());
+        const node = field.getNode();
         this.addNode(node.getId()).addField(field.getId());
     }
 
@@ -138,7 +138,7 @@ export class GraphConfig {
 
     removeField = (field: Field): void => {
         // get reference to the GraphConfigNode containing the field
-        const graphConfigNode: GraphConfigNode = this.findNodeById(field.getNodeId());
+        const graphConfigNode: GraphConfigNode = this.findNodeById(field.getNode().getId());
 
         // remove the field
         graphConfigNode.removeFieldById(field.getId());

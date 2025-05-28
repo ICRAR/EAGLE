@@ -153,7 +153,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         switch(dataType){
             case 'inputPort':
             case 'outputPort':
-                node = eagle.logicalGraph().findNodeByIdQuiet(f.getNodeId())
+                node = f.getNode()
                 field = f
                 break;
             case 'comment':
@@ -1661,7 +1661,7 @@ export class GraphRenderer {
         
         //preparing necessary port info
         GraphRenderer.draggingPort = true
-        GraphRenderer.portDragSourceNode(eagle.logicalGraph().findNodeById(port.getNodeId()));
+        GraphRenderer.portDragSourceNode(port.getNode());
         GraphRenderer.portDragSourcePort(port);
         GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
         GraphRenderer.renderDraggingPortEdge(true);
@@ -2138,7 +2138,7 @@ export class GraphRenderer {
 
         const eagle = Eagle.getInstance();
         GraphRenderer.destinationPort = port;
-        GraphRenderer.destinationNode = eagle.logicalGraph().findNodeById(port.getNodeId());
+        GraphRenderer.destinationNode = port.getNode();
 
         //if the port we are dragging from and are hovering one are the same type of port return an error
         if(usage === 'input' && GraphRenderer.portDragSourcePortIsInput || usage === 'output' && !GraphRenderer.portDragSourcePortIsInput){

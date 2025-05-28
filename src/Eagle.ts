@@ -4219,7 +4219,7 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Edit Field");
 
         // now that we are done, re-open the params table
-        Utils.showField(this, field.getNodeId(), field);
+        Utils.showField(this, field.getNode().getId(), field);
     };
     getNewNodePosition = (radius: number) : {x:number, y:number, extended:boolean} => {
         const MARGIN = 100; // buffer to keep new nodes away from the maxX and maxY sides of the LG display area

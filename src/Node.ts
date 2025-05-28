@@ -31,6 +31,7 @@ import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { Field } from './Field';
+import { Fields } from './Fields';
 import { GraphRenderer } from "./GraphRenderer";
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -49,7 +50,7 @@ export class Node {
     private inputApplication : ko.Observable<Node>;
     private outputApplication : ko.Observable<Node>; // TODO: remove inputApplication, outputApplication and embed
 
-    private fields : ko.ObservableArray<Field>; // TODO: replace with ko.Observable<Fields>
+    private fields : ko.Observable<Fields>;
 
     private category : ko.Observable<Category>;
     private categoryType : ko.Observable<Category.Type>;
@@ -88,7 +89,7 @@ export class Node {
         this.inputApplication = ko.observable(null);
         this.outputApplication = ko.observable(null);
 
-        this.fields = ko.observableArray([]);
+        this.fields = ko.observable(new Fields());
         this.category = ko.observable(category);
 
         // lookup correct categoryType based on category
@@ -129,8 +130,9 @@ export class Node {
         this.id(id);
 
         // go through all fields on this node, and make sure their nodeIds are all updated, important for ports
-        for (const field of this.fields()){
-            field.setNodeId(id);
+        // TODO: maybe this isn't necessary
+        for (const field of this.fields().all()){
+            field.setNode(this);
         }
 
         return this;
@@ -317,7 +319,7 @@ export class Node {
     getInputPorts = () : Field[] => {
         const result: Field[] = []
 
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.isInputPort()){
                 result.push(field);
             }
@@ -329,7 +331,7 @@ export class Node {
     getInputEventPorts = () : Field[] => {
         const result: Field[] = []
 
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.isInputPort() && field.getIsEvent()){
                 result.push(field);
             }
@@ -341,7 +343,7 @@ export class Node {
     getOutputPorts = () : Field[] => {
         const result: Field[] = []
 
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.isOutputPort()){
                 result.push(field);
             }
@@ -353,7 +355,7 @@ export class Node {
     getOutputEventPorts = () : Field[] => {
         const result: Field[] = []
 
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.isOutputPort() && field.getIsEvent()){
                 result.push(field);
             }
@@ -410,7 +412,7 @@ export class Node {
     }
 
     getFieldByDisplayText = (displayText : string) : Field | null => {
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.getDisplayText() === displayText){
                 return field;
             }
@@ -420,7 +422,7 @@ export class Node {
     }
 
     getFieldById = (id : string) : Field | null => {
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.getId() === id){
                 return field;
             }
@@ -430,7 +432,7 @@ export class Node {
     }
 
     hasFieldWithDisplayText = (displayText : string) : boolean => {
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.getDisplayText() === displayText){
                 return true;
             }
@@ -439,17 +441,17 @@ export class Node {
     }
 
     getFields = () : Field[] => {
-        return this.fields();
+        return this.fields().all();
     }
 
     getNumFields = () : number => {
-        return this.fields().length;
+        return this.fields().all().length;
     }
 
     getComponentParameters = () : Field[] => {
         const result: Field[] = [];
 
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.getParameterType() === Daliuge.FieldType.Component){
                 result.push(field);
             }
@@ -461,7 +463,7 @@ export class Node {
     getComponentParametersWithNoPorts = () : Field[] => {
         const result: Field[] = [];
 
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.getParameterType() === Daliuge.FieldType.Component && field.getUsage() === Daliuge.FieldUsage.NoPort){
                 result.push(field);
             }
@@ -473,7 +475,7 @@ export class Node {
     getApplicationArguments = () : Field[] => {
         const result: Field[] = [];
 
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.getParameterType() === Daliuge.FieldType.Application){
                 result.push(field);
             }
@@ -485,7 +487,7 @@ export class Node {
     getApplicationArgumentsWithNoPorts = () : Field[] => {
         const result: Field[] = [];
 
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.getParameterType() === Daliuge.FieldType.Application && field.getUsage() === Daliuge.FieldUsage.NoPort){
                 result.push(field);
             }
@@ -497,7 +499,7 @@ export class Node {
     getConstructParameters = () : Field[] => {
         const result: Field[] = [];
 
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.getParameterType() === Daliuge.FieldType.Construct){
                 result.push(field);
             }
@@ -509,7 +511,7 @@ export class Node {
     getConstructParametersWithNoPorts = () : Field[] => {
         const result: Field[] = [];
 
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.getParameterType() === Daliuge.FieldType.Construct && field.getUsage() === Daliuge.FieldUsage.NoPort){
                 result.push(field);
             }
@@ -770,7 +772,7 @@ export class Node {
         this.inputApplication(null);
         this.outputApplication(null);
 
-        this.fields([]);
+        this.fields().clear();
 
         this.category(Category.Unknown);
         this.categoryType(Category.Type.Unknown);
@@ -801,7 +803,7 @@ export class Node {
     }, this);
 
     findFieldById = (id: string) : Field => {
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.getId() === id){
                 return field;
             }
@@ -865,7 +867,7 @@ export class Node {
     findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field => {
         console.assert(!local);
 
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.getDisplayText() === displayText){
                 if (input && field.isInputPort()){
                     return field;
@@ -880,7 +882,7 @@ export class Node {
     }
 
     findFieldByDisplayText = (displayText: string, fieldType: Daliuge.FieldType) : Field => {
-        for (const field of this.fields()){
+        for (const field of this.fields().all()){
             if (field.getParameterType() === fieldType && field.getDisplayText() === displayText){
                 return field;
             }
@@ -977,13 +979,14 @@ export class Node {
     }
 
     addField = (field : Field) : void => {
-        this.fields.push(field);
-        field.setNodeId(this.id());
+        this.fields().add(field);
+        this.fields.valueHasMutated();
+        field.setNode(this);
     }
 
     addFieldByIndex = (field : Field, i : number) : void => {
         this.fields.splice(i, 0, field);
-        field.setNodeId(this.id());
+        field.setNode(this);
     }
 
     setGroupStart = (value: boolean) => {
@@ -1031,8 +1034,8 @@ export class Node {
     }
 
     removeFieldById = (id: string) : void => {
-        for (let i = 0; i < this.fields().length ; i++){
-            if (this.fields()[i].getId() === id){
+        for (let i = 0; i < this.fields().all().length ; i++){
+            if (this.fields().all()[i].getId() === id){
                 this.fields.splice(i, 1);
                 return;
             }
@@ -1042,20 +1045,20 @@ export class Node {
     }
 
     removeAllFields = () : void => {
-        this.fields([]);
+        this.fields().clear();
     }
 
     removeAllComponentParameters = () : void => {
-        for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getParameterType() === Daliuge.FieldType.Component){
+        for (let i = this.fields().all().length - 1 ; i >= 0 ; i--){
+            if (this.fields().all()[i].getParameterType() === Daliuge.FieldType.Component){
                 this.fields.splice(i, 1);
             }
         }
     }
 
     removeAllApplicationArguments = () : void => {
-        for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getParameterType() === Daliuge.FieldType.Application){
+        for (let i = this.fields().all().length - 1 ; i >= 0 ; i--){
+            if (this.fields().all()[i].getParameterType() === Daliuge.FieldType.Application){
                 this.fields.splice(i, 1);
             }
         }
@@ -1063,8 +1066,8 @@ export class Node {
 
     // removes all InputPort ports, and changes all InputOutput ports to be OutputPort
     removeAllInputPorts = () : void => {
-        for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            const field: Field = this.fields()[i];
+        for (let i = this.fields().all().length - 1 ; i >= 0 ; i--){
+            const field: Field = this.fields().all()[i];
 
             if (field.getUsage() === Daliuge.FieldUsage.InputPort){
                 this.fields.splice(i, 1);
@@ -1077,8 +1080,8 @@ export class Node {
 
     // removes all OutputPort ports, and changes all InputOutput ports to be InputPort
     removeAllOutputPorts = () : void => {
-        for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            const field: Field = this.fields()[i];
+        for (let i = this.fields().all().length - 1 ; i >= 0 ; i--){
+            const field: Field = this.fields().all()[i];
 
             if (field.getUsage() === Daliuge.FieldUsage.OutputPort){
                 this.fields.splice(i, 1);
@@ -1110,8 +1113,9 @@ export class Node {
         result.subject(this.subject());
 
         // clone fields
-        for (const field of this.fields()){
-            result.fields.push(field.clone());
+        for (const field of this.fields().all()){
+            result.fields().add(field.clone());
+            result.fields.valueHasMutated();
         }
 
         result.repositoryUrl(this.repositoryUrl());
@@ -1791,14 +1795,14 @@ export class Node {
 
         // add fields
         result.fields = [];
-        for (const field of node.fields()){
+        for (const field of node.fields().all()){
             result.fields.push(Field.toOJSJson(field));
         }
 
         // add fields from inputApplication
         result.inputAppFields = [];
         if (node.hasInputApplication()){
-            for (const field of node.inputApplication().fields()){
+            for (const field of node.inputApplication().fields().all()){
                 result.inputAppFields.push(Field.toOJSJson(field));
             }
         }
@@ -1806,7 +1810,7 @@ export class Node {
         // add fields from outputApplication
         result.outputAppFields = [];
         if (node.hasOutputApplication()){
-            for (const field of node.outputApplication().fields()){
+            for (const field of node.outputApplication().fields().all()){
                 result.outputAppFields.push(Field.toOJSJson(field));
             }
         }
@@ -1869,14 +1873,14 @@ export class Node {
 
         // add fields
         result.fields = [];
-        for (const field of node.fields()){
+        for (const field of node.fields().all()){
             result.fields.push(Field.toOJSJson(field));
         }
 
         // add fields from inputApplication
         result.inputAppFields = [];
         if (node.hasInputApplication()){
-            for (const field of node.inputApplication().fields()){
+            for (const field of node.inputApplication().fields().all()){
                 result.inputAppFields.push(Field.toOJSJson(field));
             }
         }
@@ -1884,7 +1888,7 @@ export class Node {
         // add fields from outputApplication
         result.outputAppFields = [];
         if (node.hasOutputApplication()){
-            for (const field of node.outputApplication().fields()){
+            for (const field of node.outputApplication().fields().all()){
                 result.outputAppFields.push(Field.toOJSJson(field));
             }
         }
