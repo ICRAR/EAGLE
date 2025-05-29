@@ -4461,6 +4461,16 @@ export class Eagle {
         });
     }
 
+    hideNavbarDropdown = ()=>{
+        //hide navbar dropdown after a tiny delay, if the cursor has not returned to hovering on the dropdown
+        setTimeout(function() {
+            if($(".dropdown-menu:hover").length === 0){
+                $(".dropdown-toggle").removeClass("show")
+                $(".dropdown-menu").removeClass("show")
+            }
+        }, 400);
+    }
+
     editGraphShortDescription = async(): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
 
@@ -4730,12 +4740,6 @@ export namespace Eagle
 // TODO: ready is deprecated here, use something else
 $( document ).ready(function() {
     // jquery event listeners start here
-    
-    //hides the dropdown navbar elements when stopping hovering over the element
-    $(".dropdown-menu").on("mouseleave", function(){
-        $(".dropdown-toggle").removeClass("show")
-        $(".dropdown-menu").removeClass("show")
-    })
 
     //added to prevent console warnings caused by focused elements in a modal being hidden 
     $('.modal').on('hide.bs.modal',function(){
