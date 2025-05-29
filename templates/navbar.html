@@ -120,7 +120,7 @@
                 <a class="nav-link dropdown-toggle ms-auto iconHoverEffect" href="#" id="navbarDropdownGraph" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Graph
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseout: $root.closeDropdownMenu()}" aria-labelledby="navbarDropdownGraph">
+                <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseleave: $root.closeDropdownMenu()}" aria-labelledby="navbarDropdownGraph">
                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                         <span class="dropdown-item dropDropDownParent" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownGraphNew">New
                             <div class="dropDropDown">
@@ -180,7 +180,7 @@
                 <a class="nav-link dropdown-toggle iconHoverEffect" href="#" id="navbarDropdownPalette" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Palette
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseout: $root.closeDropdownMenu()}" aria-labelledby="navbarDropdownPalette">
+                <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseleave: $root.closeDropdownMenu()}" aria-labelledby="navbarDropdownPalette">
                 <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                     <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
@@ -224,7 +224,7 @@
                 <a class="nav-link dropdown-toggle ms-auto iconHoverEffect" href="#" id="navbarDropdownConfig" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Config
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseout: $root.closeDropdownMenu()}" aria-labelledby="navbarDropdownConfig">
+                <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseleave: $root.closeDropdownMenu()}" aria-labelledby="navbarDropdownConfig">
                     <a class="dropdown-item" id="createNewConfig" href="#" data-bind="click: newConfig">New
                         <span data-bind="text: KeyboardShortcut.idToKeysText('new_config', true)"></span>
                     </a>
@@ -238,7 +238,7 @@
                 <a class="nav-link dropdown-toggle iconHoverEffect" href="#" id="navbarDropdownHelp" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Help
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseout: $root.closeDropdownMenu()}" aria-labelledby="navbarDropdownHelp">
+                <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseleave: $root.closeDropdownMenu()}" aria-labelledby="navbarDropdownHelp">
                     <a class="dropdown-item" id="about" href="#" data-bind="click: showAbout">About</a>
                     <span class="dropdown-item dropDropDownParent" id="navTutorials" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownTutorials">Tutorials
                         <div class="dropDropDown">
