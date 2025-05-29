@@ -4462,7 +4462,7 @@ export class Eagle {
             if($(".dropdown-menu:hover").length === 0){
                 $(".dropdown-toggle").removeClass("show")
                 $(".dropdown-menu").removeClass("show")
-                $(".dropdown-trigger").removeClass("show")
+                $(".dropdown-trigger").removeClass("show") // some dropdowns use this class instead of the dropdown-toggle class because that one comes with a lot of unwanted css from bootstrap in some cases.
             }
         }, 400);
     }
