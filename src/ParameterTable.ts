@@ -702,9 +702,8 @@ export class ParameterTable {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
         const eagle = Eagle.getInstance()
 
-        const copiedField = eagle.selectedNode().findFieldById(fieldId).clone()
-        copiedField.setId(Utils.generateFieldId())
-        copiedField.setDisplayText(copiedField.getDisplayText()+' copy')
+        const copiedField = eagle.selectedNode().findFieldById(fieldId).clone().setId(Utils.generateFieldId());
+        copiedField.setDisplayText(copiedField.getDisplayText()+' copy');
         if(ParameterTable.hasSelection()){
             //if a cell in the table is selected in this case the new node will be placed below the currently selected node
             fieldIndex = ParameterTable.selectionParentIndex() + 1

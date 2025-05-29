@@ -2049,8 +2049,7 @@ export class Utils {
 
         // if a field was not found, clone one from the example and add to node
         if (field === null){
-            field = exampleField.clone();
-            field.setId(Utils.generateFieldId());
+            field = exampleField.clone().setId(Utils.generateFieldId());
             node.addField(field);
         }
 
@@ -2242,8 +2241,7 @@ export class Utils {
 
         // otherwise, if not found, just add a clone of the required field
         if (!field){
-            field = requiredField.clone();
-            field.setId(Utils.generateFieldId());
+            field = requiredField.clone().setId(Utils.generateFieldId());
             node.addField(field);
         }
 
@@ -2745,8 +2743,7 @@ export class Utils {
 
         // set new ids for any fields in this node
         for (const field of newNode.getFields()){
-            field.setId(Utils.generateFieldId());
-            field.setNodeId(newNodeId);
+            field.setId(Utils.generateFieldId()).setNodeId(newNodeId);
         }
 
         // set new ids for embedded applications within node, and new ids for ports within those embedded nodes
@@ -2756,8 +2753,7 @@ export class Utils {
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
                 for (const field of clone.getFields()){
-                    field.setId(Utils.generateFieldId());
-                    field.setNodeId(newInputAppId);
+                    field.setId(Utils.generateFieldId()).setNodeId(newInputAppId);
                 }
             }
             newNode.setInputApplication(clone)
@@ -2772,8 +2768,7 @@ export class Utils {
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
                 for (const field of clone.getFields()){
-                    field.setId(Utils.generateFieldId());
-                    field.setNodeId(newOutputAppId);
+                    field.setId(Utils.generateFieldId()).setNodeId(newOutputAppId);
                 }
             }
             newNode.setOutputApplication(clone)

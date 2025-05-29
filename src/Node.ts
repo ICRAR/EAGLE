@@ -970,19 +970,11 @@ export class Node {
 
     setGroupStart = (value: boolean) => {
         if (!this.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_START)){
-            this.addField(new Field(
-                Utils.generateFieldId(),
-                Daliuge.FieldName.GROUP_START,
-                value.toString(),
-                "false",
-                "Is this node the start of a group?",
-                false,
-                Daliuge.DataType.Boolean,
-                false,
-                [],
-                false,
-                Daliuge.FieldType.Component,
-                Daliuge.FieldUsage.NoPort));
+            // create a new groupStart field (clone from Daliuge)
+            const groupStartField: Field = Daliuge.groupStartField.clone().setId(Utils.generateFieldId()).setValue(value.toString());
+
+            // add field to node
+            this.addField(groupStartField);
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).setValue(value.toString());
         }
@@ -990,19 +982,11 @@ export class Node {
 
     setGroupEnd = (value: boolean) => {
         if (!this.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_END)){
-            this.addField(new Field(
-                Utils.generateFieldId(),
-                Daliuge.FieldName.GROUP_END,
-                value.toString(),
-                "false",
-                "Is this node the end of a group?",
-                false,
-                Daliuge.DataType.Boolean,
-                false,
-                [],
-                false,
-                Daliuge.FieldType.Component,
-                Daliuge.FieldUsage.NoPort));
+            // create a new groupEnd field (clone from Daliuge)
+            const groupEndField: Field = Daliuge.groupEndField.clone().setId(Utils.generateFieldId()).setValue(value.toString());
+
+            // add field to node
+            this.addField(groupEndField);
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).setValue(value.toString());
         }
@@ -1538,37 +1522,13 @@ export class Node {
 
         // handle obsolete 'precious' attribute, add it as a 'persist' field
         if (typeof nodeData.precious !== 'undefined'){
-            const preciousField = new Field(
-                Utils.generateFieldId(),
-                Daliuge.FieldName.PERSIST,
-                nodeData.precious.toString(), 
-                "false",
-                "Specifies whether this data component contains data that should not be deleted after execution",
-                false,
-                Daliuge.DataType.Boolean,
-                false,
-                [],
-                false,
-                Daliuge.FieldType.Component,
-                Daliuge.FieldUsage.NoPort);
-            node.addField(preciousField);
+            const persistField = Daliuge.persistField.clone().setId(Utils.generateFieldId()).setValue(nodeData.precious.toString());
+            node.addField(persistField);
         }
 
         // handle obsolete 'streaming' attribute, add it as a 'streaming' field
         if (typeof nodeData.streaming !== 'undefined'){
-            const streamingField = new Field(
-                Utils.generateFieldId(),
-                Daliuge.FieldName.STREAMING,
-                nodeData.streaming.toString(),
-                "false",
-                "Specifies whether this data component streams input and output data",
-                false,
-                Daliuge.DataType.Boolean,
-                false,
-                [],
-                false,
-                Daliuge.FieldType.Component,
-                Daliuge.FieldUsage.NoPort);
+            const streamingField = Daliuge.streamingField.clone().setId(Utils.generateFieldId()).setValue(nodeData.streaming.toString());
             node.addField(streamingField);
         }
 
