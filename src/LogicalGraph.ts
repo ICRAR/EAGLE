@@ -372,10 +372,11 @@ export class LogicalGraph {
     }
 
     duplicateGraphConfig = (config: GraphConfig): void => {
-        const clone = config.clone();
-
-        clone.setId(Utils.generateGraphConfigId());
-        clone.setName(Utils.generateGraphConfigName(clone));
+        const newConfigName = Utils.generateGraphConfigName(config);
+        const clone = config
+            .clone()
+            .setId(Utils.generateGraphConfigId())
+            .setName(newConfigName);
 
         // duplicate, set active and graph as modified
         this.addGraphConfig(clone)
@@ -523,46 +524,21 @@ export class LogicalGraph {
      * Adds data component to the graph (with a new id)
      */
     addDataComponentToGraph = (node: Node, location : {x: number, y:number}) : Node => {
-        // clone the template node, set position and add to logicalGraph
-        const newNode: Node = node.clone();
-        newNode.setPosition(location.x, location.y);
+        // clone the template node, set position
+        const newNode: Node = node
+            .clone()
+            .setPosition(location.x, location.y);
+
+        // add to logicalGraph
         this.nodes().add(newNode);
         this.nodes.valueHasMutated();
 
         return newNode;
     }
 
-    /*
-    findNodeByIdQuiet = (id: NodeId) : Node => {
-        //used temporarily for the table modals to prevent console spam relating to too many calls when changing selected objects
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
-
-            // check if the node itself has a matching key
-            if (this.nodes()[i].getId() === id){
-                return this.nodes()[i];
-            }
-
-            // check if the node's inputApp has a matching key
-            if (this.nodes()[i].hasInputApplication()){
-                if (this.nodes()[i].getInputApplication().getId() === id){
-                    return this.nodes()[i].getInputApplication();
-                }
-            }
-
-            // check if the node's outputApp has a matching key
-            if (this.nodes()[i].hasOutputApplication()){
-                if (this.nodes()[i].getOutputApplication().getId() === id){
-                    return this.nodes()[i].getOutputApplication();
-                }
-            }
-        }
-        return null;
-    }
-    */
     findNodeByIdQuiet = (id: NodeId) : Node => {
         return this.nodes().get(id);
     }
-
 
     findNodeById = (id: NodeId) : Node => {
         const node = this.findNodeByIdQuiet(id);

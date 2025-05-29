@@ -15,7 +15,7 @@ export class GraphConfig {
     private name: ko.Observable<string>;
     private description: ko.Observable<string>;
     
-    private nodes: ko.ObservableArray<GraphConfigNode>;
+    private nodes: ko.ObservableArray<GraphConfigNode>; // TODO: ko.Observable<GraphConfigNodes>
 
     private lastModifiedName : ko.Observable<string>;
     private lastModifiedEmail : ko.Observable<string>;
@@ -270,7 +270,7 @@ export class GraphConfig {
 
 export class GraphConfigNode {
     private id: ko.Observable<NodeId>;
-    private fields: ko.ObservableArray<GraphConfigField>;
+    private fields: ko.ObservableArray<GraphConfigField>; // TODO: ko.Observable<GraphConfigFields>
 
     constructor(){
         this.id = ko.observable(null);

@@ -179,10 +179,9 @@ export class Palette {
     // NOTE: clones the node internally
     addNode = (node: Node, force: boolean) : void => {
         // copy node
-        const newNode : Node = node.clone();
-
-        // set appropriate key for node (one that is not already in use)
-        newNode.setId(Utils.generateNodeId());
+        const newNode : Node = node
+            .clone()
+            .setId(Utils.generateNodeId());
 
         if (force){
             this.nodes.push(newNode);

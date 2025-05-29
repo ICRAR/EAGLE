@@ -2049,8 +2049,9 @@ export class Utils {
 
         // if a field was not found, clone one from the example and add to node
         if (field === null){
-            field = exampleField.clone();
-            field.setId(Utils.generateFieldId());
+            field = exampleField
+                .clone()
+                .setId(Utils.generateFieldId());
             node.addField(field);
         }
 
@@ -2240,8 +2241,9 @@ export class Utils {
 
         // otherwise, if not found, just add a clone of the required field
         if (!field){
-            field = requiredField.clone();
-            field.setId(Utils.generateFieldId());
+            field = requiredField
+                .clone()
+                .setId(Utils.generateFieldId());
             node.addField(field);
         }
 
@@ -2734,14 +2736,15 @@ export class Utils {
     }
 
     static duplicateNode(node: Node): Node {
-        const newNode = node.clone();
         const newNodeId = Utils.generateNodeId();
         const newInputAppId: NodeId = Utils.generateNodeId();
         const newOutputAppId: NodeId = Utils.generateNodeId();
 
         // set appropriate key for node (one that is not already in use)
-        newNode.setId(newNodeId);
-        newNode.setEmbed(null);
+        const newNode = node
+            .clone()
+            .setId(newNodeId)
+            .setEmbed(null);
 
         // set new ids for any fields in this node
         for (const field of newNode.getFields()){

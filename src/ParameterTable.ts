@@ -691,10 +691,13 @@ export class ParameterTable {
 
     static duplicateParameter = (fieldId: FieldId) : void => {
         const selectedNode: Node = Eagle.getInstance().selectedNode();
+        const field = selectedNode.findFieldById(fieldId);
+        const newFieldText = field.getDisplayText()+' copy';
 
-        const copiedField = selectedNode.findFieldById(fieldId).clone()
-        copiedField.setId(Utils.generateFieldId())
-        copiedField.setDisplayText(copiedField.getDisplayText()+' copy')
+        const copiedField = field
+            .clone()
+            .setId(Utils.generateFieldId())
+            .setDisplayText(newFieldText);
 
         // the new node is appended at the bottom
         selectedNode.addField(copiedField)
