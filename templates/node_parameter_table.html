@@ -33,7 +33,7 @@
 
         <div class="dropdown parameterTableVisibilityContainer">
             <a class="dropdown-toggle icon-table_column_visibility componentTableVisibilityBtn iconHoverEffect" data-bs-toggle="dropdown"></a>
-            <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseleave: $root.closeDropdownMenus}">
+            <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseleave: $root.closeDropdownMenu}">
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleKeyAttribute()}"><span>Key Parameter</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().keyAttribute()"></div>
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleFieldId()}"><span>Field ID</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().fieldId()"></div>
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleDefaultValue()}"><span>Default Value</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().defaultValue()"></div>
@@ -293,7 +293,7 @@
                                                         <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
                                                             <div class="dropdown parameterTableTypeCustomSelect">
                                                                 <a class="dropdown-toggle" data-bind="text:$data.defaultValue, disabled: ParameterTable.getNodeLockedState($data)" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-                                                                <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseleave: $root.closeDropdownMenus}" aria-labelledby="parameterTableTpeCustomSelect">
+                                                                <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseleave: $root.closeDropdownMenu}" aria-labelledby="parameterTableTpeCustomSelect">
                                                                     <!-- ko foreach:$data.options()-->
                                                                         <div class="dropdown-item" data-bind="click:function(data, event){$parent.setDefaultValue($data);}">
                                                                             <input data-bind="value:$data, event: {change:function(data,event){$parent.editOption($index(),$(event.target).val())}}" type="text">
@@ -338,7 +338,7 @@
                                                                         arrow_drop_down
                                                                     </span>
                                                                 </button>
-                                                                <ul class="dropdown-menu dropdown-menu-end" data-bind="event:{mouseleave: $root.closeDropdownMenus}" data-bind="attr:{id:'typeFor_'+$data.getId()}">
+                                                                <ul class="dropdown-menu dropdown-menu-end" data-bind="event:{mouseleave: $root.closeDropdownMenu}" data-bind="attr:{id:'typeFor_'+$data.getId()}">
                                                                     <!-- ko foreach:$root.types() -->
                                                                         <a class="dropdown-item" data-bind="text:$data, click:function(){$root.tableDropdownClick($data, $parent);}"></a>
                                                                     <!-- /ko -->

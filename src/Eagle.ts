@@ -2571,7 +2571,7 @@ export class Eagle {
 
     sortPalette = (palette: Palette): void => {
         // close the palette menu
-        this.closeDropdownMenus();
+        this.closeDropdownMenu();
 
         const preSortCopy = palette.getNodes().slice();
 
@@ -2588,7 +2588,7 @@ export class Eagle {
 
     selectAllInPalette = (palette: Palette): void => {
         // close the palette menu
-        this.closeDropdownMenus();
+        this.closeDropdownMenu();
 
         this.selectedObjects([]);
         for (const node of palette.getNodes()){
@@ -4456,7 +4456,7 @@ export class Eagle {
         });
     }
 
-    closeDropdownMenus = ()=>{
+    closeDropdownMenu = ()=>{
         //hide navbar dropdown after a tiny delay, if the cursor has not returned to hovering on the dropdown
         setTimeout(function() {
             if($(".dropdown-menu:hover").length === 0){

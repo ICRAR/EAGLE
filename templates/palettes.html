@@ -7,7 +7,7 @@
             <a class="dropdown-toggle material-icons iconHoverEffect" href="#" id="paletteWindowdropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 more_vert
             </a>
-            <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseleave: $root.closeDropdownMenus}" aria-labelledby="paletteWindowdropdown">
+            <div class="dropdown-menu dropdown-menu-right" data-bind="event:{mouseleave: $root.closeDropdownMenu}" aria-labelledby="paletteWindowdropdown">
                 <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                 <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                     <div class="dropDropDown">
@@ -38,7 +38,7 @@
         <div data-bind="foreach: palettes">
             <div class="paletteCardWrapper">
                 <button type="button" class="material-icons md-18 dropdown-toggle paletteTripleDot iconHoverEffect" data-bs-toggle="dropdown" >more_vert</button>
-                <div class="dropdown-menu" data-bind="event:{mouseleave: $root.closeDropdownMenus}">
+                <div class="dropdown-menu" data-bind="event:{mouseleave: $root.closeDropdownMenu}">
                     <a href="#" data-bind="click: $root.sortPalette, clickBubble: false" data-html="true"><span>Sort</span></a>
                     <a href="#" data-bind="click: $root.selectAllInPalette, clickBubble: false" data-html="true"><span>Select All</span></a>
                     <!-- ko ifnot: $data.fileInfo().builtIn -->
