@@ -665,19 +665,10 @@ export class ParameterTable {
     }
 
     static addEmptyTableRow = () : void => {
-        let fieldIndex:number
         const selectedNode: Node = Eagle.getInstance().selectedNode();
+        selectedNode.addEmptyField();
 
-        if(ParameterTable.hasSelection()){
-            // A cell in the table is selected well insert new row instead of adding at the end
-            fieldIndex = ParameterTable.selectionParentIndex() + 1
-            selectedNode.addEmptyField(fieldIndex)
-        }else{
-            selectedNode.addEmptyField(-1)
-
-            //getting the length of the array to use as an index to select the last row in the table
-            fieldIndex = selectedNode.getFields().length-1;
-        }
+        const fieldIndex = selectedNode.getFields().length-1;
 
         //update the parameter table fields array
         ParameterTable.copySelectedNodeFields()
@@ -698,22 +689,17 @@ export class ParameterTable {
         }, 100);
     }
 
-    static duplicateParameter = (index:number,fieldId:string) : void => {
-        let fieldIndex:number //variable holds the index of which row to highlight after creation
-        const eagle = Eagle.getInstance()
+    static duplicateParameter = (fieldId: FieldId) : void => {
+        const selectedNode: Node = Eagle.getInstance().selectedNode();
 
-        const copiedField = eagle.selectedNode().findFieldById(fieldId).clone()
+        const copiedField = selectedNode.findFieldById(fieldId).clone()
         copiedField.setId(Utils.generateFieldId())
         copiedField.setDisplayText(copiedField.getDisplayText()+' copy')
-        if(ParameterTable.hasSelection()){
-            //if a cell in the table is selected in this case the new node will be placed below the currently selected node
-            fieldIndex = ParameterTable.selectionParentIndex() + 1
-            eagle.selectedNode().addFieldByIndex(copiedField,fieldIndex)
-        }else{
-            //if no cell in the table is selected, in this case the new node is appended at the bottom
-            eagle.selectedNode().addField(copiedField)
-            fieldIndex = eagle.selectedNode().getFields().length -1
-        }
+
+        // the new node is appended at the bottom
+        selectedNode.addField(copiedField)
+
+        const fieldIndex = selectedNode.getFields().length - 1;
 
         setTimeout(function() {
             //handling selecting and highlighting the newly created field on the node
@@ -728,10 +714,10 @@ export class ParameterTable {
         }, 100);
     }
 
-    static duplicateTableRow = (index:number, fieldId:string) : void => {
+    static duplicateTableRow = (index: number, fieldId: FieldId) : void => {
         const eagle = Eagle.getInstance()
 
-        ParameterTable.duplicateParameter(index, fieldId)
+        ParameterTable.duplicateParameter(fieldId)
         // eagle.selectedObjects.valueHasMutated()
         eagle.flagActiveFileModified()
 

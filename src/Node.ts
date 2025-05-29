@@ -984,11 +984,6 @@ export class Node {
         field.setNode(this);
     }
 
-    addFieldByIndex = (field : Field, i : number) : void => {
-        this.fields.splice(i, 0, field);
-        field.setNode(this);
-    }
-
     setGroupStart = (value: boolean) => {
         if (!this.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_START)){
             this.addField(new Field(
@@ -1030,18 +1025,12 @@ export class Node {
     }
 
     removeFieldByIndex = (index : number) : void => {
-        this.fields.splice(index, 1);
+        const field = this.fields().all()[index];
+        this.fields().remove(field.getId());
     }
 
-    removeFieldById = (id: string) : void => {
-        for (let i = 0; i < this.fields().all().length ; i++){
-            if (this.fields().all()[i].getId() === id){
-                this.fields.splice(i, 1);
-                return;
-            }
-        }
-
-        console.warn("Could not remove field from node, id not found:", id);
+    removeFieldById = (id: FieldId) : void => {
+        this.fields().remove(id);
     }
 
     removeAllFields = () : void => {
@@ -1050,16 +1039,18 @@ export class Node {
 
     removeAllComponentParameters = () : void => {
         for (let i = this.fields().all().length - 1 ; i >= 0 ; i--){
-            if (this.fields().all()[i].getParameterType() === Daliuge.FieldType.Component){
-                this.fields.splice(i, 1);
+            const field: Field = this.fields().all()[i];
+            if (field.getParameterType() === Daliuge.FieldType.Component){
+                this.fields().remove(field.getId());
             }
         }
     }
 
     removeAllApplicationArguments = () : void => {
         for (let i = this.fields().all().length - 1 ; i >= 0 ; i--){
-            if (this.fields().all()[i].getParameterType() === Daliuge.FieldType.Application){
-                this.fields.splice(i, 1);
+            const field: Field = this.fields().all()[i];
+            if (field.getParameterType() === Daliuge.FieldType.Application){
+                this.fields().remove(field.getId());
             }
         }
     }
@@ -1070,7 +1061,7 @@ export class Node {
             const field: Field = this.fields().all()[i];
 
             if (field.getUsage() === Daliuge.FieldUsage.InputPort){
-                this.fields.splice(i, 1);
+                this.fields().remove(field.getId());
             }
             if (field.getUsage() === Daliuge.FieldUsage.InputOutput){
                 field.setUsage(Daliuge.FieldUsage.OutputPort);
@@ -1084,7 +1075,7 @@ export class Node {
             const field: Field = this.fields().all()[i];
 
             if (field.getUsage() === Daliuge.FieldUsage.OutputPort){
-                this.fields.splice(i, 1);
+                this.fields().remove(field.getId());
             }
             if (field.getUsage() === Daliuge.FieldUsage.InputOutput){
                 field.setUsage(Daliuge.FieldUsage.InputPort);
@@ -1309,14 +1300,9 @@ export class Node {
         return 1;
     }
 
-    addEmptyField = (index:number) :void => {
+    addEmptyField = () :void => {
         const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.NoPort);
-
-        if(index === -1){
-            this.addField(newField);
-        }else{
-            this.addFieldByIndex(newField, index);
-        }
+        this.addField(newField);
     }
 
     toggleExpanded = (): Node => {
