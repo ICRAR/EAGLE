@@ -2544,11 +2544,6 @@ export class Eagle {
         return null;
     }
 
-    closePaletteMenus=() : void => {
-        $("#paletteList .dropdown-toggle").removeClass("show")
-        $("#paletteList .dropdown-menu").removeClass("show")
-    }
-
     closePalette = async (palette : Palette): Promise<void> => {
         for (let i = 0 ; i < this.palettes().length ; i++){
             const p = this.palettes()[i];
@@ -2576,7 +2571,7 @@ export class Eagle {
 
     sortPalette = (palette: Palette): void => {
         // close the palette menu
-        this.closePaletteMenus();
+        this.closeDropdownMenus();
 
         const preSortCopy = palette.getNodes().slice();
 
@@ -2593,7 +2588,7 @@ export class Eagle {
 
     selectAllInPalette = (palette: Palette): void => {
         // close the palette menu
-        this.closePaletteMenus();
+        this.closeDropdownMenus();
 
         this.selectedObjects([]);
         for (const node of palette.getNodes()){
@@ -4461,12 +4456,13 @@ export class Eagle {
         });
     }
 
-    hideNavbarDropdown = ()=>{
+    closeDropdownMenus = ()=>{
         //hide navbar dropdown after a tiny delay, if the cursor has not returned to hovering on the dropdown
         setTimeout(function() {
             if($(".dropdown-menu:hover").length === 0){
                 $(".dropdown-toggle").removeClass("show")
                 $(".dropdown-menu").removeClass("show")
+                $(".dropdown-trigger").removeClass("show")
             }
         }, 400);
     }
