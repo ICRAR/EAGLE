@@ -49,6 +49,9 @@ const colors: ColorMap = {
 
 export class EagleConfig {
 
+    // General UI
+    public static readonly DROPDOWN_DISMISS_DELAY: number = 400;
+
     // graph behaviour
     public static readonly NODE_SUGGESTION_RADIUS = 300
     public static readonly NODE_SUGGESTION_SNAP_RADIUS = 150

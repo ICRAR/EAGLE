@@ -2544,11 +2544,6 @@ export class Eagle {
         return null;
     }
 
-    closePaletteMenus=() : void => {
-        $("#paletteList .dropdown-toggle").removeClass("show")
-        $("#paletteList .dropdown-menu").removeClass("show")
-    }
-
     closePalette = async (palette : Palette): Promise<void> => {
         for (let i = 0 ; i < this.palettes().length ; i++){
             const p = this.palettes()[i];
@@ -2576,7 +2571,7 @@ export class Eagle {
 
     sortPalette = (palette: Palette): void => {
         // close the palette menu
-        this.closePaletteMenus();
+        // this.closeDropdownMenu();
 
         const preSortCopy = palette.getNodes().slice();
 
@@ -2593,7 +2588,7 @@ export class Eagle {
 
     selectAllInPalette = (palette: Palette): void => {
         // close the palette menu
-        this.closePaletteMenus();
+        this.closeDropdownMenu();
 
         this.selectedObjects([]);
         for (const node of palette.getNodes()){
@@ -4461,6 +4456,17 @@ export class Eagle {
         });
     }
 
+    closeDropdownMenu = ()=>{
+        //hide navbar dropdown after a tiny delay, if the cursor has not returned to hovering on the dropdown
+        setTimeout(function() {
+            if($(".dropdown-menu:hover").length === 0){
+                $(".dropdown-toggle").removeClass("show")
+                $(".dropdown-menu").removeClass("show")
+                $(".dropdown-trigger").removeClass("show") // some dropdowns use this class instead of the dropdown-toggle class because that one comes with a lot of unwanted css from bootstrap in some cases.
+            }
+        }, EagleConfig.DROPDOWN_DISMISS_DELAY);
+    }
+
     editGraphShortDescription = async(): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
 
@@ -4730,12 +4736,6 @@ export namespace Eagle
 // TODO: ready is deprecated here, use something else
 $( document ).ready(function() {
     // jquery event listeners start here
-    
-    //hides the dropdown navbar elements when stopping hovering over the element
-    $(".dropdown-menu").on("mouseleave", function(){
-        $(".dropdown-toggle").removeClass("show")
-        $(".dropdown-menu").removeClass("show")
-    })
 
     //added to prevent console warnings caused by focused elements in a modal being hidden 
     $('.modal').on('hide.bs.modal',function(){
