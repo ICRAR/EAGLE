@@ -1,17 +1,23 @@
 import { test, expect } from '@playwright/test';
+import fs from 'fs';
 import https from 'https';
+import path from 'path';
+
 
 const GRAPHS = [
   // graph_patterns
-  "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/graph_patterns/LoopWithBranch.graph",
+  //"https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/graph_patterns/LoopWithBranch.graph",
   //"https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/graph_patterns/genericScatter.graph"
+
+  "data/LoopWithBranch.graph"
 ]
 
 let graphJSON: string = "input";
 
 test('Load/Save JSON Match', async ({ page }) => {
-  for (const graphUrl of GRAPHS){
-    await fetchGraph(graphUrl);
+  for (const graph of GRAPHS){
+    //await fetchGraph(graph);
+    await readGraph(graph);
 
     await page.goto('http://localhost:8888/?tutorial=none');
 
@@ -68,6 +74,10 @@ const setEditorContent = (content): void => {
 const getEditorContent = (): string => {
   const editor = $('#inputCodeModal').data('editor');
   return editor.getValue();
+}
+
+const readGraph = (filename) => {
+  graphJSON = fs.readFileSync(path.join(__dirname, filename)).toString();
 }
 
 const fetchGraph = (url) => {
