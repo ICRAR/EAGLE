@@ -2571,7 +2571,7 @@ export class Eagle {
 
     sortPalette = (palette: Palette): void => {
         // close the palette menu
-        this.closeDropdownMenu();
+        // this.closeDropdownMenu();
 
         const preSortCopy = palette.getNodes().slice();
 
@@ -4464,7 +4464,7 @@ export class Eagle {
                 $(".dropdown-menu").removeClass("show")
                 $(".dropdown-trigger").removeClass("show") // some dropdowns use this class instead of the dropdown-toggle class because that one comes with a lot of unwanted css from bootstrap in some cases.
             }
-        }, 400);
+        }, EagleConfig.DROPDOWN_DISMISS_DELAY);
     }
 
     editGraphShortDescription = async(): Promise<void> => {
