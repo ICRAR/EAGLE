@@ -1407,15 +1407,15 @@ export class Eagle {
             return;
         }
 
-        let userText: string;
+        let userCode: string;
         try{
-            userText = await Utils.requestUserText("New Logical Graph from JSON", "Enter the JSON below", "");
+            userCode = await Utils.requestUserCode("json", "New Logical Graph from JSON", "");
         } catch (error){
             console.error(error);
             return;
         }
 
-        this._loadGraphJSON(userText, "", (lg: LogicalGraph) : void => {
+        this._loadGraphJSON(userCode, "", (lg: LogicalGraph) : void => {
             this.logicalGraph(lg);
         });
 
