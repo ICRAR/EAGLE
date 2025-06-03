@@ -2570,23 +2570,6 @@ export class Eagle {
         this.resetEditor()
     }
 
-    sortPalette = (palette: Palette): void => {
-        // close the palette menu
-        this.closePaletteMenus();
-
-        const preSortCopy = palette.getNodes().slice();
-
-        palette.sort();
-
-        // check whether anything changed order, if so, mark as modified
-        for (let i = 0; i < palette.getNodes().length; i++) {
-            if (palette.getNodes()[i].getId() !== preSortCopy[i].getId()) {
-                palette.fileInfo().modified = true;
-                break;
-            }
-        }
-    }
-
     selectAllInPalette = (palette: Palette): void => {
         // close the palette menu
         this.closePaletteMenus();

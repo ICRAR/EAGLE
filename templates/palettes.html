@@ -39,7 +39,6 @@
             <div class="paletteCardWrapper">
                 <button type="button" class="material-icons md-18 dropdown-toggle paletteTripleDot iconHoverEffect" data-bs-toggle="dropdown" >more_vert</button>
                 <div class="dropdown-menu" data-bind="event:{mouseleave: $root.closePaletteMenus}">
-                    <a href="#" data-bind="click: $root.sortPalette, clickBubble: false" data-html="true"><span>Sort</span></a>
                     <a href="#" data-bind="click: $root.selectAllInPalette, clickBubble: false" data-html="true"><span>Select All</span></a>
                     <!-- ko ifnot: $data.fileInfo().builtIn -->
                     <a href="#" data-bind="click: $root.closePalette, clickBubble: false" data-html="true"><span>Remove</span></a>

@@ -16,8 +16,9 @@ export class Nodes {
         }
     }
 
-    add = (node: Node): void => {
+    add = (node: Node): Node => {
         this.nodeMap()[node.getId()] = node;
+        return node;
     }
 
     remove = (id: NodeId): void => {
