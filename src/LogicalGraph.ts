@@ -860,7 +860,7 @@ export class LogicalGraph {
 
         for (const node of this.nodes().all()){
             const parent = node.getParent();
-            if (parent !== null && parent.getId() === id){
+            if ((id === null && parent === null) || (parent !== null && parent.getId() === id)){
                 result.push(node);
             }
         }
