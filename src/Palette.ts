@@ -90,6 +90,7 @@ export class Palette {
 
             // add node to palette
             result.nodes().add(newNode);
+            result.nodes.valueHasMutated();
         }
 
         // check for missing name
@@ -171,6 +172,7 @@ export class Palette {
 
         for (const node of this.nodes().all()){
             result.nodes().add(node.clone());
+            result.nodes.valueHasMutated();
         }
 
         return result;
@@ -186,6 +188,7 @@ export class Palette {
 
         if (force){
             this.nodes().add(newNode);
+            this.nodes.valueHasMutated();
             return;
         }
 
@@ -197,12 +200,14 @@ export class Palette {
             if (paletteNode.getName() === newNode.getName() && paletteNode.getCategory() === newNode.getCategory()){
                 this.nodes().remove(paletteNode.getId());
                 this.nodes().add(newNode);
+                this.nodes.valueHasMutated();
                 return;
             }
         }
 
         // if we didn't find a matching node to replace, add it as a new node
         this.nodes().add(newNode);
+        this.nodes.valueHasMutated();
     }
 
     findNodeById = (id: NodeId) : Node => {

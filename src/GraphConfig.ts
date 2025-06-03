@@ -43,6 +43,7 @@ export class GraphConfig {
         // copy nodes
         for (const node of this.nodes().all()){
             result.nodes().add(node.clone());
+            result.nodes.valueHasMutated();
         }
 
         result.lastModifiedName(this.lastModifiedName());
@@ -101,6 +102,7 @@ export class GraphConfig {
         const newNode: GraphConfigNode = new GraphConfigNode();
         newNode.setId(id);
         this.nodes().add(newNode);
+        this.nodes.valueHasMutated();
         return newNode;
     }
 
@@ -178,6 +180,7 @@ export class GraphConfig {
                 const newNode: GraphConfigNode = GraphConfigNode.fromJson(nodeData, errorsWarnings);
                 newNode.setId(nodeId as NodeId);
                 result.nodes().add(newNode);
+                result.nodes.valueHasMutated();
             }
         }
 

@@ -179,6 +179,7 @@ export class LogicalGraph {
             }
 
             result.nodes().add(newNode);
+            result.nodes.valueHasMutated();
         }
 
         // set ids for all embedded nodes
@@ -465,16 +466,19 @@ export class LogicalGraph {
         // copy nodes
         for (const node of this.nodes().all()){
             result.nodes().add(node.clone());
+            result.nodes.valueHasMutated();
         }
 
         // copy edges
         for (const edge of this.edges().all()){
             result.edges().add(edge.clone());
+            result.edges.valueHasMutated();
         }
 
         // copy graph configs
         for (const graphConfig of this.graphConfigs()){
             result.graphConfigs.push(graphConfig.clone());
+            // TODO: valueHasMutated()?
         }
 
         //copy active graph config id state
