@@ -1617,7 +1617,11 @@ export class GraphRenderer {
 
         // loop through all nodes to fund children - then check to find distance from center of construct
         for (const node of eagle.logicalGraph().getNodes()){
-            if(GraphRenderer.ctrlDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelected(node.getParent())){
+            const parent = node.getParent();
+            if (parent === null){
+                continue;
+            }
+            if(GraphRenderer.ctrlDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelected(parent)){
                 continue
             }
             if (node.getParent().getId() === construct.getId()){
