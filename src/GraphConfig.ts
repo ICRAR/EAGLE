@@ -15,7 +15,7 @@ export class GraphConfig {
     private name: ko.Observable<string>;
     private description: ko.Observable<string>;
     
-    private nodes: ko.ObservableArray<GraphConfigNode>; // TODO: ko.Observable<GraphConfigNodes>
+    private nodes: ko.Observable<GraphConfigNodes>;
 
     private lastModifiedName : ko.Observable<string>;
     private lastModifiedEmail : ko.Observable<string>;
@@ -26,7 +26,7 @@ export class GraphConfig {
         this.name = ko.observable("");
         this.description = ko.observable("");
 
-        this.nodes = ko.observableArray([]);
+        this.nodes = ko.observable(new GraphConfigNodes);
 
         this.lastModifiedName = ko.observable("");
         this.lastModifiedEmail = ko.observable("");
@@ -41,8 +41,8 @@ export class GraphConfig {
         result.description(this.description());
         
         // copy nodes
-        for (const node of this.nodes()){
-            result.nodes.push(node.clone());
+        for (const node of this.nodes().all()){
+            result.nodes().add(node.clone());
         }
 
         result.lastModifiedName(this.lastModifiedName());
@@ -80,7 +80,7 @@ export class GraphConfig {
     }
 
     getNodes = (): GraphConfigNode[] => {
-        return this.nodes();
+        return this.nodes().all();
     }
 
     setLastModified = (name: string, email: string, datetime: number): void => {
@@ -91,16 +91,16 @@ export class GraphConfig {
 
     addNode = (id: NodeId): GraphConfigNode => {
         // check to see if node already exists
-        for (const node of this.nodes()){
-            if (node.getId() === id){
-                return node;
-            }
+        const node: GraphConfigNode = this.nodes().get(id);
+
+        if (node){
+            return node;
         }
 
         // otherwise add new node
         const newNode: GraphConfigNode = new GraphConfigNode();
         newNode.setId(id);
-        this.nodes.push(newNode);
+        this.nodes().add(newNode);
         return newNode;
     }
 
@@ -109,31 +109,16 @@ export class GraphConfig {
         this.addNode(node.getId()).addField(field.getId());
     }
 
-    findNodeById = (id: string): GraphConfigNode => {
-        for (const node of this.nodes()){
-            if (node.getId() === id){
-                return node;
-            }
-        }
-        return null;
+    findNodeById = (id: NodeId): GraphConfigNode => {
+        return this.nodes().get(id);
     }
 
     removeNode = (node: GraphConfigNode): void => {
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
-            if (this.nodes()[i].getId() === node.getId()){
-                this.nodes.splice(i, 1);
-                break;
-            }
-        }
+        this.nodes().remove(node.getId());
     }
 
     removeNodeById = (nodeId: NodeId): void => {
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
-            if (this.nodes()[i].getId() === nodeId){
-                this.nodes.splice(i, 1);
-                break;
-            }
-        }
+        this.nodes().remove(nodeId);
     }
 
     removeField = (field: Field): void => {
@@ -159,7 +144,7 @@ export class GraphConfig {
     numFields: ko.PureComputed<number> = ko.pureComputed(() => {
         let count = 0;
 
-        for (const node of this.nodes()){
+        for (const node of this.nodes().all()){
             count += node.getFields().length;
         }
 
@@ -167,15 +152,13 @@ export class GraphConfig {
     }, this)
 
     hasField = (field: Field): boolean => {
-        for (const n of this.nodes()){
-            for (const f of n.getFields()){
-                if (field.getId() === f.getId()){
-                    return true;
-                }
-            }
-        }
+        // get the Node for this field
+        const node: Node = field.getNode();
 
-        return false;
+
+        const f: GraphConfigField = this.nodes().get(node.getId())?.findFieldById(field.getId());
+
+        return typeof f !== 'undefined';
     }
 
     static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
@@ -194,7 +177,7 @@ export class GraphConfig {
                 const nodeData = data.nodes[nodeId];
                 const newNode: GraphConfigNode = GraphConfigNode.fromJson(nodeData, errorsWarnings);
                 newNode.setId(nodeId as NodeId);
-                result.nodes.push(newNode);
+                result.nodes().add(newNode);
             }
         }
 
@@ -220,7 +203,7 @@ export class GraphConfig {
 
         // add nodes
         result.nodes = {};
-        for (const node of graphConfig.nodes()){
+        for (const node of graphConfig.nodes().all()){
             const graphNode: Node = logicalGraph.findNodeByIdQuiet(node.getId());
             result.nodes[node.getId()] = GraphConfigNode.toJSON(node, graphNode);
         }
@@ -246,7 +229,7 @@ export class GraphConfig {
     static apply(lg: LogicalGraph, config: GraphConfig) : void {
         console.log("Applying graph config with", config.numFields(), "fields to logical graph", lg.fileInfo.name);
 
-        for (const node of config.nodes()){
+        for (const node of config.nodes().all()){
             const lgNode = lg.findNodeById(node.getId());
 
             if (lgNode === null){
@@ -265,6 +248,39 @@ export class GraphConfig {
                 lgField.setValue(field.getValue());
             }
         }
+    }
+}
+
+export class GraphConfigNodes {
+    private nodeMap: ko.Observable<GraphConfigNodes.NodeMap>;
+
+    constructor(){
+        this.nodeMap = ko.observable({});
+    }
+
+    get = (id: NodeId) : GraphConfigNode => {
+        if (this.nodeMap().hasOwnProperty(id)){
+            return this.nodeMap()[id];
+        } else {
+            return null;
+        }
+    }
+
+    add = (node: GraphConfigNode): GraphConfigNode => {
+        this.nodeMap()[node.getId()] = node;
+        return node;
+    }
+
+    remove = (id: NodeId): void => {
+        delete this.nodeMap()[id];
+    }
+
+    all = () : GraphConfigNode[] => {
+        return Object.values(this.nodeMap());
+    }
+
+    clear = () : void => {
+        this.nodeMap({});
     }
 }
 
@@ -450,4 +466,10 @@ export class GraphConfigField {
 export namespace GraphConfig
 {
     export type Id = Branded<string, "GraphConfigId">
+}
+
+export namespace GraphConfigNodes {
+    export type NodeMap = {
+        [key: NodeId]: GraphConfigNode;
+    };
 }
