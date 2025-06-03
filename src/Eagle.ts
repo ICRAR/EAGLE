@@ -4466,6 +4466,12 @@ export class Eagle {
             }
         }, EagleConfig.DROPDOWN_DISMISS_DELAY);
     }
+    closeDropdownMenuJQUERY = (targetElement:any)=>{
+        console.log('targetelement: ',targetElement)
+        //hide navbar dropdown after a tiny delay, if the cursor has not returned to hovering on the dropdown
+        $(targetElement).removeClass("show")
+        $(targetElement).parent().find('.dropdown-toggle').removeClass('show')
+    }
 
     editGraphShortDescription = async(): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
@@ -4736,6 +4742,15 @@ export namespace Eagle
 // TODO: ready is deprecated here, use something else
 $( document ).ready(function() {
     // jquery event listeners start here
+
+    $('.dropdown-trigger').on('mouseout',function(){
+        const element = this
+        setTimeout(function() {
+            if($(".dropdown-trigger:hover").length === 0){
+                Eagle.getInstance().closeDropdownMenuJQUERY(element)
+            }
+        }, EagleConfig.DROPDOWN_DISMISS_DELAY);
+    })
 
     //added to prevent console warnings caused by focused elements in a modal being hidden 
     $('.modal').on('hide.bs.modal',function(){
