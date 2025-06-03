@@ -224,10 +224,10 @@ export class Edge {
 
     static toOJSJson(edge : Edge) : object {
         return {
-            from: edge.srcNode,
-            fromPort: edge.srcPort,
-            to: edge.destNode,
-            toPort: edge.destPort,
+            from: edge.srcNode.getId(),
+            fromPort: edge.srcPort.getId(),
+            to: edge.destNode.getId(),
+            toPort: edge.destPort.getId(),
             loop_aware: edge.loopAware() ? "1" : "0",
             closesLoop: edge.closesLoop()
         };
@@ -278,48 +278,66 @@ export class Edge {
             closesLoop = linkData.closesLoop;
         }
 
-        // TODO: this could be better?
+        // TODO: this could be better? perhaps could use Node.findPortInApplicationsById()
         let srcNode: Node = null;
         let destNode: Node = null;
+        let srcPort: Field = null;
+        let destPort: Field = null;
 
         for (const node of nodes){
             if (node.getId() === srcNodeId){
                 srcNode = node;
-                continue;
+
+                // check whether edge is actually connected to the inputApplication
+                if (node.hasInputApplication()){
+                    srcPort = node.getInputApplication().findFieldById(srcPortId);
+
+                    if (srcPort !== null){
+                        srcNode = node.getInputApplication();
+                        continue;
+                    }
+                }
+
+                // check whether edge is actually connected to the outputApplication
+                if (node.hasOutputApplication()){
+                    srcPort = node.getOutputApplication().findFieldById(srcPortId);
+
+                    if (srcPort !== null){
+                        srcNode = node.getOutputApplication();
+                        continue;
+                    }
+                }
+
+                srcPort = node.findFieldById(srcPortId);
             }
+
             if (node.getId() === destNodeId){
                 destNode = node;
-                continue;
-            }
-            if (node.hasInputApplication()){
-                if (node.getInputApplication().getId() === srcNodeId){
-                    console.log("found srcNode as inputApp on node", node.getName(), node.getInputApplication().getName());
-                    srcNode = node.getInputApplication();
-                    continue;
+
+                // check whether edge is actually connected to the inputApplication
+                if (node.hasInputApplication()){
+                    destPort = node.getInputApplication().findFieldById(destPortId);
+
+                    if (destPort !== null){
+                        destNode = node.getInputApplication();
+                        continue;
+                    }
                 }
-                if (node.getInputApplication().getId() === destNodeId){
-                    console.log("found destNode as inputApp on node", node.getName(), node.getInputApplication().getName());
-                    destNode = node.getInputApplication();
-                    continue;
+
+                // check whether edge is actually connected to the outputApplication
+                if (node.hasOutputApplication()){
+                    destPort = node.getOutputApplication().findFieldById(destPortId);
+
+                    if (destPort !== null){
+                        destNode = node.getOutputApplication();
+                        continue;
+                    }
                 }
-            }
-            if (node.hasOutputApplication()){
-                if (node.getOutputApplication().getId() === srcNodeId){
-                    console.log("found srcNode as outputApp on node", node.getName(), node.getOutputApplication().getName());
-                    srcNode = node.getOutputApplication();
-                    continue;
-                }
-                if (node.getOutputApplication().getId() === destNodeId){
-                    console.log("found destNode as outputApp on node", node.getName(), node.getOutputApplication().getName());
-                    destNode = node.getOutputApplication();
-                    continue;
-                }
+
+                destPort = node.findFieldById(destPortId);
             }
         }
         console.log("srcNode", srcNode.getName(), "destNode", destNode.getName());
-
-        const srcPort: Field = srcNode.findFieldById(srcPortId);
-        const destPort: Field = destNode.findFieldById(destPortId);
 
         // debug
         if (srcPort === null){

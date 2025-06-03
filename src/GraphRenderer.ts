@@ -1439,7 +1439,9 @@ export class GraphRenderer {
                 while(!finished){
                     let found = false
                     for(const entry of constructsList){
-                        if(entry.getParent().getId() === findConstructId){
+                        const parent: Node = entry.getParent();
+
+                        if(parent !== null && parent.getId() === findConstructId){
                             orderedConstructList.unshift(entry)
                             findConstructId = entry.getId()
                             found = true
@@ -1470,8 +1472,9 @@ export class GraphRenderer {
         let maxX : number = -Number.MAX_VALUE;
         let maxY : number = -Number.MAX_VALUE;
         for (const node of graphNodes){
+            const parent: Node = node.getParent();
             
-            if (!node.isEmbedded() && node.getParent().getId() === construct.getId()){
+            if (!node.isEmbedded() && parent !== null && parent.getId() === construct.getId()){
                 childCount++
                 if (node.getPosition().x - node.getRadius() < minX){
                     minX = node.getPosition().x - node.getRadius();
@@ -1599,7 +1602,7 @@ export class GraphRenderer {
     // however, if allowGraphEditing is false, then don't update
     // TODO: check what to do if incoming parent is null (what happened if old parentId was null?)
     static updateNodeParent(node: Node, parent: Node, allowGraphEditing: boolean): void {
-        if (node.getParent().getId() !== parent.getId() && allowGraphEditing){
+        if (node.getParent() === null || parent === null || (node.getParent().getId() !== parent.getId()) && allowGraphEditing){
             node.setParent(parent);
             Eagle.getInstance().checkGraph()   
         }

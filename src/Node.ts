@@ -244,7 +244,7 @@ export class Node {
     setParent = (node: Node) : Node => {
         // TODO: maybe we should allow this here and just check for the bad state in checkGraph() ?
         // check that we are not making this node its own parent
-        if (node.id() === this.id()){
+        if (node !== null && node.id() === this.id()){
             console.warn("Setting node as its own parent!");
             return this;
         }
@@ -802,17 +802,14 @@ export class Node {
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
     }, this);
 
-    findFieldById = (id: string) : Field => {
-        for (const field of this.fields().all()){
-            if (field.getId() === id){
-                return field;
-            }
-        }
+    findFieldById = (id: FieldId) : Field => {
+        console.log("Looking for field", id, "on node", this.getName(), ". Node has", this.fields().all().length, "fields.");
 
-        return null;
+        return this.fields().get(id);
     }
 
-    findPortInApplicationsById = (portId : string) : {node: Node, port: Field} => {
+    // TODO: still used?
+    findPortInApplicationsById = (portId: FieldId) : {node: Node, port: Field} => {
         // if node has an inputApplication, check those ports too
         if (this.hasInputApplication()){
             for (const inputPort of this.inputApplication().getInputPorts()){
