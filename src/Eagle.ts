@@ -107,6 +107,7 @@ export class Eagle {
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
+    dropdownMenuHoverTimeout : any = 0;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
@@ -183,6 +184,7 @@ export class Eagle {
 
         this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
+        this.dropdownMenuHoverTimeout = null;
 
         this.selectedObjects.subscribe(function(){
             //TODO check if the selectedObjects array has changed, if not, abort
@@ -4728,8 +4730,12 @@ $( document ).ready(function() {
 
     $('body').on('mouseout','.dropdown-area',function(){
         const targetElement = this
-        setTimeout(function() {
-            if($(".dropdown-area:hover").length === 0){
+        //we are using a timeout stored in a global variable so we have only one timeout that resets when another mouseout is called.
+        //if we dont do this we end up with several timouts conflicting.
+        clearTimeout(Eagle.getInstance().dropdownMenuHoverTimeout)
+
+        Eagle.getInstance().dropdownMenuHoverTimeout = setTimeout(function() {
+            if($(".dropdown-menu:hover").length === 0){
                 $(targetElement).removeClass("show")
                 $(targetElement).parent().find('.dropdown-control').removeClass('show')
             }
