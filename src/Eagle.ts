@@ -2588,7 +2588,7 @@ export class Eagle {
 
     selectAllInPalette = (palette: Palette): void => {
         // close the palette menu
-        this.closeDropdownMenu();
+        // this.closeDropdownMenu();
 
         this.selectedObjects([]);
         for (const node of palette.getNodes()){
@@ -4456,23 +4456,6 @@ export class Eagle {
         });
     }
 
-    closeDropdownMenu = ()=>{
-        //hide navbar dropdown after a tiny delay, if the cursor has not returned to hovering on the dropdown
-        setTimeout(function() {
-            if($(".dropdown-menu:hover").length === 0){
-                $(".dropdown-toggle").removeClass("show")
-                $(".dropdown-menu").removeClass("show")
-                $(".dropdown-trigger").removeClass("show") // some dropdowns use this class instead of the dropdown-toggle class because that one comes with a lot of unwanted css from bootstrap in some cases.
-            }
-        }, EagleConfig.DROPDOWN_DISMISS_DELAY);
-    }
-    closeDropdownMenuJQUERY = (targetElement:any)=>{
-        console.log('targetelement: ',targetElement)
-        //hide navbar dropdown after a tiny delay, if the cursor has not returned to hovering on the dropdown
-        $(targetElement).removeClass("show")
-        $(targetElement).parent().find('.dropdown-toggle').removeClass('show')
-    }
-
     editGraphShortDescription = async(): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
 
@@ -4743,11 +4726,12 @@ export namespace Eagle
 $( document ).ready(function() {
     // jquery event listeners start here
 
-    $('.dropdown-trigger').on('mouseout',function(){
-        const element = this
+    $('body').on('mouseout','.dropdown-area',function(){
+        const targetElement = this
         setTimeout(function() {
-            if($(".dropdown-trigger:hover").length === 0){
-                Eagle.getInstance().closeDropdownMenuJQUERY(element)
+            if($(".dropdown-area:hover").length === 0){
+                $(targetElement).removeClass("show")
+                $(targetElement).parent().find('.dropdown-control').removeClass('show')
             }
         }, EagleConfig.DROPDOWN_DISMISS_DELAY);
     })
