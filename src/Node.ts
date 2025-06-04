@@ -803,8 +803,6 @@ export class Node {
     }, this);
 
     findFieldById = (id: FieldId) : Field => {
-        console.log("Looking for field", id, "on node", this.getName(), ". Node has", this.fields().all().length, "fields.");
-
         return this.fields().get(id);
     }
 
@@ -2112,11 +2110,11 @@ export class Node {
     }
 
     static determineNodeParentId(nodeData: any): NodeId | null {
-        if (typeof nodeData.group !== 'undefined'){
-            return nodeData.group;
-        }
         if (typeof nodeData.parentId !== 'undefined'){
             return nodeData.parentId;
+        }
+        if (typeof nodeData.group !== 'undefined'){
+            return nodeData.group;
         }
         return null;
     }

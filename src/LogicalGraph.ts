@@ -249,8 +249,6 @@ export class LogicalGraph {
         // add a step here to check that no edges are incident on constructs, and move any edges found to the embedded applications
         // add warnings to errorsWarnings
         for (const edge of result.edges().all()){
-            console.log("edge", edge.getSrcNode(), edge.getDestNode(), edge.getSrcPort(), edge.getDestPort());
-
             // get references to actual source and destination nodes (from the keys)
             const sourceNode : Node = edge.getSrcNode();
             const destinationNode : Node = edge.getDestNode();

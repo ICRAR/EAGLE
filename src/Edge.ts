@@ -261,8 +261,6 @@ export class Edge {
             destPortId = linkData.toPort;
         }
         
-        console.log("srcNodeId", srcNodeId, "srcPortId", srcPortId, "destNodeId", destNodeId, "destPortId", destPortId);
-
         // try to read loop_aware attribute
         let loopAware: boolean = false;
         if (typeof linkData.loop_aware !== 'undefined'){
@@ -337,7 +335,6 @@ export class Edge {
                 destPort = node.findFieldById(destPortId);
             }
         }
-        console.log("srcNode", srcNode.getName(), "destNode", destNode.getName());
 
         // debug
         if (srcPort === null){
@@ -387,8 +384,8 @@ export class Edge {
         }
 
         // get references to actual source and destination nodes (from the ids)
-        const sourceNode : Node = eagle.logicalGraph().findNodeById(sourceNodeId);
-        const destinationNode : Node = eagle.logicalGraph().findNodeById(destinationNodeId);
+        const sourceNode : Node = eagle.logicalGraph().findNodeByIdQuiet(sourceNodeId);
+        const destinationNode : Node = eagle.logicalGraph().findNodeByIdQuiet(destinationNodeId);
 
         if (sourceNode === null || typeof sourceNode === "undefined" || destinationNode === null || typeof destinationNode === "undefined"){
             return Errors.Validity.Unknown;
