@@ -9,6 +9,8 @@ export class Fields {
     }
 
     get = (id: FieldId) : Field => {
+        //console.log("try", this.fieldMap(), this.fieldMap()[id]);
+
         if (this.fieldMap().hasOwnProperty(id)){
             return this.fieldMap()[id];
         } else {

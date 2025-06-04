@@ -359,6 +359,8 @@ export class Edge {
             edge.issues([]) //clear old issues
         }
 
+        console.log("edge", edgeId, "sourceNode", sourceNodeId, "sourcePort", sourcePortId, "destNode", destinationNodeId, "destPort", destinationPortId);
+
         if (sourcePortId === null){
             const issue = Errors.Fix("Source port has no id", function(){Utils.fixNodeFieldIds(eagle, sourceNodeId)}, "Generate ids for ports on source node");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
@@ -422,6 +424,7 @@ export class Edge {
 
         const sourcePort : Field = sourceNode.findFieldById(sourcePortId);
         const destinationPort : Field = destinationNode.findFieldById(destinationPortId);
+        console.log("sourcePort", sourcePort, "destinationPort", destinationPort);
 
         // check if source port was found
         if (sourcePort === null) {
@@ -609,7 +612,7 @@ export class Edge {
         if (showNotification)
             Utils.showNotification(title, message, type);
         if (showConsole)
-            console.warn(title + ":" + message);
+            console.trace(title + ":" + message);
         if (type === "danger" && errorsWarnings !== null){
             errorsWarnings.errors.push(issue);
         }

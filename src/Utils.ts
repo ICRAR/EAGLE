@@ -2746,6 +2746,7 @@ export class Utils {
             .setId(newNodeId)
             .setEmbed(null);
 
+        // TODO: this is wrong here!, the field ids within the fields don't match the keys in the fields map!
         // set new ids for any fields in this node
         for (const field of newNode.getFields()){
             field.setId(Utils.generateFieldId());
@@ -2876,5 +2877,17 @@ export class Utils {
         }
 
         return customRepositories;
+    }
+
+    static checkNodeFieldsOK(node: Node): boolean {
+        for (const field of node.getFields()){
+            const f: Field = node.findFieldById(field.getId());
+
+            if (f === null){
+                return false;
+            }
+        }
+
+        return true;
     }
 }

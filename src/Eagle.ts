@@ -3660,7 +3660,11 @@ export class Eagle {
                 }
             }
 
+            console.log("node", Utils.checkNodeFieldsOK(node));
+
             const newNode: Node = await this.addNode(node, pos.x, pos.y);
+            console.log("newNode", Utils.checkNodeFieldsOK(newNode));
+
             // make sure the new node is selected
             this.setSelection(newNode, Eagle.FileType.Graph);
 
@@ -4571,6 +4575,8 @@ export class Eagle {
     addNode = async (node : Node, x: number, y: number): Promise<Node> => {
         // copy node
         const newNode : Node = Utils.duplicateNode(node);
+        console.log("newNode", Utils.checkNodeFieldsOK(newNode));
+
         newNode.setPosition(x, y);
         this.logicalGraph().addNodeComplete(newNode);
 

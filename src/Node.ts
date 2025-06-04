@@ -421,16 +421,6 @@ export class Node {
         return null;
     }
 
-    getFieldById = (id : string) : Field | null => {
-        for (const field of this.fields().all()){
-            if (field.getId() === id){
-                return field;
-            }
-        }
-
-        return null;
-    }
-
     hasFieldWithDisplayText = (displayText : string) : boolean => {
         for (const field of this.fields().all()){
             if (field.getDisplayText() === displayText){
@@ -803,6 +793,10 @@ export class Node {
     }, this);
 
     findFieldById = (id: FieldId) : Field => {
+        //console.log("findFieldById", id);
+
+        //console.log(this.fields().all().map((value: Field) => {return value.getId()}));
+
         return this.fields().get(id);
     }
 
