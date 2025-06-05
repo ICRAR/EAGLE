@@ -300,7 +300,7 @@ export class Eagle {
     deployDefaultTranslationAlgorithm = async () => {
         const defaultTranslatorAlgorithmMethod : string = $('#'+Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)+ ' .generatePgt').val().toString()
         try {
-            await this.translator().genPGT(defaultTranslatorAlgorithmMethod, false, Daliuge.SchemaVersion.Unknown);
+            await this.translator().genPGT(defaultTranslatorAlgorithmMethod, false);
         } catch (error){
             console.error("deployDefaultTranslationAlgorithm()", error);
             Utils.showNotification("Error", error, "danger");
@@ -309,7 +309,7 @@ export class Eagle {
 
     deployTranslationAlgorithm = async (algorithm: string, test: boolean) => {
         try {
-            await this.translator().genPGT(algorithm, test, Daliuge.SchemaVersion.Unknown);
+            await this.translator().genPGT(algorithm, test);
         } catch (error){
             console.error("deployDefaultTranslationAlgorithm()", error);
             Utils.showNotification("Error", error, "danger");
@@ -1488,10 +1488,11 @@ export class Eagle {
 
     displayObjectAsJson = (fileType: Eagle.FileType) : void => {
         let jsonString: string;
+        const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
         
         switch(fileType){
             case Eagle.FileType.Graph:
-                jsonString = LogicalGraph.toOJSJsonString(this.logicalGraph(), false);
+                jsonString = LogicalGraph.toJsonString(this.logicalGraph(), false, version);
                 break;
             default:
                 console.error("displayObjectAsJson(): Un-handled fileType", fileType);
@@ -2046,18 +2047,20 @@ export class Eagle {
             const clone: LogicalGraph | Palette | Eagle = obj.clone();
             clone.fileInfo().updateEagleInfo();
 
+            const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+
             let jsonString: string = "";
             switch (fileType){
                 case Eagle.FileType.Graph:
-                    jsonString = LogicalGraph.toOJSJsonString(<LogicalGraph>clone, false);
+                    jsonString = LogicalGraph.toJsonString(<LogicalGraph>clone, false, version);
                     break;
                 case Eagle.FileType.Palette:
-                    jsonString = Palette.toOJSJsonString(<Palette>clone);
+                    jsonString = Palette.toJsonString(<Palette>clone, version);
                     break;
             }
 
             try {
-                await this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString);
+                await this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString, version);
             } catch (error){
                 reject(error);
                 return;
@@ -2067,7 +2070,7 @@ export class Eagle {
         });
     }
 
-    _saveDiagramToGit = async (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string) : Promise<void> => {
+    _saveDiagramToGit = async (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string, version: Daliuge.SchemaVersion) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             // generate filename
             const fullFileName : string = Utils.joinPath(filePath, fileName);
@@ -2094,7 +2097,7 @@ export class Eagle {
             }
 
             // validate json
-            Utils.validateJSON(jsonString, fileType);
+            Utils.validateJSON(jsonString, fileType, version);
 
             const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
 
@@ -2625,10 +2628,15 @@ export class Eagle {
         const p_clone : Palette = palette.clone();
         p_clone.fileInfo().removeGitInfo();
         p_clone.fileInfo().updateEagleInfo();
-        const jsonString: string = Palette.toOJSJsonString(p_clone);
+
+        // get version
+        const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+
+        // convert to json
+        const jsonString: string = Palette.toJsonString(p_clone, version);
 
         // validate json
-        Utils.validateJSON(jsonString, Eagle.FileType.Palette);
+        Utils.validateJSON(jsonString, Eagle.FileType.Palette, version);
 
         let data: any;
         try {
@@ -2682,10 +2690,15 @@ export class Eagle {
             const lg_clone : LogicalGraph = this.logicalGraph().clone();
             lg_clone.fileInfo().removeGitInfo();
             lg_clone.fileInfo().updateEagleInfo();
-            const jsonString : string = LogicalGraph.toOJSJsonString(lg_clone, false);
+
+            // get version
+            const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+
+            // convert to json
+            const jsonString: string = LogicalGraph.toJsonString(lg_clone, false, version);
 
             // validate json
-            Utils.validateJSON(jsonString, Eagle.FileType.Graph);
+            Utils.validateJSON(jsonString, Eagle.FileType.Graph, version);
 
             let data: any;
             try {
@@ -2787,7 +2800,13 @@ export class Eagle {
         // clone the palette
         const p_clone : Palette = palette.clone();
         p_clone.fileInfo().updateEagleInfo();
-        const jsonString: string = Palette.toOJSJsonString(p_clone);
+
+
+        // get version
+        const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+
+        // convert to json
+        const jsonString: string = Palette.toJsonString(p_clone, version);
 
         const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commit.message);
 
@@ -2802,8 +2821,11 @@ export class Eagle {
         // get logical graph
         const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
 
+        // get schema version
+        const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+
         // get json for logical graph
-        const jsonString: string = LogicalGraph.toOJSJsonString(lg, true);
+        const jsonString: string = LogicalGraph.toJsonString(lg, true, version);
 
         // parse output JSON
         let jsonObject;

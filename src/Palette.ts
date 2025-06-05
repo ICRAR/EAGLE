@@ -26,6 +26,7 @@ import * as ko from "knockout";
 
 import { Category } from './Category';
 import { CategoryData } from './CategoryData';
+import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
@@ -127,10 +128,29 @@ export class Palette {
         return result;
     }
 
-    static toOJSJsonString(palette: Palette) : string {
+    static toV4Json(palette: Palette) : object {
+        const result : any = {};
+
+        // TODO: !
+
+        return result;
+    }
+
+    static toJsonString(palette: Palette, version: Daliuge.SchemaVersion) : string {
         let result: string = "";
 
-        const json: any = Palette.toOJSJson(palette);
+        let json: any;
+        switch(version){
+            case Daliuge.SchemaVersion.OJS:
+                json = Palette.toOJSJson(palette);
+                break;
+            case Daliuge.SchemaVersion.V4:
+                json = Palette.toV4Json(palette);
+                break;
+            default:
+                console.error("Unsupported graph format! (" + version + ")");
+                return "";
+        }
 
         // manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";

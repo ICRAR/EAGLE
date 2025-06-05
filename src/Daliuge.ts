@@ -167,6 +167,7 @@ export namespace Daliuge {
     export enum SchemaVersion {
         Unknown = "Unknown",
         OJS = "OJS",
+        V4 = "V4" //dict-of-dicts
     }
 
     // These are the canonical example definition of each field

@@ -132,9 +132,55 @@ export class LogicalGraph {
         return result;
     }
 
-    static toOJSJsonString(graph : LogicalGraph, forTranslation : boolean) : string {
+    static toV4Json(graph: LogicalGraph, forTranslation: boolean) : object {
+        const result : any = {};
+
+        result.modelData = FileInfo.toOJSJson(graph.fileInfo());
+        result.modelData.schemaVersion = Daliuge.SchemaVersion.V4;
+        result.modelData.numLGNodes = graph.getNumNodes();
+
+        // add nodes
+        result.nodeDataArray = {};
+        for (const node of graph.nodes().all()){
+            const nodeData : any = Node.toV4GraphJson(node);
+            result.nodeDataArray[node.getId()] = nodeData;
+        }
+
+        // edges
+        // NOTE: we do not skip close loop edges
+        result.linkDataArray = {};
+        for (const edge of graph.edges().all()){
+            const edgeData : any = Edge.toOJSJson(edge);
+            result.linkDataArray[edge.getId()] = edgeData;
+        }
+
+        // add graph configurations
+        result.graphConfigurations = {};
+        for (const gc of graph.graphConfigs()){
+            result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc, graph);
+        }
+
+        // saving the id of the active graph configuration
+        result.activeGraphConfigId = Eagle.getInstance().logicalGraph().activeGraphConfigId();
+
+        return result;
+    }
+
+    static toJsonString(graph : LogicalGraph, forTranslation : boolean, version: Daliuge.SchemaVersion) : string {
         let result: string = "";
-        const json: any = LogicalGraph.toOJSJson(graph, forTranslation);
+        let json: any;
+
+        switch(version){
+            case Daliuge.SchemaVersion.OJS:
+                json = LogicalGraph.toOJSJson(graph, forTranslation);
+                break;
+            case Daliuge.SchemaVersion.V4:
+                json = LogicalGraph.toV4Json(graph, forTranslation);
+                break;
+            default:
+                console.error("Unsupported graph format! (" + version + ")");
+                return "";
+        }
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";

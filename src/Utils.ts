@@ -1705,14 +1705,14 @@ export class Utils {
     }
 
     // validate json
-    static validateJSON(jsonString: string, fileType: Eagle.FileType){
+    static validateJSON(jsonString: string, fileType: Eagle.FileType, version: Daliuge.SchemaVersion){
         // if validation disabled, just return true
         if (Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             return;
         }
 
         const jsonObject = JSON.parse(jsonString);
-        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, fileType);
+        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, version, fileType);
         if (!validatorResult.valid){
             Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema, saving anyway" + "<br/>" + validatorResult.errors, "danger", true);
         }
