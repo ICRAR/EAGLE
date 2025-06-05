@@ -3668,16 +3668,7 @@ export class Eagle {
 
             // set parent (if the node was dropped on something)
             const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), true);
-
-            // if a parent was found, update
-            if (parent !== null && newNode.getParent().getId() !== parent.getId() && newNode.getId() !== parent.getId()){
-                newNode.setParent(parent);
-            }
-
-            // if no parent found, update
-            if (parent === null && newNode.getParent() !== null){
-                newNode.setParent(null);
-            }
+            newNode.setParent(parent);
 
             // determine whether we should also generate an object data drop along with this node
             const generateObjectDataDrop: boolean = Daliuge.isPythonInitialiser(newNode);
