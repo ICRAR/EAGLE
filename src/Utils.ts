@@ -2751,9 +2751,10 @@ export class Utils {
         // TODO: this is wrong here!, the field ids within the fields don't match the keys in the fields map!
         // set new ids for any fields in this node
         for (const field of node.getFields()){
-            const clonedField = field.clone();
-            clonedField.setId(Utils.generateFieldId());
-            clonedField.setNode(newNode);
+            const clonedField = field
+                .clone()
+                .setId(Utils.generateFieldId())
+                .setNode(newNode);
             newNode.addField(clonedField);
         }
 
@@ -2764,8 +2765,7 @@ export class Utils {
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
                 for (const field of clone.getFields()){
-                    field.setId(Utils.generateFieldId());
-                    field.setNode(clone);
+                    field.setId(Utils.generateFieldId()).setNode(clone);
                 }
             }
             newNode.setInputApplication(clone)
@@ -2780,8 +2780,7 @@ export class Utils {
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
                 for (const field of clone.getFields()){
-                    field.setId(Utils.generateFieldId());
-                    field.setNode(clone);
+                    field.setId(Utils.generateFieldId()).setNode(clone);
                 }
             }
             newNode.setOutputApplication(clone)

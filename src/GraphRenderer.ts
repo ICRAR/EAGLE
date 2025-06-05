@@ -2331,12 +2331,6 @@ export class GraphRenderer {
             selectedColor = EagleConfig.getColor('edgeWarningSelected');
         }
 
-        // check if the edge is a "closes loop" edge
-        if (edge.isClosesLoop()){
-            normalColor = EagleConfig.getColor('edgeClosesLoop');
-            selectedColor = EagleConfig.getColor('edgeClosesLoopSelected');
-        }
-
         return eagle.objectIsSelected(edge) ? selectedColor : normalColor;
     }
 

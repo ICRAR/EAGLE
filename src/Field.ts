@@ -151,7 +151,7 @@ export class Field {
     }
 
     setInputAngle = (angle:number) : Field => {
-        this.inputAngle = angle
+        this.inputAngle = angle;
         return this;
     }
 
@@ -165,7 +165,7 @@ export class Field {
     }
 
     setOutputAngle = (angle:number): Field => {
-        this.outputAngle = angle
+        this.outputAngle = angle;
         return this;
     }
 
@@ -241,7 +241,7 @@ export class Field {
         return this.options();
     }
 
-    editOption = (optionIndex:any,newVal:string) : Field => {
+    editOption = (optionIndex: number, newVal: string) : Field => {
         //if the option we are editing is selected well update the value or default value
         if(this.options()[optionIndex] === this.value()){
             this.value(newVal)
@@ -255,7 +255,7 @@ export class Field {
         return this;
     }
 
-    addOption = (newOption:string) : Field => {
+    addOption = (newOption: string) : Field => {
         let duplicate = false;
         
         for(const option of this.options()){
@@ -370,7 +370,7 @@ export class Field {
         return this.issues();
     }
 
-    addError(issue:Errors.Issue, validity:Errors.Validity): Field {
+    addError = (issue:Errors.Issue, validity:Errors.Validity): Field => {
         this.issues().push({issue:issue,validity:validity})
         return this;
     }
@@ -691,7 +691,7 @@ export class Field {
     }
 
     static toOJSJson(field : Field) : object {
-        const result : any = {
+        return {
             name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
             defaultValue:field.defaultValue(),
@@ -705,9 +705,7 @@ export class Field {
             id: field.id(),
             parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()] || Daliuge.DLGFieldType.Unknown,
             usage: field.usage(),
-        }
-
-        return result;
+        };
     }
 
     static toOJSJsonPort(field : Field) : object {
