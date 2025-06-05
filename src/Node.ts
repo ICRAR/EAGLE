@@ -290,8 +290,9 @@ export class Node {
         return this.peek();
     }
 
-    setPeek = (value : boolean) : void => {
+    setPeek = (value : boolean) : Node => {
         this.peek(value);
+        return this;
     }
 
     togglePeek = () : void => {
@@ -520,21 +521,24 @@ export class Node {
         return this.category();
     }
 
-    setCategory = (category: Category): void => {
+    setCategory = (category: Category) : Node => {
         this.category(category);
         this.color(Utils.getColorForNode(category));
+        return this;
     }
 
     getCategoryType = () : Category.Type => {
         return this.categoryType();
     }
 
-    setCategoryType = (categoryType: Category.Type) : void => {
+    setCategoryType = (categoryType: Category.Type) : Node => {
         this.categoryType(categoryType);
+        return this;
     }
 
-    setRepositoryUrl = (url: string) : void => {
+    setRepositoryUrl = (url: string) : Node => {
         this.repositoryUrl(url);
+        return this;
     }
 
     getRepositoryUrl = () : string => {
@@ -746,7 +750,7 @@ export class Node {
         return this.outputApplication() !== null;
     }
 
-    clear = () : void => {
+    clear = () : Node => {
         this.id(null);
         this.name("");
         this.description("");
@@ -776,6 +780,8 @@ export class Node {
         this.commitHash("");
         this.paletteDownloadUrl("");
         this.dataHash("");
+
+        return this;
     }
 
     getGitHTML : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -793,10 +799,6 @@ export class Node {
     }, this);
 
     findFieldById = (id: FieldId) : Field => {
-        //console.log("findFieldById", id);
-
-        //console.log(this.fields().all().map((value: Field) => {return value.getId()}));
-
         return this.fields().get(id);
     }
 
@@ -967,13 +969,14 @@ export class Node {
         return this.findPortByDisplayText(displayText, input, local) !== null;
     }
 
-    addField = (field : Field) : void => {
+    addField = (field : Field) : Node => {
         this.fields().add(field);
         this.fields.valueHasMutated();
         field.setNode(this);
+        return this;
     }
 
-    setGroupStart = (value: boolean) => {
+    setGroupStart = (value: boolean) : Node => {
         if (!this.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_START)){
             // create a new groupStart field (clone from Daliuge)
             const groupStartField: Field = Daliuge.groupStartField.clone().setId(Utils.generateFieldId()).setValue(value.toString());
@@ -983,9 +986,11 @@ export class Node {
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).setValue(value.toString());
         }
+
+        return this;
     }
 
-    setGroupEnd = (value: boolean) => {
+    setGroupEnd = (value: boolean) : Node => {
         if (!this.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_END)){
             // create a new groupEnd field (clone from Daliuge)
             const groupEndField: Field = Daliuge.groupEndField.clone().setId(Utils.generateFieldId()).setValue(value.toString());
@@ -995,15 +1000,19 @@ export class Node {
         } else {
             this.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).setValue(value.toString());
         }
+
+        return this;
     }
 
-    removeFieldByIndex = (index : number) : void => {
+    removeFieldByIndex = (index : number) : Node => {
         const field = this.fields().all()[index];
         this.fields().remove(field.getId());
+        return this;
     }
 
-    removeFieldById = (id: FieldId) : void => {
+    removeFieldById = (id: FieldId) : Node => {
         this.fields().remove(id);
+        return this;
     }
 
     removeAllFields = () : Node => {
@@ -1011,26 +1020,30 @@ export class Node {
         return this;
     }
 
-    removeAllComponentParameters = () : void => {
+    removeAllComponentParameters = () : Node => {
         for (let i = this.fields().all().length - 1 ; i >= 0 ; i--){
             const field: Field = this.fields().all()[i];
             if (field.getParameterType() === Daliuge.FieldType.Component){
                 this.fields().remove(field.getId());
             }
         }
+
+        return this;
     }
 
-    removeAllApplicationArguments = () : void => {
+    removeAllApplicationArguments = () : Node => {
         for (let i = this.fields().all().length - 1 ; i >= 0 ; i--){
             const field: Field = this.fields().all()[i];
             if (field.getParameterType() === Daliuge.FieldType.Application){
                 this.fields().remove(field.getId());
             }
         }
+
+        return this;
     }
 
     // removes all InputPort ports, and changes all InputOutput ports to be OutputPort
-    removeAllInputPorts = () : void => {
+    removeAllInputPorts = () : Node => {
         for (let i = this.fields().all().length - 1 ; i >= 0 ; i--){
             const field: Field = this.fields().all()[i];
 
@@ -1041,10 +1054,12 @@ export class Node {
                 field.setUsage(Daliuge.FieldUsage.OutputPort);
             }
         }
+
+        return this;
     }
 
     // removes all OutputPort ports, and changes all InputOutput ports to be InputPort
-    removeAllOutputPorts = () : void => {
+    removeAllOutputPorts = () : Node => {
         for (let i = this.fields().all().length - 1 ; i >= 0 ; i--){
             const field: Field = this.fields().all()[i];
 
@@ -1055,6 +1070,8 @@ export class Node {
                 field.setUsage(Daliuge.FieldUsage.InputPort);
             }
         }
+
+        return this;
     }
 
     clone = () : Node => {
@@ -1274,9 +1291,10 @@ export class Node {
         return 1;
     }
 
-    addEmptyField = () :void => {
+    addEmptyField = () : Node => {
         const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.NoPort);
         this.addField(newField);
+        return this;
     }
 
     toggleExpanded = (): Node => {
