@@ -30,6 +30,8 @@
                 </button>
             <!-- /ko -->
         </div> 
+                                
+<!-- ------------------------------- column visibility ------------------------------- -->
 
         <div class="dropdown parameterTableVisibilityContainer">
             <a class="dropdown-toggle icon-table_column_visibility componentTableVisibilityBtn iconHoverEffect" data-bs-toggle="dropdown"></a>
@@ -49,7 +51,10 @@
                 <!-- /ko -->
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleActions()}"><span>Actions</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().actions()"></div>
             </div>
-        </div>
+        </div>        
+                                
+<!-- ------------------------------- search bar ------------------------------- -->
+
         <div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
             <i class="material-icons md-18 searchBarIcon">search</i>
             <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.tableSearchString,data,event);}">
@@ -58,6 +63,9 @@
             <input class="componentSearchBar" type="text" placeholder="Search: eg. app, string" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.tableSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}},eagleTooltip:`Search for names, types, anything really! You may enter several terms that should match separated by a ','`">
         </div>
     </div>
+                                
+<!-- ------------------------------- table ------------------------------- -->
+
     <div class="tableBody">
         <div class="wrapper">
             <!-- ko if: eagle.selectedNode() != null -->
@@ -79,6 +87,9 @@
                     </div>
                     <div class="scrollWrapper">
                         <table class="eagleTableWrapper paramsTableWrapper">
+                                
+<!-- ------------------------------- table header ------------------------------- -->
+
                             <thead>
                                 <tr>
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
@@ -153,10 +164,16 @@
                                     <!-- /ko -->
                                 </tr>
                             </thead>
+
+<!-- ------------------------------- table body ------------------------------- -->
+
                             <tbody data-bind="foreach: ParameterTable.getTableFields()">
                                 <!-- ko if: $data.fitsTableSearchQuery() -->
                                     <!-- ko if: Setting.findValue(Setting.SHOW_NON_CONFIG_PARAMETERS) || $root.logicalGraph().getActiveGraphConfig()?.hasField($data) -->
                                         <tr data-bind="attr: {'id' : 'tableRow_'+$data.getId()}">
+
+<!-- key attribute cell -->
+
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().keyAttribute() -->
                                             <td class='columnCell column_KeyAttr'>
                                                 <!-- kept for now as we will need the space for the row drag handle -->
@@ -185,7 +202,8 @@
                                                 </td>
                                             <!-- /ko -->
                                              
-                                            <!-- value fields -->
+<!-- value cell -->
+
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().value()  -->
                                                 <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
 
@@ -258,8 +276,9 @@
                                                     </td>
                                                 <!-- /ko -->
                                             <!-- /ko -->
-
-                                            <!-- default value fields -->
+                                             
+<!-- default value cell -->
+ 
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().defaultValue() -->
                                                 <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
                                                     <!-- ko if: $data.getType() === 'Integer' -->
@@ -309,7 +328,9 @@
                                                     </td>
                                                 <!-- /ko -->
                                             <!-- /ko -->
-                                                
+                                             
+<!-- description cell -->
+ 
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
                                                 <td class='columnCell column_Description' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('description', $data) }, eagleTooltip:description">
                                                     <textarea  style="resize: none;" class="tableParameter" type="string" data-bind="value: description, disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.description(), 'description', $data, $index())}, event:{keyup: function(event, data){ParameterTable.select($data.description(), 'description', $data, $index())}}"></textarea>
@@ -318,7 +339,9 @@
                                                     <!-- /ko -->
                                                 </td>
                                             <!-- /ko -->
-                                            
+                                             
+<!-- type cell -->
+ 
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
                                                 <td class='columnCell column_Type'>
                                                     <!-- ko if: $data.isEvent -->
@@ -348,6 +371,9 @@
                                                     <!-- /ko -->
                                                 </td>
                                             <!-- /ko --> 
+                                             
+<!-- flags cell -->
+ 
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().flags() -->
                                                 <td class='columnCell column_Flags'>    
                                                     <!-- ko if: ParameterTable.getNodeLockedState($data) -->
@@ -412,6 +438,9 @@
                                                     <!-- /ko -->
                                                 </td>
                                             <!-- /ko -->
+                                             
+<!-- parameter type cell -->
+ 
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().parameterType() -->
                                                 <td class='columnCell column_ParamType'>
                                                     <div class="checkboxWrapper">
@@ -421,7 +450,9 @@
                                                     </div>
                                                 </td>
                                             <!-- /ko -->
-                                            
+                                             
+<!-- usage cell -->
+ 
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().usage() && !eagle.selectedNode()?.isConstruct() -->
                                                 <td class='columnCell column_Usage'>
                                                     <div class="checkboxWrapper">
@@ -431,7 +462,9 @@
                                                     </div>
                                                 </td>
                                             <!-- /ko -->
-
+                                             
+<!-- encoding cell -->
+ 
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().encoding() && eagle.selectedNode()?.isApplication() -->
                                                 <td class='columnCell column_Encoding'>
                                                     <!-- ko if: $data.usage() === Daliuge.FieldUsage.NoPort-->
@@ -446,7 +479,9 @@
                                                     <!-- /ko -->
                                                 </td>
                                             <!-- /ko -->
-                                            
+                                             
+<!-- actions cell -->
+ 
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
                                                 <td class="columnCell column_Actions">
                                                     <button class="resetDefaults iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: ParameterTable.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-icons">upload_file</i></button>
@@ -471,7 +506,10 @@
                         </table>
                     </div>
                 <!-- /ko -->
-            <!-- /ko -->
+            <!-- /ko -->             
+
+<!-- ------------------------------- table unavailable ------------------------------- -->
+
             <div class="container h-100">
                 <div class="row align-items-center h-100">
                     <div class="col-md-12 text-center">
