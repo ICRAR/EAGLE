@@ -1673,9 +1673,6 @@ export class GraphRenderer {
         GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
         GraphRenderer.renderDraggingPortEdge(true);
         GraphRenderer.createEdgeSuggestedPorts = []
-
-        // debug
-        console.log("portDragStart node", GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourceNode().getName(), "port", GraphRenderer.portDragSourcePort(), GraphRenderer.portDragSourcePort().getDisplayText());
         
         //take not of the start drag position
         GraphRenderer.portDragStartPos = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}

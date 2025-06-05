@@ -1022,8 +1022,9 @@ export class Node {
         this.fields().remove(id);
     }
 
-    removeAllFields = () : void => {
+    removeAllFields = () : Node => {
         this.fields().clear();
+        return this;
     }
 
     removeAllComponentParameters = () : void => {

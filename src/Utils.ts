@@ -2741,16 +2741,20 @@ export class Utils {
         const newOutputAppId: NodeId = Utils.generateNodeId();
 
         // set appropriate key for node (one that is not already in use)
+        // NOTE: we remove the fields here, and re-add them one-by-one, this seems easier than changing both the key and value in the fields map
         const newNode = node
             .clone()
             .setId(newNodeId)
-            .setEmbed(null);
+            .setEmbed(null)
+            .removeAllFields();
 
         // TODO: this is wrong here!, the field ids within the fields don't match the keys in the fields map!
         // set new ids for any fields in this node
-        for (const field of newNode.getFields()){
-            field.setId(Utils.generateFieldId());
-            field.setNode(newNode);
+        for (const field of node.getFields()){
+            const clonedField = field.clone();
+            clonedField.setId(Utils.generateFieldId());
+            clonedField.setNode(newNode);
+            newNode.addField(clonedField);
         }
 
         // set new ids for embedded applications within node, and new ids for ports within those embedded nodes
