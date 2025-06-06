@@ -127,7 +127,71 @@
                             "type": "string"
                         },
                         "fields": {
-                            "type": "object"
+                            "type": "object",
+                            "patternProperties": {
+                                "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": ["string","boolean","number", "null"]
+                                        },
+                                        "defaultValue": {
+                                            "type": ["string","boolean","number", "null"]
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "readonly": {
+                                            "type": "boolean"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "precious": {
+                                            "type": "boolean"
+                                        },
+                                        "options": {
+                                            "type": "array"
+                                        },
+                                        "positional": {
+                                            "type": "boolean",
+                                            "default": false
+                                        },
+                                        "encoding": {
+                                            "type": "string",
+                                            "enum": ["binary", "pickle", "dill", "npy", "base64", "utf-8","path"],
+                                            "default": "dill"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "parameterType": {
+                                            "type": "string"
+                                        },
+                                        "usage": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "description",
+                                        "name",
+                                        "value",
+                                        "defaultValue",
+                                        "readonly",
+                                        "type",
+                                        "precious",
+                                        "options",
+                                        "positional",
+                                        "id",
+                                        "parameterType",
+                                        "usage",
+                                        "encoding"
+                                    ]
+                                }
+                            }
                         },
                         "parentId": {
                             "type": ["null", "string"]
@@ -206,7 +270,34 @@
             "additionalProperties": false
         },
         "graphConfigurations": {
-            "type": "object"
+            "type": "object",
+            "patternProperties": {
+                "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}": {
+                    "type": "object",
+                    "properties": {
+                        "nodes": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": ["number", "string", "boolean", "null"]
+                                },
+                                "comment": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "lastModifiedName": {
+                            "type": "string"
+                        },
+                        "lastModifiedEmail": {
+                            "type": "string"
+                        },
+                        "lastModifiedDatetime": {
+                            "type": "number"
+                        }
+                    }
+                }
+            }
         },
         "activeGraphConfigId": {
              "type": ["string", "null"]
