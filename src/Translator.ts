@@ -175,7 +175,7 @@ export class Translator {
         }
 
         // get the version of JSON we are using
-        const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
 
         // convert to JSON
         const jsonString: string = LogicalGraph.toJsonString(lgClone, true, version);

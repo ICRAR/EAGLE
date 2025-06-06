@@ -60,9 +60,9 @@ export class Utils {
     ];
 
     static ojsGraphSchema : object = {};
-
-
     static ojsPaletteSchema : object = {};
+    static v4GraphSchema : object = {};
+    static v4PaletteSchema : object = {};
 
     static generateNodeId(): NodeId {
         return Utils._uuidv4() as NodeId;
@@ -1558,14 +1558,14 @@ export class Utils {
         )
     }
 
-    static determineSchemaVersion(data: any): Daliuge.SchemaVersion {
+    static determineSchemaVersion(data: any): Setting.SchemaVersion {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
                 return data.modelData.schemaVersion;
             }
         }
 
-        return Daliuge.SchemaVersion.Unknown;
+        return Setting.SchemaVersion.Unknown;
     }
 
     static portsMatch(port0: Field, port1: Field){
@@ -1705,7 +1705,7 @@ export class Utils {
     }
 
     // validate json
-    static validateJSON(jsonString: string, fileType: Eagle.FileType, version: Daliuge.SchemaVersion){
+    static validateJSON(jsonString: string, fileType: Eagle.FileType, version: Setting.SchemaVersion){
         // if validation disabled, just return true
         if (Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
             return;
@@ -1718,12 +1718,12 @@ export class Utils {
         }
     }
 
-    static _validateJSON(json: any, version: Daliuge.SchemaVersion, fileType: Eagle.FileType) : {valid: boolean, errors: string} {
+    static _validateJSON(json: any, version: Setting.SchemaVersion, fileType: Eagle.FileType) : {valid: boolean, errors: string} {
         const ajv = new Ajv();
         let valid : boolean;
 
         switch(version){
-            case Daliuge.SchemaVersion.OJS:
+            case Setting.SchemaVersion.OJS:
                 switch(fileType){
                     case Eagle.FileType.Graph:
                         valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
@@ -1737,8 +1737,22 @@ export class Utils {
                         break;
                 }
                 break;
+            case Setting.SchemaVersion.V4:
+                switch(fileType){
+                    case Eagle.FileType.Graph:
+                        valid = ajv.validate(Utils.v4GraphSchema, json) as boolean;
+                        break;
+                    case Eagle.FileType.Palette:
+                        valid = ajv.validate(Utils.v4PaletteSchema, json) as boolean;
+                        break;
+                    default:
+                        console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        valid = true;
+                        break;
+                }
+                break;
             default:
-                console.warn("Unknown format for validation");
+                console.warn("Unknown format for validation (" + version + ")");
                 valid = true;
                 break;
         }
@@ -2624,7 +2638,7 @@ export class Utils {
     }
 
     static async loadSchemas(){
-        function _setSchemas(schema: object) : void {
+        function _setOJSSchemas(schema: object) : void {
             Utils.ojsGraphSchema = schema;
             Utils.ojsPaletteSchema = schema;
 
@@ -2634,26 +2648,43 @@ export class Utils {
             }
         }
 
-        // try to fetch the schema
-        let data;
-        try {
-            data = await Utils.httpGet(Daliuge.GRAPH_SCHEMA_URL);
-        } catch (error) {
-            const schemaData = localStorage.getItem('ojsGraphSchema');
+        function _setV4Schemas(schema: object) : void {
+            Utils.v4GraphSchema = schema;
+            Utils.v4PaletteSchema = schema;
 
-            if (schemaData === null){
-                console.warn("Unable to fetch graph schema. Schema also unavailable from localStorage.");
-            } else {
-                console.warn("Unable to fetch graph schema. Schema loaded from localStorage.");
-                _setSchemas(JSON.parse(schemaData));
-            }
-            return;
+            // TODO: hack to introduce difference between palette and graph schemas
         }
 
-        _setSchemas(JSON.parse(data));
+        async function _fetchSchema(url: string, localStorageKey: string, setFunc: (schema: object) => void){
+            let data;
+            let dataObject;
 
-        // write to localStorage
-        localStorage.setItem('ojsGraphSchema', data);
+            try {
+                data = await Utils.httpGet(url);
+                dataObject = JSON.parse(data);
+            } catch (error) {
+                const schemaData = localStorage.getItem(localStorageKey);
+
+                if (schemaData === null){
+                    console.warn("Unable to fetch graph schema (" + url + "). Schema also unavailable from localStorage (" + localStorageKey + ").");
+                } else {
+                    console.warn("Unable to fetch graph schema (" + url + "). Schema loaded from localStorage (" + localStorageKey + ").");
+                    setFunc(JSON.parse(schemaData));
+                }
+            }
+
+            // if schema was fetched successfully, use setFunc to store within Utils module, and update localStorage
+            if (typeof dataObject !== 'undefined'){
+                setFunc(dataObject);
+
+                // write to localStorage
+                localStorage.setItem(localStorageKey, data);
+            }
+        }
+
+        // try to fetch the schema
+        _fetchSchema(Daliuge.OJS_GRAPH_SCHEMA_URL, 'ojsGraphSchema', _setOJSSchemas);
+        _fetchSchema(Daliuge.V4_GRAPH_SCHEMA_URL, 'v4GraphSchema', _setV4Schemas);
     }
 
     static snapToGrid(coord: number, offset: number) : number {

@@ -1,9 +1,9 @@
 import * as ko from "knockout";
 
-import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { Repository } from "./Repository";
+import { Setting } from "./Setting";
 import { Utils } from './Utils';
 
 
@@ -21,7 +21,7 @@ export class FileInfo {
     private _generatorVersion : ko.Observable<string>;
     private _generatorCommitHash : ko.Observable<string>;
     private _generatorName : ko.Observable<string>;
-    private _schemaVersion : ko.Observable<Daliuge.SchemaVersion>;
+    private _schemaVersion : ko.Observable<Setting.SchemaVersion>;
     private _readonly : ko.Observable<boolean>;
     private _builtIn : ko.Observable<boolean>;
 
@@ -50,7 +50,7 @@ export class FileInfo {
         this._generatorVersion = ko.observable("");
         this._generatorCommitHash = ko.observable("");
         this._generatorName = ko.observable("");
-        this._schemaVersion = ko.observable(Daliuge.SchemaVersion.Unknown);
+        this._schemaVersion = ko.observable(Setting.SchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
 
@@ -162,11 +162,11 @@ export class FileInfo {
         this._generatorName(hash);
     }
 
-    get schemaVersion(): Daliuge.SchemaVersion{
+    get schemaVersion(): Setting.SchemaVersion{
         return this._schemaVersion();
     }
 
-    set schemaVersion(version: Daliuge.SchemaVersion){
+    set schemaVersion(version: Setting.SchemaVersion){
         this._schemaVersion(version);
     }
 
@@ -264,7 +264,7 @@ export class FileInfo {
         this._generatorVersion("");
         this._generatorCommitHash("");
         this._generatorName("");
-        this._schemaVersion(Daliuge.SchemaVersion.Unknown);
+        this._schemaVersion(Setting.SchemaVersion.Unknown);
         this._readonly(true);
         this._builtIn(true);
 

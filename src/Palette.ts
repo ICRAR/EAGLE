@@ -136,15 +136,15 @@ export class Palette {
         return result;
     }
 
-    static toJsonString(palette: Palette, version: Daliuge.SchemaVersion) : string {
+    static toJsonString(palette: Palette, version: Setting.SchemaVersion) : string {
         let result: string = "";
 
         let json: any;
         switch(version){
-            case Daliuge.SchemaVersion.OJS:
+            case Setting.SchemaVersion.OJS:
                 json = Palette.toOJSJson(palette);
                 break;
-            case Daliuge.SchemaVersion.V4:
+            case Setting.SchemaVersion.V4:
                 json = Palette.toV4Json(palette);
                 break;
             default:

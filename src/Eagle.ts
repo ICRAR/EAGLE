@@ -44,7 +44,6 @@ import { GraphConfig } from "./GraphConfig";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
-import { StatusEntry } from './StatusEntry';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
@@ -947,7 +946,7 @@ export class Eagle {
         }
 
         // attempt to determine schema version from FileInfo
-        const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
+        const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.dummy(), "", fileFullPath);
@@ -959,8 +958,8 @@ export class Eagle {
 
         // use the correct parsing function based on schema version
         switch (schemaVersion){
-            case Daliuge.SchemaVersion.OJS:
-            case Daliuge.SchemaVersion.Unknown:
+            case Setting.SchemaVersion.OJS:
+            case Setting.SchemaVersion.Unknown:
                 loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
                 break;
         }
@@ -1488,7 +1487,7 @@ export class Eagle {
 
     displayObjectAsJson = (fileType: Eagle.FileType) : void => {
         let jsonString: string;
-        const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
         
         switch(fileType){
             case Eagle.FileType.Graph:
@@ -2047,7 +2046,7 @@ export class Eagle {
             const clone: LogicalGraph | Palette | Eagle = obj.clone();
             clone.fileInfo().updateEagleInfo();
 
-            const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+            const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
 
             let jsonString: string = "";
             switch (fileType){
@@ -2070,7 +2069,7 @@ export class Eagle {
         });
     }
 
-    _saveDiagramToGit = async (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string, version: Daliuge.SchemaVersion) : Promise<void> => {
+    _saveDiagramToGit = async (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string, version: Setting.SchemaVersion) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             // generate filename
             const fullFileName : string = Utils.joinPath(filePath, fileName);
@@ -2391,7 +2390,7 @@ export class Eagle {
         }
 
         // attempt to determine schema version from FileInfo
-        const schemaVersion: Daliuge.SchemaVersion = Utils.determineSchemaVersion(dataObject);
+        const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         // check if we need to update the graph from keys to ids
         if (GraphUpdater.usesNodeKeys(dataObject)){
@@ -2403,8 +2402,8 @@ export class Eagle {
         // use the correct parsing function based on schema version
         let lg: LogicalGraph;
         switch (schemaVersion){
-            case Daliuge.SchemaVersion.OJS:
-            case Daliuge.SchemaVersion.Unknown:
+            case Setting.SchemaVersion.OJS:
+            case Setting.SchemaVersion.Unknown:
                 lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
                 break;
         }
@@ -2630,7 +2629,7 @@ export class Eagle {
         p_clone.fileInfo().updateEagleInfo();
 
         // get version
-        const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
 
         // convert to json
         const jsonString: string = Palette.toJsonString(p_clone, version);
@@ -2692,7 +2691,7 @@ export class Eagle {
             lg_clone.fileInfo().updateEagleInfo();
 
             // get version
-            const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+            const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
 
             // convert to json
             const jsonString: string = LogicalGraph.toJsonString(lg_clone, false, version);
@@ -2803,7 +2802,7 @@ export class Eagle {
 
 
         // get version
-        const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
 
         // convert to json
         const jsonString: string = Palette.toJsonString(p_clone, version);
@@ -2822,7 +2821,7 @@ export class Eagle {
         const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
 
         // get schema version
-        const version: Daliuge.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
 
         // get json for logical graph
         const jsonString: string = LogicalGraph.toJsonString(lg, true, version);
@@ -2838,11 +2837,11 @@ export class Eagle {
         }
 
         // validate object
-        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, Daliuge.SchemaVersion.OJS, Eagle.FileType.Graph);
+        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, version, Eagle.FileType.Graph);
         if (validatorResult.valid){
-            Utils.showNotification("Success",  "JSON Output valid against internal JSON schema", "success");
+            Utils.showNotification("Success",  "JSON Output valid against internal JSON schema (" + version + ")", "success");
         } else {
-            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema: " + validatorResult.errors, "danger");
+            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema (" + version + "): " + validatorResult.errors, "danger");
         }
     }
 

@@ -397,6 +397,12 @@ export namespace Setting {
         Normal = "normal",
         Expert = "expert"
     }
+
+    export enum SchemaVersion {
+        Unknown = "Unknown",
+        OJS = "OJS",
+        V4 = "V4" //dict-of-dicts
+    }
 }
 
 //setting order (display, name, key, description, perpetual, type, studentDefaultValue, minimalDefaultValue, GraphDefaultValue, ComponentDefaultValue, ExpertDefaultValue, options(only add for type select))
@@ -491,9 +497,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Apply active graph config before translation", Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION, "Apply the active graph config to the graph before sending the graph for translation", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Fetch repository for URLs", Setting.FETCH_REPOSITORY_FOR_URLS, "Automatically fetch the contents of the object's repository when a graph/palette is specified in the URL", true, Setting.Type.Boolean, false, false ,false, false, false),
             new Setting(true, "Keep Old Fields during Category Change", Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, "When changing the category of an existing node, several fields may become useless and would normally be deleted. Enabling this setting will keep those fields.", false, Setting.Type.Boolean, false, false, false, false, false),
-
-            // TODO: make this better
-            new Setting(true, "DALiuGE Schema Version", Setting.DALIUGE_SCHEMA_VERSION, "JSON file format for output graphs (used for saving and translation)", true, Setting.Type.Select, "OJS", "OJS", "OJS", "OJS", "OJS", ["OJS", "V4"])
+            new Setting(true, "DALiuGE Schema Version", Setting.DALIUGE_SCHEMA_VERSION, "JSON file format for output graphs (used for saving and translation)", true, Setting.Type.Select, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, [Setting.SchemaVersion.OJS, Setting.SchemaVersion.V4])
         ]
     )
 ];

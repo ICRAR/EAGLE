@@ -67,7 +67,7 @@ export class LogicalGraph {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
-        result.modelData.schemaVersion = Daliuge.SchemaVersion.OJS;
+        result.modelData.schemaVersion = Setting.SchemaVersion.OJS;
         result.modelData.numLGNodes = graph.getNumNodes();
 
         // add nodes
@@ -136,7 +136,7 @@ export class LogicalGraph {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
-        result.modelData.schemaVersion = Daliuge.SchemaVersion.V4;
+        result.modelData.schemaVersion = Setting.SchemaVersion.V4;
         result.modelData.numLGNodes = graph.getNumNodes();
 
         // add nodes
@@ -166,15 +166,15 @@ export class LogicalGraph {
         return result;
     }
 
-    static toJsonString(graph : LogicalGraph, forTranslation : boolean, version: Daliuge.SchemaVersion) : string {
+    static toJsonString(graph : LogicalGraph, forTranslation : boolean, version: Setting.SchemaVersion) : string {
         let result: string = "";
         let json: any;
 
         switch(version){
-            case Daliuge.SchemaVersion.OJS:
+            case Setting.SchemaVersion.OJS:
                 json = LogicalGraph.toOJSJson(graph, forTranslation);
                 break;
-            case Daliuge.SchemaVersion.V4:
+            case Setting.SchemaVersion.V4:
                 json = LogicalGraph.toV4Json(graph, forTranslation);
                 break;
             default:
