@@ -1880,28 +1880,19 @@ export class Node {
         result.category = node.category();
         result.categoryType = node.categoryType();
 
-        result.isGroup = node.isGroup();
-        result.color = node.color();
-        result.drawOrderHint = node.drawOrderHint();
-
         result.id = node.id();
         result.name = node.name();
         result.description = node.description();
         result.x = node.x();
         result.y = node.y();
-        result.subject = node.subject();
         result.repositoryUrl = node.repositoryUrl();
         result.commitHash = node.commitHash();
         result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
 
-        if (node.parent() !== null){
-            result.parentId = node.parent().getId();
-        }
-
-        if (node.embed() !== null){
-            result.embedId = node.embed().getId();
-        }
+        result.subjectId = node.subject() === null ? null : node.subject().getId();
+        result.parentId = node.parent() === null ? null : node.parent().getId();
+        result.embedId = node.embed() === null ? null : node.embed().getId();
 
         // add fields
         result.fields = {};
@@ -1909,44 +1900,16 @@ export class Node {
             result.fields[field.getId()] = Field.toOJSJson(field);
         }
 
-        // add fields from inputApplication
-        result.inputAppFields = {};
-        if (node.hasInputApplication()){
-            for (const field of node.inputApplication().fields().all()){
-                result.inputAppFields[field.getId()] = Field.toOJSJson(field);
-            }
-        }
-
-        // add fields from outputApplication
-        result.outputAppFields = {};
-        if (node.hasOutputApplication()){
-            for (const field of node.outputApplication().fields().all()){
-                result.outputAppFields[field.getId()] = Field.toOJSJson(field);
-            }
-        }
-
         // write application names and types
         if (node.hasInputApplication()){
-            result.inputApplicationName = node.inputApplication().name();
-            result.inputApplicationType = node.inputApplication().category();
             result.inputApplicationId  = node.inputApplication().id();
-            result.inputApplicationDescription = node.inputApplication().description();
         } else {
-            result.inputApplicationName = "";
-            result.inputApplicationType = Category.None;
             result.inputApplicationId  = null;
-            result.inputApplicationDescription = "";
         }
         if (node.hasOutputApplication()){
-            result.outputApplicationName = node.outputApplication().name();
-            result.outputApplicationType = node.outputApplication().category();
             result.outputApplicationId  = node.outputApplication().id();
-            result.outputApplicationDescription = node.outputApplication().description();
         } else {
-            result.outputApplicationName = "";
-            result.outputApplicationType = Category.None;
             result.outputApplicationId  = null;
-            result.outputApplicationDescription = "";
         }
 
         return result;

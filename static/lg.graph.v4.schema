@@ -87,10 +87,76 @@
                 "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}": {
                     "type": "object",
                     "properties": {
-                        "id": { "type": "string" }
+                        "category": {
+                            "type": "string"
+                        },
+                        "categoryType": {
+                            "type": "string"
+                        },
+                        "commitHash": {
+                            "type": "string"
+                        },
+                        "dataHash": {
+                            "type": "string"
+                        },
+                        "embedId": {
+                            "type": ["null", "string"]
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "x": {
+                            "type": "number"
+                        },
+                        "y": {
+                            "type": "number"
+                        },
+                        "subjectId": {
+                            "type": ["null", "string"]
+                        },
+                        "paletteDownloadUrl": {
+                            "type": "string"
+                        },
+                        "repositoryUrl": {
+                            "type": "string"
+                        },
+                        "fields": {
+                            "type": "object"
+                        },
+                        "parentId": {
+                            "type": ["null", "string"]
+                        },
+                        "inputApplicationId": {
+                            "type": ["null", "string"]
+                        },
+                        "outputApplicationId": {
+                            "type": ["null", "string"]
+                        }
                     },
                     "required": [
-                        "id"
+                        "category",
+                        "categoryType",
+                        "commitHash",
+                        "dataHash",
+                        "description",
+                        "embedId",
+                        "fields",
+                        "id",
+                        "inputApplicationId",
+                        "name",
+                        "outputApplicationId",
+                        "paletteDownloadUrl",
+                        "parentId",
+                        "repositoryUrl",
+                        "subjectId",
+                        "x",
+                        "y"
                     ],
                     "additionalProperties": false
                 }
