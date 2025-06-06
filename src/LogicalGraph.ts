@@ -140,18 +140,18 @@ export class LogicalGraph {
         result.modelData.numLGNodes = graph.getNumNodes();
 
         // add nodes
-        result.nodeDataArray = {};
+        result.nodes = {};
         for (const node of graph.nodes().all()){
             const nodeData : any = Node.toV4GraphJson(node);
-            result.nodeDataArray[node.getId()] = nodeData;
+            result.nodes[node.getId()] = nodeData;
         }
 
         // edges
         // NOTE: we do not skip close loop edges
-        result.linkDataArray = {};
+        result.edges = {};
         for (const edge of graph.edges().all()){
             const edgeData : any = Edge.toOJSJson(edge);
-            result.linkDataArray[edge.getId()] = edgeData;
+            result.edges[edge.getId()] = edgeData;
         }
 
         // add graph configurations
@@ -166,21 +166,9 @@ export class LogicalGraph {
         return result;
     }
 
-    static toJsonString(graph : LogicalGraph, forTranslation : boolean, version: Setting.SchemaVersion) : string {
+    static toOJSJsonString(graph : LogicalGraph, forTranslation : boolean) : string {
         let result: string = "";
-        let json: any;
-
-        switch(version){
-            case Setting.SchemaVersion.OJS:
-                json = LogicalGraph.toOJSJson(graph, forTranslation);
-                break;
-            case Setting.SchemaVersion.V4:
-                json = LogicalGraph.toV4Json(graph, forTranslation);
-                break;
-            default:
-                console.error("Unsupported graph format! (" + version + ")");
-                return "";
-        }
+        const json: any = LogicalGraph.toOJSJson(graph, forTranslation);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
@@ -205,6 +193,56 @@ export class LogicalGraph {
         result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, EagleConfig.JSON_INDENT) + ",\n";
         result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, EagleConfig.JSON_INDENT) + "\n";
         result += "}\n";
+
+        return result;
+    }
+
+    static toV4JsonString(graph: LogicalGraph, forTranslation: boolean) : string {
+        let result: string = "";
+
+        const json: any = LogicalGraph.toV4Json(graph, forTranslation);
+
+        // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
+        result += "{\n";
+        result += '"modelData": ' + JSON.stringify(json.modelData, null, EagleConfig.JSON_INDENT) + ",\n";
+        result += '"activeGraphConfigId": ' + JSON.stringify(json.activeGraphConfigId) + ',\n';
+
+        // if we are sending this graph for translation, then only provide the "active" graph configuration, or an empty array if none exist
+        // otherwise, add all graph configurations
+        if (forTranslation){
+            if (graph.activeGraphConfigId() === null){
+                result += '"graphConfigurations": {},\n';
+            } else {
+                const graphConfigurations: any = {};
+                graphConfigurations[graph.activeGraphConfigId().toString()] = GraphConfig.toJson(graph.getActiveGraphConfig(), graph);
+
+                result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, EagleConfig.JSON_INDENT) + ",\n";
+            }
+        } else {
+            result += '"graphConfigurations": ' + JSON.stringify(json.graphConfigurations, null, EagleConfig.JSON_INDENT) + ",\n";
+        }
+
+        result += '"nodes": ' + JSON.stringify(json.nodes, null, EagleConfig.JSON_INDENT) + ",\n";
+        result += '"edges": ' + JSON.stringify(json.edges, null, EagleConfig.JSON_INDENT) + "\n";
+        result += "}\n";
+
+        return result;
+    }
+
+    static toJsonString(graph : LogicalGraph, forTranslation : boolean, version: Setting.SchemaVersion) : string {
+        let result: string = "";
+
+        switch(version){
+            case Setting.SchemaVersion.OJS:
+                result = LogicalGraph.toOJSJsonString(graph, forTranslation);
+                break;
+            case Setting.SchemaVersion.V4:
+                result = LogicalGraph.toV4JsonString(graph, forTranslation);
+                break;
+            default:
+                console.error("Unsupported graph format! (" + version + ")");
+                return "";
+        }
 
         return result;
     }

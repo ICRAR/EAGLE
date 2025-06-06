@@ -1,0 +1,130 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "modelData": {
+            "type": "object",
+            "properties": {
+                "repoService": {
+                    "type": "string"
+                },
+                "repoBranch": {
+                    "type": "string"
+                },
+                "readonly": {
+                    "type": "boolean"
+                },
+                "repo": {
+                    "type": "string"
+                },
+                "filePath": {
+                    "type": "string"
+                },
+                "fileType": {
+                    "type": "string"
+                },
+                "generatorVersion": {
+                    "type": "string"
+                },
+                "generatorCommitHash": {
+                    "type": "string"
+                },
+                "generatorName": {
+                    "type": "string"
+                },
+                "schemaVersion": {
+                    "type": "string"
+                },
+                "lastModifiedName": {
+                    "type": "string"
+                },
+                "lastModifiedEmail": {
+                    "type": "string"
+                },
+                "lastModifiedDatetime": {
+                    "type": "number"
+                },
+                "commitHash": {
+                    "type": "string"
+                },
+                "repositoryUrl": {
+                    "type": "string"
+                },
+                "signature": {
+                    "type": "string"
+                },
+                "shortDescription": {
+                    "type": "string"
+                },
+                "detailedDescription": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "filePath",
+                "fileType",
+                "readonly",
+                "repo",
+                "repoBranch",
+                "repoService",
+                "generatorVersion",
+                "generatorCommitHash",
+                "generatorName",
+                "schemaVersion",
+                "lastModifiedName",
+                "lastModifiedEmail",
+                "lastModifiedDatetime",
+                "commitHash",
+                "repositoryUrl",
+                "signature",
+                "shortDescription",
+                "detailedDescription"
+            ]
+        },
+        "nodes": {
+            "type": "object",
+            "patternProperties": {
+                "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}": {
+                    "type": "object",
+                    "properties": {
+                        "id": { "type": "string" }
+                    },
+                    "required": [
+                        "id"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "edges": {
+            "type": "object",
+            "patternProperties": {
+                "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}": {
+                    "type": "object",
+                    "properties": {
+                        "id": { "type": "string" }
+                    },
+                    "required": [
+                        "id"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "graphConfigurations": {
+            "type": "object"
+        },
+        "activeGraphConfigId": {
+             "type": ["string", "null"]
+        }
+    },
+    "required": [
+        "modelData",
+        "nodes",
+        "edges",
+        "graphConfigurations",
+        "activeGraphConfigId"
+    ]
+}

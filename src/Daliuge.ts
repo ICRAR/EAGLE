@@ -33,7 +33,7 @@ export class Daliuge {
 
     // schemas
     static readonly OJS_GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/tools/lg.graph.schema";
-    static readonly V4_GRAPH_SCHEMA_URL : string = "";
+    static readonly V4_GRAPH_SCHEMA_URL : string = window.location.origin + "/static/lg.graph.v4.schema";
 
     // NOTE: eventually this can be replaced. Once we have added a new category for PythonInitialiser
     static isPythonInitialiser(node: Node): boolean {
