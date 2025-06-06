@@ -218,8 +218,19 @@
                                                         </td>
                                                     <!-- /ko -->
 
+                                                    <!-- ko if: $data.getType() === 'Float' -->
+                                                        <td class='columnCell column_Value'>
+                                                            <!-- ko if: $data.getGraphConfigField() -->
+                                                                <input class="tableParameter configValueInput" data-bind="css: {selectedTableParameter: ParameterTable.isSelected('configValue', $data) }, eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}}">    
+                                                            <!-- /ko -->
+                                                            <!-- ko ifnot: $data.getGraphConfigField() -->
+                                                                <input class="tableParameter" data-bind="css: {selectedTableParameter: ParameterTable.isSelected('value', $data) }, eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}">
+                                                            <!-- /ko -->
+                                                        </td>
+                                                    <!-- /ko -->
+
                                                     <!-- string value -->
-                                                    <!-- ko ifnot: $data.getType() === 'Integer' -->
+                                                    <!-- ko ifnot: $data.getType() === 'Integer' || $data.getType() === 'Float'  -->
                                                         <td class='columnCell column_Value'>
                                                             <!-- ko if: $data.getGraphConfigField() -->
                                                                 <textarea  style="resize: none;" class="tableParameter inputNoArrows configValueInput tableFieldStringValueInput" data-bind="css: {selectedTableParameter: ParameterTable.isSelected('configValue', $data) }, eagleTooltip: 'Configured Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}}"></textarea>

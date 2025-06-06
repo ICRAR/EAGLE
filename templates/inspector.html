@@ -106,8 +106,17 @@
                                             <!-- /ko -->
                                         <!-- /ko -->
 
+                                        <!-- ko if: $data.getType() === 'Float' -->
+                                            <!-- ko if: $data.getGraphConfigField() -->
+                                                <input class="form-control configValueInput" data-bind="eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged}">    
+                                            <!-- /ko -->
+                                            <!-- ko ifnot: $data.getGraphConfigField() -->
+                                                <input class="form-control" data-bind=" eagleTooltip: 'Graph Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged}">
+                                            <!-- /ko -->
+                                        <!-- /ko -->
+
                                         <!-- string value -->
-                                        <!-- ko ifnot: $data.getType() === 'Integer' -->
+                                        <!-- ko ifnot: $data.getType() === 'Integer' || $data.getType() === 'Float' -->
                                             <!-- ko if: $data.getGraphConfigField() -->
                                                 <textarea class="form-control configValueInput" rows="1" data-bind="eagleTooltip: 'Configured Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged}"></textarea>
                                             <!-- /ko -->
