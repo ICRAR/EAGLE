@@ -150,7 +150,7 @@ export class LogicalGraph {
         // NOTE: we do not skip close loop edges
         result.edges = {};
         for (const edge of graph.edges().all()){
-            const edgeData : any = Edge.toOJSJson(edge);
+            const edgeData : any = Edge.toV4Json(edge);
             result.edges[edge.getId()] = edgeData;
         }
 

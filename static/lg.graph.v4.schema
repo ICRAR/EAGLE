@@ -169,10 +169,36 @@
                 "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}": {
                     "type": "object",
                     "properties": {
-                        "id": { "type": "string" }
+                        "id": {
+                            "type": "string"
+                        },
+                        "closesLoop": {
+                            "type": "boolean"
+                        },
+                        "srcNodeId": {
+                            "type": "string"
+                        },
+                        "srcPortId": {
+                            "type": "string"
+                        },
+                        "destNodeId": {
+                            "type": "string"
+                        },
+                        "destPortId": {
+                            "type": "string"
+                        },
+                        "loopAware": {
+                            "type": "boolean"
+                        }
                     },
                     "required": [
-                        "id"
+                        "id",
+                        "srcNodeId",
+                        "srcPortId",
+                        "destNodeId",
+                        "destPortId",
+                        "loopAware",
+                        "closesLoop"
                     ],
                     "additionalProperties": false
                 }

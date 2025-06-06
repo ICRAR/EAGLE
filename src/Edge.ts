@@ -233,6 +233,18 @@ export class Edge {
         };
     }
 
+    static toV4Json(edge: Edge) : object {
+        return {
+            id: edge.getId(),
+            srcNodeId: edge.srcNode.getId(),
+            srcPortId: edge.srcPort.getId(),
+            destNodeId: edge.destNode.getId(),
+            destPortId: edge.destPort.getId(),
+            loopAware: edge.loopAware(),
+            closesLoop: edge.closesLoop()
+        }
+    }
+
     static fromOJSJson(linkData: any, nodes: Node[], errorsWarnings: Errors.ErrorsWarnings) : Edge {
         // try to read source and destination nodes and ports
         let srcNodeId: NodeId = null;
