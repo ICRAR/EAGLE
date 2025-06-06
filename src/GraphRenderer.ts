@@ -768,23 +768,12 @@ export class GraphRenderer {
         destNodePosition={x:destNodePosition.x+5000,y:destNodePosition.y+5000}
         srcNodePosition={x:srcNodePosition.x+5000,y:srcNodePosition.y+5000}
 
-        // determine if the edge falls below a certain length threshold
-        const edgeLength = Math.sqrt((destNodePosition.x - srcNodePosition.x)**2 + (destNodePosition.y - srcNodePosition.y)**2);
-
-        //determining if the edge's length is below a certain threshold. if it is we will draw the edge straight and remove the arrow
-        const isShortEdge: boolean = edgeLength < srcNodeRadius * EagleConfig.SWITCH_TO_STRAIGHT_EDGE_MULTIPLIER;
-
-        if (edge !== null){
-            edge.setIsShortEdge(isShortEdge)
-        }
-
-        // calculate the length from the src and dest nodes at which the control points will be placed
-        const lengthToControlPoints = edgeLength * 0.4;
-
         // calculate the angle for the src and dest ports
         const srcPortAngle: number = GraphRenderer.calculateConnectionAngle(srcNodePosition, destNodePosition);
         const destPortAngle: number = srcPortAngle + Math.PI;
-
+        
+        // -------------calculate port positions---------------
+        
         // calculate the offset for the src and dest ports, based on the angles
         let srcPortOffset;
         let destPortOffset;
@@ -797,6 +786,7 @@ export class GraphRenderer {
         } else {
             srcPortOffset = GraphRenderer.calculatePortPos(srcPortAngle, srcNodeRadius, srcNodeRadius);
         }
+        
         if (destField){
             if (sourcePortIsInput){
                 destPortOffset = destField.getOutputPosition();
@@ -812,7 +802,26 @@ export class GraphRenderer {
         const y1 = srcNodePosition.y + srcPortOffset.y;
         const x2 = destNodePosition.x + destPortOffset.x;
         const y2 = destNodePosition.y + destPortOffset.y;
+        
+        
+        // -------------calculate if the edge is a short edge---------------
+        
+        // determine if the edge falls below a certain length threshold
+        // const edgeLength = Math.sqrt((destNodePosition.x - srcNodePosition.x)**2 + (destNodePosition.y - srcNodePosition.y)**2);
+        const edgeLength = Math.sqrt((x2 - x1)**2 + (y2 - y1)**2);
 
+        //determining if the edge's length is below a certain threshold. if it is we will draw the edge straight and remove the arrow
+        const isShortEdge: boolean = edgeLength < EagleConfig.STRAIGHT_EDGE_SWITCH_DISTANCE;
+
+        if (edge !== null){
+            edge.setIsShortEdge(isShortEdge)
+        }
+
+        
+        // -------------generate bezier curve control points---------------
+        
+        // calculate the length from the src and dest nodes at which the control points will be placed
+        const lengthToControlPoints = edgeLength * 0.4;
 
         // otherwise, calculate an angle for the src and dest control points
         const srcCPAngle = GraphRenderer.edgeDirectionAngle(srcPortAngle);

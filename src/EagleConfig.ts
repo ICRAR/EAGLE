@@ -68,7 +68,7 @@ export class EagleConfig {
     //edge settings
     public static readonly EDGE_ARROW_SIZE : number = 8;
     public static readonly EDGE_DISTANCE_ARROW_VISIBILITY : number = 100; //how long does an edge have to be to show the direction arrows
-    public static readonly SWITCH_TO_STRAIGHT_EDGE_MULTIPLIER : number = 5 //this affect the cutoff distance between nodes required to switch between a straight and curved edge
+    public static readonly STRAIGHT_EDGE_SWITCH_DISTANCE : number = 120 //the length of the edge at which it will switch between bezier and straight
 
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
     // this is the default margin that should be left on each side
