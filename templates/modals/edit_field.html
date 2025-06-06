@@ -85,8 +85,8 @@
                                             <!-- /ko --> 
                                             <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
                                                 <div class="dropdown parameterTableTypeCustomSelect">
-                                                    <a class="dropdown-toggle" data-bind="text:$data.defaultValue" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-                                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="parameterTableTpeCustomSelect">
+                                                    <a class="dropdown-toggle dropdown-control" data-bind="text:$data.defaultValue" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+                                                    <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="parameterTableTpeCustomSelect">
                                                         <!-- ko foreach:$data.options()-->
                                                             <div class="dropdown-item" data-bind="click:function(data, event){$parent.setDefaultValue($data);}">
                                                                 <input class="defaultSelectCustom" data-bind="value:$data, event: {change:function(data,event){$parent.editOption($index(),$(event.target).val())}}" type="text">
@@ -120,8 +120,8 @@
                                 <div class="col">
                                     <div class="input-group mb-3">
                                         <input id="editFieldModalTypeInput" type="text" class="form-control" aria-label="Text input with dropdown button" autocomplete="off" data-bind="value:type">
-                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Types</button>
-                                        <ul id="editFieldModalTypeSelect" class="dropdown-menu dropdown-menu-end">
+                                        <button class="btn btn-outline-secondary dropdown-toggle dropdown-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">Types</button>
+                                        <ul id="editFieldModalTypeSelect" class="dropdown-menu dropdown-menu-end dropdown-area">
                                             <!-- ko foreach:$root.types()-->
                                                 <a class="dropdown-item" data-bind="text:$data, click:function(){$root.tableDropdownClick($data, $parent);}"></a>
                                             <!-- /ko --> 
