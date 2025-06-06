@@ -9,6 +9,7 @@ import { Repository } from './Repository';
 import { Setting } from './Setting';
 import { ParameterTable } from './ParameterTable';
 import { Daliuge } from './Daliuge';
+import { EagleConfig } from './EagleConfig';
 
 
 export class RightClick {
@@ -94,7 +95,7 @@ export class RightClick {
                         $('.fullOpacity').removeClass('fullOpacity')//this exists twice so it happens at the correct time with this timeout func
                     }
                 }
-            }, 300);
+            }, EagleConfig.DROPDOWN_DISMISS_DELAY);
         }
 
         GraphRenderer.renderDraggingPortEdge(false);
