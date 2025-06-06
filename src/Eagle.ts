@@ -2572,9 +2572,6 @@ export class Eagle {
     }
 
     sortPalette = (palette: Palette): void => {
-        // close the palette menu
-        // this.closeDropdownMenu();
-
         const preSortCopy = palette.getNodes().slice();
 
         palette.sort();
@@ -2589,9 +2586,6 @@ export class Eagle {
     }
 
     selectAllInPalette = (palette: Palette): void => {
-        // close the palette menu
-        // this.closeDropdownMenu();
-
         this.selectedObjects([]);
         for (const node of palette.getNodes()){
             this.editSelection(node, Eagle.FileType.Palette);
@@ -4731,7 +4725,7 @@ $( document ).ready(function() {
     $('body').on('mouseout','.dropdown-area',function(){
         const targetElement = this
         //we are using a timeout stored in a global variable so we have only one timeout that resets when another mouseout is called.
-        //if we dont do this we end up with several timouts conflicting.
+        //if we don't do this we end up with several timeouts conflicting.
         clearTimeout(Eagle.getInstance().dropdownMenuHoverTimeout)
 
         Eagle.getInstance().dropdownMenuHoverTimeout = setTimeout(function() {
