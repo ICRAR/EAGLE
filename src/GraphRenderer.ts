@@ -763,10 +763,10 @@ export class GraphRenderer {
 
     static createBezier(straightEdgeForce:boolean,addArrowForce:boolean, edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field, sourcePortIsInput: boolean) : string {
 
-        //since the svg parent is translated -50% to center our working area, we need to add half of its width to correct the positions
-        // TODO: remove magic numbers here (5000)
-        destNodePosition={x:destNodePosition.x+5000,y:destNodePosition.y+5000}
-        srcNodePosition={x:srcNodePosition.x+5000,y:srcNodePosition.y+5000}
+        //since the svg parent is translated -50% to center our working area, we need to add half of its size to correct the positions
+        const svgTranslationCorrection = $('#logicalGraph svg').innerWidth()/2
+        destNodePosition={x:destNodePosition.x+svgTranslationCorrection,y:destNodePosition.y+svgTranslationCorrection}
+        srcNodePosition={x:srcNodePosition.x+svgTranslationCorrection,y:srcNodePosition.y+svgTranslationCorrection}
 
         // calculate the angle for the src and dest ports
         const srcPortAngle: number = GraphRenderer.calculateConnectionAngle(srcNodePosition, destNodePosition);
@@ -821,7 +821,7 @@ export class GraphRenderer {
         // -------------generate bezier curve control points---------------
         
         // calculate the length from the src and dest nodes at which the control points will be placed
-        const lengthToControlPoints = edgeLength * 0.4;
+        const lengthToControlPoints = edgeLength * EagleConfig.EDGE_BEZIER_CURVE_MULT;
 
         // otherwise, calculate an angle for the src and dest control points
         const srcCPAngle = GraphRenderer.edgeDirectionAngle(srcPortAngle);
