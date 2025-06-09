@@ -4,17 +4,25 @@ import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
 
 enum Priority {
-    Word,
-    Tag,
-    Start,
-    TagStart
+    PerfectNameMatch, // if the search term entered perfectly matches the search object's name
+    NameStartsWith, // if the search object's name starts with the search term entered
+    PerfectTagMatch, // if the search term entered perfectly matches a tag on the search object
+    TagStartsWith, // if the search object's tag starts with the search term entered
+    NameIncludes, // if a word entered in the search matches a word in the search object's name
+    NamePartial, // if the search string entered partially matches a word in the search object's name
+    TagIncludes, // if a word entered in the search matches a word in the search object's tag
+    TagPartial // if the search string entered partially matches a word in the search object's tag
 }
 
 type Results = {
-    word: KeyboardShortcut[],
-    tag: KeyboardShortcut[],
-    start: KeyboardShortcut[],
-    tagStart: KeyboardShortcut[]
+    perfectNameMatch: KeyboardShortcut[],
+    nameStartsWith: KeyboardShortcut[],
+    perfectTagMatch: KeyboardShortcut[],
+    tagStartsWith: KeyboardShortcut[],
+    nameIncludes: KeyboardShortcut[],
+    namePartial: KeyboardShortcut[],
+    tagIncludes: KeyboardShortcut[],
+    tagPartial: KeyboardShortcut[],
 }
 
 export class QuickActions {
@@ -41,7 +49,7 @@ export class QuickActions {
         const searchTerm: string = QuickActions.searchTerm().toLocaleLowerCase();
         const resultsList: KeyboardShortcut[] = [];
 
-        const results: Results = {word:[], tag:[], start:[], tagStart:[]};
+        const results: Results = {perfectNameMatch:[], nameStartsWith:[], perfectTagMatch:[], tagStartsWith:[], nameIncludes:[], namePartial:[], tagIncludes:[], tagPartial:[]};
 
         if(searchTerm != ''){
             // processing the keyboard shortcuts array
@@ -64,7 +72,7 @@ export class QuickActions {
 
             //adding the contents of each of the priority arrays into the results array, in order of priority
             //the ... means we are appending only the array's entries not the array itself
-            resultsList.push(...results.word, ...results.tag, ...results.start,...results.tagStart)
+            resultsList.push(...results.perfectNameMatch, ...results.nameStartsWith, ...results.perfectTagMatch,...results.tagStartsWith,...results.nameIncludes,...results.namePartial,...results.tagIncludes,...results.tagPartial)
         }
 
         // when the search result list changes we reset the selected result
@@ -74,14 +82,22 @@ export class QuickActions {
     }, this);
 
     static pushResultUsingPriority(priority: Priority, shortcut: KeyboardShortcut, results: Results) : void {
-        if(priority === Priority.Word){
-            results.word.push(shortcut)
-        }else if(priority === Priority.Tag){
-            results.tag.push(shortcut)
-        }else if(priority === Priority.Start){
-            results.start.push(shortcut)
-        }else if(priority === Priority.TagStart){
-            results.tagStart.push(shortcut)
+        if(priority === Priority.PerfectNameMatch){
+            results.perfectNameMatch.push(shortcut)
+        }else if(priority === Priority.NameStartsWith){
+            results.nameStartsWith.push(shortcut)
+        }else if(priority === Priority.PerfectTagMatch){
+            results.perfectTagMatch.push(shortcut)
+        }else if(priority === Priority.TagStartsWith){
+            results.tagStartsWith.push(shortcut)
+        }else if(priority === Priority.NameIncludes){
+            results.nameIncludes.push(shortcut)
+        }else if(priority === Priority.NamePartial){
+            results.namePartial.push(shortcut)
+        }else if(priority === Priority.TagIncludes){
+            results.tagIncludes.push(shortcut)
+        }else if(priority === Priority.TagPartial){
+            results.tagPartial.push(shortcut)
         }
     }
 
@@ -107,16 +123,35 @@ export class QuickActions {
 
 
         //check for perfect match to with function name
-
+        if (shortcut.text.toLocaleLowerCase() === searchTerm.toLocaleLowerCase()){
+            return Priority.PerfectNameMatch
+        }
 
         //check if function name starts with the search term
+        if (shortcut.text.toLocaleLowerCase().startsWith(searchTerm.toLocaleLowerCase())){
+            return Priority.NameStartsWith
+        }
 
+        //check for simple tag matches
+        let perfectTagMatch = false
+        let TagStartsWith = false
+        for(const tag of shortcut.tags){
+            // check for perfect tag matchs
+            if (tag.toLocaleLowerCase() === searchTerm.toLocaleLowerCase()){
+                perfectTagMatch = true;
+                break
+            }
 
-        // check for perfect tag match
-
-
-        // check if the tag starts with the search term
-
+            // check if the tag starts with the search term
+            if (tag.startsWith(searchTerm.toLocaleLowerCase())){
+                TagStartsWith = true;
+            }
+        }
+        if(perfectTagMatch){
+            return Priority.PerfectTagMatch
+        }else if(TagStartsWith){
+            return Priority.TagStartsWith
+        }
 
 
         // the rest can stay
@@ -130,18 +165,18 @@ export class QuickActions {
             // check for match against words in shortcut
             for(const shortcutWord of shortcutWords){
                 if(shortcutWord.toLocaleLowerCase() === searchWord.toLocaleLowerCase()){
-                    return Priority.Word;
+                    return Priority.NameIncludes;
                 }else if(shortcutWord.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
-                    return Priority.Start;
+                    return Priority.NamePartial;
                 }
             }
 
             // check for match against shortcut tags
             for(const tag of shortcut.tags){
                 if(searchTerm.toLocaleLowerCase() === tag.toLocaleLowerCase()){
-                    return Priority.Tag;
+                    return Priority.TagIncludes;
                 }else if(tag.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
-                    return Priority.TagStart;
+                    return Priority.TagPartial;
                 }
             }
         }
