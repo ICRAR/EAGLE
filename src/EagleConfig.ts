@@ -51,6 +51,7 @@ export class EagleConfig {
 
     // General UI
     public static readonly DROPDOWN_DISMISS_DELAY: number = 400;
+    public static readonly EDGE_SVG_SIZE: number = 10000;
 
     // graph behaviour
     public static readonly NODE_SUGGESTION_RADIUS = 300
@@ -107,6 +108,7 @@ export class EagleConfig {
         style.setProperty("--matchingEdgeColor", EagleConfig.getColor('edgeAutoComplete'));
         style.setProperty("--nodeOutputColor", EagleConfig.getColor('nodeOutputPort'));
         style.setProperty("--nodeInputColor", EagleConfig.getColor('nodeInputPort'));
+        style.setProperty("--edgeSVGSize", EagleConfig.EDGE_SVG_SIZE+'px');
         $("html").get(0).style.setProperty("--hoverHighlight", EagleConfig.getColor('hoverHighlight'));
     }
 }

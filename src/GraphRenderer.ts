@@ -764,7 +764,7 @@ export class GraphRenderer {
     static createBezier(straightEdgeForce:boolean,addArrowForce:boolean, edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field, sourcePortIsInput: boolean) : string {
 
         //since the svg parent is translated -50% to center our working area, we need to add half of its size to correct the positions
-        const svgTranslationCorrection = $('#logicalGraph svg').innerWidth()/2
+        const svgTranslationCorrection = EagleConfig.EDGE_SVG_SIZE/2
         destNodePosition={x:destNodePosition.x+svgTranslationCorrection,y:destNodePosition.y+svgTranslationCorrection}
         srcNodePosition={x:srcNodePosition.x+svgTranslationCorrection,y:srcNodePosition.y+svgTranslationCorrection}
 
