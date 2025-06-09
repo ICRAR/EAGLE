@@ -86,24 +86,40 @@ export class QuickActions {
     }
 
     static checkMatch(shortcut: KeyboardShortcut, searchTerm: string): Priority | null {
-        let match = false
+        // let match = false
 
         // check for match against shortcut text
-        if(shortcut.text.toLocaleLowerCase().includes(searchTerm)){
-            match = true
-        }
+        // if(shortcut.text.toLocaleLowerCase().includes(searchTerm)){
+        //     match = true
+        // }
 
         // check for match against shortcut tags
-        shortcut.tags.forEach(function(tag){
-            if(tag.toLocaleLowerCase().includes(searchTerm)){
-                match = true
-            }
-        })
+        // shortcut.tags.forEach(function(tag){
+        //     if(tag.toLocaleLowerCase().includes(searchTerm)){
+        //         match = true
+        //     }
+        // })
 
         // abort if no match found
-        if (!match){
-            return null;
-        }
+        // if (!match){
+        //     return null;
+        // }
+
+
+        //check for perfect match to with function name
+
+
+        //check if function name starts with the search term
+
+
+        // check for perfect tag match
+
+
+        // check if the tag starts with the search term
+
+
+
+        // the rest can stay
 
         // split both the shortcut text and search term into individual words
         const shortcutWords: string[] = shortcut.text.split(' ');
