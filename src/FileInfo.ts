@@ -466,6 +466,35 @@ export class FileInfo {
         };
     }
 
+    static toV4Json(fileInfo : FileInfo) : object {
+        return {
+            // name and path variables are written together into fullPath
+            filePath: fileInfo.fullPath(),
+            fileType: fileInfo.type,
+
+            shortDescription: fileInfo.shortDescription,
+            detailedDescription: fileInfo.detailedDescription,
+
+            repoService: fileInfo.repositoryService,
+            repoBranch: fileInfo.repositoryBranch,
+            repo: fileInfo.repositoryName,
+
+            generatorVersion: fileInfo.generatorVersion,
+            generatorCommitHash: fileInfo.generatorCommitHash,
+            generatorName: fileInfo.generatorName,
+            schemaVersion: fileInfo.schemaVersion,
+            readonly: fileInfo.readonly,
+
+            repositoryUrl: fileInfo.repositoryUrl,
+            commitHash: fileInfo.commitHash,
+            signature: fileInfo.signature,
+
+            lastModifiedName: fileInfo.lastModifiedName,
+            lastModifiedEmail: fileInfo.lastModifiedEmail,
+            lastModifiedDatetime: fileInfo.lastModifiedDatetime,
+        };
+    }
+
     // TODO: use errors array if attributes cannot be found
     static fromOJSJson(modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo {
         const result : FileInfo = new FileInfo();

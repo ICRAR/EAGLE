@@ -1502,7 +1502,21 @@ export class Eagle {
     }
 
     displayNodeAsJson = (node: Node) : void => {
-        const jsonString: string = JSON.stringify(Node.toOJSGraphJson(node), null, EagleConfig.JSON_INDENT);
+        let jsonString: string;
+        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+
+        switch(version){
+            case Setting.SchemaVersion.OJS:
+                jsonString = JSON.stringify(Node.toOJSGraphJson(node), null, EagleConfig.JSON_INDENT);
+                break;
+            case Setting.SchemaVersion.V4:
+                jsonString = JSON.stringify(Node.toV4GraphJson(node), null, EagleConfig.JSON_INDENT);
+                break;
+            default:
+                console.error("Unsupported graph format! (" + version + ")");
+                jsonString = "";
+                break;
+        }
 
         Utils.requestUserCode("json", "Display Node as JSON", jsonString, true);
     }

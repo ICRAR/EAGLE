@@ -1897,7 +1897,7 @@ export class Node {
         // add fields
         result.fields = {};
         for (const field of node.fields().all()){
-            result.fields[field.getId()] = Field.toOJSJson(field);
+            result.fields[field.getId()] = Field.toV4Json(field);
         }
 
         // write application names and types
@@ -2108,6 +2108,16 @@ export class Node {
                         node.issues().push({issue:issue,validity:Errors.Validity.Error});
                     }
                 }
+            }
+        }
+
+        // check that the id in each field on this node, exists as a field on the fields dict
+        for (const field of node.fields().all()){
+            const f: Field = node.fields().get(field.getId());
+
+            if (f === null){
+                const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has mismatch between key in fields dict, and id of fields dict value.", function(){Utils.showNode(eagle, node.getId())});
+                node.issues().push({issue: issue, validity: Errors.Validity.Error});
             }
         }
     }
