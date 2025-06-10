@@ -1013,7 +1013,15 @@ export class Field {
             }
         }
 
-        // check that all edges
+        // if this field has edges, it must be a port
+        if (field.edges().all().length > 0){
+            if (field.getUsage() === Daliuge.FieldUsage.NoPort){
+                const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edges, but is not a port.", function(){Utils.showField(eagle, node.getId(), field)});
+                field.issues().push({issue: issue, validity: Errors.Validity.Error});
+            }
+        }
+
+        // check that all edges on this field actually start or end on the field
         for (const edge of field.edges().all()){
             if (edge.getSrcPort().getId() !== field.getId() && edge.getDestPort().getId() !== field.getId()){
                 const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, field.getNode().getId())});
