@@ -5,6 +5,8 @@ import { Category } from './Category';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
+import { Edge } from "./Edge";
+import { Edges } from "./Edges";
 import { Errors } from './Errors';
 import { GraphConfigField } from "./GraphConfig";
 import { Node } from './Node';
@@ -29,6 +31,7 @@ export class Field {
     private usage : ko.Observable<Daliuge.FieldUsage>;
     private isEvent : ko.Observable<boolean>;
     private node : ko.Observable<Node>;
+    private edges : ko.Observable<Edges>;
 
     // graph related attributes
     private inputX : ko.Observable<number>;
@@ -61,6 +64,7 @@ export class Field {
         this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
         this.node = ko.observable(null);
+        this.edges = ko.observable(new Edges());
 
         //graph related things
         this.inputX = ko.observable(0);
@@ -352,6 +356,10 @@ export class Field {
         return this.node();
     }
 
+    getEdges = (): Edges => {
+        return this.edges();
+    }
+
     getErrorsWarnings : ko.PureComputed<Errors.ErrorsWarnings> = ko.pureComputed(() => {
         const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
         
@@ -400,6 +408,16 @@ export class Field {
 
     setNode = (node: Node) : Field => {
         this.node(node);
+        return this;
+    }
+
+    addEdge = (edge: Edge) : Field => {
+        this.edges().add(edge);
+        return this;
+    }
+
+    removeEdge = (id: EdgeId) : Field => {
+        this.edges().remove(id);
         return this;
     }
 
@@ -708,14 +726,27 @@ export class Field {
         };
     }
 
-    static toOJSJsonPort(field : Field) : object {
+    static toV4Json(field : Field) : object {
+        const edgeIds = [];
+        for (const edge of field.edges().all()){
+            edgeIds.push(edge.getId());
+        }
+
         return {
-            Id:field.id(),
             name:field.displayText(),
-            event:field.isEvent(),
-            type:field.type(),
+            value:Field.stringAsType(field.value(), field.type()),
+            defaultValue:field.defaultValue(),
             description:field.description(),
-            encoding:field.encoding()
+            readonly:field.readonly(),
+            type:field.isEvent() ? "Event" : field.type(),
+            precious:field.precious(),
+            options:field.options(),
+            positional:field.positional(),
+            encoding:field.encoding(),
+            id: field.id(),
+            parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()] || Daliuge.DLGFieldType.Unknown,
+            usage: field.usage(),
+            edgeIds: edgeIds,
         };
     }
 
@@ -979,6 +1010,19 @@ export class Field {
                 const message = "Node (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
                 const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldParameterType(eagle, node, field, suitableType)}, "Switch to suitable type, or remove if no suitable type");
                 field.issues().push({issue:issue,validity:Errors.Validity.Warning})
+            }
+        }
+
+        // check that all edges
+        for (const edge of field.edges().all()){
+            if (edge.getSrcPort().getId() !== field.getId() && edge.getDestPort().getId() !== field.getId()){
+                const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, field.getNode().getId())});
+                field.issues().push({issue:issue, validity:Errors.Validity.Error});
+            }
+
+            if (edge.getSrcNode().getId() !== field.getNode().getId() && edge.getDestNode().getId() !== field.getNode().getId()){
+                const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, field.getNode().getId())});
+                field.issues().push({issue:issue, validity:Errors.Validity.Error});
             }
         }
     }

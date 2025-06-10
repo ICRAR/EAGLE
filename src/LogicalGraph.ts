@@ -135,9 +135,8 @@ export class LogicalGraph {
     static toV4Json(graph: LogicalGraph, forTranslation: boolean) : object {
         const result : any = {};
 
-        result.modelData = FileInfo.toOJSJson(graph.fileInfo());
+        result.modelData = FileInfo.toV4Json(graph.fileInfo());
         result.modelData.schemaVersion = Setting.SchemaVersion.V4;
-        result.modelData.numLGNodes = graph.getNumNodes();
 
         // add nodes
         result.nodes = {};
@@ -303,6 +302,8 @@ export class LogicalGraph {
             }
 
             result.edges().add(newEdge);
+            newEdge.getSrcPort().addEdge(newEdge);
+            newEdge.getDestPort().addEdge(newEdge);
         }
 
         // load configs (if present)
@@ -410,6 +411,9 @@ export class LogicalGraph {
     addEdgeComplete = (edge : Edge) => {
         this.edges().add(edge);
         this.edges.valueHasMutated();
+
+        edge.getSrcPort().addEdge(edge);
+        edge.getDestPort().addEdge(edge);
     }
 
     getEdges = () : Edge[] => {
@@ -555,6 +559,9 @@ export class LogicalGraph {
         for (const edge of this.edges().all()){
             result.edges().add(edge.clone());
             result.edges.valueHasMutated();
+
+            edge.getSrcPort().addEdge(edge);
+            edge.getDestPort().addEdge(edge);
         }
 
         // copy graph configs
@@ -728,39 +735,18 @@ export class LogicalGraph {
         }
     }
 
-    /*
-    findEdgeById = (id: EdgeId) : Edge => {
-        for (let i = this.edges().length - 1; i >= 0 ; i--){
-            if (this.edges()[i].getId() === id){
-                return this.edges()[i];
-            }
-        }
-        return null;
-    }
-    */
     findEdgeById = (id: EdgeId) : Edge => {
         return this.edges().get(id);
     }
 
-    /*
     removeEdgeById = (id: EdgeId) : void => {
-        let found = false;
+        const edge = this.edges().get(id);
 
-        for (let i = this.edges().length - 1; i >= 0 ; i--){
-            if (this.edges()[i].getId() === id){
-                found = true;
-                this.edges.splice(i, 1);
-            }
-        }
-
-        if (!found){
-            console.warn("Could not removeEdgeById(), edge not found with id:", id);
-        }
-    }
-    */
-    removeEdgeById = (id: EdgeId) : void => {
         this.edges().remove(id);
         this.edges.valueHasMutated();
+
+        edge.getSrcPort().removeEdge(id);
+        edge.getDestPort().removeEdge(id);
     }
 
     // delete edges that start from or end at the node with the given id
@@ -772,6 +758,9 @@ export class LogicalGraph {
             if (edge.getSrcNode().getId() === id || edge.getDestNode().getId() === id){
                 this.edges().remove(edge.getId());
                 this.edges.valueHasMutated();
+
+                edge.getSrcPort().removeEdge(edge.getId());
+                edge.getDestPort().removeEdge(edge.getId());
             }
         }
     }
@@ -794,6 +783,9 @@ export class LogicalGraph {
             if (edge.getSrcPort().getId() === id || edge.getDestPort().getId() === id){
                 this.edges().remove(edge.getId());
                 this.edges.valueHasMutated();
+
+                edge.getSrcPort().removeEdge(edge.getId());
+                edge.getDestPort().removeEdge(edge.getId());
             }
         }
 
@@ -1078,6 +1070,14 @@ export class LogicalGraph {
             }
 
             ids.push(graphConfig.getId());
+        }
+
+        // check all edges in the edges dict are also present in the srcPort or destPort edges dict
+        for (const edge of graph.edges().all()){
+            if (edge.getSrcPort().getEdges().get(edge.getId()) === null && edge.getDestPort().getEdges().get(edge.getId()) === null){
+                const issue: Errors.Issue = Errors.Show("Edge (" + edge.getId() + ") is not present in source or destination port edges list", function(){Utils.showEdge(eagle, edge.getId())});
+                graph.issues.push({issue:issue, validity: Errors.Validity.Error});
+            }
         }
 
         // check that active graph config id actually refers to a graph config in the graphConfigs dict

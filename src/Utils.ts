@@ -2912,16 +2912,4 @@ export class Utils {
 
         return customRepositories;
     }
-
-    static checkNodeFieldsOK(node: Node): boolean {
-        for (const field of node.getFields()){
-            const f: Field = node.findFieldById(field.getId());
-
-            if (f === null){
-                return false;
-            }
-        }
-
-        return true;
-    }
 }
