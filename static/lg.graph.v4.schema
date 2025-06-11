@@ -27,7 +27,9 @@
                     "type": "string"
                 },
                 "fileType": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": ["Graph", "Palette"],
+                    "default": "Graph"
                 },
                 "generatorVersion": {
                     "type": "string"
@@ -143,10 +145,10 @@
                                             "type": "string"
                                         },
                                         "value": {
-                                            "type": ["string","boolean","number", "null"]
+                                            "type": ["string", "boolean", "number", "null"]
                                         },
                                         "defaultValue": {
-                                            "type": ["string","boolean","number", "null"]
+                                            "type": ["string", "boolean", "number", "null"]
                                         },
                                         "description": {
                                             "type": "string"
@@ -169,17 +171,21 @@
                                         },
                                         "encoding": {
                                             "type": "string",
-                                            "enum": ["binary", "pickle", "dill", "npy", "base64", "utf-8","path"],
+                                            "enum": ["dill", "pickle", "npy", "path", "utf-8", "eval", "dataurl", "binary", "raw"],
                                             "default": "dill"
                                         },
                                         "id": {
                                             "$ref": "#/$defs/eagleId"
                                         },
                                         "parameterType": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "enum": ["Application", "Component", "Constraint", "Construct"],
+                                            "default": "Component"
                                         },
                                         "usage": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "enum": ["NoPort", "InputPort", "OutputPort", "InputOutput"],
+                                            "default": "NoPort"
                                         },
                                         "edgeIds": {
                                             "type": "array",
