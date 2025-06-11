@@ -65,11 +65,11 @@ export class QuickActions {
         const perfectWordMatchPoints = 10000 //search term and shortcut name are a perfect match
         const startsWithPoints = 100 //shortcut name starts with the search term
         const wordMatchPoints = 50 //a word in the search term matches a word in the shortcut name
-        const wordMatchInSequencePoints = 2 //extra points each word that matches between shortcut name and search term
-        const partialWordMatchPoints = 8 //some of a word in the search term matches a word of the shortcut name
+        const wordMatchInSequencePoints = 2 //extra points for matching words from start(eg. search term: "save graph repo", function name: "save graph to repo" is 2x2 extra points because the first two words match)
+        const partialWordMatchPoints = 8 //search term partially matches function name (includes())
         const perfectTagMatchPoints = 40 //search term and tag are a perfect match
         const tagMatchPoints = 30 //a word in the search term matches a tag
-        const partialTagMatchPoints = 5 //some of a word in the search term matches a tag
+        const partialTagMatchPoints = 5 //search term partially matches function tag (includes())
 
         let shortcutMatchScore = 0 //keeping track of this keyboard shortcut's score
 
@@ -95,7 +95,7 @@ export class QuickActions {
         const shortcutWords: string[] = shortcut.text.split(' ');
         const searchWords: string[] = searchTerm.split(' ').filter(Boolean);
 
-        let searchWordStillMatches = true // keeping track of how if the words from the search word match the word keyboardshortcut name of the same index
+        let searchWordStillMatches = true // keeping track of if the words from the search term match the word from the keyboardshortcut name of the same index
 
         for (let searchWordIndex = 0; searchWordIndex < searchWords.length ; searchWordIndex++){
             //looping over each word in the search term
