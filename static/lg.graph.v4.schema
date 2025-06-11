@@ -1,5 +1,11 @@
 {
     "$schema": "http://json-schema.org/schema#",
+    "$defs": {
+        "eagleId": {
+            "type": ["string", "null"],
+            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+        }
+    },
     "type": "object",
     "properties": {
         "modelData": {
@@ -101,10 +107,10 @@
                             "type": "string"
                         },
                         "embedId": {
-                            "type": ["null", "string"]
+                            "$ref": "#/$defs/eagleId"
                         },
                         "id": {
-                            "type": "string"
+                            "$ref": "#/$defs/eagleId"
                         },
                         "name": {
                             "type": "string"
@@ -119,7 +125,7 @@
                             "type": "number"
                         },
                         "subjectId": {
-                            "type": ["null", "string"]
+                            "$ref": "#/$defs/eagleId"
                         },
                         "paletteDownloadUrl": {
                             "type": "string"
@@ -167,7 +173,7 @@
                                             "default": "dill"
                                         },
                                         "id": {
-                                            "type": "string"
+                                            "$ref": "#/$defs/eagleId"
                                         },
                                         "parameterType": {
                                             "type": "string"
@@ -178,8 +184,7 @@
                                         "edgeIds": {
                                             "type": "array",
                                             "items": {
-                                                "type": "string",
-                                                "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                                                "$ref": "#/$defs/eagleId"
                                             }
                                         }
                                     },
@@ -196,20 +201,21 @@
                                         "id",
                                         "parameterType",
                                         "usage",
-                                        "encoding"
+                                        "encoding",
+                                        "edgeIds"
                                     ],
                                     "additionalProperties": false
                                 }
                             }
                         },
                         "parentId": {
-                            "type": ["null", "string"]
+                            "$ref": "#/$defs/eagleId"
                         },
                         "inputApplicationId": {
-                            "type": ["null", "string"]
+                            "$ref": "#/$defs/eagleId"
                         },
                         "outputApplicationId": {
-                            "type": ["null", "string"]
+                            "$ref": "#/$defs/eagleId"
                         }
                     },
                     "required": [
@@ -243,22 +249,22 @@
                     "type": "object",
                     "properties": {
                         "id": {
-                            "type": "string"
+                            "$ref": "#/$defs/eagleId"
                         },
                         "closesLoop": {
                             "type": "boolean"
                         },
                         "srcNodeId": {
-                            "type": "string"
+                            "$ref": "#/$defs/eagleId"
                         },
                         "srcPortId": {
-                            "type": "string"
+                            "$ref": "#/$defs/eagleId"
                         },
                         "destNodeId": {
-                            "type": "string"
+                            "$ref": "#/$defs/eagleId"
                         },
                         "destPortId": {
-                            "type": "string"
+                            "$ref": "#/$defs/eagleId"
                         },
                         "loopAware": {
                             "type": "boolean"
@@ -315,14 +321,14 @@
                         "nodes",
                         "lastModifiedName",
                         "lastModifiedEmail",
-                        "lastModifiedDatetime",
+                        "lastModifiedDatetime"
                     ],
                     "additionalProperties": false
                 }
             }
         },
         "activeGraphConfigId": {
-             "type": ["string", "null"]
+             "$ref": "#/$defs/eagleId"
         }
     },
     "required": [
