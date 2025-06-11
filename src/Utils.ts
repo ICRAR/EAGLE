@@ -2666,9 +2666,9 @@ export class Utils {
                 const schemaData = localStorage.getItem(localStorageKey);
 
                 if (schemaData === null){
-                    console.warn("Unable to fetch graph schema (" + url + "). Schema also unavailable from localStorage (" + localStorageKey + ").");
+                    console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema also unavailable from localStorage (" + localStorageKey + ").");
                 } else {
-                    console.warn("Unable to fetch graph schema (" + url + "). Schema loaded from localStorage (" + localStorageKey + ").");
+                    console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema loaded from localStorage (" + localStorageKey + ").");
                     setFunc(JSON.parse(schemaData));
                 }
             }
