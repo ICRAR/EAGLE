@@ -3,28 +3,6 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
 
-enum Priority {
-    PerfectNameMatch, // if the search term entered perfectly matches the search object's name
-    NameStartsWith, // if the search object's name starts with the search term entered
-    PerfectTagMatch, // if the search term entered perfectly matches a tag on the search object
-    TagStartsWith, // if the search object's tag starts with the search term entered
-    NameIncludes, // if a word entered in the search matches a word in the search object's name
-    NamePartial, // if the search string entered partially matches a word in the search object's name
-    TagIncludes, // if a word entered in the search matches a word in the search object's tag
-    TagPartial // if the search string entered partially matches a word in the search object's tag
-}
-
-type Results = {
-    perfectNameMatch: KeyboardShortcut[],
-    nameStartsWith: KeyboardShortcut[],
-    perfectTagMatch: KeyboardShortcut[],
-    tagStartsWith: KeyboardShortcut[],
-    nameIncludes: KeyboardShortcut[],
-    namePartial: KeyboardShortcut[],
-    tagIncludes: KeyboardShortcut[],
-    tagPartial: KeyboardShortcut[],
-}
-
 export class QuickActions {
 
     static searchTerm: ko.Observable<string> = ko.observable('');
@@ -63,7 +41,7 @@ export class QuickActions {
 
             // processing the quick start array
             KeyboardShortcut.quickActions.forEach(function(shortcut:KeyboardShortcut){
-                const priority: Priority = QuickActions.checkMatch(shortcut, searchTerm);
+                const priority: number = QuickActions.checkMatch(shortcut, searchTerm);
                 if(priority !== 0){
                     //pushing the results to temp array
                     results.push({keyboardShortcut:shortcut, priority: priority})
@@ -134,7 +112,6 @@ export class QuickActions {
 
                     //check how many words of the search term match the name of the keyboard shortcut's name in sequence
                     if(searchWordStillMatches && searchWordIndex === shortcutWordIndex){
-                        console.log('words match in sequence points added', shortcutWords)
                         shortcutMatchScore += wordMatchInSequencePoints
                     }else{
                         searchWordStillMatches = false;
@@ -146,7 +123,6 @@ export class QuickActions {
 
                     //check how many words of the search term match the name of the keyboard shortcut's name in sequence
                     if(searchWordStillMatches && searchWordIndex === shortcutWordIndex){
-                        console.log('words match in sequence points added', shortcutWords)
                         shortcutMatchScore += wordMatchInSequencePoints
                     }else{
                         searchWordStillMatches = false;
