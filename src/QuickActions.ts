@@ -71,7 +71,7 @@ export class QuickActions {
         const PARTIAL_TAG_MATCH_POINTS = 5 //search term partially matches function tag (includes())
         const WORD_MATCH_IN_SEQUENCE_POINTS = 2 //extra points for matching words from start(eg. search term: "save graph repo", function name: "save graph to repo" is 2x2 extra points because the first two words match)
 
-        let shortcutMatchScore = 0 //keeping track of this keyboard shortcut's score
+        let score = 0 //keeping track of this keyboard shortcut's score
 
         //perfect match! no point to continue
         if (shortcut.text.toLocaleLowerCase() === searchTerm.toLocaleLowerCase()){
@@ -80,13 +80,13 @@ export class QuickActions {
 
         //check if function name starts with the search term
         if (shortcut.text.toLocaleLowerCase().startsWith(searchTerm.toLocaleLowerCase())){
-            shortcutMatchScore+=STARTS_WITH_POINTS
+            score+=STARTS_WITH_POINTS
         }
 
         for(const tag of shortcut.tags){
             // check for perfect tag matches
             if (tag.toLocaleLowerCase() === searchTerm.toLocaleLowerCase()){
-                shortcutMatchScore += PERFECT_TAG_MATCH_POINTS
+                score += PERFECT_TAG_MATCH_POINTS
             }
         }
 
@@ -94,7 +94,7 @@ export class QuickActions {
         const shortcutWords: string[] = shortcut.text.split(' ');
         const searchWords: string[] = searchTerm.split(' ').filter(Boolean);
 
-        let searchWordStillMatches = true // keeping track of if the words from the search term match the word from the keyboardshortcut name of the same index
+        let searchWordStillMatches = true // keeping track of if the words from the search term match the word from the KeyboardShortcut name of the same index
 
         for (let searchWordIndex = 0; searchWordIndex < searchWords.length ; searchWordIndex++){
             //looping over each word in the search term
@@ -107,11 +107,11 @@ export class QuickActions {
 
                 //do we have a complete word match
                 if(shortcutWord.toLocaleLowerCase() === searchWord.toLocaleLowerCase()){
-                    shortcutMatchScore += WORD_MATCH_POINTS
+                    score += WORD_MATCH_POINTS
 
                     //check how many words of the search term match the name of the keyboard shortcut's name in sequence
                     if(searchWordStillMatches && searchWordIndex === shortcutWordIndex){
-                        shortcutMatchScore += WORD_MATCH_IN_SEQUENCE_POINTS
+                        score += WORD_MATCH_IN_SEQUENCE_POINTS
                     }else{
                         searchWordStillMatches = false;
                     }
@@ -119,11 +119,11 @@ export class QuickActions {
                 //do we have a partial word match
                 }else if(shortcutWord.toLocaleLowerCase().includes(searchWord.toLocaleLowerCase())){
                     //awarding points for a partial match plus a bonus for each letter that matches
-                    shortcutMatchScore += partialWORD_MATCH_POINTS + searchWord.length
+                    score += partialWORD_MATCH_POINTS + searchWord.length
 
                     //check how many words of the search term match the name of the keyboard shortcut's name in sequence
                     if(searchWordStillMatches && searchWordIndex === shortcutWordIndex){
-                        shortcutMatchScore += WORD_MATCH_IN_SEQUENCE_POINTS
+                        score += WORD_MATCH_IN_SEQUENCE_POINTS
                     }
 
                     searchWordStillMatches = false; //only a partial match, so the streak ends here
@@ -138,17 +138,17 @@ export class QuickActions {
 
                 //check for word match with tag
                 if(searchTerm.toLocaleLowerCase() === tag.toLocaleLowerCase()){
-                    shortcutMatchScore += TAG_MATCH_POINTS
+                    score += TAG_MATCH_POINTS
 
                 //check for partial match
                 }else if(tag.toLocaleLowerCase().includes(searchWord.toLocaleLowerCase())){
                     //awarding points for a partial match plus a bonus for each letter that matches
-                    shortcutMatchScore += PARTIAL_TAG_MATCH_POINTS +searchWord.length
+                    score += PARTIAL_TAG_MATCH_POINTS +searchWord.length
                 }
             }
         }
 
-        return shortcutMatchScore
+        return score
     }
 
     // close QuickActions and run the shortcut
