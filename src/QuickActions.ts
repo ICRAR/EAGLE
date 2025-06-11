@@ -65,11 +65,11 @@ export class QuickActions {
         const PERFECT_WORD_MATCH_POINTS = 10000 //search term and shortcut name are a perfect match
         const STARTS_WITH_POINTS = 100 //shortcut name starts with the search term
         const WORD_MATCH_POINTS = 50 //a word in the search term matches a word in the shortcut name
-        const partialWORD_MATCH_POINTS = 8 //search term partially matches function name (includes())
-        const WORD_MATCH_IN_SEQUENCE_POINTS = 2 //extra points for matching words from start(eg. search term: "save graph repo", function name: "save graph to repo" is 2x2 extra points because the first two words match)
         const PERFECT_TAG_MATCH_POINTS = 40 //search term and tag are a perfect match
         const TAG_MATCH_POINTS = 30 //a word in the search term matches a tag
+        const partialWORD_MATCH_POINTS = 8 //search term partially matches function name (includes())
         const PARTIAL_TAG_MATCH_POINTS = 5 //search term partially matches function tag (includes())
+        const WORD_MATCH_IN_SEQUENCE_POINTS = 2 //extra points for matching words from start(eg. search term: "save graph repo", function name: "save graph to repo" is 2x2 extra points because the first two words match)
 
         let shortcutMatchScore = 0 //keeping track of this keyboard shortcut's score
 
