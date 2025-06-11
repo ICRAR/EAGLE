@@ -66,10 +66,10 @@ export class QuickActions {
         const startsWithPoints = 100 //shortcut name starts with the search term
         const wordMatchPoints = 50 //a word in the search term matches a word in the shortcut name
         const wordMatchInSequencePoints = 2 //extra points each word that matches between shortcut name and search term
-        const partialWordMatchPoints = 10 //some of a word in the search term matches a word of the shortcut name
+        const partialWordMatchPoints = 8 //some of a word in the search term matches a word of the shortcut name
         const perfectTagMatchPoints = 40 //search term and tag are a perfect match
         const tagMatchPoints = 30 //a word in the search term matches a tag
-        const partialTagMatchPoints = 7 //some of a word in the search term matches a tag
+        const partialTagMatchPoints = 5 //some of a word in the search term matches a tag
 
         let shortcutMatchScore = 0 //keeping track of this keyboard shortcut's score
 
@@ -119,14 +119,15 @@ export class QuickActions {
 
                 //do we have a partial word match
                 }else if(shortcutWord.toLocaleLowerCase().includes(searchWord.toLocaleLowerCase())){
-                    shortcutMatchScore += partialWordMatchPoints
+                    //awarding points for a partial match plus a bonus for each letter that matches
+                    shortcutMatchScore += partialWordMatchPoints + searchWord.length
 
                     //check how many words of the search term match the name of the keyboard shortcut's name in sequence
                     if(searchWordStillMatches && searchWordIndex === shortcutWordIndex){
                         shortcutMatchScore += wordMatchInSequencePoints
-                    }else{
-                        searchWordStillMatches = false;
                     }
+
+                    searchWordStillMatches = false; //only a partial match, so the streak ends here
                 }else{
                     //we dont have a match so our word match steak ends here
                     searchWordStillMatches = false
@@ -142,7 +143,8 @@ export class QuickActions {
 
                 //check for partial match
                 }else if(tag.toLocaleLowerCase().includes(searchWord.toLocaleLowerCase())){
-                    shortcutMatchScore += partialTagMatchPoints
+                    //awarding points for a partial match plus a bonus for each letter that matches
+                    shortcutMatchScore += partialTagMatchPoints +searchWord.length
                 }
             }
         }
