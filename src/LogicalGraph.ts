@@ -25,26 +25,23 @@
 import * as ko from "knockout";
 
 import { Category } from './Category';
-import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
-import { Edges } from "./Edges";
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
 import { GraphConfig } from './GraphConfig';
 import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
-import { Nodes } from './Nodes';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 
 export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
-    private nodes : ko.Observable<Nodes>;
-    private edges : ko.Observable<Edges>;
+    private nodes : ko.Observable<Map<NodeId, Node>>;
+    private edges : ko.Observable<Map<EdgeId, Edge>>;
     private graphConfigs : ko.ObservableArray<GraphConfig>;
     private activeGraphConfigId : ko.Observable<GraphConfig.Id>
 
@@ -56,8 +53,8 @@ export class LogicalGraph {
         this.fileInfo().type = Eagle.FileType.Graph;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
-        this.nodes = ko.observable(new Nodes());
-        this.edges = ko.observable(new Edges());
+        this.nodes = ko.observable(new Map<NodeId, Node>());
+        this.edges = ko.observable(new Map<EdgeId, Edge>());
         this.graphConfigs = ko.observableArray([]);
         this.activeGraphConfigId = ko.observable(null); // can be null, or an id (can't be undefined)
         this.issues = ko.observableArray([])
@@ -72,14 +69,14 @@ export class LogicalGraph {
 
         // add nodes
         result.nodeDataArray = [];
-        for (const node of graph.nodes().all()){
+        for (const node of graph.nodes().values()){
             const nodeData : any = Node.toOJSGraphJson(node);
             result.nodeDataArray.push(nodeData);
         }
 
         // add links
         result.linkDataArray = [];
-        for (const edge of graph.getEdges()){
+        for (const edge of graph.getEdges().values()){
 
             // depending on the settings and purpose, skip close-loop edges
             if (forTranslation && Setting.findValue(Setting.SKIP_CLOSE_LOOP_EDGES)){
@@ -261,7 +258,7 @@ export class LogicalGraph {
                 continue;
             }
 
-            result.nodes().add(newNode);
+            result.nodes().add(newNode.getId(), newNode);
             result.nodes.valueHasMutated();
         }
 
@@ -301,7 +298,7 @@ export class LogicalGraph {
                 continue;
             }
 
-            result.edges().add(newEdge);
+            result.edges().add(newEdge.getId(), newEdge);
             newEdge.getSrcPort().addEdge(newEdge);
             newEdge.getDestPort().addEdge(newEdge);
         }
@@ -380,17 +377,17 @@ export class LogicalGraph {
     }
 
     addNodeComplete = (node : Node) => {
-        this.nodes().add(node);
+        this.nodes().set(node.getId(), node);
         this.nodes.valueHasMutated();
     }
 
-    getNodes = () : Node[] => {
-        return this.nodes().all();
+    getNodes = () : Map<NodeId, Node> => {
+        return this.nodes();
     }
 
     getAllNodes = () : Node[] => {
         const nodes : Node[] =[]
-        this.nodes().all().forEach(function(node){
+        this.nodes().forEach(function(node: Node){
             nodes.push(node)
             if(node.isConstruct()){
                 if(node.getInputApplication()!= null){
@@ -405,29 +402,29 @@ export class LogicalGraph {
     }
 
     getNumNodes = () : number => {
-        return this.nodes().all().length;
+        return this.nodes().size;
     }
 
     addEdgeComplete = (edge : Edge) => {
-        this.edges().add(edge);
+        this.edges().set(edge.getId(), edge);
         this.edges.valueHasMutated();
 
         edge.getSrcPort().addEdge(edge);
         edge.getDestPort().addEdge(edge);
     }
 
-    getEdges = () : Edge[] => {
-        return this.edges().all();
+    getEdges = () : Map<EdgeId, Edge> => {
+        return this.edges();
     }
 
     getNumEdges = () : number => {
-        return this.edges().all().length;
+        return this.edges().size;
     }
 
     getCommentNodes = () : Node[] => {
         const commentNodes: Node[] = [];
 
-        for (const node of this.nodes().all()){
+        for (const node of this.nodes().values()){
             if (node.isComment()){
                 commentNodes.push(node);
             }
@@ -551,13 +548,13 @@ export class LogicalGraph {
 
         // copy nodes
         for (const node of this.nodes().all()){
-            result.nodes().add(node.clone());
+            result.nodes().add(node.getId(), node.clone());
             result.nodes.valueHasMutated();
         }
 
         // copy edges
         for (const edge of this.edges().all()){
-            result.edges().add(edge.clone());
+            result.edges().add(edge.getId(), edge.clone());
             result.edges.valueHasMutated();
 
             edge.getSrcPort().addEdge(edge);
@@ -623,7 +620,7 @@ export class LogicalGraph {
             .setPosition(location.x, location.y);
 
         // add to logicalGraph
-        this.nodes().add(newNode);
+        this.nodes().add(newNode.getId(), newNode);
         this.nodes.valueHasMutated();
 
         return newNode;
@@ -700,7 +697,7 @@ export class LogicalGraph {
             }
 
             if (node.getId() === id){
-                this.nodes().remove(id);
+                this.nodes().delete(id);
                 this.nodes.valueHasMutated();
                 break;
             }
@@ -742,7 +739,7 @@ export class LogicalGraph {
     removeEdgeById = (id: EdgeId) : void => {
         const edge = this.edges().get(id);
 
-        this.edges().remove(id);
+        this.edges().delete(id);
         this.edges.valueHasMutated();
 
         edge.getSrcPort().removeEdge(id);
@@ -756,7 +753,7 @@ export class LogicalGraph {
         for (let i = edges.length - 1 ; i >= 0; i--){
             const edge : Edge = edges[i];
             if (edge.getSrcNode().getId() === id || edge.getDestNode().getId() === id){
-                this.edges().remove(edge.getId());
+                this.edges().delete(edge.getId());
                 this.edges.valueHasMutated();
 
                 edge.getSrcPort().removeEdge(edge.getId());
@@ -781,7 +778,7 @@ export class LogicalGraph {
             const edge: Edge = edges[i];
 
             if (edge.getSrcPort().getId() === id || edge.getDestPort().getId() === id){
-                this.edges().remove(edge.getId());
+                this.edges().delete(edge.getId());
                 this.edges.valueHasMutated();
 
                 edge.getSrcPort().removeEdge(edge.getId());
@@ -1016,45 +1013,45 @@ export class LogicalGraph {
         const ids : string[] = [];
 
         // loop over graph nodes
-        for (const node of graph.getNodes()){
-            if (ids.includes(node.getId())){
+        for (const [nodeId, node] of graph.getNodes()){
+            if (ids.includes(nodeId)){
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Node (" + node.getName() + ") does not have a unique id",
-                    function(){Utils.showNode(eagle, node.getId())},
+                    function(){Utils.showNode(eagle, nodeId)},
                     function(){node.setId(Utils.generateNodeId())},
                     "Assign node a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
             }
-            ids.push(node.getId());
+            ids.push(nodeId);
 
             // loop over fields within graphs
-            for (const field of node.getFields()){
-                if (ids.includes(field.getId())){
+            for (const [fieldId, field] of node.getFields()){
+                if (ids.includes(fieldId)){
                     const issue: Errors.Issue = Errors.ShowFix(
                         "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
-                        function(){Utils.showNode(eagle, node.getId())},
+                        function(){Utils.showNode(eagle, nodeId)},
                         function(){Utils.newFieldId(eagle, node, field)},
                         "Assign field a new id"
                     );
                     graph.issues.push({issue : issue, validity : Errors.Validity.Error})
                 }
-                ids.push(field.getId());
+                ids.push(fieldId);
             }
         }
 
         // loop over graph edges
-        for (const edge of graph.getEdges()){
-            if (ids.includes(edge.getId())){
+        for (const [id, edge] of graph.getEdges()){
+            if (ids.includes(id)){
                 const issue: Errors.Issue = Errors.ShowFix(
-                    "Edge (" + edge.getId() + ") does not have a unique id",
-                    function(){Utils.showEdge(eagle, edge.getId())},
+                    "Edge (" + id + ") does not have a unique id",
+                    function(){Utils.showEdge(eagle, id)},
                     function(){edge.setId(Utils.generateEdgeId())},
                     "Assign edge a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
             }
-            ids.push(edge.getId());
+            ids.push(id);
         }
 
         // loop over the graph configs
@@ -1073,9 +1070,9 @@ export class LogicalGraph {
         }
 
         // check all edges in the edges dict are also present in the srcPort or destPort edges dict
-        for (const edge of graph.edges().all()){
-            if (edge.getSrcPort().getEdges().get(edge.getId()) === null && edge.getDestPort().getEdges().get(edge.getId()) === null){
-                const issue: Errors.Issue = Errors.Show("Edge (" + edge.getId() + ") is not present in source or destination port edges list", function(){Utils.showEdge(eagle, edge.getId())});
+        for (const [id, edge] of graph.edges()){
+            if (edge.getSrcPort().getEdges().get(id) === null && edge.getDestPort().getEdges().get(id) === null){
+                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source or destination port edges list", function(){Utils.showEdge(eagle, id)});
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});
             }
         }

@@ -108,11 +108,11 @@ export class RightClick {
 
         // add nodes from each palette
         palettes.forEach(function(palette){
-            paletteList += RightClick.constructHtmlPaletteList(palette.getNodes(),'addNode',null,palette.fileInfo().name,null)
+            paletteList += RightClick.constructHtmlPaletteList(Array.from(palette.getNodes().values()),'addNode',null,palette.fileInfo().name,null)
         })
 
         // add nodes from the logical graph
-        paletteList += RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(),'addNode',null,'Graph',null)
+        paletteList += RightClick.constructHtmlPaletteList(Array.from(eagle.logicalGraph().getNodes().values()),'addNode',null,'Graph',null)
 
         return paletteList
     }
@@ -124,10 +124,10 @@ export class RightClick {
         const palettes = eagle.palettes();
 
         palettes.forEach(function(palette){
-            paletteList += RightClick.constructHtmlPaletteList(palette.getNodes(), 'addAndConnect', compatibleNodesList, palette.fileInfo().name,null)
+            paletteList += RightClick.constructHtmlPaletteList(Array.from(palette.getNodes().values()), 'addAndConnect', compatibleNodesList, palette.fileInfo().name,null)
         })
 
-        paletteList += RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(), 'addAndConnect', compatibleNodesList, 'Graph',null)
+        paletteList += RightClick.constructHtmlPaletteList(Array.from(eagle.logicalGraph().getNodes().values()), 'addAndConnect', compatibleNodesList, 'Graph',null)
         return paletteList
     }
 
@@ -161,7 +161,7 @@ export class RightClick {
         return paletteList
     }
 
-    static constructHtmlPaletteList(collectionOfNodes:Node[], mode:string, compatibleNodesList:Node[],paletteName:string,embedMode:String) : string {
+    static constructHtmlPaletteList(collectionOfNodes:Node[], mode: "addNode" | "addAndConnect" | "embedNode", compatibleNodesList:Node[],paletteName:string,embedMode:String) : string {
         let nodesHtml = ''
         let nodeFound = false
         let htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu(this)' onmouseleave='RightClick.closeSubMenu(this)'>"+paletteName
@@ -258,8 +258,6 @@ export class RightClick {
 
 
     static getNodeDescriptionDropdown() : string {
-        const eagle: Eagle = Eagle.getInstance();
-
         const node = Eagle.selectedRightClickObject()
 
         let htmlNodeDescription = "<span class='contextmenuNodeDescription' onmouseover='RightClick.openSubMenu(this)' onmouseleave='RightClick.closeSubMenu(this)'> Node Info"

@@ -115,7 +115,7 @@ newTut.newTutStep("Node Ports", "And this is the input port for the file storage
 newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over to the file node's input port, then release.</em>",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('HelloWorldApp')+' .outputPort')})
 .setType(TutorialStep.Type.Condition)
 .setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
-.setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getEdges().length != 0){return true}else{return false}}) //check if there are any edges present in the graph
+.setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getEdges().size != 0){return true}else{return false}}) //check if there are any edges present in the graph
 
 newTut.newTutStep("Graph Errors and warnings", "This is the error checking system, it is showing a check mark, so we did everything correctly. If there are errors in the graph you are able to troubleshoot them by clicking here.", function(){return $("#checkGraphDone")})
 

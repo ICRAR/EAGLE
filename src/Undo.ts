@@ -243,8 +243,8 @@ export class Undo {
                 "current": realCurrent === i ? "->" : "",
                 "description": snapshot.description(),
                 "buffer position": i,
-                "nodes": snapshot.data().getNodes().length,
-                "edges": snapshot.data().getEdges().length
+                "nodes": snapshot.data().getNodes().size,
+                "edges": snapshot.data().getEdges().size
             });
         }
 

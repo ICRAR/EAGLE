@@ -289,7 +289,7 @@ export class ParameterTable {
         const eagle: Eagle = Eagle.getInstance();
         const edgesToRemove: EdgeId[] = [];
 
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (const edge of eagle.logicalGraph().getEdges().values()){
             // check edges whose source is this field
             if (edge.getSrcPort().getId() === field.getId() && !field.isOutputPort()){
                 // remove edge
@@ -668,7 +668,7 @@ export class ParameterTable {
         const selectedNode: Node = Eagle.getInstance().selectedNode();
         selectedNode.addEmptyField();
 
-        const fieldIndex = selectedNode.getFields().length-1;
+        const fieldIndex = selectedNode.getFields().size-1;
 
         //update the parameter table fields array
         ParameterTable.copySelectedNodeFields()
@@ -702,7 +702,7 @@ export class ParameterTable {
         // the new node is appended at the bottom
         selectedNode.addField(copiedField)
 
-        const fieldIndex = selectedNode.getFields().length - 1;
+        const fieldIndex = selectedNode.getFields().size - 1;
 
         setTimeout(function() {
             //handling selecting and highlighting the newly created field on the node
@@ -804,11 +804,12 @@ export class ParameterTable {
         //this is doing essantially the same as eagle.selectedNode() but for some reason selected node would still return the previously selected node, not the newly selected one
         const selectedNode = eagle.selectedObjects()[0]
 
-        if( eagle.selectedObjects().length === 1 && selectedNode instanceof Node){
+        if(eagle.selectedObjects().length === 1 && selectedNode instanceof Node){
             const fields = selectedNode.getFields()
 
+            // TODO: do we need to check that fields exists, shouldn't it always exist?
             if(fields){
-                ParameterTable.copyFields(fields)
+                ParameterTable.copyFields(Array.from(fields.values())) 
             }
         }
     }
@@ -817,7 +818,7 @@ export class ParameterTable {
         if (node === null){
             ParameterTable.copyFields([]);
         } else {
-            ParameterTable.copyFields(node.getFields());
+            ParameterTable.copyFields(Array.from(node.getFields().values()));
             ParameterTable.sortFields();
         }
     }

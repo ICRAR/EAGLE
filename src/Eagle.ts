@@ -121,7 +121,7 @@ export class Eagle {
 
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
     static nodeDragPaletteIndex : number;
-    static nodeDragComponentIndex : number;
+    static nodeDragComponentId : NodeId;
     static shortcutModalCooldown : number;
 
     constructor(){

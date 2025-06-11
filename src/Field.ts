@@ -6,7 +6,6 @@ import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from "./Edge";
-import { Edges } from "./Edges";
 import { Errors } from './Errors';
 import { GraphConfigField } from "./GraphConfig";
 import { Node } from './Node';
@@ -31,7 +30,8 @@ export class Field {
     private usage : ko.Observable<Daliuge.FieldUsage>;
     private isEvent : ko.Observable<boolean>;
     private node : ko.Observable<Node>;
-    private edges : ko.Observable<Edges>;
+    //private edges : ko.Observable<IdMap<EdgeId,Edge>>;
+    private edges: ko.Observable<Map<EdgeId, Edge>>;
 
     // graph related attributes
     private inputX : ko.Observable<number>;
@@ -64,7 +64,7 @@ export class Field {
         this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
         this.node = ko.observable(null);
-        this.edges = ko.observable(new Edges());
+        this.edges = ko.observable(new Map<EdgeId, Edge>());
 
         //graph related things
         this.inputX = ko.observable(0);
@@ -356,7 +356,7 @@ export class Field {
         return this.node();
     }
 
-    getEdges = (): Edges => {
+    getEdges = (): Map<EdgeId, Edge> => {
         return this.edges();
     }
 
@@ -412,12 +412,12 @@ export class Field {
     }
 
     addEdge = (edge: Edge) : Field => {
-        this.edges().add(edge);
+        this.edges().add(edge.getId(), edge);
         return this;
     }
 
     removeEdge = (id: EdgeId) : Field => {
-        this.edges().remove(id);
+        this.edges().delete(id);
         return this;
     }
 
@@ -870,7 +870,7 @@ export class Field {
         return f;
     }
 
-    static isValid(node:Node, field:Field, selectedLocation:Eagle.FileType, fieldIndex:number){
+    static isValid(node:Node, field:Field, selectedLocation:Eagle.FileType){
         const eagle = Eagle.getInstance()
         field.issues([]) //clear old issues
     
@@ -957,7 +957,7 @@ export class Field {
 
             if (field.getDisplayText() === field1.getDisplayText() && field.getParameterType() === field1.getParameterType()){
                 if (field.getId() === field1.getId()){
-                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixNodeMergeFieldsByIndex(eagle, node, fieldIndex, j)}, "Merge fields");
+                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixNodeMergeFields(eagle, node, field, field1)}, "Merge fields");
                     field.issues().push({issue:issue,validity:Errors.Validity.Warning})
                     // errorsWarnings.warnings.push(issue);
                 } else {

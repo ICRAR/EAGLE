@@ -127,12 +127,10 @@ export class Utils {
         return fileType.toString() + "-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
     }
 
-    // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids)
+    // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids), check now!
     static setEmbeddedApplicationNodeIds(lg: LogicalGraph): void {
-        const nodes: Node[] = lg.getNodes();
-
         // loop through nodes, look for embedded nodes with null id, create new id
-        for (const node of nodes){
+        for (const node of lg.getNodes().values()){
 
             // if this node has inputApp, set the inputApp id
             if (node.hasInputApplication()){
@@ -1008,7 +1006,7 @@ export class Utils {
         // populate UI with current edge data
         // add src node keys
         $('#editEdgeModalSrcNodeIdSelect').empty();
-        for (const node of logicalGraph.getNodes()){
+        for (const node of logicalGraph.getNodes().values()){
             // if node itself can have output ports, add the node to the list
             if (node.canHaveOutputs()){
                 $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
@@ -1068,7 +1066,7 @@ export class Utils {
 
         // add dest node keys
         $('#editEdgeModalDestNodeIdSelect').empty();
-        for (const node of logicalGraph.getNodes()){
+        for (const node of logicalGraph.getNodes().values()){
             if (node.canHaveInputs()){
                 $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
                     value: node.getId(),
@@ -1137,7 +1135,7 @@ export class Utils {
 
         // build a list from all palettes
         for (const palette of palettes){
-            for (const node of palette.getNodes()){
+            for (const node of palette.getNodes().values()){
                 // add input port names into the list
                 for (const port of node.getInputPorts()) {
                     if (!port.getIsEvent()){
@@ -1155,7 +1153,7 @@ export class Utils {
         }
 
         // build a list from all nodes
-        for (const node of graph.getNodes()) {
+        for (const node of graph.getNodes().values()) {
             // add input port names into the list
             for (const port of node.getInputPorts()) {
                 if (!port.getIsEvent()){
@@ -1213,7 +1211,7 @@ export class Utils {
 
         // add all data components (except ineligible)
         for (const palette of palettes){
-            for (const node of palette.getNodes()){
+            for (const node of palette.getNodes().values()){
                 // skip nodes that are not data components
                 if (!node.isData()){
                     continue;
@@ -1243,7 +1241,7 @@ export class Utils {
 
         // add all data components (except ineligible)
         for (const palette of palettes){
-            for (const node of palette.getNodes()){
+            for (const node of palette.getNodes().values()){
                 // skip nodes that are not data components
                 if (categoryType === Category.Type.Data && !node.isData()){
                     continue;
@@ -1307,7 +1305,7 @@ export class Utils {
 
         // add all data components (except ineligible)
         for (const palette of eagle.palettes()){
-            for (const node of palette.getNodes()){
+            for (const node of palette.getNodes().values()){
                 // skip nodes that are not data components
                 if (node.getName() === name){
                     return node;
@@ -1323,7 +1321,7 @@ export class Utils {
 
         // add all data components (except ineligible)
         for (const palette of eagle.palettes()){
-            for (const node of palette.getNodes()){
+            for (const node of palette.getNodes().values()){
                 // skip nodes that are not data components
                 if (node.getId() === id){
                     return node;
@@ -1380,8 +1378,8 @@ export class Utils {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
-        for (const node of diagram.getNodes()) {
-            for (const field of node.getFields()) {
+        for (const node of diagram.getNodes().values()) {
+            for (const field of node.getFields().values()) {
                 Utils._addFieldIfUnique(uniqueFields, field.clone());
             }
         }
@@ -1396,8 +1394,8 @@ export class Utils {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
-        for (const node of diagram.getNodes()) {
-            for (const field of node.getFields()) {
+        for (const node of diagram.getNodes().values()) {
+            for (const field of node.getFields().values()) {
                 if (field.getParameterType() !== parameterType){
                     continue;
                 }
@@ -1598,24 +1596,24 @@ export class Utils {
         // check for duplicate keys
         const keys: NodeId[] = [];
 
-        for (const node of palette.getNodes()){
+        for (const [id, node] of palette.getNodes()){
             // check existing keys
-            if (keys.indexOf(node.getId()) !== -1){
+            if (keys.indexOf(id) !== -1){
                 errorsWarnings.errors.push(
                     Errors.ShowFix(
                         "Node (" + node.getName() + ") within palette (" + palette.fileInfo().name + ") has id already used by at least one other component.",
-                        function(){Utils.showNode(Eagle.getInstance(), node.getId())},
+                        function(){Utils.showNode(Eagle.getInstance(), id)},
                         function(){node.setId(Utils.generateNodeId())},
                         "Generate new id for " + node.getName()
                     )
                 );
             } else {
-                keys.push(node.getId());
+                keys.push(id);
             }
         }
 
         // check all nodes are valid
-        for (const node of palette.getNodes()){
+        for (const node of palette.getNodes().values()){
             Node.isValid(node, Eagle.FileType.Palette);
             paletteIssues.push(...node.getIssues())
             // errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
@@ -1639,12 +1637,12 @@ export class Utils {
         LogicalGraph.isValid();
 
         // check all nodes are valid
-        for (const node of graph.getNodes()){
+        for (const node of graph.getNodes().values()){
             Node.isValid(node, Eagle.FileType.Graph);
         }
 
         // check all edges are valid
-        for (const edge of graph.getEdges()){
+        for (const edge of graph.getEdges().values()){
             Edge.isValid(eagle, false, edge.getId(), edge.getSrcNode().getId(), edge.getSrcPort().getId(), edge.getDestNode().getId(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {warnings: [], errors: []});
         }
     }
@@ -1657,35 +1655,35 @@ export class Utils {
 
         //gather all the errors
         //from nodes
-        for(const node of graph.getNodes()){
+        for(const node of graph.getNodes().values()){
             graphIssues.push(...node.getIssues())
             
             //from fields
-            for( const field of node.getFields()){
+            for(const field of node.getFields().values()){
                 graphIssues.push(...field.getIssues())
             }
 
             //embedded input applications and their fields
             if(node.hasInputApplication()){
-                graphIssues.push(...node.getInputApplication().getIssues())
+                graphIssues.push(...node.getInputApplication().getIssues().values())
                 
-                for( const field of node.getInputApplication().getFields()){
+                for(const field of node.getInputApplication().getFields().values()){
                     graphIssues.push(...field.getIssues())
                 }
             }
 
             //embedded output applications and their fields
             if(node.hasOutputApplication()){
-                graphIssues.push(...node.getOutputApplication().getIssues())
+                graphIssues.push(...node.getOutputApplication().getIssues().values())
                 
-                for( const field of node.getOutputApplication().getFields()){
+                for( const field of node.getOutputApplication().getFields().values()){
                     graphIssues.push(...field.getIssues())
                 }
             }
         }
 
         // from edges
-        for (const edge of graph.getEdges()){
+        for (const edge of graph.getEdges().values()){
             graphIssues.push(...edge.getIssues())
         }
 
@@ -1960,9 +1958,11 @@ export class Utils {
             return;
         }
 
-        for (const field of node.getFields()){
+        for (const [id, field] of node.getFields()){
             if (field.getId() === null){
+                node.getFields().delete(id);
                 field.setId(Utils.generateFieldId());
+                node.getFields().set(field.getId(), field);
             }
         }
     }
@@ -1970,30 +1970,6 @@ export class Utils {
     static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
         node.setCategoryType(categoryType);
-    }
-
-    // NOTE: merges field1 into field0
-    static fixNodeMergeFieldsByIndex(eagle: Eagle, node: Node, field0Index: number, field1Index: number){
-        // abort if one or more of the fields is not found
-        const field0 = node.getFields()[field0Index];
-        const field1 = node.getFields()[field1Index];
-
-        if (typeof field0 === "undefined" || typeof field1 === "undefined"){
-            return;
-        }
-
-        const usage0 = field0.getUsage();
-        const usage1 = field1.getUsage();
-        const newUsage = Utils._mergeUsage(usage0, usage1);
-
-        // remove field1
-        node.removeFieldByIndex(field1Index);
-
-        // update usage of remaining field (field0)
-        field0.setUsage(newUsage);
-
-        // update all edges to use new field
-        Utils._mergeEdges(eagle, field1.getId(), field0.getId());
     }
 
     // NOTE: merges field1 into field0
@@ -2041,7 +2017,7 @@ export class Utils {
 
     static _mergeEdges(eagle: Eagle, oldFieldId: FieldId, newFieldId: FieldId){
         // update all edges to use new field
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (const [edgeId, edge] of eagle.logicalGraph().getEdges()){
             // update src port
             if (edge.getSrcPort().getId() === oldFieldId){
                 edge.getSrcPort().setId(newFieldId);
@@ -2310,7 +2286,7 @@ export class Utils {
         const newId: FieldId = Utils.generateFieldId();
     
         // loop over all edges
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (const [edgeId, edge] of eagle.logicalGraph().getEdges()){
             // update the src port id, if required
             if (edge.getSrcNode().getId() === node.getId() && edge.getSrcPort().getId() === oldId){
                 edge.getSrcPort().setId(newId);
@@ -2466,14 +2442,15 @@ export class Utils {
         const eagle : Eagle = Eagle.getInstance();
 
         // add logical graph nodes to table
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (const [id, edge] of eagle.logicalGraph().getEdges()){
             const sourceNode: Node = edge.getSrcNode();
             const sourcePort: Field = edge.getSrcPort();
             const destNode: Node = edge.getDestNode();
             const destPort: Field = edge.getDestPort();
 
             tableData.push({
-                "_id": edge.getId(),
+                "key": id,
+                "id": edge.getId(),
                 "sourceNode": sourceNode.getName(),
                 "sourceNodeId": sourceNode.getId(),
                 "sourcePort": sourcePort.getDisplayText(),
@@ -2496,11 +2473,12 @@ export class Utils {
 
         // add logical graph nodes to table
         for (const palette of eagle.palettes()){
-            for (const node of palette.getNodes()){
+            for (const [id, node] of palette.getNodes()){
                 tableData.push({
+                    "key":id,
+                    "id":node.getId(),
                     "palette":palette.fileInfo().name,
                     "name":node.getName(),
-                    "id":node.getId(),
                     "embedId":node.getEmbed().getId(),
                     "category":node.getCategory(),
                     "categoryType":node.getCategoryType(),
@@ -2516,19 +2494,20 @@ export class Utils {
         console.table(tableData);
     }
 
-    static printNodeFieldsTable(nodeIndex: number) : void {
+    static printNodeFieldsTable(nodeId: NodeId) : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
         // check that node at nodeIndex exists
-        if (nodeIndex >= eagle.logicalGraph().getNumNodes()){
-            console.warn("Unable to print node fields table, node", nodeIndex, "does not exist.");
+        if (!eagle.logicalGraph().getNodes().has(nodeId)){
+            console.warn("Unable to print node fields table, node", nodeId, "does not exist.");
             return;
         }
 
         // add logical graph nodes to table
-        for (const field of eagle.logicalGraph().getNodes()[nodeIndex].getFields()){
+        for (const [fieldId, field] of eagle.logicalGraph().getNodes().get(nodeId).getFields()){
             tableData.push({
+                "key":fieldId,
                 "id":field.getId(),
                 "displayText":field.getDisplayText(),
                 "nodeId":field.getNode().getId(),
@@ -2747,7 +2726,7 @@ export class Utils {
         }
 
         // copy fields from new category to old node
-        for (const field of newCategoryPrototype.getFields()){
+        for (const field of newCategoryPrototype.getFields().values()){
             if (field.isInputPort() || field.isOutputPort()){
                 continue;
             }
@@ -2781,7 +2760,7 @@ export class Utils {
 
         // TODO: this is wrong here!, the field ids within the fields don't match the keys in the fields map!
         // set new ids for any fields in this node
-        for (const field of node.getFields()){
+        for (const field of node.getFields().values()){
             const clonedField = field
                 .clone()
                 .setId(Utils.generateFieldId())
@@ -2795,7 +2774,7 @@ export class Utils {
             
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
-                for (const field of clone.getFields()){
+                for (const field of clone.getFields().values()){
                     field.setId(Utils.generateFieldId()).setNode(clone);
                 }
             }
@@ -2810,7 +2789,7 @@ export class Utils {
             
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
-                for (const field of clone.getFields()){
+                for (const field of clone.getFields().values()){
                     field.setId(Utils.generateFieldId()).setNode(clone);
                 }
             }
@@ -2834,20 +2813,18 @@ export class Utils {
 
     static transformNodeFromTemplates(node: Node, sourceTemplate: Node, destinationTemplate: Node, keepOldFields: boolean = false): void {
         if (!keepOldFields){
-            // delete non-ports from the node (loop backwards since we are deleting from the array as we loop)
-            for (let i = node.getFields().length - 1 ; i >= 0; i--){
-                const field: Field = node.getFields()[i];
-
+            // delete non-ports from the node
+            for (const [id, field] of node.getFields()){
                 if (field.isInputPort() || field.isOutputPort()){
                     continue;
                 }
 
-                node.removeFieldById(field.getId());
+                node.removeFieldById(id);
             }
         }
 
         // copy non-ports from new template to node
-        for (const field of destinationTemplate.getFields()){
+        for (const field of destinationTemplate.getFields().values()){
             if (field.isInputPort() || field.isOutputPort()){
                 continue;
             }

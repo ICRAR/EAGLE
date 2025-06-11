@@ -25,14 +25,11 @@
 import * as ko from "knockout";
 
 import { Category } from './Category';
-import { CategoryData } from './CategoryData';
-import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { FileInfo } from './FileInfo';
 import { Node } from './Node';
-import { Nodes } from './Nodes';
 import { Repository } from "./Repository";
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from "./Setting";
@@ -41,7 +38,7 @@ import { UiModeSystem } from "./UiModes";
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
-    private nodes : ko.Observable<Nodes>;
+    private nodes : ko.Observable<Map<NodeId, Node>>;
     private searchExclude : ko.Observable<boolean>;
     expanded: ko.Observable<boolean>;
 
@@ -53,7 +50,7 @@ export class Palette {
         this.fileInfo().type = Eagle.FileType.Palette;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
-        this.nodes = ko.observable(new Nodes());
+        this.nodes = ko.observable(new Map<NodeId, Node>());
         this.searchExclude = ko.observable(false);
         this.expanded = ko.observable(false);
     }
@@ -90,7 +87,7 @@ export class Palette {
             }
 
             // add node to palette
-            result.nodes().add(newNode);
+            result.nodes().set(newNode.getId(), newNode);
             result.nodes.valueHasMutated();
         }
 
@@ -114,11 +111,11 @@ export class Palette {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(palette.fileInfo());
-        result.modelData.numLGNodes = palette.getNodes().length;
+        result.modelData.numLGNodes = palette.nodes().size;
 
         // add nodes
         result.nodeDataArray = [];
-        for (const node of palette.nodes().all()){
+        for (const node of palette.nodes().values()){
             result.nodeDataArray.push(Node.toOJSPaletteJson(node));
         }
 
@@ -162,8 +159,9 @@ export class Palette {
         return result;
     }
 
-    getNodes = () : Node[] => {
-        return this.nodes().all();
+    // TODO: needed?
+    getNodes = () : Map<NodeId, Node> => {
+        return this.nodes();
     }
 
     getSearchExclude = () : boolean => {
@@ -190,8 +188,8 @@ export class Palette {
 
         result.fileInfo(this.fileInfo().clone());
 
-        for (const node of this.nodes().all()){
-            result.nodes().add(node.clone());
+        for (const [id, node] of this.nodes()){
+            result.nodes().set(id, node.clone());
             result.nodes.valueHasMutated();
         }
 
@@ -207,26 +205,24 @@ export class Palette {
             .setId(Utils.generateNodeId());
 
         if (force){
-            this.nodes().add(newNode);
+            this.nodes().set(newNode.getId(), newNode);
             this.nodes.valueHasMutated();
             return;
         }
 
         // try to find a matching node that already exists in the palette
         // TODO: at the moment, we only match by name and category, but we should match by ID (once the ID is unique)
-        for (let i = 0 ; i < this.getNodes().length; i++){
-            const paletteNode = this.getNodes()[i];
-
+        for (const paletteNode of this.nodes().values()){
             if (paletteNode.getName() === newNode.getName() && paletteNode.getCategory() === newNode.getCategory()){
-                this.nodes().remove(paletteNode.getId());
-                this.nodes().add(newNode);
+                this.nodes().delete(paletteNode.getId());
+                this.nodes().set(newNode.getId(), newNode);
                 this.nodes.valueHasMutated();
                 return;
             }
         }
 
         // if we didn't find a matching node to replace, add it as a new node
-        this.nodes().add(newNode);
+        this.nodes().set(newNode.getId(), newNode);
         this.nodes.valueHasMutated();
     }
 
@@ -235,12 +231,11 @@ export class Palette {
     }
 
     removeNodeById = (id: NodeId) : void => {
-        this.nodes().remove(id);
+        this.nodes().delete(id);
     }
 
     findNodeByNameAndCategory = (nameAndCategory: Category) : Node => {
-        for (let i = this.nodes().all().length - 1; i >= 0 ; i--){
-            const node: Node = this.nodes().all()[i];
+        for (const node of this.nodes().values()){
             if (node.getName() === nameAndCategory && node.getCategory() === nameAndCategory){
                 return node;
             }
@@ -251,8 +246,7 @@ export class Palette {
     getNodesByCategoryType = (categoryType: Category.Type) : Node[] => {
         const result : Node[] = []
 
-        for (let i = this.nodes().all().length - 1; i >= 0 ; i--){
-            const node: Node = this.nodes().all()[i];
+        for (const node of this.nodes().values()){
             if (node.getCategoryType() === categoryType){
                 result.push(node);
             }
