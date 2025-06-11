@@ -56,7 +56,7 @@ export class KeyboardShortcut {
         if ("icon" in options){
             this.icon = options.icon;
         } else {
-            this.icon = "icon-build";
+            this.icon = "build";
         }
     }
 
@@ -100,7 +100,7 @@ export class KeyboardShortcut {
             id: id,
             text: text,
             tags: tags,
-            icon: "icon-book",
+            icon: "book",
             run: (eagle): void => {QuickActions.quickOpenDocsLink(url);}
         });
     }
@@ -518,7 +518,6 @@ export class KeyboardShortcut {
             text: "Open Graph Attributes Configuration Table",
             keys: [new Key("t", Modifier.Shift)],
             tags: ['fields','field','node','favourites','favorites'],
-            icon: "icon-key_attribute_table",
             run: (eagle): void => {ParameterTable.toggleTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);}
         }),
         new KeyboardShortcut({
@@ -654,7 +653,7 @@ export class KeyboardShortcut {
             id: "show_online_docs",
             text: "Show Online Documentation",
             tags: ['docs'],
-            icon: "icon-book",
+            icon: "book",
             run: (eagle): void => {eagle.onlineDocs();}
         }),
         new KeyboardShortcut({
@@ -662,7 +661,7 @@ export class KeyboardShortcut {
             text: "Open setting",
             keys: [new Key("o")],
             tags: ['menu','options'],
-            icon: "icon-cog",
+            icon: "settings",
             run: (eagle): void => {eagle.smartToggleModal('settingsModal');}
         }),
 
@@ -671,19 +670,19 @@ export class KeyboardShortcut {
             id: "quick_intro_tutorial",
             text: "Start UI Quick Intro Tutorial",
             tags: ['ui','interface'],
-            icon: 'icon-question_mark',
+            icon: 'question_mark',
             run: (eagle): void => {TutorialSystem.initiateTutorial('Quick Start');}
         }),
         new KeyboardShortcut({
             id: "graph_building_tutorial",
             text: "Start Graph Building Tutorial",
-            icon: 'icon-question_mark',
+            icon: 'question_mark',
             run: (eagle): void => {TutorialSystem.initiateTutorial('Graph Building');}
         }),
         new KeyboardShortcut({
             id: "graph_config_tutorial",
             text: "Start Graph Configuration Tutorial",
-            icon: 'icon-question_mark',
+            icon: 'question_mark',
             run: (eagle): void => {TutorialSystem.initiateTutorial('Graph Configurations');}
         }),
     ];
