@@ -13,6 +13,8 @@ newTut.newTutStep("Right Panel", "This Panel houses your repositories, allowing 
 
 newTut.newTutStep("Hints Bar", "Keep an eye on this section to learn important shortcuts and methods. The content changes when selecting different components in the canvas.", function(){return $("#statusBar")})
 
+newTut.newTutStep("Inspector", "Shows information and possible actions of the currently selected item, or the graph when nothing is selected.", function(){return $("#inspector")})
+
 newTut.newTutStep("User Interface Element Tooltips", "Much of Eagle's interface is using icons. You can always hover over the icons and most of the other elements to get more information on what they do.", function(){return $("#navbarSupportedContent .btn-group")})
     .setBackPreFunction(function (eagle) {Utils.hideShortcutsModal()})
 
@@ -63,6 +65,6 @@ newTut.newTutStep("Click To Save Settings", "<em>Press 'Ok' (or hit Enter) to sa
     .setPreFunction(function(eagle){$('#settingsModalNegativeButton').on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener');})
     .setBackPreFunction(function(eagle){eagle.tutorial().openSettingsSection('#settingCategoryExternalServices'); $('#settingsModalNegativeButton').on('click.tutButtonListener',eagle.tutorial().tutPressStepListener).addClass('tutButtonListener');$("#settingsModalAffirmativeButton").trigger("focus");})
 
-newTut.newTutStep("Translate Button", "Once configured, you are able to send your graph to the Translator", function(){return $("#navDeployBtn")})
+newTut.newTutStep("Translate Button", "Once configured, you are able to send your graph to the Translator", function(){return $("#navTranslateWrapper")})
 
 newTut.newTutStep("Well Done!", "You have completed the quick introduction tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance. To continue to our tutorial on graph building press <a  onclick='TutorialSystem.initiateTutorial(`Graph Building`)' href='#'>here!</a>", function(){return $("#logicalGraphParent")})
