@@ -301,8 +301,7 @@ export class Setting {
     static readonly BOTTOM_WINDOW_HEIGHT : string = "BottomWindowHeight";
     static readonly BOTTOM_WINDOW_VISIBLE : string = "BottomWindowVisible";
     static readonly BOTTOM_WINDOW_MODE : string = "BottomWindowMode";
-    static readonly OBJECT_INSPECTOR_COLLAPSED_STATE : string = "ObjectInspectorVisibility";
-    static readonly GRAPH_INSPECTOR_COLLAPSED_STATE : string = "GraphInspectorVisibility";
+    static readonly INSPECTOR_COLLAPSED_STATE : string = "ObjectInspectorVisibility";
     
     static readonly OPEN_BUILTIN_PALETTE: string = "OpenBuiltinPalette";
     static readonly OPEN_TEMPLATE_PALETTE: string = "OpenTemplatePalette";
@@ -436,8 +435,7 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Bottom Window Height", Setting.BOTTOM_WINDOW_HEIGHT, "saving the height of the bottom window", true, Setting.Type.Number, 25, 25, 25, 25, 25),
             new Setting(false, "Bottom Window Visibility", Setting.BOTTOM_WINDOW_VISIBLE, "saving the visibility state of the bottom window", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(false, "Bottom Window Mode/Tab", Setting.BOTTOM_WINDOW_MODE, "saving the mode/tab of the bottom window", true, Setting.Type.Number, 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable'),
-            new Setting(false, "Graph Objects Inspector", Setting.OBJECT_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(false, "Graph Info Inspector", Setting.GRAPH_INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph inspector", true, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(false, "Graph and Object Inspector", Setting.INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, Setting.Type.Boolean, false, false, false, false, false),
         ]
     ),
     new SettingsGroup(

@@ -1,7 +1,7 @@
 <div id="inspector" data-bind="style: {'visibility':eagle.getEagleIsReady(), left: Utils.getLeftWindowWidth() + 10, bottom: Utils.getInspectorOffset() + 'vh'},css:{'inspectorCollapsed': $root.getInspectorCollapseState()}">
     <!-- Graph object inspector -->
     <!-- ko if: $root.selectedObjects().length > 0 -->
-        <!-- ko ifnot: Setting.findValue(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE) -->
+        <!-- ko ifnot: Setting.findValue(Setting.INSPECTOR_COLLAPSED_STATE) -->
 
 
             <!-- SINGLE NODE INSPECTOR -->
@@ -13,7 +13,7 @@
                                 <input data-bind="value:$data.name, eagleTooltip: $data.getName()"></input>
                             </div>
                             <div class="col-1 col">
-                                <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
+                                <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
                             </div>
                         </div> 
                         
@@ -170,7 +170,7 @@
                                 <h4>Edge Attributes</h4>
                             </div>
                             <div class="col-1 col">
-                                <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
+                                <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
                             </div>
                         </div>
                         
@@ -266,7 +266,7 @@
                                 <h4>Multi Selection</h4>
                             </div>
                             <div class="col-1 col">
-                                <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
+                                <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
                             </div>
                         </div>
                         
@@ -314,15 +314,15 @@
             <!-- /ko -->
         <!-- /ko -->      
     
-        <!-- ko if: Setting.findValue(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE) -->
-            <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE).toggle">info</i>
+        <!-- ko if: Setting.findValue(Setting.INSPECTOR_COLLAPSED_STATE) -->
+            <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle">info</i>
         <!-- /ko -->
     <!-- /ko -->
 
 
     <!-- Graph info inspector -->
     <!-- ko if: $root.selectedObjects().length === 0 -->
-        <!-- ko ifnot: Setting.findValue(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE) --> 
+        <!-- ko ifnot: Setting.findValue(Setting.INSPECTOR_COLLAPSED_STATE) --> 
             <!-- ko if: $root.logicalGraph().fileInfo() !== null -->
                 <div class="container">
                     <div class="row inspectorHeader">
@@ -330,7 +330,7 @@
                             <h4>Graph Info</h4>
                         </div>
                         <div class="col-1 col iconHoverEffect">
-                            <i class="material-icons" data-bind="click: Setting.find(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
+                            <i class="material-icons" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: 'Collapse the Inspector'">close</i>
                         </div>
                     </div>
                     
@@ -400,8 +400,8 @@
             <!-- /ko -->
         <!-- /ko -->
             
-        <!-- ko if: Setting.findValue(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE) -->
-            <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE).toggle">info</i>
+        <!-- ko if: Setting.findValue(Setting.INSPECTOR_COLLAPSED_STATE) -->
+            <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle">info</i>
         <!-- /ko -->
     <!-- /ko -->
 </div>
