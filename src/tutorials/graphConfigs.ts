@@ -96,7 +96,6 @@ newTut.newTutStep("Creating Graph Configurations", "A graph may have many config
 
 newTut.newTutStep("Graph Configurations", "You can view the graph configuration fields by opening the Graph Configurations table here. <em>click to continue</em>", function(){return $("#openGraphConfigurationTable")})
 .setType(TutorialStep.Type.Press)
-// .setPreFunction(function(){$('.parameterTable').modal('hide')})
 
 newTut.newTutStep("Graph Configurations", "Our name field has been added to the graph configuration, where we can quickly change it for future runs of the graph. <em>next to continue</em>", function(){return $('.column_DisplayText').first()})
 .setAlternateHighlightTargetFunc(function(){return $('.parameterTable')})
@@ -109,16 +108,6 @@ newTut.newTutStep("Adjusting Graph Configurations", "We should describe what the
 newTut.newTutStep("Adjusting Graph Configurations", "For example, lets greet John. <em>Type 'John' and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})
 .setType(TutorialStep.Type.Input)
 
-newTut.newTutStep("Saving Graph Configurations", "This will commit the new graph configuration changes into the graph. You will still need to save the graph to git, or locally. <em>Save the configuration</em>", function(){return $('#parameterTableSaveGraphConfig')})
-.setType(TutorialStep.Type.Press)
-.setPreFunction(function(){$('.parameterTable').modal('hide')})
-
-newTut.newTutStep("Saving Graph Configurations", "You must enter a description of what this graph config is designed to do, such as; 'with control over the name of who we are greeting' <em>Enter a description and click OK</em>",function(){return $('#inputModal .affirmativeBtn')})
-.setType(TutorialStep.Type.Press)
-.setAlternateHighlightTargetFunc(function(){return $('#inputModal .modal-content')})
-.setWaitType(TutorialStep.Wait.Delay)
-.setDelayAmount(200)
-
 newTut.newTutStep("Managing Graph Configurations", "<em>Click to Switch to the graph configurations table</em>", function(){return $('#bottomTabGraphConfigurationsSwitcher')})
 .setType(TutorialStep.Type.Press)
 
@@ -128,13 +117,13 @@ newTut.newTutStep("Managing Graph Configurations", "In this table we can view, e
 newTut.newTutStep("Managing Graph Configurations", "Lets say we want another version of this config, but also be able to easily change the output file path. First, we must duplicate our existing graph configuration. <em>Click to duplicate our first configuration</em>", function(){return $('.btmWindowDuplicateBtn').first()})
 .setType(TutorialStep.Type.Press)
 
-newTut.newTutStep("Managing Graph Configurations", "Our configuration has been duplicated, lets add the additional field. <em>next to continue</em>", function(){return $('.bottomWindowHeader span')})
+newTut.newTutStep("Managing Graph Configurations", "Our configuration has been duplicated, lets add the additional field. <em>next to continue</em>", function(){return $('.bottomWindowHeader')})
 .setAlternateHighlightTargetFunc(function(){return $('#bottomWindow .content')})
 
-newTut.newTutStep("Adding another field", "<em>Click on the File node to select it.</em>",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('File')})
+newTut.newTutStep("Adding another field", "<em>Click on the File node to select it.</em>",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('hello')})
 .setType(TutorialStep.Type.Condition)
 .setWaitType(TutorialStep.Wait.Element)
-.setConditionFunction(function(){return TutorialSystem.isRequestedNodeSelected('File')})
+.setConditionFunction(function(){return TutorialSystem.isRequestedNodeSelected('hello')})
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 
@@ -155,14 +144,8 @@ newTut.newTutStep("Adjusting Graph Configurations", "We can see that the FilePat
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(200)
 
-newTut.newTutStep("Saving Graph Configurations", "Don't forget to save the new config</em>", function(){return $('#parameterTableSaveGraphConfig')})
-.setType(TutorialStep.Type.Press)
-
-newTut.newTutStep("Saving Graph Configurations", "update the description to better describe the new purpose of the configuration 'with control over the name of who we are greeting and output file path' <em>Enter a description and click OK",function(){return $('#inputModal .affirmativeBtn')})
-.setType(TutorialStep.Type.Press)
-.setAlternateHighlightTargetFunc(function(){return $('#inputModal .modal-content')})
-.setWaitType(TutorialStep.Wait.Delay)
-.setDelayAmount(200)
+newTut.newTutStep("Saving Graph Configurations", "Graph Configurations are stored within a the Graph. Save the graph as you would normally to save the config.", function(){return $('.bottomWindowHeader')})
+.setAlternateHighlightTargetFunc(function(){return $('#bottomWindow .content')})
 
 newTut.newTutStep("Activating Graph Configurations", "To select which configuration is active for use, view them in the graph configurations table. <em>Click to Switch</em>", function(){return $('#bottomTabGraphConfigurationsSwitcher')})
 .setType(TutorialStep.Type.Press)
