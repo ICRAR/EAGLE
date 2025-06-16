@@ -530,7 +530,7 @@ export class Edge {
         }
 
         // check if the edge already exists in the graph, there is no point in a duplicate
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (const edge of eagle.logicalGraph().getEdges().values()){
             const isSrcMatch = edge.getSrcNode().getId() === sourceNodeId && edge.getSrcPort().getId() === sourcePortId;
             const isDestMatch = edge.getDestNode().getId() === destinationNodeId && edge.getDestPort().getId() === destinationPortId;
 

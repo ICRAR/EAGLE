@@ -435,7 +435,7 @@ export class KeyboardShortcut {
             text: "Center Construct Around Children",
             keys: [new Key("c", Modifier.Alt)],
             tags: ['fit'],
-            run: (eagle): void => {GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())}
+            run: (eagle): void => {GraphRenderer.centerConstruct(eagle.selectedNode(), Array.from(eagle.logicalGraph().getNodes().values()))}
         }),
         new KeyboardShortcut({
             id: "check_for_component_updates",

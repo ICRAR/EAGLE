@@ -296,7 +296,7 @@ export class Hierarchy {
         let nodeHasConnectedOutput: boolean = false;
 
         // check if node has connected input and output
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (const edge of eagle.logicalGraph().getEdges().values()){
             if (edge.getDestNode().getId() === node.getId()){
                 nodeHasConnectedInput = true;
             }
