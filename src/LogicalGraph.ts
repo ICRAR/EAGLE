@@ -137,17 +137,17 @@ export class LogicalGraph {
 
         // add nodes
         result.nodes = {};
-        for (const node of graph.nodes().all()){
+        for (const [id, node] of graph.nodes()){
             const nodeData : any = Node.toV4GraphJson(node);
-            result.nodes[node.getId()] = nodeData;
+            result.nodes[id] = nodeData;
         }
 
         // edges
         // NOTE: we do not skip close loop edges
         result.edges = {};
-        for (const edge of graph.edges().all()){
+        for (const [id, edge] of graph.edges()){
             const edgeData : any = Edge.toV4Json(edge);
-            result.edges[edge.getId()] = edgeData;
+            result.edges[id] = edgeData;
         }
 
         // add graph configurations
@@ -258,7 +258,7 @@ export class LogicalGraph {
                 continue;
             }
 
-            result.nodes().add(newNode.getId(), newNode);
+            result.nodes().set(newNode.getId(), newNode);
             result.nodes.valueHasMutated();
         }
 
@@ -286,19 +286,19 @@ export class LogicalGraph {
             }
 
             // use parentIndex to find parentNode, and update parent
-            const parentNode: Node = result.nodes().all()[parentIndex];
-            result.nodes().all()[i].setParent(parentNode);
+            const parentNode: Node = Array.from(result.nodes().values())[parentIndex];
+            Array.from(result.nodes().values())[i].setParent(parentNode);
         }
 
         // add edges
         for (const linkData of dataObject.linkDataArray){       
-            const newEdge = Edge.fromOJSJson(linkData, result.nodes().all(), errorsWarnings);
+            const newEdge = Edge.fromOJSJson(linkData, Array.from(result.nodes().values()), errorsWarnings);
 
             if (newEdge === null){
                 continue;
             }
 
-            result.edges().add(newEdge.getId(), newEdge);
+            result.edges().set(newEdge.getId(), newEdge);
             newEdge.getSrcPort().addEdge(newEdge);
             newEdge.getDestPort().addEdge(newEdge);
         }
@@ -330,7 +330,7 @@ export class LogicalGraph {
 
         // add a step here to check that no edges are incident on constructs, and move any edges found to the embedded applications
         // add warnings to errorsWarnings
-        for (const edge of result.edges().all()){
+        for (const edge of result.edges().values()){
             // get references to actual source and destination nodes (from the keys)
             const sourceNode : Node = edge.getSrcNode();
             const destinationNode : Node = edge.getDestNode();
@@ -523,7 +523,7 @@ export class LogicalGraph {
     countEdgesIncidentOnNode = (node : Node) : number => {
         let result: number = 0;
 
-        for (const edge of this.edges().all()){
+        for (const edge of this.edges().values()){
             if ((edge.getSrcNode().getId() === node.getId() ) || ( edge.getDestNode().getId() === node.getId() )){
                 result += 1;
             }
@@ -547,14 +547,14 @@ export class LogicalGraph {
         result.fileInfo(this.fileInfo().clone());
 
         // copy nodes
-        for (const node of this.nodes().all()){
-            result.nodes().add(node.getId(), node.clone());
+        for (const [id, node] of this.nodes()){
+            result.nodes().set(id, node.clone());
             result.nodes.valueHasMutated();
         }
 
         // copy edges
-        for (const edge of this.edges().all()){
-            result.edges().add(edge.getId(), edge.clone());
+        for (const [id, edge] of this.edges()){
+            result.edges().set(id, edge.clone());
             result.edges.valueHasMutated();
 
             edge.getSrcPort().addEdge(edge);
@@ -620,7 +620,7 @@ export class LogicalGraph {
             .setPosition(location.x, location.y);
 
         // add to logicalGraph
-        this.nodes().add(newNode.getId(), newNode);
+        this.nodes().set(newNode.getId(), newNode);
         this.nodes.valueHasMutated();
 
         return newNode;
@@ -641,9 +641,9 @@ export class LogicalGraph {
     }
 
     findNodeGraphIdByNodeName = (name:string) :string =>{
-        for (const node of this.nodes().all()){
+        for (const [id, node] of this.nodes()){
             if (node.getName() === name){
-                return node.getId();
+                return id;
             }
         }
 
@@ -689,9 +689,7 @@ export class LogicalGraph {
         }
 
         // search through nodes in graph, looking for one with the correct key
-        for (let i = this.nodes().all().length - 1; i >= 0 ; i--){
-            const node: Node = this.nodes().all()[i];
-
+        for (const node of this.nodes().values()){
             if (typeof node === 'undefined'){
                 continue;
             }
@@ -716,14 +714,15 @@ export class LogicalGraph {
         }
 
         // delete children
-        for (let i = this.nodes().all().length - 1; i >= 0 ; i--){
+        for (let i = this.nodes().size - 1; i >= 0 ; i--){
             // check that iterator still points to a valid element in the nodes array
             // a check like this wouldn't normally be necessary, but we are deleting elements from the array within the loop, so it might be shorter than we expect
-            if (i >= this.nodes().all().length){
+            if (i >= this.nodes().size){
                 continue;
             }
 
-            const node: Node = this.nodes().all()[i];
+            // TODO: can we use an id here?
+            const node: Node = Array.from(this.nodes().values())[i];
             const parent: Node = node.getParent();
 
             if (parent !== null && parent.getId() === id){
@@ -747,42 +746,35 @@ export class LogicalGraph {
     }
 
     // delete edges that start from or end at the node with the given id
-    removeEdgesById = (id: NodeId) : void => {
-        const edges: Edge[] = this.edges().all();
-
-        for (let i = edges.length - 1 ; i >= 0; i--){
-            const edge : Edge = edges[i];
-            if (edge.getSrcNode().getId() === id || edge.getDestNode().getId() === id){
-                this.edges().delete(edge.getId());
+    removeEdgesById = (nodeId: NodeId) : void => {
+        for (const [edgeId, edge] of this.edges()){
+            if (edge.getSrcNode().getId() === nodeId || edge.getDestNode().getId() === nodeId){
+                this.edges().delete(edgeId);
                 this.edges.valueHasMutated();
 
-                edge.getSrcPort().removeEdge(edge.getId());
-                edge.getDestPort().removeEdge(edge.getId());
+                edge.getSrcPort().removeEdge(edgeId);
+                edge.getDestPort().removeEdge(edgeId);
             }
         }
     }
 
-    removeFieldFromNodeById = (node : Node, id: FieldId) : void => {
+    removeFieldFromNodeById = (node : Node, fieldId: FieldId) : void => {
         if (node === null){
             console.warn("Could not remove port from null node");
             return;
         }
 
         // remove port
-        node.removeFieldById(id);
+        node.removeFieldById(fieldId);
 
         // remove any edges connected to that port
-        const edges: Edge[] = this.edges().all();
-
-        for (let i = edges.length - 1; i >= 0; i--){
-            const edge: Edge = edges[i];
-
-            if (edge.getSrcPort().getId() === id || edge.getDestPort().getId() === id){
-                this.edges().delete(edge.getId());
+        for (const [edgeId, edge] of this.edges()){
+            if (edge.getSrcPort().getId() === fieldId || edge.getDestPort().getId() === fieldId){
+                this.edges().delete(edgeId);
                 this.edges.valueHasMutated();
 
-                edge.getSrcPort().removeEdge(edge.getId());
-                edge.getDestPort().removeEdge(edge.getId());
+                edge.getSrcPort().removeEdge(edgeId);
+                edge.getDestPort().removeEdge(edgeId);
             }
         }
 
@@ -799,7 +791,7 @@ export class LogicalGraph {
         let result:{input:boolean,output:boolean} = {'input':false,'output':false}
         let input = false
         let output = false
-        for (const edge of this.edges().all()){
+        for (const edge of this.edges().values()){
             if(edge.getSrcNode().getId() === nodeId && edge.getSrcPort().getId() === portId){
                 output = true
             }
@@ -846,7 +838,7 @@ export class LogicalGraph {
         const eagle = Eagle.getInstance();
 
         // find all the overlapping nodes
-        for (const node of this.nodes().all()){
+        for (const node of this.nodes().values()){
 
             if(findEligibleGroups){
 
@@ -929,7 +921,7 @@ export class LogicalGraph {
     getChildrenOfNodeById = (id: NodeId) : Node[] => {
         const result: Node[] = [];
 
-        for (const node of this.nodes().all()){
+        for (const [nodeId, node] of this.nodes()){
             const parent = node.getParent();
             if ((id === null && parent === null) || (parent !== null && parent.getId() === id)){
                 result.push(node);
@@ -940,26 +932,24 @@ export class LogicalGraph {
     }
 
     getNodesDrawOrdered : ko.PureComputed<Node[]> = ko.pureComputed(() => {
-        const indexPlusDepths : {index:number, depth:number}[] = [];
+        const idPlusDepths : {id:NodeId, depth:number}[] = [];
         const result : Node[] = [];
 
         // populate index plus depths
-        for (let i = 0 ; i < this.nodes().all().length ; i++){
-            const node = this.nodes().all()[i];
+        for (const nodeId of this.nodes().keys()){
+            const depth = this.findDepthById(nodeId);
 
-            const depth = this.findDepthById(node.getId());
-
-            indexPlusDepths.push({index:i, depth:depth});
+            idPlusDepths.push({id:nodeId, depth:depth});
         }
 
         // sort nodes in depth ascending
-        indexPlusDepths.sort(function(a, b){
+        idPlusDepths.sort(function(a, b){
             return a.depth - b.depth;
         });
 
         // write nodes to result in sorted order
-        for (const indexPlusDepth of indexPlusDepths){
-            result.push(this.nodes().all()[indexPlusDepth.index]);
+        for (const idPlusDepth of idPlusDepths){
+            result.push(this.nodes().get(idPlusDepth.id));
         }
 
         return result;
