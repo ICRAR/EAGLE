@@ -412,7 +412,7 @@ export class Field {
     }
 
     addEdge = (edge: Edge) : Field => {
-        this.edges().add(edge.getId(), edge);
+        this.edges().set(edge.getId(), edge);
         return this;
     }
 
@@ -727,11 +727,6 @@ export class Field {
     }
 
     static toV4Json(field : Field) : object {
-        const edgeIds = [];
-        for (const edge of field.edges().all()){
-            edgeIds.push(edge.getId());
-        }
-
         return {
             name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
@@ -746,7 +741,7 @@ export class Field {
             id: field.id(),
             parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()] || Daliuge.DLGFieldType.Unknown,
             usage: field.usage(),
-            edgeIds: edgeIds,
+            edgeIds: Array.from(field.edges().keys()),
         };
     }
 
@@ -949,8 +944,7 @@ export class Field {
         }
 
         // check that the field has a unique display text on the node
-        for (let j = 0 ; j < node.getFields().length ; j++){
-            const field1 = node.getFields()[j];
+        for (const field1 of node.getFields().values()){
             if(field === field1){
                 continue
             }
@@ -971,7 +965,7 @@ export class Field {
         // check that PythonObject's self port is input for only one edge
         if (node.getCategory() === Category.PythonObject && field.getDisplayText() === Daliuge.FieldName.SELF){
             let numSelfPortConnections: number = 0;
-            for (const edge of eagle.logicalGraph().getEdges()){
+            for (const edge of eagle.logicalGraph().getEdges().values()){
                 if (edge.getDestPort().getId() === field.getId()){
                     numSelfPortConnections += 1;
                 }
@@ -1014,7 +1008,7 @@ export class Field {
         }
 
         // if this field has edges, it must be a port
-        if (field.edges().all().length > 0){
+        if (field.edges().size > 0){
             if (field.getUsage() === Daliuge.FieldUsage.NoPort){
                 const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edges, but is not a port.", function(){Utils.showField(eagle, node.getId(), field)});
                 field.issues().push({issue: issue, validity: Errors.Validity.Error});
@@ -1022,7 +1016,7 @@ export class Field {
         }
 
         // check that all edges on this field actually start or end on the field
-        for (const edge of field.edges().all()){
+        for (const edge of field.edges().values()){
             if (edge.getSrcPort().getId() !== field.getId() && edge.getDestPort().getId() !== field.getId()){
                 const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, field.getNode().getId())});
                 field.issues().push({issue:issue, validity:Errors.Validity.Error});
