@@ -179,12 +179,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 break;
             }
             case 'inputPort':
-                for(const edge of eagle.logicalGraph().getEdges()){
+                for(const [edgeId, edge] of eagle.logicalGraph().getEdges()){
                     if(field != null && field.getId()===edge.getDestPort().getId()){
                         const adjacentNode: Node = edge.getSrcNode();
                         
                         if (adjacentNode === null){
-                            console.warn("Edge (" + edge.getId() + ") source node is null");
+                            console.warn("Edge (" + edgeId + ") source node is null");
                             return;
                         }
 
@@ -195,12 +195,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 break;
 
             case 'outputPort':
-                for(const edge of eagle.logicalGraph().getEdges()){
+                for(const [edgeId, edge] of eagle.logicalGraph().getEdges()){
                     if(field != null && field.getId()===edge.getSrcPort().getId()){
                         const adjacentNode: Node = edge.getDestNode();
 
                         if (adjacentNode === null){
-                            console.warn("Edge (" + edge.getId() + ") destination node is null");
+                            console.warn("Edge (" + edgeId + ") destination node is null");
                             return;
                         }
 
@@ -652,7 +652,7 @@ export class GraphRenderer {
         // find a single port of the correct type to consider when looking for adjacentNodes
         // TODO: why do we select a single port here, why not consider all ports (if multiple exist)?
         let field : Field;
-        for(const port of node.getFields()){
+        for(const port of node.getFields().values()){
             if (input && port.isInputPort()){
                 field = port;
                 break;
@@ -672,13 +672,13 @@ export class GraphRenderer {
         const adjacentNodes: Node[] = [];
 
         if (input){
-            for(const edge of eagle.logicalGraph().getEdges()){
+            for(const edge of eagle.logicalGraph().getEdges().values()){
                 if(field.getId()===edge.getDestPort().getId()){
                     adjacentNodes.push(edge.getSrcNode());
                 }
             }
         } else {
-            for(const edge of eagle.logicalGraph().getEdges()){
+            for(const edge of eagle.logicalGraph().getEdges().values()){
                 if(field.getId()===edge.getSrcPort().getId()){
                     adjacentNodes.push(edge.getDestNode());
                 }
@@ -1236,7 +1236,7 @@ export class GraphRenderer {
 
     static selectInRegion(nodes:Node[]) : void {
         const eagle = Eagle.getInstance()
-        const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
+        const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(Array.from(eagle.logicalGraph().getEdges().values()), nodes);
         const objects: (Node | Edge)[] = [];
 
         // depending on if its shift+ctrl or just shift we are either only adding or only removing nodes
@@ -1544,7 +1544,7 @@ export class GraphRenderer {
                     node.setPosition(node.getPosition().x+node.getRadius()/2,node.getPosition().y + node.getRadius()/2)
                 }
             })
-            GraphRenderer.centerConstructs(null,eagle.logicalGraph().getNodes())
+            GraphRenderer.centerConstructs(null, Array.from(eagle.logicalGraph().getNodes().values()))
         }
         GraphRenderer.legacyGraph = false
     }
@@ -1556,7 +1556,7 @@ export class GraphRenderer {
         const parentId: NodeId = node.getId();
 
         // loop through all nodes, if they belong to the parent's group, move them too
-        for (const node of eagle.logicalGraph().getNodes()){
+        for (const node of eagle.logicalGraph().getNodes().values()){
             if (node.getParent().getId() === parentId){
                 node.changePosition(deltaX, deltaY);
                 GraphRenderer.moveChildNodes(node, deltaX, deltaY);
@@ -1565,7 +1565,6 @@ export class GraphRenderer {
     }
 
     static isAncestor(node : Node, possibleAncestor : Node) : boolean {
-        const eagle = Eagle.getInstance();
         let n : Node = node;
         let iterations = 0;
 
@@ -1619,7 +1618,7 @@ export class GraphRenderer {
         let maxDistance = 0;
 
         // loop through all nodes to fund children - then check to find distance from center of construct
-        for (const node of eagle.logicalGraph().getNodes()){
+        for (const node of eagle.logicalGraph().getNodes().values()){
             const parent = node.getParent();
             if (parent === null){
                 continue;
@@ -1920,17 +1919,18 @@ export class GraphRenderer {
     }
 
     static depthFirstTraversalOfNodes(graph: LogicalGraph, showDataNodes: boolean) : Node[] {
+        // TODO: think about changing this to idPlusDepths (as above, re-use possible?)
         const indexPlusDepths : {index:number, depth:number}[] = [];
         const result : Node[] = [];
 
         // populate key plus depths
-        for (let i = 0 ; i < graph.getNodes().length ; i++){
+        for (let i = 0 ; i < graph.getNodes().size ; i++){
             let nodeHasConnectedInput: boolean = false;
             let nodeHasConnectedOutput: boolean = false;
-            const node = graph.getNodes()[i];
+            const node = Array.from(graph.getNodes().values())[i];
 
             // check if node has connected input and output
-            for (const edge of graph.getEdges()){
+            for (const edge of graph.getEdges().values()){
                 if (edge.getDestNode().getId() === node.getId()){
                     nodeHasConnectedInput = true;
                 }
@@ -1945,7 +1945,7 @@ export class GraphRenderer {
                 continue;
             }
 
-            const depth = GraphRenderer.findDepthOfNode(i, graph.getNodes());
+            const depth = GraphRenderer.findDepthOfNode(i, Array.from(graph.getNodes().values()));
 
             indexPlusDepths.push({index:i, depth:depth});
         }
@@ -1957,7 +1957,7 @@ export class GraphRenderer {
 
         // write nodes to result in sorted order
         for (const indexPlusDepth of indexPlusDepths){
-            result.push(graph.getNodes()[indexPlusDepth.index]);
+            result.push(Array.from(graph.getNodes().values())[indexPlusDepth.index]);
         }
 
         return result;
@@ -2056,7 +2056,7 @@ export class GraphRenderer {
 
         const potentialNodes :Node[] = []
 
-        for (const node of eagle.logicalGraph().getNodes()){
+        for (const node of eagle.logicalGraph().getNodes().values()){
             potentialNodes.push(node)
             if(node.isConstruct && node.getInputApplication()){
                 potentialNodes.push(node.getInputApplication())
