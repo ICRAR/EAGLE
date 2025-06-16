@@ -10,11 +10,11 @@ export class ComponentUpdater {
         const updatedNodes: Node[] = [];
 
         // make sure we have a palette available for each component in the graph
-        for (const node of graph.getNodes()){
+        for (const node of graph.getNodes().values()){
             let newVersion : Node = null;
 
             for (const palette of palettes){
-                for (const paletteNode of palette.getNodes()){
+                for (const paletteNode of palette.getNodes().values()){
                     if (Node.requiresUpdate(node, paletteNode)){
                         newVersion = paletteNode;
                     }
@@ -37,7 +37,7 @@ export class ComponentUpdater {
 
     // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
     static _replaceNode(dest:Node, src:Node){
-        for (const srcField of src.getFields()){
+        for (const srcField of src.getFields().values()){
             // try to find a field with the same name in the destination
             let destField = dest.findFieldById(srcField.getId());
 
