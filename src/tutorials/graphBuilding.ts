@@ -4,6 +4,7 @@ import { TutorialStep, TutorialSystem } from '../Tutorial';
 import { SideWindow } from '../SideWindow';
 import { Setting } from '../Setting';
 import { Utils } from '../Utils';
+import { Modals } from "../Modals";
 
 const newTut = TutorialSystem.newTutorial('Graph Building', 'An introduction to graph building.')
 
@@ -32,18 +33,27 @@ newTut.newTutStep("Creating a new graph", "Then just <em>give it a name and pres
 .setBackSkip(true)
 
 newTut.newTutStep("Creating a new graph", "<em>And 'Ok' to save!</em>", function(){return $("#inputModal .affirmativeBtn")})
-.setWaitType(TutorialStep.Wait.Modal)
 .setType(TutorialStep.Type.Press)
 .setBackSkip(true)
 
-newTut.newTutStep("Graph Model Data", "This button brings up the 'Graph Modal Data' which allows you to add a description for your graph. <em>Try clicking it now to try it out</em>", function(){return $("#openGraphModelDataModal")})
+newTut.newTutStep("Editing Graph Descriptions", "Its important to add a description of what the use of the graph is. <em>Click to continue</em>", function(){return $("#shortDescriptionEditBtn")})
+.setType(TutorialStep.Type.Press)
+.setWaitType(TutorialStep.Wait.Delay)
+.setDelayAmount(400)//wait a moment for the graph to be created
+
+newTut.newTutStep("Editing Graph Descriptions", "Descriptions in EAGLE support markdown. In the short description we can enter the top level goal of the graph. For this graph enter a description like 'Simple Hello World Graph to greet someone' and <em>Press Enter</em> to Continue.", function(){return $("#inputMarkdownModalEditor")})
+.setWaitType(TutorialStep.Wait.Modal)
+.setType(TutorialStep.Type.Input)
+.setPreFunction(function(){Modals.toggleMarkdownEditMode(true)})
+
+newTut.newTutStep("Editing Graph Descriptions", "<em>Click OK to apply and continue", function(){return $('#inputMarkdownModal .modal-footer button.affirmativeBtn')})
+.setType(TutorialStep.Type.Press)
+
+newTut.newTutStep("Graph Information", "This button brings up the 'Graph Modal Data' which shows you all relevant information about a graph. <em>Try clicking it now to try it out</em>", function(){return $("#inspectorGraphInfoBtn")})
 .setType(TutorialStep.Type.Press)
 .setBackPreFunction(function(){$('.modal').modal("hide");}) //hiding open modals
 
-newTut.newTutStep("Editing Graph Descriptions", "You are able to enter a simple first glance and a more detailed description in addition to description nodes in the graph, should you need it.", function(){return $("#modelDataShortDescription")})
-.setWaitType(TutorialStep.Wait.Modal)
-
-newTut.newTutStep("Other Graph Information", "Most of the other information is automatically filled out when saving a graph, such as the version of EAGLE used for creating it.", function(){return $("#modelDataGeneratorVersion")})
+newTut.newTutStep("Graph Information", "This includes descriptions entered by the graph's creator and technical information such as the version of EAGLE used for creating it. Most of this is filled out automatically when saving the graph.", function(){return $("#modelDataGeneratorVersion")})
 .setWaitType(TutorialStep.Wait.Modal)
 
 newTut.newTutStep("Close the Modal", "<em>Press OK to close the modal and continue the Tutorial.</em>", function(){return $("#modelDataModalOKButton")})
@@ -75,7 +85,7 @@ newTut.newTutStep("The Parameter Table", "<em>Click to open the node fields tabl
 .setWaitType(TutorialStep.Wait.Element)
 .setType(TutorialStep.Type.Press)
 
-newTut.newTutStep("The Parameter Table", " The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the actual application code.", function(){return $('.parameterTable')})
+newTut.newTutStep("The Parameter Table", " The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the underlying application code.", function(){return $('.parameterTable thead')})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(200)
 
@@ -118,12 +128,6 @@ newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the
 .setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getEdges().length != 0){return true}else{return false}}) //check if there are any edges present in the graph
 
 newTut.newTutStep("Graph Errors and warnings", "This is the error checking system, it is showing a check mark, so we did everything correctly. If there are errors in the graph you are able to troubleshoot them by clicking here.", function(){return $("#checkGraphDone")})
-
-// newTut.newTutStep("Graph Errors and warnings", "This modal may aid you in troubleshooting graphs. In this case these errors are all port type errors. Eagle can automatically fix errors such as these for you. To do this you can press 'F' in the graph or <em>click on 'Fix All'</em>", function(){return $("#errorModalFixAll")})
-// .setType(TutorialStep.Type.Press)
-// .setWaitType(TutorialStep.Wait.Modal)
-// .setAlternateHighlightTargetFunc(function(){return $("#errorModalFixAll").parent().parent()})
-// .setBackPreFunction(function(){$('#issuesDisplay').modal('show')})
 
 newTut.newTutStep("Saving a Graph", "Options to save your graph are available in the graph menu <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
 .setType(TutorialStep.Type.Press)
