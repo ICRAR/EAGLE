@@ -79,7 +79,7 @@
 
             <div id="logicalGraphParent" class="rightClick_logicalGraph" data-bind="event: { dragover:SideWindow.nodeDragOver, drop: nodeDropLogicalGraph, mousemove: GraphRenderer.mouseMove, mousedown: function(object, event){GraphRenderer.startDrag(null, event);}, mouseup: function(){GraphRenderer.endDrag(null);}, wheel: GraphRenderer.scrollZoom }, eagleRightClick: {data:$data,type:'rightClick_logicalGraph'},style:{'visibility':eagle.getEagleIsReady()}">
                 <div id="logicalGraph" data-bind="style: {transform: 'scale('+eagle.globalScale()+')translate('+eagle.globalOffsetX()+'px,'+eagle.globalOffsetY()+'px)'}">
-                    <!-- ko if: $root.logicalGraph() !== null && logicalGraph().getNodes().length != 0-->
+                    <!-- ko if: $root.logicalGraph() !== null && logicalGraph().getNodes().size !== 0-->
                         <!-- ko foreach: $root.logicalGraph().getNodesDrawOrdered() -->
                             {% include 'node.html' %}
                         <!-- /ko -->
@@ -110,7 +110,7 @@
                             <!-- /ko -->
                         </div>
                         <svg  xmlns="https://www.w3.org/2000/svg">
-                            <!-- ko foreach: $root.logicalGraph().getEdges() -->
+                            <!-- ko foreach: Array.from($root.logicalGraph().getEdges().values()) -->
                                 <g data-bind="attr:{id:$data.getId()}">
                                     <path data-bind="attr:{d: GraphRenderer.getPath($data)},style:{'stroke':GraphRenderer.edgeGetStrokeColor($data), 'stroke-dasharray': GraphRenderer.edgeGetStrokeType($data)}"></path>
                                     <path class="edgeClickTarget" data-bind="attr:{d: GraphRenderer.getPath($data)},click:function(viewModel, event){GraphRenderer.selectEdge(viewModel, event)},eagleRightClick: {data:$data,type:'rightClick_graphEdge'}"></path>
@@ -136,7 +136,7 @@
                     <div id="selectionRectangle"></div>
                 </div>
                 
-                <!-- ko if: logicalGraph === null || logicalGraph() === null || logicalGraph().getNodes().length === 0 -->
+                <!-- ko if: logicalGraph === null || logicalGraph() === null || logicalGraph().getNodes().size === 0 -->
                     <div id="eagleIconAnimation">
                         <svg>
                             <path id="path1" class="path"
