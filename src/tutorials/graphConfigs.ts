@@ -117,7 +117,7 @@ newTut.newTutStep("Managing Graph Configurations", "In this table we can view, e
 newTut.newTutStep("Managing Graph Configurations", "Lets say we want another version of this config, but also be able to easily change the output file path. First, we must duplicate our existing graph configuration. <em>Click to duplicate our first configuration</em>", function(){return $('.btmWindowDuplicateBtn').first()})
 .setType(TutorialStep.Type.Press)
 
-newTut.newTutStep("Managing Graph Configurations", "Our configuration has been duplicated, lets add the additional field. <em>next to continue</em>", function(){return $('.bottomWindowHeader')})
+newTut.newTutStep("Managing Graph Configurations", "Our configuration has been duplicated, lets add the additional field. <em>next to continue</em>", function(){return $('#graphConfigurationsTableWrapper tr:last')})
 .setAlternateHighlightTargetFunc(function(){return $('#bottomWindow .content')})
 
 newTut.newTutStep("Adding another field", "<em>Click on the File node to select it.</em>",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('hello')})
@@ -127,12 +127,10 @@ newTut.newTutStep("Adding another field", "<em>Click on the File node to select 
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 
-newTut.newTutStep("Adding another field", "<em>Click to Switch to the node fields table</em>", function(){return $('#bottomTabParamsTableSwitcher')})
-.setType(TutorialStep.Type.Press)
-
 newTut.newTutStep("Adding another field", "<em>Click on the heart to flag the file path field as a graph configuration field.</em>", function(){return $('.column_DisplayText button').first()})
 .setType(TutorialStep.Type.Press)
 .setPreFunction(function(){setTimeout(function(){$('.column_DisplayText button').first().css('visibility','visible')},200)})
+.setBackPreFunction(function(){ $('#bottomTabParamsTableSwitcher').trigger('click'); setTimeout(function(){$('.column_DisplayText button').first().css('visibility','visible')},200)})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(700)
 

@@ -71,7 +71,7 @@ newTut.newTutStep("Editing Components", "The inspector panel provides access to 
 .setDelayAmount(200)
 .setPreFunction(function(){Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).setValue(false)})
 
-newTut.newTutStep("Click to open", "<em>Click to open the node fields table and continue.</em>", function(){return $("#inspector #openNodeParamsTable")})
+newTut.newTutStep("The Parameter Table", "<em>Click to open the node fields table and continue.</em>", function(){return $("#inspector #openNodeParamsTable")})
 .setWaitType(TutorialStep.Wait.Element)
 .setType(TutorialStep.Type.Press)
 
