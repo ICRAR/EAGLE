@@ -510,13 +510,17 @@
 
 .eagleTableDisplay td button.parameterTableEditParam, .eagleTableDisplay td button.parameterTableCommentBtn, #modelDataModalTable td button.modelDataTableEditParam {
     position: absolute;
-    right: 4px;
-    top: 4px;
-    background-color: #002e5f;
-    color: white;
     display: none;
-    padding: 1% 0px 0px 0px;
     font-size: 12px;
+    padding: 0px;
+    height: 20px;
+    width: 20px;
+    border-radius: 10px;
+    right: 5px;
+    top: 50%;
+    background-color: #002e5f;
+    transform: translateY(-50%);
+    color: white;
 }
 
 .eagleTableDisplay  td:hover button.parameterTableEditParam{

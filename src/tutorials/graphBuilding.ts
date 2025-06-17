@@ -87,6 +87,7 @@ newTut.newTutStep("The Parameter Table", "<em>Click to open the node fields tabl
 
 newTut.newTutStep("The Parameter Table", " The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the underlying application code.", function(){return $('.parameterTable thead')})
 .setWaitType(TutorialStep.Wait.Delay)
+.setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('#bottomWindow .tableBody')})
 .setDelayAmount(200)
 
 newTut.newTutStep("Enter a Name", "In case of this hello world app we can change who we are greeting. <em>Enter a name and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})
