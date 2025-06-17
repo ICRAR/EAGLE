@@ -990,7 +990,7 @@ export class Eagle {
         // if not found in palettes, create a basic node from just the category
         let parentNode: Node;
         const paletteComponent = Utils.getPaletteComponentByName(Category.SubGraph);
-        if (paletteComponent !== null){
+        if (typeof paletteComponent !== 'undefined'){
             parentNode = paletteComponent.clone();
         } else {
             parentNode = new Node(Category.SubGraph, "", Category.SubGraph);
@@ -1052,7 +1052,7 @@ export class Eagle {
         // if not found in palettes, create a basic node from just the category
         let parentNode: Node;
         const paletteComponent = Utils.getPaletteComponentByName(userChoice);
-        if (paletteComponent !== null){
+        if (typeof paletteComponent !== 'undefined'){
             parentNode = paletteComponent.clone();
         } else {
             parentNode = new Node(userChoice, "", userChoice as Category);
@@ -2616,9 +2616,9 @@ export class Eagle {
         }
 
         // TODO: temporary fix while we get lots of warnings about missing nodes
-        const parentNode = this.logicalGraph().findNodeByIdQuiet(parentId);
+        const parentNode = this.logicalGraph().getNodes().get(parentId);
 
-        if (parentNode === null){
+        if (typeof parentNode === 'undefined'){
             return ""
         }
 
@@ -3684,8 +3684,10 @@ export class Eagle {
                 node = Utils.getPaletteComponentById(nodeId);
 
                 // if node not found yet, try find in the graph
-                if (node === null){
-                    node = this.logicalGraph().findNodeById(nodeId);
+                if (typeof node === 'undefined'){
+                    node = this.logicalGraph().getNodes().get(nodeId);
+
+                    // TODO: abort if node is still undefined
                 }
 
                 // use the position where the right click occurred
@@ -4032,7 +4034,13 @@ export class Eagle {
         // change the parent
         // key '0' is a special case
         const newParentId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1).toString() as NodeId
-        const newParent: Node = this.logicalGraph().findNodeById(newParentId);
+        const newParent: Node = this.logicalGraph().getNodes().get(newParentId);
+
+        // abort if specified new parent can not be found in the graph
+        if (typeof newParent === 'undefined'){
+            Utils.showNotification("Warning", "Can't find user-specified parent within the graph", "warning", false);
+            return;
+        }
 
         // set the parent
         selectedNode.setParent(newParent);
@@ -4094,7 +4102,15 @@ export class Eagle {
 
         // change the subject
         const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId;
-        selectedNode.setSubject(this.logicalGraph().findNodeByIdQuiet(newSubjectId));
+        const subjectNode = this.logicalGraph().getNodes().get(newSubjectId);
+
+        // abort if subjectNode is still undefined
+        if (typeof subjectNode === 'undefined'){
+            console.warn("changeNodeSubject(): could not find subject node specified by user: " + newSubjectId);
+            return;
+        }
+
+        selectedNode.setSubject(subjectNode);
 
         // refresh the display
         this.checkGraph();
@@ -4245,6 +4261,7 @@ export class Eagle {
         // now that we are done, re-open the params table
         Utils.showField(this, Eagle.selectedLocation(), field.getNode(), field);
     };
+
     getNewNodePosition = (radius: number) : {x:number, y:number, extended:boolean} => {
         const MARGIN = 100; // buffer to keep new nodes away from the maxX and maxY sides of the LG display area
         const navBarHeight = 84
@@ -4390,6 +4407,8 @@ export class Eagle {
 
             // consult the DEFAULT_DATA_NODE setting to determine which category of intermediate data node to use
             const intermediaryComponent = Utils.getPaletteComponentByName(Setting.findValue(Setting.DEFAULT_DATA_NODE));
+
+            // TODO: if intermediaryComponent is undefined (not found), then choose something guaranteed to be available
 
             // if edge DOES NOT connect two applications, process normally
             // if edge connects two event ports, process normally
@@ -4826,9 +4845,9 @@ $( document ).ready(function() {
         const e: MouseEvent = event.originalEvent as MouseEvent;
         const eagle: Eagle = Eagle.getInstance();
         const selectedEdgeId: EdgeId = $(e.target).attr("id") as EdgeId;
-        const selectEdge = eagle.logicalGraph().findEdgeById(selectedEdgeId);
+        const selectEdge = eagle.logicalGraph().getEdges().get(selectedEdgeId);
 
-        if(!selectEdge){
+        if(typeof selectEdge === 'undefined'){
             console.log("no edge found")
             return
         }

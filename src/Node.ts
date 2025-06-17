@@ -799,10 +799,6 @@ export class Node {
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
     }, this);
 
-    findFieldById = (id: FieldId) : Field => {
-        return this.fields().get(id);
-    }
-
     // TODO: still used?
     findPortInApplicationsById = (portId: FieldId) : {node: Node, port: Field} => {
         // if node has an inputApplication, check those ports too

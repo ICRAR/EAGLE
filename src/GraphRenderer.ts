@@ -1327,7 +1327,7 @@ export class GraphRenderer {
         GraphRenderer.resizeConstruct(parent)
 
         //updating the parent construct's "pre-drag" size at the end of parenting all the nodes
-        GraphRenderer.NodeParentRadiusPreDrag = Eagle.getInstance().logicalGraph().findNodeByIdQuiet(parent?.getId())?.getRadius()
+        GraphRenderer.NodeParentRadiusPreDrag = Eagle.getInstance().logicalGraph().getNodes().get(parent?.getId())?.getRadius()
     }
 
     static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
@@ -1519,12 +1519,12 @@ export class GraphRenderer {
         let node = Utils.getPaletteComponentById(nodeId);
 
         // if node not found yet, try find in the graph
-        if (node === null){
-            node = eagle.logicalGraph().findNodeById(nodeId);
+        if (typeof node === 'undefined'){
+            node = eagle.logicalGraph().getNodes().get(nodeId);
         }
 
-        //double checking to keep gitAI happy
-        if(node === null){
+        // double checking to keep gitAI happy
+        if(typeof node === 'undefined'){
             Utils.showNotification("Error", "Could not find the node we are trying to add", "warning");
             return
         }

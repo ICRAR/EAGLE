@@ -92,13 +92,13 @@ export class TutorialSystem {
 
     static initiateFindGraphNodeIdByNodeName(name:string) : JQuery<HTMLElement> {
         const eagle = Eagle.getInstance()
-        const x = $('#logicalGraph #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
+        const x = $('#logicalGraph #'+eagle.logicalGraph().findNodeIdByNodeName(name)+'.container')
         return x
     }
 
     static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
         const eagle = Eagle.getInstance()
-        const x = eagle.logicalGraph().findNodeGraphIdByNodeName(name)
+        const x = eagle.logicalGraph().findNodeIdByNodeName(name)
         return x
     }
 

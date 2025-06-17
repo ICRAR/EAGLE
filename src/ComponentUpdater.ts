@@ -36,13 +36,13 @@ export class ComponentUpdater {
     }
 
     // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
-    static _replaceNode(dest:Node, src:Node){
+    static _replaceNode(dest: Node, src: Node){
         for (const srcField of src.getFields().values()){
             // try to find a field with the same name in the destination
-            let destField = dest.findFieldById(srcField.getId());
+            let destField = dest.getFields().get(srcField.getId());
 
             // if dest field not found, try to find something that matches by displayText AND fieldType
-            if (destField === null){
+            if (typeof destField === 'undefined'){
                 destField = dest.findFieldByDisplayText(srcField.getDisplayText(), srcField.getParameterType());
             }
 

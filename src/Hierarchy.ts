@@ -291,7 +291,12 @@ export class Hierarchy {
     static nodeIsHidden(id: NodeId) : string {
         const eagle: Eagle = Eagle.getInstance();
 
-        const node = eagle.logicalGraph().findNodeById(id);
+        const node = eagle.logicalGraph().getNodes().get(id);
+
+        if (typeof node === 'undefined'){
+            return 'hidden';
+        }
+
         let nodeHasConnectedInput: boolean = false;
         let nodeHasConnectedOutput: boolean = false;
 

@@ -578,7 +578,7 @@ export class Field {
 
             //check if the node name matches, but only if using the key parameter table modal
             if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
-                if(Eagle.getInstance().logicalGraph().findNodeById(that.node().getId()).getName().toLowerCase().indexOf(term) >= 0){
+                if(that.node().getName().toLowerCase().indexOf(term) >= 0){
                     result = true
                 }
             }

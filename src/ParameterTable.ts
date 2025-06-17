@@ -139,18 +139,18 @@ export class ParameterTable {
 
                 for (const node of config.getNodes()){
                     for (const field of node.getFields()){
-                        const lgNode = lg.findNodeByIdQuiet(node.getId());
+                        const lgNode = lg.getNodes().get(node.getId());
 
-                        if (lgNode === null){
+                        if (typeof lgNode === 'undefined'){
                             const dummyField: Field = new Field(field.getId(), "<Missing Node:" + node.getId() +">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
                             dummyField.setNode(lgNode);
                             displayedFields.push(dummyField);
                             continue;
                         }
 
-                        const lgField = lgNode.findFieldById(field.getId());
+                        const lgField = lgNode.getFields().get(field.getId());
         
-                        if (lgField === null){
+                        if (typeof lgField === 'undefined'){
                             const dummyField: Field = new Field(field.getId(), "<Missing Field: " + field.getId() + ">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
                             dummyField.setNode(lgNode);
                             displayedFields.push(dummyField);
@@ -305,7 +305,6 @@ export class ParameterTable {
 
         // remove edges
         for (const edgeId of edgesToRemove){
-            console.log("remove edge", edgeId);
             eagle.logicalGraph().removeEdgeById(edgeId);
         }
 
@@ -689,9 +688,9 @@ export class ParameterTable {
         }, 100);
     }
 
-    static duplicateParameter = (fieldId: FieldId) : void => {
-        const selectedNode: Node = Eagle.getInstance().selectedNode();
-        const field = selectedNode.findFieldById(fieldId);
+    static duplicateParameter = (field: Field) : void => {
+        const node = field.getNode();
+
         const newFieldText = field.getDisplayText()+' copy';
 
         const copiedField = field
@@ -700,9 +699,9 @@ export class ParameterTable {
             .setDisplayText(newFieldText);
 
         // the new node is appended at the bottom
-        selectedNode.addField(copiedField)
+        node.addField(copiedField)
 
-        const fieldIndex = selectedNode.getFields().size - 1;
+        const fieldIndex = node.getFields().size - 1;
 
         setTimeout(function() {
             //handling selecting and highlighting the newly created field on the node
@@ -717,10 +716,10 @@ export class ParameterTable {
         }, 100);
     }
 
-    static duplicateTableRow = (index: number, fieldId: FieldId) : void => {
+    static duplicateTableRow = (field: Field) : void => {
         const eagle = Eagle.getInstance()
 
-        ParameterTable.duplicateParameter(fieldId)
+        ParameterTable.duplicateParameter(field)
         // eagle.selectedObjects.valueHasMutated()
         eagle.flagActiveFileModified()
 
@@ -728,7 +727,7 @@ export class ParameterTable {
         ParameterTable.updateContent(eagle.selectedNode())
     }
 
-    static deleteTableRow = (field:Field) : void => {
+    static deleteTableRow = (field: Field) : void => {
         const eagle = Eagle.getInstance()
 
         eagle.logicalGraph().removeFieldFromNodeById(eagle.selectedNode(),field.getId())

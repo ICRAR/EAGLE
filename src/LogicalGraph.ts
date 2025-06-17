@@ -90,15 +90,15 @@ export class LogicalGraph {
             let srcId = edge.getSrcNode().getId();
             let destId = edge.getDestNode().getId();
 
-            const srcNode = graph.findNodeById(srcId);
-            const destNode = graph.findNodeById(destId);
+            const srcNode = graph.getNodes().get(srcId);
+            const destNode = graph.getNodes().get(destId);
 
             // if source and destination node could not be found, skip edge
-            if (srcNode === null){
+            if (typeof srcNode === 'undefined'){
                 console.warn("Could not find edge (", srcId, "->", destId, ") source node by id (", srcId, "), skipping");
                 continue;
             }
-            if (destNode === null){
+            if (typeof destNode === 'undefined'){
                 console.warn("Could not find edge (", srcId, "->", destId, ") destination node by key (", destId, "), skipping");
                 continue;
             }
@@ -638,21 +638,7 @@ export class LogicalGraph {
         return newNode;
     }
 
-    findNodeByIdQuiet = (id: NodeId) : Node => {
-        return this.nodes().get(id);
-    }
-
-    findNodeById = (id: NodeId) : Node => {
-        const node = this.findNodeByIdQuiet(id);
-
-        if (node === null){
-            console.warn("findNodeById(): could not find node with id (", id, ")");
-        }
-
-        return node;
-    }
-
-    findNodeGraphIdByNodeName = (name:string) :string =>{
+    findNodeIdByNodeName = (name: string): NodeId => {
         for (const [id, node] of this.nodes()){
             if (node.getName() === name){
                 return id;
@@ -741,10 +727,6 @@ export class LogicalGraph {
                 this.removeNode(node);
             }
         }
-    }
-
-    findEdgeById = (id: EdgeId) : Edge => {
-        return this.edges().get(id);
     }
 
     removeEdgeById = (id: EdgeId) : void => {
@@ -1103,9 +1085,9 @@ export class LogicalGraph {
         for (const graphConfig of graph.getGraphConfigs()){
             for (const graphConfigNode of graphConfig.getNodes()){
                 // check that node exists in graph
-                const graphNode: Node = graph.findNodeByIdQuiet(graphConfigNode.getId());
+                const graphNode: Node = graph.getNodes().get(graphConfigNode.getId());
 
-                if (graphNode === null){
+                if (typeof graphNode === 'undefined'){
                     const issue: Errors.Issue = Errors.Fix(
                         "Node in graph config (" + graphConfig.getName() + ") is not present in Logical Graph",
                         function(){
@@ -1118,9 +1100,9 @@ export class LogicalGraph {
                 }
 
                 for (const graphConfigField of graphConfigNode.getFields()){
-                    const graphField: Field = graphNode.findFieldById(graphConfigField.getId());
+                    const graphField: Field = graphNode.getFields().get(graphConfigField.getId());
 
-                    if (graphField === null){
+                    if (typeof graphField === 'undefined'){
                         const issue: Errors.Issue = Errors.Fix(
                             "Field in graph config (" + graphConfig.getName() + ", " + graphNode.getName() + ") is not present in Logical Graph",
                             function(){

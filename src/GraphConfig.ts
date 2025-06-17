@@ -207,7 +207,12 @@ export class GraphConfig {
         // add nodes
         result.nodes = {};
         for (const node of graphConfig.nodes().all()){
-            const graphNode: Node = logicalGraph.findNodeByIdQuiet(node.getId());
+            const graphNode: Node = logicalGraph.getNodes().get(node.getId());
+
+            if (typeof graphNode === 'undefined'){
+                continue;
+            }
+
             result.nodes[node.getId()] = GraphConfigNode.toJSON(node, graphNode);
         }
 
@@ -233,17 +238,17 @@ export class GraphConfig {
         console.log("Applying graph config with", config.numFields(), "fields to logical graph", lg.fileInfo.name);
 
         for (const node of config.nodes().all()){
-            const lgNode = lg.findNodeById(node.getId());
+            const lgNode = lg.getNodes().get(node.getId());
 
-            if (lgNode === null){
+            if (typeof lgNode === 'undefined'){
                 console.warn("GraphConfig.apply(): Could not find node", node.getId());
                 continue;
             }
 
             for (const field of node.getFields()){
-                const lgField = lgNode.findFieldById(field.getId());
+                const lgField = lgNode.getFields().get(field.getId());
 
-                if (lgField === null){
+                if (typeof lgField === 'undefined'){
                     console.warn("GraphConfig.apply(): Could not find field", field.getId(), "on node", lgNode.getName());
                     continue;
                 }
@@ -380,8 +385,13 @@ export class GraphConfigNode {
         // add fields
         result.fields = {};
         for (const field of node.fields()){
-            const type = graphNode.findFieldById(field.getId())?.getType();
-            result.fields[field.getId()] = GraphConfigField.toJson(field, type);
+            const graphField: Field = graphNode.getFields().get(field.getId());
+
+            if (typeof graphField === 'undefined'){
+                continue;
+            }
+
+            result.fields[field.getId()] = GraphConfigField.toJson(field, graphField.getType());
         }
 
         return result;

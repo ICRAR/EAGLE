@@ -998,8 +998,8 @@ export class Utils {
     }
 
     static updateEditEdgeModal(edge: Edge, logicalGraph: LogicalGraph): void {
-        let srcNode: Node = null;
-        let destNode: Node = null;
+        let srcNode: Node = undefined;
+        let destNode: Node = undefined;
 
         // TODO: make local copy of edge, so that original is not changed! original might come from inside the active graph
 
@@ -1043,15 +1043,13 @@ export class Utils {
         // TODO: validate id
         const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
 
-        if (srcNodeId === null){
-            srcNode = null;
-        } else {
-            srcNode = logicalGraph.findNodeById(srcNodeId);
+        if (srcNodeId !== null){
+            srcNode = logicalGraph.getNodes().get(srcNodeId);
         }
 
         // check that source node was found, if not, disable SrcPortIdSelect?
         $('#editEdgeModalSrcPortIdSelect').empty();
-        if (srcNode === null){
+        if (typeof srcNode === 'undefined'){
             $('#editEdgeModalSrcPortIdSelect').attr('disabled', 'true');
         } else {
             // add src port ids
@@ -1101,15 +1099,13 @@ export class Utils {
         // make sure srcNode reflects what is actually selected in the UI
         const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
 
-        if (destNodeId === null){
-            destNode = null;
-        } else {
-            destNode = logicalGraph.findNodeById(destNodeId);
+        if (destNodeId !== null){
+            destNode = logicalGraph.getNodes().get(destNodeId);
         }
 
         // check that dest node was found, if not, disable DestPortIdSelect?
         $('#editEdgeModalDestPortIdSelect').empty();
-        if (destNode === null){
+        if (typeof destNode === 'undefined'){
             $('#editEdgeModalDestPortIdSelect').attr('disabled', 'true');
         } else {
             // add dest port ids
@@ -1313,10 +1309,10 @@ export class Utils {
             }
         }
 
-        return null;
+        return undefined;
     }
 
-    static getPaletteComponentById(id: string) : Node {
+    static getPaletteComponentById(id: string) : Node | undefined {
         const eagle: Eagle = Eagle.getInstance();
 
         // add all data components (except ineligible)
@@ -1329,7 +1325,7 @@ export class Utils {
             }
         }
 
-        return null;
+        return undefined;
     }
 
     static getComponentsWithMatchingPort(nodes:Node[], input: boolean, type: string) : Node[] {
@@ -1940,7 +1936,7 @@ export class Utils {
     }
 
     static fixDisableEdgeLoopAware(eagle: Eagle, edgeId: EdgeId): void {
-        eagle.logicalGraph().findEdgeById(edgeId)?.setLoopAware(false)
+        eagle.logicalGraph().getEdges().get(edgeId)?.setLoopAware(false);
     }
 
     static fixPortType(eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
@@ -1951,10 +1947,11 @@ export class Utils {
         node.addField(field);
     }
 
+    // TODO: pass a node instead of id?
     static fixNodeFieldIds(eagle: Eagle, nodeId: NodeId){
-        const node: Node = eagle.logicalGraph().findNodeById(nodeId);
+        const node: Node = eagle.logicalGraph().getNodes().get(nodeId);
 
-        if (node === null){
+        if (typeof node === 'undefined'){
             return;
         }
 
@@ -1975,10 +1972,11 @@ export class Utils {
     // NOTE: merges field1 into field0
     static fixNodeMergeFields(eagle: Eagle, node: Node, field0: Field, field1: Field){
         // abort if one or more of the fields is not found
-        const f0 = node.findFieldById(field0.getId());
-        const f1 = node.findFieldById(field1.getId());
+        const f0 = node.getFields().get(field0.getId());
+        const f1 = node.getFields().get(field1.getId());
 
-        if (f0 === null || f1 === null){
+        if (typeof f0 === 'undefined' || typeof f1 === 'undefined'){
+            console.warn("fixNodeMergeFields(): Aborted, could not find one or more specified field(s).");
             return;
         }
 
@@ -2116,13 +2114,12 @@ export class Utils {
         }
     }
 
-    static addSourcePortToSourceNode(eagle: Eagle, edgeId: EdgeId){
-        const edge = eagle.logicalGraph().findEdgeById(edgeId);
+    static addSourcePortToSourceNode(eagle: Eagle, edge: Edge){
         const srcNode = edge.getSrcNode();
         const destPort = edge.getDestPort();
 
         // abort fix if source port exists on source node
-        if (srcNode.findFieldById(edge.getSrcPort().getId()) !== null){
+        if (srcNode.getFields().has(edge.getSrcPort().getId())){
             return;
         }
 
@@ -2136,13 +2133,12 @@ export class Utils {
         srcNode.addField(srcPort);
     }
 
-    static addDestinationPortToDestinationNode(eagle: Eagle, edgeId: EdgeId){
-        const edge = eagle.logicalGraph().findEdgeById(edgeId);
+    static addDestinationPortToDestinationNode(eagle: Eagle, edge: Edge){
         const destNode = edge.getDestNode();
         const srcPort = edge.getSrcPort();
 
         // abort fix if destination port exists on destination node
-        if (destNode.findFieldById(edge.getDestPort().getId()) !== null){
+        if (destNode.getFields().has(edge.getDestPort().getId())){
             return;
         }
 
@@ -2156,8 +2152,7 @@ export class Utils {
         destNode.addField(destPort);
     }
 
-    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edgeId: EdgeId){
-        const edge = eagle.logicalGraph().findEdgeById(edgeId);
+    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edge: Edge){
         const srcNode = edge.getSrcNode();
         const destNode = edge.getDestNode();
 
@@ -2189,8 +2184,7 @@ export class Utils {
         field.setParameterType(newType);
     }
 
-    static fixAppToAppEdge(eagle: Eagle, edgeId: EdgeId){
-        const edge: Edge = eagle.logicalGraph().findEdgeById(edgeId);
+    static fixAppToAppEdge(eagle: Eagle, edge: Edge){
         const srcNode: Node = edge.getSrcNode();
         const destNode: Node = edge.getDestNode();
         const srcPort: Field = edge.getSrcPort();
@@ -2344,10 +2338,8 @@ export class Utils {
 
     static generateNewNodeId(object: Palette | LogicalGraph, node: Node){
         object.getNodes().delete(node.getId());
-
-        const newId = Utils.generateNodeId();
-        node.setId(newId);
-        object.getNodes().set(newId, node);
+        node.setId(Utils.generateNodeId());
+        object.getNodes().set(node.getId(), node);
     }
 
     // only update result if it is worse that current result
@@ -2520,9 +2512,21 @@ export class Utils {
 
         // add logical graph nodes to table
         for (const node of activeConfig.getNodes()){
-            const graphNode: Node = eagle.logicalGraph().findNodeById(node.getId());
+            const graphNode: Node = eagle.logicalGraph().getNodes().get(node.getId());
+
+            if (typeof graphNode === 'undefined'){
+                // TODO: what to do here? blank row, console warning?
+                continue;
+            }
+
             for (const field of node.getFields()){
-                const graphField: Field = graphNode.findFieldById(field.getId());
+                const graphField: Field = graphNode.getFields().get(field.getId());
+
+                if (typeof graphField === 'undefined'){
+                    // TODO: what to do here? blank row, console warning?
+                    continue;
+                }
+
                 tableData.push({
                     "nodeName": graphNode.getName(),
                     "nodeId": node.getId(),

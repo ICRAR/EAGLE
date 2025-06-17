@@ -225,11 +225,13 @@ $(function(){
         }
     })
 
+    // TODO: move to Hierarchy.ts?
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const eagle: Eagle = Eagle.getInstance();
-        const selectEdge = eagle.logicalGraph().findEdgeById(($(event.target).attr("id") as EdgeId))
+        const edgeId: EdgeId = $(event.target).attr("id") as EdgeId;
+        const selectEdge = eagle.logicalGraph().getEdges().get(edgeId);
 
-        if(!selectEdge){
+        if(typeof selectEdge === 'undefined'){
             console.log("no edge found")
             return
         }

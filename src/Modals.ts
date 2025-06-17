@@ -455,10 +455,15 @@ export class Modals {
                     const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
                     const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
 
-                    const srcNode = eagle.logicalGraph().findNodeByIdQuiet(srcNodeId);
-                    const destNode = eagle.logicalGraph().findNodeByIdQuiet(destNodeId);
-                    const srcPort = srcNode.findFieldById(srcPortId);
-                    const destPort = destNode.findFieldById(destPortId);
+                    const srcNode = eagle.logicalGraph().getNodes().get(srcNodeId);
+                    const destNode = eagle.logicalGraph().getNodes().get(destNodeId);
+
+                    // TODO: check that nodes were found
+
+                    const srcPort = srcNode.getFields().get(srcPortId);
+                    const destPort = destNode.getFields().get(destPortId);
+
+                    // TODO: check that ports were found
 
                     const newEdge = new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
 

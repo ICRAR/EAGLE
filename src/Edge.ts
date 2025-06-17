@@ -291,8 +291,8 @@ export class Edge {
         // TODO: this could be better? perhaps could use Node.findPortInApplicationsById()
         let srcNode: Node = null;
         let destNode: Node = null;
-        let srcPort: Field = null;
-        let destPort: Field = null;
+        let srcPort: Field;
+        let destPort: Field;
 
         for (const node of nodes){
             if (node.getId() === srcNodeId){
@@ -300,9 +300,9 @@ export class Edge {
 
                 // check whether edge is actually connected to the inputApplication
                 if (node.hasInputApplication()){
-                    srcPort = node.getInputApplication().findFieldById(srcPortId);
+                    srcPort = node.getInputApplication().getFields().get(srcPortId);
 
-                    if (srcPort !== null){
+                    if (typeof srcPort !== 'undefined'){
                         srcNode = node.getInputApplication();
                         continue;
                     }
@@ -310,15 +310,15 @@ export class Edge {
 
                 // check whether edge is actually connected to the outputApplication
                 if (node.hasOutputApplication()){
-                    srcPort = node.getOutputApplication().findFieldById(srcPortId);
+                    srcPort = node.getOutputApplication().getFields().get(srcPortId);
 
-                    if (srcPort !== null){
+                    if (typeof srcPort !== 'undefined'){
                         srcNode = node.getOutputApplication();
                         continue;
                     }
                 }
 
-                srcPort = node.findFieldById(srcPortId);
+                srcPort = node.getFields().get(srcPortId);
             }
 
             if (node.getId() === destNodeId){
@@ -326,9 +326,9 @@ export class Edge {
 
                 // check whether edge is actually connected to the inputApplication
                 if (node.hasInputApplication()){
-                    destPort = node.getInputApplication().findFieldById(destPortId);
+                    destPort = node.getInputApplication().getFields().get(destPortId);
 
-                    if (destPort !== null){
+                    if (typeof destPort !== 'undefined'){
                         destNode = node.getInputApplication();
                         continue;
                     }
@@ -336,24 +336,24 @@ export class Edge {
 
                 // check whether edge is actually connected to the outputApplication
                 if (node.hasOutputApplication()){
-                    destPort = node.getOutputApplication().findFieldById(destPortId);
+                    destPort = node.getOutputApplication().getFields().get(destPortId);
 
-                    if (destPort !== null){
+                    if (typeof destPort !== 'undefined'){
                         destNode = node.getOutputApplication();
                         continue;
                     }
                 }
 
-                destPort = node.findFieldById(destPortId);
+                destPort = node.getFields().get(destPortId);
             }
         }
 
         // debug
-        if (srcPort === null){
+        if (typeof srcPort === 'undefined'){
             console.warn("Could not find source port for edge");
             return null;
         }
-        if (destPort === null){
+        if (typeof destPort === 'undefined'){
             console.warn("Could not find dest port for edge");
             return null;
         }
@@ -362,13 +362,16 @@ export class Edge {
         return new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
     }
 
+    // TODO: can we just pass this the edge itself, rather than an id?
     static isValid(eagle: Eagle, draggingPortMode: boolean, edgeId: EdgeId, sourceNodeId: NodeId, sourcePortId: FieldId, destinationNodeId: NodeId, destinationPortId: FieldId, loopAware: boolean, closesLoop: boolean, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
         let impossibleEdge : boolean = false;
         let draggingEdgeFixable : boolean = false;
 
-        const edge = eagle.logicalGraph().findEdgeById(edgeId);
-        if(edge){
-            edge.issues([]) //clear old issues
+        const edge = eagle.logicalGraph().getEdges().get(edgeId);
+
+        // if this is a real edge, then clear its issues, otherwise, if this is just a temp test edge, don't worry
+        if(typeof edge !== 'undefined'){
+            edge.issues([]);   
         }
 
         if (sourcePortId === null){
@@ -396,10 +399,10 @@ export class Edge {
         }
 
         // get references to actual source and destination nodes (from the ids)
-        const sourceNode : Node = eagle.logicalGraph().findNodeByIdQuiet(sourceNodeId);
-        const destinationNode : Node = eagle.logicalGraph().findNodeByIdQuiet(destinationNodeId);
+        const sourceNode : Node = eagle.logicalGraph().getNodes().get(sourceNodeId);
+        const destinationNode : Node = eagle.logicalGraph().getNodes().get(destinationNodeId);
 
-        if (sourceNode === null || typeof sourceNode === "undefined" || destinationNode === null || typeof destinationNode === "undefined"){
+        if (typeof sourceNode === "undefined" || typeof destinationNode === "undefined"){
             return Errors.Validity.Unknown;
         }
 
@@ -410,17 +413,17 @@ export class Edge {
 
         // check that we are not connecting an Application component to an Application component, that is not supported
         if (sourceNode.getCategoryType() === Category.Type.Application && destinationNode.getCategoryType() === Category.Type.Application){
-            Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Fixable, Errors.ShowFix("Application nodes may not be connected directly to other Application nodes", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixAppToAppEdge(eagle, edgeId);}, "Add intermediate Data node between edge's source and destination app nodes"), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Fixable, Errors.ShowFix("Application nodes may not be connected directly to other Application nodes", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixAppToAppEdge(eagle, edge);}, "Add intermediate Data node between edge's source and destination app nodes"), showNotification, showConsole, errorsWarnings);
         }
 
         // if source node or destination node is a construct, then something is wrong, constructs should not have ports
         if (sourceNode.getCategoryType() === Category.Type.Construct){
-            const issue: Errors.Issue = Errors.ShowFix("Edge cannot have a source node (" + sourceNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edge)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
+            const issue: Errors.Issue = Errors.ShowFix("Edge cannot have a source node (" + sourceNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edge)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edge)}, "Move edge to embedded application");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, issue, showNotification, showConsole, errorsWarnings);
         }
 
         if (destinationNode.getCategoryType() === Category.Type.Construct){
-            const issue: Errors.Issue = Errors.ShowFix("Edge cannot have a destination node (" + destinationNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edge)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edgeId)}, "Move edge to embedded application");
+            const issue: Errors.Issue = Errors.ShowFix("Edge cannot have a destination node (" + destinationNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edge)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edge)}, "Move edge to embedded application");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, issue, showNotification, showConsole, errorsWarnings);
         }
 
@@ -432,20 +435,20 @@ export class Edge {
             }
         }
 
-        const sourcePort : Field = sourceNode.findFieldById(sourcePortId);
-        const destinationPort : Field = destinationNode.findFieldById(destinationPortId);
+        const sourcePort : Field = sourceNode.getFields().get(sourcePortId);
+        const destinationPort : Field = destinationNode.getFields().get(destinationPortId);
 
         // check if source port was found
-        if (sourcePort === null) {
-            const issue: Errors.Issue = Errors.ShowFix("Source port doesn't exist on source node (" + sourceNode.getName() + ")", function(){Utils.showEdge(eagle, edge)}, function(){Utils.addSourcePortToSourceNode(eagle, edgeId)}, "Add source port to source node");
+        if (typeof sourcePort === 'undefined') {
+            const issue: Errors.Issue = Errors.ShowFix("Source port doesn't exist on source node (" + sourceNode.getName() + ")", function(){Utils.showEdge(eagle, edge)}, function(){Utils.addSourcePortToSourceNode(eagle, edge)}, "Add source port to source node");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
             return Errors.Validity.Impossible;
         }
 
         // check if destination port was found
-        if (destinationPort === null){
-            const issue: Errors.Issue = Errors.ShowFix("Destination port doesn't exist on destination node (" + destinationNode.getName() + ")", function(){Utils.showEdge(eagle, edge)}, function(){Utils.addDestinationPortToDestinationNode(eagle, edgeId)}, "Add destination port to destination node");
+        if (typeof destinationPort === 'undefined'){
+            const issue: Errors.Issue = Errors.ShowFix("Destination port doesn't exist on destination node (" + destinationNode.getName() + ")", function(){Utils.showEdge(eagle, edge)}, function(){Utils.addDestinationPortToDestinationNode(eagle, edge)}, "Add destination port to destination node");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
             return Errors.Validity.Impossible;
