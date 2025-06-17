@@ -106,6 +106,7 @@ export class Eagle {
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
+    dropdownMenuHoverTimeout : number = 0;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
@@ -182,6 +183,7 @@ export class Eagle {
 
         this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
+        this.dropdownMenuHoverTimeout = null;
 
         this.selectedObjects.subscribe(function(){
             //TODO check if the selectedObjects array has changed, if not, abort
@@ -2568,11 +2570,6 @@ export class Eagle {
         return null;
     }
 
-    closePaletteMenus=() : void => {
-        $("#paletteList .dropdown-toggle").removeClass("show")
-        $("#paletteList .dropdown-menu").removeClass("show")
-    }
-
     closePalette = async (palette : Palette): Promise<void> => {
         for (let i = 0 ; i < this.palettes().length ; i++){
             const p = this.palettes()[i];
@@ -2599,9 +2596,6 @@ export class Eagle {
     }
 
     selectAllInPalette = (palette: Palette): void => {
-        // close the palette menu
-        this.closePaletteMenus();
-
         this.selectedObjects([]);
         for (const node of palette.getNodes().values()){
             this.editSelection(node, Eagle.FileType.Palette);
@@ -4771,11 +4765,19 @@ export namespace Eagle
 // TODO: ready is deprecated here, use something else
 $( document ).ready(function() {
     // jquery event listeners start here
-    
-    //hides the dropdown navbar elements when stopping hovering over the element
-    $(".dropdown-menu").on("mouseleave", function(){
-        $(".dropdown-toggle").removeClass("show")
-        $(".dropdown-menu").removeClass("show")
+
+    $('body').on('mouseout','.dropdown-area',function(){
+        const targetElement = this
+        //we are using a timeout stored in a global variable so we have only one timeout that resets when another mouseout is called.
+        //if we don't do this we end up with several timeouts conflicting.
+        clearTimeout(Eagle.getInstance().dropdownMenuHoverTimeout)
+
+        Eagle.getInstance().dropdownMenuHoverTimeout = setTimeout(function() {
+            if($(".dropdown-menu:hover").length === 0){
+                $(targetElement).removeClass("show")
+                $(targetElement).parent().find('.dropdown-control').removeClass('show')
+            }
+        }, EagleConfig.DROPDOWN_DISMISS_DELAY);
     })
 
     //added to prevent console warnings caused by focused elements in a modal being hidden 

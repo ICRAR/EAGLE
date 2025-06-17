@@ -15,6 +15,7 @@
     --nodeOutputColor:red;
     --nodeInputColor:red;
     visibility:hidden;
+    --edgeSVGSize: 200px;
 }
 
 #logicalGraph {
@@ -31,8 +32,8 @@
     position:absolute;   
     z-index: 2;
     pointer-events: none;
-    width: 10000px; 
-    height: 10000px;
+    width:var(--edgeSVGSize);
+    height:var(--edgeSVGSize);
     transform: translate(-50%,-50%);
 }
 
