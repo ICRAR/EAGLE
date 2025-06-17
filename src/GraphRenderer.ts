@@ -1418,6 +1418,7 @@ export class GraphRenderer {
         return result;
     }
 
+    // TODO: does this do nothing when construct !== null ? (maybe the first parameter isn't required?) (maybe move to LogicalGraph.ts?)
     static centerConstructs(construct:Node, graphNodes:Node[]) : void {
         const constructsList : Node[]=[]
         if(construct === null){
@@ -1459,7 +1460,8 @@ export class GraphRenderer {
         })
     }
 
-    static centerConstruct(construct:Node,graphNodes:Node[]) : void {
+    // TODO: maybe move to LogicalGraph.ts
+    static centerConstruct(construct:Node, graphNodes:Node[]) : void {
         if(!construct){
             Utils.showNotification('Error','A single Construct node must be selected!',"warning")
             return
@@ -1471,6 +1473,8 @@ export class GraphRenderer {
         let minY : number = Number.MAX_VALUE;
         let maxX : number = -Number.MAX_VALUE;
         let maxY : number = -Number.MAX_VALUE;
+
+        // TODO: redo once we have node.children
         for (const node of graphNodes){
             const parent: Node = node.getParent();
             
@@ -1499,7 +1503,9 @@ export class GraphRenderer {
         const centroidX = minX + ((maxX - minX) / 2);
         const centroidY = minY + ((maxY - minY) / 2);
 
-        construct.setPosition(centroidX,centroidY)
+        construct.setPosition(centroidX, centroidY)
+
+        // TODO: the call to resizeConstruct() is not optimal here, it re-does much of the work done within this function
         GraphRenderer.resizeConstruct(construct)
     }
 

@@ -1602,8 +1602,8 @@ export class Utils {
                 errorsWarnings.errors.push(
                     Errors.ShowFix(
                         "Node (" + node.getName() + ") within palette (" + palette.fileInfo().name + ") has id already used by at least one other component.",
-                        function(){Utils.showNode(Eagle.getInstance(), id)},
-                        function(){node.setId(Utils.generateNodeId())},
+                        function(){Utils.showNode(Eagle.getInstance(), Eagle.FileType.Palette, node)},
+                        function(){Utils.generateNewNodeId(palette, node)},
                         "Generate new id for " + node.getName()
                     )
                 );
@@ -2301,52 +2301,33 @@ export class Utils {
         field.setId(newId);
     }
     
-    static showEdge(eagle: Eagle, edgeId: EdgeId): void {
+    static showEdge(eagle: Eagle, edge: Edge): void {
         // close errors modal if visible
         $('#issuesDisplay').modal("hide");
 
-        eagle.setSelection(eagle.logicalGraph().findEdgeById(edgeId), Eagle.FileType.Graph);
+        eagle.setSelection(edge, Eagle.FileType.Graph);
     }
 
-    // TODO: can we change this and showEdge() above to take Node (and Edge) as params instead of ids
-    static showNode(eagle: Eagle, nodeId: NodeId): void {
-        let node: Node = null;
-        let location : Eagle.FileType
-
+    static showNode(eagle: Eagle, location: Eagle.FileType, node: Node): void {
         // close errors modal if visible
         $('#issuesDisplay').modal("hide");
-
-        //attempt to find node in graph
-        node = eagle.logicalGraph().findNodeById(nodeId);
-
-        if(node){
-            location = Eagle.FileType.Graph
-        }else{
-            //if no node was found attempt to find the node in the palettes
-            for (const palette of eagle.palettes()){
-                node = palette.findNodeById(nodeId);
-                if (node !== null){
-                    break;
-                }
-            }
-            location = Eagle.FileType.Palette
-        }
 
         // check that we found the node
         if (node === null){
-            console.warn("Could not show node with id", nodeId);
+            console.warn("Could not show node with id", node.getId());
             return;
         }
         
-        eagle.setSelection( node, location);
+        eagle.setSelection(node, location);
     }
 
-    static showField(eagle: Eagle, nodeId: NodeId, field: Field) :void {
-        this.showNode(eagle, nodeId)
+    static showField(eagle: Eagle, location: Eagle.FileType, node: Node, field: Field) :void {
+        this.showNode(eagle, location, node)
+
+        // TODO: can we remove this timeout now, since the eagle.setSelection() is done immediately (within showNode())
         setTimeout(function(){
-            const node = eagle.selectedNode()
             ParameterTable.openTableAndSelectField(node, field)
-        },100)
+        }, 100);
     }
 
     static showGraphConfig(eagle: Eagle, graphConfigId: GraphConfig.Id){
@@ -2359,6 +2340,14 @@ export class Utils {
         setTimeout(() => {
             $('#tableRow_' + graphConfig.getName()).focus().select()
         }, 100);
+    }
+
+    static generateNewNodeId(object: Palette | LogicalGraph, node: Node){
+        object.getNodes().delete(node.getId());
+
+        const newId = Utils.generateNodeId();
+        node.setId(newId);
+        object.getNodes().set(newId, node);
     }
 
     // only update result if it is worse that current result

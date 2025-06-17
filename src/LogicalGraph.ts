@@ -367,6 +367,18 @@ export class LogicalGraph {
         return result;
     }
 
+    static fromV4Json(dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+        // create new logical graph object
+        const result : LogicalGraph = new LogicalGraph();
+
+        // copy modelData into fileInfo
+        result.fileInfo(FileInfo.fromV4Json(dataObject.modelData, errorsWarnings));
+
+        // TODO
+
+        return result;
+    }
+
     static _findNodeDataWithKey(nodeDataArray: any[], key: number): any {
         for (const nodeData of nodeDataArray){
             if (nodeData.key === key){
@@ -1007,7 +1019,7 @@ export class LogicalGraph {
             if (ids.includes(nodeId)){
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Node (" + node.getName() + ") does not have a unique id",
-                    function(){Utils.showNode(eagle, nodeId)},
+                    function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
                     function(){node.setId(Utils.generateNodeId())},
                     "Assign node a new id"
                 );
@@ -1020,7 +1032,7 @@ export class LogicalGraph {
                 if (ids.includes(fieldId)){
                     const issue: Errors.Issue = Errors.ShowFix(
                         "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
-                        function(){Utils.showNode(eagle, nodeId)},
+                        function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
                         function(){Utils.newFieldId(eagle, node, field)},
                         "Assign field a new id"
                     );
@@ -1035,7 +1047,7 @@ export class LogicalGraph {
             if (ids.includes(id)){
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Edge (" + id + ") does not have a unique id",
-                    function(){Utils.showEdge(eagle, id)},
+                    function(){Utils.showEdge(eagle, edge)},
                     function(){edge.setId(Utils.generateEdgeId())},
                     "Assign edge a new id"
                 );
@@ -1062,7 +1074,7 @@ export class LogicalGraph {
         // check all edges in the edges dict are also present in the srcPort or destPort edges dict
         for (const [id, edge] of graph.edges()){
             if (edge.getSrcPort().getEdges().get(id) === null && edge.getDestPort().getEdges().get(id) === null){
-                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source or destination port edges list", function(){Utils.showEdge(eagle, id)});
+                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source or destination port edges list", function(){Utils.showEdge(eagle, edge)});
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});
             }
         }

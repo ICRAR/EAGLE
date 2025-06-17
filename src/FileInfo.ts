@@ -544,6 +544,14 @@ export class FileInfo {
         return result;
     }
 
+    static fromV4Json(modelData: any, errorsWarnings: Errors.ErrorsWarnings): FileInfo{
+        const result: FileInfo = new FileInfo();
+
+        // TODO
+
+        return result;
+    }
+
     static generateUrl(fileInfo: FileInfo): string {
         let url = window.location.origin;
 

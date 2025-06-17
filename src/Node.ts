@@ -1913,30 +1913,30 @@ export class Node {
         return node;
     }
 
-    static isValid(node: Node, selectedLocation: Eagle.FileType) : void {
+    static isValid(node: Node, location: Eagle.FileType) : void {
         const eagle = Eagle.getInstance()
         node.issues([])//clear old issues
 
         // looping through and checking all the fields on the node
         for (const field of node.fields().values()){
-            Field.isValid(node,field, selectedLocation)
+            Field.isValid(node,field, location)
         }
 
         if(!Utils.isKnownCategory(node.getCategory())){
             const message: string = "Node (" + node.getName() + ") has unrecognised category " + node.getCategory();
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning});
         }
 
         if(node.isConstruct()){
             //checking the input application if one is present
             if(node.hasInputApplication()){
-                Node.isValid(node.getInputApplication(),selectedLocation)
+                Node.isValid(node.getInputApplication(), location)
             }
 
             //checking the output application if one is present
             if(node.hasOutputApplication()){
-                Node.isValid(node.getOutputApplication(),selectedLocation)
+                Node.isValid(node.getOutputApplication(), location)
             }
         }
         
@@ -1945,29 +1945,29 @@ export class Node {
 
         if (node.getInputPorts().length < cData.minInputs){
             const message: string = "Node (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + cData.minInputs;
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
         if ((node.getInputPorts().length - node.getInputEventPorts().length) > cData.maxInputs){
             const message: string = "Node (" + node.getName() + ") has too many input ports. Should have at most " + cData.maxInputs;
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
         if (node.getOutputPorts().length < cData.minOutputs){
             const message: string = "Node (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + cData.minOutputs;
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
         if ((node.getOutputPorts().length - node.getOutputEventPorts().length) > cData.maxOutputs){
             const message: string = "Node (" + node.getName() + ") may have too many output ports. Should have at most " + cData.maxOutputs;
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
         // check if this category of node is a legacy node
         if (cData.sortOrder === Category.SortOrder.Legacy){
             const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + ").  Consider updating to a more modern node category.";
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
@@ -1990,8 +1990,8 @@ export class Node {
 
         // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
         // only check this if the component has been selected in the graph. If it was selected from the palette, it doesn't make sense to complain that it is not connected.
-        if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && selectedLocation === Eagle.FileType.Graph){
-            const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.showNode(eagle, node.getId())});
+        if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && location === Eagle.FileType.Graph){
+            const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
@@ -2002,13 +2002,13 @@ export class Node {
 
             if (!hasInputEdge && !hasPydataValue){
                 const message: string = node.category() + " node (" + node.getName() + ") has no connected input edges, and no data in its '" + Daliuge.FieldName.PYDATA + "' field. The node will not contain data.";
-                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
                 node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
 
             if (hasInputEdge && hasPydataValue){
                 const message: string = node.category() + " node (" + node.getName() + ") has a connected input edge, and also contains data in its '" + Daliuge.FieldName.PYDATA + "' field. The two sources of data could cause a conflict. Note that a " + Daliuge.FieldName.PYDATA + " field is considered a source of data if its value is NOT '" + Daliuge.DEFAULT_PYDATA_VALUE + "'.";
-                const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, function(){if (pydataField.getValue() === ""){pydataField.setValue(Daliuge.DEFAULT_PYDATA_VALUE);}}, "Replace empty pydata with default value (" + Daliuge.DEFAULT_PYDATA_VALUE + ")");
+                const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node)}, function(){if (pydataField.getValue() === ""){pydataField.setValue(Daliuge.DEFAULT_PYDATA_VALUE);}}, "Replace empty pydata with default value (" + Daliuge.DEFAULT_PYDATA_VALUE + ")");
                 node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
         }
@@ -2041,7 +2041,7 @@ export class Node {
 
             const issue : Errors.Issue = Errors.ShowFix(
                 "Node (" + node.getName() + ") is a " + node.getCategory() + " node, which is a legacy category. The node should be updated to a " + newCategory + " node.",
-                function(){Utils.showNode(eagle, node.getId())},
+                function(){Utils.showNode(eagle, location, node)},
                 function(){Utils.fixNodeCategory(eagle, node, newCategory, node.getCategoryType())},
                 "Change node category from " + node.getCategory() + " to " + newCategory
             );
@@ -2052,7 +2052,7 @@ export class Node {
         for (const requirement of Daliuge.categoryFieldsRequired){
             if (requirement.categories.includes(node.getCategory())){
                 for (const requiredField of requirement.fields){
-                    Node._checkForField(eagle, node, requiredField);
+                    Node._checkForField(eagle, location, node, requiredField);
                 }
             }
         }
@@ -2061,7 +2061,7 @@ export class Node {
         for (const requirement of Daliuge.categoryTypeFieldsRequired){
             if (requirement.categoryTypes.includes(node.getCategoryType())){
                 for (const requiredField of requirement.fields){
-                    Node._checkForField(eagle, node, requiredField);
+                    Node._checkForField(eagle, location, node, requiredField);
                 }
             }
         }
@@ -2075,7 +2075,7 @@ export class Node {
             if (funcCodeField && funcNameField){
                 if (funcCodeField.getValue().trim() !== ""){
                     if (!funcCodeField.getValue().includes(funcNameField.getValue())){
-                        const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameField.getValue() + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, node.getId())});
+                        const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameField.getValue() + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, location, node)});
                         node.issues().push({issue:issue,validity:Errors.Validity.Error});
                     }
                 }
@@ -2085,7 +2085,7 @@ export class Node {
         // check that the id in each field on this node, exists as a field on the fields dict
         for (const [id, field] of node.fields()){
             if (id !== field.getId()){
-                const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has mismatch between key in fields dict, and id of fields dict value.", function(){Utils.showNode(eagle, node.getId())});
+                const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has mismatch between key in fields dict, and id of fields dict value.", function(){Utils.showNode(eagle, location, node)});
                 node.issues().push({issue: issue, validity: Errors.Validity.Error});
             }
         }
@@ -2112,7 +2112,7 @@ export class Node {
         return null;
     }
 
-    private static _checkForField(eagle: Eagle, node: Node, field: Field) : void {
+    private static _checkForField(eagle: Eagle, location: Eagle.FileType, node: Node, field: Field) : void {
         // check if the node already has this field
         const existingField = node.getFieldByDisplayText(field.getDisplayText());
 
@@ -2120,11 +2120,11 @@ export class Node {
         // if so, check the attributes of the field match
         if (existingField === null){
             const message = "Node (" + node.getName() + ":" + node.category() + ":" + node.categoryType() + ") does not have the required '" + field.getDisplayText() + "' field";
-            const issue : Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId());}, function(){Utils.addMissingRequiredField(eagle, node, field);}, "Add missing " + field.getDisplayText() + " field.")
+            const issue : Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node);}, function(){Utils.addMissingRequiredField(eagle, node, field);}, "Add missing " + field.getDisplayText() + " field.")
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
         } else if (existingField.getParameterType() !== field.getParameterType()){
             const message = "Node (" + node.getName() + ") has a '" + field.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + field.getParameterType();
-            const issue : Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, node.getId(),existingField);}, function(){Utils.fixFieldParameterType(eagle, node, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType())
+            const issue : Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, location, node, existingField);}, function(){Utils.fixFieldParameterType(eagle, node, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType())
             existingField.addError(issue,Errors.Validity.Error)
         }
     }

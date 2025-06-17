@@ -962,6 +962,12 @@ export class Eagle {
             case Setting.SchemaVersion.Unknown:
                 loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
                 break;
+            case Setting.SchemaVersion.V4:
+                loadFunc(LogicalGraph.fromV4Json(dataObject, dummyFile, errorsWarnings));
+                break;
+            default:
+                errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                break;
         }
 
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
@@ -2420,6 +2426,12 @@ export class Eagle {
             case Setting.SchemaVersion.Unknown:
                 lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
                 break;
+            case Setting.SchemaVersion.V4:
+                lg = LogicalGraph.fromV4Json(dataObject, file, errorsWarnings);
+                break;
+            default:
+                errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                return;
         }
 
         // create parent node
@@ -2814,7 +2826,6 @@ export class Eagle {
         const p_clone : Palette = palette.clone();
         p_clone.fileInfo().updateEagleInfo();
 
-
         // get version
         const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
 
@@ -2932,8 +2943,8 @@ export class Eagle {
         this.selectedEdge().toggleClosesLoop();
 
         // get nodes from edge
-        const sourceNode = this.selectedEdge().getSrcNode();//this.logicalGraph().findNodeById(this.selectedEdge().getSrcNodeId());
-        const destNode = this.selectedEdge().getDestNode();//this.logicalGraph().findNodeById(this.selectedEdge().getDestNodeId());
+        const sourceNode = this.selectedEdge().getSrcNode();
+        const destNode = this.selectedEdge().getDestNode();
 
         sourceNode.setGroupEnd(this.selectedEdge().isClosesLoop());
         destNode.setGroupStart(this.selectedEdge().isClosesLoop());
@@ -3197,6 +3208,8 @@ export class Eagle {
     }
 
     // NOTE: support func for copySelectionToKeyboard() above
+    // TODO: re-write once we have node.children
+    // TODO: move to LogicalGraph.ts?
     _addNodeAndChildren = (nodes: Node[], node: Node, output:Node[]) : void => {
         this._addUniqueNode(output, node);
 
@@ -3208,6 +3221,7 @@ export class Eagle {
     }
 
     // NOTE: support func for copySelectionToKeyboard() above
+    // TODO: move to LogicalGraph.ts?
     // only add the new node to the nodes list if it is not already present
     _addUniqueNode = (nodes: Node[], newNode: Node): void => {
         for (const node of nodes){
@@ -3220,6 +3234,7 @@ export class Eagle {
     }
 
     // NOTE: support func for copySelectionToKeyboard() above
+    // TODO: move to LogicalGraph.ts?
     // only add the new edge to the edges list if it is not already present
     _addUniqueEdge = (edges: Edge[], newEdge: Edge): void => {
         for (const edge of edges){
@@ -4055,20 +4070,18 @@ export class Eagle {
         let selectedChoiceIndex = 0;
 
         // build list of nodes that are candidates to be the subject
-        for (let i = 0 ; i < this.logicalGraph().getNodes().size; i++){
-            const node : Node = Array.from(this.logicalGraph().getNodes().values())[i];
-
-            // if this node is already the subject, note its index, so that we can preselect this subject node in the modal dialog
-            if (node.getId() === selectedNode.getSubject().getId()){
-                selectedChoiceIndex = i;
-            }
-
+        for (const node of this.logicalGraph().getNodes().values()){
             // comment and description nodes can't be the subject of comment nodes
             if (node.getCategory() === Category.Comment || node.getCategory() === Category.Description){
                 continue;
             }
 
             nodeList.push(node.getName() + " : " + node.getId());
+
+            // if this node is already the subject, note its index, so that we can preselect this subject node in the modal dialog
+            if (node.getId() === selectedNode.getSubject().getId()){
+                selectedChoiceIndex = nodeList.length - 1;
+            }
         }
 
         // ask user for parent
@@ -4230,7 +4243,7 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Edit Field");
 
         // now that we are done, re-open the params table
-        Utils.showField(this, field.getNode().getId(), field);
+        Utils.showField(this, Eagle.selectedLocation(), field.getNode(), field);
     };
     getNewNodePosition = (radius: number) : {x:number, y:number, extended:boolean} => {
         const MARGIN = 100; // buffer to keep new nodes away from the maxX and maxY sides of the LG display area
