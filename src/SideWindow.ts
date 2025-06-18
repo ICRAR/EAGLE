@@ -96,7 +96,7 @@ export class SideWindow {
 
         //this is for dealing with drag and drop actions while there is already one or more palette components selected
         if (Eagle.selectedLocation() === Eagle.FileType.Palette){
-            const draggedNode = eagle.palettes()[Eagle.nodeDragPaletteIndex].getNodes().get(Eagle.nodeDragComponentId);
+            const draggedNode = eagle.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
 
             if(!eagle.objectIsSelected(draggedNode)){
                 $(e.target).find("div").trigger("click")

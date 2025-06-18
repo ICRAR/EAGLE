@@ -50,7 +50,7 @@ export class GraphUpdater {
     static correctOJSNegativePositions(graph : LogicalGraph) : boolean {
         // check if any nodes are negative
         let anyNegative : boolean = false;
-        for (const node of graph.getNodes().values()){
+        for (const node of graph.getNodes()){
             if (node.getPosition().x < 0 || node.getPosition().y < 0){
                 anyNegative = true;
                 break;
@@ -65,7 +65,7 @@ export class GraphUpdater {
         // find the most negative position
         let maxX = 0;
         let maxY = 0;
-        for (const node of graph.getNodes().values()){
+        for (const node of graph.getNodes()){
             if (node.getPosition().x < maxX){
                 maxX = node.getPosition().x;
             }
@@ -75,7 +75,7 @@ export class GraphUpdater {
         }
 
         // move all nodes by -maxX, -maxY
-        for (const node of graph.getNodes().values()){
+        for (const node of graph.getNodes()){
             const newX : number = node.getPosition().x - maxX;
             const newY : number = node.getPosition().y - maxY;
             node.setPosition(newX, newY);

@@ -139,7 +139,7 @@ export class ParameterTable {
 
                 for (const node of config.getNodes()){
                     for (const field of node.getFields()){
-                        const lgNode = lg.getNodes().get(node.getId());
+                        const lgNode = lg.getNodeById(node.getId());
 
                         if (typeof lgNode === 'undefined'){
                             const dummyField: Field = new Field(field.getId(), "<Missing Node:" + node.getId() +">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);

@@ -76,7 +76,7 @@ export class LogicalGraph {
 
         // add links
         result.linkDataArray = [];
-        for (const edge of graph.getEdges().values()){
+        for (const edge of graph.edges().values()){
 
             // depending on the settings and purpose, skip close-loop edges
             if (forTranslation && Setting.findValue(Setting.SKIP_CLOSE_LOOP_EDGES)){
@@ -90,8 +90,8 @@ export class LogicalGraph {
             let srcId = edge.getSrcNode().getId();
             let destId = edge.getDestNode().getId();
 
-            const srcNode = graph.getNodes().get(srcId);
-            const destNode = graph.getNodes().get(destId);
+            const srcNode = graph.nodes().get(srcId);
+            const destNode = graph.nodes().get(destId);
 
             // if source and destination node could not be found, skip edge
             if (typeof srcNode === 'undefined'){
@@ -393,8 +393,8 @@ export class LogicalGraph {
         this.nodes.valueHasMutated();
     }
 
-    getNodes = () : Map<NodeId, Node> => {
-        return this.nodes();
+    getNodes = () : MapIterator<Node> => {
+        return this.nodes().values();
     }
 
     getAllNodes = () : Node[] => {
@@ -415,6 +415,14 @@ export class LogicalGraph {
 
     getNumNodes = () : number => {
         return this.nodes().size;
+    }
+
+    hasNode = (id: NodeId): boolean => {
+        return this.nodes().has(id);
+    }
+
+    getNodeById = (id: NodeId): Node | undefined => {
+        return this.nodes().get(id);
     }
 
     addEdgeComplete = (edge : Edge) => {
@@ -666,7 +674,7 @@ export class LogicalGraph {
         if(node.isEmbedded()){
             node.getFields().forEach(function(field:Field){
                 if(field.isInputPort() || field.isOutputPort()){
-                    that.getEdges().forEach(function(edge:Edge){
+                    that.edges().forEach(function(edge:Edge){
                         if(edge.getDestPort().getId() === field.getId() || edge.getSrcPort().getId() === field.getId()){
                             that.removeEdgeById(edge.getId())
                         }
@@ -997,7 +1005,7 @@ export class LogicalGraph {
         const ids : string[] = [];
 
         // loop over graph nodes
-        for (const [nodeId, node] of graph.getNodes()){
+        for (const [nodeId, node] of graph.nodes()){
             if (ids.includes(nodeId)){
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Node (" + node.getName() + ") does not have a unique id",
@@ -1025,7 +1033,7 @@ export class LogicalGraph {
         }
 
         // loop over graph edges
-        for (const [id, edge] of graph.getEdges()){
+        for (const [id, edge] of graph.edges()){
             if (ids.includes(id)){
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Edge (" + id + ") does not have a unique id",
@@ -1085,7 +1093,7 @@ export class LogicalGraph {
         for (const graphConfig of graph.getGraphConfigs()){
             for (const graphConfigNode of graphConfig.getNodes()){
                 // check that node exists in graph
-                const graphNode: Node = graph.getNodes().get(graphConfigNode.getId());
+                const graphNode: Node = graph.nodes().get(graphConfigNode.getId());
 
                 if (typeof graphNode === 'undefined'){
                     const issue: Errors.Issue = Errors.Fix(

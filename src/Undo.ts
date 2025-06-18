@@ -214,7 +214,7 @@ export class Undo {
 
         // find the objects in the ids list, and add them to the selection
         for (const id of objectIds){
-            const node = eagle.logicalGraph().getNodes().get(id as NodeId);
+            const node = eagle.logicalGraph().getNodeById(id as NodeId);
             const edge = eagle.logicalGraph().getEdges().get(id as EdgeId);
             const object = node || edge;
 
@@ -243,8 +243,8 @@ export class Undo {
                 "current": realCurrent === i ? "->" : "",
                 "description": snapshot.description(),
                 "buffer position": i,
-                "nodes": snapshot.data().getNodes().size,
-                "edges": snapshot.data().getEdges().size
+                "nodes": snapshot.data().getNumNodes(),
+                "edges": snapshot.data().getNumEdges()
             });
         }
 

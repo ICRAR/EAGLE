@@ -10,11 +10,11 @@ export class ComponentUpdater {
         const updatedNodes: Node[] = [];
 
         // make sure we have a palette available for each component in the graph
-        for (const node of graph.getNodes().values()){
+        for (const node of graph.getNodes()){
             let newVersion : Node = null;
 
             for (const palette of palettes){
-                for (const paletteNode of palette.getNodes().values()){
+                for (const paletteNode of palette.getNodes()){
                     if (Node.requiresUpdate(node, paletteNode)){
                         newVersion = paletteNode;
                     }

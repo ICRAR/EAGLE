@@ -399,8 +399,8 @@ export class Edge {
         }
 
         // get references to actual source and destination nodes (from the ids)
-        const sourceNode : Node = eagle.logicalGraph().getNodes().get(sourceNodeId);
-        const destinationNode : Node = eagle.logicalGraph().getNodes().get(destinationNodeId);
+        const sourceNode : Node = eagle.logicalGraph().getNodeById(sourceNodeId);
+        const destinationNode : Node = eagle.logicalGraph().getNodeById(destinationNodeId);
 
         if (typeof sourceNode === "undefined" || typeof destinationNode === "undefined"){
             return Errors.Validity.Unknown;

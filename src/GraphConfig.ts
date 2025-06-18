@@ -207,7 +207,7 @@ export class GraphConfig {
         // add nodes
         result.nodes = {};
         for (const node of graphConfig.nodes().all()){
-            const graphNode: Node = logicalGraph.getNodes().get(node.getId());
+            const graphNode: Node = logicalGraph.getNodeById(node.getId());
 
             if (typeof graphNode === 'undefined'){
                 continue;
@@ -238,7 +238,7 @@ export class GraphConfig {
         console.log("Applying graph config with", config.numFields(), "fields to logical graph", lg.fileInfo.name);
 
         for (const node of config.nodes().all()){
-            const lgNode = lg.getNodes().get(node.getId());
+            const lgNode = lg.getNodeById(node.getId());
 
             if (typeof lgNode === 'undefined'){
                 console.warn("GraphConfig.apply(): Could not find node", node.getId());

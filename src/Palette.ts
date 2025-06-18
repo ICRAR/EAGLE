@@ -159,9 +159,20 @@ export class Palette {
         return result;
     }
 
-    // TODO: needed?
-    getNodes = () : Map<NodeId, Node> => {
-        return this.nodes();
+    getNodes = () : MapIterator<Node> => {
+        return this.nodes().values();
+    }
+
+    getNumNodes = () : number => {
+        return this.nodes().size;
+    }
+
+    hasNode = (id: NodeId): boolean => {
+        return this.nodes().has(id);
+    }
+
+    getNodeById = (id: NodeId): Node | undefined => {
+        return this.nodes().get(id);
     }
 
     getSearchExclude = () : boolean => {

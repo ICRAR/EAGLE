@@ -67,7 +67,7 @@ import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 export class Eagle {
     static _instance : Eagle;
 
-    palettes : ko.ObservableArray<Palette>;
+    palettes : ko.ObservableArray<Palette>; // TODO: change to a Map?
     logicalGraph : ko.Observable<LogicalGraph>;
     tutorial : ko.Observable<Tutorial>;
 
@@ -216,7 +216,7 @@ export class Eagle {
         const eagle : Eagle = Eagle.getInstance();
 
         for (const palette of eagle.palettes()){
-            for (const node of palette.getNodes().values()){
+            for (const node of palette.getNodes()){
                 if (Node.match(node, eagle.selectedNode())){
                     return palette;
                 }
@@ -256,7 +256,7 @@ export class Eagle {
             case Eagle.FileType.Graph:
             default:
                 // build a list from all nodes in the current logical graph
-                for (const node of this.logicalGraph().getNodes().values()){
+                for (const node of this.logicalGraph().getNodes()){
                     for (const field of node.getFields().values()) {
                         Utils.addTypeIfUnique(result, field.getType());
                     }
@@ -357,7 +357,7 @@ export class Eagle {
         const list: Node[] = [];
 
         for (const palette of this.palettes()){
-            for (const node of palette.getNodes().values()){
+            for (const node of palette.getNodes()){
                 if (node.isApplication()){
                     list.push(node);
                 }
@@ -473,7 +473,7 @@ export class Eagle {
         let minY : number = Number.MAX_VALUE;
         let maxX : number = -Number.MAX_VALUE;
         let maxY : number = -Number.MAX_VALUE;
-        for (const node of that.logicalGraph().getNodes().values()){
+        for (const node of that.logicalGraph().getNodes()){
             if (node.getPosition().x - node.getRadius() < minX){
                 minX = node.getPosition().x - node.getRadius();
             }
@@ -568,7 +568,7 @@ export class Eagle {
     }
 
     getTotalText = () : string => {
-        const nodeCount = this.logicalGraph().getNodes().size
+        const nodeCount = this.logicalGraph().getNumNodes()
         const edgeCount = this.logicalGraph().getEdges().size
         const text =  nodeCount + " nodes and " + edgeCount + " edges."
 
@@ -890,7 +890,7 @@ export class Eagle {
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
     
-                    eagle.insertGraph(Array.from(lg.getNodes().values()), Array.from(lg.getEdges().values()), parentNode, errorsWarnings);
+                    eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges().values()), parentNode, errorsWarnings);
     
                     // TODO: handle errors and warnings
     
@@ -1017,7 +1017,7 @@ export class Eagle {
         }
         
         // center parent around children
-        GraphRenderer.centerConstruct(parentNode, Array.from(eagle.logicalGraph().getNodes().values()))
+        GraphRenderer.centerConstruct(parentNode, Array.from(eagle.logicalGraph().getNodes()))
 
         // flag graph as changed
         this.flagActiveFileModified();
@@ -1073,7 +1073,7 @@ export class Eagle {
         }
 
         // center parent around children
-        GraphRenderer.centerConstruct(parentNode, Array.from(eagle.logicalGraph().getNodes().values()))
+        GraphRenderer.centerConstruct(parentNode, Array.from(eagle.logicalGraph().getNodes()))
 
         // flag graph as changed
         this.flagActiveFileModified();
@@ -1322,7 +1322,7 @@ export class Eagle {
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
     
-                    eagle.insertGraph(Array.from(lg.getNodes().values()), Array.from(lg.getEdges().values()), parentNode, errorsWarnings);
+                    eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges().values()), parentNode, errorsWarnings);
     
                     // TODO: handle errors and warnings
     
@@ -2440,7 +2440,7 @@ export class Eagle {
         const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
         // perform insert
-        this.insertGraph(Array.from(lg.getNodes().values()), Array.from(lg.getEdges().values()), parentNode, errorsWarnings);
+        this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges().values()), parentNode, errorsWarnings);
 
         // trigger re-render
         this.logicalGraph.valueHasMutated();
@@ -2597,7 +2597,7 @@ export class Eagle {
 
     selectAllInPalette = (palette: Palette): void => {
         this.selectedObjects([]);
-        for (const node of palette.getNodes().values()){
+        for (const node of palette.getNodes()){
             this.editSelection(node, Eagle.FileType.Palette);
         }
 
@@ -2610,7 +2610,7 @@ export class Eagle {
         }
 
         // TODO: temporary fix while we get lots of warnings about missing nodes
-        const parentNode = this.logicalGraph().getNodes().get(parentId);
+        const parentNode = this.logicalGraph().getNodeById(parentId);
 
         if (typeof parentNode === 'undefined'){
             return ""
@@ -3151,7 +3151,7 @@ export class Eagle {
         for (const object of this.selectedObjects()){
             if (object instanceof Node){
                 if (copyChildren){
-                    this._addNodeAndChildren(Array.from(this.logicalGraph().getNodes().values()), object, nodes);
+                    this._addNodeAndChildren(Array.from(this.logicalGraph().getNodes()), object, nodes);
                 } else {
                     this._addUniqueNode(nodes, object);
                 }
@@ -3299,7 +3299,7 @@ export class Eagle {
         let numEdges = 0;
 
         // add nodes
-        for (const node of this.logicalGraph().getNodes().values()){
+        for (const node of this.logicalGraph().getNodes()){
             newSelection.push(node);
             numNodes += 1;
         }
@@ -3366,17 +3366,17 @@ export class Eagle {
 
             // get key of just-added node
             // TODO: do we need to lookup embedNode here? Is it just node? check this!
-            const nodes: Node[] = Array.from(destinationPalette.getNodes().values());
-            const embedNode: Node = nodes[destinationPalette.getNodes().size - 1];
+            const nodes: Node[] = Array.from(destinationPalette.getNodes());
+            const embedNode: Node = nodes[destinationPalette.getNumNodes() - 1];
 
             // check if clone has embedded applications, if so, add them to destination palette and remove
             if (node.hasInputApplication()){
                 destinationPalette.addNode(node.getInputApplication(), true);
-                nodes[destinationPalette.getNodes().size - 1].setEmbed(embedNode);
+                nodes[destinationPalette.getNumNodes() - 1].setEmbed(embedNode);
             }
             if (node.hasOutputApplication()){
                 destinationPalette.addNode(node.getOutputApplication(), true);
-                nodes[destinationPalette.getNodes().size - 1].setEmbed(embedNode);
+                nodes[destinationPalette.getNumNodes() - 1].setEmbed(embedNode);
             }
 
             // mark the palette as modified
@@ -3557,7 +3557,7 @@ export class Eagle {
     private _findChildren = (parent: Node): Node[] => {
         const children: Node[] = [];
 
-        for(const node of this.logicalGraph().getNodes().values()){
+        for(const node of this.logicalGraph().getNodes()){
             const p = node.getParent();
             if (p !== null && p.getId() === parent.getId()){
                 children.push(node);
@@ -3620,7 +3620,7 @@ export class Eagle {
     private _moveChildrenOfSelection = () : void => {
         for (const object of this.selectedObjects()){
             if (object instanceof Node){
-                for (const node of this.logicalGraph().getNodes().values()){
+                for (const node of this.logicalGraph().getNodes()){
                     if (node.getParent().getId() === object.getId()){
                         node.setParent(object.getParent());
                     }
@@ -3679,7 +3679,7 @@ export class Eagle {
 
                 // if node not found yet, try find in the graph
                 if (typeof node === 'undefined'){
-                    node = this.logicalGraph().getNodes().get(nodeId);
+                    node = this.logicalGraph().getNodeById(nodeId);
 
                     // TODO: abort if node is still undefined
                 }
@@ -3790,7 +3790,7 @@ export class Eagle {
         }
 
         //check if there are any nodes in the graph
-        if  (this.logicalGraph().getNodes().size === 0){
+        if  (this.logicalGraph().getNumNodes() === 0){
             Utils.showNotification("Unable to add nodes to palette", "No nodes found in graph", "danger");
             return
         }
@@ -3828,7 +3828,7 @@ export class Eagle {
         }
 
         // copy nodes to palette
-        for (const node of this.logicalGraph().getNodes().values()){
+        for (const node of this.logicalGraph().getNodes()){
             // check if clone has embedded applications, if so, add them to destination palette and remove
             if (node.hasInputApplication()){
                 destinationPalette.addNode(node.getInputApplication(), false);
@@ -3991,7 +3991,7 @@ export class Eagle {
         let validChoiceIndex = 0
 
         // build list of nodes that are candidates to be the parent
-        for (const node of this.logicalGraph().getNodes().values()){
+        for (const node of this.logicalGraph().getNodes()){
             // a node can't be its own parent
             if (node.getId() === selectedNode.getId()){
                 continue;
@@ -4028,7 +4028,7 @@ export class Eagle {
         // change the parent
         // key '0' is a special case
         const newParentId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1).toString() as NodeId
-        const newParent: Node = this.logicalGraph().getNodes().get(newParentId);
+        const newParent: Node = this.logicalGraph().getNodeById(newParentId);
 
         // abort if specified new parent can not be found in the graph
         if (typeof newParent === 'undefined'){
@@ -4072,7 +4072,7 @@ export class Eagle {
         let selectedChoiceIndex = 0;
 
         // build list of nodes that are candidates to be the subject
-        for (const node of this.logicalGraph().getNodes().values()){
+        for (const node of this.logicalGraph().getNodes()){
             // comment and description nodes can't be the subject of comment nodes
             if (node.getCategory() === Category.Comment || node.getCategory() === Category.Description){
                 continue;
@@ -4096,7 +4096,7 @@ export class Eagle {
 
         // change the subject
         const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId;
-        const subjectNode = this.logicalGraph().getNodes().get(newSubjectId);
+        const subjectNode = this.logicalGraph().getNodeById(newSubjectId);
 
         // abort if subjectNode is still undefined
         if (typeof subjectNode === 'undefined'){
@@ -4129,7 +4129,7 @@ export class Eagle {
 
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
         if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
-            const component: Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes().get(Eagle.nodeDragComponentId);
+            const component: Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
             sourceComponents.push(component);
         }
 
@@ -4165,7 +4165,7 @@ export class Eagle {
 
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
         if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
-            const component: Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodes().get(Eagle.nodeDragComponentId);
+            const component: Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
             sourceComponents.push(component);
         }
 
@@ -4654,7 +4654,7 @@ export class Eagle {
 
     checkForComponentUpdates = () => {
         // check if any nodes to update
-        if (this.logicalGraph().getNodes().size === 0){
+        if (this.logicalGraph().getNumNodes() === 0){
             Utils.showNotification("Error", "Graph contains no components to update", "danger");
             return;
         }
@@ -4687,7 +4687,7 @@ export class Eagle {
 
     findPaletteContainingNode = (nodeId: string): Palette => {
         for (const palette of this.palettes()){
-            for (const node of palette.getNodes().values()){
+            for (const node of palette.getNodes()){
                 if (node.getId() === nodeId){
                     return palette;
                 }

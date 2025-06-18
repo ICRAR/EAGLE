@@ -307,7 +307,7 @@ export class GraphRenderer {
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
     //node drag handler globals
-    static NodeParentRadiusPreDrag : number = null;
+    static nodeParentRadiusPreDrag : number = null;
     static nodeDragElement : any = null
     static nodeDragNode : Node = null
     static dragStartPosition : any = null
@@ -1064,7 +1064,7 @@ export class GraphRenderer {
             if(node.getParent() !== null){
                 const parentNode = node.getParent();
                 $('#'+parentNode.getId()).removeClass('transition')
-                GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
+                GraphRenderer.nodeParentRadiusPreDrag = parentNode.getRadius()
             }
         }
 
@@ -1287,7 +1287,7 @@ export class GraphRenderer {
             let parentingSuccessful = false; //if the detected parent of one node in the selection changes, we assign the new parent to the whole selection and exit this loop
 
             // the parent construct is only allowed to grow by the amount specified(eagleConfig.construct_drag_out_distance) before allowing its children to escape
-            if(outermostNode.getParent() !== null && oldParent.getRadius()>GraphRenderer.NodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
+            if(outermostNode.getParent() !== null && oldParent.getRadius()>GraphRenderer.nodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
                 $('#'+oldParent.getId()).addClass('transition')
                 GraphRenderer.parentSelection(outermostNodes, null);
                 parentingSuccessful = true;
@@ -1336,7 +1336,8 @@ export class GraphRenderer {
         GraphRenderer.resizeConstruct(parent)
 
         //updating the parent construct's "pre-drag" size at the end of parenting all the nodes
-        GraphRenderer.NodeParentRadiusPreDrag = Eagle.getInstance().logicalGraph().getNodes().get(parent?.getId())?.getRadius()
+        // TODO: check this line, could it be: GraphRenderer.nodeParentRadiusPreDrag = parent.getRadius()
+        GraphRenderer.nodeParentRadiusPreDrag = Eagle.getInstance().logicalGraph().getNodeById(parent?.getId())?.getRadius()
     }
 
     static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
@@ -1383,15 +1384,15 @@ export class GraphRenderer {
         
         while(constructs.length > i){
             const construct = constructs[i]
-            eagle.logicalGraph().getNodes().forEach(function(obj){
-                if(obj.getParent().getId()===construct.getId()){
-                    eagle.editSelection(obj, Eagle.FileType.Graph);
+            for (const node of eagle.logicalGraph().getNodes()){
+                if(node.getParent().getId() === construct.getId()){
+                    eagle.editSelection(node, Eagle.FileType.Graph);
 
-                    if(obj.isGroup()){
-                        constructs.push(obj)
+                    if(node.isGroup()){
+                        constructs.push(node)
                     }
                 }
-            })
+            }
             i++
         }
     }
@@ -1529,7 +1530,7 @@ export class GraphRenderer {
 
         // if node not found yet, try find in the graph
         if (typeof node === 'undefined'){
-            node = eagle.logicalGraph().getNodes().get(nodeId);
+            node = eagle.logicalGraph().getNodeById(nodeId);
         }
 
         // double checking to keep gitAI happy
@@ -1554,12 +1555,12 @@ export class GraphRenderer {
         //we are moving each node by half its radius to counter the fact that the new graph renderer treats the node's visual center as node position, previously the node position was in its top left.
         if(GraphRenderer.legacyGraph){
             //we need to calculate the construct radius in relation to it's children
-            eagle.logicalGraph().getNodes().forEach(function(node){
+            for (const node of eagle.logicalGraph().getNodes()){
                 if(!node.isGroup()&&!node.isEmbedded()){
                     node.setPosition(node.getPosition().x+node.getRadius()/2,node.getPosition().y + node.getRadius()/2)
                 }
-            })
-            GraphRenderer.centerConstructs(null, Array.from(eagle.logicalGraph().getNodes().values()))
+            }
+            GraphRenderer.centerConstructs(null, Array.from(eagle.logicalGraph().getNodes()))
         }
         GraphRenderer.legacyGraph = false
     }
@@ -1571,7 +1572,7 @@ export class GraphRenderer {
         const parentId: NodeId = node.getId();
 
         // loop through all nodes, if they belong to the parent's group, move them too
-        for (const node of eagle.logicalGraph().getNodes().values()){
+        for (const node of eagle.logicalGraph().getNodes()){
             if (node.getParent().getId() === parentId){
                 node.changePosition(deltaX, deltaY);
                 GraphRenderer.moveChildNodes(node, deltaX, deltaY);
@@ -1633,7 +1634,7 @@ export class GraphRenderer {
         let maxDistance = 0;
 
         // loop through all nodes to fund children - then check to find distance from center of construct
-        for (const node of eagle.logicalGraph().getNodes().values()){
+        for (const node of eagle.logicalGraph().getNodes()){
             const parent = node.getParent();
             if (parent === null){
                 continue;
@@ -1835,7 +1836,7 @@ export class GraphRenderer {
 
         //add all nodes from the palettes 
         eagle.palettes().forEach(function(palette){
-            palette.getNodes().forEach(function(node){
+            for (const node of palette.getNodes()){
                 if (GraphRenderer.portDragSourcePortIsInput){
                     if (node.getOutputPorts().length > 0){
                         eligibleComponents.push(node);
@@ -1845,11 +1846,11 @@ export class GraphRenderer {
                         eligibleComponents.push(node);
                     }
                 }
-            })
+            }
         });
 
         //add all the nodes from the graph
-        eagle.logicalGraph().getNodes().forEach(function(graphNode){
+        for (const graphNode of eagle.logicalGraph().getNodes()){
             if (GraphRenderer.portDragSourcePortIsInput){
                 if (graphNode.getOutputPorts().length > 0){
                     eligibleComponents.push(graphNode);
@@ -1859,7 +1860,7 @@ export class GraphRenderer {
                     eligibleComponents.push(graphNode);
                 }
             }
-        })
+        }
 
         //if enabled, filter the list 
         if (Setting.findValue(Setting.FILTER_NODE_SUGGESTIONS)){
@@ -1939,10 +1940,10 @@ export class GraphRenderer {
         const result : Node[] = [];
 
         // populate key plus depths
-        for (let i = 0 ; i < graph.getNodes().size ; i++){
+        for (let i = 0 ; i < graph.getNumNodes() ; i++){
             let nodeHasConnectedInput: boolean = false;
             let nodeHasConnectedOutput: boolean = false;
-            const node = Array.from(graph.getNodes().values())[i];
+            const node = Array.from(graph.getNodes())[i];
 
             // check if node has connected input and output
             for (const edge of graph.getEdges().values()){
@@ -1960,7 +1961,7 @@ export class GraphRenderer {
                 continue;
             }
 
-            const depth = GraphRenderer.findDepthOfNode(i, Array.from(graph.getNodes().values()));
+            const depth = GraphRenderer.findDepthOfNode(i, Array.from(graph.getNodes()));
 
             indexPlusDepths.push({index:i, depth:depth});
         }
@@ -1972,7 +1973,7 @@ export class GraphRenderer {
 
         // write nodes to result in sorted order
         for (const indexPlusDepth of indexPlusDepths){
-            result.push(Array.from(graph.getNodes().values())[indexPlusDepth.index]);
+            result.push(Array.from(graph.getNodes())[indexPlusDepth.index]);
         }
 
         return result;
@@ -2071,7 +2072,7 @@ export class GraphRenderer {
 
         const potentialNodes :Node[] = []
 
-        for (const node of eagle.logicalGraph().getNodes().values()){
+        for (const node of eagle.logicalGraph().getNodes()){
             potentialNodes.push(node)
             if(node.isConstruct && node.getInputApplication()){
                 potentialNodes.push(node.getInputApplication())
@@ -2272,7 +2273,7 @@ export class GraphRenderer {
 
     static clearPortPeek() : void {
         const eagle = Eagle.getInstance();
-        eagle.logicalGraph().getNodes().forEach(function(node){
+        for (const node of eagle.logicalGraph().getNodes()){
             if(node.isConstruct()){
                 if(node.getInputApplication() != null){
                     node.getInputApplication().getFields().forEach(function(inputAppField){
@@ -2292,7 +2293,7 @@ export class GraphRenderer {
                 field.setInputPeek(false) 
                 field.setOutputPeek(false) 
             })  
-        })  
+        } 
     }
 
     static setPortPeekForEdge(edge:Edge, value:boolean) : void {

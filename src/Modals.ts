@@ -455,8 +455,8 @@ export class Modals {
                     const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
                     const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
 
-                    const srcNode = eagle.logicalGraph().getNodes().get(srcNodeId);
-                    const destNode = eagle.logicalGraph().getNodes().get(destNodeId);
+                    const srcNode = eagle.logicalGraph().getNodeById(srcNodeId);
+                    const destNode = eagle.logicalGraph().getNodeById(destNodeId);
 
                     // TODO: check that nodes were found
 

@@ -11,9 +11,9 @@ export class Hierarchy {
 
         $("#hierarchyEdgesSvg").empty()
         
-        eagle.logicalGraph().getNodes().forEach(function(element){
-            element.setKeepExpanded(false)
-        })
+        for (const node of eagle.logicalGraph().getNodes()){
+            node.setKeepExpanded(false);
+        }
 
         // TODO: should we move this up?
         //return if the graph is not loaded yet
@@ -290,8 +290,7 @@ export class Hierarchy {
 
     static nodeIsHidden(id: NodeId) : string {
         const eagle: Eagle = Eagle.getInstance();
-
-        const node = eagle.logicalGraph().getNodes().get(id);
+        const node = eagle.logicalGraph().getNodeById(id);
 
         if (typeof node === 'undefined'){
             return 'hidden';

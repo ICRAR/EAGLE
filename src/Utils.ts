@@ -130,7 +130,7 @@ export class Utils {
     // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids), check now!
     static setEmbeddedApplicationNodeIds(lg: LogicalGraph): void {
         // loop through nodes, look for embedded nodes with null id, create new id
-        for (const node of lg.getNodes().values()){
+        for (const node of lg.getNodes()){
 
             // if this node has inputApp, set the inputApp id
             if (node.hasInputApplication()){
@@ -1006,7 +1006,7 @@ export class Utils {
         // populate UI with current edge data
         // add src node keys
         $('#editEdgeModalSrcNodeIdSelect').empty();
-        for (const node of logicalGraph.getNodes().values()){
+        for (const node of logicalGraph.getNodes()){
             // if node itself can have output ports, add the node to the list
             if (node.canHaveOutputs()){
                 $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
@@ -1044,7 +1044,7 @@ export class Utils {
         const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
 
         if (srcNodeId !== null){
-            srcNode = logicalGraph.getNodes().get(srcNodeId);
+            srcNode = logicalGraph.getNodeById(srcNodeId);
         }
 
         // check that source node was found, if not, disable SrcPortIdSelect?
@@ -1064,7 +1064,7 @@ export class Utils {
 
         // add dest node keys
         $('#editEdgeModalDestNodeIdSelect').empty();
-        for (const node of logicalGraph.getNodes().values()){
+        for (const node of logicalGraph.getNodes()){
             if (node.canHaveInputs()){
                 $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
                     value: node.getId(),
@@ -1100,7 +1100,7 @@ export class Utils {
         const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
 
         if (destNodeId !== null){
-            destNode = logicalGraph.getNodes().get(destNodeId);
+            destNode = logicalGraph.getNodeById(destNodeId);
         }
 
         // check that dest node was found, if not, disable DestPortIdSelect?
@@ -1131,7 +1131,7 @@ export class Utils {
 
         // build a list from all palettes
         for (const palette of palettes){
-            for (const node of palette.getNodes().values()){
+            for (const node of palette.getNodes()){
                 // add input port names into the list
                 for (const port of node.getInputPorts()) {
                     if (!port.getIsEvent()){
@@ -1149,7 +1149,7 @@ export class Utils {
         }
 
         // build a list from all nodes
-        for (const node of graph.getNodes().values()) {
+        for (const node of graph.getNodes()) {
             // add input port names into the list
             for (const port of node.getInputPorts()) {
                 if (!port.getIsEvent()){
@@ -1207,7 +1207,7 @@ export class Utils {
 
         // add all data components (except ineligible)
         for (const palette of palettes){
-            for (const node of palette.getNodes().values()){
+            for (const node of palette.getNodes()){
                 // skip nodes that are not data components
                 if (!node.isData()){
                     continue;
@@ -1237,7 +1237,7 @@ export class Utils {
 
         // add all data components (except ineligible)
         for (const palette of palettes){
-            for (const node of palette.getNodes().values()){
+            for (const node of palette.getNodes()){
                 // skip nodes that are not data components
                 if (categoryType === Category.Type.Data && !node.isData()){
                     continue;
@@ -1301,7 +1301,7 @@ export class Utils {
 
         // add all data components (except ineligible)
         for (const palette of eagle.palettes()){
-            for (const node of palette.getNodes().values()){
+            for (const node of palette.getNodes()){
                 // skip nodes that are not data components
                 if (node.getName() === name){
                     return node;
@@ -1317,7 +1317,7 @@ export class Utils {
 
         // add all data components (except ineligible)
         for (const palette of eagle.palettes()){
-            for (const node of palette.getNodes().values()){
+            for (const node of palette.getNodes()){
                 // skip nodes that are not data components
                 if (node.getId() === id){
                     return node;
@@ -1374,7 +1374,7 @@ export class Utils {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
-        for (const node of diagram.getNodes().values()) {
+        for (const node of diagram.getNodes()) {
             for (const field of node.getFields().values()) {
                 Utils._addFieldIfUnique(uniqueFields, field.clone());
             }
@@ -1390,7 +1390,7 @@ export class Utils {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
-        for (const node of diagram.getNodes().values()) {
+        for (const node of diagram.getNodes()) {
             for (const field of node.getFields().values()) {
                 if (field.getParameterType() !== parameterType){
                     continue;
@@ -1592,9 +1592,9 @@ export class Utils {
         // check for duplicate keys
         const keys: NodeId[] = [];
 
-        for (const [id, node] of palette.getNodes()){
+        for (const node of palette.getNodes()){
             // check existing keys
-            if (keys.indexOf(id) !== -1){
+            if (keys.indexOf(node.getId()) !== -1){
                 errorsWarnings.errors.push(
                     Errors.ShowFix(
                         "Node (" + node.getName() + ") within palette (" + palette.fileInfo().name + ") has id already used by at least one other component.",
@@ -1604,12 +1604,12 @@ export class Utils {
                     )
                 );
             } else {
-                keys.push(id);
+                keys.push(node.getId());
             }
         }
 
         // check all nodes are valid
-        for (const node of palette.getNodes().values()){
+        for (const node of palette.getNodes()){
             Node.isValid(node, Eagle.FileType.Palette);
             paletteIssues.push(...node.getIssues())
             // errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
@@ -1633,7 +1633,7 @@ export class Utils {
         LogicalGraph.isValid();
 
         // check all nodes are valid
-        for (const node of graph.getNodes().values()){
+        for (const node of graph.getNodes()){
             Node.isValid(node, Eagle.FileType.Graph);
         }
 
@@ -1651,7 +1651,7 @@ export class Utils {
 
         //gather all the errors
         //from nodes
-        for(const node of graph.getNodes().values()){
+        for(const node of graph.getNodes()){
             graphIssues.push(...node.getIssues())
             
             //from fields
@@ -1949,7 +1949,7 @@ export class Utils {
 
     // TODO: pass a node instead of id?
     static fixNodeFieldIds(eagle: Eagle, nodeId: NodeId){
-        const node: Node = eagle.logicalGraph().getNodes().get(nodeId);
+        const node: Node = eagle.logicalGraph().getNodeById(nodeId);
 
         if (typeof node === 'undefined'){
             return;
@@ -2336,10 +2336,11 @@ export class Utils {
         }, 100);
     }
 
+    // TODO: move to Palette.ts and LogicalGraph.ts, needs all three lines
     static generateNewNodeId(object: Palette | LogicalGraph, node: Node){
-        object.getNodes().delete(node.getId());
+        //object.getNodes().delete(node.getId());
         node.setId(Utils.generateNodeId());
-        object.getNodes().set(node.getId(), node);
+        //object.getNodes().set(node.getId(), node);
     }
 
     // only update result if it is worse that current result
@@ -2381,7 +2382,7 @@ export class Utils {
 
         const nodesList :Node[] = []
 
-        eagle.logicalGraph().getNodes().forEach(function(node){
+        for (const node of eagle.logicalGraph().getNodes()){
             nodesList.push(node)
             if(node.hasInputApplication()){
                 nodesList.push(node.getInputApplication())
@@ -2389,8 +2390,7 @@ export class Utils {
             if(node.hasOutputApplication()){
                 nodesList.push(node.getOutputApplication())
             }
-
-        })
+        }
 
         // add logical graph nodes to table
         for (const node of nodesList){
@@ -2454,9 +2454,8 @@ export class Utils {
 
         // add logical graph nodes to table
         for (const palette of eagle.palettes()){
-            for (const [id, node] of palette.getNodes()){
+            for (const node of palette.getNodes()){
                 tableData.push({
-                    "key":id,
                     "id":node.getId(),
                     "palette":palette.fileInfo().name,
                     "name":node.getName(),
@@ -2480,13 +2479,13 @@ export class Utils {
         const eagle : Eagle = Eagle.getInstance();
 
         // check that node at nodeIndex exists
-        if (!eagle.logicalGraph().getNodes().has(nodeId)){
+        if (!eagle.logicalGraph().hasNode(nodeId)){
             console.warn("Unable to print node fields table, node", nodeId, "does not exist.");
             return;
         }
 
         // add logical graph nodes to table
-        for (const [fieldId, field] of eagle.logicalGraph().getNodes().get(nodeId).getFields()){
+        for (const [fieldId, field] of eagle.logicalGraph().getNodeById(nodeId).getFields()){
             tableData.push({
                 "key":fieldId,
                 "id":field.getId(),
@@ -2512,7 +2511,7 @@ export class Utils {
 
         // add logical graph nodes to table
         for (const node of activeConfig.getNodes()){
-            const graphNode: Node = eagle.logicalGraph().getNodes().get(node.getId());
+            const graphNode: Node = eagle.logicalGraph().getNodeById(node.getId());
 
             if (typeof graphNode === 'undefined'){
                 // TODO: what to do here? blank row, console warning?
