@@ -300,7 +300,7 @@ export class Edge {
 
                 // check whether edge is actually connected to the inputApplication
                 if (node.hasInputApplication()){
-                    srcPort = node.getInputApplication().getFields().get(srcPortId);
+                    srcPort = node.getInputApplication().getFieldById(srcPortId);
 
                     if (typeof srcPort !== 'undefined'){
                         srcNode = node.getInputApplication();
@@ -310,7 +310,7 @@ export class Edge {
 
                 // check whether edge is actually connected to the outputApplication
                 if (node.hasOutputApplication()){
-                    srcPort = node.getOutputApplication().getFields().get(srcPortId);
+                    srcPort = node.getOutputApplication().getFieldById(srcPortId);
 
                     if (typeof srcPort !== 'undefined'){
                         srcNode = node.getOutputApplication();
@@ -318,7 +318,7 @@ export class Edge {
                     }
                 }
 
-                srcPort = node.getFields().get(srcPortId);
+                srcPort = node.getFieldById(srcPortId);
             }
 
             if (node.getId() === destNodeId){
@@ -326,7 +326,7 @@ export class Edge {
 
                 // check whether edge is actually connected to the inputApplication
                 if (node.hasInputApplication()){
-                    destPort = node.getInputApplication().getFields().get(destPortId);
+                    destPort = node.getInputApplication().getFieldById(destPortId);
 
                     if (typeof destPort !== 'undefined'){
                         destNode = node.getInputApplication();
@@ -336,7 +336,7 @@ export class Edge {
 
                 // check whether edge is actually connected to the outputApplication
                 if (node.hasOutputApplication()){
-                    destPort = node.getOutputApplication().getFields().get(destPortId);
+                    destPort = node.getOutputApplication().getFieldById(destPortId);
 
                     if (typeof destPort !== 'undefined'){
                         destNode = node.getOutputApplication();
@@ -344,7 +344,7 @@ export class Edge {
                     }
                 }
 
-                destPort = node.getFields().get(destPortId);
+                destPort = node.getFieldById(destPortId);
             }
         }
 
@@ -367,7 +367,7 @@ export class Edge {
         let impossibleEdge : boolean = false;
         let draggingEdgeFixable : boolean = false;
 
-        const edge = eagle.logicalGraph().getEdges().get(edgeId);
+        const edge = eagle.logicalGraph().getEdgeById(edgeId);
 
         // if this is a real edge, then clear its issues, otherwise, if this is just a temp test edge, don't worry
         if(typeof edge !== 'undefined'){
@@ -435,8 +435,8 @@ export class Edge {
             }
         }
 
-        const sourcePort : Field = sourceNode.getFields().get(sourcePortId);
-        const destinationPort : Field = destinationNode.getFields().get(destinationPortId);
+        const sourcePort : Field = sourceNode.getFieldById(sourcePortId);
+        const destinationPort : Field = destinationNode.getFieldById(destinationPortId);
 
         // check if source port was found
         if (typeof sourcePort === 'undefined') {
@@ -533,7 +533,7 @@ export class Edge {
         }
 
         // check if the edge already exists in the graph, there is no point in a duplicate
-        for (const edge of eagle.logicalGraph().getEdges().values()){
+        for (const edge of eagle.logicalGraph().getEdges()){
             const isSrcMatch = edge.getSrcNode().getId() === sourceNodeId && edge.getSrcPort().getId() === sourcePortId;
             const isDestMatch = edge.getDestNode().getId() === destinationNodeId && edge.getDestPort().getId() === destinationPortId;
 

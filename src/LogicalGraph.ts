@@ -433,12 +433,16 @@ export class LogicalGraph {
         edge.getDestPort().addEdge(edge);
     }
 
-    getEdges = () : Map<EdgeId, Edge> => {
-        return this.edges();
+    getEdges = () : MapIterator<Edge> => {
+        return this.edges().values();
     }
 
     getNumEdges = () : number => {
         return this.edges().size;
+    }
+
+    getEdgeById = (id: EdgeId): Edge | undefined => {
+        return this.edges().get(id);
     }
 
     getCommentNodes = () : Node[] => {
@@ -672,7 +676,7 @@ export class LogicalGraph {
         // This situation should not occur in a well-formed graph, but does occur in many existing graphs
         const that = this
         if(node.isEmbedded()){
-            node.getFields().forEach(function(field:Field){
+            for (const field of node.getFields()){
                 if(field.isInputPort() || field.isOutputPort()){
                     that.edges().forEach(function(edge:Edge){
                         if(edge.getDestPort().getId() === field.getId() || edge.getSrcPort().getId() === field.getId()){
@@ -680,7 +684,7 @@ export class LogicalGraph {
                         }
                     })
                 }
-            })
+            }
         }
 
         // delete edges incident on this node
@@ -1018,8 +1022,8 @@ export class LogicalGraph {
             ids.push(nodeId);
 
             // loop over fields within graphs
-            for (const [fieldId, field] of node.getFields()){
-                if (ids.includes(fieldId)){
+            for (const field of node.getFields()){
+                if (ids.includes(field.getId())){
                     const issue: Errors.Issue = Errors.ShowFix(
                         "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
                         function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
@@ -1028,7 +1032,7 @@ export class LogicalGraph {
                     );
                     graph.issues.push({issue : issue, validity : Errors.Validity.Error})
                 }
-                ids.push(fieldId);
+                ids.push(field.getId());
             }
         }
 
@@ -1063,7 +1067,7 @@ export class LogicalGraph {
 
         // check all edges in the edges dict are also present in the srcPort or destPort edges dict
         for (const [id, edge] of graph.edges()){
-            if (edge.getSrcPort().getEdges().get(id) === null && edge.getDestPort().getEdges().get(id) === null){
+            if (edge.getSrcPort().getEdgeById(id) === null && edge.getDestPort().getEdgeById(id) === null){
                 const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source or destination port edges list", function(){Utils.showEdge(eagle, edge)});
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});
             }
@@ -1108,7 +1112,7 @@ export class LogicalGraph {
                 }
 
                 for (const graphConfigField of graphConfigNode.getFields()){
-                    const graphField: Field = graphNode.getFields().get(graphConfigField.getId());
+                    const graphField: Field = graphNode.getFieldById(graphConfigField.getId());
 
                     if (typeof graphField === 'undefined'){
                         const issue: Errors.Issue = Errors.Fix(

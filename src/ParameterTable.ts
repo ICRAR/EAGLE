@@ -148,7 +148,7 @@ export class ParameterTable {
                             continue;
                         }
 
-                        const lgField = lgNode.getFields().get(field.getId());
+                        const lgField = lgNode.getFieldById(field.getId());
         
                         if (typeof lgField === 'undefined'){
                             const dummyField: Field = new Field(field.getId(), "<Missing Field: " + field.getId() + ">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
@@ -289,7 +289,7 @@ export class ParameterTable {
         const eagle: Eagle = Eagle.getInstance();
         const edgesToRemove: EdgeId[] = [];
 
-        for (const edge of eagle.logicalGraph().getEdges().values()){
+        for (const edge of eagle.logicalGraph().getEdges()){
             // check edges whose source is this field
             if (edge.getSrcPort().getId() === field.getId() && !field.isOutputPort()){
                 // remove edge
@@ -667,7 +667,7 @@ export class ParameterTable {
         const selectedNode: Node = Eagle.getInstance().selectedNode();
         selectedNode.addEmptyField();
 
-        const fieldIndex = selectedNode.getFields().size-1;
+        const fieldIndex = selectedNode.getNumFields()-1;
 
         //update the parameter table fields array
         ParameterTable.copySelectedNodeFields()
@@ -701,7 +701,7 @@ export class ParameterTable {
         // the new node is appended at the bottom
         node.addField(copiedField)
 
-        const fieldIndex = node.getFields().size - 1;
+        const fieldIndex = node.getNumFields() - 1;
 
         setTimeout(function() {
             //handling selecting and highlighting the newly created field on the node
@@ -808,7 +808,7 @@ export class ParameterTable {
 
             // TODO: do we need to check that fields exists, shouldn't it always exist?
             if(fields){
-                ParameterTable.copyFields(Array.from(fields.values())) 
+                ParameterTable.copyFields(Array.from(fields)) 
             }
         }
     }
@@ -817,7 +817,7 @@ export class ParameterTable {
         if (node === null){
             ParameterTable.copyFields([]);
         } else {
-            ParameterTable.copyFields(Array.from(node.getFields().values()));
+            ParameterTable.copyFields(Array.from(node.getFields()));
             ParameterTable.sortFields();
         }
     }

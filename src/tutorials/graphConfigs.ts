@@ -63,7 +63,7 @@ newTut.newTutStep("Add a file node", "<em>Search for 'file' and press enter</em>
 newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over near the file node's input port, until you see the edge from the cursor turn a deep purple, then release.</em>",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('HelloWorldApp')+' .outputPort')})
 .setType(TutorialStep.Type.Condition)
 .setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
-.setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getEdges().size != 0){return true}else{return false}}) //check if there are any edges present in the graph
+.setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getNumEdges() != 0){return true}else{return false}}) //check if there are any edges present in the graph
 
 newTut.newTutStep("Graph Configurations", "Now that we have a working hello world graph, we should set up a graph configuration and flag the important fields. This makes consecutive runs easier and the graph more user friendly. <em>next to continue</em>", function(){return $("#logicalGraphParent")})
 

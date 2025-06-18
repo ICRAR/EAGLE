@@ -356,8 +356,12 @@ export class Field {
         return this.node();
     }
 
-    getEdges = (): Map<EdgeId, Edge> => {
-        return this.edges();
+    getEdges = (): MapIterator<Edge> => {
+        return this.edges().values();
+    }
+
+    getEdgeById = (id: EdgeId): Edge | undefined => {
+        return this.edges().get(id);
     }
 
     getErrorsWarnings : ko.PureComputed<Errors.ErrorsWarnings> = ko.pureComputed(() => {
@@ -944,7 +948,7 @@ export class Field {
         }
 
         // check that the field has a unique display text on the node
-        for (const field1 of node.getFields().values()){
+        for (const field1 of node.getFields()){
             if(field === field1){
                 continue
             }
@@ -965,7 +969,7 @@ export class Field {
         // check that PythonObject's self port is input for only one edge
         if (node.getCategory() === Category.PythonObject && field.getDisplayText() === Daliuge.FieldName.SELF){
             let numSelfPortConnections: number = 0;
-            for (const edge of eagle.logicalGraph().getEdges().values()){
+            for (const edge of eagle.logicalGraph().getEdges()){
                 if (edge.getDestPort().getId() === field.getId()){
                     numSelfPortConnections += 1;
                 }

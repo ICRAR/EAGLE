@@ -215,7 +215,7 @@ export class Undo {
         // find the objects in the ids list, and add them to the selection
         for (const id of objectIds){
             const node = eagle.logicalGraph().getNodeById(id as NodeId);
-            const edge = eagle.logicalGraph().getEdges().get(id as EdgeId);
+            const edge = eagle.logicalGraph().getEdgeById(id as EdgeId);
             const object = node || edge;
 
             // abort if no edge or node exists fot that id

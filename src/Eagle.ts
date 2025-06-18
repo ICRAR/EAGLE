@@ -246,7 +246,7 @@ export class Eagle {
                 // build a list from the selected component in the palettes
                 if(this.selectedNode() !== null){
 
-                    for (const field of this.selectedNode().getFields().values()) {
+                    for (const field of this.selectedNode().getFields()) {
                         Utils.addTypeIfUnique(result, field.getType());
                     }
                 }else{
@@ -257,20 +257,20 @@ export class Eagle {
             default:
                 // build a list from all nodes in the current logical graph
                 for (const node of this.logicalGraph().getNodes()){
-                    for (const field of node.getFields().values()) {
+                    for (const field of node.getFields()) {
                         Utils.addTypeIfUnique(result, field.getType());
                     }
 
                     // also check for fields that belong to the inputApplication
                     if (node.hasInputApplication()){
-                        for (const field of node.getInputApplication().getFields().values()){
+                        for (const field of node.getInputApplication().getFields()){
                             Utils.addTypeIfUnique(result, field.getType());
                         }
                     }
 
                     // also check for fields that belong to the outputApplication
                     if (node.hasOutputApplication()){
-                        for (const field of node.getOutputApplication().getFields().values()){
+                        for (const field of node.getOutputApplication().getFields()){
                             Utils.addTypeIfUnique(result, field.getType());
                         }
                     }
@@ -569,7 +569,7 @@ export class Eagle {
 
     getTotalText = () : string => {
         const nodeCount = this.logicalGraph().getNumNodes()
-        const edgeCount = this.logicalGraph().getEdges().size
+        const edgeCount = this.logicalGraph().getNumEdges()
         const text =  nodeCount + " nodes and " + edgeCount + " edges."
 
         return text
@@ -890,7 +890,7 @@ export class Eagle {
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
     
-                    eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges().values()), parentNode, errorsWarnings);
+                    eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
     
                     // TODO: handle errors and warnings
     
@@ -1322,7 +1322,7 @@ export class Eagle {
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
     
-                    eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges().values()), parentNode, errorsWarnings);
+                    eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
     
                     // TODO: handle errors and warnings
     
@@ -2440,7 +2440,7 @@ export class Eagle {
         const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
         // perform insert
-        this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges().values()), parentNode, errorsWarnings);
+        this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
 
         // trigger re-render
         this.logicalGraph.valueHasMutated();
@@ -3164,7 +3164,7 @@ export class Eagle {
 
         // if copyChildren, add all edges adjacent to the nodes in the list objects
         if (copyChildren){
-            for (const edge of this.logicalGraph().getEdges().values()){
+            for (const edge of this.logicalGraph().getEdges()){
                 for (const node of nodes){
                     if (node.getId() === edge.getSrcNode().getId() || node.getId() === edge.getDestNode().getId()){
                         this._addUniqueEdge(edges, edge);
@@ -3305,7 +3305,7 @@ export class Eagle {
         }
 
         // add edges
-        for (const edge of this.logicalGraph().getEdges().values()){
+        for (const edge of this.logicalGraph().getEdges()){
             newSelection.push(edge);
             numEdges += 1;
         }
@@ -3498,7 +3498,7 @@ export class Eagle {
         }
 
         // find child edges
-        for (const edge of this.logicalGraph().getEdges().values()){
+        for (const edge of this.logicalGraph().getEdges()){
             for (const node of childNodes){
                 if (edge.getSrcNode().getId() === node.getId() || edge.getDestNode().getId() === node.getId()){
                     // check if edge is already in selectedObjects
@@ -4847,7 +4847,7 @@ $( document ).ready(function() {
         const e: MouseEvent = event.originalEvent as MouseEvent;
         const eagle: Eagle = Eagle.getInstance();
         const selectedEdgeId: EdgeId = $(e.target).attr("id") as EdgeId;
-        const selectEdge = eagle.logicalGraph().getEdges().get(selectedEdgeId);
+        const selectEdge = eagle.logicalGraph().getEdgeById(selectedEdgeId);
 
         if(typeof selectEdge === 'undefined'){
             console.log("no edge found")

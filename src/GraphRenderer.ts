@@ -179,12 +179,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 break;
             }
             case 'inputPort':
-                for(const [edgeId, edge] of eagle.logicalGraph().getEdges()){
+                for(const edge of eagle.logicalGraph().getEdges()){
                     if(field != null && field.getId()===edge.getDestPort().getId()){
                         const adjacentNode: Node = edge.getSrcNode();
                         
                         if (adjacentNode === null){
-                            console.warn("Edge (" + edgeId + ") source node is null");
+                            console.warn("Edge (" + edge.getId() + ") source node is null");
                             return;
                         }
 
@@ -195,12 +195,12 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 break;
 
             case 'outputPort':
-                for(const [edgeId, edge] of eagle.logicalGraph().getEdges()){
+                for(const edge of eagle.logicalGraph().getEdges()){
                     if(field != null && field.getId()===edge.getSrcPort().getId()){
                         const adjacentNode: Node = edge.getDestNode();
 
                         if (adjacentNode === null){
-                            console.warn("Edge (" + edgeId + ") destination node is null");
+                            console.warn("Edge (" + edge.getId() + ") destination node is null");
                             return;
                         }
 
@@ -383,13 +383,11 @@ export class GraphRenderer {
         const nodeRadius = node.getRadius()
 
         //building a list of connected and not connected ports on the node in question
-        node.getFields().forEach(function(field){
-
+        for (const field of node.getFields()){
             //making sure the field we are looking at is a port
             if(!field.isInputPort() && !field.isOutputPort()){
                 return
             }
-            
 
             //sorting the connected ports via angle into the connectedFields array
             if (field.getInputConnected()){
@@ -438,7 +436,7 @@ export class GraphRenderer {
             if(!field.getOutputConnected() && field.isOutputPort()){
                 danglingPorts.push({angle:0, field:field, mode:'output'})
             }
-        })
+        }
 
         //spacing out the connected ports
         let i = 0
@@ -582,17 +580,17 @@ export class GraphRenderer {
             danglingActivePort = !activeField.getOutputConnected()
         }
 
-        node.getFields().forEach(function(field){
+        for (const field of node.getFields()){
             //going through all fields on the node to check for taken angles
 
             //making sure the field we are looking at is a port
             if(!field.isInputPort() && !field.isOutputPort()){
-                return
+                continue;
             }
 
             //if the result is not null that means we are colliding with a port, there is no reason to continue checking
-            if( result != null){
-                return
+            if(result != null){
+                continue;
             }
 
             //either comparing with other connected ports || if the active port is dangling, compare with all other ports
@@ -614,7 +612,7 @@ export class GraphRenderer {
                         if(!danglingActivePort && field.getInputConnected() === false){
                             field.flagInputAngleMutated()
                         }
-                        return
+                        continue;
                     }
                 }
             }
@@ -637,11 +635,11 @@ export class GraphRenderer {
                         if(!danglingActivePort){
                             field.flagInputAngleMutated()
                         }
-                        return
+                        continue;
                     }
                 }
             }
-        })
+        }
 
         return result
     }
@@ -652,7 +650,7 @@ export class GraphRenderer {
         // find a single port of the correct type to consider when looking for adjacentNodes
         // TODO: why do we select a single port here, why not consider all ports (if multiple exist)?
         let field : Field;
-        for(const port of node.getFields().values()){
+        for(const port of node.getFields()){
             if (input && port.isInputPort()){
                 field = port;
                 break;
@@ -672,13 +670,13 @@ export class GraphRenderer {
         const adjacentNodes: Node[] = [];
 
         if (input){
-            for(const edge of eagle.logicalGraph().getEdges().values()){
+            for(const edge of eagle.logicalGraph().getEdges()){
                 if(field.getId()===edge.getDestPort().getId()){
                     adjacentNodes.push(edge.getSrcNode());
                 }
             }
         } else {
-            for(const edge of eagle.logicalGraph().getEdges().values()){
+            for(const edge of eagle.logicalGraph().getEdges()){
                 if(field.getId()===edge.getSrcPort().getId()){
                     adjacentNodes.push(edge.getDestNode());
                 }
@@ -1245,7 +1243,7 @@ export class GraphRenderer {
 
     static selectInRegion(nodes:Node[]) : void {
         const eagle = Eagle.getInstance()
-        const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(Array.from(eagle.logicalGraph().getEdges().values()), nodes);
+        const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(Array.from(eagle.logicalGraph().getEdges()), nodes);
         const objects: (Node | Edge)[] = [];
 
         // depending on if its shift+ctrl or just shift we are either only adding or only removing nodes
@@ -1946,7 +1944,7 @@ export class GraphRenderer {
             const node = Array.from(graph.getNodes())[i];
 
             // check if node has connected input and output
-            for (const edge of graph.getEdges().values()){
+            for (const edge of graph.getEdges()){
                 if (edge.getDestNode().getId() === node.getId()){
                     nodeHasConnectedInput = true;
                 }
@@ -2276,23 +2274,23 @@ export class GraphRenderer {
         for (const node of eagle.logicalGraph().getNodes()){
             if(node.isConstruct()){
                 if(node.getInputApplication() != null){
-                    node.getInputApplication().getFields().forEach(function(inputAppField){
+                    for (const inputAppField of node.getInputApplication().getFields()){
                        inputAppField.setInputPeek(false) 
                        inputAppField.setOutputPeek(false) 
-                    })
+                    }
                 }
                 if(node.getOutputApplication() != null){
-                    node.getOutputApplication().getFields().forEach(function(outputAppField){
+                    for (const outputAppField of node.getOutputApplication().getFields()){
                         outputAppField.setInputPeek(false) 
                         outputAppField.setOutputPeek(false) 
-                    })
+                    }
                 }
             }
 
-            node.getFields().forEach(function(field){
+            for (const field of node.getFields()){
                 field.setInputPeek(false) 
                 field.setOutputPeek(false) 
-            })  
+            }
         } 
     }
 

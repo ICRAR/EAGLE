@@ -1375,7 +1375,7 @@ export class Utils {
 
         // build a list from all nodes, add fields into the list
         for (const node of diagram.getNodes()) {
-            for (const field of node.getFields().values()) {
+            for (const field of node.getFields()) {
                 Utils._addFieldIfUnique(uniqueFields, field.clone());
             }
         }
@@ -1391,7 +1391,7 @@ export class Utils {
 
         // build a list from all nodes, add fields into the list
         for (const node of diagram.getNodes()) {
-            for (const field of node.getFields().values()) {
+            for (const field of node.getFields()) {
                 if (field.getParameterType() !== parameterType){
                     continue;
                 }
@@ -1638,7 +1638,7 @@ export class Utils {
         }
 
         // check all edges are valid
-        for (const edge of graph.getEdges().values()){
+        for (const edge of graph.getEdges()){
             Edge.isValid(eagle, false, edge.getId(), edge.getSrcNode().getId(), edge.getSrcPort().getId(), edge.getDestNode().getId(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {warnings: [], errors: []});
         }
     }
@@ -1655,7 +1655,7 @@ export class Utils {
             graphIssues.push(...node.getIssues())
             
             //from fields
-            for(const field of node.getFields().values()){
+            for(const field of node.getFields()){
                 graphIssues.push(...field.getIssues())
             }
 
@@ -1663,7 +1663,7 @@ export class Utils {
             if(node.hasInputApplication()){
                 graphIssues.push(...node.getInputApplication().getIssues().values())
                 
-                for(const field of node.getInputApplication().getFields().values()){
+                for(const field of node.getInputApplication().getFields()){
                     graphIssues.push(...field.getIssues())
                 }
             }
@@ -1672,14 +1672,14 @@ export class Utils {
             if(node.hasOutputApplication()){
                 graphIssues.push(...node.getOutputApplication().getIssues().values())
                 
-                for( const field of node.getOutputApplication().getFields().values()){
+                for( const field of node.getOutputApplication().getFields()){
                     graphIssues.push(...field.getIssues())
                 }
             }
         }
 
         // from edges
-        for (const edge of graph.getEdges().values()){
+        for (const edge of graph.getEdges()){
             graphIssues.push(...edge.getIssues())
         }
 
@@ -1936,7 +1936,7 @@ export class Utils {
     }
 
     static fixDisableEdgeLoopAware(eagle: Eagle, edgeId: EdgeId): void {
-        eagle.logicalGraph().getEdges().get(edgeId)?.setLoopAware(false);
+        eagle.logicalGraph().getEdgeById(edgeId)?.setLoopAware(false);
     }
 
     static fixPortType(eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
@@ -1955,11 +1955,12 @@ export class Utils {
             return;
         }
 
-        for (const [id, field] of node.getFields()){
+        for (const field of node.getFields()){
             if (field.getId() === null){
-                node.getFields().delete(id);
+                // TODO: need to do something better here, needs all 3 lines!
+                //node.getFields().delete(id);
                 field.setId(Utils.generateFieldId());
-                node.getFields().set(field.getId(), field);
+                //node.getFields().set(field.getId(), field);
             }
         }
     }
@@ -1972,10 +1973,7 @@ export class Utils {
     // NOTE: merges field1 into field0
     static fixNodeMergeFields(eagle: Eagle, node: Node, field0: Field, field1: Field){
         // abort if one or more of the fields is not found
-        const f0 = node.getFields().get(field0.getId());
-        const f1 = node.getFields().get(field1.getId());
-
-        if (typeof f0 === 'undefined' || typeof f1 === 'undefined'){
+        if (!node.hasField(field0.getId()) || !node.hasField(field1.getId())){
             console.warn("fixNodeMergeFields(): Aborted, could not find one or more specified field(s).");
             return;
         }
@@ -2015,7 +2013,7 @@ export class Utils {
 
     static _mergeEdges(eagle: Eagle, oldFieldId: FieldId, newFieldId: FieldId){
         // update all edges to use new field
-        for (const [edgeId, edge] of eagle.logicalGraph().getEdges()){
+        for (const edge of eagle.logicalGraph().getEdges()){
             // update src port
             if (edge.getSrcPort().getId() === oldFieldId){
                 edge.getSrcPort().setId(newFieldId);
@@ -2119,7 +2117,7 @@ export class Utils {
         const destPort = edge.getDestPort();
 
         // abort fix if source port exists on source node
-        if (srcNode.getFields().has(edge.getSrcPort().getId())){
+        if (srcNode.hasField(edge.getSrcPort().getId())){
             return;
         }
 
@@ -2138,7 +2136,7 @@ export class Utils {
         const srcPort = edge.getSrcPort();
 
         // abort fix if destination port exists on destination node
-        if (destNode.getFields().has(edge.getDestPort().getId())){
+        if (destNode.hasField(edge.getDestPort().getId())){
             return;
         }
 
@@ -2280,7 +2278,7 @@ export class Utils {
         const newId: FieldId = Utils.generateFieldId();
     
         // loop over all edges
-        for (const [edgeId, edge] of eagle.logicalGraph().getEdges()){
+        for (const edge of eagle.logicalGraph().getEdges()){
             // update the src port id, if required
             if (edge.getSrcNode().getId() === node.getId() && edge.getSrcPort().getId() === oldId){
                 edge.getSrcPort().setId(newId);
@@ -2423,14 +2421,13 @@ export class Utils {
         const eagle : Eagle = Eagle.getInstance();
 
         // add logical graph nodes to table
-        for (const [id, edge] of eagle.logicalGraph().getEdges()){
+        for (const edge of eagle.logicalGraph().getEdges()){
             const sourceNode: Node = edge.getSrcNode();
             const sourcePort: Field = edge.getSrcPort();
             const destNode: Node = edge.getDestNode();
             const destPort: Field = edge.getDestPort();
 
             tableData.push({
-                "key": id,
                 "id": edge.getId(),
                 "sourceNode": sourceNode.getName(),
                 "sourceNodeId": sourceNode.getId(),
@@ -2485,9 +2482,8 @@ export class Utils {
         }
 
         // add logical graph nodes to table
-        for (const [fieldId, field] of eagle.logicalGraph().getNodeById(nodeId).getFields()){
+        for (const field of eagle.logicalGraph().getNodeById(nodeId).getFields()){
             tableData.push({
-                "key":fieldId,
                 "id":field.getId(),
                 "displayText":field.getDisplayText(),
                 "nodeId":field.getNode().getId(),
@@ -2519,7 +2515,7 @@ export class Utils {
             }
 
             for (const field of node.getFields()){
-                const graphField: Field = graphNode.getFields().get(field.getId());
+                const graphField: Field = graphNode.getFieldById(field.getId());
 
                 if (typeof graphField === 'undefined'){
                     // TODO: what to do here? blank row, console warning?
@@ -2718,7 +2714,7 @@ export class Utils {
         }
 
         // copy fields from new category to old node
-        for (const field of newCategoryPrototype.getFields().values()){
+        for (const field of newCategoryPrototype.getFields()){
             if (field.isInputPort() || field.isOutputPort()){
                 continue;
             }
@@ -2752,7 +2748,7 @@ export class Utils {
 
         // TODO: this is wrong here!, the field ids within the fields don't match the keys in the fields map!
         // set new ids for any fields in this node
-        for (const field of node.getFields().values()){
+        for (const field of node.getFields()){
             const clonedField = field
                 .clone()
                 .setId(Utils.generateFieldId())
@@ -2766,7 +2762,7 @@ export class Utils {
             
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
-                for (const field of clone.getFields().values()){
+                for (const field of clone.getFields()){
                     field.setId(Utils.generateFieldId()).setNode(clone);
                 }
             }
@@ -2781,7 +2777,7 @@ export class Utils {
             
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
-                for (const field of clone.getFields().values()){
+                for (const field of clone.getFields()){
                     field.setId(Utils.generateFieldId()).setNode(clone);
                 }
             }
@@ -2806,17 +2802,17 @@ export class Utils {
     static transformNodeFromTemplates(node: Node, sourceTemplate: Node, destinationTemplate: Node, keepOldFields: boolean = false): void {
         if (!keepOldFields){
             // delete non-ports from the node
-            for (const [id, field] of node.getFields()){
+            for (const field of node.getFields()){
                 if (field.isInputPort() || field.isOutputPort()){
                     continue;
                 }
 
-                node.removeFieldById(id);
+                node.removeFieldById(field.getId());
             }
         }
 
         // copy non-ports from new template to node
-        for (const field of destinationTemplate.getFields().values()){
+        for (const field of destinationTemplate.getFields()){
             if (field.isInputPort() || field.isOutputPort()){
                 continue;
             }

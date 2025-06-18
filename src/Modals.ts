@@ -460,8 +460,8 @@ export class Modals {
 
                     // TODO: check that nodes were found
 
-                    const srcPort = srcNode.getFields().get(srcPortId);
-                    const destPort = destNode.getFields().get(destPortId);
+                    const srcPort = srcNode.getFieldById(srcPortId);
+                    const destPort = destNode.getFieldById(destPortId);
 
                     // TODO: check that ports were found
 

@@ -223,10 +223,10 @@ $(function(){
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const eagle: Eagle = Eagle.getInstance();
         const edgeId: EdgeId = $(event.target).attr("id") as EdgeId;
-        const selectEdge = eagle.logicalGraph().getEdges().get(edgeId);
+        const selectEdge = eagle.logicalGraph().getEdgeById(edgeId);
 
         if(typeof selectEdge === 'undefined'){
-            console.log("no edge found")
+            console.log("no edge found with id:", edgeId);
             return
         }
         if(!event.shiftKey){

@@ -412,6 +412,14 @@ export class Node {
         return this.outputApplication().getOutputPorts();
     }
 
+    hasField = (id: FieldId) : boolean => {
+        return this.fields().has(id);
+    }
+
+    getFieldById = (id: FieldId) : Field | undefined => {
+        return this.fields().get(id);
+    }
+
     getFieldByDisplayText = (displayText : string) : Field | null => {
         for (const field of this.fields().values()){
             if (field.getDisplayText() === displayText){
@@ -432,8 +440,8 @@ export class Node {
         return false;
     }
 
-    getFields = () : Map<FieldId, Field> => {
-        return this.fields();
+    getFields = () : MapIterator<Field> => {
+        return this.fields().values();
     }
 
     getNumFields = () : number => {
@@ -1108,9 +1116,9 @@ export class Node {
         const allNodeErrors : {issue:Errors.Issue, validity:Errors.Validity}[] = []
 
         allNodeErrors.push(...this.getIssues())
-        this.getFields().forEach(function(field){
+        for (const field of this.fields().values()){
             allNodeErrors.push(...field.getIssues())
-        })
+        }
 
         return allNodeErrors
     }
@@ -1136,11 +1144,11 @@ export class Node {
         errorsWarnings.errors.push(...nodeErrors.errors)
         errorsWarnings.warnings.push(...nodeErrors.warnings)
 
-        this.getFields().forEach((field) =>{
+        for (const field of this.fields().values()){
             const fieldErrors = field.getErrorsWarnings()
             errorsWarnings.errors.push(...fieldErrors.errors)
             errorsWarnings.warnings.push(...fieldErrors.warnings)
-        })
+        }
 
         return errorsWarnings
     }, this);
@@ -1195,33 +1203,33 @@ export class Node {
         const configFields : Field[] = [] 
         const selectedNode = this
 
-        selectedNode.getFields().forEach(function(field:Field){
+        for (const field of selectedNode.fields().values()){
             // get important fields 
             if(selectedNode.isGather()){
                 if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_INPUTS || field.getDisplayText() === Daliuge.FieldName.GATHER_AXIS){
                     importantFields.push(field)
-                    return
+                    continue;
                 }
             }else if (selectedNode.isScatter()){
                 if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_COPIES){
                     importantFields.push(field)
-                    return
+                    continue;
                 }
             }else if (selectedNode.isLoop()){
                 if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_ITERATIONS){
                     importantFields.push(field)
-                    return
+                    continue;
                 }
             }else if(field.getDisplayText() === Daliuge.FieldName.FUNC_CODE){
                 importantFields.push(field)
-                return
+                continue;
             }
             
             //check if field is a graph config field
             if(activeConfig?.hasField(field)){
                 configFields.push(field)
             }
-        })
+        }
 
         return importantFields.concat(configFields)
     }, this);
@@ -1970,7 +1978,7 @@ export class Node {
         // check that node has at least one connected edge, otherwise what purpose does it serve?
         let hasInputEdge: boolean = false;
         let hasOutputEdge: boolean = false;
-        for (const edge of eagle.logicalGraph().getEdges().values()){
+        for (const edge of eagle.logicalGraph().getEdges()){
             if (!hasOutputEdge && edge.getSrcNode().getId() === node.getId()){
                 hasOutputEdge = true;
             }

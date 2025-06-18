@@ -23,16 +23,16 @@ export class Hierarchy {
 
         //reset all selection relatives to false
         $(".positionPointer").remove()
-        eagle.logicalGraph().getEdges().forEach(function(element:Edge){
-            element.setSelectionRelative(false)
-        })
+        for (const edge of eagle.logicalGraph().getEdges()){
+            edge.setSelectionRelative(false)
+        }
 
         //this part of the function flags edges that are selected or directly connected to the selected object
         const hierarchyEdgesList : {edge:Edge, use:string, edgeSelected:boolean}[] = []
         const nodeRelative : Node[]=[]
 
         //loop over selected objects
-        eagle.selectedObjects().forEach(function(element:any){
+        for (const element of eagle.selectedObjects()){
             //ignore palette selections
             if(Eagle.selectedLocation() === "Palette"){return}
 
@@ -43,7 +43,7 @@ export class Hierarchy {
                 if (element instanceof Node){
                     const id: NodeId = element.getId()
 
-                    eagle.logicalGraph().getEdges().forEach(function(e:Edge){
+                    for (const e of eagle.logicalGraph().getEdges()){
                         if(e.getDestNode().getId() === id){
                             e.setSelectionRelative(true)
                             Hierarchy.addUniqueHierarchyEdge(e, "input", hierarchyEdgesList, false)
@@ -55,7 +55,7 @@ export class Hierarchy {
                             nodeRelative.push(e.getDestNode())
                             nodeRelative.push(e.getSrcNode())
                         }
-                    })
+                    }
                 //for edges we must check if a related node is selected to decide if it should be drawn as input or output edge
                 }else if(element instanceof Edge){
                     element.setSelectionRelative(true)
@@ -68,7 +68,7 @@ export class Hierarchy {
                     nodeRelative.push(element.getSrcNode())
                 }
             })
-        })
+        }
 
         //using a called async function here to wait for changes to the hierarchy to finish before drawing the edges
         hierarchyDraw()
@@ -300,7 +300,7 @@ export class Hierarchy {
         let nodeHasConnectedOutput: boolean = false;
 
         // check if node has connected input and output
-        for (const edge of eagle.logicalGraph().getEdges().values()){
+        for (const edge of eagle.logicalGraph().getEdges()){
             if (edge.getDestNode().getId() === node.getId()){
                 nodeHasConnectedInput = true;
             }
