@@ -120,7 +120,7 @@ newTut.newTutStep("Managing Graph Configurations", "Lets say we want another ver
 newTut.newTutStep("Managing Graph Configurations", "Our configuration has been duplicated, lets add the additional field. <em>next to continue</em>", function(){return $('#graphConfigurationsTableWrapper tr:last')})
 .setAlternateHighlightTargetFunc(function(){return $('#bottomWindow .content')})
 
-newTut.newTutStep("Adding another field", "<em>Click on the File node to select it.</em>",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('hello')})
+newTut.newTutStep("Adding another field", "<em>Click on the File node named 'hello' to select it.</em>",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('hello')})
 .setType(TutorialStep.Type.Condition)
 .setWaitType(TutorialStep.Wait.Element)
 .setConditionFunction(function(){return TutorialSystem.isRequestedNodeSelected('hello')})
