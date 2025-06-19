@@ -3151,7 +3151,7 @@ export class Eagle {
         for (const object of this.selectedObjects()){
             if (object instanceof Node){
                 if (copyChildren){
-                    this._addNodeAndChildren(Array.from(this.logicalGraph().getNodes()), object, nodes);
+                    this._addNodeAndChildren(object, nodes);
                 } else {
                     this._addUniqueNode(nodes, object);
                 }
@@ -3203,7 +3203,7 @@ export class Eagle {
 
     // NOTE: support func for copySelectionToKeyboard() above
     // TODO: move to LogicalGraph.ts?
-    _addNodeAndChildren = (node: Node, output:Node[]) : void => {
+    _addNodeAndChildren = (node: Node, output: Node[]) : void => {
         this._addUniqueNode(output, node);
 
         for (const child of node.getChildren()){

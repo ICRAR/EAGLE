@@ -547,7 +547,30 @@ export class FileInfo {
     static fromV4Json(modelData: any, errorsWarnings: Errors.ErrorsWarnings): FileInfo{
         const result: FileInfo = new FileInfo();
 
-        // TODO
+        result.path = Utils.getFilePathFromFullPath(modelData.filePath);
+        result.name = Utils.getFileNameFromFullPath(modelData.filePath);
+        result.type = Utils.translateStringToFileType(modelData.fileType);
+
+        result.shortDescription = modelData.shortDescription ?? "";
+        result.detailedDescription = modelData.detailedDescription ?? "";
+
+        result.repositoryService = modelData.repoService ?? Repository.Service.Unknown;
+        result.repositoryBranch = modelData.repoBranch ?? "";
+        result.repositoryName = modelData.repo ?? "";
+
+        result.generatorVersion = modelData.generatorVersion ?? "";
+        result.generatorCommitHash = modelData.generatorCommitHash ?? "";
+        result.generatorName = modelData.generatorName ?? "";
+        result.schemaVersion = modelData.schemaVersion ?? "";
+        result.readonly = modelData.readonly ?? true;
+
+        result.repositoryUrl = modelData.repositoryUrl ?? "";
+        result.commitHash = modelData.commitHash ?? "";
+        result.signature = modelData.signature ?? "";
+
+        result.lastModifiedName = modelData.lastModifiedName ?? "";
+        result.lastModifiedEmail = modelData.lastModifiedEmail ?? "";
+        result.lastModifiedDatetime = modelData.lastModifiedDatetime ?? 0;
 
         return result;
     }
