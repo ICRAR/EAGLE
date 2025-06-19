@@ -614,7 +614,7 @@ export class Edge {
         }
 
         // add edge id to message, if id is known
-        if (edge !== null && edge.getId() !== null){
+        if (typeof edge !== 'undefined'){
             message = "Edge (" + edge.getId() + ") " + issue.message;
         } else {
             message = issue.message;
@@ -634,7 +634,7 @@ export class Edge {
 
         // TODO: maybe this should not be in the logging function, but there doesn't seem to be a better place for it?
         if(!draggingPortMode){
-            if (edge !== null){
+            if (typeof edge !== 'undefined'){
                 edge.issues.push({issue:issue, validity:linkValid})
             }
         }
