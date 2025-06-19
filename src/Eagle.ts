@@ -3202,15 +3202,12 @@ export class Eagle {
     }
 
     // NOTE: support func for copySelectionToKeyboard() above
-    // TODO: re-write once we have node.children
     // TODO: move to LogicalGraph.ts?
-    _addNodeAndChildren = (nodes: Node[], node: Node, output:Node[]) : void => {
+    _addNodeAndChildren = (node: Node, output:Node[]) : void => {
         this._addUniqueNode(output, node);
 
-        for (const n of nodes){
-            if (n.getParent().getId() === node.getId()){
-                this._addNodeAndChildren(nodes, n, output);
-            }
+        for (const child of node.getChildren()){
+            this._addNodeAndChildren(child, output);
         }
     }
 
@@ -3495,6 +3492,7 @@ export class Eagle {
         }
 
         // find child edges
+        // TODO: re-write once we have node.children
         for (const edge of this.logicalGraph().getEdges()){
             for (const node of childNodes){
                 if (edge.getSrcNode().getId() === node.getId() || edge.getDestNode().getId() === node.getId()){

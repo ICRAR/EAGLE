@@ -30,7 +30,6 @@ export class Field {
     private usage : ko.Observable<Daliuge.FieldUsage>;
     private isEvent : ko.Observable<boolean>;
     private node : ko.Observable<Node>;
-    //private edges : ko.Observable<IdMap<EdgeId,Edge>>;
     private edges: ko.Observable<Map<EdgeId, Edge>>;
 
     // graph related attributes
