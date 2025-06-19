@@ -135,6 +135,7 @@ export class Field {
     }, this);
 
     getInputPosition = () : {x:number, y:number} => {
+        console.log("getInputPosition()", this.inputX(), this.inputY());
         return {x: this.inputX(), y: this.inputY()};
     }
 
@@ -154,7 +155,8 @@ export class Field {
         return this;
     }
 
-    setInputAngle = (angle:number) : Field => {
+    setInputAngle = (angle: number) : Field => {
+        console.log("setInputAngle()", this.getDisplayText(), angle);
         this.inputAngle = angle;
         return this;
     }
@@ -168,7 +170,8 @@ export class Field {
         return this;
     }
 
-    setOutputAngle = (angle:number): Field => {
+    setOutputAngle = (angle: number): Field => {
+        console.log("setOutputAngle()", this.getDisplayText(), angle);
         this.outputAngle = angle;
         return this;
     }

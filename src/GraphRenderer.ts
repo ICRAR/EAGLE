@@ -150,6 +150,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let node : Node 
         let field : Field
 
+        console.log("---graphRenderPortPosition.update()", f.getDisplayText());
+
         switch(dataType){
             case 'inputPort':
             case 'outputPort':
@@ -254,13 +256,16 @@ ko.bindingHandlers.graphRendererPortPosition = {
                     break;
             }
         }
+
         //checking for port collisions if connected
         if(!node.isComment()){
-            //checking if the ports are linked 
+            //checking if the ports are linked
+            // TODO: portIsLinked is similar to the connectedField variable calculated above, do we need both?
             const portIsLinked = eagle.logicalGraph().portIsLinked(node.getId(), field.getId())
             field.setInputConnected(portIsLinked.input)
             field.setOutputConnected(portIsLinked.output)
 
+            // TODO: do we need to sort and organize all ports for the whole node? inside each port position handler?
             GraphRenderer.sortAndOrganizePorts(node)
         }
 
@@ -279,6 +284,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }else{
             $(element).find(".portTitle").css({'text-align':'left','right':-5+'px','transform':'translateX(100%)'})
         }
+
+        console.log("port", field.getDisplayText(), "averageAngle", averageAngle);
     }
 };
 
@@ -348,7 +355,7 @@ export class GraphRenderer {
         return Math.atan2(y, x);
     }
 
-    static calculatePortPositionX (mode : string, field : Field, node : Node) : number {
+    static calculatePortPositionX(mode: "input" | "output", field: Field, node: Node) : number {
         
         let portPosX :number
         if(mode==='input'){
@@ -356,12 +363,13 @@ export class GraphRenderer {
         }else{
             portPosX = field.getOutputPosition().x
         }
-        
+        console.log("calculatePortPositionX() portPosX:", portPosX);
+
         const x = portPosX + node.getPosition().x - node.getRadius()
         return x
     }
 
-    static calculatePortPositionY (mode:string, field : Field, node : Node) {
+    static calculatePortPositionY(mode: "input" | "output", field: Field, node: Node) {
         
         let portPosY :number
         if(mode==='input'){
@@ -375,11 +383,13 @@ export class GraphRenderer {
     }
 
     static sortAndOrganizePorts (node:Node) : void {
+        console.log("sortAndOrganizePorts()", node.getName());
+
         //calculating the minimum port distance as an angle. we save this min distance as a pixel distance between ports
         const minimumPortDistance:number = Number(Math.asin(EagleConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
         
-        const connectedFields : {angle:number, field:Field,mode:string}[] = []
-        const danglingPorts : {angle:number, field:Field, mode:string}[] = []
+        const connectedFields : {angle:number, field:Field, mode:"input" | "output"}[] = []
+        const danglingPorts : {angle:number, field:Field, mode:"input" | "output"}[] = []
         const nodeRadius = node.getRadius()
 
         //building a list of connected and not connected ports on the node in question
@@ -438,6 +448,8 @@ export class GraphRenderer {
             }
         }
 
+        console.log("connectedFields", connectedFields, "danglingPorts", danglingPorts);
+
         //spacing out the connected ports
         let i = 0
         for(const connectedField of connectedFields){
@@ -456,8 +468,9 @@ export class GraphRenderer {
         //looking for space where we can place the dangling ports
         for (const danglingPort of danglingPorts){
             const newAngle = GraphRenderer.findClosestMatchingAngle(node,danglingPort.angle,minimumPortDistance,danglingPort.field,danglingPort.mode)
+            console.log("newAngle", newAngle);
 
-            GraphRenderer.applyPortAngle(danglingPort.mode,newAngle,nodeRadius,node,danglingPort.field)
+            GraphRenderer.applyPortAngle(danglingPort.mode, newAngle,nodeRadius,node,danglingPort.field)
             if(danglingPort.mode === 'input'){
                 danglingPort.field.setInputAngle(newAngle)
             }else{
@@ -466,7 +479,7 @@ export class GraphRenderer {
         }
     }
 
-    static applyPortAngle (mode:string, angle:number, nodeRadius: number, node:Node, field:Field) : void {
+    static applyPortAngle (mode: "input" | "output", angle:number, nodeRadius: number, node:Node, field:Field) : void {
         let portPosition
         if (mode === 'input'){
             portPosition = GraphRenderer.calculatePortPos(angle, nodeRadius, nodeRadius)      

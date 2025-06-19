@@ -794,21 +794,34 @@ export class LogicalGraph {
         eagle.selectedObjects.valueHasMutated();
     }
 
-    portIsLinked = (nodeId: NodeId, portId: FieldId) : any => {
-        let result:{input:boolean,output:boolean} = {'input':false,'output':false}
-        let input = false
-        let output = false
-        for (const edge of this.edges().values()){
+    // TODO: can we pass this a Node and a Field instead of two ids?
+    portIsLinked = (nodeId: NodeId, portId: FieldId) : {input: boolean, output: boolean} => {
+        const result:{input:boolean,output:boolean} = {'input':false,'output':false};
+
+        const node = this.nodes().get(nodeId);
+
+        if (typeof node === 'undefined'){
+            console.warn("portIsLinked(): can't find node with id:", nodeId);
+            return result;
+        }
+
+        const port = node.getFieldById(portId);
+
+        if (typeof port === 'undefined'){
+            console.warn("portIsLinked(): can't find port with id:", portId);
+            return result;
+        }
+
+        for (const edge of port.getEdges()){
             if(edge.getSrcNode().getId() === nodeId && edge.getSrcPort().getId() === portId){
-                output = true
+                result.output = true
             }
             if(edge.getDestNode().getId() === nodeId && edge.getDestPort().getId() === portId){
-                input = true
+                result.input = true
             }
         }
-        result= {'input':input,'output':output}
 
-        return result ;
+        return result;
     }
 
     findMultiplicity = (node : Node) : number => {
