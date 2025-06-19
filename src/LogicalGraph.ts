@@ -724,6 +724,7 @@ export class LogicalGraph {
         }
 
         // delete children
+        // TODO: redo once we have node.children
         for (let i = this.nodes().size - 1; i >= 0 ; i--){
             // check that iterator still points to a valid element in the nodes array
             // a check like this wouldn't normally be necessary, but we are deleting elements from the array within the loop, so it might be shorter than we expect
@@ -924,6 +925,7 @@ export class LogicalGraph {
         return this.getChildrenOfNodeById(null);
     }
 
+    // TODO: redo once we have node.children
     getChildrenOfNodeById = (id: NodeId) : Node[] => {
         const result: Node[] = [];
 

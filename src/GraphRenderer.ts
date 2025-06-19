@@ -1366,6 +1366,7 @@ export class GraphRenderer {
         return result;
     }
 
+    // TODO: redo once we have node.children
     static selectNodeAndChildren(node:Node, additive:boolean) : void {
         const eagle = Eagle.getInstance();
         GraphRenderer.dragSelectionHandled(true)
@@ -1623,6 +1624,7 @@ export class GraphRenderer {
 
     // resize a construct so that it contains its children
     // NOTE: does not move the construct
+    // TODO: redo once we have node.children
     static resizeConstruct = (construct: Node): void => {
         if(construct === null){
             return

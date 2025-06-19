@@ -45,6 +45,7 @@ export class Node {
 
     private parent : ko.Observable<Node>;     // link to the node of which this node is a child
     private embed : ko.Observable<Node>;      // link to the node in which this node is embedded as an input or output application
+    private children : ko.Observable<Map<NodeId, Node>>;
 
     private inputApplication : ko.Observable<Node>;
     private outputApplication : ko.Observable<Node>; // TODO: remove inputApplication, outputApplication and embed
@@ -84,6 +85,7 @@ export class Node {
 
         this.parent = ko.observable(null);
         this.embed = ko.observable(null);
+        this.children = ko.observable(new Map());
 
         this.inputApplication = ko.observable(null);
         this.outputApplication = ko.observable(null);
@@ -249,6 +251,10 @@ export class Node {
         }
 
         this.parent(node);
+
+        if (node !== null){
+            node.children().set(this.getId(), this);
+        }
         return this;
     }
 
@@ -263,6 +269,14 @@ export class Node {
 
     isEmbedded = () : boolean => {
         return this.embed() !== null;
+    }
+
+    getChildren = (): MapIterator<Node> => {
+        return this.children().values();
+    }
+
+    getChildById = (id: NodeId): Node | undefined => {
+        return this.children().get(id);
     }
 
     isStreaming = () : boolean => {
@@ -1944,6 +1958,52 @@ export class Node {
             }
         }
         
+        // check that parent has this as a child
+        if (node.parent() !== null){
+            const parentsChild = node.parent().getChildById(node.getId());
+            if (typeof parentsChild === 'undefined'){
+                const message: string = "Node (" + node.getName() + ") has parent (" + node.parent().getName() + "), but does not appear in that node's list of children.";
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+            }
+        }
+
+        // check that children have this as the parent
+        for (const child of node.children().values()){
+            if (child.parent() === null || child.parent().getId() !== node.getId()){
+                const message: string = "Node (" + node.getName() + ") has child (" + child.getName() + "), but is not that node's parent.";
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+            }
+        }
+
+        // check that embed has this as either inputApplication or outputApplication
+        if (node.embed() !== null){
+            if (node.embed().inputApplication().getId() !== node.getId() && node.embed().outputApplication().getId() !== node.getId()){
+                const message: string = "Node (" + node.getName() + ") has embed (" + node.embed().getName() + "), but is not that node's inputApplication or outputApplication.";
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+            }
+        }
+
+        // check that inputApplication has this as embed
+        if (node.hasInputApplication()){
+            if (node.inputApplication().embed().getId() !== node.getId()){
+                const message: string = "Node (" + node.getName() + ") has inputApplication (" + node.inputApplication().getName() + "), but is not that node's embed.";
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+            }
+        }
+
+        // check that outputApplication has this as embed
+        if (node.hasOutputApplication()){
+            if (node.outputApplication().embed().getId() !== node.getId()){
+                const message: string = "Node (" + node.getName() + ") has outputApplication (" + node.outputApplication().getName() + "), but is not that node's embed.";
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+            }
+        }
+
         // check that node has correct number of inputs and outputs
         const cData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
 

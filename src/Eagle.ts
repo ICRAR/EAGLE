@@ -3471,10 +3471,7 @@ export class Eagle {
         // find child nodes
         for (const object of data){
             if (object instanceof Node){
-                // find children of this node
-                const children = this._findChildren(object);
-
-                for (const child of children){
+                for (const child of object.getChildren()){
                     // check each child is not already in selectedObjects
                     if (this.objectIsSelected(child)){
                         continue;
@@ -3552,20 +3549,6 @@ export class Eagle {
         if(!rightClick){
             this.selectedObjects([]);
         }
-    }
-
-    private _findChildren = (parent: Node): Node[] => {
-        const children: Node[] = [];
-
-        for(const node of this.logicalGraph().getNodes()){
-            const p = node.getParent();
-            if (p !== null && p.getId() === parent.getId()){
-                children.push(node);
-                children.push(...this._findChildren(node));
-            }
-        }
-
-        return children;
     }
 
     private _deleteSelection = (deleteChildren: boolean, data: (Node | Edge)[], location: Eagle.FileType) : void => {
