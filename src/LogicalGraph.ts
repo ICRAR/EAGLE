@@ -345,6 +345,14 @@ export class LogicalGraph {
         return commentNodes;
     }
 
+    getInspectorShortDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
+        return 'Edit Short Graph Description: </br>' + Utils.markdown2html(this.fileInfo().shortDescription);
+    }, this);
+
+    getInspectorDetailedDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
+        return 'Edit Detailed Graph Description: </br>' + Utils.markdown2html(this.fileInfo().detailedDescription);
+    }, this);
+
     setGraphConfigs = (graphConfigs: GraphConfig[]): void => {
         this.graphConfigs(graphConfigs);
     }
