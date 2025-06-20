@@ -368,13 +368,32 @@ export class LogicalGraph {
     }
 
     static fromV4Json(dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+        console.log("fromV4Json()", dataObject);
+
+        // debug
+        (<any>window).dataObject = dataObject
+
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
         // copy modelData into fileInfo
         result.fileInfo(FileInfo.fromV4Json(dataObject.modelData, errorsWarnings));
 
-        // TODO
+        // add nodes
+        for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
+            const node = Node.fromV4Json(nodeData, errorsWarnings, false);
+
+            result.nodes().set(nodeId as NodeId, node);
+            result.nodes.valueHasMutated();
+        }
+
+        // add edges
+        for (const [edgeId, edgeData] of Object.entries(dataObject.edges)){
+            const edge = Edge.fromV4Json(edgeData, result, errorsWarnings);
+
+            result.edges().set(edgeId as EdgeId, edge);
+            result.edges.valueHasMutated();
+        }
 
         return result;
     }

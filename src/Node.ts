@@ -1701,6 +1701,34 @@ export class Node {
         return node;
     }
 
+    static fromV4Json(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
+        // translate categories if required
+        const category: Category = nodeData.category;
+
+        // if category is not known, then add error
+        if (!Utils.isKnownCategory(category)){
+            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
+        }
+
+        const node : Node = new Node(nodeData.name, "", category);
+        const categoryData: Category.CategoryData = CategoryData.getCategoryData(category);
+
+        node.setId(nodeData.id);
+
+        // set position
+        node.setPosition(nodeData.x, nodeData.y);
+
+        // set categoryType based on the category
+        node.categoryType(categoryData.categoryType);
+
+        // get description
+        node.description(nodeData.description);
+
+        // TODO
+
+        return node;
+    }
+
     private static addPortToEmbeddedApplication(node: Node, port: Field, input: boolean, errorsWarnings: Errors.ErrorsWarnings){
         console.assert(node.getCategoryType() === Category.Type.Construct, "Can't add a port to the embedded application of a node that is not a construct");
 

@@ -362,6 +362,18 @@ export class Edge {
         return new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
     }
 
+    static fromV4Json(edgeData: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Edge {
+        const loopAware: boolean = edgeData.loopAware;
+        const closesLoop: boolean = edgeData.closesLoop;
+
+        const srcNode: Node = lg.getNodeById(edgeData.srcNodeId);
+        const destNode: Node = lg.getNodeById(edgeData.destNodeId);
+        const srcPort: Field = srcNode.getFieldById(edgeData.srcPortId);
+        const destPort: Field = destNode.getFieldById(edgeData.destPortId);
+
+        return new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
+    }
+
     // TODO: can we just pass this the edge itself, rather than an id?
     static isValid(eagle: Eagle, draggingPortMode: boolean, edgeId: EdgeId, sourceNodeId: NodeId, sourcePortId: FieldId, destinationNodeId: NodeId, destinationPortId: FieldId, loopAware: boolean, closesLoop: boolean, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
         let impossibleEdge : boolean = false;
