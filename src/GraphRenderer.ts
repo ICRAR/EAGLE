@@ -396,7 +396,7 @@ export class GraphRenderer {
         for (const field of node.getFields()){
             //making sure the field we are looking at is a port
             if(!field.isInputPort() && !field.isOutputPort()){
-                return
+                continue;
             }
 
             //sorting the connected ports via angle into the connectedFields array

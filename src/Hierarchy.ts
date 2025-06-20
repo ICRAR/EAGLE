@@ -34,7 +34,7 @@ export class Hierarchy {
         //loop over selected objects
         for (const element of eagle.selectedObjects()){
             //ignore palette selections
-            if(Eagle.selectedLocation() === "Palette"){return}
+            if(Eagle.selectedLocation() === "Palette"){continue}
 
             const elementsToProcess = [element]
 
