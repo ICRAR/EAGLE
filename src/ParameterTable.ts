@@ -137,21 +137,21 @@ export class ParameterTable {
                     return [];
                 }
 
-                for (const node of config.getNodes()){
-                    for (const field of node.getFields()){
-                        const lgNode = lg.getNodeById(node.getId());
+                for (const graphConfigNode of config.getNodes()){
+                    for (const graphConfigField of graphConfigNode.getFields()){
+                        const lgNode = lg.getNodeById(graphConfigNode.getNode().getId());
 
                         if (typeof lgNode === 'undefined'){
-                            const dummyField: Field = new Field(field.getId(), "<Missing Node:" + node.getId() +">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            const dummyField: Field = new Field(graphConfigField.getField().getId(), "<Missing Node:" + graphConfigNode.getNode().getId() +">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
                             dummyField.setNode(lgNode);
                             displayedFields.push(dummyField);
                             continue;
                         }
 
-                        const lgField = lgNode.getFieldById(field.getId());
+                        const lgField = lgNode.getFieldById(graphConfigField.getField().getId());
         
                         if (typeof lgField === 'undefined'){
-                            const dummyField: Field = new Field(field.getId(), "<Missing Field: " + field.getId() + ">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            const dummyField: Field = new Field(graphConfigField.getField().getId(), "<Missing Field: " + graphConfigField.getField().getId() + ">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
                             dummyField.setNode(lgNode);
                             displayedFields.push(dummyField);
                             continue;
@@ -410,7 +410,7 @@ export class ParameterTable {
 
         if (graphConfig){
             if (add){
-                graphConfig.addValue(currentField.getNode().getId(), currentField.getId(), currentField.getValue())
+                graphConfig.addValue(currentField.getNode(), currentField, currentField.getValue())
             } else {
                 graphConfig.removeField(currentField);
             }
@@ -437,7 +437,7 @@ export class ParameterTable {
 
             // add/remove the field that was requested in the first place
             if (add){
-                graphConfig.addValue(currentField.getNode().getId(), currentField.getId(), currentField.getValue())
+                graphConfig.addValue(currentField.getNode(), currentField, currentField.getValue())
             } else {
                 graphConfig.removeField(currentField);
             }
@@ -528,7 +528,7 @@ export class ParameterTable {
     static async requestEditCommentInModal(currentField:Field): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
         const currentNode: Node = currentField.getNode();
-        const configField: GraphConfigField = eagle.logicalGraph().getActiveGraphConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
+        const configField: GraphConfigField = eagle.logicalGraph().getActiveGraphConfig().getNodeById(currentNode.getId()).getFieldById(currentField.getId());
 
         let fieldComment: string;
         try {

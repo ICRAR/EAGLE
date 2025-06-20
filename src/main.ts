@@ -388,4 +388,5 @@ declare global {
     type EdgeId = Branded<string, "EdgeId">
     type RepositoryId = Branded<string, "RepositoryId">
     type RepositoryFileId = Branded<string, "RepositoryFileId">
+    type GraphConfigId = Branded<string, "GraphConfigId">
 }

@@ -1102,6 +1102,7 @@ export class Node {
         result.subject(this.subject());
 
         // clone fields
+        // TODO: check ids, do we need to generate new ids?
         for (const field of this.fields().values()){
             result.fields().set(field.getId(), field.clone());
             result.fields.valueHasMutated();

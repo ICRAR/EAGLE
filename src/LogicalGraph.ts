@@ -43,7 +43,7 @@ export class LogicalGraph {
     private nodes : ko.Observable<Map<NodeId, Node>>;
     private edges : ko.Observable<Map<EdgeId, Edge>>;
     private graphConfigs : ko.ObservableArray<GraphConfig>;
-    private activeGraphConfigId : ko.Observable<GraphConfig.Id>
+    private activeGraphConfigId : ko.Observable<GraphConfigId>;
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
     
@@ -307,8 +307,8 @@ export class LogicalGraph {
         if (typeof dataObject.graphConfigurations !== 'undefined'){
             for (const gcId in dataObject["graphConfigurations"]){
                 const gco = dataObject["graphConfigurations"][gcId];
-                const gc = GraphConfig.fromJson(gco, errorsWarnings);
-                gc.setId(gcId as GraphConfig.Id);
+                const gc = GraphConfig.fromJson(gco, result, errorsWarnings);
+                gc.setId(gcId as GraphConfigId);
                 result.graphConfigs.push(gc);
             }
 
@@ -465,7 +465,7 @@ export class LogicalGraph {
         return this.graphConfigs();
     }
     
-    getGraphConfigById = (id: GraphConfig.Id): GraphConfig => {
+    getGraphConfigById = (id: GraphConfigId): GraphConfig => {
         for(let i = 0 ; i < this.graphConfigs().length ; i++){
             if(this.graphConfigs()[i].getId() === id){
                 return this.graphConfigs()[i]
@@ -518,7 +518,7 @@ export class LogicalGraph {
 
         // cache name, id of graph configuration
         const name: string = this.graphConfigs()[index].getName();
-        const id: GraphConfig.Id = this.graphConfigs()[index].getId();
+        const id: GraphConfigId = this.graphConfigs()[index].getId();
 
         // remove graph config
         this.graphConfigs.splice(index, 1);
@@ -540,7 +540,7 @@ export class LogicalGraph {
         return this.getGraphConfigById(this.activeGraphConfigId())
     }
 
-    setActiveGraphConfig = (configId: GraphConfig.Id): void => {
+    setActiveGraphConfig = (configId: GraphConfigId): void => {
         this.activeGraphConfigId(configId)
     }
 
@@ -1112,13 +1112,13 @@ export class LogicalGraph {
         for (const graphConfig of graph.getGraphConfigs()){
             for (const graphConfigNode of graphConfig.getNodes()){
                 // check that node exists in graph
-                const graphNode: Node = graph.nodes().get(graphConfigNode.getId());
+                const graphNode: Node = graph.nodes().get(graphConfigNode.getNode().getId());
 
                 if (typeof graphNode === 'undefined'){
                     const issue: Errors.Issue = Errors.Fix(
                         "Node in graph config (" + graphConfig.getName() + ") is not present in Logical Graph",
                         function(){
-                            graphConfig.removeNode(graphConfigNode);
+                            graphConfig.removeNode(graphNode);
                         },
                         "Delete node from graph config"
                     );
@@ -1127,13 +1127,13 @@ export class LogicalGraph {
                 }
 
                 for (const graphConfigField of graphConfigNode.getFields()){
-                    const graphField: Field = graphNode.getFieldById(graphConfigField.getId());
+                    const graphField: Field = graphNode.getFieldById(graphConfigField.getField().getId());
 
                     if (typeof graphField === 'undefined'){
                         const issue: Errors.Issue = Errors.Fix(
                             "Field in graph config (" + graphConfig.getName() + ", " + graphNode.getName() + ") is not present in Logical Graph",
                             function(){
-                                graphConfigNode.removeFieldById(graphConfigField.getId());
+                                graphConfigNode.removeFieldById(graphConfigField.getField().getId());
                             },
                             "Delete field from node in graph config"
                         );

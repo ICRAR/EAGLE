@@ -428,7 +428,7 @@ export class Field {
     }
 
     getGraphConfigField : ko.PureComputed<GraphConfigField> = ko.pureComputed(() => {
-        return Eagle.getInstance().logicalGraph().getActiveGraphConfig()?.findNodeById(this.node().getId())?.findFieldById(this.id());
+        return Eagle.getInstance().logicalGraph().getActiveGraphConfig()?.getNodeById(this.node().getId())?.getFieldById(this.id());
     }, this);
 
     clear = () : Field => {

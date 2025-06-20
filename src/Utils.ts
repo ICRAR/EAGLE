@@ -76,8 +76,8 @@ export class Utils {
         return Utils._uuidv4() as EdgeId;
     }
 
-    static generateGraphConfigId(): GraphConfig.Id {
-        return Utils._uuidv4() as GraphConfig.Id;
+    static generateGraphConfigId(): GraphConfigId {
+        return Utils._uuidv4() as GraphConfigId;
     }
 
     static generateRepositoryId(): RepositoryId {
@@ -2322,7 +2322,7 @@ export class Utils {
         }, 100);
     }
 
-    static showGraphConfig(eagle: Eagle, graphConfigId: GraphConfig.Id){
+    static showGraphConfig(eagle: Eagle, graphConfigId: GraphConfigId){
         // open the graph configs table
         GraphConfigurationsTable.openTable();
 
@@ -2506,16 +2506,16 @@ export class Utils {
         const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
 
         // add logical graph nodes to table
-        for (const node of activeConfig.getNodes()){
-            const graphNode: Node = eagle.logicalGraph().getNodeById(node.getId());
+        for (const graphConfigNode of activeConfig.getNodes()){
+            const graphNode: Node = eagle.logicalGraph().getNodeById(graphConfigNode.getNode().getId());
 
             if (typeof graphNode === 'undefined'){
                 // TODO: what to do here? blank row, console warning?
                 continue;
             }
 
-            for (const field of node.getFields()){
-                const graphField: Field = graphNode.getFieldById(field.getId());
+            for (const graphConfigField of graphConfigNode.getFields()){
+                const graphField: Field = graphNode.getFieldById(graphConfigField.getField().getId());
 
                 if (typeof graphField === 'undefined'){
                     // TODO: what to do here? blank row, console warning?
@@ -2524,11 +2524,11 @@ export class Utils {
 
                 tableData.push({
                     "nodeName": graphNode.getName(),
-                    "nodeId": node.getId(),
+                    "nodeId": graphConfigNode.getNode().getId(),
                     "fieldName": graphField.getDisplayText(),
-                    "fieldId": field.getId(),
-                    "value": field.getValue(),
-                    "comment": field.getComment()
+                    "fieldId": graphConfigField.getField().getId(),
+                    "value": graphConfigField.getValue(),
+                    "comment": graphConfigField.getComment()
                 });
             }
         }
