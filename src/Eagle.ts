@@ -953,15 +953,15 @@ export class Eagle {
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const dummyFile: RepositoryFile = new RepositoryFile(Repository.dummy(), "", fileFullPath);
 
-        // check if we need to update the graph from keys to ids
-        if (GraphUpdater.usesNodeKeys(dataObject)){
-            GraphUpdater.updateKeysToIds(dataObject);
-        }
-
         // use the correct parsing function based on schema version
         switch (schemaVersion){
             case Setting.SchemaVersion.OJS:
             case Setting.SchemaVersion.Unknown:
+                // check if we need to update the graph from keys to ids
+                if (GraphUpdater.usesNodeKeys(dataObject)){
+                    GraphUpdater.updateKeysToIds(dataObject);
+                }
+
                 loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
                 break;
             case Setting.SchemaVersion.V4:
