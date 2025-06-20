@@ -24,7 +24,6 @@
 
 import * as ko from "knockout";
 
-import { Category } from './Category';
 import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
@@ -149,8 +148,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         // determine the 'node' and 'field' attributes (for this way of using this binding)
         let node : Node 
         let field : Field
-
-        console.log("---graphRenderPortPosition.update()", f.getDisplayText());
 
         switch(dataType){
             case 'inputPort':
@@ -284,8 +281,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }else{
             $(element).find(".portTitle").css({'text-align':'left','right':-5+'px','transform':'translateX(100%)'})
         }
-
-        console.log("port", field.getDisplayText(), "averageAngle", averageAngle);
     }
 };
 
@@ -363,7 +358,6 @@ export class GraphRenderer {
         }else{
             portPosX = field.getOutputPosition().x
         }
-        console.log("calculatePortPositionX() portPosX:", portPosX);
 
         const x = portPosX + node.getPosition().x - node.getRadius()
         return x
@@ -383,8 +377,6 @@ export class GraphRenderer {
     }
 
     static sortAndOrganizePorts (node:Node) : void {
-        console.log("sortAndOrganizePorts()", node.getName());
-
         //calculating the minimum port distance as an angle. we save this min distance as a pixel distance between ports
         const minimumPortDistance:number = Number(Math.asin(EagleConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
         
@@ -448,8 +440,6 @@ export class GraphRenderer {
             }
         }
 
-        console.log("connectedFields", connectedFields, "danglingPorts", danglingPorts);
-
         //spacing out the connected ports
         let i = 0
         for(const connectedField of connectedFields){
@@ -468,7 +458,6 @@ export class GraphRenderer {
         //looking for space where we can place the dangling ports
         for (const danglingPort of danglingPorts){
             const newAngle = GraphRenderer.findClosestMatchingAngle(node,danglingPort.angle,minimumPortDistance,danglingPort.field,danglingPort.mode)
-            console.log("newAngle", newAngle);
 
             GraphRenderer.applyPortAngle(danglingPort.mode, newAngle,nodeRadius,node,danglingPort.field)
             if(danglingPort.mode === 'input'){
