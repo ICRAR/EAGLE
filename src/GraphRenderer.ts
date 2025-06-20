@@ -172,7 +172,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(n.getSubjectId());
 
                 if (adjacentNode === null){
-                    console.warn("Could not find adjacentNode for comment with subjectId", n.getSubjectId());
                     return;
                 }
 
@@ -910,6 +909,10 @@ export class GraphRenderer {
 
         const srcNode: Node = commentNode;
         const destNode: Node = lg.findNodeByIdQuiet(commentNode.getSubjectId());
+
+        if(srcNode === null || destNode === null){
+            return null
+        }
 
         return GraphRenderer._getPath(null,srcNode, destNode, null, null);
     }
