@@ -368,6 +368,24 @@ export class Edge {
 
         const srcNode: Node = lg.getNodeById(edgeData.srcNodeId);
         const destNode: Node = lg.getNodeById(edgeData.destNodeId);
+
+        let errorFound: boolean = false;
+
+        if (typeof srcNode === 'undefined'){
+            const issue: Errors.Issue = Errors.Message("edge (" + edgeData.id + ") source node (" + edgeData.srcNodeId + ") could not be found, skipping");
+            errorsWarnings.warnings.push(issue);
+            errorFound = true;
+        }
+        if (typeof destNode === 'undefined'){
+            const issue: Errors.Issue = Errors.Message("edge (" + edgeData.id + ") destination node (" + edgeData.destNodeId + ") could not be found, skipping");
+            errorsWarnings.warnings.push(issue);
+            errorFound = true;
+        }
+
+        if (errorFound){
+            return null;
+        }
+
         const srcPort: Field = srcNode.getFieldById(edgeData.srcPortId);
         const destPort: Field = destNode.getFieldById(edgeData.destPortId);
 

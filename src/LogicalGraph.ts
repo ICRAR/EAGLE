@@ -418,6 +418,10 @@ export class LogicalGraph {
         for (const [edgeId, edgeData] of Object.entries(dataObject.edges)){
             const edge = Edge.fromV4Json(edgeData, result, errorsWarnings);
 
+            if (edge === null){
+                continue;
+            }
+
             result.edges().set(edgeId as EdgeId, edge);
             result.edges.valueHasMutated();
         }

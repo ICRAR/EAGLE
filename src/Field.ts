@@ -742,7 +742,7 @@ export class Field {
             positional:field.positional(),
             encoding:field.encoding(),
             id: field.id(),
-            parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()] || Daliuge.DLGFieldType.Unknown,
+            parameterType: field.parameterType(),
             usage: field.usage(),
             edgeIds: Array.from(field.edges().keys()),
         };
@@ -879,7 +879,7 @@ export class Field {
         const precious: boolean = data.precious;
         const options: string[] = data.options;
         const positional: boolean = data.positional;
-        const parameterType: Daliuge.FieldType = Daliuge.dlgToFieldTypeMap[<Daliuge.DLGFieldType>data.parameterType] || Daliuge.FieldType.Unknown;
+        const parameterType: Daliuge.FieldType = data.parameterType;
         const usage: Daliuge.FieldUsage = data.usage;
 
         const event: boolean = data.event;
