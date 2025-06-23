@@ -510,7 +510,6 @@
 
 .eagleTableDisplay td button.parameterTableEditParam, .eagleTableDisplay td button.parameterTableCommentBtn, #modelDataModalTable td button.modelDataTableEditParam {
     position: absolute;
-    display: none;
     font-size: 12px;
     padding: 0px;
     height: 20px;

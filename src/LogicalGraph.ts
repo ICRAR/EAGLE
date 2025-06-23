@@ -910,6 +910,35 @@ export class LogicalGraph {
         return radius;
     }
 
+
+    getShortDescriptionBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
+        if (this.fileInfo().name != "" && this.fileInfo().shortDescription === ""){
+            return EagleConfig.getColor('graphWarning')
+        }
+
+        return ""
+    }, this);
+
+    getDetailedDescriptionBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
+        if (this.fileInfo().name != "" && this.fileInfo().detailedDescription === ""){
+            return EagleConfig.getColor('graphWarning')
+        }
+
+        return ""
+    }, this);
+
+    getGraphInfoBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
+        if (this.fileInfo().name != "" && this.fileInfo().detailedDescription === "" || this.fileInfo().name != "" && this.fileInfo().shortDescription === ""){
+            return EagleConfig.getColor('graphWarning')
+        }
+
+        return ""
+    }, this);
+
+
     static isValid () : void {
         //here should be the higher level graph wide checks for graph validity
         const eagle = Eagle.getInstance()
@@ -917,6 +946,24 @@ export class LogicalGraph {
 
         // clear old issues
         graph.issues([]);
+
+        //if the graph has been user created but does not have a description, warn the user
+        if (graph.fileInfo().name != "" && graph.fileInfo().shortDescription === ''){
+            const issue: Errors.Issue = Errors.Show(
+                "Graph does not have a short description.",
+                function(){eagle.editGraphShortDescription()}
+            );
+            graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
+        }
+
+        //if the graph has been user created but does not have a description, warn the user
+        if (graph.fileInfo().name != "" && graph.fileInfo().detailedDescription === ''){
+            const issue: Errors.Issue = Errors.Show(
+                "Graph does not have a detailed description.",
+                function(){eagle.editGraphDetailedDescription()}
+            );
+            graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
+        }
 
         // check that all node, edge, field, and config ids are unique
         const ids : string[] = [];
