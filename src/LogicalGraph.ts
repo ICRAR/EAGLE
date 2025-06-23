@@ -293,6 +293,11 @@ export class LogicalGraph {
         return null;
     }
 
+    isInitiated = () : boolean =>{
+        //checks if the user has used the "create graph" or "save" function to initiate the graph
+        return this.fileInfo().name != ""
+    }
+
     addNodeComplete = (node : Node) => {
         this.nodes.push(node);
     }
@@ -921,7 +926,7 @@ export class LogicalGraph {
 
     getShortDescriptionBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
         //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
-        if (this.fileInfo().name != "" && this.fileInfo().shortDescription === ""){
+        if (this.isInitiated() && this.fileInfo().shortDescription === ""){
             return EagleConfig.getColor('graphWarning')
         }
 
@@ -930,7 +935,7 @@ export class LogicalGraph {
 
     getDetailedDescriptionBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
         //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
-        if (this.fileInfo().name != "" && this.fileInfo().detailedDescription === ""){
+        if (this.isInitiated() && this.fileInfo().detailedDescription === ""){
             return EagleConfig.getColor('graphWarning')
         }
 
@@ -939,7 +944,7 @@ export class LogicalGraph {
 
     getGraphInfoBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
         //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
-        if (this.fileInfo().name != "" && this.fileInfo().detailedDescription === "" || this.fileInfo().name != "" && this.fileInfo().shortDescription === ""){
+        if (this.isInitiated() && this.fileInfo().detailedDescription === "" || this.fileInfo().name != "" && this.fileInfo().shortDescription === ""){
             return EagleConfig.getColor('graphWarning')
         }
 
@@ -956,7 +961,7 @@ export class LogicalGraph {
         graph.issues([]);
 
         //if the graph has been user created but does not have a description, warn the user
-        if (graph.fileInfo().name != "" && graph.fileInfo().shortDescription === ''){
+        if (graph.isInitiated() && graph.fileInfo().shortDescription === ''){
             const issue: Errors.Issue = Errors.Show(
                 "Graph does not have a short description.",
                 function(){eagle.editGraphShortDescription()}
@@ -965,7 +970,7 @@ export class LogicalGraph {
         }
 
         //if the graph has been user created but does not have a description, warn the user
-        if (graph.fileInfo().name != "" && graph.fileInfo().detailedDescription === ''){
+        if (graph.isInitiated() && graph.fileInfo().detailedDescription === ''){
             const issue: Errors.Issue = Errors.Show(
                 "Graph does not have a detailed description.",
                 function(){eagle.editGraphDetailedDescription()}
