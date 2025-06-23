@@ -1724,7 +1724,11 @@ export class Node {
         // get description
         node.description(nodeData.description);
 
-        // TODO
+        // add fields
+        for (const [id, fieldData] of Object.entries(nodeData.fields)){
+            const field = Field.fromV4Json(fieldData);
+            node.addField(field);
+        }
 
         return node;
     }

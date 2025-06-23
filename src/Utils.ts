@@ -1639,6 +1639,31 @@ export class Utils {
 
         // check all edges are valid
         for (const edge of graph.getEdges()){
+            if (typeof edge === 'undefined'){
+                console.error("edge in edge list is undefined!");
+                continue;
+            }
+
+            if (typeof edge.getSrcNode() === 'undefined'){
+                console.error("edge (" + edge.getId() + ") getSrcNode() is undefined!");
+                continue;
+            }
+
+            if (typeof edge.getSrcPort() === 'undefined'){
+                console.error("edge (" + edge.getId() + ") getSrcPort() is undefined!");
+                continue;
+            }
+
+            if (typeof edge.getDestNode() === 'undefined'){
+                console.error("edge (" + edge.getId() + ") getDestNode() is undefined!");
+                continue;
+            }
+
+            if (typeof edge.getDestPort() === 'undefined'){
+                console.error("edge (" + edge.getId() + ") getDestPort() is undefined!");
+                continue;
+            }
+
             Edge.isValid(eagle, false, edge.getId(), edge.getSrcNode().getId(), edge.getSrcPort().getId(), edge.getDestNode().getId(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {warnings: [], errors: []});
         }
     }

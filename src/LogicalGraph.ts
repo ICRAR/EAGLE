@@ -387,6 +387,33 @@ export class LogicalGraph {
             result.nodes.valueHasMutated();
         }
 
+        // second pass through the nodes
+        // used to set parent, embed, subject, inputApplication, outputApplication
+        for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
+            const embed: Node = result.getNodeById((<any>nodeData).embedId);
+            const subject: Node = result.getNodeById((<any>nodeData).subjectId);
+            const parent: Node = result.getNodeById((<any>nodeData).parentId);
+            const inputApplication: Node = result.getNodeById((<any>nodeData).inputApplicationId);
+            const outputApplication: Node = result.getNodeById((<any>nodeData).outputApplicationId);
+
+            const node: Node = result.getNodeById(nodeId as NodeId);
+            if (typeof embed !== 'undefined'){
+                node.setEmbed(embed);
+            }
+            if (typeof subject !== 'undefined'){
+                node.setSubject(subject);
+            }
+            if (typeof parent !== 'undefined'){
+                node.setParent(parent);
+            }
+            if (typeof inputApplication !== 'undefined'){
+                node.setInputApplication(inputApplication);
+            }
+            if (typeof outputApplication !== 'undefined'){
+                node.setOutputApplication(outputApplication);
+            }
+        }
+
         // add edges
         for (const [edgeId, edgeData] of Object.entries(dataObject.edges)){
             const edge = Edge.fromV4Json(edgeData, result, errorsWarnings);
@@ -1101,6 +1128,12 @@ export class LogicalGraph {
 
         // check all edges in the edges dict are also present in the srcPort or destPort edges dict
         for (const [id, edge] of graph.edges()){
+            if (typeof edge.getSrcPort() === 'undefined' || typeof edge.getDestPort() === 'undefined'){
+                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") has undefined srcPort or undefined destPort", function(){Utils.showEdge(eagle, edge)});
+                graph.issues.push({issue:issue, validity: Errors.Validity.Error});
+                continue;
+            }
+
             if (edge.getSrcPort().getEdgeById(id) === null && edge.getDestPort().getEdgeById(id) === null){
                 const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source or destination port edges list", function(){Utils.showEdge(eagle, edge)});
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});

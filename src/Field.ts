@@ -868,6 +868,29 @@ export class Field {
         return f;
     }
 
+    static fromV4Json(data: any): Field {
+        const id: FieldId = data.id;
+        const name: string = data.name;
+        const value: string = data.value.toString();
+        const defaultValue: string = data.defaultValue.toString();
+        const description: string = data.description;
+        const readonly: boolean = data.readonly;
+        const type: Daliuge.DataType = data.type;
+        const precious: boolean = data.precious;
+        const options: string[] = data.options;
+        const positional: boolean = data.positional;
+        const parameterType: Daliuge.FieldType = Daliuge.dlgToFieldTypeMap[<Daliuge.DLGFieldType>data.parameterType] || Daliuge.FieldType.Unknown;
+        const usage: Daliuge.FieldUsage = data.usage;
+
+        const event: boolean = data.event;
+        const encoding: Daliuge.Encoding = data.encoding;
+
+        const f = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
+        f.isEvent(event);
+        f.encoding(encoding);
+        return f;
+    }
+
     static isValid(node:Node, field:Field, location:Eagle.FileType){
         const eagle = Eagle.getInstance()
         field.issues([]) //clear old issues
