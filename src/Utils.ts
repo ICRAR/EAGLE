@@ -2407,21 +2407,18 @@ export class Utils {
 
         for (const node of eagle.logicalGraph().getNodes()){
             nodesList.push(node)
-            if(node.hasInputApplication()){
-                nodesList.push(node.getInputApplication())
-            }
-            if(node.hasOutputApplication()){
-                nodesList.push(node.getOutputApplication())
-            }
         }
 
         // add logical graph nodes to table
         for (const node of nodesList){
+            const children: NodeId[] = Array.from(node.getChildren()).map(function(node:Node){return node.getId()});
+
             tableData.push({
                 "name":node.getName(),
                 "id":node.getId(),
                 "parent":node.getParent() === null ? null : node.getParent().getId(),
                 "embed":node.getEmbed() === null ? null : node.getEmbed().getId(),
+                "children":children.toString(),
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
                 "expanded":node.getExpanded(),

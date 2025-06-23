@@ -258,7 +258,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         if(!node.isComment()){
             //checking if the ports are linked
             // TODO: portIsLinked is similar to the connectedField variable calculated above, do we need both?
-            const portIsLinked = eagle.logicalGraph().portIsLinked(node.getId(), field.getId())
+            const portIsLinked = eagle.logicalGraph().portIsLinked(node, field)
             field.setInputConnected(portIsLinked.input)
             field.setOutputConnected(portIsLinked.output)
 

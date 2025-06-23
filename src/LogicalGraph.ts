@@ -70,6 +70,10 @@ export class LogicalGraph {
         // add nodes
         result.nodeDataArray = [];
         for (const node of graph.nodes().values()){
+            if (node.isEmbedded()){
+                continue;
+            }
+
             const nodeData : any = Node.toOJSGraphJson(node);
             result.nodeDataArray.push(nodeData);
         }
@@ -140,6 +144,17 @@ export class LogicalGraph {
         for (const [id, node] of graph.nodes()){
             const nodeData : any = Node.toV4GraphJson(node);
             result.nodes[id] = nodeData;
+
+            // add input and output applications to the top-level nodes dict
+            if (node.hasInputApplication()){
+                const inputApp = node.getInputApplication();
+                result.nodes[inputApp.getId()] = Node.toV4GraphJson(inputApp);
+            }
+
+            if (node.hasOutputApplication()){
+                const outputApp = node.getOutputApplication();
+                result.nodes[outputApp.getId()] = Node.toV4GraphJson(outputApp);
+            }
         }
 
         // edges
@@ -246,12 +261,14 @@ export class LogicalGraph {
     static fromOJSJson(dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
+        const nodeDataIdToNodeId: Map<string, NodeId> = new Map();
 
         // copy modelData into fileInfo
         result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
 
         // add nodes
         for (const nodeData of dataObject.nodeDataArray){
+            const nodeDataId = Node.determineNodeId(nodeData);
             const newNode = Node.fromOJSJson(nodeData, errorsWarnings, false);
 
             if (newNode === null){
@@ -259,6 +276,16 @@ export class LogicalGraph {
             }
 
             result.nodes().set(newNode.getId(), newNode);
+            nodeDataIdToNodeId.set(nodeDataId, newNode.getId());
+
+            // add input and output applications to the top-level nodes list
+            if (newNode.hasInputApplication()){
+                result.nodes().set(newNode.getInputApplication().getId(), newNode.getInputApplication());
+            }
+            if (newNode.hasOutputApplication()){
+                result.nodes().set(newNode.getOutputApplication().getId(), newNode.getOutputApplication());
+            }
+
             result.nodes.valueHasMutated();
         }
 
@@ -268,26 +295,22 @@ export class LogicalGraph {
         // make sure to set parent for all nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
             const nodeData = dataObject.nodeDataArray[i];
-            const parentId = Node.determineNodeParentId(nodeData);
+            const parentDataId = Node.determineNodeParentId(nodeData);
+
 
             // if parentId cannot be found, skip this node
-            if (parentId === null){
+            if (parentDataId === null){
                 continue;
             }
 
-            // find index of parent node, based on the id we found
-            const parentIndex = GraphUpdater.findIndexOfNodeDataArrayWithId(dataObject.nodeDataArray, parentId);
+            const nodeDataId = Node.determineNodeId(nodeData);
+            const nodeId = nodeDataIdToNodeId.get(nodeDataId);
+            const parentId = nodeDataIdToNodeId.get(parentDataId);
 
-            // if parentIndex === -1 (we couldn't find the parent, then warn)
-            if (parentIndex === -1){
-                const error : string = "Node " + i + " has a parent id (" + parentId + ") but that node is not found elsewhere in the graph.";
-                errorsWarnings.warnings.push(Errors.Message(error));
-                continue;
-            }
+            const node = result.nodes().get(nodeId);
+            const parent = result.nodes().get(parentId);
 
-            // use parentIndex to find parentNode, and update parent
-            const parentNode: Node = Array.from(result.nodes().values())[parentIndex];
-            Array.from(result.nodes().values())[i].setParent(parentNode);
+            node.setParent(parent);
         }
 
         // add edges
@@ -844,29 +867,15 @@ export class LogicalGraph {
         eagle.selectedObjects.valueHasMutated();
     }
 
-    // TODO: can we pass this a Node and a Field instead of two ids?
-    portIsLinked = (nodeId: NodeId, portId: FieldId) : {input: boolean, output: boolean} => {
-        const result:{input:boolean,output:boolean} = {'input':false,'output':false};
-
-        const node = this.nodes().get(nodeId);
-
-        if (typeof node === 'undefined'){
-            console.warn("portIsLinked(): can't find node with id:", nodeId);
-            return result;
-        }
-
-        const port = node.getFieldById(portId);
-
-        if (typeof port === 'undefined'){
-            console.warn("portIsLinked(): can't find port with id:", portId);
-            return result;
-        }
+    // TODO: change this to loop over the port's edges map
+    portIsLinked = (node: Node, port: Field) : {input: boolean, output: boolean} => {
+        const result:{input:boolean, output:boolean} = {'input':false, 'output':false};
 
         for (const edge of port.getEdges()){
-            if(edge.getSrcNode().getId() === nodeId && edge.getSrcPort().getId() === portId){
+            if(edge.getSrcNode().getId() === node.getId() && edge.getSrcPort().getId() === port.getId()){
                 result.output = true
             }
-            if(edge.getDestNode().getId() === nodeId && edge.getDestPort().getId() === portId){
+            if(edge.getDestNode().getId() === node.getId() && edge.getDestPort().getId() === port.getId()){
                 result.input = true
             }
         }
@@ -983,9 +992,21 @@ export class LogicalGraph {
         return depth;
     }
 
-    // similar to getChildrenOfNodeById() (below) except treats id as null always
     getRootNodes = () : Node[] => {
-        return this.getChildrenOfNodeById(null);
+        const result: Node[] = [];
+
+        for (const node of this.nodes().values()){
+            if (node.hasParent()){
+                continue;
+            }
+            if (node.isEmbedded()){
+                continue;
+            }
+
+            result.push(node);
+        }
+
+        return result;
     }
 
     // TODO: redo once we have node.children
@@ -1007,8 +1028,13 @@ export class LogicalGraph {
         const result : Node[] = [];
 
         // populate index plus depths
-        for (const nodeId of this.nodes().keys()){
+        for (const [nodeId, node] of this.nodes()){
             const depth = this.findDepthById(nodeId);
+
+            // skip embedded nodes, rendering of these is handled by the surrounding construct
+            if (node.isEmbedded()){
+                continue;
+            }
 
             idPlusDepths.push({id:nodeId, depth:depth});
         }

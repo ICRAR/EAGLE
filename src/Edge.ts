@@ -522,8 +522,8 @@ export class Edge {
         let associatedConstructType : Category = null; //the category type of the parent construct of the source or destination node
 
         //these checks are to see if the source or destination node are embedded apps whose parent is a sibling of the other source or destination node
-        const destPortIsEmbeddedAppOfSibling : boolean = sourceHasParent && destinationHasEmbed && sourceNode.getParent().getId() === destinationNode.getEmbed()?.getParent().getId();
-        const srcPortIsEmbeddedAppOfSibling : boolean = destinationHasParent && sourceHasEmbed && destinationNode.getParent().getId() === sourceNode.getEmbed()?.getParent().getId();
+        const destPortIsEmbeddedAppOfSibling : boolean = sourceHasParent && destinationHasEmbed && sourceNode.getParent().getId() === destinationNode.getEmbed()?.getParent()?.getId();
+        const srcPortIsEmbeddedAppOfSibling : boolean = destinationHasParent && sourceHasEmbed && destinationNode.getParent().getId() === sourceNode.getEmbed()?.getParent()?.getId();
 
         //checking the type of the parent nodes
         if(!isSibling){
@@ -549,8 +549,8 @@ export class Edge {
         if(    isSibling && loopAware 
             || destPortIsEmbeddedAppOfSibling && loopAware
             || srcPortIsEmbeddedAppOfSibling && loopAware
-            || sourceNode.getEmbed() !== null && sourceNode.getEmbed().getId() === destinationNode.getParent().getId() && loopAware 
-            || destinationNode.getEmbed() !== null && destinationNode.getEmbed().getId() === sourceNode.getParent().getId() && loopAware
+            || sourceNode.isEmbedded() && destinationNode.hasParent() && sourceNode.getEmbed().getId() === destinationNode.getParent().getId() && loopAware
+            || destinationNode.isEmbedded() && sourceNode.hasParent() && destinationNode.getEmbed().getId() === sourceNode.getParent().getId() && loopAware
             || associatedConstructType !== Category.Loop && loopAware
         ){
             const x = Errors.ShowFix("Edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixDisableEdgeLoopAware(eagle, edgeId);}, "Disable loop aware on the edge.");

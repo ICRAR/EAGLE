@@ -258,6 +258,10 @@ export class Node {
         return this;
     }
 
+    hasParent = () : boolean => {
+        return this.parent() !== null;
+    }
+
     getEmbed = () : Node => {
         return this.embed();
     }
