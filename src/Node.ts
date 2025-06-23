@@ -1730,6 +1730,20 @@ export class Node {
             node.addField(field);
         }
 
+        // add git url and hash
+        if (typeof nodeData.repositoryUrl !== 'undefined'){
+            node.repositoryUrl(nodeData.repositoryUrl);
+        }
+        if (typeof nodeData.commitHash !== 'undefined'){
+            node.commitHash(nodeData.commitHash);
+        }
+        if (typeof nodeData.paletteDownloadUrl != 'undefined'){
+            node.paletteDownloadUrl(nodeData.paletteDownloadUrl);
+        }
+        if (typeof nodeData.dataHash !== 'undefined'){
+            node.dataHash(nodeData.dataHash);
+        }
+
         return node;
     }
 
