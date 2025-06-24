@@ -729,6 +729,10 @@ export class Node {
         return Utils.markdown2html(this.description());
     }, this);
 
+    getInspectorDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
+        return 'Edit Node Description: </br>' + Utils.markdown2html(this.description());
+    }, this);
+
     getSubject = () : Node => {
         return this.subject();
     }

@@ -714,13 +714,13 @@ export class Eagle {
         setTimeout(function(){
             $('#inspector').removeClass('inspectorTransition')
         },100)
-
-        if(this.selectedObjects().length > 0){
-            return Setting.findValue(Setting.OBJECT_INSPECTOR_COLLAPSED_STATE)
-        }else{
-            return Setting.findValue(Setting.GRAPH_INSPECTOR_COLLAPSED_STATE)
-        }
+        
+        return Setting.findValue(Setting.INSPECTOR_COLLAPSED_STATE)
     }, this);
+
+    toggleInspectorCollapsedState = () : void => {
+        Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle()
+    };
 
     getGraphModifiedDateText = () : string => {
         return this.logicalGraph().fileInfo().lastModifiedDatetimeText().split(',')[0]

@@ -598,6 +598,10 @@ color: #00bb00;}
     width:100%;
 }
 
+#modelDataModal .modal-body{
+    padding:0px;
+}
+
 #modelDataModal .modal-body tr td input{
     width: 100%;
 }
@@ -1120,6 +1124,7 @@ select.form-control{
     resize: both;
     overflow: hidden;
     height: 50vh;
+    width: 50vw;
     max-height: 95vh;
     max-width: 95vw;
     background-color: aliceblue;

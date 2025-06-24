@@ -354,9 +354,16 @@ export class KeyboardShortcut {
             run: (eagle): void => {eagle.addSelectedNodesToPalette('normal');}
         }),
         new KeyboardShortcut({
+            id: "toggle_inspector",
+            text: "Toggle Inspector",
+            keys: [new Key("i")],
+            tags: ['information'],
+            run: (eagle): void => {eagle.toggleInspectorCollapsedState();}
+        }),
+        new KeyboardShortcut({
             id: "insert_graph_from_local_disk",
             text: "Insert graph from local disk",
-            keys: [new Key("i")],
+            keys: [new Key("i", Modifier.Shift)],
             tags: ['canvas','subGraph','upload'],
             run: (eagle): void => {eagle.getGraphFileToInsert();}
         }),
@@ -409,8 +416,8 @@ export class KeyboardShortcut {
             run: (eagle): void => {eagle.changeNodeParent();}
         }),
         new KeyboardShortcut({
-            id: "change_selected_node_subject",
-            text: "Change Selected Node Subject",
+            id: "connect_comment_node",
+            text: "Connect comment node",
             keys: [new Key("u", Modifier.Shift)],
             tags: ['comment'],
             run: (eagle): void => {eagle.changeNodeSubject();}

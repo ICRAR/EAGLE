@@ -167,14 +167,11 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         switch(dataType){
             case 'comment': {
-                const adjacentNode: Node = n.getSubject();
-
-                if (adjacentNode === null){
-                    console.warn("Could not find adjacentNode for comment", n.getSubject().getId());
-                    return;
+                if(n.getSubject() === null){
+                    return
                 }
 
-                adjacentNodes.push(adjacentNode);
+                adjacentNodes.push(n.getSubject());
                 break;
             }
             case 'inputPort':
@@ -909,6 +906,10 @@ export class GraphRenderer {
 
         const srcNode: Node = commentNode;
         const destNode: Node = commentNode.getSubject();
+
+        if(srcNode === null || destNode === null){
+            return ''
+        }
 
         return GraphRenderer._getPath(null,srcNode, destNode, null, null);
     }

@@ -210,7 +210,7 @@
                         <button type="button" class="btn btn-primary iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('bottom')}, clickBubble:false"><i class="md-20 icon-cross clickable"></i></button>
                     </div>
                     <div class="content">
-                        <!-- ko if: $root.getEagleIsReady() -->
+                        <!-- ko if: $root.getEagleIsReady() && Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) -->
                             <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable -->
                                 {% include 'node_parameter_table.html' %}
                             <!-- /ko -->
