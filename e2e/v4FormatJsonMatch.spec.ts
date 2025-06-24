@@ -11,7 +11,9 @@ import path from 'path';
 5. Compare 1 and 4
 */
 
-const INPUT_GRAPH_LOCATION: string = "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/graph_patterns/genericScatter.graph";
+//const INPUT_GRAPH_LOCATION: string = "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/graph_patterns/genericScatter.graph";
+//const INPUT_GRAPH_LOCATION: string = "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/examples/ArrayIngest_Demo.graph";
+const INPUT_GRAPH_LOCATION: string = "data/LoopWithBranch.graph";
 
 test('V4 Format JSON Match', async ({ page }) => {
   await page.goto('http://localhost:8888/?tutorial=none');
@@ -29,7 +31,7 @@ test('V4 Format JSON Match', async ({ page }) => {
   await page.waitForTimeout(500);
 
   // 1
-  const inputOJS = await fetchGraph(INPUT_GRAPH_LOCATION);
+  const inputOJS = await readGraph(INPUT_GRAPH_LOCATION);
 
   await loadGraphFromString(page, inputOJS);
 
