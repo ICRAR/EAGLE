@@ -1002,6 +1002,11 @@ export class Node {
     }
 
     addField = (field : Field) : Node => {
+        if (this.fields().has(field.getId())){
+            console.warn("Node already has field with id: " + field.getId() + ", not adding it again");
+            return this;
+        }
+
         this.fields().set(field.getId(), field);
         this.fields.valueHasMutated();
         field.setNode(this);

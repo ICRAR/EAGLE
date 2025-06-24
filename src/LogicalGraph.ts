@@ -843,15 +843,25 @@ export class LogicalGraph {
 
     // delete edges that start from or end at the node with the given id
     removeEdgesById = (nodeId: NodeId) : void => {
+        // first build a list of edges to remove
+        // this is necessary because we cannot modify the edges map while iterating over it
+        const edgesToRemove: EdgeId[] = [];
+
         for (const [edgeId, edge] of this.edges()){
             if (edge.getSrcNode().getId() === nodeId || edge.getDestNode().getId() === nodeId){
-                this.edges().delete(edgeId);
-                this.edges.valueHasMutated();
+                edgesToRemove.push(edgeId);
 
+                // remove the edge from the source and destination ports
                 edge.getSrcPort().removeEdge(edgeId);
                 edge.getDestPort().removeEdge(edgeId);
             }
         }
+
+        // remove edges from the map
+        for (const edgeId of edgesToRemove){
+            this.edges().delete(edgeId);
+        }
+        this.edges.valueHasMutated();
     }
 
     removeFieldFromNodeById = (node : Node, fieldId: FieldId) : void => {
@@ -863,17 +873,27 @@ export class LogicalGraph {
         // remove port
         node.removeFieldById(fieldId);
 
-        // remove any edges connected to that port
+        // first build a list of edges to remove
+        // this is necessary because we cannot modify the edges map while iterating over it
+        const edgesToRemove: EdgeId[] = [];
+
         for (const [edgeId, edge] of this.edges()){
             if (edge.getSrcPort().getId() === fieldId || edge.getDestPort().getId() === fieldId){
-                this.edges().delete(edgeId);
-                this.edges.valueHasMutated();
+                edgesToRemove.push(edgeId);
 
+                // remove the edge from the source and destination ports
                 edge.getSrcPort().removeEdge(edgeId);
                 edge.getDestPort().removeEdge(edgeId);
             }
         }
 
+        // remove edges from the map
+        for (const edgeId of edgesToRemove){
+            this.edges().delete(edgeId);
+        }
+        this.edges.valueHasMutated();
+
+        // TODO: we should do this graph checking in the calling code, not here
         // get reference to EAGLE
         const eagle: Eagle = Eagle.getInstance();
 
