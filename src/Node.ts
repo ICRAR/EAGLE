@@ -251,6 +251,11 @@ export class Node {
             return this;
         }
 
+        // if this node already has a parent, remove this node from the parent's children
+        if (this.parent() !== null){
+            this.parent().children().delete(this.getId());
+        }
+
         this.parent(node);
 
         if (node !== null){
