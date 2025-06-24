@@ -133,6 +133,8 @@ export class ParameterTable {
                 const config: GraphConfig = lg.getActiveGraphConfig();
                 const displayedFields: Field[] = [];
 
+                console.log("ParameterTable.getTableFields(): Displaying fields for config:", config ? config.getName() : "<No Config>");
+
                 if (!config){
                     return [];
                 }

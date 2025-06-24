@@ -388,7 +388,7 @@ export class Eagle {
     }, this);
 
     activeConfigHtml : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (this.logicalGraph().getActiveGraphConfig() === null){
+        if (typeof this.logicalGraph().getActiveGraphConfig() === 'undefined'){
             return "";
         }
 

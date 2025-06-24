@@ -18,7 +18,7 @@
 
     </div>
     <div class="tableBody">
-        <!-- ko if: logicalGraph().graphConfigs().length === 0 -->
+        <!-- ko if: logicalGraph().getNumGraphConfigs() === 0 -->
             <div class="container h-100">
                 <div class="row align-items-center h-100">
                     <div class="col-md-12 text-center">
@@ -30,7 +30,7 @@
                 </div>
             </div>
         <!-- /ko -->
-        <!-- ko if: logicalGraph().graphConfigs().length !== 0 -->
+        <!-- ko if: logicalGraph().getNumGraphConfigs() !== 0 -->
             <table class="eagleTableWrapper" id="graphConfigurationsTableWrapper">
                 <thead>
                     <tr>
@@ -43,7 +43,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- ko foreach: logicalGraph().graphConfigs() -->
+                    <!-- ko foreach: Array.from(logicalGraph().graphConfigs().values()) -->
                         <tr data-bind="attr: {'id' : 'tableRow_'+$data.getName()}, css: {activeConfig: $data.id() === $root.logicalGraph().activeGraphConfigId()}">
                             <td class='columnCell column-sort'>
                                 <!-- kept for now as we will need the space for the row drag handle -->

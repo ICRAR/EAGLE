@@ -32,7 +32,6 @@ import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
 import { GraphConfig } from './GraphConfig';
-import { GraphUpdater } from './GraphUpdater';
 import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
@@ -42,7 +41,7 @@ export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
     private nodes : ko.Observable<Map<NodeId, Node>>;
     private edges : ko.Observable<Map<EdgeId, Edge>>;
-    private graphConfigs : ko.ObservableArray<GraphConfig>;
+    private graphConfigs : ko.Observable<Map<GraphConfigId, GraphConfig>>;
     private activeGraphConfigId : ko.Observable<GraphConfigId>;
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
@@ -55,7 +54,7 @@ export class LogicalGraph {
         this.fileInfo().builtIn = false;
         this.nodes = ko.observable(new Map<NodeId, Node>());
         this.edges = ko.observable(new Map<EdgeId, Edge>());
-        this.graphConfigs = ko.observableArray([]);
+        this.graphConfigs = ko.observable(new Map<GraphConfigId, GraphConfig>());
         this.activeGraphConfigId = ko.observable(null); // can be null, or an id (can't be undefined)
         this.issues = ko.observableArray([])
     }
@@ -123,7 +122,7 @@ export class LogicalGraph {
 
         // add graph configurations
         result.graphConfigurations = {};
-        for (const gc of graph.graphConfigs()){
+        for (const gc of graph.graphConfigs().values()){
             result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc, graph);
         }
 
@@ -167,7 +166,7 @@ export class LogicalGraph {
 
         // add graph configurations
         result.graphConfigurations = {};
-        for (const gc of graph.graphConfigs()){
+        for (const gc of graph.graphConfigs().values()){
             result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc, graph);
         }
 
@@ -332,7 +331,7 @@ export class LogicalGraph {
                 const gco = dataObject["graphConfigurations"][gcId];
                 const gc = GraphConfig.fromJson(gco, result, errorsWarnings);
                 gc.setId(gcId as GraphConfigId);
-                result.graphConfigs.push(gc);
+                result.graphConfigs().set(gcId as GraphConfigId, gc);
             }
 
             //if the saved 'activeGraphConfigId' is empty or missing, we use the last one in the array, else we set the saved one as active                
@@ -533,25 +532,20 @@ export class LogicalGraph {
         return 'Edit Detailed Graph Description: </br>' + Utils.markdown2html(this.fileInfo().detailedDescription);
     }, this);
 
-    setGraphConfigs = (graphConfigs: GraphConfig[]): void => {
-        this.graphConfigs(graphConfigs);
-    }
-
-    getGraphConfigs = (): GraphConfig[] => {
-        return this.graphConfigs();
+    getGraphConfigs = (): MapIterator<GraphConfig> => {
+        return this.graphConfigs().values();
     }
     
-    getGraphConfigById = (id: GraphConfigId): GraphConfig => {
-        for(let i = 0 ; i < this.graphConfigs().length ; i++){
-            if(this.graphConfigs()[i].getId() === id){
-                return this.graphConfigs()[i]
-            }
-        }
-        return null
+    getNumGraphConfigs = (): number => {
+        return this.graphConfigs().size;
+    }
+
+    getGraphConfigById = (id: GraphConfigId): GraphConfig | undefined => {
+        return this.graphConfigs().get(id);
     }
 
     addGraphConfig = (config: GraphConfig): void => {
-        this.graphConfigs.push(config);
+        this.graphConfigs().set(config.getId(), config);
         Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Added a new graph config");
     }
 
@@ -578,29 +572,11 @@ export class LogicalGraph {
     }
 
     removeGraphConfig = (config: GraphConfig): void => {
-        // find index of graph config to remove
-        let index = -1;
-        for (let i = 0 ; i < this.graphConfigs().length ; i++){
-            if (this.graphConfigs()[i].getId() === config.getId()){
-                index = i;
-            }
-        }
-
-        // if not found, warn user and abort
-        if (index === -1){
-            console.warn("Graph config can't be removed, not found. id = ", config.getId());
-            return;
-        }
-
-        // cache name, id of graph configuration
-        const name: string = this.graphConfigs()[index].getName();
-        const id: GraphConfigId = this.graphConfigs()[index].getId();
-
-        // remove graph config
-        this.graphConfigs.splice(index, 1);
+        this.graphConfigs().delete(config.getId());
+        this.graphConfigs.valueHasMutated();
 
         // if the removed graph config is also the active config, then we need to unset the active config
-        if (this.activeGraphConfigId() === id){
+        if (this.activeGraphConfigId() === config.getId()){
             this.activeGraphConfigId(null);
         }
 
@@ -612,7 +588,7 @@ export class LogicalGraph {
         eagle.checkGraph();
     }
 
-    getActiveGraphConfig = (): GraphConfig => {
+    getActiveGraphConfig = (): GraphConfig | undefined => {
         return this.getGraphConfigById(this.activeGraphConfigId())
     }
 
@@ -637,7 +613,7 @@ export class LogicalGraph {
         this.fileInfo().type = Eagle.FileType.Graph;
         this.nodes().clear();
         this.edges().clear();
-        this.graphConfigs([]);
+        this.graphConfigs().clear();
         this.activeGraphConfigId(null)
     }
 
@@ -662,9 +638,10 @@ export class LogicalGraph {
         }
 
         // copy graph configs
-        for (const graphConfig of this.graphConfigs()){
-            result.graphConfigs.push(graphConfig.clone());
-            // TODO: valueHasMutated()?
+        for (const graphConfig of this.graphConfigs().values()){
+            const clone = graphConfig.clone();
+            result.graphConfigs().set(clone.getId(), clone);
+            result.graphConfigs.valueHasMutated();
         }
 
         //copy active graph config id state
@@ -740,7 +717,7 @@ export class LogicalGraph {
         const id = node.getId();
 
         // first, delete any field in any graph config, that belongs to this node
-        for (const graphConfig of this.graphConfigs()){
+        for (const graphConfig of this.graphConfigs().values()){
             graphConfig.removeNodeById(node.getId());
         }
 
@@ -1213,10 +1190,10 @@ export class LogicalGraph {
                     function(){
                         // if there are no graph config, set active id to undefined
                         // otherwise, just set the active id to the id of the first graph config in the list
-                        if (graph.getGraphConfigs().length === 0){
+                        if (graph.graphConfigs().size === 0){
                             graph.setActiveGraphConfig(null);
                         } else {
-                            graph.setActiveGraphConfig(graph.getGraphConfigs()[0].getId());
+                            graph.setActiveGraphConfig(Array.from(graph.graphConfigs().values())[0].getId());
                         }
                     },
                     "Make first graph config active, or set undefined if no graph configs present"
