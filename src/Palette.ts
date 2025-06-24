@@ -266,6 +266,49 @@ export class Palette {
         return result;
     }
 
+    removeNode = (node: Node) : void => {
+        const id = node.getId();
+
+        // search through nodes in palette, looking for one with the correct key
+        for (const node of this.nodes().values()){
+            if (typeof node === 'undefined'){
+                continue;
+            }
+
+            if (node.getId() === id){
+                this.nodes().delete(id);
+                this.nodes.valueHasMutated();
+                break;
+            }
+
+            // delete the input application
+            if (node.hasInputApplication() && node.getInputApplication().getId() === id){
+                this.nodes().delete(node.getInputApplication().getId());
+                this.nodes.valueHasMutated();
+                node.setInputApplication(null);
+                break;
+            }
+
+            // delete the output application
+            if (node.hasOutputApplication() && node.getOutputApplication().getId() === id){
+                this.nodes().delete(node.getOutputApplication().getId());
+                this.nodes.valueHasMutated();
+                node.setOutputApplication(null);
+                break;
+            }
+        }
+
+        // remove inputApplication and outputApplication from the nodes map
+        if (node.hasInputApplication()){
+            this.nodes().delete(node.getInputApplication().getId());
+            this.nodes.valueHasMutated();
+        }
+        if (node.hasOutputApplication()){
+            this.nodes().delete(node.getOutputApplication().getId());
+            this.nodes.valueHasMutated();
+        }
+    }
+
     copyUrl = (): void => {
         // get reference to the LG fileInfo object
         const fileInfo: FileInfo = this.fileInfo();

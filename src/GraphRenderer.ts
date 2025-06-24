@@ -350,6 +350,7 @@ export class GraphRenderer {
         return Math.atan2(y, x);
     }
 
+    // TODO: the mode parameter could be replaced with a boolean (or an Enum)
     static calculatePortPositionX(mode: "input" | "output", field: Field, node: Node) : number {
         
         let portPosX :number
@@ -363,6 +364,7 @@ export class GraphRenderer {
         return x
     }
 
+    // TODO: the mode parameter could be replaced with a boolean (or an Enum)
     static calculatePortPositionY(mode: "input" | "output", field: Field, node: Node) {
         
         let portPosY :number
@@ -380,6 +382,7 @@ export class GraphRenderer {
         //calculating the minimum port distance as an angle. we save this min distance as a pixel distance between ports
         const minimumPortDistance:number = Number(Math.asin(EagleConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
         
+        // TODO: the mode attribute could be replaced with a boolean (or an Enum)
         const connectedFields : {angle:number, field:Field, mode:"input" | "output"}[] = []
         const danglingPorts : {angle:number, field:Field, mode:"input" | "output"}[] = []
         const nodeRadius = node.getRadius()
@@ -459,7 +462,7 @@ export class GraphRenderer {
         for (const danglingPort of danglingPorts){
             const newAngle = GraphRenderer.findClosestMatchingAngle(node,danglingPort.angle,minimumPortDistance,danglingPort.field,danglingPort.mode)
 
-            GraphRenderer.applyPortAngle(danglingPort.mode, newAngle,nodeRadius,node,danglingPort.field)
+            GraphRenderer.applyPortAngle(danglingPort.mode,newAngle,nodeRadius,node,danglingPort.field)
             if(danglingPort.mode === 'input'){
                 danglingPort.field.setInputAngle(newAngle)
             }else{
@@ -468,6 +471,7 @@ export class GraphRenderer {
         }
     }
 
+    // TODO: the mode parameter could be replaced with a boolean (or an Enum)
     static applyPortAngle (mode: "input" | "output", angle:number, nodeRadius: number, node:Node, field:Field) : void {
         let portPosition
         if (mode === 'input'){
@@ -491,7 +495,7 @@ export class GraphRenderer {
         }
     }
 
-    static findClosestMatchingAngle (node:Node, angle:number, minPortDistance:number,field:Field,mode:string) : number {
+    static findClosestMatchingAngle (node:Node, angle:number, minPortDistance:number,field:Field,mode: "input" | "output") : number {
         let result = 0
         let minAngle 
         let maxAngle
@@ -569,7 +573,7 @@ export class GraphRenderer {
         return result
     }
 
-    static checkForPortUsingAngle (node:Node, angle:number, minPortDistance:number, activeField:Field, mode:string) : number {
+    static checkForPortUsingAngle (node:Node, angle:number, minPortDistance:number, activeField:Field, mode: "input" | "output") : number {
         //we check if there are any ports within range of the desired angle. if there are we will return the angle of the port we collided with
         let result:number = null
 
@@ -1430,6 +1434,7 @@ export class GraphRenderer {
     }
 
     // TODO: does this do nothing when construct !== null ? (maybe the first parameter isn't required?) (maybe move to LogicalGraph.ts?)
+    // TODO: the graphNodes parameter probably should be a LogicalGraph
     static centerConstructs(construct:Node, graphNodes:Node[]) : void {
         const constructsList : Node[]=[]
         if(construct === null){
@@ -1472,6 +1477,7 @@ export class GraphRenderer {
     }
 
     // TODO: maybe move to LogicalGraph.ts
+    // TODO: the graphNodes parameter probably should be a LogicalGraph
     static centerConstruct(construct:Node, graphNodes:Node[]) : void {
         if(!construct){
             Utils.showNotification('Error','A single Construct node must be selected!',"warning")
@@ -1521,7 +1527,7 @@ export class GraphRenderer {
     }
 
     // TODO: mode parameter could be a boolean?
-    static setNewEmbeddedApp(nodeId: NodeId, mode: string) :void {
+    static setNewEmbeddedApp(nodeId: NodeId, mode: "addEmbeddedOutputApp" | "addEmbeddedInputApp") :void {
         const eagle = Eagle.getInstance()
         const parentNode = eagle.selectedNode()
         RightClick.closeCustomContextMenu(true)
@@ -1669,7 +1675,7 @@ export class GraphRenderer {
     }
 
     // TODO: can we use the Daliuge.FieldUsage type here for the 'usage' parameter?
-    static portDragStart(port:Field, usage:string) : void {
+    static portDragStart(port:Field, usage: "input" | "output") : void {
         const eagle = Eagle.getInstance();
         const e:any = event; //somehow the event here will always log in the console as a mouseevent. this allows the following line to access the button attribute.
         //furter down we are calling stopPropagation on the same event object and it works, eventhough stopPropagation shouldnt exist on a mouseEvent. this is why i created a constant of type any. its working as it should but i dont kow how.
@@ -1936,6 +1942,7 @@ export class GraphRenderer {
         return (y+eagle.globalOffsetY())*eagle.globalScale()+83.77
     }
 
+    // TODO: the showDataNodes parameter is not able to be toggled in EAGLE, it is always true, so maybe remove it
     static depthFirstTraversalOfNodes(graph: LogicalGraph, showDataNodes: boolean) : Node[] {
         // TODO: think about changing this to idPlusDepths (as above, re-use possible?)
         const indexPlusDepths : {index:number, depth:number}[] = [];
@@ -1981,6 +1988,7 @@ export class GraphRenderer {
         return result;
     }
 
+    // TODO: maybe replace the nodes parameter here with graph: LogicalGraph
     static findDepthOfNode(index: number, nodes : Node[]) : number {
         const eagle = Eagle.getInstance();
         if (index >= nodes.length){

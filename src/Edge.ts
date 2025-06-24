@@ -288,7 +288,6 @@ export class Edge {
             closesLoop = linkData.closesLoop;
         }
 
-        // TODO: this could be better? perhaps could use Node.findPortInApplicationsById()
         let srcNode: Node = null;
         let destNode: Node = null;
         let srcPort: Field;
@@ -298,24 +297,12 @@ export class Edge {
             if (node.getId() === srcNodeId){
                 srcNode = node;
 
-                // check whether edge is actually connected to the inputApplication
-                if (node.hasInputApplication()){
-                    srcPort = node.getInputApplication().getFieldById(srcPortId);
-
-                    if (typeof srcPort !== 'undefined'){
-                        srcNode = node.getInputApplication();
-                        continue;
-                    }
-                }
-
-                // check whether edge is actually connected to the outputApplication
-                if (node.hasOutputApplication()){
-                    srcPort = node.getOutputApplication().getFieldById(srcPortId);
-
-                    if (typeof srcPort !== 'undefined'){
-                        srcNode = node.getOutputApplication();
-                        continue;
-                    }
+                // check input and output applications for srcPort
+                const result = node.findPortInApplicationsById(srcPortId);
+                if (result.node !== null){
+                    srcNode = result.node;
+                    srcPort = result.port;
+                    continue;
                 }
 
                 srcPort = node.getFieldById(srcPortId);
@@ -324,24 +311,12 @@ export class Edge {
             if (node.getId() === destNodeId){
                 destNode = node;
 
-                // check whether edge is actually connected to the inputApplication
-                if (node.hasInputApplication()){
-                    destPort = node.getInputApplication().getFieldById(destPortId);
-
-                    if (typeof destPort !== 'undefined'){
-                        destNode = node.getInputApplication();
-                        continue;
-                    }
-                }
-
-                // check whether edge is actually connected to the outputApplication
-                if (node.hasOutputApplication()){
-                    destPort = node.getOutputApplication().getFieldById(destPortId);
-
-                    if (typeof destPort !== 'undefined'){
-                        destNode = node.getOutputApplication();
-                        continue;
-                    }
+                // check input and output applications for destPort
+                const result = node.findPortInApplicationsById(destPortId);
+                if (result.node !== null){
+                    destNode = result.node;
+                    destPort = result.port;
+                    continue;
                 }
 
                 destPort = node.getFieldById(destPortId);
@@ -392,7 +367,6 @@ export class Edge {
         return new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
     }
 
-    // TODO: can we just pass this the edge itself, rather than an id?
     static isValid(eagle: Eagle, draggingPortMode: boolean, edgeId: EdgeId, sourceNodeId: NodeId, sourcePortId: FieldId, destinationNodeId: NodeId, destinationPortId: FieldId, loopAware: boolean, closesLoop: boolean, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
         let impossibleEdge : boolean = false;
         let draggingEdgeFixable : boolean = false;
@@ -405,25 +379,13 @@ export class Edge {
         }
 
         if (sourcePortId === null){
-            const issue = Errors.Fix("Source port has no id", function(){Utils.fixNodeFieldIds(eagle, sourceNodeId)}, "Generate ids for ports on source node");
+            const issue = Errors.Message("Source port id is null");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             return Errors.Validity.Impossible;
         }
 
         if (destinationPortId === null){
-            const issue = Errors.Fix("Destination port has no id", function(){Utils.fixNodeFieldIds(eagle, sourceNodeId)}, "Generate ids for ports on destination node");
-            Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
-            return Errors.Validity.Impossible;
-        }
-
-        if (sourcePortId === null){
-            const issue = Errors.Fix("Source port id is null", function(){Utils.fixNodeFieldIds(eagle, sourceNodeId)}, "Generate ids for ports on source node");
-            Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
-            return Errors.Validity.Impossible;
-        }
-
-        if (destinationPortId === null){
-            const issue = Errors.Fix("Destination port id is null", function(){Utils.fixNodeFieldIds(eagle, sourceNodeId)}, "Generate ids for ports on destination node");
+            const issue = Errors.Message("Destination port id is null");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             return Errors.Validity.Impossible;
         }

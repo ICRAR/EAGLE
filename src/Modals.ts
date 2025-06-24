@@ -458,12 +458,22 @@ export class Modals {
                     const srcNode = eagle.logicalGraph().getNodeById(srcNodeId);
                     const destNode = eagle.logicalGraph().getNodeById(destNodeId);
 
-                    // TODO: check that nodes were found
+                    // check that nodes were found
+                    if (typeof srcNode === 'undefined' || typeof destNode === 'undefined'){
+                        console.error("Source or destination node not found in logical graph");
+                        callback(false, null);
+                        return;
+                    }
 
                     const srcPort = srcNode.getFieldById(srcPortId);
                     const destPort = destNode.getFieldById(destPortId);
 
-                    // TODO: check that ports were found
+                    // check that ports were found
+                    if (typeof srcPort === 'undefined' || typeof destPort === 'undefined'){
+                        console.error("Source or destination port not found in logical graph");
+                        callback(false, null);
+                        return;
+                    }
 
                     const newEdge = new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
 

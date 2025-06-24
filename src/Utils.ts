@@ -127,7 +127,7 @@ export class Utils {
         return fileType.toString() + "-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
     }
 
-    // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids), check now!
+    // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids)
     static setEmbeddedApplicationNodeIds(lg: LogicalGraph): void {
         // loop through nodes, look for embedded nodes with null id, create new id
         for (const node of lg.getNodes()){
@@ -1296,7 +1296,7 @@ export class Utils {
         return matchingCategories;
     }
 
-    static getPaletteComponentByName(name: string) : Node {
+    static getPaletteComponentByName(name: string) : Node | undefined {
         const eagle: Eagle = Eagle.getInstance();
 
         // add all data components (except ineligible)
@@ -1972,24 +1972,6 @@ export class Utils {
         node.addField(field);
     }
 
-    // TODO: pass a node instead of id?
-    static fixNodeFieldIds(eagle: Eagle, nodeId: NodeId){
-        const node: Node = eagle.logicalGraph().getNodeById(nodeId);
-
-        if (typeof node === 'undefined'){
-            return;
-        }
-
-        for (const field of node.getFields()){
-            if (field.getId() === null){
-                // TODO: need to do something better here, needs all 3 lines!
-                //node.getFields().delete(id);
-                field.setId(Utils.generateFieldId());
-                //node.getFields().set(field.getId(), field);
-            }
-        }
-    }
-
     static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
         node.setCategoryType(categoryType);
@@ -2359,11 +2341,16 @@ export class Utils {
         }, 100);
     }
 
-    // TODO: move to Palette.ts and LogicalGraph.ts, needs all three lines
     static generateNewNodeId(object: Palette | LogicalGraph, node: Node){
-        //object.getNodes().delete(node.getId());
+        object.removeNode(node);
         node.setId(Utils.generateNodeId());
-        //object.getNodes().set(node.getId(), node);
+
+        if (object instanceof Palette){
+            object.addNode(node, true);
+        }
+        if (object instanceof LogicalGraph){
+            object.addNodeComplete(node);
+        }
     }
 
     // only update result if it is worse that current result

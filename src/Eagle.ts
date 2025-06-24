@@ -282,6 +282,7 @@ export class Eagle {
         return result;
     }, this);
 
+    // TODO: not used, remove?
     toggleShowDataNodes = () : void => {
         // when we switch show/hide data nodes, some of the selected objects may become invisible,
         // and some of the selected objects may have not existed in the first place,
@@ -3664,7 +3665,12 @@ export class Eagle {
                 if (typeof node === 'undefined'){
                     node = this.logicalGraph().getNodeById(nodeId);
 
-                    // TODO: abort if node is still undefined
+                    // abort if node is still undefined
+                    if (typeof node === 'undefined'){
+                        // if we still can't find the node, reject with an error
+                        reject(new Error("Unable to find node with specified id (" + nodeId + ") in palette(s) or graph."));
+                        return;
+                    }
                 }
 
                 // use the position where the right click occurred
@@ -4383,9 +4389,13 @@ export class Eagle {
             const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
 
             // consult the DEFAULT_DATA_NODE setting to determine which category of intermediate data node to use
-            const intermediaryComponent = Utils.getPaletteComponentByName(Setting.findValue(Setting.DEFAULT_DATA_NODE));
+            let intermediaryComponent = Utils.getPaletteComponentByName(Setting.findValue(Setting.DEFAULT_DATA_NODE));
 
-            // TODO: if intermediaryComponent is undefined (not found), then choose something guaranteed to be available
+            // if intermediaryComponent is undefined (not found), then choose something guaranteed to be available
+            if (typeof intermediaryComponent === 'undefined'){
+                // build a default data component
+                intermediaryComponent = new Node("Data", "Data Component", Category.Data);
+            }
 
             // if edge DOES NOT connect two applications, process normally
             // if edge connects two event ports, process normally

@@ -1,7 +1,8 @@
-import {LogicalGraph} from './LogicalGraph';
-import {Palette} from './Palette';
-import {Node} from './Node';
-import {Errors} from './Errors';
+import { Errors } from './Errors';
+import { Field } from './Field';
+import { LogicalGraph } from './LogicalGraph';
+import { Node } from './Node';
+import { Palette } from './Palette';
 
 export class ComponentUpdater {
 
@@ -39,7 +40,7 @@ export class ComponentUpdater {
     static _replaceNode(dest: Node, src: Node){
         for (const srcField of src.getFields()){
             // try to find a field with the same name in the destination
-            let destField = dest.getFieldById(srcField.getId());
+            let destField: Field = dest.getFieldById(srcField.getId());
 
             // if dest field not found, try to find something that matches by displayText AND fieldType
             if (typeof destField === 'undefined'){

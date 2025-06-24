@@ -48,7 +48,7 @@ export class Node {
     private children : ko.Observable<Map<NodeId, Node>>;
 
     private inputApplication : ko.Observable<Node>;
-    private outputApplication : ko.Observable<Node>; // TODO: remove inputApplication, outputApplication and embed
+    private outputApplication : ko.Observable<Node>;
 
     private fields : ko.Observable<Map<FieldId, Field>>;
 
@@ -74,6 +74,7 @@ export class Node {
     private drawOrderHint : ko.Observable<number>; // a secondary sorting hint when ordering the nodes for drawing
                                                    // (primary method is using parent-child relationships)
                                                    // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
+                                                   // TODO: unused? shall we remove it?
 
     constructor(name : string, description : string, category : Category){
         this.id = ko.observable(Utils.generateNodeId());
@@ -825,7 +826,6 @@ export class Node {
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
     }, this);
 
-    // TODO: still used?
     findPortInApplicationsById = (portId: FieldId) : {node: Node, port: Field} => {
         // if node has an inputApplication, check those ports too
         if (this.hasInputApplication()){
@@ -1106,7 +1106,6 @@ export class Node {
         result.subject(this.subject());
 
         // clone fields
-        // TODO: check ids, do we need to generate new ids?
         for (const field of this.fields().values()){
             result.fields().set(field.getId(), field.clone());
             result.fields.valueHasMutated();
@@ -1510,20 +1509,6 @@ export class Node {
                 }
             }
         }
-
-        // TODO: parent and embed will have to be set using data outside this node
-        /*
-        // set parentId if a parentId is defined
-        const parentId = Node.determineNodeParentId(nodeData);
-        if (parentId !== null){
-            node.parentId(parentId);
-        }
-
-        // set embedId if defined
-        if (typeof nodeData.embedId !== 'undefined'){
-            node.embedId(nodeData.embedId);
-        }
-        */
 
         // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
         if (nodeData.application !== undefined && nodeData.application !== ""){

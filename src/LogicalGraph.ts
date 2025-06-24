@@ -391,11 +391,6 @@ export class LogicalGraph {
     }
 
     static fromV4Json(dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
-        console.log("fromV4Json()", dataObject);
-
-        // debug
-        (<any>window).dataObject = dataObject
-
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
@@ -733,7 +728,6 @@ export class LogicalGraph {
         return null;
     }
 
-    // TODO: check this!
     removeNode = (node: Node) : void => {
         const id = node.getId();
 
@@ -785,12 +779,16 @@ export class LogicalGraph {
 
             // delete the input application
             if (node.hasInputApplication() && node.getInputApplication().getId() === id){
+                this.nodes().delete(node.getInputApplication().getId());
+                this.nodes.valueHasMutated();
                 node.setInputApplication(null);
                 break;
             }
 
             // delete the output application
             if (node.hasOutputApplication() && node.getOutputApplication().getId() === id){
+                this.nodes().delete(node.getOutputApplication().getId());
+                this.nodes.valueHasMutated();
                 node.setOutputApplication(null);
                 break;
             }
@@ -812,6 +810,16 @@ export class LogicalGraph {
             if (parent !== null && parent.getId() === id){
                 this.removeNode(node);
             }
+        }
+
+        // remove inputApplication and outputApplication from the nodes map
+        if (node.hasInputApplication()){
+            this.nodes().delete(node.getInputApplication().getId());
+            this.nodes.valueHasMutated();
+        }
+        if (node.hasOutputApplication()){
+            this.nodes().delete(node.getOutputApplication().getId());
+            this.nodes.valueHasMutated();
         }
     }
 
@@ -867,7 +875,6 @@ export class LogicalGraph {
         eagle.selectedObjects.valueHasMutated();
     }
 
-    // TODO: change this to loop over the port's edges map
     portIsLinked = (node: Node, port: Field) : {input: boolean, output: boolean} => {
         const result:{input:boolean, output:boolean} = {'input':false, 'output':false};
 
@@ -1009,7 +1016,7 @@ export class LogicalGraph {
         return result;
     }
 
-    // TODO: redo once we have node.children
+    // TODO: redo once we have node.children, shouldn't actually be required at all, remove it
     getChildrenOfNodeById = (id: NodeId) : Node[] => {
         const result: Node[] = [];
 
