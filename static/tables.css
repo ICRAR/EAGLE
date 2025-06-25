@@ -526,6 +526,10 @@
     display:inline-block;
 }
 
+#modelDataModalTable th:first-of-type{
+    width: 250px;
+}
+
 #modelDataModalTable td:hover button.modelDataTableEditParam{
     display: inline-block;
 }

@@ -27,7 +27,7 @@
                                 <td data-bind="text: $root.currentFileInfo().getText()"></td>
                             <!-- /ko -->
                         </tr>
-                        <tr id="modelDataShortDescription">
+                        <tr id="modelDataShortDescription" data-bind="style:{'background-color': $root.logicalGraph().getShortDescriptionBtnColor()}">
                             <td data-bind="eagleTooltip: 'A one-line description of the purpose of this file'">Short Description</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td>
@@ -38,7 +38,7 @@
                                 </td>
                             <!-- /ko -->
                         </tr>
-                        <tr id="modelDataDetailedDescription">
+                        <tr id="modelDataDetailedDescription" data-bind="style:{'background-color': $root.logicalGraph().getDetailedDescriptionBtnColor()}">
                             <td data-bind="eagleTooltip: 'A complete description of the purpose of this file'">Detailed Description</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td>

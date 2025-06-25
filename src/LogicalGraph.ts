@@ -351,11 +351,21 @@ export class LogicalGraph {
     }
 
     getInspectorShortDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return 'Edit Short Graph Description: </br>' + Utils.markdown2html(this.fileInfo().shortDescription);
+        let text = 'No short description available'
+        if(this.fileInfo().shortDescription != ''){
+            text = Utils.markdown2html(this.fileInfo().shortDescription)
+        }
+
+        return '***Edit Short Graph Description:*** </br>' + text;
     }, this);
 
     getInspectorDetailedDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return 'Edit Detailed Graph Description: </br>' + Utils.markdown2html(this.fileInfo().detailedDescription);
+        let text = 'No detailed description available'
+        if(this.fileInfo().detailedDescription != ''){
+            text = Utils.markdown2html(this.fileInfo().detailedDescription)
+        }
+        
+        return '***Edit Detailed Graph Description:*** </br>' + text;
     }, this);
 
     setGraphConfigs = (graphConfigs: GraphConfig[]): void => {
