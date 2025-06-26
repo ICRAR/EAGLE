@@ -55,7 +55,7 @@ export class Palette {
         this.expanded = ko.observable(false);
     }
 
-    static fromOJSJson(data : string, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette {
+    static fromOJSJson(data: string, file: RepositoryFile, errorsWarnings: Errors.ErrorsWarnings) : Palette {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
         const result : Palette = new Palette();
@@ -69,6 +69,58 @@ export class Palette {
 
             // read node
             const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, true);
+
+            // check that node has no group
+            if (newNode.getParent() !== null){
+                const error : string = file.name + " Node " + i + " has parent: " + newNode.getParent().getName() + ". Setting parentKey to null.";
+                errorsWarnings.warnings.push(Errors.Message(error));
+
+                newNode.setParent(null);
+            }
+
+            // check that x, y, position is the default
+            if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
+                const error : string = file.name + " Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
+                errorsWarnings.warnings.push(Errors.Message(error));
+
+                newNode.setPosition(0, 0);
+            }
+
+            // add node to palette
+            result.nodes().set(newNode.getId(), newNode);
+            result.nodes.valueHasMutated();
+        }
+
+        // check for missing name
+        if (result.fileInfo().name === ""){
+            const error : string = file.name + " FileInfo.name is empty. Setting name to " + file.name;
+            errorsWarnings.warnings.push(Errors.Message(error));
+
+            result.fileInfo().name = file.name;
+        }
+
+        // check palette, and then add any resulting errors/warnings to the end of the errors/warnings list
+        const checkResult = Utils.checkPalette(result);
+        errorsWarnings.errors.push(...checkResult.errors);
+        errorsWarnings.warnings.push(...checkResult.warnings);
+
+        return result;
+    }
+
+    static fromV4Json(data: string, file: RepositoryFile, errorsWarnings: Errors.ErrorsWarnings): Palette {
+        // parse the JSON first
+        const dataObject : any = JSON.parse(data);
+        const result : Palette = new Palette();
+
+        // copy modelData into fileInfo
+        result.fileInfo(FileInfo.fromV4Json(dataObject.modelData, errorsWarnings));
+
+        // add nodes
+        for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+            const nodeData = dataObject.nodeDataArray[i];
+
+            // read node
+            const newNode : Node = Node.fromV4Json(nodeData, errorsWarnings, true);
 
             // check that node has no group
             if (newNode.getParent() !== null){
@@ -128,7 +180,26 @@ export class Palette {
     static toV4Json(palette: Palette) : object {
         const result : any = {};
 
-        // TODO: !
+        result.modelData = FileInfo.toV4Json(palette.fileInfo());
+        result.modelData.schemaVersion = Setting.SchemaVersion.V4;
+
+        // add nodes
+        result.nodes = {};
+        for (const [id, node] of palette.nodes()){
+            const nodeData : any = Node.toV4GraphJson(node);
+            result.nodes[id] = nodeData;
+
+            // add input and output applications to the top-level nodes dict
+            if (node.hasInputApplication()){
+                const inputApp = node.getInputApplication();
+                result.nodes[inputApp.getId()] = Node.toV4GraphJson(inputApp);
+            }
+
+            if (node.hasOutputApplication()){
+                const outputApp = node.getOutputApplication();
+                result.nodes[outputApp.getId()] = Node.toV4GraphJson(outputApp);
+            }
+        }
 
         return result;
     }

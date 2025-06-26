@@ -2213,7 +2213,19 @@ export class Eagle {
                     } else {
                         console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
 
-                        const palette: Palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.dummy(), "", paletteList[i].name), errorsWarnings);
+                        // attempt to determine schema version from FileInfo
+                        const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(paletteData);
+                        let palette: Palette;
+                        switch (schemaVersion){
+                            case Setting.SchemaVersion.OJS:
+                            case Setting.SchemaVersion.Unknown:
+                                palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.dummy(), "", paletteList[i].name), errorsWarnings);
+                                break;
+                            case Setting.SchemaVersion.V4:
+                                palette = Palette.fromV4Json(paletteData, new RepositoryFile(Repository.dummy(), "", paletteList[i].name), errorsWarnings);
+                                break;
+                        }
+                        
                         Utils.preparePalette(palette, paletteList[i]);
 
                         results[index] = palette;

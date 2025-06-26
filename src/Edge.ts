@@ -323,13 +323,13 @@ export class Edge {
             }
         }
 
-        // debug
+        // check if source and destination nodes and ports were found
         if (typeof srcPort === 'undefined'){
-            console.warn("Could not find source port for edge");
+            errorsWarnings.warnings.push(Errors.Message("Could not find source port for edge"));
             return null;
         }
         if (typeof destPort === 'undefined'){
-            console.warn("Could not find dest port for edge");
+            errorsWarnings.warnings.push(Errors.Message("Could not find destination port for edge"));
             return null;
         }
 
@@ -347,13 +347,11 @@ export class Edge {
         let errorFound: boolean = false;
 
         if (typeof srcNode === 'undefined'){
-            const issue: Errors.Issue = Errors.Message("edge (" + edgeData.id + ") source node (" + edgeData.srcNodeId + ") could not be found, skipping");
-            errorsWarnings.warnings.push(issue);
+            errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") source node (" + edgeData.srcNodeId + ") could not be found, skipping"));
             errorFound = true;
         }
         if (typeof destNode === 'undefined'){
-            const issue: Errors.Issue = Errors.Message("edge (" + edgeData.id + ") destination node (" + edgeData.destNodeId + ") could not be found, skipping");
-            errorsWarnings.warnings.push(issue);
+            errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") destination node (" + edgeData.destNodeId + ") could not be found, skipping"));
             errorFound = true;
         }
 

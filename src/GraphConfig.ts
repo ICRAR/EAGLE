@@ -177,8 +177,12 @@ export class GraphConfig {
             for (const nodeId in data.nodes){
                 const nodeData = data.nodes[nodeId];
                 const lgNode: Node = lg.getNodeById(nodeId as NodeId);
+                if (typeof lgNode === 'undefined'){
+                    console.warn("GraphConfig.fromJson(): Could not find node", nodeId);
+                    errorsWarnings.errors.push(Errors.Message("GraphConfig.fromJson(): Could not find node " + nodeId));
+                }
+
                 const newNode: GraphConfigNode = GraphConfigNode.fromJson(nodeData, lgNode, errorsWarnings);
-                
                 newNode.setNode(lgNode);
                 result.nodes().set(nodeId as NodeId, newNode);
                 result.nodes.valueHasMutated();
@@ -198,7 +202,7 @@ export class GraphConfig {
         return result;
     }
 
-    static toJson(graphConfig: GraphConfig, logicalGraph: LogicalGraph) : object {
+    static toJson(graphConfig: GraphConfig) : object {
         const result : any = {};
 
         // NOTE: we don't write isModified to JSON, it is run-time only
@@ -224,10 +228,10 @@ export class GraphConfig {
         return result;
     }
 
-    static toJsonString(graphConfig: GraphConfig, logicalGraph: LogicalGraph) : string {
+    static toJsonString(graphConfig: GraphConfig) : string {
         let result: string = "";
 
-        const json: any = GraphConfig.toJson(graphConfig, logicalGraph);
+        const json: any = GraphConfig.toJson(graphConfig);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += JSON.stringify(json, null, EagleConfig.JSON_INDENT);
