@@ -6,12 +6,10 @@ html {
 body {
     /* prevent window from ever scrolling the whole page */
     overflow: hidden; 
-    height:100%
+    height:100%;
     /* zoom: 75%; */
-}
 
-* {
-    font-family: Ubuntu Sans;
+    font-family: 'Ubuntu Sans', sans-serif;
     font-style: normal;
     font-weight:400;
 }
@@ -87,6 +85,10 @@ body {
     top: -3px;
 }
 
+.quickActionHidden {
+    display: none !important;
+}
+
 #quickActionContainer {
     z-index: 101;
     display: block;
@@ -154,6 +156,7 @@ body {
 #quickActionResults a i{
     margin-right: 5px;
     font-size: 1.1rem;
+    transform: translateY(2px);
 }
 
 #navBarToolBar .navbarGroupSuccess{
@@ -262,7 +265,7 @@ color: #00bb00;}
     position: absolute;
     width: 40px;
     height: 100%;
-    margin-top: 53px;
+    margin-top: 52px;
 }
 
 #bottomWindow div.tabs button{
@@ -373,6 +376,8 @@ color: #00bb00;}
 
 #inspector .inspectorContents{
     padding-top: 7px;
+    max-height: 40vh;
+    overflow-y: auto;
 }
 
 #inspector .inspectorHeader input{
@@ -429,6 +434,52 @@ color: #00bb00;}
 
 #inspector .contentObject .contentObjectValue .radioBtn i{
     font-size: 17px;
+}
+
+#inspector .inspectorContents .inspectorField {
+    padding:0px;
+}
+
+#inspector .inspectorContents .inspectorField span {
+    padding:1px 3px;
+    background: #e9ecef;
+    color: #2e3236;
+    max-width: 45%;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    cursor:pointer;
+}
+
+#inspector .inspectorContents .inspectorField textarea, #inspector .inspectorContents .inspectorField input, #inspector .inspectorContents .inspectorField select, #inspector .inspectorContents .inspectorField .checkboxWrapper{
+    resize: none;
+    padding:1px 3px;
+    min-height: auto;
+}
+
+#inspector .inspectorContents .inspectorField .checkboxWrapper input {
+    position: absolute;
+    top: 50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+}
+
+#inspector .inspectorContents .inspectorField .inspectorEditBtn{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #002e5f;
+    color: white;
+    display: none;
+    padding: 4px;
+    font-size: 12px;
+    border-radius: 50%;
+}
+
+#inspector .inspectorContents .inspectorField:hover .inspectorEditBtn{
+    display:inline-block
 }
 
 #inspector .inspectorContents h5{
@@ -547,6 +598,10 @@ color: #00bb00;}
     width:100%;
 }
 
+#modelDataModal .modal-body{
+    padding:0px;
+}
+
 #modelDataModal .modal-body tr td input{
     width: 100%;
 }
@@ -582,6 +637,7 @@ color: #00bb00;}
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(1.5);
+    pointer-events: all;
 }
 
 #eagleIconAnimation .path{
@@ -622,12 +678,12 @@ color: #00bb00;}
     height: 100%;
 }
 
-.rightWindow .btn-primary, .leftWindow .btn-primary {
+.rightWindow .btn-primary, .leftWindow .btn-primary, #bottomWindow .tableAddNewConfigBtn{
     background-color: #0059a5;
     border-color: #0059a5;
 }
 
-.rightWindow .btn-primary:hover, .leftWindow .btn-primary:hover {
+.rightWindow .btn-primary:hover, .leftWindow .btn-primary:hover, #bottomWindow .tableAddNewConfigBtn:hover {
     background-color: #002f57;
     border-color: #002f57;
 }
@@ -740,6 +796,7 @@ color: #00bb00;}
 ::-webkit-scrollbar {
     width: 5px;
     height: 5px;
+    background: #002349;
 }
 
 /* Track */
@@ -973,16 +1030,6 @@ select.form-control{
     overflow-y: auto;
 }
 
-.modal-body li{
-    background-color: #e4ebf2;
-    border:none;
-}
-
-.modal-body li:nth-child(odd){
-    background-color: aliceblue;
-    border:none;
-}
-
 .modal-footer{
     background-color: aliceblue;
 }
@@ -1056,7 +1103,7 @@ select.form-control{
     color: #ffc107;
 }
 
-#resetSettingsDefaults{
+#resetSettingsDefaults, #editInputMarkdownModalInput{
     left: 10px;
     position: absolute;
 }
@@ -1077,6 +1124,7 @@ select.form-control{
     resize: both;
     overflow: hidden;
     height: 50vh;
+    width: 50vw;
     max-height: 95vh;
     max-width: 95vw;
     background-color: aliceblue;
@@ -1099,6 +1147,10 @@ select.form-control{
     position: absolute;
     overflow: auto;
     width: 100%;
+}
+
+#inputCodeModal .modal-body, #inputCodeModal .container{
+    padding:0px;
 }
 
 #explorePalettesModal .modal-body{
@@ -1653,6 +1705,60 @@ select.form-control{
 .navbar-center .navbar-btn.navbar-btn-active{
     color: #002349 !important;
     background: rgb(211, 211, 211);
+}
+
+.navbar #navTranslateWrapper{
+    position: relative;
+    width: 138px;
+    height: 32px;
+    border: white 1px solid;
+    border-radius: 5px;
+    margin: 4px 0px;
+}
+
+.navbar .navTranslateBtn{
+    position: absolute;
+    color: white;
+    padding: unset;
+    inset: 0px 20px 0px 7px;
+}
+
+.navbar .navTranslateBtn:hover{
+    background-color: white;
+    color: #002349;
+    cursor:pointer;
+}
+
+.navbar .navTranslateBtn span{
+    position: absolute;
+    inset: 50% auto auto 6px;
+    transform: translateY(-50%);
+}
+
+.navbar #navTranslateWrapper button{
+    border: none;
+    position: absolute;
+    inset: 0px 0px 0px auto;
+    padding: unset;
+    width: 20px;
+    background: white;
+    box-shadow: none;
+    border-radius: 0px 4px 4px 0px;
+}
+
+.navbar #navTranslateWrapper button span{
+    inset: 50% -2px auto auto;
+    position: absolute;
+    transform: translateY(-50%);
+    color:#002349;
+}
+
+.navbar #navTranslateWrapper #navTranslateStatus{
+    position: absolute;
+    inset: 0px auto 0px 0px;
+    width: 9px;
+    background-color: orange;
+    border-radius: 4px 0px 0px 4px;
 }
 
 #repositoryList ul.repositories {
@@ -2233,10 +2339,6 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
     margin-bottom: 10px;
 }
 
-.tooltip-inner em {
-    font-style:italic;
-}
-
 .tooltip-inner{
     transition: 0s visibility;
     visibility: visible;
@@ -2797,4 +2899,8 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
 
 .linearTransition250{
     transition: ease-in-out 250ms !important; /*this requires an important tag to over ride existing transition effects for a few moments */
+}
+
+.CodeMirror {
+    height: 100%;
 }

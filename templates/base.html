@@ -9,6 +9,7 @@
         <title id="tabTitle" data-bind="text: getTabTitle">EAGLE</title>
 
         <link rel="stylesheet" href="static/bootstrap.min.css">
+        <link rel="stylesheet" href="static/externals/codemirror-5.65.19/lib/codemirror.css">
         <link rel="stylesheet" href="static/base.css">
         <link rel="stylesheet" href="static/svg.css">
         <link rel="stylesheet" href="static/graph.css">
@@ -24,6 +25,7 @@
             require(["bootstrap-notify"]);
             require(["ajv"]);
             require(["showdown"]);
+            require(["codemirror", "codemirror/mode/python/python", "codemirror/mode/javascript/javascript","codemirror/mode/markdown/markdown"], function(CodeMirror){window.CodeMirror = CodeMirror;}); // adds CodeMirror object to the global namespace
             require(["bindingHandlers/readonly"]);
             require(["bindingHandlers/disabled"]);
             require(["bindingHandlers/eagleTooltip"]);
@@ -56,7 +58,7 @@
         <div class="container-fluid" id="graphArea" data-bind="event: { dragover: SideWindow.sideWindowAdjust}">
             <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                 <div class="leftWindow" data-bind="style: { width: leftWindow().size(), left: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? 0 : -leftWindow().size(),'visibility':eagle.getEagleIsReady(), bottom: Utils.getBottomWindowHeight()+'vh'}">
-                    <div class="leftWindowHandle iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('left')}, eagleTooltip: 'Change Node Subject ' +KeyboardShortcut.idToText('toggle_left_window', true)">
+                    <div class="leftWindowHandle iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('left')}, eagleTooltip: KeyboardShortcut.idToFullText('toggle_left_window')">
                         <span style="display: none" data-bind="visible: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)">
                             <i class="material-icons">arrow_back</i>
                         </span>
@@ -133,17 +135,18 @@
                     <!-- /ko -->
                     <div id="selectionRectangle"></div>
                 </div>
+                
+                <!-- ko if: logicalGraph === null || logicalGraph() === null || logicalGraph().getNodes().length === 0 -->
+                    <div id="eagleIconAnimation">
+                        <svg>
+                            <path id="path1" class="path"
+                                d="m 88.7232 109.1043 c -6.2691 -1.6632 -26.731 -5.386 -31.0001 -11.7159 l 16.8586 0.0669 c -0.5447 -0.1061 -11.1871 -2.6822 -17.0225 -13.6649 l 6.7586 0.1379 c -1.0884 -0.4796 -7.072 -5.9689 -6.3529 -13.7203 c 0.3917 -4.2224 5.4263 -10.9429 12.2758 -18.0688 c -5.5193 -7.1373 -4.2617 -9.2962 -13.1033 -9.5172 c 5.6468 -3.4265 8.3106 -6.0962 16.8217 -6.3685 l -3.671 -3.9861 c 3.2787 0.3189 6.6579 1.1277 12.3664 3.1822 c 3.096 0.5296 12.7233 2.4709 12.6896 -1.6552 c 2.2008 0.9655 3.8226 2.6328 7.1723 2.8965 c 2.3107 0.1819 2.176 -1.6986 2.4827 -2.7586 c 2.3145 3.1212 5.1918 6.0548 11.862 7.7241 c 4.134 1.0312 11.3286 2.7925 13.3653 7.054 c 4.6415 9.7113 -8.2416 17.6887 -15.9607 16.7172 c 5.2723 -2.1145 5.3209 -4.7385 1.7677 -7.5527 c -3.8402 -3.128 -15.1404 -2.67 -22.7584 -4.0808 c -8.7782 -1.9345 -10.5894 -5.8043 -12.9654 -9.5172 m -10.0689 7.862 c 13.0789 7.1182 32.8962 9.6508 45.7927 5.7359 m -11.0344 -23.9427 C 101.216 27.6927 96.9339 21.7131 91.206 17.3809 C 83.3495 11.4388 73.8471 7.4012 64.2109 5.3573 C 56.5522 3.7328 45.583 4.1997 40.7236 5.3809 m 12.8275 2.7586 c -8.0108 -0.0702 -16.1934 0.2032 -25.655 3.0345 m 17.1033 1.3793 c -9.5789 0.7338 -19.5361 4.309 -27.8619 6.8965 m 19.5861 -0.8276 c -19.8989 5.2288 -18.3857 9.3692 -25.517 10.8965 m 19.1723 -4 c -11.3603 4.2387 -16.5782 12.0547 -22.4826 14.4826 m 80.8269 69.1029 c -43.3449 2.9566 -77.6593 -6.9245 -83.7235 -56.9651 c 10.1815 -5.0716 8.4964 -13.5592 18.2068 -16.8275 m 72.1374 -1.5172 c -0.351 -2.7003 -1.3148 -3.7853 -2.7586 -4.6896 c -4.6408 -2.9066 -10.8214 -3.4718 -14.7585 -7.1724 m 12.0848 9.7734 c 0.2379 -1.5967 -7.3689 -4.8687 -8.337 -3.2238 c -2.3222 3.9457 7.8403 6.5567 8.337 3.2238 z"
+                            />
+                        </svg>
+                    </div>
+                <!-- /ko -->
             </div>
 
-            <!-- ko if: logicalGraph === null || logicalGraph() === null || logicalGraph().getNodes().length === 0 -->
-            <div id="eagleIconAnimation">
-                <svg>
-                    <path id="path1" class="path"
-                        d="m 88.7232 109.1043 c -6.2691 -1.6632 -26.731 -5.386 -31.0001 -11.7159 l 16.8586 0.0669 c -0.5447 -0.1061 -11.1871 -2.6822 -17.0225 -13.6649 l 6.7586 0.1379 c -1.0884 -0.4796 -7.072 -5.9689 -6.3529 -13.7203 c 0.3917 -4.2224 5.4263 -10.9429 12.2758 -18.0688 c -5.5193 -7.1373 -4.2617 -9.2962 -13.1033 -9.5172 c 5.6468 -3.4265 8.3106 -6.0962 16.8217 -6.3685 l -3.671 -3.9861 c 3.2787 0.3189 6.6579 1.1277 12.3664 3.1822 c 3.096 0.5296 12.7233 2.4709 12.6896 -1.6552 c 2.2008 0.9655 3.8226 2.6328 7.1723 2.8965 c 2.3107 0.1819 2.176 -1.6986 2.4827 -2.7586 c 2.3145 3.1212 5.1918 6.0548 11.862 7.7241 c 4.134 1.0312 11.3286 2.7925 13.3653 7.054 c 4.6415 9.7113 -8.2416 17.6887 -15.9607 16.7172 c 5.2723 -2.1145 5.3209 -4.7385 1.7677 -7.5527 c -3.8402 -3.128 -15.1404 -2.67 -22.7584 -4.0808 c -8.7782 -1.9345 -10.5894 -5.8043 -12.9654 -9.5172 m -10.0689 7.862 c 13.0789 7.1182 32.8962 9.6508 45.7927 5.7359 m -11.0344 -23.9427 C 101.216 27.6927 96.9339 21.7131 91.206 17.3809 C 83.3495 11.4388 73.8471 7.4012 64.2109 5.3573 C 56.5522 3.7328 45.583 4.1997 40.7236 5.3809 m 12.8275 2.7586 c -8.0108 -0.0702 -16.1934 0.2032 -25.655 3.0345 m 17.1033 1.3793 c -9.5789 0.7338 -19.5361 4.309 -27.8619 6.8965 m 19.5861 -0.8276 c -19.8989 5.2288 -18.3857 9.3692 -25.517 10.8965 m 19.1723 -4 c -11.3603 4.2387 -16.5782 12.0547 -22.4826 14.4826 m 80.8269 69.1029 c -43.3449 2.9566 -77.6593 -6.9245 -83.7235 -56.9651 c 10.1815 -5.0716 8.4964 -13.5592 18.2068 -16.8275 m 72.1374 -1.5172 c -0.351 -2.7003 -1.3148 -3.7853 -2.7586 -4.6896 c -4.6408 -2.9066 -10.8214 -3.4718 -14.7585 -7.1724 m 12.0848 9.7734 c 0.2379 -1.5967 -7.3689 -4.8687 -8.337 -3.2238 c -2.3222 3.9457 7.8403 6.5567 8.337 3.2238 z"
-                    />
-                </svg>
-            </div>
-            <!-- /ko -->
 
             <div class="rightWindow" data-bind="style: { 'visibility':eagle.getEagleIsReady(), width: rightWindow().size(), right: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? 0 : -rightWindow().size(), bottom: Utils.getBottomWindowHeight()+'vh'}">
                <div class="btn-group" id="rightWindowTabs" role="group" aria-label="RightWindowModeSelect">
@@ -159,7 +162,7 @@
                             </button>
                         <!-- /ko -->
                     </div>
-                <div class="rightWindowHandle iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('right')}, eagleTooltip: 'Change Node Subject ' + KeyboardShortcut.idToText('toggle_right_window', true)">
+                <div class="rightWindowHandle iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('right')}, eagleTooltip: KeyboardShortcut.idToFullText('toggle_right_window')">
                     <span data-bind="visible: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)">
                         <i class="material-icons">arrow_forward</i>
                     </span>
@@ -189,13 +192,13 @@
                     <div class="dragHandle" draggable="true" data-bind="event: { dragstart: SideWindow.bottomWindowAdjustStart, dragend: SideWindow.sideWindowAdjustEnd }"></div>
                     <div class="tabs">
                         <div class="wrapper">
-                            <button id="bottomTabParamsTableSwitcher" type="button" class="btn btn-secondary btn-sm iconHoverEffect" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable},click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: 'Open Node Parameter Table ' + KeyboardShortcut.idToText('open_parameter_table', true)" data-bs-placement="left">
+                            <button id="bottomTabParamsTableSwitcher" type="button" class="btn btn-secondary btn-sm iconHoverEffect" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable},click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('open_parameter_table')" data-bs-placement="left">
                                 <i class="material-icons md-20 clickable">table_chart</i>
                             </button>
-                            <button id="bottomTabKeyParamsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable}, click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: `Open Graph Config Parameter Table ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
+                            <button id="bottomTabKeyParamsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable}, click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_attributes_configuration_table')">
                                 <i class="md-20 icon-key_attribute_table clickable"></i>
                             </button>
-                            <button id="bottomTabGraphConfigurationsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable}, click: function(){GraphConfigurationsTable.openTable()}, eagleTooltip: `Display all Graph Configurations ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
+                            <button id="bottomTabGraphConfigurationsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable}, click: function(){GraphConfigurationsTable.openTable()}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_attributes_configuration_table')">
                                 <i class="md-20 icon-config_table clickable"></i>
                             </button>
                             <button id="bottomTabGraphIssuesSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors}, click: function(){Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)}, eagleTooltip: `Display Graph Issues`">
@@ -207,7 +210,7 @@
                         <button type="button" class="btn btn-primary iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('bottom')}, clickBubble:false"><i class="md-20 icon-cross clickable"></i></button>
                     </div>
                     <div class="content">
-                        <!-- ko if: $root.getEagleIsReady() -->
+                        <!-- ko if: $root.getEagleIsReady() && Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) -->
                             <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable -->
                                 {% include 'node_parameter_table.html' %}
                             <!-- /ko -->

@@ -169,10 +169,14 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         switch(dataType){
             case 'comment': {
+                if(n.getSubjectId() === null){
+                    return
+                }
+
                 const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(n.getSubjectId());
 
                 if (adjacentNode === null){
-                    console.warn("Could not find adjacentNode for comment with subjectId", n.getSubjectId());
+                     console.warn("Could not find adjacentNode for comment with subjectId", n.getSubjectId());
                     return;
                 }
 
@@ -763,28 +767,17 @@ export class GraphRenderer {
 
     static createBezier(straightEdgeForce:boolean,addArrowForce:boolean, edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field, sourcePortIsInput: boolean) : string {
 
-        //since the svg parent is translated -50% to center our working area, we need to add half of its width to correct the positions
-        // TODO: remove magic numbers here (5000)
-        destNodePosition={x:destNodePosition.x+5000,y:destNodePosition.y+5000}
-        srcNodePosition={x:srcNodePosition.x+5000,y:srcNodePosition.y+5000}
-
-        // determine if the edge falls below a certain length threshold
-        const edgeLength = Math.sqrt((destNodePosition.x - srcNodePosition.x)**2 + (destNodePosition.y - srcNodePosition.y)**2);
-
-        //determining if the edge's length is below a certain threshold. if it is we will draw the edge straight and remove the arrow
-        const isShortEdge: boolean = edgeLength < srcNodeRadius * EagleConfig.SWITCH_TO_STRAIGHT_EDGE_MULTIPLIER;
-
-        if (edge !== null){
-            edge.setIsShortEdge(isShortEdge)
-        }
-
-        // calculate the length from the src and dest nodes at which the control points will be placed
-        const lengthToControlPoints = edgeLength * 0.4;
+        //since the svg parent is translated -50% to center our working area, we need to add half of its size to correct the positions
+        const svgTranslationCorrection = EagleConfig.EDGE_SVG_SIZE/2
+        destNodePosition={x:destNodePosition.x+svgTranslationCorrection,y:destNodePosition.y+svgTranslationCorrection}
+        srcNodePosition={x:srcNodePosition.x+svgTranslationCorrection,y:srcNodePosition.y+svgTranslationCorrection}
 
         // calculate the angle for the src and dest ports
         const srcPortAngle: number = GraphRenderer.calculateConnectionAngle(srcNodePosition, destNodePosition);
         const destPortAngle: number = srcPortAngle + Math.PI;
-
+        
+        // -------------calculate port positions---------------
+        
         // calculate the offset for the src and dest ports, based on the angles
         let srcPortOffset;
         let destPortOffset;
@@ -797,6 +790,7 @@ export class GraphRenderer {
         } else {
             srcPortOffset = GraphRenderer.calculatePortPos(srcPortAngle, srcNodeRadius, srcNodeRadius);
         }
+        
         if (destField){
             if (sourcePortIsInput){
                 destPortOffset = destField.getOutputPosition();
@@ -812,7 +806,26 @@ export class GraphRenderer {
         const y1 = srcNodePosition.y + srcPortOffset.y;
         const x2 = destNodePosition.x + destPortOffset.x;
         const y2 = destNodePosition.y + destPortOffset.y;
+        
+        
+        // -------------calculate if the edge is a short edge---------------
+        
+        // determine if the edge falls below a certain length threshold
+        // const edgeLength = Math.sqrt((destNodePosition.x - srcNodePosition.x)**2 + (destNodePosition.y - srcNodePosition.y)**2);
+        const edgeLength = Math.sqrt((x2 - x1)**2 + (y2 - y1)**2);
 
+        //determining if the edge's length is below a certain threshold. if it is we will draw the edge straight and remove the arrow
+        const isShortEdge: boolean = edgeLength < EagleConfig.STRAIGHT_EDGE_SWITCH_DISTANCE;
+
+        if (edge !== null){
+            edge.setIsShortEdge(isShortEdge)
+        }
+
+        
+        // -------------generate bezier curve control points---------------
+        
+        // calculate the length from the src and dest nodes at which the control points will be placed
+        const lengthToControlPoints = edgeLength * EagleConfig.EDGE_BEZIER_CURVE_MULT;
 
         // otherwise, calculate an angle for the src and dest control points
         const srcCPAngle = GraphRenderer.edgeDirectionAngle(srcPortAngle);
@@ -901,6 +914,10 @@ export class GraphRenderer {
 
         const srcNode: Node = commentNode;
         const destNode: Node = lg.findNodeByIdQuiet(commentNode.getSubjectId());
+
+        if(srcNode === null || destNode === null){
+            return ''
+        }
 
         return GraphRenderer._getPath(null,srcNode, destNode, null, null);
     }
@@ -1078,6 +1095,11 @@ export class GraphRenderer {
             //check for alt clicking, if so, add the target node and its children to the selection
             if(event.altKey&&node.isGroup()||GraphRenderer.dragSelectionDoubleClick&&node.isGroup()){
                 GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
+            }
+
+            //switch back to the node parameter table if a node is selected
+        if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) === true && Setting.findValue(Setting.BOTTOM_WINDOW_MODE) !== Eagle.BottomWindowMode.NodeParameterTable){
+                ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal)
             }
         }else{
             if(event.shiftKey && event.button === 0){
@@ -1802,47 +1824,48 @@ export class GraphRenderer {
         GraphRenderer.portDragSuggestedNode(null)
         GraphRenderer.portDragSuggestedField(null)
 
-        // no destination, ask user to choose a new node
-        const dataEligible: boolean = GraphRenderer.portDragSourceNode().getCategoryType() !== Category.Type.Data;
-
         // check if source port is a 'dummy' port
         // if so, consider all components as eligible, to ease the creation of new graphs
         const sourcePortIsDummy: boolean = GraphRenderer.portDragSourcePort().getDisplayText() === Daliuge.FieldName.DUMMY;
 
         let eligibleComponents: Node[];
 
-        if (!sourcePortIsDummy && Setting.findValue(Setting.FILTER_NODE_SUGGESTIONS)){
-            // getting matches from both the graph and the palettes list
-            eligibleComponents = Utils.getComponentsWithMatchingPort('palette graph', !GraphRenderer.portDragSourcePortIsInput, GraphRenderer.portDragSourcePort().getType(), dataEligible);
-        } else {
-            // get all nodes with at least one port with opposite "direction" (input/output) from the source node
-            eligibleComponents = [];
+        // get all nodes with at least one port with opposite "direction" (input/output) from the source node
+        eligibleComponents = [];
 
-            eagle.palettes().forEach(function(palette){
-                palette.getNodes().forEach(function(node){
-                    if (GraphRenderer.portDragSourcePortIsInput){
-                        if (node.getOutputPorts().length > 0){
-                            eligibleComponents.push(node);
-                        }
-                    } else {
-                        if (node.getInputPorts().length > 0){
-                            eligibleComponents.push(node);
-                        }
-                    }
-                })
-            });
-
-            eagle.logicalGraph().getNodes().forEach(function(graphNode){
+        //add all nodes from the palettes 
+        eagle.palettes().forEach(function(palette){
+            palette.getNodes().forEach(function(node){
                 if (GraphRenderer.portDragSourcePortIsInput){
-                    if (graphNode.getOutputPorts().length > 0){
-                        eligibleComponents.push(graphNode);
+                    if (node.getOutputPorts().length > 0){
+                        eligibleComponents.push(node);
                     }
                 } else {
-                    if (graphNode.getInputPorts().length > 0){
-                        eligibleComponents.push(graphNode);
+                    if (node.getInputPorts().length > 0){
+                        eligibleComponents.push(node);
                     }
                 }
             })
+        });
+
+        //add all the nodes from the graph
+        eagle.logicalGraph().getNodes().forEach(function(graphNode){
+            if (GraphRenderer.portDragSourcePortIsInput){
+                if (graphNode.getOutputPorts().length > 0){
+                    eligibleComponents.push(graphNode);
+                }
+            } else {
+                if (graphNode.getInputPorts().length > 0){
+                    eligibleComponents.push(graphNode);
+                }
+            }
+        })
+
+        //if enabled, filter the list 
+        if (Setting.findValue(Setting.FILTER_NODE_SUGGESTIONS)){
+            // getting matches from both the graph and the palettes list
+            const filteredComponents = Utils.getComponentsWithMatchingPort(eligibleComponents, !GraphRenderer.portDragSourcePortIsInput, GraphRenderer.portDragSourcePort().getType());
+            eligibleComponents = filteredComponents
         }
         
         // check we found at least one eligible component
@@ -2321,12 +2344,6 @@ export class GraphRenderer {
         if (linkValid === Errors.Validity.Warning){
             normalColor = EagleConfig.getColor('edgeWarning');
             selectedColor = EagleConfig.getColor('edgeWarningSelected');
-        }
-
-        // check if the edge is a "closes loop" edge
-        if (edge.isClosesLoop()){
-            normalColor = EagleConfig.getColor('edgeClosesLoop');
-            selectedColor = EagleConfig.getColor('edgeClosesLoopSelected');
         }
 
         return eagle.objectIsSelected(edge) ? selectedColor : normalColor;

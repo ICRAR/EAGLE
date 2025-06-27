@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
+import { Utils } from './Utils';
 
 export class Errors {
     static Message(message: string): Errors.Issue {

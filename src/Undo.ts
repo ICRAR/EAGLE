@@ -29,6 +29,7 @@ import {LogicalGraph} from './LogicalGraph';
 import {Setting} from './Setting';
 import {Utils} from './Utils';
 import { Hierarchy } from "./Hierarchy";
+import { ParameterTable } from "./ParameterTable";
 
 
 class Snapshot {
@@ -127,6 +128,9 @@ export class Undo {
 
         this._updateSelection();
 
+        // update the ParameterTable view
+        ParameterTable.updateContent(eagle.selectedNode());
+
         //we need to update the hierarchy view. this needs a small timeout to wait for the undo to complete
         setTimeout(function(){
             Hierarchy.updateDisplay()
@@ -149,6 +153,9 @@ export class Undo {
         eagle.checkGraph();
 
         this._updateSelection();
+
+        // update the ParameterTable view
+        ParameterTable.updateContent(eagle.selectedNode());
 
         //we need to update the hierarchy view. this needs a small timeout to wait for the undo to complete
         setTimeout(function(){

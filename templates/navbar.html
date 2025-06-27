@@ -29,20 +29,20 @@
                 <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
                     <i class="material-icons md-18">info</i>
                 </button>
-                <button id="openGraphConfigurationTable" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: `Display Graph Attributes Configuration ` + KeyboardShortcut.idToText('open_graph_attributes_configuration_table', true)">
+                <button id="openGraphConfigurationTable" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_attributes_configuration_table')">
                     <i class="md-18 icon-key_attribute_table"></i>
                 </button>
-                <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'" >
+                <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'">
                     <i class="material-icons md-18">content_copy</i>
                 </button>
-                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, eagleTooltip: 'Center Graph ' + KeyboardShortcut.idToText('center_graph', true)" >
+                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, eagleTooltip: KeyboardShortcut.idToFullText('center_graph')">
                     <i class="material-icons md-18">filter_center_focus</i>
                 </button>
             </div>
 
             <!-- navbar category -->
             <!-- <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example">
-                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, eagleTooltip: 'Center Graph ' + KeyboardShortcut.idToText('center_graph', true)" >
+                <button id="centerGraph" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, eagleTooltip: KeyboardShortcut.idToFullText('center_graph')" >
                     <i class="material-icons md-18">filter_center_focus</i>
                 </button>
                 <button id="screenshot" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: saveGraphScreenshot, eagleTooltip: 'Screenshot the graph <br><br><em>This will ask for permission to record the screen. If it doesn`t, your browser may lack permissions or might be blocked from asking for them.<br> If the current tab is not automatically selected, please select this tab, window or screen. Note, in this case cropping of the graph may not be accurate.</em>' " >
@@ -56,17 +56,17 @@
                 <span class="navBarToolBarTitle">Editing</span>
                 <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                     <!--
-                    <button id="toggleSnapToGrid" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: toggleSnapToGrid, eagleTooltip: 'Toggle Snap-to-Grid ' + KeyboardShortcut.idToText('toggle_snap_to_grid', true), css: { 'navbar-btn-active': snapToGrid() }" >
+                    <button id="toggleSnapToGrid" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: toggleSnapToGrid, eagleTooltip: KeyboardShortcut.idToFullText('toggle_snap_to_grid'), css: { 'navbar-btn-active': snapToGrid() }" >
                         <i class="md-18 icon-snap_to_grid"></i>
                     </button>
                     -->
                 <!-- /ko -->
                 <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                    <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: 'Add Graph Nodes to Palette ' + KeyboardShortcut.idToText('add_graph_nodes_to_palette', true)" >
+                    <button id="addGraphNodesToPalette" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: addGraphNodesToPalette, eagleTooltip: KeyboardShortcut.idToFullText('add_graph_nodes_to_palette')" >
                         <i class="md-18 icon-add_to_palette"></i>
                     </button>
                 <!-- /ko -->
-                <button id="checkForComponentUpdates" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: checkForComponentUpdates, eagleTooltip: 'Check for component updates ' + KeyboardShortcut.idToText('check_for_component_updates', true)">
+                <button id="checkForComponentUpdates" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: checkForComponentUpdates, eagleTooltip: KeyboardShortcut.idToFullText('check_for_component_updates')">
                     <i class="md-18 icon-component_update"></i>
                 </button>
             </div>
@@ -81,7 +81,7 @@
                         </button>
                     <!-- /ko -->
                     <!-- ko if: graphWarnings().length > 0 || graphErrors().length > 0 -->
-                        <button id="checkGraphWarnings" class="btn navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" style="display:none;" data-bind="click: showGraphErrors, visible:$root.logicalGraph()!=null, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: 'Check Graph for Errors ' + KeyboardShortcut.idToText('check_graph', true)">
+                        <button id="checkGraphWarnings" class="btn navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" style="display:none;" data-bind="click: showGraphErrors, visible:$root.logicalGraph()!=null, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: KeyboardShortcut.idToFullText('check_graph')">
                             <span class="badge bg-warning" data-bind="text: graphWarnings().length, visible: graphWarnings().length > 0"></span>
                             <span class="badge bg-danger" data-bind="text: graphErrors().length, visible: graphErrors().length > 0"></span>
                         </button>
@@ -91,30 +91,53 @@
         </ul>
 
         <ul class="nav navbar-nav ms-auto">
-            <div id="navDeployBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + KeyboardShortcut.idToText('deploy_translator', true)">
-                <a href='javascript:void(0)' data-bind="click: function(){$root.deployDefaultTranslationAlgorithm()}">Translate</a>
-            </div>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle ms-auto iconHoverEffect" href="#" id="navbarDropdownGraph" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <div id="navTranslateWrapper">
+                    <div id="navTranslateStatus" data-bind="style: {'background-color':$root.getTranslatorColor()}, eagleTooltip:Utils.getTranslateBtnColorTooltip()"></div>
+                    <!-- ko ifnot: Setting.findValue(Setting.TEST_TRANSLATE_MODE) -->
+                        <div class="navTranslateBtn" data-bind="eagleTooltip:'Translate graph using the selected algorithm ' + KeyboardShortcut.idToText('deploy_translator', true),click: function(){$root.deployDefaultTranslationAlgorithm()}">
+                            <span>Translate</span>
+                        </div>
+                    <!-- /ko -->
+                    <!-- ko if: Setting.findValue(Setting.TEST_TRANSLATE_MODE) -->
+                        <div class="navTranslateBtn" data-bind="eagleTooltip:'Test Translation of the graph using the selected algorithm. This mode is for rapid graph development, reproducibility safeguards are switched off. Do not use for workflow execution. ' + KeyboardShortcut.idToFullText('deploy_translator'),click: function(){$root.deployDefaultTranslationAlgorithm()}">
+                            <span>Test Translate</span>
+                        </div>
+                    <!-- /ko -->
+
+                    <button class="btn btn-outline-secondary nav-link dropdown-control dropdown-toggle ms-auto" data-bs-toggle="dropdown" id="navbarDropdownTranslate" aria-expanded="true" data-bind="" type="button">
+                        <span class="material-icons-outlined iconHoverEffect">
+                            arrow_drop_down
+                        </span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="navbarDropdownTranslate">
+                        <a class="dropdown-item" href="#" data-bind="click: function(){Setting.find(Setting.TEST_TRANSLATE_MODE).setValue(false)}">Translate</a>
+                        <a class="dropdown-item" href="#" data-bind="click: function(){Setting.find(Setting.TEST_TRANSLATE_MODE).setValue(true)}">Test Translate</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle dropdown-control ms-auto iconHoverEffect" href="#" id="navbarDropdownGraph" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Graph
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownGraph">
+                <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="navbarDropdownGraph">
                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                         <span class="dropdown-item dropDropDownParent" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownGraphNew">New
                             <div class="dropDropDown">
                                 <a class="dropdown-item" id="createNewGraph" href="#" data-bind="click: newLogicalGraph">Create New Graph
-                                    <span data-bind="text: KeyboardShortcut.idToText('new_graph', true)"></span>
+                                    <span data-bind="text: KeyboardShortcut.idToKeysText('new_graph', true)"></span>
                                 </a>
                                 <a class="dropdown-item" id="createNewGraphFromJson" href="#" data-bind="click: newLogicalGraphFromJson">Create New Graph from JSON</a>
+                            </div>
+                        </span>
+                        <span class="dropdown-item dropDropDownParent" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownGraphEdit">Edit
+                            <div class="dropDropDown">
                                 <a class="dropdown-item" id="addToGraphFromJson" href="#" data-bind="click: addToGraphFromJson">Add to Graph from JSON</a>
-                                <a class="dropdown-item" id="addEdgeToLogicalGraph" href="#" data-bind="click: addEdgeToLogicalGraph">Add Edge to Graph
-                                    <span data-bind="text: KeyboardShortcut.idToText('add_edge', true)"></span>
-                                </a>
                                 <a class="dropdown-item" id="createSubgraphFromSelection" href="#" data-bind="click: createSubgraphFromSelection">Create Subgraph from Selection
-                                    <span data-bind="text: KeyboardShortcut.idToText('create_subgraph_from_selection', true)"></span>
+                                    <span data-bind="text: KeyboardShortcut.idToKeysText('create_subgraph_from_selection', true)"></span>
                                 </a>
                                 <a class="dropdown-item" id="createConstructFromSelection" href="#" data-bind="click: createConstructFromSelection">Create Construct from Selection
-                                    <span data-bind="text: KeyboardShortcut.idToText('create_construct_from_selection', true)"></span>
+                                    <span data-bind="text: KeyboardShortcut.idToKeysText('create_construct_from_selection', true)"></span>
                                 </a>
                             </div>
                         </span>
@@ -131,36 +154,38 @@
                                 <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save</a>
                                 <a class="dropdown-item" id="saveAsGraph" href="#" data-bind="click: function(){saveAsFileToLocal(Eagle.FileType.Graph)}">Save As</a>
                                 <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load
-                                    <span data-bind="text: KeyboardShortcut.idToText('open_graph_from_local_disk', true)"></span>
+                                    <span data-bind="text: KeyboardShortcut.idToKeysText('open_graph_from_local_disk', true)"></span>
                                 </a>
                                 <a class="dropdown-item" id="insertGraph" href="#" data-bind="click: getGraphFileToInsert">Insert
-                                    <span data-bind="text: KeyboardShortcut.idToText('insert_graph_from_local_disk', true)"></span>
+                                    <span data-bind="text: KeyboardShortcut.idToKeysText('insert_graph_from_local_disk', true)"></span>
                                 </a>
                             </div>
                         </span>
+                        <a class="dropdown-item" id="createNewGraphFromUrl" href="#" data-bind="click: function(){loadFileFromUrl(Eagle.FileType.Graph)}">Open from URL</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: function(){displayObjectAsJson(Eagle.FileType.Graph);}">Display As Json</a>
                         <a class="dropdown-item" id="screenshotGraph" href="#" data-bind="click: saveGraphScreenshot">Screenshot</a>
+                        <a class="dropdown-item" id="validateGraph" href="#" data-bind="click: validateGraph">Validate</a>
                     <!-- /ko -->
                     <!-- ko ifnot: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                         <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save</a>
                         <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load
-                            <span data-bind="text: KeyboardShortcut.idToText('open_graph_from_local_disk', true)"></span>
+                            <span data-bind="text: KeyboardShortcut.idToKeysText('open_graph_from_local_disk', true)"></span>
                         </a>
                     <!-- /ko -->
                 </div>
             </li>
             <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle iconHoverEffect" href="#" id="navbarDropdownPalette" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle dropdown-control iconHoverEffect" href="#" id="navbarDropdownPalette" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Palette
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownPalette">
+                <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="navbarDropdownPalette">
                 <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                     <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
                             <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create
-                                <span data-bind="text: KeyboardShortcut.idToText('new_palette', true)"></span>
+                                <span data-bind="text: KeyboardShortcut.idToKeysText('new_palette', true)"></span>
                             </a>
                             <a class="dropdown-item" id="createNewPaletteFromJson" href="#" data-bind="click: newPaletteFromJson">Create From Json</a>
                         </div>
@@ -178,16 +203,17 @@
                             <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save</a>
                             <a class="dropdown-item" id="saveAsPalette" href="#" data-bind="click: function(){saveAsFileToLocal(Eagle.FileType.Palette)}">Save As</a>
                             <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load
-                                <span data-bind="text: KeyboardShortcut.idToText('open_palette_from_local_disk', true)"></span>
+                                <span data-bind="text: KeyboardShortcut.idToKeysText('open_palette_from_local_disk', true)"></span>
                             </a>
                         </div>
                     </span>
+                    <a class="dropdown-item" id="createNewPaletteFromUrl" href="#" data-bind="click: function(){loadFileFromUrl(Eagle.FileType.Palette)}">Open from URL</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" id="saveToPalette" href="#" data-bind="click: addGraphNodesToPalette">Add Graph Nodes</a>
                 <!-- /ko -->
                 <!-- ko ifnot: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                     <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load
-                        <span data-bind="text: KeyboardShortcut.idToText('open_palette_from_local_disk', true)"></span>
+                        <span data-bind="text: KeyboardShortcut.idToKeysText('open_palette_from_local_disk', true)"></span>
                     </a>
                     <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save</a>
                 <!-- /ko -->
@@ -195,24 +221,24 @@
             </li>
             <!-- /ko -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle ms-auto iconHoverEffect" href="#" id="navbarDropdownConfig" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle dropdown-control ms-auto iconHoverEffect" href="#" id="navbarDropdownConfig" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Config
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownConfig">
+                <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="navbarDropdownConfig">
                     <a class="dropdown-item" id="createNewConfig" href="#" data-bind="click: newConfig">New
-                        <span data-bind="text: KeyboardShortcut.idToText('new_config', true)"></span>
+                        <span data-bind="text: KeyboardShortcut.idToKeysText('new_config', true)"></span>
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" id="displayAllConfigs" href="#" data-bind="click: GraphConfigurationsTable.openTable">Display All
-                        <span data-bind="text: KeyboardShortcut.idToText('open_graph_configurations_table', true)"></span>
+                        <span data-bind="text: KeyboardShortcut.idToKeysText('open_graph_configurations_table', true)"></span>
                     </a>
-                </div>
+                </div>  
             </li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle iconHoverEffect" href="#" id="navbarDropdownHelp" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle dropdown-control iconHoverEffect" href="#" id="navbarDropdownHelp" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Help
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownHelp">
+                <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="navbarDropdownHelp">
                     <a class="dropdown-item" id="about" href="#" data-bind="click: showAbout">About</a>
                     <span class="dropdown-item dropDropDownParent" id="navTutorials" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownTutorials">Tutorials
                         <div class="dropDropDown">
@@ -222,12 +248,12 @@
                         </div>
                     </span>
                     <a class="dropdown-item" id="onlineDocs" href="#" data-bind="click: onlineDocs">Online Docs
-                        <span data-bind="text: KeyboardShortcut.idToText('open_help', true)"></span>
+                        <span data-bind="text: KeyboardShortcut.idToKeysText('open_help', true)"></span>
                     </a>
                     <a class="dropdown-item" id="readme" href="#" data-bind="click: readme">GitHub README</a>
                     <a class="dropdown-item" id="submitIssue" href="#" data-bind="click: submitIssue">Submit Issue</a>
                     <a class="dropdown-item" id="keyboardShortcuts" href="#" data-bind="click: Utils.showShortcutsModal">Keyboard Shortcuts
-                        <span data-bind="text: KeyboardShortcut.idToText('open_keyboard_shortcut_modal', true)"></span>
+                        <span data-bind="text: KeyboardShortcut.idToKeysText('open_keyboard_shortcut_modal', true)"></span>
                     </a>
                 </div>
             </li>

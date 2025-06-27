@@ -1,15 +1,12 @@
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {GitHub} from './GitHub';
-import {GitLab} from './GitLab';
-import {Palette} from './Palette';
-import {Repository} from './Repository';
-import {RepositoryFolder} from './RepositoryFolder';
-import {RepositoryFile} from './RepositoryFile';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
 import { EagleStorage } from "./EagleStorage";
+import { Palette } from './Palette';
+import { Repository } from './Repository';
+import { RepositoryFile } from './RepositoryFile';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 export class Repositories {
 
@@ -50,6 +47,7 @@ export class Repositories {
                 await Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChanges);
             } catch (error) {
                 console.error(error);
+                eagle.hideEagleIsLoading();
                 return;
             }
 
@@ -59,6 +57,16 @@ export class Repositories {
         }
     }
     
+    static translateStringToService(service: string): Repository.Service {
+        for (const s in Repository.Service){
+            if (s.toLowerCase() === service.toLowerCase()){
+                return s as Repository.Service;
+            }
+        }
+
+        return Repository.Service.Unknown;
+    }
+
     // use a custom modal to ask user for repository service and url at the same time
     addCustomRepository = async () => {
         let customRepository: Repository;

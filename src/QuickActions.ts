@@ -1,230 +1,164 @@
+import * as ko from "knockout";
+
 import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
 
-// TODO: name and type are confusing here
-let wordMatch:     QuickActionsResult[] = []
-let tagMatch:      QuickActionsResult[] = []
-let startMatch:    QuickActionsResult[] = []
-let tagStartMatch: QuickActionsResult[] = []
-let anyMatch:      QuickActionsResult[] = []
-
-enum Priority {
-    Word = "wordMatch",
-    Tag = "tagMatch",
-    Start = "startMatch",
-    TagStart = "tagStartMatch",
-    Any = "anyMatch",
-
-    Unknown = "unknown"
-}
-
-type QuickActionsMatch = {
-    match: boolean,
-    funcObject: QuickActionsResult,
-    priority: Priority
-}
-
-type QuickActionsResult = {
-    title: string,
-    action: (eagle: Eagle, event: KeyboardEvent) => void
-    shortcut: string,
-    icon: string
-}
-
 export class QuickActions {
 
+    static searchTerm: ko.Observable<string> = ko.observable('');
+    static open: ko.Observable<boolean> = ko.observable(false);
+
     static initiateQuickAction() : void {
-        //function to both start and close the quick action menu
-        const eagle: Eagle = Eagle.getInstance();
-        eagle.quickActionOpen(!eagle.quickActionOpen())
-        $('#quickActionSearchbar').val('')
+        QuickActions.open(true);
+        QuickActions.searchTerm('');
 
         setTimeout(function(){
-            if(eagle.quickActionOpen()){
-                $('#quickActionContainer').show()
-                $('#quickActionBackground').show()
-                $('#quickActionSearchbar').trigger("focus")
+            if(QuickActions.open()){
+                document.getElementById("quickActionSearchbar").focus();
                 QuickActions.initiateQuickActionQuickSelect()
             }else{
-                $('#quickActionContainer').hide()
-                $('#quickActionBackground').hide()
                 $('body').off('keydown.quickActions')
                 $('#quickActionBackground').off('click.quickActionDismiss')
             }
         },50)
     }
 
-    static findQuickActionResults() : QuickActionsResult[] {
-        const eagle: Eagle = Eagle.getInstance();
-        const searchTerm :string = eagle.quickActionSearchTerm().toLocaleLowerCase()
-        const resultsList: QuickActionsResult[] = []
+    static results : ko.PureComputed<KeyboardShortcut[]> = ko.pureComputed(() => {
+        const searchTerm: string = QuickActions.searchTerm().toLocaleLowerCase();
+        let resultsList: KeyboardShortcut[] = [];
 
-        wordMatch = []
-        tagMatch = []
-        startMatch = []
-        tagStartMatch = []
-        anyMatch = []
+        const results: {keyboardShortcut:KeyboardShortcut, score:number}[] = [];
 
         if(searchTerm != ''){
-
-            //processing the keyboard shortcuts array
-            KeyboardShortcut.getShortcuts().forEach(function(shortcut:KeyboardShortcut){
-                const result: QuickActionsMatch = QuickActions.matchAndSortFunction(shortcut,searchTerm)
-                if(result.match){
-                    //pushing the results in order of priority
-                    QuickActions.pushResultUsingPriority(result)
+            // processing the keyboard shortcuts array
+            KeyboardShortcut.shortcuts.forEach(function(shortcut:KeyboardShortcut){
+                const score: number = QuickActions.scoreShortcut(shortcut, searchTerm);
+                if(score !== 0){
+                    //pushing the results to temp array
+                    results.push({keyboardShortcut:shortcut, score: score})
                 }
             })
 
-            //processing the quick start array
-            KeyboardShortcut.getQuickActions().forEach(function(shortcut:KeyboardShortcut){
-                const result = QuickActions.matchAndSortFunction(shortcut,searchTerm)
-                if(result.match){
-                    //pushing the results in order of priority
-                    QuickActions.pushResultUsingPriority(result)
+            // processing the quick start array
+            KeyboardShortcut.quickActions.forEach(function(shortcut:KeyboardShortcut){
+                const score: number = QuickActions.scoreShortcut(shortcut, searchTerm);
+                if(score !== 0){
+                    //pushing the results to temp array
+                    results.push({keyboardShortcut:shortcut, score: score})
                 }
             })
 
-            //adding the contents of each of the priority arrays into the results array, in order of priority
-            //the ... means we are appending only the array's entries not the array itself
-            resultsList.push(...wordMatch, ...tagMatch, ...startMatch,...tagStartMatch, ...anyMatch)
+            //sort the array by score, descending
+            results.sort((a, b) =>b.score - a.score);
+            
+            //pushing keyboard shortcuts from temp array to final array in sorted order
+            resultsList = results.map(result => (result.keyboardShortcut))
         }
 
-        //when the search result list changes we reset the selected result
+        // when the search result list changes we reset the selected result
         $('#quickActionsFocus').removeClass('quickActionsFocus')
 
-        //hide the result div if there is nothing to show
-        if(resultsList.length === 0){
-            $('#quickActionResults').hide()
-        }else{
-            $('#quickActionResults').show()
-        }
-
         return resultsList
-    }
+    }, this);
 
-    static pushResultUsingPriority(result: QuickActionsMatch) : void {
-        if(result.priority === Priority.Word){
-            wordMatch.push(result.funcObject)
-        }else if(result.priority === Priority.Tag){
-            tagMatch.push(result.funcObject)
-        }else if(result.priority === Priority.Start){
-            startMatch.push(result.funcObject)
-        }else if(result.priority === Priority.TagStart){
-            tagStartMatch.push(result.funcObject)
-        }else{
-            // anyMatch.push(result.funcObject)
+    static scoreShortcut(shortcut: KeyboardShortcut, searchTerm: string): number {
+        const PERFECT_WORD_MATCH_POINTS = 10000 //search term and shortcut name are a perfect match
+        const STARTS_WITH_POINTS = 100 //shortcut name starts with the search term
+        const WORD_MATCH_POINTS = 50 //a word in the search term matches a word in the shortcut name
+        const PERFECT_TAG_MATCH_POINTS = 40 //search term and tag are a perfect match
+        const TAG_MATCH_POINTS = 30 //a word in the search term matches a tag
+        const partialWORD_MATCH_POINTS = 8 //search term partially matches function name (includes())
+        const PARTIAL_TAG_MATCH_POINTS = 5 //search term partially matches function tag (includes())
+        const WORD_MATCH_IN_SEQUENCE_POINTS = 2 //extra points for matching words from start(eg. search term: "save graph repo", function name: "save graph to repo" is 2x2 extra points because the first two words match)
+
+        let score = 0 //keeping track of this keyboard shortcut's score
+
+        //perfect match! no point to continue
+        if (shortcut.text.toLocaleLowerCase() === searchTerm.toLocaleLowerCase()){
+            return PERFECT_WORD_MATCH_POINTS
         }
-    }
 
-    static matchAndSortFunction(func: KeyboardShortcut, searchTerm: string) : QuickActionsMatch {
-        let result: QuickActionsMatch;
-        let funcElement: QuickActionsResult;
-        let bestMatch: Priority = Priority.Unknown;
-
-        //checks if there is a match
-        let match = false
-
-        if(func.name.toLocaleLowerCase().includes(searchTerm)){
-            match = true
+        //check if function name starts with the search term
+        if (shortcut.text.toLocaleLowerCase().startsWith(searchTerm.toLocaleLowerCase())){
+            score+=STARTS_WITH_POINTS
         }
-        
-        func.tags.forEach(function(tag){
-            if(tag.toLocaleLowerCase().includes(searchTerm)){
-                match = true
+
+        for(const tag of shortcut.tags){
+            // check for perfect tag matches
+            if (tag.toLocaleLowerCase() === searchTerm.toLocaleLowerCase()){
+                score += PERFECT_TAG_MATCH_POINTS
             }
-        })
+        }
 
-        //booleans used for prioritising search results
-        let wordMatched: boolean = false
-        let tagMatched: boolean = false
-        let startMatched: boolean = false
-        let tagStartMatched: boolean = false
+        // split both the shortcut text and search term into individual words
+        const shortcutWords: string[] = shortcut.text.split(' ');
+        const searchWords: string[] = searchTerm.split(' ').filter(Boolean);
 
-        //generating the result
-        if(match){
-            funcElement = {
-                title: func.name,
-                action: func.run,
-                shortcut: "",
-                icon: ""
-            };
+        let searchWordStillMatches = true // keeping track of if the words from the search term match the word from the KeyboardShortcut name of the same index
 
-            // generate text for this shortcut
-            funcElement.shortcut = func.getText(true);
+        for (let searchWordIndex = 0; searchWordIndex < searchWords.length ; searchWordIndex++){
+            //looping over each word in the search term
+            const searchWord = searchWords[searchWordIndex]
 
-            if(func.id.startsWith('docs_')){
-                funcElement.icon = 'icon-book'
-            }else{
-                funcElement.icon = 'icon-build'
-            }
-     
-            // adding priority to each search result, this affects the order in which the result appear
-            const searchableArr = func.name.split(' ');
-            const searchTermArr = searchTerm.split(' ')
+            // check for match against words in shortcut
+            for(let shortcutWordIndex = 0; shortcutWordIndex < shortcutWords.length ; shortcutWordIndex++){
+                //looping over each word in the shortcut name
+                const shortcutWord = shortcutWords[shortcutWordIndex]
 
-            for(const searchWord of searchTermArr){
-                if(wordMatched){
-                    break
-                }
+                //do we have a complete word match
+                if(shortcutWord.toLocaleLowerCase() === searchWord.toLocaleLowerCase()){
+                    score += WORD_MATCH_POINTS
 
-                //checking priority for function name matches                            
-                for(const searchableWord of searchableArr){
-                    if(searchableWord.toLocaleLowerCase() === searchWord.toLocaleLowerCase()){
-                        wordMatched = true
-                        break
-                    }else if(searchableWord.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
-                        startMatched = true
-                        break
+                    //check how many words of the search term match the name of the keyboard shortcut's name in sequence
+                    if(searchWordStillMatches && searchWordIndex === shortcutWordIndex){
+                        score += WORD_MATCH_IN_SEQUENCE_POINTS
+                    }else{
+                        searchWordStillMatches = false;
                     }
-                }
 
-                //checking priority for function tags
-                if(!wordMatched){
-                    for(const tag of func.tags){
-                        if(searchWord.toLocaleLowerCase() === tag.toLocaleLowerCase()){
-                            tagMatched = true
-                            break
-                        }else if(tag.toLocaleLowerCase().startsWith(searchWord.toLocaleLowerCase())){
-                            tagStartMatched = true
-                            break
-                        }
+                //do we have a partial word match
+                }else if(shortcutWord.toLocaleLowerCase().includes(searchWord.toLocaleLowerCase())){
+                    //awarding points for a partial match plus a bonus for each letter that matches
+                    score += partialWORD_MATCH_POINTS + searchWord.length
+
+                    //check how many words of the search term match the name of the keyboard shortcut's name in sequence
+                    if(searchWordStillMatches && searchWordIndex === shortcutWordIndex){
+                        score += WORD_MATCH_IN_SEQUENCE_POINTS
                     }
+
+                    searchWordStillMatches = false; //only a partial match, so the streak ends here
+                }else{
+                    //we dont have a match so our word match steak ends here
+                    searchWordStillMatches = false
                 }
             }
-            if(wordMatched){
-                bestMatch = Priority.Word
-            }else if(tagMatched){
-                bestMatch = Priority.Tag
-            }else if(startMatched){
-                bestMatch = Priority.Start
-            }else if(tagStartMatched){
-                bestMatch = Priority.TagStart
-            }else{
-                bestMatch = Priority.Any
+
+            // check for match against shortcut tags
+            for(const tag of shortcut.tags){
+
+                //check for word match with tag
+                if(searchTerm.toLocaleLowerCase() === tag.toLocaleLowerCase()){
+                    score += TAG_MATCH_POINTS
+
+                //check for partial match
+                }else if(tag.toLocaleLowerCase().includes(searchWord.toLocaleLowerCase())){
+                    //awarding points for a partial match plus a bonus for each letter that matches
+                    score += PARTIAL_TAG_MATCH_POINTS +searchWord.length
+                }
             }
-            result = {match:match, funcObject:funcElement, priority:bestMatch}
-        }else{
-            result = {match:match, funcObject:funcElement, priority:bestMatch}
         }
-        return result
+
+        return score
     }
 
-    static executeQuickAction(result: QuickActionsResult) : void {
-        const eagle: Eagle = Eagle.getInstance();
-        QuickActions.initiateQuickAction()
-        result.action(eagle, null)
-    }
-
-    static updateQuickActionSearchTerm(eagle: Eagle, event: KeyboardEvent ): void {
-        const searchTerm: string = $(event.target).val().toString();
-        eagle.quickActionSearchTerm(searchTerm);
+    // close QuickActions and run the shortcut
+    static executeQuickAction(shortcut: KeyboardShortcut): void {
+        QuickActions.open(false);
+        shortcut.run(Eagle.getInstance(), null);
     }
     
-    // TODO: event not passed as an argument here! (used as both 'e' and 'event'?)
     static initiateQuickActionQuickSelect() : void {
         //unbinding then rebinding the event in case there was already one attached
-        const that = this
         $('body').off('keydown.quickActions')
         $('body').on('keydown.quickActions',function(event: JQuery.TriggeredEvent){
             const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
@@ -267,7 +201,7 @@ export class QuickActions {
                 break;
 
                 case "Escape":
-                that.initiateQuickAction()
+                QuickActions.open(false);
                 break;
 
                 default: //all other key presses should be typing in this mode, so we should be focused on the input
@@ -277,7 +211,7 @@ export class QuickActions {
         })
         
         $('#quickActionBackground').on('click.quickActionDismiss', function(){
-            QuickActions.initiateQuickAction();
+            QuickActions.open(false);
         })
     }
 

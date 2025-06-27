@@ -135,6 +135,7 @@ export class Repository {
                 // if we could not find one step in the path, then abort
                 if (!foundPathPart){
                     reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointer.name));
+                    return;
                 }
             }
 
@@ -165,6 +166,7 @@ export class Repository {
                 // if we could not find one step in the path, then abort
                 if (!foundPathPart){
                     reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointer.name));
+                    return;
                 }
             }
 

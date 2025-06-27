@@ -45,6 +45,7 @@ import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
 import { ParameterTable } from "./ParameterTable";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { GraphRenderer } from "./GraphRenderer";
 
 export class Utils {
     // Allowed file extensions
@@ -316,73 +317,103 @@ export class Utils {
     }
     
     static async httpGet(url: string): Promise<string> {
-        return $.ajax({
-            url: url
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpGetJSON(url: string, json: object): Promise<object> {
-        return $.ajax({
-            url: url,
-            type: 'GET',
-            data: JSON.stringify(json),
-            contentType: 'application/json'
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: JSON.stringify(json),
+                contentType: 'application/json'
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpPost(url : string, data : string): Promise<string> {
-        return $.ajax({
-            url: url,
-            type: 'POST',
-            data: data,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false   // tell jQuery not to set contentType
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: data,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false   // tell jQuery not to set contentType
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpPostJSON(url : string, json : object): Promise<string> {
-        return $.ajax({
-            url: url,
-            type: 'POST',
-            data: JSON.stringify(json),
-            contentType: 'application/json'
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: JSON.stringify(json),
+                contentType: 'application/json'
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpPostJSONString(url : string, jsonString : string): Promise<string> {
-        return $.ajax({
-            url: url,
-            type: 'POST',
-            data: jsonString,
-            contentType: 'application/json'
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: jsonString,
+                contentType: 'application/json'
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
     static async httpPostForm(url : string, formData : FormData): Promise<string> {
-        return $.ajax({
-            url: url,
-            type: 'POST',
-            data: formData,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false   // tell jQuery not to set contentType
-        })
-        .fail((xhr, textStatus) => {
-            return Promise.reject(Utils.parseAjaxError(xhr, textStatus));
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false   // tell jQuery not to set contentType
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data);
+            });
         });
     }
 
@@ -481,6 +512,18 @@ export class Utils {
         });
     }
 
+    static notifyUserOfEditingIssue(fileType: Eagle.FileType, action: string){
+        const uiMode = UiModeSystem.getActiveUiMode().getName();
+        let message: string;
+
+        if (fileType === Eagle.FileType.Unknown){
+            message = "Action is not permitted in the current UI mode (" + uiMode + ")";
+        } else {
+            message = fileType + " editing is not permitted in the current UI mode (" + uiMode + ")";
+        }
+        Utils.showNotification(action, message, "warning");
+    }
+
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
@@ -505,12 +548,13 @@ export class Utils {
         });
     }
 
-    static requestUserText(title : string, message : string, defaultText: string) : Promise<string> {
+    static requestUserText(title : string, message : string, defaultText: string, readonly: boolean = false) : Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputTextModalTitle').text(title);
             $('#inputTextModalMessage').html(message);
 
             $('#inputTextModalInput').val(defaultText);
+            $('#inputTextModalInput').prop('readonly', readonly);
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
@@ -524,6 +568,78 @@ export class Utils {
             });
 
             $('#inputTextModal').modal("toggle");
+        });
+    }
+
+    static requestUserCode(language: "json"|"python"|"text", title: string, defaultText: string, readonly: boolean = false): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            // set title
+            $('#inputCodeModalTitle').text(title);
+
+            // get language configuration
+            let mode;
+            switch(language){
+                case "json":
+                    mode = "javascript";
+                    break;
+                case "python":
+                    mode = "python"
+                    break;
+                case "text":
+                    mode = "null"
+                    break;
+                default:
+                    console.warn("requestUserCode(): Unsupported language:", language);
+                    mode = "null"
+                    break;
+            }
+
+            const editor = $('#inputCodeModal').data('editor');
+            editor.setOption('readOnly', readonly);
+            editor.setOption('mode', mode);
+            editor.setValue(defaultText);
+
+            // store the callback, result on the modal HTML element
+            // so that the info is available to event handlers
+            $('#inputCodeModal').data('completed', false);
+            $('#inputCodeModal').data('callback', (completed : boolean, userText : string) => {
+                if (!completed){
+                    reject("Utils.requestUserCode() aborted by user");
+                } else {
+                    resolve(userText);
+                }
+            });
+
+            $('#inputCodeModal').modal("toggle");
+        })
+    }
+
+    static requestUserMarkdown(title: string, defaultText: string, editMode: boolean = false): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $('#inputMarkdownModalTitle').text(title);
+
+            // show or hide sections based on editMode
+            Modals.toggleMarkdownEditMode(editMode);
+
+            // initialise editor
+            const editor = $('#inputMarkdownModal').data('editor');
+            editor.setOption('readOnly', false);
+            editor.setOption('mode', "markdown");
+            editor.setValue(defaultText);
+            Modals.setMarkdownContent(defaultText);
+
+            // store the callback, result on the modal HTML element
+            // so that the info is available to event handlers
+            $('#inputMarkdownModal').data('completed', false);
+            $('#inputMarkdownModal').data('callback', (completed : boolean, userMarkdown : string) => {
+                if (!completed){
+                    reject("Utils.requestUserMarkdown() aborted by user");
+                } else {
+                    resolve(userMarkdown);
+                }
+            });
+
+            $('#inputMarkdownModal').modal("toggle");
         });
     }
 
@@ -682,7 +798,7 @@ export class Utils {
         });
     }
 
-    static requestUserEditField(eagle: Eagle, field: Field, choices: string[]): Promise<Field> {
+    static requestUserEditField(eagle: Eagle, field: Field, title: string, choices: string[]): Promise<Field> {
         return new Promise(async(resolve, reject) => {
             // set the currently edited field
             eagle.currentField(field);
@@ -691,6 +807,7 @@ export class Utils {
             $('#editFieldModal').data('callback', (completed: boolean, field: Field): void => {
                 resolve(field);
             });
+            $("#editFieldModalTitle").html(title);
             $('#editFieldModal').data('choices', choices);
             $('#editFieldModal').modal("toggle");
         });
@@ -856,6 +973,10 @@ export class Utils {
         eagle.currentFileInfo(fileInfo);
 
         $('#modelDataModal').modal("toggle");
+    }
+
+    static hideModelDataModal(){
+        $('#modelDataModal').modal("hide");
     }
 
     static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph): Promise<Edge> {
@@ -1213,31 +1334,15 @@ export class Utils {
         return null;
     }
 
-    static getComponentsWithMatchingPort(mode: string, input: boolean, type: string, dataEligible: boolean) : Node[] {
-        let result: Node[] = [];
-        const eagle = Eagle.getInstance();
-
-        //using includes here so we can do both or either, just saves me from having to add another if with both pieces of code
-        if(mode.includes('palette')){
-            // add all data components (except ineligible)
-            for (const palette of eagle.palettes()){
-                result = result.concat(Utils.checkForMatches(palette.getNodes(), input, type, dataEligible))
-            }
-        }
-        
-        if(mode.includes('graph')){
-            result = result.concat(Utils.checkForMatches(eagle.logicalGraph().getNodes(), input, type, dataEligible))
-        }
-
-        return result;
-    }
-
-    static checkForMatches(nodes:Node[], input: boolean, type: string, dataEligible: boolean) : Node[] {
+    static getComponentsWithMatchingPort(nodes:Node[], input: boolean, type: string) : Node[] {
         const result: Node[] = [];
+
+        // no destination, ask user to choose a new node
+        const isData: boolean = GraphRenderer.portDragSourceNode().getCategoryType() === Category.Type.Data;
 
         for (const node of nodes){
             // skip data nodes if not eligible
-            if (!dataEligible && node.getCategoryType() === Category.Type.Data){
+            if (isData && node.getCategoryType() === Category.Type.Data){
                 continue;
             }
 
@@ -1336,7 +1441,9 @@ export class Utils {
     }
 
     static getLeftWindowWidth() : number {
-        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)){
+        const leftWindowDisabled = !Setting.findValue(Setting.ALLOW_GRAPH_EDITING) && !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
+
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || leftWindowDisabled){
             return 0
         }
         return Setting.findValue(Setting.LEFT_WINDOW_WIDTH)
@@ -1765,19 +1872,19 @@ export class Utils {
         });
     }
 
+    // TODO: could we return a list of KeyboardShortcut here?
     static getShortcutDisplay() : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void}[] {
         const displayShortcuts : {description: string, shortcut: string, function: (eagle: Eagle, event: KeyboardEvent) => void} []=[];
-        const eagle: Eagle = Eagle.getInstance();
 
-        for (const object of Eagle.shortcuts){
-            // skip if shortcut should not be displayed
-            if (!object.shortcutListDisplay(eagle)){
+        for (const object of KeyboardShortcut.shortcuts){
+            // skip if shortcut has no keys
+            if (object.keys.length === 0){
                 continue;
             }
 
-            const shortcut: string = KeyboardShortcut.idToText(object.id, false);
+            const shortcut: string = KeyboardShortcut.idToKeysText(object.id, false);
             displayShortcuts.push({
-                description: object.name,
+                description: object.text,
                 shortcut: shortcut,
                 function: object.run
             });
@@ -1942,8 +2049,7 @@ export class Utils {
 
         // if a field was not found, clone one from the example and add to node
         if (field === null){
-            field = exampleField.clone();
-            field.setId(Utils.generateFieldId());
+            field = exampleField.clone().setId(Utils.generateFieldId());
             node.addField(field);
         }
 
@@ -2033,7 +2139,7 @@ export class Utils {
         const srcPortType = destPort.getType() === undefined ? Daliuge.DataType.Object : destPort.getType();
 
         // create new source port
-        const srcPort = new Field(edge.getSrcPortId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort);
+        const srcPort = new Field(edge.getSrcPortId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
 
         // add port to source node
         srcNode.addField(srcPort);
@@ -2054,7 +2160,7 @@ export class Utils {
         const destPortType = srcPort.getType() === undefined ? Daliuge.DataType.Object : srcPort.getType();
 
         // create new destination port
-        const destPort = new Field(edge.getDestPortId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.ApplicationArgument, Daliuge.FieldUsage.OutputPort);
+        const destPort = new Field(edge.getDestPortId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
 
         // add port to destination node
         destNode.addField(destPort);
@@ -2135,8 +2241,7 @@ export class Utils {
 
         // otherwise, if not found, just add a clone of the required field
         if (!field){
-            field = requiredField.clone();
-            field.setId(Utils.generateFieldId());
+            field = requiredField.clone().setId(Utils.generateFieldId());
             node.addField(field);
         }
 
@@ -2448,22 +2553,53 @@ export class Utils {
 
     static getRmodeTooltip() : string {
         let html = '**General**: Sets the standard for provenance tracking throughout graph translation and execution. Used to determine scientifically (high-level) changes to workflow behaviour. Signature files are stored alongside log files. Refer to the documentation for further explanation.<br>'
-        html = html+'**Documentation link** <a href="https://daliuge.readthedocs.io/en/latest/architecture/reproducibility/reproducibility.html" target="_blank">daliuge.readthedocs</a><br>'
-        html = html+'**NOTHING**: No provenance data is tracked at any stage.<br>'
-        html = html+'**ALL**: Data for all subsequent levels is generated and stored together.<br>'
-        html = html+'**RERUN**: Stores general about all logical graph components<br>'
-        html = html+'**REPEAT**: Stores specific information about logical and physical graph components<br>'
-        html = html+'**RECOMPUTE**: Stores maximum information about logical and physical graph components and at runtime.<br>'
-        html = html+'**REPRODUCE**: Stores information about terminal data drops at logical, physical and runtime layers.<br>'
-        html = html+'**REPLICATE SCI**: Essentially RERUN + REPRODUCE<br>'
-        html = html+'**REPLICATE COMP**: Essentially RECOMPUTE + REPRODUCE<br>'
-        html = html+'**REPLICATE TOTALLY**: Essentially REPEAT + REPRODUCE<br>'
+        html += '**Documentation link** <a href="https://daliuge.readthedocs.io/en/latest/architecture/reproducibility/reproducibility.html" target="_blank">daliuge.readthedocs</a><br>'
+        html += '**NOTHING**: No provenance data is tracked at any stage.<br>'
+        html += '**ALL**: Data for all subsequent levels is generated and stored together.<br>'
+        html += '**RERUN**: Stores general about all logical graph components<br>'
+        html += '**REPEAT**: Stores specific information about logical and physical graph components<br>'
+        html += '**RECOMPUTE**: Stores maximum information about logical and physical graph components and at runtime.<br>'
+        html += '**REPRODUCE**: Stores information about terminal data drops at logical, physical and runtime layers.<br>'
+        html += '**REPLICATE SCI**: Essentially RERUN + REPRODUCE<br>'
+        html += '**REPLICATE COMP**: Essentially RECOMPUTE + REPRODUCE<br>'
+        html += '**REPLICATE TOTALLY**: Essentially REPEAT + REPRODUCE<br>'
 
         return html
     }
 
+    static getTranslateBtnColorTooltip() : string {
+        let html = '**Reproducibility Status**<br><br>'
+        html += '**Green:** Graph is saved and ready for translation.<br>'
+        html += '**Red:** Graph is not saved, Save before translation.<br>'
+        html += '**Orange:** In test translation mode, do not use for workflow execution.<br>'
+        html += "**Blue:** Graph is not stored in a git repository, it is the user's responsibility to keep a copy if full workflow reproducibility is required."
+
+        return html
+    }
+
+
     static copyInputTextModalInput(): void {
         navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
+    }
+
+    static copyInputCodeModalInput(): void {
+        const editor = $('#inputCodeModal').data('editor');
+        if (editor){
+            const content: string = editor.getValue();
+            navigator.clipboard.writeText(content);
+        } else {
+            console.error("No 'editor' data attribute found on modal");
+        }
+    }
+
+    static copyInputMarkdownModalInput(): void {
+        const editor = $('#inputMarkdownModal').data('editor');
+        if (editor){
+            const content: string = editor.getValue();
+            navigator.clipboard.writeText(content);
+        } else {
+            console.error("No 'editor' data attribute found on modal");
+        }
     }
 
     static getReadOnlyText() : string {
@@ -2548,7 +2684,8 @@ export class Utils {
             try {
                 data = await Utils.httpGet(fileName);
             } catch (error) {
-                reject(error)
+                reject(error);
+                return;
             }
 
             resolve(data);
@@ -2606,8 +2743,7 @@ export class Utils {
 
         // set new ids for any fields in this node
         for (const field of newNode.getFields()){
-            field.setId(Utils.generateFieldId());
-            field.setNodeId(newNodeId);
+            field.setId(Utils.generateFieldId()).setNodeId(newNodeId);
         }
 
         // set new ids for embedded applications within node, and new ids for ports within those embedded nodes
@@ -2617,8 +2753,7 @@ export class Utils {
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
                 for (const field of clone.getFields()){
-                    field.setId(Utils.generateFieldId());
-                    field.setNodeId(newInputAppId);
+                    field.setId(Utils.generateFieldId()).setNodeId(newInputAppId);
                 }
             }
             newNode.setInputApplication(clone)
@@ -2633,8 +2768,7 @@ export class Utils {
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
                 for (const field of clone.getFields()){
-                    field.setId(Utils.generateFieldId());
-                    field.setNodeId(newOutputAppId);
+                    field.setId(Utils.generateFieldId()).setNodeId(newOutputAppId);
                 }
             }
             newNode.setOutputApplication(clone)
@@ -2655,16 +2789,18 @@ export class Utils {
         }
     }
 
-    static transformNodeFromTemplates(node: Node, sourceTemplate: Node, destinationTemplate: Node): void {
-        // delete non-ports from the node (loop backwards since we are deleting from the array as we loop)
-        for (let i = node.getFields().length - 1 ; i >= 0; i--){
-            const field: Field = node.getFields()[i];
+    static transformNodeFromTemplates(node: Node, sourceTemplate: Node, destinationTemplate: Node, keepOldFields: boolean = false): void {
+        if (!keepOldFields){
+            // delete non-ports from the node (loop backwards since we are deleting from the array as we loop)
+            for (let i = node.getFields().length - 1 ; i >= 0; i--){
+                const field: Field = node.getFields()[i];
 
-            if (field.isInputPort() || field.isOutputPort()){
-                continue;
+                if (field.isInputPort() || field.isOutputPort()){
+                    continue;
+                }
+
+                node.removeFieldById(field.getId());
             }
-
-            node.removeFieldById(field.getId());
         }
 
         // copy non-ports from new template to node

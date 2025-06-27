@@ -1,16 +1,15 @@
-<!-- ko if: $root.quickActionOpen() -->
-    <div id="quickActionContainer" style="display: none;">
-        <div id="quickActionInput">
-            <input type="text" autocomplete="off" id="quickActionSearchbar" placeholder="Command Search... (e.g. 'save', or 'edge')" data-bind="event:{keyup: QuickActions.updateQuickActionSearchTerm}">
-        </div>
-        <div id="quickActionResults">
-            <div data-bind="foreach: QuickActions.findQuickActionResults()">
-                <a data-bind="click:function(){QuickActions.executeQuickAction($data)}">
-                    <i data-bind="class:$data.icon"></i>
-                    <span class="quickActionName" data-bind="text: $data.title"></span>
-                    <span class="quickActionShortcut" data-bind="text: $data.shortcut"></span></a>
-            </div>
+<div id="quickActionContainer" class="quickActionHidden" data-bind="css: {quickActionHidden: !QuickActions.open()}">
+    <div id="quickActionInput">
+        <input type="text" autocomplete="off" id="quickActionSearchbar" placeholder="Command Search... (e.g. 'save', or 'edge')" data-bind="value: QuickActions.searchTerm, valueUpdate: 'keyup'">
+    </div>
+    <div id="quickActionResults" data-bind="visible: QuickActions.results().length > 0">
+        <div data-bind="foreach: QuickActions.results">
+            <a data-bind="click:function(){QuickActions.executeQuickAction($data)}">
+                <i class="material-icons" data-bind="text:$data.icon"></i>
+                <span class="quickActionName" data-bind="text: $data.text"></span>
+                <span class="quickActionShortcut" data-bind="text: $data.getKeysText(true)"></span>
+            </a>
         </div>
     </div>
-    <div id="quickActionBackground" style="display: none;"></div>
-<!-- /ko -->
+</div>
+<div id="quickActionBackground" class="quickActionHidden" data-bind="css: {quickActionHidden: !QuickActions.open()}"></div>

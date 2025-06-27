@@ -1,3 +1,51 @@
+v6.7.0 (2025/06/09)
+- CSS Improvements
+- New menu item "Create New Graph From Url"
+- New graph check for Memory node conflict between pydata fields and input edges
+- Better filtering of nodes when dragging a edge from a port to empty space
+- Improved Create Construct/SubGraph from selection
+- Support for JSON, Python and Markdown in source editor, using fixed-width font
+- Display title of data nodes below the node, to differentiate from application nodes
+- Edit node 'func_code' field available in right click menu
+- Improved unit tests
+- Allow Memory nodes as input to BashShellApp
+- New setting to allow users to keep all fields when changing a node's category
+- Reduce display size of branch node
+- Constrain the available parameter types selectable in parameter table
+- Copy port description when auto-renaming ports due to edge connection
+- Improved backwards compatibility with old graphs
+- Auto graph check after field value changes
+- Display of 'important' fields within node inspector UI
+- Better handling of event ports within graph checker and parameter table
+- Improved unit tests
+- Better handling of float fields in parameter table
+- Improvements to edge drawing switch from bezier to line at short range
+- Eagle winks again!
+v6.6.0 (2025/04/29)
+- Icon hover effect
+- Apply column visibility on reload
+- Fixes to ParameterTable
+- Automatically save graph before translation (except when working with local files)
+- Tutorial video creation via playwright
+- Move from HTML localStorage to IndexedDB for storage of custom repository info
+- Better checking of nodes with func_name and func_code fields
+- Improved navbar and modal layout on small screens
+- Lazy-loading of repositories
+- New styling for "Path" edges
+- Graph check to make sure PythonObjects are only output from PythonMemberFunctions
+- Allow integer fields to be set to values below zero in the Parameter Table
+- Sorting by column in the Parameter Table
+- New icons (RDBMS, DaliugeApp, PyFuncApp) and font
+- Better node category handling (PyFuncApp, DaliugeApp, Unknown)
+- Welcome tutorial for new users
+- Multi-line editing of values, defaultValues, descriptions in the Parameter Table
+- Re-check graph after field "Use As" changes in Parameter Table
+- Hide "Use As" column in Parameter Table for construct nodes, Hide "encoding" column for all but Applications
+- Removed unused "Control" categoryType
+- Better re-naming of nodes and ports when dragging new edges from Application ports to empty space
+- New inspector button to view Node JSON
+- 'func_code' fields can edited using the embedded source editor
+- Improved Translate button, including dropdown and colour status indicator
 v6.5.0 (2024/12/19)
 - Added palette sort menu item to palette triple-dot menu
 - Fixed accuracy/drift issues during node dragging when browser zoom not 100%

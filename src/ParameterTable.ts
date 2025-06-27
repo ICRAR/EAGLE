@@ -281,11 +281,7 @@ export class ParameterTable {
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
             return !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
         }else{
-            if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)||Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
-                return false
-            }else{
-                return true
-            }
+            return !Setting.findValue(Setting.ALLOW_GRAPH_EDITING) && !Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
         }
     }
 
@@ -338,6 +334,8 @@ export class ParameterTable {
             }
             case Eagle.FileType.Graph:
                 eagle.logicalGraph().fileInfo().modified = true;
+
+                eagle.checkGraph();
                 break;
         }
     }
@@ -371,14 +369,6 @@ export class ParameterTable {
         // little helper function that sets up resizable columns. this is called by ko on the headers when they are created
         ParameterTable.initiateResizableColumns(headerId)
         return true
-    }
-
-    static showEditDescription(description: HTMLElement) : void {
-        $(description).find('.parameterTableDescriptionBtn').show()
-    }
-
-    static hideEditDescription(description: HTMLElement) : void {
-        $(description).find('.parameterTableDescriptionBtn').hide()
     }
 
     static showEditComment(comment: HTMLElement) : void {
@@ -500,6 +490,42 @@ export class ParameterTable {
         field.setDescription(fieldDescription);
     }
 
+    static async requestEditValueCode(field:Field, defaultValue: boolean) : Promise<void> {
+        const eagle: Eagle = Eagle.getInstance();
+        const node: Node = eagle.selectedNode();
+
+        let editingField: Field | GraphConfigField // this will either be the normal field or the configured field if applicable
+        let editingValue: string // this will either be the value or default value or configured value
+
+        //checking if the field is a configured field
+        if(!defaultValue && field.getGraphConfigField()){
+            editingField = field.getGraphConfigField()
+            editingValue = editingField.getValue()
+        }else{
+            editingField = field
+            if(defaultValue){
+                editingValue = editingField.getDefaultValue()
+            }else{
+                editingValue = editingField.getValue()
+            }
+        }
+
+        let fieldValue: string;
+        try {
+            fieldValue = await Utils.requestUserCode("python", "Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue, false);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        // set the Value on the field
+        if(defaultValue && editingField instanceof Field){
+            editingField.setDefaultValue(fieldValue);
+        }else{
+            editingField.setValue(fieldValue);
+        }
+    }
+
     static async requestEditCommentInModal(currentField:Field): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
         const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
@@ -582,6 +608,13 @@ export class ParameterTable {
     }
 
     static toggleTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
+        // if user in student mode, abort
+        const inStudentMode: boolean = Setting.findValue(Setting.STUDENT_SETTINGS_MODE);
+        if (inStudentMode && mode === Eagle.BottomWindowMode.NodeParameterTable){
+            Utils.showNotification("Student Mode", "Unable to open Parameter Table in student mode", "danger", false);
+            return;
+        }
+
         //if we are already in the requested mode, we can toggle the bottom window
         if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === mode){
             SideWindow.toggleShown('bottom')
@@ -602,6 +635,13 @@ export class ParameterTable {
 
         //open the bottom window
         SideWindow.setShown('bottom',true)
+
+        if(mode = Eagle.BottomWindowMode.NodeParameterTable){
+            setTimeout(() => {
+                //update the contents of the parameter table and its sorting arrow display
+                ParameterTable.updateContent(eagle.selectedNode())
+            }, 50);
+        }
 
         //make sure the right click menu is closed
         if(selectType === ParameterTable.SelectType.RightClick){
@@ -662,9 +702,8 @@ export class ParameterTable {
         let fieldIndex:number //variable holds the index of which row to highlight after creation
         const eagle = Eagle.getInstance()
 
-        const copiedField = eagle.selectedNode().findFieldById(fieldId).clone()
-        copiedField.setId(Utils.generateFieldId())
-        copiedField.setDisplayText(copiedField.getDisplayText()+' copy')
+        const copiedField = eagle.selectedNode().findFieldById(fieldId).clone().setId(Utils.generateFieldId());
+        copiedField.setDisplayText(copiedField.getDisplayText()+' copy');
         if(ParameterTable.hasSelection()){
             //if a cell in the table is selected in this case the new node will be placed below the currently selected node
             fieldIndex = ParameterTable.selectionParentIndex() + 1
@@ -785,8 +824,31 @@ export class ParameterTable {
     }
 
     static updateContent = (node: Node) : void => {
-        ParameterTable.copyFields(node.getFields());
-        ParameterTable.sortFields();
+        if (node === null){
+            ParameterTable.copyFields([]);
+        } else {
+            ParameterTable.copyFields(node.getFields());
+            ParameterTable.sortFields();
+        }
+    }
+
+    static getParameterTypeOptions = (field:Field) : string[] => {
+        const parameterTypeList : string[] = []
+        const fieldParamType = field.getParameterType()
+
+        if(fieldParamType === Daliuge.FieldType.Construct){
+            parameterTypeList.push(Daliuge.FieldType.Construct)
+        }else if(fieldParamType === Daliuge.FieldType.Constraint){
+            parameterTypeList.push(Daliuge.FieldType.Constraint)
+        }else{
+            parameterTypeList.push(Daliuge.FieldType.Application,Daliuge.FieldType.Component)
+        }
+
+        return parameterTypeList
+    }
+
+    static getParameterTypeLockedState = (field:Field) : boolean => {
+        return this.getNodeLockedState(field) || this.getParameterTypeOptions(field).length < 2;
     }
 }
 
