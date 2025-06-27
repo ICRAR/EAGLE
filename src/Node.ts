@@ -890,7 +890,7 @@ export class Node {
         return -1;
     }
 
-    findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field => {
+    findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field | null => {
         console.assert(!local);
 
         for (const field of this.fields().values()){
@@ -907,7 +907,7 @@ export class Node {
         return null;
     }
 
-    findFieldByDisplayText = (displayText: string, fieldType: Daliuge.FieldType) : Field => {
+    findFieldByDisplayText = (displayText: string, fieldType: Daliuge.FieldType) : Field | null => {
         for (const field of this.fields().values()){
             if (field.getParameterType() === fieldType && field.getDisplayText() === displayText){
                 return field;
@@ -918,7 +918,7 @@ export class Node {
     }
 
 
-    findPortByMatchingType = (type: string, input: boolean) : Field => {
+    findPortByMatchingType = (type: string, input: boolean) : Field | null => {
         if (input){
             // check input ports
             for (const inputPort of this.getInputPorts()){
@@ -937,7 +937,7 @@ export class Node {
         return null;
     }
 
-    findPortOfAnyType = (input: boolean) : Field => {
+    findPortOfAnyType = (input: boolean) : Field | null => {
         if (input){
             const inputPorts = this.getInputPorts();
             if (inputPorts.length > 0){
