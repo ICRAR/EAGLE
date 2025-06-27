@@ -117,10 +117,12 @@ export class GraphConfig {
 
     removeNode = (node: Node): void => {
         this.nodes().delete(node.getId());
+        this.nodes.valueHasMutated();
     }
 
     removeNodeById = (nodeId: NodeId): void => {
         this.nodes().delete(nodeId);
+        this.nodes.valueHasMutated();
     }
 
     removeField = (field: Field): void => {
@@ -285,6 +287,7 @@ export class GraphConfigNode {
         for (const [id, field] of this.fields()){
             result.fields().set(id, field.clone());
         }
+        result.fields.valueHasMutated();
 
         return result;
     }
@@ -319,6 +322,7 @@ export class GraphConfigNode {
 
     removeFieldById = (id: FieldId): GraphConfigNode => {
         this.fields().delete(id);
+        this.fields.valueHasMutated();
         return this;
     }
 

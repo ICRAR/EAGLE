@@ -273,8 +273,8 @@ export class Palette {
 
         for (const [id, node] of this.nodes()){
             result.nodes().set(id, node.clone());
-            result.nodes.valueHasMutated();
         }
+        result.nodes.valueHasMutated();
 
         return result;
     }
@@ -315,6 +315,7 @@ export class Palette {
 
     removeNodeById = (id: NodeId) : void => {
         this.nodes().delete(id);
+        this.nodes.valueHasMutated();
     }
 
     findNodeByNameAndCategory = (nameAndCategory: Category) : Node => {

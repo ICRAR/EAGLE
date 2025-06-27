@@ -416,11 +416,13 @@ export class Field {
 
     addEdge = (edge: Edge) : Field => {
         this.edges().set(edge.getId(), edge);
+        this.edges.valueHasMutated();
         return this;
     }
 
     removeEdge = (id: EdgeId) : Field => {
         this.edges().delete(id);
+        this.edges.valueHasMutated();
         return this;
     }
 

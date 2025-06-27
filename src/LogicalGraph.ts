@@ -321,6 +321,8 @@ export class LogicalGraph {
             }
 
             result.edges().set(newEdge.getId(), newEdge);
+            result.edges.valueHasMutated();
+
             newEdge.getSrcPort().addEdge(newEdge);
             newEdge.getDestPort().addEdge(newEdge);
         }
@@ -333,6 +335,7 @@ export class LogicalGraph {
                 gc.setId(gcId as GraphConfigId);
                 result.graphConfigs().set(gcId as GraphConfigId, gc);
             }
+            result.graphConfigs.valueHasMutated();
 
             //if the saved 'activeGraphConfigId' is empty or missing, we use the last one in the array, else we set the saved one as active                
             if(typeof dataObject.activeGraphConfigId === 'undefined' || dataObject.activeGraphConfigId === ''){
@@ -546,6 +549,7 @@ export class LogicalGraph {
 
     addGraphConfig = (config: GraphConfig): void => {
         this.graphConfigs().set(config.getId(), config);
+        this.graphConfigs.valueHasMutated();
         Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Added a new graph config");
     }
 

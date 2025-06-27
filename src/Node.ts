@@ -254,12 +254,14 @@ export class Node {
         // if this node already has a parent, remove this node from the parent's children
         if (this.parent() !== null){
             this.parent().children().delete(this.getId());
+            this.parent().children.valueHasMutated();
         }
 
         this.parent(node);
 
         if (node !== null){
             node.children().set(this.getId(), this);
+            node.children.valueHasMutated();
         }
         return this;
     }
@@ -1044,6 +1046,7 @@ export class Node {
 
     removeFieldById = (id: FieldId) : Node => {
         this.fields().delete(id);
+        this.fields.valueHasMutated();
         return this;
     }
 
@@ -1059,6 +1062,7 @@ export class Node {
                 this.fields().delete(id);
             }
         }
+        this.fields.valueHasMutated();
 
         return this;
     }
@@ -1069,6 +1073,7 @@ export class Node {
                 this.fields().delete(id);
             }
         }
+        this.fields.valueHasMutated();
 
         return this;
     }
@@ -1083,6 +1088,7 @@ export class Node {
                 field.setUsage(Daliuge.FieldUsage.OutputPort);
             }
         }
+        this.fields.valueHasMutated();
 
         return this;
     }
@@ -1097,6 +1103,7 @@ export class Node {
                 field.setUsage(Daliuge.FieldUsage.InputPort);
             }
         }
+        this.fields.valueHasMutated();
 
         return this;
     }
