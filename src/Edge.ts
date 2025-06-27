@@ -354,13 +354,24 @@ export class Edge {
             errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") destination node (" + edgeData.destNodeId + ") could not be found, skipping"));
             errorFound = true;
         }
-
         if (errorFound){
             return null;
         }
 
         const srcPort: Field = srcNode.getFieldById(edgeData.srcPortId);
         const destPort: Field = destNode.getFieldById(edgeData.destPortId);
+
+        if (typeof srcPort === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") source port (" + edgeData.srcPortId + ") could not be found, skipping"));
+            errorFound = true;
+        }
+        if (typeof destPort === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") destination port (" + edgeData.destPortId + ") could not be found, skipping"));
+            errorFound = true;
+        }
+        if (errorFound){
+            return null;
+        }
 
         return new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
     }
