@@ -263,6 +263,7 @@ export class Palette {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Palette;
         this.nodes().clear();
+        this.nodes.valueHasMutated();
     }
 
     clone = () : Palette => {

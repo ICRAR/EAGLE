@@ -804,6 +804,7 @@ export class Node {
         this.outputApplication(null);
 
         this.fields().clear();
+        this.fields.valueHasMutated();
 
         this.category(Category.Unknown);
         this.categoryType(Category.Type.Unknown);
@@ -1048,6 +1049,7 @@ export class Node {
 
     removeAllFields = () : Node => {
         this.fields().clear();
+        this.fields.valueHasMutated();
         return this;
     }
 

@@ -611,9 +611,16 @@ export class LogicalGraph {
     clear = () : void => {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Graph;
+
         this.nodes().clear();
+        this.nodes.valueHasMutated();
+
         this.edges().clear();
+        this.edges.valueHasMutated();
+
         this.graphConfigs().clear();
+        this.graphConfigs.valueHasMutated();
+
         this.activeGraphConfigId(null)
     }
 
