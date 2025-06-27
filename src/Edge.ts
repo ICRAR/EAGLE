@@ -535,7 +535,7 @@ export class Edge {
 
         // if link is not a parent, child or sibling, then warn user
         if (associatedConstructType !== Category.ExclusiveForceNode && associatedConstructType !== Category.Loop && !isSibling && !isParentOfConstruct && !isChildOfConstruct && !destPortIsEmbeddedAppOfSibling && !srcPortIsEmbeddedAppOfSibling){
-                Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Warning, Errors.Show("Edge is not between siblings, or between a child and its parent's embedded Application. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edge);}), showNotification, showConsole, errorsWarnings);
+            Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Warning, Errors.Show("Edge is not between siblings, or between a child and its parent's embedded Application. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edge);}), showNotification, showConsole, errorsWarnings);
         }
 
         // check if the edge already exists in the graph, there is no point in a duplicate
@@ -598,24 +598,29 @@ export class Edge {
         // determine correct title
         let title = "Edge Valid";
         let type : "success" | "info" | "warning" | "danger" = "success";
+        let consoleFunction = console.log;
         let message = "";
 
         switch (linkValid){
             case Errors.Validity.Warning:
                 title = "Edge Warning";
                 type = "warning";
+                consoleFunction = console.warn;
                 break;
             case Errors.Validity.Impossible:
                 title = "Edge Impossible";
                 type = "danger";
+                consoleFunction = console.error;
                 break;
             case Errors.Validity.Error:
                 title = "Edge Invalid";
                 type = "danger";
+                consoleFunction = console.error;
                 break;
             case Errors.Validity.Fixable:
                 title = "Edge Fixed";
                 type = "info";
+                consoleFunction = console.info;
                 break;
         }
 
@@ -630,7 +635,7 @@ export class Edge {
         if (showNotification)
             Utils.showNotification(title, message, type);
         if (showConsole)
-            console.trace(title + ":" + message);
+            consoleFunction(title + ":" + message);
         if (type === "danger" && errorsWarnings !== null){
             errorsWarnings.errors.push(issue);
         }
