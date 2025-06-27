@@ -399,6 +399,17 @@ export class Edge {
             return Errors.Validity.Impossible;
         }
 
+        // check that we are not connecting a node to itself
+        if (sourceNodeId === destinationNodeId){
+            Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, Errors.Show("Source node and destination node are the same", function(){Utils.showEdge(eagle, edge);}), showNotification, showConsole, errorsWarnings);
+            impossibleEdge = true;
+        }
+        // check that we are not connecting a port to itself
+        if (sourcePortId === destinationPortId){
+            Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, Errors.Show("Source port and destination port are the same", function(){Utils.showEdge(eagle, edge);}), showNotification, showConsole, errorsWarnings);
+            impossibleEdge = true;
+        }
+
         // get references to actual source and destination nodes (from the ids)
         const sourceNode : Node = eagle.logicalGraph().getNodeById(sourceNodeId);
         const destinationNode : Node = eagle.logicalGraph().getNodeById(destinationNodeId);
@@ -453,12 +464,6 @@ export class Edge {
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
             return Errors.Validity.Impossible;
-        }
-
-        // check that we are not connecting a port to itself
-        if (sourceNodeId === destinationNodeId){
-            Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, Errors.Show("Source port and destination port are the same", function(){Utils.showEdge(eagle, edge);}), showNotification, showConsole, errorsWarnings);
-            impossibleEdge = true;
         }
 
         // check that source is output
