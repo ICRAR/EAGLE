@@ -91,28 +91,18 @@ export class TutorialSystem {
     }
 
     static initiateFindGraphNodeIdByNodeName(name:string) : JQuery<HTMLElement> {
-        const eagle = Eagle.getInstance()
-        const x = $('#logicalGraph #'+eagle.logicalGraph().findNodeIdByNodeName(name)+'.container')
-        return x
+        return $('#logicalGraph #'+Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)+'.container')
     }
 
     static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
-        const eagle = Eagle.getInstance()
-        const x = eagle.logicalGraph().findNodeIdByNodeName(name)
-        return x
+        return Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)
     }
 
     static isRequestedNodeSelected(name:string) : boolean {
         //used when asking the user to select a specific node
         const eagle = Eagle.getInstance()
-        if(eagle.selectedObjects().length>1 || eagle.selectedObjects().length<1){
-            return false
-        }
-        if(name === eagle.selectedNode().getName()){
-            return true
-        }else{
-            return false
-        }
+
+        return eagle.selectedNode() !== null && eagle.selectedNode().getName() === name
     }
 
     static findInPalettes(target:string) : void {
