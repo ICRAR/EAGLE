@@ -1,0 +1,348 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "$defs": {
+        "eagleId": {
+            "type": ["string", "null"],
+            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+        }
+    },
+    "type": "object",
+    "properties": {
+        "modelData": {
+            "type": "object",
+            "properties": {
+                "repoService": {
+                    "type": "string"
+                },
+                "repoBranch": {
+                    "type": "string"
+                },
+                "readonly": {
+                    "type": "boolean"
+                },
+                "repo": {
+                    "type": "string"
+                },
+                "filePath": {
+                    "type": "string"
+                },
+                "fileType": {
+                    "type": "string",
+                    "enum": ["Graph", "Palette"],
+                    "default": "Graph"
+                },
+                "generatorVersion": {
+                    "type": "string"
+                },
+                "generatorCommitHash": {
+                    "type": "string"
+                },
+                "generatorName": {
+                    "type": "string"
+                },
+                "schemaVersion": {
+                    "type": "string"
+                },
+                "lastModifiedName": {
+                    "type": "string"
+                },
+                "lastModifiedEmail": {
+                    "type": "string"
+                },
+                "lastModifiedDatetime": {
+                    "type": "number"
+                },
+                "commitHash": {
+                    "type": "string"
+                },
+                "repositoryUrl": {
+                    "type": "string"
+                },
+                "signature": {
+                    "type": "string"
+                },
+                "shortDescription": {
+                    "type": "string"
+                },
+                "detailedDescription": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "filePath",
+                "fileType",
+                "readonly",
+                "repo",
+                "repoBranch",
+                "repoService",
+                "generatorVersion",
+                "generatorCommitHash",
+                "generatorName",
+                "schemaVersion",
+                "lastModifiedName",
+                "lastModifiedEmail",
+                "lastModifiedDatetime",
+                "commitHash",
+                "repositoryUrl",
+                "signature",
+                "shortDescription",
+                "detailedDescription"
+            ],
+            "additionalProperties": false
+        },
+        "nodes": {
+            "type": "object",
+            "patternProperties": {
+                "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}": {
+                    "type": "object",
+                    "properties": {
+                        "category": {
+                            "type": "string"
+                        },
+                        "categoryType": {
+                            "type": "string"
+                        },
+                        "commitHash": {
+                            "type": "string"
+                        },
+                        "dataHash": {
+                            "type": "string"
+                        },
+                        "embedId": {
+                            "$ref": "#/$defs/eagleId"
+                        },
+                        "id": {
+                            "$ref": "#/$defs/eagleId"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "x": {
+                            "type": "number"
+                        },
+                        "y": {
+                            "type": "number"
+                        },
+                        "subjectId": {
+                            "$ref": "#/$defs/eagleId"
+                        },
+                        "paletteDownloadUrl": {
+                            "type": "string"
+                        },
+                        "repositoryUrl": {
+                            "type": "string"
+                        },
+                        "fields": {
+                            "type": "object",
+                            "patternProperties": {
+                                "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": ["string", "boolean", "number", "null"]
+                                        },
+                                        "defaultValue": {
+                                            "type": ["string", "boolean", "number", "null"]
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "readonly": {
+                                            "type": "boolean"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "precious": {
+                                            "type": "boolean"
+                                        },
+                                        "options": {
+                                            "type": "array"
+                                        },
+                                        "positional": {
+                                            "type": "boolean",
+                                            "default": false
+                                        },
+                                        "encoding": {
+                                            "type": "string",
+                                            "enum": ["dill", "pickle", "npy", "path", "utf-8", "eval", "dataurl", "binary", "raw"],
+                                            "default": "dill"
+                                        },
+                                        "id": {
+                                            "$ref": "#/$defs/eagleId"
+                                        },
+                                        "parameterType": {
+                                            "type": "string",
+                                            "enum": ["Application", "Component", "Constraint", "Construct"],
+                                            "default": "Component"
+                                        },
+                                        "usage": {
+                                            "type": "string",
+                                            "enum": ["NoPort", "InputPort", "OutputPort", "InputOutput"],
+                                            "default": "NoPort"
+                                        },
+                                        "edgeIds": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/$defs/eagleId"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "description",
+                                        "name",
+                                        "value",
+                                        "defaultValue",
+                                        "readonly",
+                                        "type",
+                                        "precious",
+                                        "options",
+                                        "positional",
+                                        "id",
+                                        "parameterType",
+                                        "usage",
+                                        "encoding",
+                                        "edgeIds"
+                                    ],
+                                    "additionalProperties": false
+                                }
+                            }
+                        },
+                        "parentId": {
+                            "$ref": "#/$defs/eagleId"
+                        },
+                        "inputApplicationId": {
+                            "$ref": "#/$defs/eagleId"
+                        },
+                        "outputApplicationId": {
+                            "$ref": "#/$defs/eagleId"
+                        }
+                    },
+                    "required": [
+                        "category",
+                        "categoryType",
+                        "commitHash",
+                        "dataHash",
+                        "description",
+                        "embedId",
+                        "fields",
+                        "id",
+                        "inputApplicationId",
+                        "name",
+                        "outputApplicationId",
+                        "paletteDownloadUrl",
+                        "parentId",
+                        "repositoryUrl",
+                        "subjectId",
+                        "x",
+                        "y"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "edges": {
+            "type": "object",
+            "patternProperties": {
+                "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "$ref": "#/$defs/eagleId"
+                        },
+                        "closesLoop": {
+                            "type": "boolean"
+                        },
+                        "srcNodeId": {
+                            "$ref": "#/$defs/eagleId"
+                        },
+                        "srcPortId": {
+                            "$ref": "#/$defs/eagleId"
+                        },
+                        "destNodeId": {
+                            "$ref": "#/$defs/eagleId"
+                        },
+                        "destPortId": {
+                            "$ref": "#/$defs/eagleId"
+                        },
+                        "loopAware": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "id",
+                        "srcNodeId",
+                        "srcPortId",
+                        "destNodeId",
+                        "destPortId",
+                        "loopAware",
+                        "closesLoop"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "graphConfigurations": {
+            "type": "object",
+            "patternProperties": {
+                "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "nodes": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": ["number", "string", "boolean", "null"]
+                                },
+                                "comment": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "lastModifiedName": {
+                            "type": "string"
+                        },
+                        "lastModifiedEmail": {
+                            "type": "string"
+                        },
+                        "lastModifiedDatetime": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "nodes",
+                        "lastModifiedName",
+                        "lastModifiedEmail",
+                        "lastModifiedDatetime"
+                    ],
+                    "additionalProperties": false
+                }
+            }
+        },
+        "activeGraphConfigId": {
+             "$ref": "#/$defs/eagleId"
+        }
+    },
+    "required": [
+        "modelData",
+        "nodes",
+        "edges",
+        "graphConfigurations",
+        "activeGraphConfigId"
+    ],
+    "additionalProperties": false
+}
