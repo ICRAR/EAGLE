@@ -871,21 +871,51 @@ export class Field {
     }
 
     static fromV4Json(data: any): Field {
-        const id: FieldId = data.id;
-        const name: string = data.name;
-        const value: string = data.value.toString();
-        const defaultValue: string = data.defaultValue.toString();
-        const description: string = data.description;
-        const readonly: boolean = data.readonly;
-        const type: Daliuge.DataType = data.type;
-        const precious: boolean = data.precious;
-        const options: string[] = data.options;
-        const positional: boolean = data.positional;
-        const parameterType: Daliuge.FieldType = data.parameterType;
-        const usage: Daliuge.FieldUsage = data.usage;
+        let id: FieldId;
+        let name: string;
+        let value: string;
+        let defaultValue: string;
+        let description: string;
+        let readonly: boolean;
+        let type: Daliuge.DataType;
+        let precious: boolean;
+        let options: string[];
+        let positional: boolean;
+        let parameterType: Daliuge.FieldType;
+        let usage: Daliuge.FieldUsage;
 
-        const event: boolean = data.event;
-        const encoding: Daliuge.Encoding = data.encoding;
+        let event: boolean;
+        let encoding: Daliuge.Encoding;
+
+        if (typeof data.id !== 'undefined')
+            id = data.id;
+        if (typeof data.name !== 'undefined')
+            name = data.name;
+        if (typeof data.value !== 'undefined')
+            value = data.value.toString();
+        if (typeof data.defaultValue !== 'undefined')
+            defaultValue = data.defaultValue.toString();
+        if (typeof data.description !== 'undefined')
+            description = data.description;
+        if (typeof data.readonly !== 'undefined')
+            readonly = data.readonly;
+        if (typeof data.type !== 'undefined')
+            type = data.type;
+        if (typeof precious !== 'undefined')
+            precious = data.precious;
+        if (typeof data.options !== 'undefined')
+            options = data.options;
+        if (typeof data.positional !== 'undefined')
+            positional = data.positional;
+        if (typeof data.parameterType !== 'undefined')
+            parameterType = data.parameterType;
+        if (typeof data.usage !== 'undefined')
+            usage = data.usage;
+
+        if (typeof data.event !== 'undefined')
+            event = data.event;
+        if (typeof data.encoding !== 'undefined')
+            encoding = data.encoding;
 
         const f = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         f.isEvent(event);
