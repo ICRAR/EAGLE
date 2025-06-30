@@ -2614,7 +2614,7 @@ export class Utils {
     }
 
     static async loadSchemas(){
-        function _setOJSSchemas(schema: object) : void {
+        const  _setOJSSchemas = function(schema: object) : void {
             Utils.ojsGraphSchema = schema;
             Utils.ojsPaletteSchema = schema;
 
@@ -2624,14 +2624,14 @@ export class Utils {
             }
         }
 
-        function _setV4Schemas(schema: object) : void {
+        const _setV4Schemas = function(schema: object) : void {
             Utils.v4GraphSchema = schema;
             Utils.v4PaletteSchema = schema;
 
             // TODO: hack to introduce difference between palette and graph schemas
         }
 
-        async function _fetchSchema(url: string, localStorageKey: string, setFunc: (schema: object) => void){
+        const _fetchSchema = async function(url: string, localStorageKey: string, setFunc: (schema: object) => void){
             let data;
             let dataObject;
 
