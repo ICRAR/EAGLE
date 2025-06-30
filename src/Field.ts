@@ -901,7 +901,7 @@ export class Field {
             readonly = data.readonly;
         if (typeof data.type !== 'undefined')
             type = data.type;
-        if (typeof precious !== 'undefined')
+        if (typeof data.precious !== 'undefined')
             precious = data.precious;
         if (typeof data.options !== 'undefined')
             options = data.options;
