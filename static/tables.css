@@ -453,11 +453,15 @@
 
 /* overwriting bad bootstrap dropdown placement */
 .eagleTableDisplay .column_Type .dropdown-menu[data-popper-placement~="top-end"],.eagleTableDisplay .column_Type .dropdown-menu[data-popper-placement~="top-start"]{
-    margin-bottom: 19px !important;
+    margin-bottom: 0px !important;
+    inset: auto 0px 100% auto !important;
+    transform: none !important;
 }
 
 .eagleTableDisplay .column_Type .dropdown-menu[data-popper-placement~="bottom-end"],.eagleTableDisplay .column_Type .dropdown-menu[data-popper-placement~="bottom-start"]{
-    margin-top: -15px !important;
+    margin-top: 0px !important;
+    inset: 100% 0px auto auto !important;
+    transform: none !important;
 }
 
 .eagleTableDisplay .typesInput{
