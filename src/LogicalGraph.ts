@@ -293,6 +293,11 @@ export class LogicalGraph {
         return null;
     }
 
+    isInitiated = () : boolean =>{
+        //checks if the user has used the "create graph" or "save" function to initiate the graph
+        return this.fileInfo().name != ""
+    }
+
     addNodeComplete = (node : Node) => {
         this.nodes.push(node);
     }
@@ -346,11 +351,21 @@ export class LogicalGraph {
     }
 
     getInspectorShortDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return 'Edit Short Graph Description: </br>' + Utils.markdown2html(this.fileInfo().shortDescription);
+        let text = 'No short description available'
+        if(this.fileInfo().shortDescription != ''){
+            text = Utils.markdown2html(this.fileInfo().shortDescription)
+        }
+
+        return '***Edit Short Graph Description:*** </br>' + text;
     }, this);
 
     getInspectorDetailedDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return 'Edit Detailed Graph Description: </br>' + Utils.markdown2html(this.fileInfo().detailedDescription);
+        let text = 'No detailed description available'
+        if(this.fileInfo().detailedDescription != ''){
+            text = Utils.markdown2html(this.fileInfo().detailedDescription)
+        }
+        
+        return '***Edit Detailed Graph Description:*** </br>' + text;
     }, this);
 
     setGraphConfigs = (graphConfigs: GraphConfig[]): void => {
@@ -918,6 +933,35 @@ export class LogicalGraph {
         return radius;
     }
 
+
+    getShortDescriptionBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
+        if (this.isInitiated() && this.fileInfo().shortDescription === ""){
+            return EagleConfig.getColor('graphWarning')
+        }
+
+        return ""
+    }, this);
+
+    getDetailedDescriptionBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
+        if (this.isInitiated() && this.fileInfo().detailedDescription === ""){
+            return EagleConfig.getColor('graphWarning')
+        }
+
+        return ""
+    }, this);
+
+    getGraphInfoBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
+         if (this.isInitiated() && (this.fileInfo().detailedDescription === "" || this.fileInfo().shortDescription === "")){
+            return EagleConfig.getColor('graphWarning')
+        }
+        
+        return ""
+    }, this);
+
+
     static isValid () : void {
         //here should be the higher level graph wide checks for graph validity
         const eagle = Eagle.getInstance()
@@ -925,6 +969,24 @@ export class LogicalGraph {
 
         // clear old issues
         graph.issues([]);
+
+        //if the graph has been user created but does not have a description, warn the user
+        if (graph.isInitiated() && graph.fileInfo().shortDescription === ''){
+            const issue: Errors.Issue = Errors.Show(
+                "Graph does not have a short description.",
+                function(){eagle.editGraphShortDescription()}
+            );
+            graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
+        }
+
+        //if the graph has been user created but does not have a description, warn the user
+        if (graph.isInitiated() && graph.fileInfo().detailedDescription === ''){
+            const issue: Errors.Issue = Errors.Show(
+                "Graph does not have a detailed description.",
+                function(){eagle.editGraphDetailedDescription()}
+            );
+            graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
+        }
 
         // check that all node, edge, field, and config ids are unique
         const ids : string[] = [];

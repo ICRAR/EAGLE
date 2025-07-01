@@ -510,7 +510,6 @@
 
 .eagleTableDisplay td button.parameterTableEditParam, .eagleTableDisplay td button.parameterTableCommentBtn, #modelDataModalTable td button.modelDataTableEditParam {
     position: absolute;
-    display: none;
     font-size: 12px;
     padding: 0px;
     height: 20px;
@@ -525,6 +524,10 @@
 
 .eagleTableDisplay  td:hover button.parameterTableEditParam{
     display:inline-block;
+}
+
+#modelDataModalTable th:first-of-type{
+    width: 250px;
 }
 
 #modelDataModalTable td:hover button.modelDataTableEditParam{

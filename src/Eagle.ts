@@ -2678,7 +2678,7 @@ export class Eagle {
             }
 
             // abort if graph has no filename
-            if (graph.fileInfo().name === "") {
+            if (!graph.isInitiated()) {
                 // abort and notify user
                 Utils.showNotification("Unable to save Graph with no name", "Please name the graph before saving", "danger");
                 return;
