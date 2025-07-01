@@ -67,7 +67,7 @@ import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 export class Eagle {
     static _instance : Eagle;
 
-    palettes : ko.ObservableArray<Palette>; // TODO: change to a Map?
+    palettes : ko.ObservableArray<Palette>;
     logicalGraph : ko.Observable<LogicalGraph>;
     tutorial : ko.Observable<Tutorial>;
 

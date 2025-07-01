@@ -790,22 +790,9 @@ export class LogicalGraph {
             }
         }
 
-        // delete children
-        // TODO: redo once we have node.children
-        for (let i = this.nodes().size - 1; i >= 0 ; i--){
-            // check that iterator still points to a valid element in the nodes array
-            // a check like this wouldn't normally be necessary, but we are deleting elements from the array within the loop, so it might be shorter than we expect
-            if (i >= this.nodes().size){
-                continue;
-            }
-
-            // TODO: can we use an id here?
-            const node: Node = Array.from(this.nodes().values())[i];
-            const parent: Node = node.getParent();
-
-            if (parent !== null && parent.getId() === id){
-                this.removeNode(node);
-            }
+        // delete children of this node
+        for (const child of node.getChildren()){
+            this.removeNode(child);
         }
 
         // remove inputApplication and outputApplication from the nodes map
