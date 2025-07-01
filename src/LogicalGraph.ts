@@ -954,10 +954,10 @@ export class LogicalGraph {
 
     getGraphInfoBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
         //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
-        if (this.isInitiated() && this.fileInfo().detailedDescription === "" || this.fileInfo().name != "" && this.fileInfo().shortDescription === ""){
+         if (this.isInitiated() && (this.fileInfo().detailedDescription === "" || this.fileInfo().shortDescription === "")){
             return EagleConfig.getColor('graphWarning')
         }
-
+        
         return ""
     }, this);
 
