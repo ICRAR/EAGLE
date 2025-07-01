@@ -288,8 +288,8 @@ export class Edge {
             closesLoop = linkData.closesLoop;
         }
 
-        let srcNode: Node = null;
-        let destNode: Node = null;
+        let srcNode: Node;
+        let destNode: Node;
         let srcPort: Field;
         let destPort: Field;
 
@@ -324,6 +324,14 @@ export class Edge {
         }
 
         // check if source and destination nodes and ports were found
+        if (typeof srcNode === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Could not find source node for edge"));
+            return null;
+        }
+        if (typeof destNode === 'undefined'){
+            errorsWarnings.warnings.push(Errors.Message("Could not find destination node for edge"));
+            return null;
+        }
         if (typeof srcPort === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Could not find source port for edge"));
             return null;
@@ -333,7 +341,6 @@ export class Edge {
             return null;
         }
 
-        // TODO: validate ids
         return new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
     }
 
