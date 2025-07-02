@@ -4496,6 +4496,20 @@ export class Eagle {
         this.selectedNode().setDescription(nodeDescription);
     }
 
+    editNodeComment = async (): Promise<void> => {
+        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+
+        let nodeComment: string;
+        try {
+            nodeComment = await Utils.requestUserMarkdown("Node Comment", this.selectedNode().getComment(), markdownEditingEnabled);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        this.selectedNode().setComment(nodeComment);
+    }
+
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
         let categoryType: Category.Type = Category.Type.Unknown;
 

@@ -179,11 +179,11 @@ export class Node {
     }
 
     getComment = () : string => {
-        return this.description();
+        return this.comment();
     }
 
     setComment = (comment : string) : void => {
-        this.description(comment);
+        this.comment(comment);
     }
 
     getPosition = () : {x:number, y:number} => {
