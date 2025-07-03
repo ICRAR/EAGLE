@@ -109,11 +109,11 @@ export class RightClick {
 
         // add nodes from each palette
         palettes.forEach(function(palette){
-            paletteList += RightClick.constructHtmlPaletteList(palette.getNodes(),'addNode',null,palette.fileInfo().name,null)
+            paletteList += RightClick.constructHtmlPaletteList(Array.from(palette.getNodes()),'addNode',null,palette.fileInfo().name,null)
         })
 
         // add nodes from the logical graph
-        paletteList += RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(),'addNode',null,'Graph',null)
+        paletteList += RightClick.constructHtmlPaletteList(Array.from(eagle.logicalGraph().getNodes()),'addNode',null,'Graph',null)
 
         return paletteList
     }
@@ -125,44 +125,44 @@ export class RightClick {
         const palettes = eagle.palettes();
 
         palettes.forEach(function(palette){
-            paletteList += RightClick.constructHtmlPaletteList(palette.getNodes(), 'addAndConnect', compatibleNodesList, palette.fileInfo().name,null)
+            paletteList += RightClick.constructHtmlPaletteList(Array.from(palette.getNodes()), 'addAndConnect', compatibleNodesList, palette.fileInfo().name,null)
         })
 
-        paletteList += RightClick.constructHtmlPaletteList(eagle.logicalGraph().getNodes(), 'addAndConnect', compatibleNodesList, 'Graph',null)
+        paletteList += RightClick.constructHtmlPaletteList(Array.from(eagle.logicalGraph().getNodes()), 'addAndConnect', compatibleNodesList, 'Graph',null)
         return paletteList
     }
 
-    static  createHtmlEligibleEmbeddedNodesList(nodeType:Category.Type,passedObjectClass:string) : string {
+    static createHtmlEligibleEmbeddedNodesList(nodeType:Category.Type,passedObjectClass:string) : string {
         const eagle: Eagle = Eagle.getInstance();
 
         let paletteList:string = ''
-        const palettes = eagle.palettes()
+        
 
         // sorting and adding nodes from each palette
-        palettes.forEach(function(palette){
+        for (const palette of eagle.palettes()){
             const paletteNodes:Node[] = []
 
-            palette.getNodes().forEach(function(paletteNode){
+            for (const paletteNode of palette.getNodes()){
                 if(paletteNode.getCategoryType() === nodeType){
                     paletteNodes.push(paletteNode)
                 }
-            })
+            }
             paletteList += RightClick.constructHtmlPaletteList(paletteNodes,'embedNode',null,palette.fileInfo().name,passedObjectClass)
-        })
+        }
 
         //sorting and adding compatible nodes from the graph
         const graphNodes:Node[]=[]
-        eagle.logicalGraph().getNodes().forEach(function(graphNode){
+        for (const graphNode of eagle.logicalGraph().getNodes()){
             if(graphNode.getCategoryType() === nodeType){
                 graphNodes.push(graphNode)
             }
-        })
+        }
         paletteList += RightClick.constructHtmlPaletteList(graphNodes,'embedNode',null,'Graph',passedObjectClass)
 
         return paletteList
     }
 
-    static constructHtmlPaletteList(collectionOfNodes:Node[], mode:string, compatibleNodesList:Node[],paletteName:string,embedMode:String) : string {
+    static constructHtmlPaletteList(collectionOfNodes:Node[], mode: "addNode" | "addAndConnect" | "embedNode", compatibleNodesList:Node[],paletteName:string,embedMode:String) : string {
         let nodesHtml = ''
         let nodeFound = false
         let htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu(this)' onmouseleave='RightClick.closeSubMenu(this)'>"+paletteName
@@ -259,8 +259,6 @@ export class RightClick {
 
 
     static getNodeDescriptionDropdown() : string {
-        const eagle: Eagle = Eagle.getInstance();
-
         const node = Eagle.selectedRightClickObject()
 
         let htmlNodeDescription = "<span class='contextmenuNodeDescription' onmouseover='RightClick.openSubMenu(this)' onmouseleave='RightClick.closeSubMenu(this)'> Node Info"
