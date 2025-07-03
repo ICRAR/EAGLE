@@ -8,10 +8,6 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/EAGLE/);
 
-  //--------ENABLE EXPERT MODE----------
-  //open settings modal via keyboard shortcut
-  await page.press('body','o');
-
   // set 'Expert' UI mode
   await TestHelpers.setUIMode(page, "Expert");
 
