@@ -1040,6 +1040,7 @@ export class GraphRenderer {
 
     static startDrag(node: Node, event: MouseEvent) : void {
         //if we click on the title of a node, cancel the drag handler
+        console.log(event.target)
         if($(event.target).hasClass('changingHeader')){
             event.preventDefault()
             event.stopPropagation()

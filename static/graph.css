@@ -405,6 +405,22 @@
     color: black;
 }
 
+.node .header i{
+    position: absolute;
+    top: -4px;
+    right: -10px;
+    font-size: 15px;
+    color: rgb(235 255 0);
+    text-shadow: 0 0 3px black;
+}
+
+.node .header.graphDataNode i{
+    top: auto;
+    bottom: -5px;
+    transform: scaleY(-1);
+
+}
+
 .node.transition{
     transition: width .2s cubic-bezier(0.68, 2.15, 0.5, 0.75), height .2s cubic-bezier(0.68, 2.15, 0.5, 0.75);
     
